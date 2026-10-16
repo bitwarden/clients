@@ -49,6 +49,7 @@ describe("SendSdkApiService", () => {
     create_file_send: jest.Mock;
     upload_send_file: jest.Mock;
     delete: jest.Mock;
+    remove_password: jest.Mock;
   };
 
   /** What `create_file_send` hands back: the created send plus everything the upload needs. */
@@ -80,6 +81,7 @@ describe("SendSdkApiService", () => {
       create_file_send: jest.fn().mockResolvedValue(createFileSendResponse),
       upload_send_file: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
+      remove_password: jest.fn().mockResolvedValue(undefined),
     };
     const client = {
       take: jest.fn().mockReturnValue({
@@ -198,15 +200,87 @@ describe("SendSdkApiService", () => {
     });
   });
 
-  describe("save guards", () => {
-    it("rejects new file sends, which require the legacy service", async () => {
+  describe("save routing", () => {
+    // The buffer `save` receives is already encrypted under a client-generated key, and the
+    // SDK generates its own key on create, so new file sends can only be created by legacy.
+    // `saveView` carries the plaintext instead and creates file sends through the SDK.
+    it("delegates new file sends to the legacy service", async () => {
       const send = new Send();
       send.id = null;
       send.type = SendType.File;
+      const buffer = mock<EncArrayBuffer>();
 
-      await expect(service.save([send, mock<EncArrayBuffer>()])).rejects.toThrow(
-        "SendSdkApiService.save: file send creation requires SendApiService.",
-      );
+      await service.save([send, buffer]);
+
+      expect(legacySendApiService.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sendsClient.create).not.toHaveBeenCalled();
+      expect(sendsClient.create_file_send).not.toHaveBeenCalled();
+    });
+
+    it("forwards the plaintext password to the legacy service for a new file send", async () => {
+      const send = new Send();
+      send.id = null;
+      send.type = SendType.File;
+      send.authType = AuthType.Password;
+      const buffer = mock<EncArrayBuffer>();
+
+      await service.save([send, buffer], "hunter2");
+
+      expect(legacySendApiService.save).toHaveBeenCalledWith([send, buffer], "hunter2");
+    });
+
+    it("edits an existing file send through the SDK", async () => {
+      const existingId = Utils.newGuid();
+      const view = textView({
+        id: existingId,
+        type: SendType.File,
+        authType: AuthType.None,
+        file: Object.assign(new SendFileView(), { fileName: "notes.txt" }),
+      });
+      const send = sendResolvingTo(view, existingId);
+
+      await service.save([send, mock<EncArrayBuffer>()]);
+
+      expect(sendsClient.edit).toHaveBeenCalled();
+      expect(legacySendApiService.save).not.toHaveBeenCalled();
+    });
+
+    it("creates a text send through the SDK", async () => {
+      const send = sendResolvingTo(textView({ authType: AuthType.None }), null);
+
+      await service.save([send, mock<EncArrayBuffer>()]);
+
+      expect(sendsClient.create).toHaveBeenCalled();
+      expect(legacySendApiService.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("SDK-only mutations", () => {
+    const sendId = Utils.newGuid();
+
+    it.each([
+      ["delete", (s: SendSdkApiService) => s.delete(sendId), "delete"],
+      ["deleteSend", (s: SendSdkApiService) => s.deleteSend(sendId), "delete"],
+      ["removePassword", (s: SendSdkApiService) => s.removePassword(sendId), "remove_password"],
+    ] as const)("%s goes through the SDK, not legacy", async (methodName, invoke, sdkMethod) => {
+      await invoke(service);
+
+      expect(sendsClient[sdkMethod]).toHaveBeenCalledWith(sendId);
+      expect(legacySendApiService[methodName]).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("legacy delegation for wire-encrypted reads", () => {
+    // These return wire-encrypted shapes the SDK cannot produce (it only exposes plaintext views).
+    it.each([
+      ["getSend", (s: SendSdkApiService) => s.getSend("id"), ["id"]],
+      ["getSends", (s: SendSdkApiService) => s.getSends(), []],
+      ["putSendRemovePassword", (s: SendSdkApiService) => s.putSendRemovePassword("id"), ["id"]],
+    ] as const)("%s delegates to the legacy service", async (methodName, invoke, expectedArgs) => {
+      await invoke(service);
+
+      expect(legacySendApiService[methodName]).toHaveBeenCalledWith(...expectedArgs);
+      expect(sdkService.userClient$).not.toHaveBeenCalled();
     });
   });
 
@@ -224,9 +298,6 @@ describe("SendSdkApiService", () => {
       (sdkService as { client$: unknown }).client$ = of(sharedAccessClient);
     });
 
-    // `apiUrl` is part of the shared SendApiService contract (legacy honours it for
-    // cross-instance receive); SendApiServiceSelector always routes those calls to legacy, so it
-    // never reaches here. These calls always use the shared client regardless.
     it.each([
       ["postSendAccess", (s: SendSdkApiService) => s.postSendAccess(accessToken)],
       [
@@ -237,10 +308,37 @@ describe("SendSdkApiService", () => {
             accessToken,
           ),
       ],
-    ])("%s uses the shared client", async (_name, invoke) => {
+    ])("%s uses the shared client when no apiUrl is given", async (_name, invoke) => {
       await invoke(service);
 
       expect(sharedAccessClient.sends).toHaveBeenCalled();
+    });
+
+    // `apiUrl` signals a cross-instance Send (e.g. the CLI receiving a self-hosted Send link while
+    // signed in elsewhere). It is not a reliable cross-instance signal at the call site (see PR
+    // #22321 review discussion), so any `apiUrl` goes to legacy — the SDK client can only target
+    // its own configured environment.
+    it("delegates postSendAccess with an apiUrl to the legacy service", async () => {
+      await service.postSendAccess(accessToken, "https://other.example");
+
+      expect(legacySendApiService.postSendAccess).toHaveBeenCalledWith(
+        accessToken,
+        "https://other.example",
+      );
+      expect(sharedAccessClient.sends).not.toHaveBeenCalled();
+    });
+
+    it("delegates getSendFileDownloadData with an apiUrl to the legacy service", async () => {
+      const accessView = { id: "id", file: { id: "file-id" } } as SendAccessView;
+
+      await service.getSendFileDownloadData(accessView, accessToken, "https://other.example");
+
+      expect(legacySendApiService.getSendFileDownloadData).toHaveBeenCalledWith(
+        accessView,
+        accessToken,
+        "https://other.example",
+      );
+      expect(sharedAccessClient.sends).not.toHaveBeenCalled();
     });
   });
 

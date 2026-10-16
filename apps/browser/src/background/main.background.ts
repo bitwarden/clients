@@ -213,7 +213,6 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
@@ -1237,7 +1236,6 @@ export default class MainBackground {
 
     this.sendDecryptionService = new SendDecryptionService(
       this.sdkService,
-      this.configService,
       this.legacyCompatKeyService,
     );
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
@@ -1248,7 +1246,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
       this.sdkService,
       this.sendDecryptionService,
     );
@@ -1257,17 +1254,13 @@ export default class MainBackground {
       this.fileUploadService,
       this.sendService,
     );
-    this.sendApiService = new SendApiServiceSelector(
-      this.configService,
+    this.sendApiService = new SendSdkApiService(
+      this.sdkService,
       legacySendApiService,
-      new SendSdkApiService(
-        this.sdkService,
-        legacySendApiService,
-        this.sendService,
-        this.accountService,
-        this.logService,
-        this.sendDecryptionService,
-      ),
+      this.sendService,
+      this.accountService,
+      this.logService,
+      this.sendDecryptionService,
     );
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);

@@ -12,14 +12,12 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { withPasswordManagerSdk } from "../../key-management/utils";
 import {
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
-import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -246,24 +244,14 @@ export abstract class CoreSyncService implements SyncService {
           (!isEdit && localSend == null) ||
           (isEdit && localSend != null && localSend.revisionDate < notification.revisionDate)
         ) {
-          const useSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
-          if (useSdk) {
-            // sdk.sends().fetch() already persists into SEND_USER_ENCRYPTED, so no explicit
-            // upsert here.
-            const sdkSend = await withPasswordManagerSdk(activeUserId, this.sdkService, (sdk) =>
-              sdk.sends().fetch(asUuid<SdkSendId>(notification.id)),
-            );
-            if (sdkSend != null) {
-              this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
-              return this.syncCompleted(true, activeUserId);
-            }
-          } else {
-            const remoteSend = await this.sendApiService.getSend(notification.id);
-            if (remoteSend != null) {
-              await this.sendService.upsert(new SendData(remoteSend));
-              this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
-              return this.syncCompleted(true, activeUserId);
-            }
+          // sdk.sends().fetch() already persists into SEND_USER_ENCRYPTED, so no explicit
+          // upsert here.
+          const sdkSend = await withPasswordManagerSdk(activeUserId, this.sdkService, (sdk) =>
+            sdk.sends().fetch(asUuid<SdkSendId>(notification.id)),
+          );
+          if (sdkSend != null) {
+            this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
+            return this.syncCompleted(true, activeUserId);
           }
         }
       } catch (e) {

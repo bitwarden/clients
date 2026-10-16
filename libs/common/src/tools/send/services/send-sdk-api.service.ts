@@ -48,10 +48,19 @@ import { InternalSendService } from "./send.service.abstraction";
 export const MAX_SDK_FILE_SEND_SIZE_BYTES = 500 * 1024 * 1024;
 
 /**
- * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
- * then refetch via legacy to keep `InternalSendService` populated with `EncString`-shaped
- * data. Methods returning wire-encrypted shapes have no SDK equivalent and are routed to
- * legacy by `SendApiServiceSelector`; the throw-stubs here guard direct callers.
+ * The registered `SendApiService` implementation. Mutations and same-instance access go
+ * through the SDK; save/removePassword then refetch via the legacy {@link SendApiService} to
+ * keep `InternalSendService` populated with `EncString`-shaped data.
+ *
+ * A few calls delegate straight to the legacy service because the SDK cannot serve them:
+ * - Methods whose return type is a wire-encrypted shape the SDK cannot produce (`getSend`,
+ *   `getSends`, `putSendRemovePassword`); the SDK only exposes plaintext views.
+ * - New file sends through {@link save}, whose buffer is already encrypted under a
+ *   client-generated key (see {@link save}).
+ * - Cross-instance access. A "cross-instance Send" is a Send hosted on a different Bitwarden
+ *   server than the client is signed in to — typically the CLI receiving a self-hosted or
+ *   EU-cloud Send link. Callers signal this by passing `apiUrl`; those calls go to legacy,
+ *   since the SDK client only targets its own configured environment.
  */
 export class SendSdkApiService implements SendApiServiceAbstraction {
   constructor(
@@ -69,12 +78,10 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * New file sends cannot be handled through this method and are routed to legacy by
-   * `SendApiServiceSelector`; it rejects them as a guard for direct callers:
-   * `SendService.encrypt` produces a pre-encrypted buffer under a client-derived key,
-   * while the SDK's `create_file_send` generates its own key. {@link saveView} carries the
-   * plaintext file contents instead, and is the entry point that can create file sends
-   * through the SDK.
+   * New file sends delegate to the legacy service: `SendService.encrypt` produces a
+   * pre-encrypted buffer under a client-derived key, while the SDK's `create_file_send`
+   * generates its own key, so the two can never match. {@link saveView} carries the plaintext
+   * file contents instead, and is the entry point that creates file sends through the SDK.
    *
    * Password-protected sends route through the SDK. On create or password-change the caller
    * forwards the plaintext `password`, which `buildSendAuth` hands to the SDK's high-level
@@ -83,14 +90,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * password the caller has no plaintext; `buildSendAuthEdit` emits `AuthEdit::Preserve`,
    * which the SDK resolves against its own stored Send, so the client never needs to know
    * or resend the existing password hash. The plaintext password is Protected Data and is
-   * never logged.
+   * never logged. It is forwarded unchanged to the legacy service for new file sends, which
+   * ignores it.
    */
   async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
-      throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
+      return this.legacySendApiService.save(sendData, plaintextPassword);
     }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const sendView = await this.sendDecryptionService.decryptSend(send, userId);
     const sdkView = await this.mutateSend(sendView, userId, plaintextPassword);
 
@@ -194,47 +202,42 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   }
 
   /**
-   * Not supported via SDK — returns wire-encrypted `SendResponse`, which the SDK cannot
-   * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
-   * direct callers that bypass the selector.
+   * Delegates to the legacy service. Returns a wire-encrypted `SendResponse`, which the SDK
+   * cannot produce (the SDK only exposes plaintext views).
    */
-  getSend(_id: string): Promise<SendResponse> {
-    return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
+  getSend(id: string): Promise<SendResponse> {
+    return this.legacySendApiService.getSend(id);
   }
 
   /**
-   * `apiUrl` is part of the shared `SendApiService` contract for cross-instance receive (the CLI
-   * opening a Send hosted on another Bitwarden instance) — legacy honours it, but
-   * `SendApiServiceSelector` always routes those calls to legacy regardless of the flag, since the
-   * SDK client only targets its own configured environment. It never reaches here.
+   * Accesses a send through the SDK, or through the legacy service whenever `apiUrl` is
+   * supplied (cross-instance receive, e.g. the CLI opening a self-hosted Send link while signed
+   * in to a different server) because the SDK client targets only its configured environment.
    */
-  async postSendAccess(
-    accessToken: SendAccessToken,
-    _apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
+    if (apiUrl != null) {
+      return this.legacySendApiService.postSendAccess(accessToken, apiUrl);
+    }
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
   }
 
   /**
-   * Not supported via SDK — returns wire-encrypted `ListResponse<SendResponse>`, which
-   * the SDK cannot produce. `SendApiServiceSelector` routes calls to `SendApiService`;
-   * this stub catches direct callers that bypass the selector.
+   * Delegates to the legacy service. Returns a wire-encrypted list of `SendResponse`, which the
+   * SDK cannot produce; see {@link getSend}.
    */
   getSends(): Promise<ListResponse<SendResponse>> {
-    return Promise.reject(new Error("SendSdkApiService.getSends: use SendApiService."));
+    return this.legacySendApiService.getSends();
   }
 
   /**
-   * Not supported via SDK — returns wire-encrypted `SendResponse`, which the SDK cannot
-   * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
-   * direct callers that bypass the selector.
+   * Delegates to the legacy service. {@link removePassword} is the higher-level flow that also
+   * refreshes local state; this lower-level method returns a wire-encrypted `SendResponse` the
+   * SDK cannot produce.
    */
-  putSendRemovePassword(_id: string): Promise<SendResponse> {
-    return Promise.reject(
-      new Error("SendSdkApiService.putSendRemovePassword: use SendApiService."),
-    );
+  putSendRemovePassword(id: string): Promise<SendResponse> {
+    return this.legacySendApiService.putSendRemovePassword(id);
   }
 
   async deleteSend(id: string): Promise<any> {
@@ -256,12 +259,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
-  /** See {@link postSendAccess} — `apiUrl` never reaches here either. */
+  /** See {@link postSendAccess} — cross-instance callers (those passing `apiUrl`) go to legacy. */
   async getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
-    _apiUrl?: string,
+    apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
+    if (apiUrl != null) {
+      return this.legacySendApiService.getSendFileDownloadData(send, accessToken, apiUrl);
+    }
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
     return new SendFileDownloadDataResponse(data);

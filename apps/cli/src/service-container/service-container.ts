@@ -153,7 +153,6 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
@@ -344,7 +343,7 @@ export class ServiceContainer {
   folderApiService: FolderApiService;
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
-  sendApiService: SendApiServiceSelector;
+  sendApiService: SendSdkApiService;
   sendDecryptionService: SendDecryptionService;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
@@ -721,7 +720,6 @@ export class ServiceContainer {
 
     this.sendDecryptionService = new SendDecryptionService(
       this.sdkService,
-      this.configService,
       this.legacyCompatKeyService,
     );
 
@@ -732,7 +730,6 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
       this.sdkService,
       this.sendDecryptionService,
     );
@@ -743,17 +740,13 @@ export class ServiceContainer {
       this.sendService,
     );
 
-    this.sendApiService = new SendApiServiceSelector(
-      this.configService,
+    this.sendApiService = new SendSdkApiService(
+      this.sdkService,
       legacySendApiService,
-      new SendSdkApiService(
-        this.sdkService,
-        legacySendApiService,
-        this.sendService,
-        this.accountService,
-        this.logService,
-        this.sendDecryptionService,
-      ),
+      this.sendService,
+      this.accountService,
+      this.logService,
+      this.sendDecryptionService,
     );
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);

@@ -16,8 +16,6 @@ import {
 } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -61,7 +59,6 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
-    private configService: ConfigService,
     private sdkService: SdkService,
     private sendDecryptionService: SendDecryptionService,
   ) {}
@@ -150,9 +147,9 @@ export class SendService implements InternalSendServiceAbstraction {
           fileData = await this.parseFile(send, file, model.cryptoKey, userId);
         }
       } else if (model.file.fileName) {
-        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
-        // the `file.fileName` field is required for the edit to succeed (this is enforced both by the SDK and
-        // by `send-sdk-api.service` even though the server doesn't perform any edits with the field).
+        // When editing an existing File Send the `file.fileName` field is required for the edit to
+        // succeed (this is enforced both by the SDK and by `send-sdk-api.service` even though the
+        // server doesn't perform any edits with the field).
         send.file.fileName = await this.encryptService.encryptString(
           model.file.fileName,
           model.cryptoKey,
@@ -327,34 +324,11 @@ export class SendService implements InternalSendServiceAbstraction {
 
     const req = await firstValueFrom(
       this.sends$.pipe(
-        concatMap(async (sends) =>
-          this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey, userId),
-        ),
+        concatMap(async (sends) => this.toRotatedKeyRequestMap(sends, newUserKey, userId)),
       ),
     );
     // separate return for easier debugging
     return req;
-  }
-
-  private async toRotatedKeyRequestMap(
-    sends: Send[],
-    originalUserKey: UserKey,
-    rotateUserKey: UserKey,
-    userId: UserId,
-  ): Promise<SendWithIdRequest[]> {
-    if (await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi)) {
-      return this.toRotatedKeyRequestMapSdk(sends, rotateUserKey, userId);
-    }
-
-    const requests = await Promise.all(
-      sends.map(async (send) => {
-        // Send key is not a key but a 16 byte seed used to derive the key
-        const sendKey = await this.encryptService.decryptBytes(send.key, originalUserKey);
-        send.key = await this.encryptService.encryptBytes(sendKey, rotateUserKey);
-        return new SendWithIdRequest(send);
-      }),
-    );
-    return requests;
   }
 
   /**
@@ -363,7 +337,7 @@ export class SendService implements InternalSendServiceAbstraction {
    * is decrypted to a `SendView` (the SDK's `encrypt_send_for_rotation` rotates the decrypted
    * view), rotated, then converted back to a domain `Send` for the `SendWithIdRequest`.
    */
-  private async toRotatedKeyRequestMapSdk(
+  private async toRotatedKeyRequestMap(
     sends: Send[],
     rotateUserKey: UserKey,
     userId: UserId,
