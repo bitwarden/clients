@@ -4,6 +4,8 @@
 <app-header [title]="title()">
   @if (showBreadcrumbs()) {
     <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
+  } @else if (scopedFolderId(); as folderId) {
+    <vault-my-folder-breadcrumbs slot="breadcrumbs" [folderId]="folderId" />
   } @else if (headerTile(); as tile) {
     <bit-icon-tile
       slot="title-prefix"
@@ -14,6 +16,10 @@
       size="sm"
       aria-hidden="true"
     />
+  }
+
+  @if (scopedFolderId(); as folderId) {
+    <vault-my-folder-menu slot="title-suffix" [folderId]="folderId" />
   }
 </app-header>
 

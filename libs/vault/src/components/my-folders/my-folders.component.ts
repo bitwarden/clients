@@ -10,14 +10,11 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { combineLatest, firstValueFrom, lastValueFrom, map, switchMap } from "rxjs";
+import { combineLatest, lastValueFrom, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
@@ -38,7 +35,6 @@ import {
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
-  ToastService,
   TooltipDirective,
   defineTable,
 } from "@bitwarden/components";
@@ -46,6 +42,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
 import { folderCommands } from "../../models/vault-scope";
+import { MyFolderActionsService } from "../../services/my-folder-actions.service";
 import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
 
@@ -88,11 +85,8 @@ export class MyFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly dialogService = inject(DialogService);
-  private readonly folderApiService = inject(FolderApiServiceAbstraction);
+  private readonly folderActions = inject(MyFolderActionsService);
   private readonly folderService = inject(FolderService);
-  private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
-  private readonly toastService = inject(ToastService);
 
   private readonly tableRef = viewChild(BitTableV2Component<FolderTableRow>);
 
@@ -166,31 +160,11 @@ export class MyFoldersComponent {
   }
 
   protected async editFolder(row: FolderTableRow): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const folder = await firstValueFrom(this.folderService.getDecrypted$(row.id, userId));
-
-    if (folder == null) {
-      return;
-    }
-
-    await lastValueFrom(
-      AddEditFolderDialogComponent.open(this.dialogService, {
-        editFolderConfig: { folder: { ...folder } },
-        hideDelete: true,
-      }).closed,
-    );
+    await this.folderActions.edit(row.id);
   }
 
   protected async deleteFolder(row: FolderTableRow): Promise<void> {
-    const confirmed = await lastValueFrom(
-      openDeleteFolderDialog(this.dialogService, { folderName: row.displayName }).closed,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    await this.deleteFolders([row.id], "deletedFolder");
+    await this.folderActions.delete(row);
   }
 
   protected readonly deleteSelected = async (): Promise<void> => {
@@ -213,33 +187,9 @@ export class MyFoldersComponent {
       return;
     }
 
-    await this.deleteFolders(
+    await this.folderActions.deleteFolders(
       selected.map((row) => row.id),
       "foldersDeleted",
     );
   };
-
-  private async deleteFolders(ids: string[], successMessageKey: string): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    try {
-      if (ids.length === 1) {
-        await this.folderApiService.delete(ids[0], userId);
-      } else {
-        await this.folderApiService.deleteMany(ids, userId);
-      }
-    } catch (e) {
-      this.logService.error("Error deleting folders", e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("errorOccurred"),
-      });
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t(successMessageKey),
-    });
-  }
 }

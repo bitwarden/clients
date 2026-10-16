@@ -16,6 +16,7 @@ import {
   collectionInScope,
   defaultUserCollectionId,
   folderNameForScope,
+  foldersListCommands,
   hasMultipleVaults,
   isMyVaultScope,
   isPersonalOnly,
@@ -700,6 +701,10 @@ describe("a folder scope", () => {
   it("builds its route from the folder's own page, outside the vault's base path", () => {
     expect(vaultScopeCommands(folderScope)).toEqual(["/folders", folderId]);
     expect(vaultScopeCommands(folderScope, "/tabs/vault")).toEqual(["/folders", folderId]);
+  });
+
+  it("builds the route to the My folders list", () => {
+    expect(foldersListCommands()).toEqual(["/folders"]);
   });
 
   it("keys each folder apart from every other scope and folder", () => {
