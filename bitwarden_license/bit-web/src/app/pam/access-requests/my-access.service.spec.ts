@@ -56,8 +56,8 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
     organizationId: "org-1",
     requesterId: "user-1",
     status: "active",
-    notBefore: "2024-01-01T00:00:00.000Z",
-    notAfter: "2024-01-01T01:00:00.000Z",
+    notBefore: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    notAfter: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     termination: undefined,
     ...overrides,
   } as unknown as AccessLeaseView;
@@ -94,6 +94,57 @@ describe("MyAccessService", () => {
     });
 
     service = TestBed.inject(MyAccessService);
+  });
+
+  describe("a lease running out on its own", () => {
+    it("drops a lease whose window has closed, whatever its status says", async () => {
+      leasesApi.listMyLeases.mockResolvedValue([
+        lease("lease-live"),
+        lease("lease-lapsed", {
+          notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+        }),
+      ]);
+
+      await service.load();
+
+      const ids = (await firstValueFrom(service.leases$)).map((row) => row.id);
+      expect(ids).toEqual(["lease-live"]);
+    });
+
+    it("re-reads when the soonest-ending lease is due to lapse", async () => {
+      jest.useFakeTimers();
+      try {
+        leasesApi.listMyLeases.mockResolvedValue([
+          lease("lease-1", { notAfter: new Date(Date.now() + 60 * 1000).toISOString() }),
+        ]);
+
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(60 * 1000 + 1);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBeGreaterThan(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it("schedules nothing while the caller holds no lease", async () => {
+      jest.useFakeTimers();
+      try {
+        await service.load();
+        const callsAfterLoad = leasesApi.listMyLeases.mock.calls.length;
+
+        jest.advanceTimersByTime(24 * 60 * 60 * 1000);
+        await Promise.resolve();
+
+        expect(leasesApi.listMyLeases.mock.calls.length).toBe(callsAfterLoad);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
   });
 
   describe("load", () => {
