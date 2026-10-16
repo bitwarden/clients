@@ -11,6 +11,14 @@ import { ProjectDeleteCommand } from "./projects/project-delete.command";
 import { ProjectEditCommand } from "./projects/project-edit.command";
 import { ProjectGetCommand } from "./projects/project-get.command";
 import { ProjectListCommand } from "./projects/project-list.command";
+import { SecretCreateCommand } from "./secrets/secret-create.command";
+import { SecretDeleteCommand } from "./secrets/secret-delete.command";
+import { SecretEditCommand } from "./secrets/secret-edit.command";
+import { SecretGetCommand } from "./secrets/secret-get.command";
+import { SecretListCommand } from "./secrets/secret-list.command";
+import { SecretRestoreVersionCommand } from "./secrets/secret-restore-version.command";
+import { SecretVersionsCommand } from "./secrets/secret-versions.command";
+import { SmTemplateObjects, TemplateCommand } from "./templates/template.command";
 
 const writeLn = CliUtils.writeLn;
 
@@ -40,10 +48,14 @@ export class SmProgram extends BaseProgram {
       )
       .hook("preAction", () => this.exitIfFeatureFlagDisabled(FeatureFlag.SmCli))
       .addCommand(this.projectCommand())
+      .addCommand(this.secretCommand())
+      .addCommand(this.templateCommand())
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
         writeLn("    bw sm project list --organizationid <organizationid>");
+        writeLn("    bw sm secret list --organizationid <organizationid> --projectid <projectid>");
+        writeLn("    bw sm template sm-secret");
         writeLn("", true);
       });
   }
@@ -164,5 +176,205 @@ export class SmProgram extends BaseProgram {
             this.processResponse(response);
           }),
       );
+  }
+
+  private secretCommand(): Command {
+    return new Command("secret")
+      .description("Manage Secrets Manager secrets.")
+      .addCommand(
+        new Command("list")
+          .description("List the secrets you can access in an organization or project.")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .option("--projectid <projectid>", "Only list secrets in this project")
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Secret values are not included. Use `bw sm secret get` to read a value.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn("    bw sm secret list --organizationid <organizationid>");
+            writeLn(
+              "    bw sm secret list --organizationid <organizationid> --projectid <projectid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (options: OrgOptions & { projectid?: string }) => {
+            await this.exitIfLocked();
+            const response = await SecretListCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              options.projectid,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("get")
+          .description("Get a secret, including its value.")
+          .argument("<secretId>", "The id of the secret")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn("    bw sm secret get <secretId> --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (secretId: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await SecretGetCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              secretId,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("create")
+          .description("Create a secret.")
+          .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    `key` is required. `projectIds` may contain at most one project id.");
+            writeLn("    Only organization admins can create a secret without a project.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              '    bw sm template sm-secret | jq \'.key="DB_PASSWORD" | .value="hunter2" | .projectIds=["<projectId>"]\' | bw encode | bw sm secret create --organizationid <organizationid>',
+            );
+            writeLn("", true);
+          })
+          .action(async (encodedJson: string | undefined, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await SecretCreateCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              encodedJson,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("edit")
+          .description("Edit a secret.")
+          .argument("<secretId>", "The id of the secret")
+          .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Only the `key`, `value`, `note`, and `projectIds` properties in the");
+            writeLn("    request are changed; missing properties keep their current values.");
+            writeLn("    Access to the secret is not changed.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              '    echo \'{"value":"new value"}\' | bw encode | bw sm secret edit <secretId> --organizationid <organizationid>',
+            );
+            writeLn("", true);
+          })
+          .action(
+            async (secretId: string, encodedJson: string | undefined, options: OrgOptions) => {
+              await this.exitIfLocked();
+              const response = await SecretEditCommand.create(this.serviceContainer).run(
+                options.organizationid,
+                secretId,
+                encodedJson,
+              );
+              this.processResponse(response);
+            },
+          ),
+      )
+      .addCommand(
+        new Command("delete")
+          .description("Move one or more secrets to the trash.")
+          .argument("<secretIds...>", "The ids of the secrets")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Deleted secrets can be restored with `bw sm trash restore`.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn("    bw sm secret delete <secretId> --organizationid <organizationid>");
+            writeLn(
+              "    bw sm secret delete <secretId> <secretId> --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (secretIds: string[], options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await SecretDeleteCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              secretIds,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("versions")
+          .description("List the previous values of a secret, newest first.")
+          .argument("<secretId>", "The id of the secret")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn("    bw sm secret versions <secretId> --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (secretId: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await SecretVersionsCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              secretId,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("restore-version")
+          .description("Restore a previous value of a secret.")
+          .argument("<secretId>", "The id of the secret")
+          .argument("<versionId>", "The id of the version, from `bw sm secret versions`")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm secret restore-version <secretId> <versionId> --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (secretId: string, versionId: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await SecretRestoreVersionCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              secretId,
+              versionId,
+            );
+            this.processResponse(response);
+          }),
+      );
+  }
+
+  private templateCommand(): Command {
+    return new Command("template")
+      .description("Get a JSON template for creating or editing a Secrets Manager object.")
+      .argument("<object>", "The template object: " + SmTemplateObjects.join(", "))
+      .on("--help", () => {
+        writeLn("\n  Examples:");
+        writeLn("");
+        writeLn("    bw sm template sm-project");
+        writeLn("    bw sm template sm-secret");
+        writeLn("    bw sm template sm-machine-account");
+        writeLn("", true);
+      })
+      .action(async (object: string) => {
+        const response = await TemplateCommand.create().run(object);
+        this.processResponse(response);
+      });
   }
 }
