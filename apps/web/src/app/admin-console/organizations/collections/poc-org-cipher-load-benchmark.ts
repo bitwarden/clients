@@ -24,13 +24,21 @@ import { OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 
 type Scenario = { name: string; run: () => Promise<number> };
 
+type ScenarioResult = {
+  scenario: string;
+  "median ms": number;
+  "min ms": number;
+  "max ms": number;
+  decrypted: number | undefined;
+};
+
 export async function runOrgCipherLoadBenchmark(
   sdkService: SdkService,
   userId: UserId,
   organizationId: string,
   includeMemberItems: boolean,
   iterations = 3,
-): Promise<void> {
+): Promise<ScenarioResult[]> {
   const sdk = await firstValueFrom(sdkService.userClient$(userId));
   if (sdk == null) {
     throw new Error("SDK client is not available");
@@ -114,20 +122,36 @@ export async function runOrgCipherLoadBenchmark(
     return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   };
 
+  const results: ScenarioResult[] = scenarios.map(({ name }) => {
+    const runs = timings.get(name)!;
+    return {
+      scenario: name,
+      "median ms": Math.round(median(runs)),
+      "min ms": Math.round(Math.min(...runs)),
+      "max ms": Math.round(Math.max(...runs)),
+      decrypted: decryptedCounts.get(name),
+    };
+  });
+
+  const speedup = (oldIndex: number, newIndex: number) => {
+    const oldMs = results[oldIndex]["median ms"];
+    const newMs = results[newIndex]["median ms"];
+    return `${oldMs - newMs} ms saved (${(oldMs / Math.max(newMs, 1)).toFixed(1)}x faster)`;
+  };
+
+  // Plain text lines as well as the table, so the results survive copy/paste out of DevTools
   console.info(
     `[POC-PERF] Org cipher load benchmark: ${encrypted.length} ciphers, ${iterations} iterations`,
   );
-  console.table(
-    scenarios.map(({ name }) => {
-      const runs = timings.get(name)!;
-      return {
-        scenario: name,
-        "median ms": Math.round(median(runs)),
-        "min ms": Math.round(Math.min(...runs)),
-        "max ms": Math.round(Math.max(...runs)),
-        decrypted: decryptedCounts.get(name),
-      };
-    }),
-  );
+  for (const r of results) {
+    console.info(
+      `[POC-PERF] ${r.scenario}: median ${r["median ms"]} ms (min ${r["min ms"]}, max ${r["max ms"]}), ${r.decrypted} decrypted`,
+    );
+  }
+  console.info(`[POC-PERF] End-to-end: ${speedup(0, 1)}`);
+  console.info(`[POC-PERF] Decrypt only: ${speedup(2, 3)}`);
+  console.table(results);
+
+  return results;
 }
 // POC-PERF: END OF TEMPORARY SPEED TEST FILE

@@ -424,8 +424,15 @@ export class VaultComponent implements OnInit, OnDestroy {
         );
       }
       const userId = await firstValueFrom(this.userId$);
-      await runOrgCipherLoadBenchmark(this.sdkService, userId, organization.id, false, iterations);
+      return await runOrgCipherLoadBenchmark(
+        this.sdkService,
+        userId,
+        organization.id,
+        false,
+        iterations,
+      );
     };
+    this.logService.info("[POC-PERF] Benchmark ready: run `await bwPocOrgCipherBenchmark()`");
     // POC-PERF: END
 
     const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
