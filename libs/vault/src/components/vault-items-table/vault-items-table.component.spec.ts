@@ -7,13 +7,14 @@ import {
   input,
   Signal,
   signal,
+  Type,
   WritableSignal,
 } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of, Subject } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -167,13 +168,19 @@ class ControlledAccessBadgeStubComponent {
  */
 let controlledAccessFilter: VaultControlledAccessFilter | undefined;
 
-/** A contribution offering `options`, admitting the cipher ids listed against each option id. */
+/**
+ * A contribution offering `options`, admitting the cipher ids listed against each option id, and
+ * ranking rows for the column's sort by `ranks` when given.
+ */
 function controlledAccessDouble(
   options: ControlledAccessFilterOption[],
   admits: Record<string, string[]>,
+  ranks?: Record<string, number>,
 ): VaultControlledAccessFilter {
   return {
     options$: of(options),
+    sortRanks$:
+      ranks == null ? undefined : () => of(new Map<string, number>(Object.entries(ranks))),
     narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]) {
       const admitted = admits[optionId];
       // An id no longer offered yields the input unchanged, as the token's contract requires.
@@ -187,7 +194,10 @@ function controlledAccessDouble(
 /** Hosts the table beneath a node injector carrying the optional Controlled access contribution. */
 @Component({
   selector: "test-controlled-access-host",
-  template: `<vault-items-table [ciphers]="ciphers()"></vault-items-table>`,
+  template: `<vault-items-table
+    [ciphers]="ciphers()"
+    [controlledAccessBadge]="badge()"
+  ></vault-items-table>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [VaultItemsTableComponent],
   providers: [
@@ -196,6 +206,7 @@ function controlledAccessDouble(
 })
 class ControlledAccessHostComponent {
   readonly ciphers = signal<CipherViewLike[]>([]);
+  readonly badge = signal<Type<unknown> | null>(null);
 }
 
 function batchBarDouble() {
@@ -2132,6 +2143,18 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBarIds()).toEqual(["a"]);
     });
 
+    it("never selects a PAM-gated (partial) cipher", () => {
+      const healthy = cipherView({ id: "a", name: "Amazon" });
+      const gated = cipherView({ id: "b", name: "Prod DB", partial: true });
+      fixture.componentRef.setInput("ciphers", [healthy, gated]);
+      fixture.detectChanges();
+
+      selectionModel().select(healthy, gated);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
     it("wraps a selected cipher as a VaultItem on the batch bar", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
@@ -2568,10 +2591,10 @@ describe("VaultItemsTableComponent", () => {
   });
 
   describe("controlled access (VAULT_CONTROLLED_ACCESS_FILTER)", () => {
-    /** Mirrors the option set the licensed host offers: one per state group, already localized. */
+    /** Mirrors the option set the licensed host offers: one per access state, already localized. */
     const OPTIONS: ControlledAccessFilterOption[] = [
-      { id: "my-requests", name: "pamTabMyRequests", icon: "bwi-lock-encrypted" },
       { id: "privileged", name: "pamAccessBadgePrivileged", icon: "bwi-key" },
+      { id: "pending", name: "pamAccessBadgePending", icon: "bwi-clock" },
     ];
 
     const ROWS = () => [
@@ -2611,7 +2634,7 @@ describe("VaultItemsTableComponent", () => {
     function renderHost(): void {
       controlledAccessFilter = controlledAccessDouble(OPTIONS, {
         privileged: ["a"],
-        "my-requests": ["b", "c"],
+        pending: ["b", "c"],
       });
       narrow = jest.spyOn(controlledAccessFilter, "narrow$");
       hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
@@ -2658,6 +2681,22 @@ describe("VaultItemsTableComponent", () => {
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
+    it("offers the host's table options over its sidebar options when it has both", () => {
+      const sidebar = controlledAccessDouble(OPTIONS, {});
+      controlledAccessFilter = {
+        options$: sidebar.options$,
+        tableOptions$: of([{ id: "ready", name: "pamAccessBadgeReady", icon: "bwi-check" }]),
+        narrow$: sidebar.narrow$,
+      };
+      hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      hostFixture.detectChanges();
+
+      const table = hostFixture.debugElement.query(By.directive(VaultItemsTableComponent))
+        .componentInstance as VaultItemsTableComponent<CipherViewLike>;
+      expect(table["controlledAccessOptions"]().map((o) => o.id)).toEqual(["ready"]);
+    });
+
     it("asks the host nothing while the chip is untouched", async () => {
       renderHost();
       await settle();
@@ -2671,7 +2710,7 @@ describe("VaultItemsTableComponent", () => {
     it("narrows the rows to the selected option", async () => {
       renderHost();
 
-      hostControl("controlledAccess")!.setValue("privileged");
+      hostControl("controlledAccess")!.setValue(["privileged"]);
       await settle();
 
       expect(hostNames()).toEqual(["Amazon"]);
@@ -2687,14 +2726,55 @@ describe("VaultItemsTableComponent", () => {
       await settle();
 
       expect(narrow).toHaveBeenCalledWith("privileged", expect.anything());
-      expect(narrow).toHaveBeenCalledWith("my-requests", expect.anything());
-      expect(hostTable().optionCount("controlledAccess", "privileged")).toBe(1);
-      expect(hostTable().optionCount("controlledAccess", "my-requests")).toBe(2);
+      expect(narrow).toHaveBeenCalledWith("pending", expect.anything());
+      expect(hostTable().optionCount("controlledAccess", ["privileged"])).toBe(1);
+      expect(hostTable().optionCount("controlledAccess", ["pending"])).toBe(2);
+    });
+
+    it("admits a row matching any selected option", async () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue(["privileged", "pending"]);
+      await settle();
+
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+
+      hostControl("controlledAccess")!.setValue(["pending"]);
+      await settle();
+
+      expect(hostNames()).toEqual(["Bank", "Cloud"]);
+    });
+
+    it("combines with the other chips rather than replacing them", async () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue(["pending"]);
+      await settle();
+      expect(hostNames()).toEqual(["Bank", "Cloud"]);
+
+      hostFixture.componentInstance.ciphers.set([
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Bank", favorite: true }),
+        cipherView({ id: "c", name: "Cloud" }),
+      ]);
+      hostControl("favorites")!.setValue(true);
+      await settle();
+
+      expect(hostNames()).toEqual(["Bank"]);
+    });
+
+    it("still narrows a link carrying a lone option id", async () => {
+      renderHost();
+
+      hostControl("controlledAccess")!.setValue("privileged");
+      await settle();
+
+      expect(hostNames()).toEqual(["Amazon"]);
     });
 
     it("keeps resolving on new rows once requested", async () => {
       renderHost();
-      hostControl("controlledAccess")!.setValue("privileged");
+      hostControl("controlledAccess")!.setValue(["privileged"]);
       await settle();
       narrow.mockClear();
 
@@ -2706,7 +2786,7 @@ describe("VaultItemsTableComponent", () => {
 
     it("keeps the rows narrowed while new rows are still resolving", async () => {
       renderHost();
-      hostControl("controlledAccess")!.setValue("privileged");
+      hostControl("controlledAccess")!.setValue(["privileged"]);
       await settle();
       expect(hostNames()).toEqual(["Amazon"]);
 
@@ -2727,15 +2807,114 @@ describe("VaultItemsTableComponent", () => {
     it("keeps every row for an option the host no longer offers", async () => {
       renderHost();
 
-      hostControl("controlledAccess")!.setValue("retired");
+      hostControl("controlledAccess")!.setValue(["retired"]);
       await settle();
 
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
+    describe("sorting the column", () => {
+      /** Cloud leads, Amazon follows, and Bank has no state, so it is unranked. */
+      const RANKS = { c: 0, a: 1 };
+
+      let sortRanks: jest.SpyInstance;
+
+      function renderSortableHost(): void {
+        controlledAccessFilter = controlledAccessDouble(OPTIONS, {}, RANKS);
+        sortRanks = jest.spyOn(controlledAccessFilter, "sortRanks$" as never);
+        hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
+        hostFixture.componentInstance.badge.set(ControlledAccessBadgeStubComponent);
+        hostFixture.componentInstance.ciphers.set(ROWS());
+        hostFixture.detectChanges();
+      }
+
+      function hostSortedNames(): string[] {
+        return hostTable()
+          .sorted()
+          .map((cipher) => cipher.name);
+      }
+
+      it("asks the host nothing until the column is sorted", async () => {
+        renderSortableHost();
+        await settle();
+
+        expect(sortRanks).not.toHaveBeenCalled();
+      });
+
+      it("orders rows by the host's rank, unranked rows last", async () => {
+        renderSortableHost();
+
+        hostTable().sort.set({ column: "controlledAccess", direction: "asc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
+      });
+
+      it("moves unranked rows to the top when sorted descending", async () => {
+        renderSortableHost();
+
+        hostTable().sort.set({ column: "controlledAccess", direction: "desc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Bank", "Amazon", "Cloud"]);
+      });
+
+      /** Renders the host with `filter` provided and the column sorted ascending. */
+      async function sortWith(filter: VaultControlledAccessFilter): Promise<void> {
+        controlledAccessFilter = filter;
+        hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
+        hostFixture.componentInstance.badge.set(ControlledAccessBadgeStubComponent);
+        hostFixture.componentInstance.ciphers.set(ROWS());
+        hostFixture.detectChanges();
+
+        hostTable().sort.set({ column: "controlledAccess", direction: "asc" });
+        await settle();
+      }
+
+      it("calls the host's sortRanks$ as a method, so an implementation can read `this`", async () => {
+        class ClassBasedFilter implements VaultControlledAccessFilter {
+          private readonly ranks = new Map<string, number>(Object.entries(RANKS));
+          readonly options$ = of(OPTIONS);
+          narrow$<C extends CipherViewLike>(_optionId: string, ciphers: C[]) {
+            return of(ciphers);
+          }
+          sortRanks$() {
+            return of(this.ranks);
+          }
+        }
+
+        await sortWith(new ClassBasedFilter());
+
+        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
+      });
+
+      it("keeps every row, in name order, when the host's ranks fail", async () => {
+        await sortWith(
+          Object.assign(controlledAccessDouble(OPTIONS, {}), {
+            sortRanks$: () => throwError(() => new Error("boom")),
+          }),
+        );
+
+        expect(hostSortedNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+      });
+
+      it("keeps name order when the host offers no ranks", async () => {
+        controlledAccessFilter = controlledAccessDouble(OPTIONS, {});
+        hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
+        hostFixture.componentInstance.badge.set(ControlledAccessBadgeStubComponent);
+        hostFixture.componentInstance.ciphers.set(ROWS());
+        hostFixture.detectChanges();
+
+        hostTable().sort.set({ column: "controlledAccess", direction: "asc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+      });
+    });
+
     it("resets when Clear all is clicked", async () => {
       renderHost();
-      hostControl("controlledAccess")!.setValue("privileged");
+      hostControl("controlledAccess")!.setValue(["privileged"]);
       await settle();
       expect(hostNames()).toEqual(["Amazon"]);
 
@@ -2744,7 +2923,7 @@ describe("VaultItemsTableComponent", () => {
         .click();
       hostFixture.detectChanges();
 
-      expect(hostControl("controlledAccess")!.value()).toBeNull();
+      expect(hostControl("controlledAccess")!.value()).toEqual([]);
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
   });
