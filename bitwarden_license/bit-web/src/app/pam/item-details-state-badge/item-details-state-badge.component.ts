@@ -76,7 +76,7 @@ export class ItemDetailsStateBadgeComponent {
   /**
    * `state`'s badge, withheld while the lease is live on this clock. Keying on the SDK's `active`
    * ranking instead would hide the pill for good when the server's clock trails. On lapse it
-   * re-reads in case the lease was extended.
+   * re-reads in case the lease was extended, else lands on "Session ended".
    */
   private badgeWhileLeaseRuns$(
     state: CipherAccessStateView | null,

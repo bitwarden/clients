@@ -38,7 +38,7 @@ function ungatedCipher(): CipherView {
 
 /**
  * `state` is a factory so an active lease's `expiresAt` is relative to render time; one built at
- * module load could already read "Access ended". `organizations` decides which rows may draw the
+ * module load could already read "Session ended". `organizations` decides which rows may draw the
  * em dash.
  */
 function pam(
