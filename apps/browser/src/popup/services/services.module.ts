@@ -242,6 +242,7 @@ import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-vie
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
+import { BrowserManagedConfigReader } from "../../platform/services/browser-managed-config-reader";
 import BrowserMemoryStorageService from "../../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import I18nService from "../../platform/services/i18n.service";
@@ -279,6 +280,11 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: BrowserManagedConfigReader,
+    useClass: BrowserManagedConfigReader,
+    deps: [ManagedSettingsService, LogService],
+  }),
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
