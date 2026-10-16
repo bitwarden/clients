@@ -1,9 +1,16 @@
 import { Observable } from "rxjs";
 
-import { PasswordManagerClient, Uuid, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
+import {
+  InitUserCryptoRequest,
+  PasswordManagerClient,
+  Uuid,
+  DeviceType as SdkDeviceType,
+  UnsignedSharedKey,
+} from "@bitwarden/sdk-internal";
 
 import { DeviceType } from "../../../enums";
-import { UserId } from "../../../types/guid";
+import { OrganizationId, UserId } from "../../../types/guid";
+import { UserKey } from "../../../types/key";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
@@ -94,6 +101,11 @@ export function uuidAsString<T extends Uuid>(uuid: T): string {
   return uuid as unknown as string;
 }
 
+/**
+ * The data needed to unlock a user's SDK client.
+ */
+export type SdkUnlockRequest = Omit<InitUserCryptoRequest, "email" | "kdfParams" | "upgradeToken">;
+
 export abstract class SdkService {
   /**
    * Retrieve the version of the SDK.
@@ -126,13 +138,39 @@ export abstract class SdkService {
   abstract userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>>;
 
   /**
-   * This method is used during/after an authentication procedure to set a new client for a specific user.
-   * It can also be used to unset the client when a user logs out, this will result in:
-   *  - The client being disposed of
-   *  - All subscriptions to the client being completed
-   *  - Any new subscribers receiving an error
-   * @param userId The user id for which to set the client
-   * @param client The client to set for the user. If undefined, the client will be unset.
+   * Unlock the user's live client.
+   * @param userId The user whose client to unlock
+   * @param request The data needed to unlock the client
+   * @returns The user key, or `null` if no client was unlocked
    */
-  abstract setClient(userId: UserId, client: PasswordManagerClient | undefined): void;
+  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null>;
+
+  /**
+   * Clear the in-memory user key (lock).
+   * @param userId The user whose client to lock
+   */
+  abstract lock(userId: UserId): Promise<void>;
+
+  /**
+   * Dispose the user's client and complete its `userClient$` (logout).
+   * @param userId The user whose client to dispose
+   */
+  abstract logout(userId: UserId): void;
+
+  /**
+   * Apply feature flags to the user's live client.
+   * @param userId The user whose client to update
+   * @param flags The feature flags to apply
+   */
+  abstract setFlags(userId: UserId, flags: Map<string, boolean>): Promise<void>;
+
+  /**
+   * Apply organization keys to the user's live client.
+   * @param userId The user whose client to update
+   * @param orgKeys The organization keys, each encapsulated to the user's public key
+   */
+  abstract setOrgKeys(
+    userId: UserId,
+    orgKeys: Record<OrganizationId, UnsignedSharedKey>,
+  ): Promise<void>;
 }

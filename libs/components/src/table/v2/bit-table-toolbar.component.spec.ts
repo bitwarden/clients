@@ -7,7 +7,7 @@ import { Observable, Subject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/state";
 
-import { ChipComponent } from "../../chips";
+import { ChipComponent, ChipGroupComponent } from "../../chips";
 import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
@@ -34,6 +34,65 @@ import {
 import { defineTable } from "./table-def";
 import { TableStateKey } from "./table-state-keys";
 import { BitTableV2Component } from "./table-v2.component";
+
+/** A narrow and a wide toolbar width, either side of the toolbar's `sm` (640px) threshold. */
+const NARROW = 400;
+const WIDE = 1000;
+
+/**
+ * JSDOM has no layout, so nothing ever measures a width. Stands in for `ResizeObserver`, reporting
+ * `rowWidth` for every observed element as soon as it's observed and again on `setRowWidth`.
+ */
+let rowWidth = NARROW;
+const observers = new Set<ResizeObserverStub>();
+
+class ResizeObserverStub {
+  private readonly targets: Element[] = [];
+
+  constructor(private readonly callback: ResizeObserverCallback) {
+    observers.add(this);
+  }
+
+  observe(target: Element) {
+    this.targets.push(target);
+    this.report(target);
+  }
+
+  unobserve() {}
+
+  disconnect() {
+    observers.delete(this);
+  }
+
+  // `:empty` elements are `empty:tw-hidden`, so they measure 0.
+  report(target: Element) {
+    const width = target.matches(":empty") ? 0 : rowWidth;
+    const entry = { target, contentRect: { width } } as unknown as ResizeObserverEntry;
+    this.callback([entry], this as unknown as ResizeObserver);
+  }
+
+  reportAll() {
+    this.targets.forEach((target) => this.report(target));
+  }
+}
+
+/** Resizes every observed element, as a drawer or window resize would. */
+const setRowWidth = (width: number) => {
+  rowWidth = width;
+  observers.forEach((observer) => observer.reportAll());
+};
+
+const originalResizeObserver = globalThis.ResizeObserver;
+
+beforeEach(() => {
+  rowWidth = NARROW;
+  observers.clear();
+  globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+});
+
+afterEach(() => {
+  globalThis.ResizeObserver = originalResizeObserver;
+});
 
 @Component({
   imports: [BitTableToolbarComponent, FilterToggleComponent, SearchComponent],
@@ -107,6 +166,8 @@ describe("BitTableToolbarComponent", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               clearSearchTooltip: "Clear by clicking here or pressing Esc.",
@@ -166,6 +227,16 @@ describe("BitTableToolbarComponent", () => {
     const filterRow = searchOnly.nativeElement.querySelector("[bitOverflowList]") as HTMLElement;
     expect(filterRow).not.toBeNull();
     expect(filterRow.childElementCount).toBe(0);
+  });
+
+  it("wraps a search-only toolbar's end-slot controls to their own line when narrow", async () => {
+    const searchOnly = TestBed.createComponent(SearchOnlyHostComponent);
+    searchOnly.autoDetectChanges();
+    await searchOnly.whenStable();
+
+    const endSlot = searchOnly.nativeElement.querySelector(".empty\\:tw-hidden") as HTMLElement;
+    expect(endSlot.classList).toContain("tw-w-full");
+    expect(endSlot.classList).not.toContain("tw-ms-auto");
   });
 
   describe("with bitCollapseOnScroll", () => {
@@ -283,6 +354,8 @@ describe("BitTableToolbarComponent", () => {
       <bit-filter-menu #type key="type" placeholderText="Type" icon="bwi-list" multiple>
         <bit-filter-option [value]="'login'">Login</bit-filter-option>
         <bit-filter-option [value]="'card'">Card</bit-filter-option>
+        <!-- Shares a label with "card". -->
+        <bit-filter-option [value]="'card-2'">Card</bit-filter-option>
       </bit-filter-menu>
       <bit-filter-menu #vault key="vault" placeholderText="Vault">
         <bit-filter-option [value]="'mine'">My vault</bit-filter-option>
@@ -307,7 +380,7 @@ describe("BitTableToolbarComponent active filter chips", () => {
   const chipLabels = () => chips().map((chip) => chip.label());
 
   // Scoped to `bit-chip`: every `bit-filter-menu` has its own dismiss button on the hidden
-  // wide-viewport row, and that one clears the whole filter.
+  // wide-toolbar row, and that one clears the whole filter.
   const dismissButtons = () =>
     Array.from(
       fixture.nativeElement.querySelectorAll(
@@ -329,6 +402,8 @@ describe("BitTableToolbarComponent active filter chips", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
@@ -401,6 +476,35 @@ describe("BitTableToolbarComponent active filter chips", () => {
     expect(host.type().active()).toBe(true);
   });
 
+  it("keeps each remaining chip's id when an earlier option is dismissed", () => {
+    const chipIds = () =>
+      (
+        fixture.debugElement.query(By.directive(ChipGroupComponent))
+          .componentInstance as ChipGroupComponent
+      )
+        .chips()
+        .map((chip) => chip.id);
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+    const cardId = chipIds()[1];
+
+    dismiss(0);
+    fixture.detectChanges();
+
+    expect(chipIds()).toEqual([cardId]);
+  });
+
+  it("clears the dismissed option when two selections share a label", () => {
+    host.type().setValue(["card", "card-2"]);
+    fixture.detectChanges();
+
+    dismiss(1);
+    fixture.detectChanges();
+
+    expect(host.type().isSelected("card")).toBe(true);
+    expect(host.type().isSelected("card-2")).toBe(false);
+  });
+
   it("keeps one qualified chip for a single-select, cleared as a whole", () => {
     host.vault().setValue("mine");
     fixture.detectChanges();
@@ -413,6 +517,29 @@ describe("BitTableToolbarComponent active filter chips", () => {
 
     expect(chipLabels()).toEqual([]);
     expect(host.vault().active()).toBe(false);
+  });
+
+  it("moves focus to the previous chip when the focused last chip is dismissed", () => {
+    host.type().setValue(["login", "card"]);
+    fixture.detectChanges();
+
+    dismissButtons()[1].focus();
+    dismiss(1);
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(dismissButtons()[0]);
+  });
+
+  it("moves focus to the filter button when the only chip is dismissed", () => {
+    host.vault().setValue("mine");
+    fixture.detectChanges();
+
+    dismissButtons()[0].focus();
+    dismiss(0);
+    fixture.detectChanges();
+
+    const filterButton = fixture.nativeElement.querySelector("button[bitIconButton]");
+    expect(document.activeElement).toBe(filterButton);
   });
 });
 
@@ -469,6 +596,8 @@ describe("BitTableToolbarComponent customize control", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               customize: "Customize",
@@ -488,8 +617,8 @@ describe("BitTableToolbarComponent customize control", () => {
       "[data-testid='customize-columns']",
     ) as HTMLButtonElement | null;
 
-  // jsdom has no `matchMedia`, so these run at a small-screen width — where the control is
-  // still offered. Only `presentation` and `stateKey` decide, never the viewport.
+  // These run on a narrow toolbar, where the control is still offered. Only `presentation` and
+  // `stateKey` decide, never the width.
   it("offers the control at any width when the table has a removable column and a key", () => {
     expect(customizeButton()).not.toBeNull();
   });
@@ -543,15 +672,6 @@ describe("BitTableToolbarComponent filter dialog", () => {
   let host: DialogHostComponent;
   let dialogService: MockProxy<DialogService>;
   let closed: Subject<unknown>;
-  let mediaListeners: ((event: MediaQueryListEvent) => void)[];
-  /** The starting viewport for any fixture created after it's set. */
-  let wide: boolean;
-
-  /** Widen past `md`, so the chip row lays out inline and the collapsed trigger goes away. */
-  const widenViewport = () => {
-    wide = true;
-    mediaListeners.forEach((listener) => listener({ matches: true } as MediaQueryListEvent));
-  };
 
   const trigger = () =>
     fixture.nativeElement.querySelector("button[bitIconButton]") as HTMLButtonElement;
@@ -563,25 +683,6 @@ describe("BitTableToolbarComponent filter dialog", () => {
   };
 
   beforeEach(async () => {
-    // `isAtOrLargerThanBreakpointSignal` reads `matchMedia`, which JSDOM does not implement.
-    // Capture the listener so a test can widen the viewport after the fact.
-    mediaListeners = [];
-    wide = false;
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: jest.fn().mockImplementation((query: string) => ({
-        get matches() {
-          return wide;
-        },
-        media: query,
-        onchange: null,
-        addEventListener: (_: string, listener: (event: MediaQueryListEvent) => void) =>
-          mediaListeners.push(listener),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-      })),
-    });
-
     closed = new Subject<unknown>();
     const ref = mock<DialogRef>();
     // `closed` is declared readonly, and `mock()` auto-stubs it over anything passed in.
@@ -598,6 +699,8 @@ describe("BitTableToolbarComponent filter dialog", () => {
             new I18nMockService({
               filters: "Filters",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count?: string) => `Show ${count} more`,
               search: "Search",
               resetSearch: "Reset search",
               removeItem: (name?: string) => `Remove ${name}`,
@@ -609,11 +712,26 @@ describe("BitTableToolbarComponent filter dialog", () => {
 
     fixture = TestBed.createComponent(DialogHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    // The width is measured after a render; auto-detect re-renders for it, as the app does.
+    fixture.autoDetectChanges();
+    await fixture.whenStable();
   });
 
   it("stays closed until something opens it", () => {
     expect(dialogService.open).not.toHaveBeenCalled();
+  });
+
+  it("exposes the chips as an anchor only while they show inline", () => {
+    const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+      .componentInstance as BitTableToolbarComponent;
+    expect(toolbar.filterChips()).toBeUndefined();
+
+    setRowWidth(WIDE);
+    fixture.detectChanges();
+
+    const chips = toolbar.filterChips()?.nativeElement;
+    expect(chips?.querySelector("bit-filter-toggle")).not.toBeNull();
+    expect(chips?.querySelector("#bit-table-toolbar_button_clear-all")).not.toBeNull();
   });
 
   it("raises the model when the trigger is clicked", () => {
@@ -694,7 +812,7 @@ describe("BitTableToolbarComponent filter dialog", () => {
     fixture.detectChanges();
 
     const ref = dialogService.open.mock.results[0].value as DialogRef;
-    widenViewport();
+    setRowWidth(WIDE);
     fixture.detectChanges();
 
     // Closing here would drop whatever page the user drilled into, and the focus with it: CDK
@@ -703,7 +821,7 @@ describe("BitTableToolbarComponent filter dialog", () => {
   });
 
   it("drops a model raised while the filters are already inline", async () => {
-    widenViewport();
+    setRowWidth(WIDE);
     // The toolbar only knows no trigger is coming once the row is measured, which lands in a
     // `document.fonts.ready` continuation.
     await fixture.whenStable();
@@ -718,7 +836,7 @@ describe("BitTableToolbarComponent filter dialog", () => {
 
   it("holds a raised model until the chip row has been measured", async () => {
     // A fresh fixture, wide from its first frame: the one from `beforeEach` has already measured.
-    wide = true;
+    rowWidth = WIDE;
     const restored = TestBed.createComponent(DialogHostComponent);
     restored.componentInstance.open.set(true);
     restored.detectChanges();
