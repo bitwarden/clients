@@ -629,6 +629,38 @@ describe("AutofillInlineMenuContentService", () => {
       );
     });
 
+    it("re-attaches the overlay button when it is no longer a child of the container", async () => {
+      const injectedElement = document.createElement("div");
+      document.body.appendChild(injectedElement);
+      buttonElement.remove();
+
+      autofillInlineMenuContentService["handleContainerElementMutationObserverUpdate"]([
+        mockMutationRecord,
+      ]);
+      await waitForIdleCallback();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+      expect(buttonElement.parentElement).toBe(globalThis.document.body);
+      expect(globalThis.document.body.lastElementChild).toBe(buttonElement);
+    });
+
+    it("re-attaches the overlay list when it leaves the container before reordering", async () => {
+      document.body.appendChild(buttonElement);
+      isInlineMenuListVisibleSpy.mockImplementation(async () => {
+        listElement.remove();
+        return true;
+      });
+
+      autofillInlineMenuContentService["handleContainerElementMutationObserverUpdate"]([
+        mockMutationRecord,
+      ]);
+      await waitForIdleCallback();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+      expect(listElement.parentElement).toBe(globalThis.document.body);
+      expect(globalThis.document.body.lastElementChild).toBe(listElement);
+    });
+
     describe("handling an element that attempts to force itself as the last child", () => {
       let persistentLastChild: HTMLElement;
 
