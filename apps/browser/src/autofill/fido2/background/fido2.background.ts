@@ -311,7 +311,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Create);
     return await this.handleCredentialRequest<CreateCredentialResult>(
       message,
-      sender.tab!,
+      await this.buildParentWindowReference(sender),
       (data, tabParam, abortController) =>
         this.fido2ClientService.createCredential(
           data as CreateCredentialParams,
@@ -334,7 +334,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Get);
     return await this.handleCredentialRequest<AssertCredentialResult>(
       message,
-      sender.tab!,
+      await this.buildParentWindowReference(sender),
       (data, tabParam, abortController) =>
         this.fido2ClientService.assertCredential(
           data as AssertCredentialParams,
@@ -342,6 +342,23 @@ export class Fido2Background implements Fido2BackgroundInterface {
           abortController,
         ),
     );
+  }
+
+  /**
+   * Builds the reference the FIDO2 client passes through to the user interface. The requesting
+   * frame's URL is resolved from the browser-attested sender, because a WebAuthn request from a
+   * sub-frame belongs to that frame's origin rather than the tab's.
+   *
+   * @param sender - The sender of the credential request. Its tab is verified as present by
+   * `handleExtensionMessage` before any credential request handler runs.
+   */
+  private async buildParentWindowReference(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<BrowserFido2ParentWindowReference> {
+    const tab = sender.tab!;
+    const requestFrameUrl = (await BrowserApi.getSenderFrameUrl(sender)) ?? tab.url;
+
+    return { ...tab, requestFrameUrl };
   }
 
   /**
@@ -384,15 +401,15 @@ export class Fido2Background implements Fido2BackgroundInterface {
    *
    * @param requestId - The request ID associated with the request.
    * @param data - The request data to handle.
-   * @param tab - The tab associated with the request.
+   * @param tab - The tab associated with the request, and the URL of the requesting frame.
    * @param callback - The callback to call with the request data, tab, and abort controller.
    */
   private handleCredentialRequest = async <CredentialResult>(
     message: Fido2ExtensionMessage,
-    tab: chrome.tabs.Tab,
+    tab: BrowserFido2ParentWindowReference,
     callback: (
       data: AssertCredentialParams | CreateCredentialParams,
-      tab: chrome.tabs.Tab,
+      tab: BrowserFido2ParentWindowReference,
       abortController: AbortController,
     ) => Promise<CredentialResult>,
   ): Promise<CredentialResult> => {

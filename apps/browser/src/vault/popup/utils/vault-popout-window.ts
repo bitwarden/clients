@@ -157,22 +157,24 @@ async function closeAddEditVaultItemPopout(delayClose = 0) {
  * authentication and passkey management.
  *
  * @param senderTab - The tab that sent the request.
- * @param options - Options passed as query params to the popout.
+ * @param options - Options passed as query params to the popout. `senderUrl` is the URL of the
+ * frame that made the request, which differs from the tab's URL for a sub-frame request.
  */
 async function openFido2Popout(
   senderTab: chrome.tabs.Tab,
   options: {
     sessionId: string;
     fallbackSupported: boolean;
+    senderUrl: string | undefined;
   },
 ): Promise<chrome.windows.Window["id"]> {
-  const { sessionId, fallbackSupported } = options;
+  const { sessionId, fallbackSupported, senderUrl } = options;
   const promptWindowPath =
     "popup/index.html#/fido2" +
     `?sessionId=${sessionId}` +
     `&fallbackSupported=${fallbackSupported}` +
     `&senderTabId=${senderTab.id}` +
-    `&senderUrl=${encodeURIComponent(senderTab.url)}`;
+    `&senderUrl=${encodeURIComponent(senderUrl ?? "")}`;
 
   const popoutWindow = await BrowserPopupUtils.openPopout(promptWindowPath, {
     singleActionKey: `${VaultPopoutType.fido2Popout}_${sessionId}`,
