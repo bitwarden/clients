@@ -29,6 +29,8 @@ export class LowdbStorageService implements AbstractStorageService {
   private db: lowdb.LowdbSync<any>;
   private defaults: any;
   private ready = false;
+  /** Identity of data.json when this process last read or wrote it, see `readForNoCache`. */
+  private fileVersion: string | null = null;
   private updatesSubject = new Subject<StorageUpdate>();
   updates$;
 
@@ -73,7 +75,11 @@ export class LowdbStorageService implements AbstractStorageService {
     }
     try {
       this.logService.info("Attempting to create lowdb storage adapter.");
+      // Stat before reading: init reads outside the lock, so a concurrent write may land in between.
+      // This order makes that cost one extra re-read, instead of caching stale contents as current.
+      const version = this.currentFileVersion();
       this.db = lowdb(adapter);
+      this.fileVersion = version;
       this.logService.info("Successfully created lowdb storage adapter.");
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -104,6 +110,7 @@ export class LowdbStorageService implements AbstractStorageService {
         this.logService.info("Writing defaults.");
         this.readForNoCache();
         this.db.defaults(this.defaults).write();
+        this.fileVersion = this.currentFileVersion();
         this.logService.info("Successfully wrote defaults to db.");
       });
     }
@@ -124,7 +131,9 @@ export class LowdbStorageService implements AbstractStorageService {
       if (val == null) {
         return null;
       }
-      return val as T;
+      // A copy, as a fresh read used to return: the cached state must not change if a caller
+      // mutates the value.
+      return structuredClone(val) as T;
     });
   }
 
@@ -136,9 +145,11 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
+      // Hold what the file holds, as a re-read would: plain JSON, not the caller's object.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.db.set(key, obj).write();
+      this.db.set(key, obj === undefined ? obj : JSON.parse(JSON.stringify(obj))).write();
+      this.fileVersion = this.currentFileVersion();
       this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
@@ -152,6 +163,7 @@ export class LowdbStorageService implements AbstractStorageService {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.db.unset(key).write();
+      this.fileVersion = this.currentFileVersion();
       this.updatesSubject.next({ key, updateType: "remove" });
       this.logService.debug(`Successfully removed ${key} from db`);
       return;
@@ -197,9 +209,38 @@ export class LowdbStorageService implements AbstractStorageService {
     }
   }
 
+  /**
+   * Re-reads data.json unless this process already holds its current contents.
+   *
+   * A command reads storage dozens of times, and each read parses the whole file (tens of ms for a
+   * large vault). The file only needs re-reading when another process changed it since this one
+   * last read or wrote it, which its inode, size, mtime and ctime reveal.
+   */
   private readForNoCache() {
-    if (!this.allowCache) {
-      this.db.read();
+    if (this.allowCache) {
+      return;
+    }
+
+    const version = this.currentFileVersion();
+    if (version != null && version === this.fileVersion) {
+      return;
+    }
+
+    this.db.read();
+    this.fileVersion = version;
+  }
+
+  /** Identity of data.json's current contents, or null when there is no file to check. */
+  private currentFileVersion(): string | null {
+    if (Utils.isNullOrWhitespace(this.dataFilePath)) {
+      return null;
+    }
+
+    try {
+      const stat = fs.statSync(this.dataFilePath, { bigint: true });
+      return `${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
+    } catch {
+      return null;
     }
   }
 
