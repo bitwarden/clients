@@ -52,9 +52,9 @@ export interface OnePasswordErrorDisplay {
 }
 
 /**
- * Where and how to show a failed 1Password import. What the user entered is marked on its field;
- * everything else, from a lost connection to a vault that could not be saved, is out of their
- * hands and shown as the same toast.
+ * Where and how to show a failed 1Password import. What the user entered is marked on its field,
+ * except an email 1Password refuses, which gets a toast of its own. Everything else, from a lost
+ * connection to a vault that could not be saved, is out of their hands and shown as the same toast.
  */
 export function onePasswordErrorDisplay(error: unknown): OnePasswordErrorDisplay {
   if (!isImportError(error)) {
@@ -67,6 +67,8 @@ export function onePasswordErrorDisplay(error: unknown): OnePasswordErrorDisplay
       return { field: "secretKeyAndPassword", messageKey: "onePasswordCheckCredentials" };
     case "OnePasswordInvalidSecretKey":
       return { field: "secretKey", messageKey: "enterValidSecretKey" };
+    case "OnePasswordInvalidEmail":
+      return { messageKey: "enterValidEmailOrUseDifferentImportMethod" };
     case "OnePasswordInvalidSignInAddress":
       return { field: "signInAddress", messageKey: "enterValidSignInAddress" };
     // Mostly accounts that sign in with SSO, which the importer does not support yet.

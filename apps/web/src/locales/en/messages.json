@@ -17273,6 +17273,9 @@
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
   },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
   "onePasswordImportError": {
     "message": "An error has occurred. Try again or use a different import method."
   },

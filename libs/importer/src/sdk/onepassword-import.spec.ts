@@ -43,6 +43,12 @@ describe("onePasswordErrorDisplay", () => {
     expect(onePasswordErrorDisplay(importError(variant))).toEqual(display);
   });
 
+  it("shows an email 1Password refuses in a toast that says so", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordInvalidEmail"))).toEqual({
+      messageKey: "enterValidEmailOrUseDifferentImportMethod",
+    });
+  });
+
   it("shows any other SDK failure in a toast", () => {
     expect(onePasswordErrorDisplay(importError("OnePasswordNetwork"))).toEqual({
       messageKey: "onePasswordImportError",
