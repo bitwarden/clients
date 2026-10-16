@@ -1,13 +1,10 @@
 import { accessRuleDeleteConfirmOptions } from "./access-rule-delete-confirm";
 
 describe("accessRuleDeleteConfirmOptions", () => {
-  it("asks the delete question with the rule name as the only placeholder", () => {
-    expect(accessRuleDeleteConfirmOptions("Prod database")).toEqual({
+  it("asks the delete question with no placeholders", () => {
+    expect(accessRuleDeleteConfirmOptions()).toEqual({
       title: { key: "pamAccessRuleDeleteConfirmTitle" },
-      content: {
-        key: "pamAccessRuleDeleteConfirmContent",
-        placeholders: ["Prod database"],
-      },
+      content: { key: "pamAccessRuleDeleteConfirmDescription" },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
       type: "danger",
