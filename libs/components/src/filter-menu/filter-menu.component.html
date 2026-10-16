@@ -4,7 +4,8 @@
     [startIcon]="icon()"
     [endIcon]="active() ? undefined : menuTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"
     type="button"
-    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
+    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent -tw-my-px"
+    [class]="triggerPaddingClass()"
     [class.tw-cursor-not-allowed]="disabled()"
     [bitMenuTriggerFor]="menu"
     [attr.aria-disabled]="disabled() || null"
@@ -21,7 +22,6 @@
     <button
       bit-chip-dismiss-button
       slot="end"
-      class="tw-relative tw-bottom-[1px]"
       type="button"
       [attr.aria-label]="'removeItem' | i18n: displayLabel()"
       [disabled]="disabled()"
@@ -208,12 +208,18 @@
               />
             }
           }
-          <span
-            data-filter-row-label
-            class="tw-min-w-0 tw-flex-1 tw-truncate"
-            [class.tw-font-semibold]="node.row.kind === 'section'"
-            >{{ node.row.label() }}</span
-          >
+          @if (node.row.kind === "section") {
+            <span
+              data-filter-row-label
+              bitTypography="helper"
+              class="tw-min-w-0 tw-flex-1 tw-truncate tw-font-semibold"
+              >{{ node.row.label() }}</span
+            >
+          } @else {
+            <span data-filter-row-label class="tw-min-w-0 tw-flex-1 tw-truncate">{{
+              node.row.label()
+            }}</span>
+          }
           @if (asSection(node.row); as section) {
             <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
             @if (expandable) {
@@ -225,7 +231,7 @@
               >
                 <bit-icon
                   [name]="node.expanded ? 'bwi-angle-up' : 'bwi-angle-down'"
-                  class="tw-text-xs"
+                  class="tw-text-base"
                 ></bit-icon>
               </span>
             }
@@ -284,11 +290,13 @@
                 [bitTooltip]="section.label()"
                 (click)="section.toggleExpanded()"
               >
-                <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
+                <span bitTypography="helper" class="tw-min-w-0 tw-flex-1 tw-truncate">{{
+                  section.label()
+                }}</span>
                 <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
                 <bit-icon
                   [name]="section.open() ? 'bwi-angle-up' : 'bwi-angle-down'"
-                  class="tw-flex-none tw-text-muted"
+                  class="tw-flex-none tw-text-base tw-text-muted"
                   aria-hidden="true"
                 ></bit-icon>
               </button>
@@ -297,7 +305,9 @@
                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-semibold tw-text-muted"
                 [bitTooltip]="section.label()"
               >
-                <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
+                <span bitTypography="helper" class="tw-min-w-0 tw-flex-1 tw-truncate">{{
+                  section.label()
+                }}</span>
                 <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
               </div>
             }
