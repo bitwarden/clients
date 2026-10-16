@@ -101,12 +101,15 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `rulesGoverningCollection` pair the collection dialog uses, and narrows to the
   collection's own PAM-enabled organization before reading at all. A new surface that is
   likewise handed no collection belongs on that helper, not on a re-derived check.
-- `vault-filter-controlled-access/` — the vault sidebar's "Controlled access" group and the
-  narrowing its children apply to the item list. Its children partition
-  `AccessBadgeState.kind`: "Privileged" and "My requests" (`pending`/`ready`/`active`) ship,
-  and "Unavailable" cannot be built at all while `cipherAccessBadgeState()` never produces
-  that kind. Add a child by appending to `CONTROLLED_ACCESS_FILTERS`, not by branching in
-  `narrow$`.
+- `vault-filter-controlled-access/` — the "Controlled access" filter, in two option sets over
+  one narrowing. The legacy sidebar's children (`options$`, `CONTROLLED_ACCESS_FILTERS`) are
+  state groups: "Privileged" and "My requests" (`pending`/`ready`/`active`). The VFO1 vault
+  table's multi-select chip (`tableOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
+  option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
+  the badges on screen; the table ORs the selected options itself. "Unavailable" matches
+  nothing until the SDK produces that kind. Each row's state is read once per row list and
+  shared across options (`kinds$`), so the chip's counts don't multiply the reads. Add an
+  option by appending to the matching list, not by branching in `narrow$`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. Both re-read on `AccessRefreshService` so neither can contradict a mutation

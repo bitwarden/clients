@@ -35,8 +35,9 @@ export type VaultItemsTableFilters = {
   /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
   folder?: string[];
   /**
-   * The id of the selected `VAULT_CONTROLLED_ACCESS_FILTER` option. Single-select, and opaque to
-   * the table: only the host that supplied the option knows what it admits.
+   * Ids of the selected `VAULT_CONTROLLED_ACCESS_FILTER` options. Multi-select: a cipher matches
+   * any selected option. Opaque to the table: only the host that supplied an option knows what it
+   * admits.
    */
-  controlledAccess?: string;
+  controlledAccess?: string[];
 };
