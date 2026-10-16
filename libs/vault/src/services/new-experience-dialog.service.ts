@@ -13,6 +13,8 @@ import {
   NewExperienceDialogResult,
 } from "../components/new-experience-dialog/new-experience-dialog.component";
 
+import { Vfo1TourCalloutService } from "./vfo1-tour-callout.service";
+
 /**
  * Decides whether {@link NewExperienceDialogComponent} should announce the redesigned vault.
  *
@@ -26,11 +28,12 @@ export class NewExperienceDialogService {
   private readonly configService = inject(ConfigService);
   private readonly dialogService = inject(DialogService);
   private readonly nudgesService = inject(NudgesService);
+  private readonly tourCalloutService = inject(Vfo1TourCalloutService);
 
   /**
    * Opens the dialog when the account predates the redesign and has not been told about it yet.
-   * The dialog dismisses the nudge itself, and only from one of its actions, so leaving it any
-   * other way shows it again next time.
+   * The nudge is dismissed only from one of the dialog's actions, so leaving it any other way shows
+   * it again next time. Exploring starts the walkthrough here before the nudge is dismissed.
    *
    * @returns how the dialog was closed, or `null` when it did not open.
    */
@@ -60,6 +63,19 @@ export class NewExperienceDialogService {
       return null;
     }
 
-    return await NewExperienceDialogComponent.open(this.dialogService, { ...params, userId });
+    const result = await NewExperienceDialogComponent.open(this.dialogService, {
+      ...params,
+      userId,
+    });
+    if (result === NewExperienceDialogResult.Explore) {
+      // The nudge stays pending until the tour is running so the side nav callout never claims the slot.
+      try {
+        await this.tourCalloutService.startTour();
+      } finally {
+        await this.nudgesService.dismissNudge(NudgeType.Vfo1NewExperience, userId);
+      }
+    }
+
+    return result;
   }
 }

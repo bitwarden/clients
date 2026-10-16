@@ -6,6 +6,11 @@ export type CoachmarkStepId =
   | "addItem"
   | "shareWithCollections"
   | "monitorSecurity"
+  | "switchProducts"
+  | "vaultList"
+  /** Used by the VFO1 walkthrough. The new-user tour uses `shareWithCollections`. */
+  | "sharedFolders"
+  | "filters"
   //extension vault tour
   | "switchVaults"
   | "mixAndMatchFilters"

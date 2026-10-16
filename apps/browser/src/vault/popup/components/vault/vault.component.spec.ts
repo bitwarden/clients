@@ -47,6 +47,7 @@ import {
   VaultItemsTransferService,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  Vfo1TourCalloutService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -379,11 +380,16 @@ describe("VaultComponent", () => {
           useValue: { translate: (key: string) => key, t: (key: string) => key },
         },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
+        { provide: Vfo1TourCalloutService, useValue: mock<Vfo1TourCalloutService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: new BehaviorSubject([]) } },
         {
           provide: VaultPopupListTableFiltersService,
-          useValue: { cachedFilters: jest.fn().mockReturnValue({}), folders$ },
+          useValue: {
+            cachedFilters: jest.fn().mockReturnValue({}),
+            setCachedVaultScopeId: jest.fn(),
+            folders$,
+          },
         },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },

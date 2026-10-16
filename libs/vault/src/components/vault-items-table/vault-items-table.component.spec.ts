@@ -1,9 +1,17 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  Signal,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter, Router } from "@angular/router";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -37,7 +45,10 @@ import {
   FilterControl,
   FilterMenuComponent,
   FilterOptionRow,
+  BitTableToolbarComponent,
   FilterSectionComponent,
+  PopoverRef,
+  PopoverService,
   SelectionConfig,
 } from "@bitwarden/components";
 import { Measurement } from "@bitwarden/logging";
@@ -47,6 +58,8 @@ import { VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
+import { CoachmarkStepId } from "../coachmark/coachmark-step";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 
 import {
   MAX_SELECTION_COUNT,
@@ -152,6 +165,9 @@ describe("VaultItemsTableComponent", () => {
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
   let batchBar: ReturnType<typeof batchBarDouble>;
+  let activeStepId: WritableSignal<CoachmarkStepId | null>;
+  let coachmark: Partial<CoachmarkService>;
+  let popoverService: MockProxy<PopoverService>;
 
   // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
   // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
@@ -170,6 +186,19 @@ describe("VaultItemsTableComponent", () => {
 
   beforeEach(async () => {
     batchBar = batchBarDouble();
+    activeStepId = signal<CoachmarkStepId | null>(null);
+    coachmark = {
+      activeStepId,
+      isStepActive: (id: CoachmarkStepId) => activeStepId() === id,
+      getStepPosition: () => "left-start",
+      getStepTitle: () => "",
+      getStepDescription: () => "",
+      getStepLearnMoreUrl: () => undefined,
+      currentStepNumber: signal(1),
+      totalSteps: signal(1),
+    };
+    popoverService = mock<PopoverService>();
+    popoverService.open.mockReturnValue(mock<PopoverRef>());
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -214,6 +243,8 @@ describe("VaultItemsTableComponent", () => {
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: VaultBatchBarService, useValue: batchBar },
         provideRouter([]),
+        { provide: CoachmarkService, useValue: coachmark },
+        { provide: PopoverService, useValue: popoverService },
       ],
     }).compileComponents();
 
@@ -556,6 +587,32 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipher, { vault: ["org-1"] })).toBe(true);
       expect(applyFilter(cipher, { folder: ["folder-1"] })).toBe(true);
       expect(applyFilter(cipher, { sharedFolder: ["col-1"] })).toBe(true);
+    });
+  });
+
+  describe("option counts", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ type: CipherType.Login, folderId: "folder-1" as never }),
+        cipherView({ type: CipherType.Login, folderId: "folder-2" as never }),
+        cipherView({ type: CipherType.Card, folderId: "folder-2" as never }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("counts each option against the other active filters", () => {
+      expect(bitTable().optionCount("type", CipherType.Card)).toBe(1);
+
+      filterControl("folder").setValue(["folder-1"]);
+
+      expect(bitTable().optionCount("type", CipherType.Card)).toBe(0);
+      expect(bitTable().optionCount("type", CipherType.Login)).toBe(1);
+    });
+
+    it("ignores the chip's own selection when counting its options", () => {
+      filterControl("folder").setValue(["folder-1"]);
+
+      expect(bitTable().optionCount("folder", ["folder-2"])).toBe(2);
     });
   });
 
@@ -2314,6 +2371,48 @@ describe("VaultItemsTableComponent", () => {
       fixture.destroy();
 
       expect(batchBar.source()).toBeUndefined();
+    });
+  });
+
+  describe("filters coachmark", () => {
+    it("spotlights the filter anchor while the filters step is active", () => {
+      fixture.detectChanges();
+      expect(popoverService.open).not.toHaveBeenCalled();
+
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      expect(popoverService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ spotlight: true, position: "left-start" }),
+      );
+    });
+
+    it("anchors to the inline chips when the filter button is not rendered", () => {
+      fixture.detectChanges();
+      const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+        .componentInstance as BitTableToolbarComponent;
+      const chips = new ElementRef(document.createElement("div"));
+      Object.assign(toolbar, { filterButton: signal(undefined), filterChips: signal(chips) });
+
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      const anchor = popoverService.open.mock.calls[0][1] as Signal<ElementRef>;
+      expect(anchor()).toBe(chips);
+    });
+
+    it("closes the popover when the step ends", () => {
+      const ref = mock<PopoverRef>();
+      popoverService.open.mockReturnValue(ref);
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      activeStepId.set(null);
+      fixture.detectChanges();
+
+      expect(ref.close).toHaveBeenCalled();
     });
   });
 });

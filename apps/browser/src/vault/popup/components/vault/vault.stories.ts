@@ -567,6 +567,18 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     { provide: SearchService, useValue: { isCipherSearching$: of(false) } },
+    {
+      provide: CoachmarkService,
+      useValue: {
+        isStepActive: () => false,
+        getStepPosition: () => undefined,
+        getStepTitle: () => "",
+        getStepDescription: () => "",
+        getStepLearnMoreUrl: () => undefined,
+        currentStepNumber: signal(0),
+        totalSteps: signal(0),
+      } as Partial<CoachmarkService>,
+    },
     // `VaultComponent` hardcodes `useClass: DefaultVaultItemsTransferService` in its own
     // `providers`, which outrank `applicationConfig`, so the real implementation is always
     // constructed and these two dependencies of it have to be satisfied here.

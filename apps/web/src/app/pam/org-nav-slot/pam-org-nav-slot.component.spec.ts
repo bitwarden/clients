@@ -31,7 +31,7 @@ describe("PamOrgNavSlotComponent", () => {
         {
           provide: I18nService,
           useValue: new I18nMockService({
-            pam: "Privileged access",
+            privilegedControls: "Privileged Controls",
             pamAccessRules: "Access rules",
           }),
         },
@@ -70,5 +70,13 @@ describe("PamOrgNavSlotComponent", () => {
     fixture.componentRef.setInput("organization", org(false));
     fixture.detectChanges();
     expect(navGroup()).toBeNull();
+  });
+
+  it("generates no box of its own, so rendering nothing takes up no space", () => {
+    pamEnabled$.next(false);
+    fixture.detectChanges();
+
+    expect(navGroup()).toBeNull();
+    expect(fixture.debugElement.nativeElement.classList).toContain("tw-contents");
   });
 });

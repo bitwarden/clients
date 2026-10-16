@@ -41,7 +41,8 @@ readonly sharedFolders: ChipGroupItem[] = [
 ```
 
 Every `ChipGroupItem` requires an `id` and a `label`; `variant` and `startIcon` are optional and
-default to the action chip's own defaults.
+default to the action chip's own defaults. `accessibleName` is optional too, see
+[Dismissible](#dismissible).
 
 ## Selection
 
@@ -55,6 +56,20 @@ should change which chips are shown, feed a new `chips` array back in.
 
 Selecting a chip from inside the overflow popover closes the popover first, so focus isn't stranded
 in a list the consumer is about to change.
+
+## Dismissible
+
+Set `dismissible` to render input chips with a dismiss button instead of action chips, for a row of
+removable selections such as active filters. The dismiss button is the chip's only control: the chip
+body isn't clickable and `chipSelect` never fires. Dismissing a chip, in the row or in the overflow
+popover, emits it through `chipDismiss`. As with selection, removing it is left to the consumer.
+Dismissing from the popover keeps it open until nothing is left in it. `variant` is ignored, and the
+`+N` chip stays an action chip.
+
+Give an item an `accessibleName` when its visible label leans on context, such as an icon, to
+identify it. It names the dismiss button and fills the tooltip. Without it, the label is used.
+
+<Canvas of={stories.Dismissible} />
 
 ## Overflow
 
@@ -93,7 +108,9 @@ per-chip distinction.
 
 ## Accessibility
 
-- Each chip is a `<button>` named by its visible label, and the row is a `role="group"`.
+- Each chip is a `<button>` named by its visible label, and the row is a `role="group"`. In a
+  dismissible group, each chip's dismiss button is its focusable control, named "Remove" plus the
+  item's `accessibleName` or label.
 - Pass `accessibleName` to name that group (e.g. "Shared folders") when nothing nearby already
   supplies the context. Chip labels alone say what each chip is, not what the collection of them is.
   Omit it when a column header or heading already does that job.

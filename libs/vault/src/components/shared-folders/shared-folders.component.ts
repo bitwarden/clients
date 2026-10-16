@@ -1,19 +1,21 @@
+import { TemplatePortal } from "@angular/cdk/portal";
 import {
-  afterRenderEffect,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
-  ElementRef,
   inject,
-  signal,
+  TemplateRef,
   TrackByFunction,
   untracked,
   viewChild,
+  ViewContainerRef,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { auditTime, combineLatest, fromEvent, map, switchMap } from "rxjs";
+import { combineLatest, map, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -31,7 +33,6 @@ import {
   BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
-  BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   BulkActionComponent,
@@ -43,6 +44,7 @@ import {
   IconButtonModule,
   IconModule,
   IconTileComponent,
+  LayoutFooterService,
   LinkModule,
   MenuModule,
   SearchModule,
@@ -67,6 +69,11 @@ import {
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
+import {
+  BULK_BAR_CLEARANCE,
+  VAULT_TABLE_MIN_HEIGHT,
+  VAULT_TABLE_ROW_HEIGHT,
+} from "../vault-table-sizing";
 
 import { injectVaultOrganizationId } from "./inject-vault-organization";
 import {
@@ -97,30 +104,6 @@ export type SharedFoldersTableColumn = (typeof SHARED_FOLDERS_COLUMNS)[number];
  * filters only, matching the toolbar's own `clearAll()`.
  */
 const SEARCH_FILTER_KEY = "search";
-
-/**
- * `bit-row`'s minimum height in table presentation, in px. A fallback: it sizes the first page and
- * stands in where there's no layout to measure, but a rendered row's measured height wins.
- */
-const ROW_HEIGHT_PX = 56;
-
-/** The chrome below the rows, in px: the paginator's height plus a gutter. */
-const FOOTER_HEIGHT_PX = 84;
-
-/** The fewest rows a page holds. Below this the paginator isn't worth showing. */
-const MIN_PAGE_SIZE = 5;
-
-/** Rows per page until the first row has been measured. */
-const DEFAULT_PAGE_SIZE = 10;
-
-/**
- * Page sizes offered alongside the fitted one — `bit-table-paginator`'s defaults, so a longer page
- * than the window fits can still be asked for.
- */
-const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
-
-/** How long a burst of `resize` events is collapsed before re-fitting the page. */
-const RESIZE_AUDIT_MS = 100;
 
 /** The shape of {@link BitTableV2Component.filterValues} for this table. */
 export type SharedFoldersTableFilters = {
@@ -154,16 +137,17 @@ export type SharedFoldersTableFilters = {
  * gates the single-folder actions as a set: without it the Options column is dropped altogether.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
- *
- * The rows page themselves against the window, so the paginator shows only when the folders don't
- * all fit — see {@link autoPageSize}.
  */
 @Component({
   selector: "vault-shared-folders",
   templateUrl: "./shared-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
+    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    // Inline rather than a `tw-min-h-*` utility: it has to beat the `tw-min-h-0` above, which
+    // otherwise lets the flex parent shrink the table to nothing.
+    "[style.minHeight.px]": "minTableHeight",
+    "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
     BitCellComponent,
@@ -171,7 +155,6 @@ export type SharedFoldersTableFilters = {
     BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
-    BitTablePaginatorComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BulkActionComponent,
@@ -197,9 +180,11 @@ export class SharedFoldersComponent {
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly layoutFooter = inject(LayoutFooterService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly destroyRef = inject(DestroyRef);
 
-  /** Measured to fit the page to the window — see {@link autoPageSize}. */
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
   /** The projected table, for the selection model it owns — see {@link reconcileSelection}. */
   private readonly tableComponent = viewChild(BitTableV2Component<SharedFolderRow>);
@@ -264,13 +249,21 @@ export class SharedFoldersComponent {
 
   protected readonly trackById: TrackByFunction<SharedFolderRow> = (_index, row) => row.id;
 
+  protected readonly rowHeight = VAULT_TABLE_ROW_HEIGHT;
+  protected readonly minTableHeight = VAULT_TABLE_MIN_HEIGHT;
+
   /**
    * The selected rows, read off the table's own model so a bulk action can be handed the rows it
-   * acts on. Read rather than mirrored through `selectedChange`, so it empties with the model when
-   * selection turns off — see {@link selection}. The bar reads its own count off the table.
+   * acts on, and the bar its count — it sits outside the table. Read rather than mirrored through
+   * `selectedChange`, so it empties with the model when selection turns off — see {@link selection}.
    */
   protected readonly selectedRows = computed<readonly SharedFolderRow[]>(
     () => this.tableComponent()?.selectionModel()?.selected() ?? [],
+  );
+
+  /** Bottom margin held while the bulk-actions bar is up. */
+  protected readonly bulkBarClearance = computed(() =>
+    this.selectedRows().length > 0 ? BULK_BAR_CLEARANCE : 0,
   );
 
   /**
@@ -383,64 +376,7 @@ export class SharedFoldersComponent {
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
 
-  /**
-   * The window's height, in px, so the fitted page follows a resize. Audited because `resize` fires
-   * in bursts while a window is dragged.
-   */
-  private readonly viewportHeight = toSignal(
-    fromEvent(window, "resize").pipe(
-      auditTime(RESIZE_AUDIT_MS),
-      map(() => window.innerHeight),
-    ),
-    { initialValue: window.innerHeight },
-  );
-
-  /**
-   * The first rendered row's distance from the top of the viewport, in px, which accounts for the
-   * page header, toolbar, and table header at once rather than assuming any of their heights.
-   * `undefined` until a row has rendered.
-   */
-  private readonly rowsTop = signal<number | undefined>(undefined);
-
-  /** A rendered row's measured height, in px, falling back to {@link ROW_HEIGHT_PX}. */
-  private readonly rowHeight = signal(ROW_HEIGHT_PX);
-
-  /**
-   * Rows per page: as many as fit between the top of the rows and the bottom of the window. This is
-   * what makes the paginator conditional — the template hides a single-page paginator, so
-   * pagination appears exactly when the window can't show every folder at once.
-   */
-  protected readonly autoPageSize = computed(() => {
-    const top = this.rowsTop();
-    if (top === undefined) {
-      return DEFAULT_PAGE_SIZE;
-    }
-    // Clamped at 0: scrolled far enough down, the rows start above the viewport, and the room they
-    // have is the whole window rather than more of it.
-    const available = this.viewportHeight() - Math.max(0, top) - FOOTER_HEIGHT_PX;
-    return Math.max(MIN_PAGE_SIZE, Math.floor(available / this.rowHeight()));
-  });
-
-  /**
-   * The sizes the paginator's select offers: the fitted size and {@link PAGE_SIZE_OPTIONS}, in
-   * order. The fitted size is included so the select isn't blank on a value it has no option for.
-   * A size chosen by hand holds until the next resize, which re-fits.
-   */
-  protected readonly pageSizeOptions = computed(() =>
-    [...new Set([this.autoPageSize(), ...PAGE_SIZE_OPTIONS])].sort((a, b) => a - b),
-  );
-
   constructor() {
-    // Re-fit at first paint, as the folders arrive and change, and on resize. A render effect so
-    // the measurement sees laid-out rows; it depends on nothing it writes, so the re-render it
-    // triggers doesn't run it again.
-    afterRenderEffect(() => {
-      this.sharedFolders();
-      this.loading();
-      this.viewportHeight();
-      this.measureRows();
-    });
-
     // Carry the selection onto each new set of rows — see `reconcileSelection`. The rows and the
     // model are the only dependencies; the selection it reads and writes stays untracked, so the
     // reconciliation doesn't re-run itself.
@@ -452,6 +388,21 @@ export class SharedFoldersComponent {
       }
       untracked(() => this.reconcileSelection(model, rows));
     });
+
+    // The bar is `position: fixed`, but inline it would sit inside the layout's <main>, whose
+    // `contain: strict` makes it the containing block — so the hidden bar, translated below the
+    // fold, would add scroll height to the page. The layout's footer region, a sibling of <main>,
+    // escapes that. Matches `bit-vault-batch-action`.
+    afterNextRender(() => {
+      const portal = new TemplatePortal(this.bulkBarTemplate(), this.viewContainerRef);
+      this.layoutFooter.attach(portal);
+      this.destroyRef.onDestroy(() => this.layoutFooter.detach(portal));
+    });
+  }
+
+  /** Clears the table's selection, for the bulk actions bar's dismiss. */
+  protected clearSelection(): void {
+    this.tableComponent()?.selectionModel()?.clear();
   }
 
   protected async addSharedFolder(): Promise<void> {
@@ -548,25 +499,6 @@ export class SharedFoldersComponent {
 
     model.clear();
     model.select(...current);
-  }
-
-  /**
-   * Measures the first rendered row: its top edge sets how much of the window is left for rows, its
-   * height sets how many fit. Both come off the one row, so a table whose first row wraps is fitted
-   * a little short rather than a little long.
-   */
-  private measureRows(): void {
-    const row = this.host.nativeElement.querySelector("bit-row");
-    if (row == null) {
-      return;
-    }
-    const { top, height } = row.getBoundingClientRect();
-    this.rowsTop.set(top);
-    // An unlaid-out row measures 0 (a `TestBed` has no layout engine), and every row would fit in a
-    // page of zero-height rows.
-    if (height > 0) {
-      this.rowHeight.set(height);
-    }
   }
 
   private matchesSearch(row: SharedFolderRow, search: string | undefined): boolean {
