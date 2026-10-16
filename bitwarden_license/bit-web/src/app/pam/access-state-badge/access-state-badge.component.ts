@@ -22,7 +22,7 @@ import {
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =
-  "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check" | "bwi-exclamation-triangle";
+  "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check-circle" | "bwi-warning";
 
 type BadgeRecipe = {
   readonly variant: BadgeVariant;
