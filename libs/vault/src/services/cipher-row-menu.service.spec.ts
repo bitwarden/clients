@@ -543,26 +543,40 @@ describe("CipherRowMenuService", () => {
     });
   });
 
-  describe("PAM-gated (partial) rows", () => {
-    it("hides archive even when the user has premium", () => {
+  describe("restricted rows", () => {
+    /** Inputs that show each action for an unrestricted cipher. */
+    const cases: [string, Parameters<typeof makeCipher>[0]][] = [
+      ["addFavorite", {}],
+      ["removeFavorite", { favorite: true }],
+      ["edit", {}],
+      ["attachments", {}],
+      ["clone", {}],
+      ["addToSharedFolder", { canAssignToCollections: true }],
+      ["archive", {}],
+      ["unarchive", { isArchived: true }],
+      ["restore", { isDeleted: true }],
+      ["delete", {}],
+      ["permanentlyDelete", { isDeleted: true }],
+    ];
+    const allowed = new Set(["addFavorite", "removeFavorite", "archive", "unarchive"]);
+
+    beforeEach(() => {
       userCanArchiveSubject.next(true);
-      expect(show("archive", makeCipher({ partial: true }))).toBe(false);
+      organizationsSubject.next([{ id: "org-1" } as Organization]);
     });
 
-    it("hides unarchive", () => {
-      expect(show("unarchive", makeCipher({ isArchived: true, partial: true }))).toBe(false);
+    const collections = () => [
+      { id: "collection-1", organizationId: "org-1", readOnly: false } as CollectionView,
+    ];
+
+    it.each(cases)("%s shows for an unrestricted row", (actionId, overrides) => {
+      expect(show(actionId, makeCipher(overrides), collections())).toBe(true);
     });
 
-    it("hides restore", () => {
-      expect(show("restore", makeCipher({ isDeleted: true, partial: true }))).toBe(false);
-    });
-
-    it("hides delete", () => {
-      expect(show("delete", makeCipher({ partial: true }))).toBe(false);
-    });
-
-    it("hides permanentlyDelete", () => {
-      expect(show("permanentlyDelete", makeCipher({ isDeleted: true, partial: true }))).toBe(false);
+    it.each(cases)("%s follows the restricted-cipher policy", (actionId, overrides) => {
+      expect(show(actionId, makeCipher({ ...overrides, partial: true }), collections())).toBe(
+        allowed.has(actionId),
+      );
     });
   });
 });

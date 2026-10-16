@@ -345,4 +345,53 @@ describe("CipherAuthorizationService", () => {
       });
     });
   });
+
+  describe("restricted ciphers", () => {
+    const createRestrictedCipher = () => {
+      const permissions = new CipherPermissionsApi();
+      permissions.delete = true;
+      permissions.restore = true;
+      return {
+        ...createMockCipher("org1", ["col1"], true, permissions),
+        partial: true,
+      } as CipherView;
+    };
+
+    beforeEach(() => {
+      const organization = createMockOrganization({
+        canEditAllCiphers: true,
+        canEditUnassignedCiphers: true,
+        isAdmin: true,
+        editAnyCollection: true,
+      });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+      mockCollectionService.decryptedCollections$.mockReturnValue(
+        of([createMockCollection("col1", true)] as CollectionView[]),
+      );
+    });
+
+    it.each([false, true])(
+      "returns false for edit, delete, restore and clone (isAdminConsoleAction: %s)",
+      async (isAdminConsoleAction) => {
+        const cipher = createRestrictedCipher();
+
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canEditCipher$(cipher, isAdminConsoleAction)),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canDeleteCipher$(cipher, isAdminConsoleAction)),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(
+            cipherAuthorizationService.canRestoreCipher$(cipher, isAdminConsoleAction),
+          ),
+        ).resolves.toBe(false);
+        await expect(
+          firstValueFrom(cipherAuthorizationService.canCloneCipher$(cipher, isAdminConsoleAction)),
+        ).resolves.toBe(false);
+      },
+    );
+  });
 });

@@ -43,6 +43,10 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+import {
   AsyncActionsModule,
   BitIconButtonComponent,
   ChipActionComponent,
@@ -253,11 +257,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The footer's trailing Archive/Unarchive/Delete icon buttons, withheld like {@link showEdit}
-   * for a partial-data cipher the caller has no access to yet.
+   * The footer's trailing Archive/Unarchive/Delete icon buttons. Archive is a user field, so it
+   * shows for a restricted cipher too; Delete is gated separately by {@link showDeleteButton}.
    */
   protected get showActionButtons() {
-    return this.cipher !== null && this.formConfig.mode !== "clone" && !this.isPartialData;
+    return this.cipher !== null && this.formConfig.mode !== "clone";
+  }
+
+  /** The footer's Delete icon button, withheld for a restricted cipher. */
+  protected get showDeleteButton() {
+    return (
+      this.cipher != null &&
+      RestrictedCipherPolicy.allows(this.cipher, RestrictedCipherAction.Delete)
+    );
   }
 
   /**
@@ -279,16 +291,24 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * True for a gated cipher opened without access, whose sensitive fields the server suppressed.
+   * True for a restricted cipher, whose sensitive fields the server suppressed.
    * Must not be edited, or saving would overwrite those fields with blanks.
    */
-  protected get isPartialData() {
-    return this.cipher?.partial ?? false;
+  protected get editBlockedByRestriction() {
+    return (
+      this.cipher != null &&
+      !RestrictedCipherPolicy.allows(this.cipher, RestrictedCipherAction.Edit)
+    );
   }
 
   protected get showEdit() {
-    // The host banner owns a partial-data cipher's access flow until the full cipher is revealed.
-    return this.showCipherView && !this.isTrashFilter && !this.showRestore && !this.isPartialData;
+    // The host banner owns a restricted cipher's access flow until the full cipher is revealed.
+    return (
+      this.showCipherView &&
+      !this.isTrashFilter &&
+      !this.showRestore &&
+      !this.editBlockedByRestriction
+    );
   }
 
   protected get showCipherView() {
@@ -495,7 +515,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         ),
       );
 
-      if ((this.disableEdit || this.isPartialData) && this.params.mode === "form") {
+      if ((this.disableEdit || this.editBlockedByRestriction) && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();

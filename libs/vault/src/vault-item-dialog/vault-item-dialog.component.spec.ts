@@ -231,48 +231,64 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
-  describe("partial-data (gated) ciphers", () => {
+  describe("restricted ciphers", () => {
     beforeEach(() => {
       component.setTestParams({ mode: "view" });
       component["canEdit"] = true;
       component["canDelete"] = true;
     });
 
-    it("isPartialData is false for a normal cipher", () => {
+    it("editBlockedByRestriction is false for a normal cipher", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
 
-      expect(component["isPartialData"]).toBe(false);
+      expect(component["editBlockedByRestriction"]).toBe(false);
     });
 
-    it("isPartialData is true when the cipher is partial", () => {
+    it("editBlockedByRestriction is true when the cipher is restricted", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
-      expect(component["isPartialData"]).toBe(true);
+      expect(component["editBlockedByRestriction"]).toBe(true);
     });
 
-    it("hides Edit for a partial-data cipher even when the user could otherwise edit", () => {
+    it("hides Edit for a restricted cipher even when the user could otherwise edit", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
-      // Saving a partial cipher would clobber the server-suppressed fields.
+      // Saving a restricted cipher would clobber the server-suppressed fields.
       expect(component["showEdit"]).toBe(false);
     });
 
-    it("shows Edit for the same cipher once it is no longer partial", () => {
+    it("shows Edit for the same cipher once it is no longer restricted", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
 
       expect(component["showEdit"]).toBe(true);
     });
 
-    it("hides the footer's Archive and Delete icon buttons for a partial-data cipher", () => {
+    it("shows the footer's Archive buttons but hides Delete for a restricted cipher", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
-      expect(component["showActionButtons"]).toBe(false);
+      expect(component["showActionButtons"]).toBe(true);
+      expect(component["showDeleteButton"]).toBe(false);
     });
 
-    it("shows the footer's icon buttons for the same cipher once it is no longer partial", () => {
+    it("shows Delete for the same cipher once it is no longer restricted", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
 
       expect(component["showActionButtons"]).toBe(true);
+      expect(component["showDeleteButton"]).toBe(true);
+    });
+
+    it("falls back to view mode when opened in form mode", async () => {
+      jest
+        .spyOn(component as any, "getDecryptedCipherView")
+        .mockResolvedValue({ id: "c1", type: CipherType.Login, partial: true, collectionIds: [] });
+      canEditCipherReturnValue$.next(true);
+      component.setTestParams({ mode: "form" });
+
+      await component.ngOnInit();
+
+      expect(component["params"].mode).toBe("view");
+      expect(component["loadForm"]).toBe(false);
+      canEditCipherReturnValue$.next(false);
     });
   });
 

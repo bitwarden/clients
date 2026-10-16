@@ -232,15 +232,22 @@ describe("DefaultCipherArchiveService", () => {
       );
     });
 
-    it("refuses a gated cipher before any request", async () => {
+    it("archives a restricted cipher, since archive is a user field", async () => {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
+      );
       mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
 
-      await expect(service.archiveWithServer(cipherId, userId)).rejects.toThrow(
-        GatedCipherWriteError,
-      );
+      await service.archiveWithServer(cipherId, userId);
 
-      expect(mockCipherService.assertWritable).toHaveBeenCalledWith(cipherId, userId);
-      expect(mockApiService.send).not.toHaveBeenCalled();
+      expect(mockCipherService.assertWritable).not.toHaveBeenCalled();
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/ciphers/archive",
+        expect.any(CipherBulkArchiveRequest),
+        true,
+        true,
+      );
     });
   });
 
@@ -305,14 +312,22 @@ describe("DefaultCipherArchiveService", () => {
       );
     });
 
-    it("refuses a gated cipher before any request", async () => {
+    it("unarchives a restricted cipher, since archive is a user field", async () => {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
+      );
       mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
 
-      await expect(service.unarchiveWithServer(cipherId, userId)).rejects.toThrow(
-        GatedCipherWriteError,
-      );
+      await service.unarchiveWithServer(cipherId, userId);
 
-      expect(mockApiService.send).not.toHaveBeenCalled();
+      expect(mockCipherService.assertWritable).not.toHaveBeenCalled();
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/ciphers/unarchive",
+        expect.any(CipherBulkUnarchiveRequest),
+        true,
+        true,
+      );
     });
   });
 });

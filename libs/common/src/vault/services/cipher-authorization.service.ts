@@ -10,6 +10,7 @@ import { getUserId } from "../../auth/services/account.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { getByIds } from "../../platform/misc";
 import { CipherLike } from "../types/cipher-like";
+import { RestrictedCipherAction, RestrictedCipherPolicy } from "../utils/restricted-cipher-policy";
 
 /**
  * Service for managing user cipher authorization.
@@ -90,6 +91,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canDeleteCipher$}
    */
   canDeleteCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    if (!RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Delete)) {
+      return of(false);
+    }
+
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -113,6 +118,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canRestoreCipher$}
    */
   canRestoreCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    if (!RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Restore)) {
+      return of(false);
+    }
+
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -136,6 +145,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canEditCipher$}
    */
   canEditCipher$(cipher: CipherLike, isAdminConsoleAction: boolean = false): Observable<boolean> {
+    if (!RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Edit)) {
+      return of(false);
+    }
+
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -158,6 +171,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canCloneCipher$}
    */
   canCloneCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    if (!RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Clone)) {
+      return of(false);
+    }
+
     if (cipher.organizationId == null) {
       return of(true);
     }

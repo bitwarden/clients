@@ -17,6 +17,10 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 
@@ -145,7 +149,9 @@ export class CipherRowMenuService {
         icon: "bwi-trash",
         run: (item) => void this.cipherActionService.delete(item, collections),
         show: (item) =>
-          this.canDelete(item) && !CipherViewLikeUtils.isDeleted(item) && !this.isGated(item),
+          this.canDelete(item) &&
+          !CipherViewLikeUtils.isDeleted(item) &&
+          RestrictedCipherPolicy.allows(item, RestrictedCipherAction.Delete),
         variant: "danger",
       },
       {
@@ -154,7 +160,9 @@ export class CipherRowMenuService {
         icon: "bwi-trash",
         run: (item) => void this.cipherActionService.delete(item, collections),
         show: (item) =>
-          this.canDelete(item) && CipherViewLikeUtils.isDeleted(item) && !this.isGated(item),
+          this.canDelete(item) &&
+          CipherViewLikeUtils.isDeleted(item) &&
+          RestrictedCipherPolicy.allows(item, RestrictedCipherAction.Delete),
         variant: "danger",
       },
     ];
@@ -179,13 +187,18 @@ export class CipherRowMenuService {
   }
 
   private showEdit(cipher: CipherViewLike): boolean {
-    return !CipherViewLikeUtils.isDeleted(cipher) && cipher.edit;
+    return (
+      !CipherViewLikeUtils.isDeleted(cipher) &&
+      cipher.edit &&
+      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Edit)
+    );
   }
 
   private showAttachments(cipher: CipherViewLike): boolean {
     if (
       (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) ||
-      CipherViewLikeUtils.isDeleted(cipher)
+      CipherViewLikeUtils.isDeleted(cipher) ||
+      !RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Attachments)
     ) {
       return false;
     }
@@ -193,7 +206,10 @@ export class CipherRowMenuService {
   }
 
   private showClone(cipher: CipherViewLike, collections: CollectionView[]): boolean {
-    if (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) {
+    if (
+      (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) ||
+      !RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Clone)
+    ) {
       return false;
     }
     return this.canClone(cipher, collections) && !CipherViewLikeUtils.isDeleted(cipher);
@@ -207,7 +223,8 @@ export class CipherRowMenuService {
   private showAssignToCollections(cipher: CipherViewLike, collections: CollectionView[]): boolean {
     if (
       CipherViewLikeUtils.isDeleted(cipher) ||
-      !CipherViewLikeUtils.canAssignToCollections(cipher)
+      !CipherViewLikeUtils.canAssignToCollections(cipher) ||
+      !RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.AssignCollections)
     ) {
       return false;
     }
@@ -223,7 +240,7 @@ export class CipherRowMenuService {
     return (
       !CipherViewLikeUtils.isArchived(cipher) &&
       !CipherViewLikeUtils.isDeleted(cipher) &&
-      !this.isGated(cipher)
+      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.UserFields)
     );
   }
 
@@ -231,23 +248,16 @@ export class CipherRowMenuService {
     return (
       CipherViewLikeUtils.isArchived(cipher) &&
       !CipherViewLikeUtils.isDeleted(cipher) &&
-      !this.isGated(cipher)
+      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.UserFields)
     );
   }
 
   private showRestore(cipher: CipherViewLike): boolean {
     return (
-      CipherViewLikeUtils.isDeleted(cipher) && this.canRestore(cipher) && !this.isGated(cipher)
+      CipherViewLikeUtils.isDeleted(cipher) &&
+      this.canRestore(cipher) &&
+      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Restore)
     );
-  }
-
-  /**
-   * The caller has no access to a PAM-gated ("partial") row yet, so the menu withholds actions
-   * that change the item. `vault-cipher-row.component` guards the same entries on `isPartial`;
-   * keep the two in step.
-   */
-  private isGated(cipher: CipherViewLike): boolean {
-    return CipherViewLikeUtils.isPartial(cipher);
   }
 
   private canDelete(cipher: CipherViewLike): boolean {

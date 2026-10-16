@@ -49,6 +49,10 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
+import {
   BitwardenIcon,
   BitCellComponent,
   BitCellDefDirective,
@@ -448,10 +452,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly selection: SelectionConfig<C> = {
     multiple: true,
     max: MAX_SELECTION_COUNT,
-    // No bulk action can operate on an item that failed to decrypt or on a PAM-gated ("partial")
-    // item. `TableSelectionModel` enforces this on `select`, so select-all skips them too.
+    // No bulk action can operate on an item that failed to decrypt or on a restricted item.
+    // `TableSelectionModel` enforces this on `select`, so select-all skips them too.
     canSelect: (row) =>
-      !CipherViewLikeUtils.decryptionFailure(row) && !CipherViewLikeUtils.isPartial(row),
+      !CipherViewLikeUtils.decryptionFailure(row) &&
+      RestrictedCipherPolicy.allows(row, RestrictedCipherAction.BulkSelect),
   };
 
   /**
