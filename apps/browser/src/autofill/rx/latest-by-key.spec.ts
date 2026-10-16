@@ -11,7 +11,9 @@ describe("latestByKey", () => {
 
   it("emits the empty map before any pair, so a join has a value at once", () => {
     scheduler.run(({ cold, expectObservable }) => {
-      expectObservable(cold("-").pipe(latestByKey<string, number>())).toBe("e", {
+      expectObservable(
+        cold<readonly [string, number]>("-").pipe(latestByKey<string, number>()),
+      ).toBe("e", {
         e: new Map(),
       });
     });
