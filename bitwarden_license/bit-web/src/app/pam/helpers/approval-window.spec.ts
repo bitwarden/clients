@@ -1,4 +1,10 @@
-import { durationLabel, exactWindow, reasonText, relativeStart } from "./approval-window";
+import {
+  durationLabel,
+  exactWindow,
+  reasonText,
+  relativeStart,
+  windowRange,
+} from "./approval-window";
 
 describe("reasonText", () => {
   it("returns the trimmed reason", () => {
@@ -108,5 +114,79 @@ describe("exactWindow", () => {
     );
     expect(text).toContain("–");
     expect(text.length).toBeGreaterThan(0);
+  });
+});
+
+describe("windowRange", () => {
+  // Local date components, so the day boundaries hold in any timezone.
+  const now = new Date(2024, 5, 15, 12, 0, 0);
+  const format = (date: Date, options: Intl.DateTimeFormatOptions): string =>
+    new Intl.DateTimeFormat(undefined, options).format(date);
+  const window = (start: Date, end: Date) => ({
+    leaseNotBefore: start.toISOString(),
+    leaseNotAfter: end.toISOString(),
+  });
+
+  it("reads an open window as its end time when it ends today", () => {
+    const end = new Date(2024, 5, 15, 20, 7, 0);
+
+    expect(windowRange(window(new Date(2024, 5, 15, 11, 0, 0), end), now)).toEqual({
+      key: "pamWindowUntil",
+      values: [format(end, { hour: "numeric", minute: "2-digit" })],
+    });
+  });
+
+  it("adds the date to an open window that ends on a later day", () => {
+    const end = new Date(2024, 5, 17, 9, 0, 0);
+
+    expect(windowRange(window(new Date(2024, 5, 15, 11, 0, 0), end), now)).toEqual({
+      key: "pamWindowUntil",
+      values: [
+        `${format(end, { month: "short", day: "numeric" })}, ${format(end, { hour: "numeric" })}`,
+      ],
+    });
+  });
+
+  it("names tomorrow for a window that starts and ends tomorrow, dropping zero minutes", () => {
+    const start = new Date(2024, 5, 16, 9, 0, 0);
+    const end = new Date(2024, 5, 16, 13, 0, 0);
+
+    expect(windowRange(window(start, end), now)).toEqual({
+      key: "pamWindowTomorrowRange",
+      values: [format(start, { hour: "numeric" }), format(end, { hour: "numeric" })],
+    });
+  });
+
+  it("names today for a later window on the same day", () => {
+    const start = new Date(2024, 5, 15, 14, 30, 0);
+    const end = new Date(2024, 5, 15, 16, 0, 0);
+
+    expect(windowRange(window(start, end), now).key).toBe("pamWindowTodayRange");
+  });
+
+  it("names the date for a single-day window further out", () => {
+    const start = new Date(2024, 5, 20, 9, 0, 0);
+    const end = new Date(2024, 5, 20, 10, 0, 0);
+
+    expect(windowRange(window(start, end), now)).toEqual({
+      key: "pamWindowSameDayRange",
+      values: [
+        format(start, { month: "short", day: "numeric" }),
+        format(start, { hour: "numeric" }),
+        format(end, { hour: "numeric" }),
+      ],
+    });
+  });
+
+  it("dates both ends of a future window spanning days", () => {
+    const start = new Date(2024, 8, 30, 16, 12, 0);
+    const end = new Date(2024, 9, 3, 16, 12, 0);
+    const dateTime = (date: Date) =>
+      `${format(date, { month: "short", day: "numeric" })}, ${format(date, { hour: "numeric", minute: "2-digit" })}`;
+
+    expect(windowRange(window(start, end), now)).toEqual({
+      key: "pamWindowRange",
+      values: [dateTime(start), dateTime(end)],
+    });
   });
 });

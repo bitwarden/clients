@@ -11,9 +11,15 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
-import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
+import { toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";
+import {
+  ApproverRow,
+  fromApprovalRow,
+  fromManagedLease,
+  fromUnstartedApproval,
+} from "../approvals/approver-row";
+import { toManagedLeaseRow } from "../approvals/managed-lease-row";
 import {
   HOUR,
   MINUTE,
@@ -31,11 +37,14 @@ import { ApprovalsTabComponent } from "./approvals-tab.component";
 const names = storyNames();
 
 /** `canDecide` is false only for the viewer's own request. */
-function row(overrides: Record<string, unknown>, canDecide = true): ApprovalRow {
-  return toApprovalRow(accessRequest(overrides), names, STORY_NOW, canDecide, "en-US");
+function row(overrides: Record<string, unknown>, canDecide = true): ApproverRow {
+  return fromApprovalRow(
+    toApprovalRow(accessRequest(overrides), names, STORY_NOW, canDecide, "en-US"),
+    STORY_NOW,
+  );
 }
 
-const ROWS: ApprovalRow[] = [
+const PENDING: ApproverRow[] = [
   row({ id: "req-1", submittedAt: new Date(STORY_NOW.getTime() - 2 * HOUR).toISOString() }),
   row({
     id: "req-2",
@@ -58,72 +67,96 @@ const ROWS: ApprovalRow[] = [
   row({ id: "req-4", cipherId: "cipher-2", requesterName: "You", reason: "Own request." }, false),
 ];
 
-function lease(
-  overrides: Record<string, unknown>,
-  extension?: { addedSeconds: number; latestEndMs: number },
-): ManagedLeaseRow {
-  return toManagedLeaseRow(
-    accessRequest({
-      status: "approved",
-      producedLeaseStatus: "active",
-      ...overrides,
-    }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
+/**
+ * Approved and running rows are built against `new Date()`, which `startClockAtStoryNow` has moved to
+ * {@link STORY_NOW}, since the tab drops a row whose window has ended and the badge runs its own
+ * countdown.
+ */
+function approved(overrides: Record<string, unknown>): ApproverRow {
+  return fromUnstartedApproval(
+    accessRequest({ status: "approved", ...overrides }),
     names,
-    extension,
+    new Date(),
+    "en-US",
   );
 }
 
-function activeLeases(): ManagedLeaseRow[] {
+function lease(
+  overrides: Record<string, unknown>,
+  extension?: { addedSeconds: number; latestEndMs: number },
+): ApproverRow {
+  return fromManagedLease(
+    toManagedLeaseRow(
+      accessRequest({
+        status: "approved",
+        producedLeaseStatus: "active",
+        ...overrides,
+      }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
+      names,
+      extension,
+    ),
+    new Date(),
+    "en-US",
+  );
+}
+
+function grantedRows(): ApproverRow[] {
   return [
+    approved({
+      id: "req-ready-1",
+      cipherId: "cipher-3",
+      requesterName: "Katherine Johnson",
+      requesterEmail: "katherine@example.com",
+      leaseNotBefore: fromNow(21 * HOUR),
+      leaseNotAfter: fromNow(25 * HOUR),
+    }),
     lease({
       id: "req-live-1",
       producedLeaseId: "lease-1",
       leaseNotBefore: fromNow(-20 * MINUTE),
       leaseNotAfter: fromNow(40 * MINUTE),
     }),
-    lease({
-      id: "req-live-2",
-      cipherId: "cipher-2",
-      collectionId: "col-2",
-      producedLeaseId: "lease-2",
-      requesterName: "Alan Turing",
-      requesterEmail: "alan@example.com",
-      leaseNotBefore: fromNow(-2 * HOUR),
-      leaseNotAfter: fromNow(3 * HOUR),
-    }),
     lease(
       {
-        id: "req-live-3",
-        cipherId: "cipher-3",
-        producedLeaseId: "lease-3",
-        requesterName: "Katherine Johnson",
-        requesterEmail: "katherine@example.com",
-        leaseNotBefore: fromNow(-90 * MINUTE),
-        leaseNotAfter: fromNow(30 * MINUTE),
+        id: "req-live-2",
+        cipherId: "cipher-2",
+        collectionId: "col-2",
+        producedLeaseId: "lease-2",
+        requesterName: "Alan Turing",
+        requesterEmail: "alan@example.com",
+        leaseNotBefore: fromNow(-2 * HOUR),
+        leaseNotAfter: fromNow(HOUR),
       },
-      { addedSeconds: 2 * 60 * 60, latestEndMs: STORY_NOW.getTime() + 2.5 * HOUR },
+      { addedSeconds: 2 * 60 * 60, latestEndMs: STORY_NOW.getTime() + 2 * 24 * HOUR },
     ),
+    lease({
+      id: "req-live-3",
+      cipherId: "cipher-3",
+      producedLeaseId: "lease-3",
+      requesterName: "Katherine Johnson",
+      requesterEmail: "katherine@example.com",
+      leaseNotBefore: fromNow(-55 * MINUTE),
+      leaseNotAfter: fromNow(4 * MINUTE),
+    }),
   ];
 }
 
-function inbox(
-  options: { rows?: ApprovalRow[]; leases?: () => ManagedLeaseRow[]; loading?: boolean } = {},
-) {
-  const { rows = ROWS, leases = () => [], loading = false } = options;
+function inbox(options: { rows?: () => ApproverRow[]; loading?: boolean } = {}) {
+  const { rows = () => [...PENDING, ...grantedRows()], loading = false } = options;
   return moduleMetadata({
     imports: [ApprovalsTabComponent],
     providers: [
       {
         provide: ApproverInboxService,
-        // A factory, so real-clock lease windows stamp when the story renders, not at module load.
+        // A factory, so real-clock windows stamp when the story renders, not at module load.
         useFactory: () => ({
           loading$: of(loading),
           loadError$: of(null),
-          inboxRows$: of(rows),
-          activeLeaseRows$: of(leases()),
+          approverRows$: of(rows()),
           cipherById$: of(names.cipherById),
           decide: () => Promise.resolve(),
           revokeLease: () => Promise.resolve(),
+          cancelApproval: () => Promise.resolve(),
         }),
       },
       {
@@ -165,30 +198,39 @@ export default {
 
 type Story = StoryObj<ApprovalsTabComponent>;
 
-/** Both sections populated: decisions to make, and access already running. */
+/** Every stage in one table: awaiting a decision, ready to use, in use and ending soon. */
 export const Default: Story = {
-  decorators: [inbox({ leases: activeLeases })],
+  decorators: [inbox()],
 };
 
-/** A chip applied, which renders the toolbar's applied-filter row. */
+/** A Status chip applied, which renders the toolbar's applied-filter row. */
 export const Filtered: Story = {
-  decorators: [inbox({ leases: activeLeases })],
+  decorators: [inbox()],
   play: async ({ canvasElement }) => {
-    const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
+    const trigger = await within(canvasElement).findByRole("button", { name: /^Status/ });
     await userEvent.click(trigger);
-    await userEvent.click(await within(document.body).findByRole("radio", { name: /^Production/ }));
+    await userEvent.click(await within(document.body).findByText("Pending approval"));
     await userEvent.keyboard("{Escape}");
   },
 };
 
-/** Nothing left to decide, but the access the operator granted is still live and can be ended. */
-export const ActiveAccessOnly: Story = {
-  decorators: [inbox({ rows: [], leases: activeLeases })],
+/** The row actions revealed on hover, here on a pending request. */
+export const RowActions: Story = {
+  decorators: [inbox()],
+  play: async ({ canvasElement }) => {
+    const [requester] = await within(canvasElement).findAllByText("Grace Hopper");
+    await userEvent.hover(requester);
+  },
 };
 
-/** Nothing awaiting a decision, as opposed to a filter that matched nothing. */
+/** Nothing awaiting a decision, but access the approver granted is still live and revocable. */
+export const GrantedOnly: Story = {
+  decorators: [inbox({ rows: grantedRows })],
+};
+
+/** Nothing to act on, as opposed to a filter that matched nothing. */
 export const Empty: Story = {
-  decorators: [inbox({ rows: [] })],
+  decorators: [inbox({ rows: () => [] })],
 };
 
 /**
@@ -196,11 +238,11 @@ export const Empty: Story = {
  * that to catch it.
  */
 export const Loading: Story = {
-  decorators: [inbox({ rows: [], loading: true })],
+  decorators: [inbox({ rows: () => [], loading: true })],
   parameters: { chromatic: { delay: 1500 } },
 };
 
 /** A single request, the smallest table before the empty state takes over. */
 export const SingleRequest: Story = {
-  decorators: [inbox({ rows: [ROWS[0]] })],
+  decorators: [inbox({ rows: () => [PENDING[0]] })],
 };

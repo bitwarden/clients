@@ -38,9 +38,7 @@ export function relativeStart(
   if (start.getTime() <= now.getTime()) {
     return { key: "pamInboxStartAsap", value: null };
   }
-  const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const diffDays = Math.round((startDay - today) / 86_400_000);
+  const diffDays = calendarDaysBetween(now, start);
   if (diffDays <= 0) {
     return { key: "pamInboxStartToday", value: null };
   }
@@ -68,4 +66,58 @@ function windowFormatFor(locale: string): Intl.DateTimeFormat {
     windowFormats.set(locale, format);
   }
   return format;
+}
+
+/** An i18n key with already-formatted string placeholders, such as times and dates. */
+export type FormattedLabel = { key: string; values: string[] };
+
+const TIME_ON_THE_HOUR_FORMAT = new Intl.DateTimeFormat(undefined, { hour: "numeric" });
+const TIME_FORMAT = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+const DATE_FORMAT = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
+
+/**
+ * The requested window in words, e.g. "Tomorrow, 9 AM to 1 PM" or "Sep 30, 4:12 PM to Oct 3,
+ * 4:12 PM". A window that has already opened reads as its end alone, e.g. "Until 8:07 PM".
+ */
+export function windowRange(
+  window: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
+  now: Date,
+): FormattedLabel {
+  const start = new Date(Date.parse(window.leaseNotBefore));
+  const end = new Date(Date.parse(window.leaseNotAfter));
+
+  if (start.getTime() <= now.getTime()) {
+    const until = calendarDaysBetween(now, end) === 0 ? formatTime(end) : formatDateTime(end);
+    return { key: "pamWindowUntil", values: [until] };
+  }
+
+  if (calendarDaysBetween(start, end) !== 0) {
+    return { key: "pamWindowRange", values: [formatDateTime(start), formatDateTime(end)] };
+  }
+
+  const times = [formatTime(start), formatTime(end)];
+  switch (calendarDaysBetween(now, start)) {
+    case 0:
+      return { key: "pamWindowTodayRange", values: times };
+    case 1:
+      return { key: "pamWindowTomorrowRange", values: times };
+    default:
+      return { key: "pamWindowSameDayRange", values: [DATE_FORMAT.format(start), ...times] };
+  }
+}
+
+/** Whole local calendar days from `from` to `to`, ignoring the time of day. */
+function calendarDaysBetween(from: Date, to: Date): number {
+  const fromDay = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime();
+  const toDay = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
+  return Math.round((toDay - fromDay) / 86_400_000);
+}
+
+/** "9 AM" on the hour, "8:07 PM" otherwise. */
+function formatTime(date: Date): string {
+  return (date.getMinutes() === 0 ? TIME_ON_THE_HOUR_FORMAT : TIME_FORMAT).format(date);
+}
+
+function formatDateTime(date: Date): string {
+  return `${DATE_FORMAT.format(date)}, ${formatTime(date)}`;
 }
