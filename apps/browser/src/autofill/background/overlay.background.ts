@@ -499,7 +499,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAllCipherTypes,
     refocusField,
   }: UpdateOverlayCiphersParams) {
-    const currentTab = await BrowserApi.getTabFromCurrentWindowId();
+    const currentTab = await BrowserApi.getTabFromCurrentWindow();
 
     if (
       this.focusedFieldData &&
@@ -2662,7 +2662,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * Unlike the other consumers this one still refreshes on a retry it cannot act on, because the
    * auth status and cipher list are stale either way. Only the inline menu is gated: it resolves
-   * its tab from {@link BrowserApi.getTabFromCurrentWindowId}, so without a retained
+   * its tab from {@link BrowserApi.getTabFromCurrentWindow}, so without a retained
    * {@link RETRY_SENDER} to focus first it would refocus a field on whichever tab happens to be
    * active rather than the one the retry named.
    *
