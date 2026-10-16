@@ -19,6 +19,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
   asapScheduler,
+  catchError,
   combineLatest,
   map,
   Observable,
@@ -450,9 +451,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly selection: SelectionConfig<C> = {
     multiple: true,
     max: MAX_SELECTION_COUNT,
-    // No bulk action can operate on an item that failed to decrypt. `TableSelectionModel` enforces
-    // this on `select`, so select-all skips it too.
-    canSelect: (row) => !CipherViewLikeUtils.decryptionFailure(row),
+    // No bulk action can operate on an item that failed to decrypt or on a PAM-gated ("partial")
+    // item. `TableSelectionModel` enforces this on `select`, so select-all skips them too.
+    canSelect: (row) =>
+      !CipherViewLikeUtils.decryptionFailure(row) && !CipherViewLikeUtils.isPartial(row),
   };
 
   /**
@@ -998,9 +1000,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     { optional: true },
   );
 
-  /** The chip's options, already localized by the host. Empty hides the chip. */
+  /**
+   * The chip's options, already localized by the host: its table set when it offers one, else its
+   * sidebar set. Empty hides the chip.
+   */
   protected readonly controlledAccessOptions = toSignal(
-    this.controlledAccessFilter?.options$ ?? of<ControlledAccessFilterOption[]>([]),
+    this.controlledAccessFilter?.tableOptions$ ??
+      this.controlledAccessFilter?.options$ ??
+      of<ControlledAccessFilterOption[]>([]),
     { initialValue: [] as ControlledAccessFilterOption[] },
   );
 
@@ -1097,17 +1104,93 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * Whether the cipher is among the selected Controlled access option's matches. Unresolved
-   * matches let every row pass, as in {@link matchesSearch}, and so does a stale option id from a
-   * bookmarked link.
+   * Whether the cipher is among any selected Controlled access option's matches: OR within the
+   * chip, AND with the other chips. Unresolved matches let every row pass, as in
+   * {@link matchesSearch}, and so does a stale option id from a bookmarked link. Also accepts a
+   * lone id, which a link from before the chip went multi-select still carries.
    */
-  private matchesControlledAccess(cipher: C, optionId: string | undefined): boolean {
-    if (optionId == null) {
+  private matchesControlledAccess(cipher: C, optionIds: string[] | string | undefined): boolean {
+    const selected = optionIds == null ? [] : Array.isArray(optionIds) ? optionIds : [optionIds];
+    if (selected.length === 0) {
       return true;
     }
     this.controlledAccessRequests.next();
-    const matches = this.controlledAccessMatches()?.get(optionId);
-    return matches === undefined || matches.has(String(cipher.id));
+    const byOption = this.controlledAccessMatches();
+    if (byOption === undefined) {
+      return true;
+    }
+    const id = String(cipher.id);
+    return selected.some((optionId) => {
+      const matches = byOption.get(optionId);
+      return matches === undefined || matches.has(id);
+    });
+  }
+
+  /**
+   * Turns true the first time the Controlled access column is sorted, so a vault that never sorts
+   * it makes no `sortRanks$` calls. Delivered on a microtask, as {@link controlledAccessRequested}.
+   */
+  private readonly controlledAccessSortRequests = new Subject<void>();
+  private readonly controlledAccessSortRequested = toSignal(
+    this.controlledAccessSortRequests.pipe(
+      take(1),
+      observeOn(asapScheduler),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  /**
+   * Each row's Controlled access sort rank, by cipher id. A change keeps the old map until the new
+   * one lands, so the order holds steady meanwhile. A failed read falls back to name order: an
+   * error reaching the signal would rethrow inside `bit-table-v2`'s sort and blank the table.
+   */
+  private readonly controlledAccessRanks: Signal<Map<string, number> | undefined> = toSignal(
+    toObservable(
+      computed(() => ({
+        requested: this.controlledAccessSortRequested(),
+        ciphers: this.ciphers(),
+      })),
+    ).pipe(
+      switchMap(({ requested, ciphers }) => {
+        const provider = this.controlledAccessFilter;
+        if (!requested || provider?.sortRanks$ == null) {
+          return of<Map<string, number> | undefined>(undefined);
+        }
+        // Called on the provider, not detached: an implementation may read `this`.
+        return provider
+          .sortRanks$(ciphers)
+          .pipe(catchError(() => of<Map<string, number> | undefined>(undefined)));
+      }),
+    ),
+    { initialValue: undefined },
+  );
+
+  /**
+   * Orders the Controlled access column by the host's {@link controlledAccessRanks}, unranked rows
+   * last ascending. Until the ranks resolve every row ties, leaving them in name order.
+   */
+  protected readonly sortByControlledAccess: SortFn = (a: C, b: C) => {
+    this.controlledAccessSortRequests.next();
+    const ranks = this.controlledAccessRanks();
+    if (ranks === undefined) {
+      return 0;
+    }
+    return this.compareRanks(ranks.get(String(a.id)), ranks.get(String(b.id)));
+  };
+
+  /** Like {@link compareChips}: a missing rank sorts after a present one, and ties return `0`. */
+  private compareRanks(a: number | undefined, b: number | undefined): number {
+    if (a === undefined && b === undefined) {
+      return 0;
+    }
+    if (a === undefined) {
+      return 1;
+    }
+    if (b === undefined) {
+      return -1;
+    }
+    return a - b;
   }
 
   /**
