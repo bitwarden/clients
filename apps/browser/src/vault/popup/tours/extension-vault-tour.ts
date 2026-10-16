@@ -22,15 +22,15 @@ const EXTENSION_VAULT_TOUR_STEPS: CoachmarkStep[] = [
     position: "below-start",
   },
   {
-    id: "mixAndMatchFilters",
-    titleKey: "coachmarkMixAndMatchFiltersTitle",
-    descriptionKey: "coachmarkMixAndMatchFiltersDescription",
+    id: "filters",
+    titleKey: "coachmarkFiltersTitle",
+    descriptionKey: "coachmarkFiltersDescription",
     position: "below-end",
   },
   {
-    id: "newDashboard",
-    titleKey: "coachmarkNewDashboardTitle",
-    descriptionKey: "coachmarkNewDashboardDescription",
+    id: "sharedFolders",
+    titleKey: "coachmarkSharedFoldersTitle",
+    descriptionKey: "coachmarkSharedFoldersDescription",
     position: "above-center",
   },
 ];
@@ -41,8 +41,8 @@ const EXTENSION_VAULT_TOUR_STEPS: CoachmarkStep[] = [
  * @param hasMultipleVaults whether the vault switcher renders; it is hidden for a lone vault, so
  * its step is dropped rather than left with nothing to anchor to.
  * @param hasFolderFilterInScope whether the scoped vault lists a Shared folders or My folders
- * filter. The dashboard step anchors the filter dialog's Shared folders row, falling back to My
- * folders, so it is dropped when neither renders. The engine's `requiresCollections` is
+ * filter. The shared folders step anchors the filter dialog's Shared folders row, falling back to
+ * My folders, so it is dropped when neither renders. The engine's `requiresCollections` is
  * account-wide and can't tell.
  */
 export function extensionVaultTour(
@@ -54,7 +54,7 @@ export function extensionVaultTour(
     steps: EXTENSION_VAULT_TOUR_STEPS.filter(
       (step) =>
         (hasMultipleVaults || step.id !== "switchVaults") &&
-        (hasFolderFilterInScope || step.id !== "newDashboard"),
+        (hasFolderFilterInScope || step.id !== "sharedFolders"),
     ),
     completed: async (userId: UserId) =>
       (await firstValueFrom(

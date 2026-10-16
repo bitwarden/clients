@@ -1176,7 +1176,7 @@ describe("VaultPopupListTableComponent", () => {
     });
 
     it("anchors the filters step to the toolbar's filter button", () => {
-      activeStep.set("mixAndMatchFilters");
+      activeStep.set("filters");
       fixture.detectChanges();
 
       expect(openPopover).toHaveBeenCalledWith(
@@ -1186,14 +1186,14 @@ describe("VaultPopupListTableComponent", () => {
       );
     });
 
-    it("opens the filter dialog and anchors its Shared folders row for the dashboard step", () => {
+    it("opens the filter dialog and anchors its Shared folders row for the shared folders step", () => {
       collections$.next([
         {
           value: { id: "col-1", name: "Alpha", organizationId: "org-1" } as CollectionView,
           label: "Alpha",
         },
       ]);
-      activeStep.set("newDashboard");
+      activeStep.set("sharedFolders");
       fixture.detectChanges();
 
       expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(true);
@@ -1204,9 +1204,9 @@ describe("VaultPopupListTableComponent", () => {
       );
     });
 
-    it("anchors the My folders row for the dashboard step when there are no Shared folders", () => {
+    it("anchors the My folders row for the shared folders step when there are no Shared folders", () => {
       collections$.next([]);
-      activeStep.set("newDashboard");
+      activeStep.set("sharedFolders");
       fixture.detectChanges();
 
       expect(openPopover).toHaveBeenCalledWith(
@@ -1216,11 +1216,11 @@ describe("VaultPopupListTableComponent", () => {
       );
     });
 
-    it("closes the filter dialog when the tour leaves the dashboard step", () => {
-      activeStep.set("newDashboard");
+    it("closes the filter dialog when the tour leaves the shared folders step", () => {
+      activeStep.set("sharedFolders");
       fixture.detectChanges();
 
-      activeStep.set("mixAndMatchFilters");
+      activeStep.set("filters");
       fixture.detectChanges();
 
       expect(popoverRef.close).toHaveBeenCalled();
@@ -1228,8 +1228,8 @@ describe("VaultPopupListTableComponent", () => {
       expect(coachmarkService.completeTour).not.toHaveBeenCalled();
     });
 
-    it("ends the tour when the user closes the filter dialog during the dashboard step", () => {
-      activeStep.set("newDashboard");
+    it("ends the tour when the user closes the filter dialog during the shared folders step", () => {
+      activeStep.set("sharedFolders");
       fixture.detectChanges();
 
       vaultPopupListTableFiltersService.filterDialogOpen.set(false);

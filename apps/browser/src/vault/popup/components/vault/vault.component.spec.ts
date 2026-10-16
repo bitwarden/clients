@@ -1366,8 +1366,8 @@ describe("VaultComponent", () => {
         expect.objectContaining({
           steps: [
             expect.objectContaining({ id: "switchVaults" }),
-            expect.objectContaining({ id: "mixAndMatchFilters" }),
-            expect.objectContaining({ id: "newDashboard" }),
+            expect.objectContaining({ id: "filters" }),
+            expect.objectContaining({ id: "sharedFolders" }),
           ],
         }),
       );
@@ -1383,14 +1383,14 @@ describe("VaultComponent", () => {
       expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
         expect.objectContaining({
           steps: [
-            expect.objectContaining({ id: "mixAndMatchFilters" }),
-            expect.objectContaining({ id: "newDashboard" }),
+            expect.objectContaining({ id: "filters" }),
+            expect.objectContaining({ id: "sharedFolders" }),
           ],
         }),
       );
     }));
 
-    it("skips the dashboard step when the account has no collections", fakeAsync(() => {
+    it("skips the shared folders step when the account has no collections", fakeAsync(() => {
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
       vaultNav$.next({ vaults: [{ id: "user-1" }, { id: "org-1" }] });
       collections$.next([]);
@@ -1401,13 +1401,13 @@ describe("VaultComponent", () => {
         expect.objectContaining({
           steps: [
             expect.objectContaining({ id: "switchVaults" }),
-            expect.objectContaining({ id: "mixAndMatchFilters" }),
+            expect.objectContaining({ id: "filters" }),
           ],
         }),
       );
     }));
 
-    it("keeps the dashboard step when only My folders is listed", fakeAsync(() => {
+    it("keeps the shared folders step when only My folders is listed", fakeAsync(() => {
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
       // A lone personal vault resolves the unscoped route to My vault, which lists no collections.
       vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
@@ -1421,8 +1421,8 @@ describe("VaultComponent", () => {
       expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
         expect.objectContaining({
           steps: [
-            expect.objectContaining({ id: "mixAndMatchFilters" }),
-            expect.objectContaining({ id: "newDashboard" }),
+            expect.objectContaining({ id: "filters" }),
+            expect.objectContaining({ id: "sharedFolders" }),
           ],
         }),
       );
@@ -1430,7 +1430,7 @@ describe("VaultComponent", () => {
       itemsSvc.activeCiphers$.next([]);
     }));
 
-    it("skips the dashboard step when the vault is scoped to My vault", fakeAsync(() => {
+    it("skips the shared folders step when the vault is scoped to My vault", fakeAsync(() => {
       newExperienceDialogSpy.mockResolvedValue(NewExperienceDialogResult.Explore);
       // A lone personal vault resolves the unscoped route to My vault, which lists no collections.
       vaultNav$.next({ vaults: [{ id: "user-1" }], organizationDataOwnership: false });
@@ -1439,7 +1439,7 @@ describe("VaultComponent", () => {
 
       expect(coachmarkSvc.startTour).toHaveBeenCalledWith(
         expect.objectContaining({
-          steps: [expect.objectContaining({ id: "mixAndMatchFilters" })],
+          steps: [expect.objectContaining({ id: "filters" })],
         }),
       );
     }));

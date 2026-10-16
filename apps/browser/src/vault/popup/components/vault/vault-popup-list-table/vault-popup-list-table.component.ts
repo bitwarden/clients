@@ -194,12 +194,12 @@ export class VaultPopupListTableComponent {
       return;
     }
 
-    if (this.coachmark.isStepActive("mixAndMatchFilters")) {
+    if (this.coachmark.isStepActive("filters")) {
       const ref = this.popoverService.open(
         this.filtersCoachmark().popover(),
         toolbar.filterButton,
         {
-          position: this.coachmark.getStepPosition("mixAndMatchFilters"),
+          position: this.coachmark.getStepPosition("filters"),
           spotlight: true,
         },
       );
@@ -207,7 +207,7 @@ export class VaultPopupListTableComponent {
       return;
     }
 
-    if (this.coachmark.isStepActive("newDashboard")) {
+    if (this.coachmark.isStepActive("sharedFolders")) {
       // Falls back to My folders when the scoped vault has no Shared folders row to point at.
       const rowKey = untracked(() => (this.collectionOptions().length ? "collection" : "folder"));
       untracked(() => {
@@ -218,7 +218,7 @@ export class VaultPopupListTableComponent {
         this.sharedFoldersCoachmark().popover(),
         toolbar.filterRow(rowKey),
         {
-          position: this.coachmark.getStepPosition("newDashboard"),
+          position: this.coachmark.getStepPosition("sharedFolders"),
           spotlight: true,
         },
       );
@@ -231,10 +231,10 @@ export class VaultPopupListTableComponent {
     }
   });
 
-  /** Whether the tour opened the filter dialog for its dashboard step and it's still up. */
+  /** Whether the tour opened the filter dialog for its shared folders step and it's still up. */
   private readonly tourOpenedFilterDialog = signal(false);
 
-  /** Closing the dialog takes the dashboard step's anchor with it, so it ends the tour. */
+  /** Closing the dialog takes the shared folders step's anchor with it, so it ends the tour. */
   private readonly endTourOnFilterDialogClose = effect(() => {
     if (this.tourOpenedFilterDialog() && !this.filterDialogOpen()) {
       untracked(() => {

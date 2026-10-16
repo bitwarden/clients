@@ -8485,16 +8485,16 @@
   "coachmarkSwitchVaultsDescription": {
     "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
   },
-  "coachmarkMixAndMatchFiltersTitle": {
+  "coachmarkFiltersTitle": {
     "message": "Mix and match filters"
   },
-  "coachmarkMixAndMatchFiltersDescription": {
+  "coachmarkFiltersDescription": {
     "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
   },
-  "coachmarkNewDashboardTitle": {
+  "coachmarkSharedFoldersTitle": {
     "message": "Collections and folders have new names"
   },
-  "coachmarkNewDashboardDescription": {
+  "coachmarkSharedFoldersDescription": {
     "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "customize": {
