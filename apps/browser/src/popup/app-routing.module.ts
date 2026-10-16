@@ -655,7 +655,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [lockGuard()],
+        canActivate: [lockGuard(), platformPopoutGuard(["linux"])],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
