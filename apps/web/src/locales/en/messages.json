@@ -18287,9 +18287,6 @@
       }
     }
   },
-  "pamInboxReason": {
-    "message": "Reason"
-  },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
   },
@@ -19024,26 +19021,88 @@
   "requestAccessModalRequestCreatedSuccess": {
     "message": "Request submitted — awaiting approval."
   },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "No requests waiting for your decision"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Pending approval"
-  },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamApprovalsStatusInUse": {
+    "message": "In use"
+  },
+  "pamApprovalsStatusEndingSoon": {
+    "message": "Ending soon"
+  },
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
+  },
+  "pamWindowUntil": {
+    "message": "Until $END$",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
+      }
+    }
+  },
+  "pamWindowTodayRange": {
+    "message": "Today, $START$ to $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "9 AM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "1 PM"
+      }
+    }
+  },
+  "pamWindowTomorrowRange": {
+    "message": "Tomorrow, $START$ to $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "9 AM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "1 PM"
+      }
+    }
+  },
+  "pamWindowSameDayRange": {
+    "message": "$DATE$, $START$ to $END$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Sep 30"
+      },
+      "start": {
+        "content": "$2",
+        "example": "9 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "Sep 30, 4:12 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "Oct 3, 4:12 PM"
+      }
+    }
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -19164,9 +19223,6 @@
   },
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
-  },
-  "pamInboxWindow": {
-    "message": "Requested window"
   },
   "pamApprovalsNoResults": {
     "message": "No access requests match your filters."
