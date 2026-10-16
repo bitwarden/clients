@@ -25,7 +25,8 @@ export interface ImportOption {
   /** Subset of acceptedFileTypes that can also be pasted as plaintext into the textarea */
   pasteFormats: readonly string[];
 
-  /** Whether a direct/API-based import mode exists for this vendor, in addition to file import */
+  /** Whether the vendor can be imported directly through its API. Most such vendors also take a
+   *  file; a direct-only format has no `acceptedFileTypes`, `pasteFormats` or `loaders`. */
   hasDirectImporter: boolean;
 
   /** Describes the strategies used to obtain imported data; baseline for clients that don't
@@ -67,6 +68,20 @@ const chromeImportHelp = "https://bitwarden.com/help/import-from-chrome/";
  *  `ImportType` is derived from its keys, and `importOptions` (the ordered array the dropdown
  *  and CLI use) is derived from its entries. */
 export const importOptionsById = deepFreeze({
+  // Direct import only: signs in to 1Password and pulls the account through the SDK, so there is
+  // no file and no `Loader` value that describes it (see metadata/data.ts, as for keeper/lastpass).
+  // The file-based 1Password exports keep their own entries below.
+  onepassword: {
+    name: "1Password (direct)",
+    featuredImporter: true,
+    isBrowser: false,
+    acceptedFileTypes: [],
+    pasteFormats: [],
+    hasDirectImporter: true,
+    loaders: [],
+    sourceName: "1Password",
+    instructionLink: "https://bitwarden.com/help/import-from-1password/",
+  },
   bitwardenjson: {
     name: "Bitwarden (json)",
     featuredImporter: true,
@@ -571,7 +586,7 @@ export const importOptionsById = deepFreeze({
   // link and four <code> filenames/commands, which doesn't fit the flat instructionKey/
   // instructionLink shape.
   gnomejson: {
-    name: "GNOME Passwords and Keys/Seahorse (json)",
+    name: "GNOME/Seahorse (json)",
     featuredImporter: false,
     isBrowser: false,
     acceptedFileTypes: ["json"],
@@ -852,3 +867,11 @@ export type ImportType = keyof typeof importOptionsById;
 export const importOptions: readonly ImportOption[] = Object.entries(importOptionsById).map(
   ([id, option]) => ({ id, ...option }),
 );
+
+/** The unified `keeper` entry covers csv/json via its own Method selector, so these standalone
+ *  variants are hidden from every format-picking UI. They remain valid ids for non-UI consumers
+ *  (CLI) and for backward compatibility — do not remove them from `importOptionsById`. */
+export const HIDDEN_IMPORT_TYPE_IDS: ReadonlySet<string> = new Set<ImportType>([
+  "keepercsv",
+  "keeperjson",
+]);

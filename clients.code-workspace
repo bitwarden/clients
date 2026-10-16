@@ -25,6 +25,10 @@
       "path": "apps/desktop",
     },
     {
+      "name": "desktop (bit)",
+      "path": "bitwarden_license/bit-desktop",
+    },
+    {
       "name": "browser",
       "path": "apps/browser",
     },

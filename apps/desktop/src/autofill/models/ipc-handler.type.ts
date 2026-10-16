@@ -1,6 +1,8 @@
+import type { AutofillIpcErrorKind } from "./autofill-ipc-channels";
+
 export type CompletionCallback<Response> = {
   (error: null, response: Response): void;
-  (error: Error, response: null): void;
+  (error: Error, response: null, kind?: AutofillIpcErrorKind): void;
 };
 /**
  * A listener for an Autofill IPC channel. Invoked with the request payload and

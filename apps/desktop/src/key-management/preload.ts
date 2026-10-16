@@ -8,6 +8,7 @@ import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 
 import {
   AUTOMATION_BIOMETRIC_CHANNEL,
+  AUTOMATION_BIOMETRIC_REQUEST_CHANNEL,
   AutomationBiometricAction,
   AutomationBiometricMessage,
   AutomationBiometricRequest,
@@ -82,16 +83,19 @@ const automation = {
       ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
         action: AutomationBiometricAction.ListPending,
       } satisfies AutomationBiometricMessage),
-    approve: (id?: string): Promise<void> =>
+    approve: (id?: string): Promise<AutomationBiometricRequest[]> =>
       ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
         action: AutomationBiometricAction.Approve,
         id: id,
       } satisfies AutomationBiometricMessage),
-    deny: (id?: string): Promise<void> =>
+    deny: (id?: string): Promise<AutomationBiometricRequest[]> =>
       ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
         action: AutomationBiometricAction.Deny,
         id: id,
       } satisfies AutomationBiometricMessage),
+    onRequest: (callback: (request: AutomationBiometricRequest) => void) => {
+      ipcRenderer.on(AUTOMATION_BIOMETRIC_REQUEST_CHANNEL, (_event, request) => callback(request));
+    },
   },
 };
 

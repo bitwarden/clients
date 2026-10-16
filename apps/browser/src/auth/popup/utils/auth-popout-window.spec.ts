@@ -79,27 +79,43 @@ describe("AuthPopoutWindow", () => {
       expect(BrowserApi.removeWindow).toHaveBeenCalledWith(loginTab.windowId);
     });
 
-    it("queues the pending notification after the popout is created", async () => {
-      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+    it("runs onOpened after the popout is created and before the sender tab is notified", async () => {
+      // Guards the sequencing the docblock describes: the retry is queued after the popout is
+      // created, so an `onRemoved` purge triggered while opening cannot take it, and before the
+      // content script is told the popout opened.
+      const unlockTab = createChromeTabMock({
+        url: chrome.runtime.getURL("popup/index.html#/lock"),
+      });
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([unlockTab]);
       const callOrder: string[] = [];
+      jest.spyOn(BrowserApi, "removeWindow").mockImplementation(async () => {
+        callOrder.push("removeWindow");
+      });
       openPopoutSpy.mockImplementation(async (..._: any[]) => {
         callOrder.push("openPopout");
         return undefined as any;
       });
       sendMessageDataSpy.mockImplementation(async (_tab: any, command: string) => {
-        callOrder.push(`notification:${command}`);
+        callOrder.push(`tabMessage:${command}`);
       });
 
-      await openUnlockPopout(senderTab, {
-        commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender: {} as any },
-        target: "overlay.background",
-      });
+      await openUnlockPopout(senderTab, () => callOrder.push("onOpened"));
 
       expect(callOrder).toEqual([
+        "removeWindow",
         "openPopout",
-        "notification:addToLockedVaultPendingNotifications",
-        "notification:bgUnlockPopoutOpened",
+        "onOpened",
+        "tabMessage:bgUnlockPopoutOpened",
       ]);
+    });
+
+    it("opens the popout when no retry is queued", async () => {
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+
+      await openUnlockPopout(senderTab);
+
+      expect(openPopoutSpy).toHaveBeenCalled();
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {});
     });
   });
 

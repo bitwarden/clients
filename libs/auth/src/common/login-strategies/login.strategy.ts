@@ -30,7 +30,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -54,19 +53,16 @@ type IdentityResponse =
   | IdentitySsoRequiredResponse;
 
 export abstract class LoginStrategyData {
-  tokenRequest:
-    | UserApiTokenRequest
-    | PasswordTokenRequest
-    | SsoTokenRequest
-    | WebAuthnLoginTokenRequest
-    | undefined;
+  abstract readonly tokenRequest:
+    UserApiTokenRequest | PasswordTokenRequest | SsoTokenRequest | WebAuthnLoginTokenRequest;
 
   /** User's entered email obtained pre-login. */
-  abstract userEnteredEmail?: string;
+  abstract readonly userEnteredEmail?: string;
 }
 
-export abstract class LoginStrategy {
-  protected abstract cache: BehaviorSubject<LoginStrategyData>;
+export abstract class LoginStrategy<TData extends LoginStrategyData = LoginStrategyData> {
+  /** Holds the data of the login in progress; `undefined` when no login is in progress. */
+  protected abstract cache: BehaviorSubject<TData | undefined>;
   protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
   sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();
 
@@ -81,7 +77,6 @@ export abstract class LoginStrategy {
     protected platformUtilsService: PlatformUtilsService,
     protected messagingService: MessagingService,
     protected logService: LogService,
-    protected stateService: StateService,
     protected twoFactorService: TwoFactorService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -104,10 +99,7 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult>;
 
   async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
-    const data = this.cache.value;
-    if (!data.tokenRequest) {
-      throw new Error("Token request is undefined");
-    }
+    const data = this.getLoginStrategyDataOrThrow();
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
@@ -119,10 +111,7 @@ export abstract class LoginStrategy {
   protected async startLogIn(): Promise<[AuthResult, IdentityResponse]> {
     await this.twoFactorService.clearSelectedProvider();
 
-    const tokenRequest = this.cache.value.tokenRequest;
-    if (!tokenRequest) {
-      throw new Error("Token request is undefined");
-    }
+    const { tokenRequest } = this.getLoginStrategyDataOrThrow();
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
     if (response instanceof IdentityTwoFactorResponse) {
@@ -136,6 +125,18 @@ export abstract class LoginStrategy {
     }
 
     throw new Error("Invalid response object.");
+  }
+
+  /**
+   * Returns the data of the login in progress.
+   * @throws if no login is in progress.
+   */
+  protected getLoginStrategyDataOrThrow(): TData {
+    const data = this.cache.value;
+    if (data == null) {
+      throw new Error("No login is in progress.");
+    }
+    return data;
   }
 
   protected async buildDeviceRequest() {
@@ -262,7 +263,6 @@ export abstract class LoginStrategy {
       await this.tokenService.setTwoFactorToken(userEmail, response.twoFactorToken);
     }
 
-    await this.setMasterKey(response, userId);
     await this.setAccountCryptographicState(response, userId);
     await this.unlock(response, userId);
 
@@ -276,12 +276,6 @@ export abstract class LoginStrategy {
 
     return result;
   }
-
-  /**
-   * The keys comes from different sources depending on the login strategy
-   * @deprecated This method will be removed with https://bitwarden.atlassian.net/browse/PM-33722
-   */
-  protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   /**
    * Unlocks the SDK for the user using the implementation for the login strategy.
@@ -359,7 +353,7 @@ export abstract class LoginStrategy {
    * Clears the 2FA token from the token service using the user's email if it exists
    */
   private async clearTwoFactorToken() {
-    const email = this.cache.value.userEnteredEmail;
+    const email = this.cache.value?.userEnteredEmail;
     if (email) {
       await this.tokenService.clearTwoFactorToken(email);
     }

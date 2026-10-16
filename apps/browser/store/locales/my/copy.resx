@@ -118,75 +118,75 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden စကားဝှက် မန်နေဂျာ</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>အိမ်တွင်ဖြစ်စေ၊ အလုပ်တွင်ဖြစ်စေ၊ ခရီးသွားနေစဉ်ဖြစ်စေ Bitwarden သည် သင့်စကားဝှက်များ၊ ပါ့စ်ကီးများနှင့် အရေးကြီးသောအချက်အလက်များအားလုံးကို အလွယ်တကူ လုံခြုံစေပါသည်။</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 စသည့် ဆိုက်များက အကောင်းဆုံး စကားဝှက် မန်နေဂျာအဖြစ် အသိအမှတ်ပြုခဲ့သည်!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+သင့်ဒစ်ဂျစ်တယ်ဘဝကို လုံခြုံစေပါ
+အကောင့်တိုင်းအတွက် ထူးခြားပြီး ခိုင်မာသော စကားဝှက်များကို ဖန်တီး၍ သိမ်းဆည်းခြင်းဖြင့် သင့်ဒစ်ဂျစ်တယ်ဘဝကို လုံခြုံစေပြီး ဒေတာချိုးဖောက်မှုများမှ ကာကွယ်ပါ။ သင်သာ ဝင်ရောက်နိုင်သော end-to-end encryption ဖြင့် ကာကွယ်ထားသည့် စကားဝှက် vault တွင် အားလုံးကို ထိန်းသိမ်းပါ။
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ဒေတာကို နေရာမရွေး၊ အချိန်မရွေး၊ စက်ပစ္စည်းမရွေး ဝင်ရောက်သုံးစွဲပါ
+ကန့်သတ်ချက်မရှိဘဲ စက်ပစ္စည်းများစွာတွင် အကန့်အသတ်မရှိသော စကားဝှက်များကို စီမံခန့်ခွဲခြင်း၊ သိမ်းဆည်းခြင်း၊ လုံခြုံစေခြင်းနှင့် မျှဝေခြင်းတို့ကို လွယ်ကူစွာ ပြုလုပ်နိုင်ပါသည်။
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+အွန်လိုင်းတွင် လုံခြုံရေးအတွက် ကိရိယာများ လူတိုင်း ရရှိသင့်သည်
+Bitwarden ကို ကြော်ငြာမပါဘဲ၊ ဒေတာမရောင်းဘဲ အခမဲ့ အသုံးပြုနိုင်ပါသည်။ လူတိုင်း အွန်လိုင်းတွင် လုံခြုံစွာ နေထိုင်နိုင်သင့်ကြောင်း Bitwarden က ယုံကြည်သည်။ Premium အစီအစဉ်များက အဆင့်မြင့် အင်္ဂါရပ်များကို ရရှိစေပါသည်။
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+Bitwarden ဖြင့် သင့်အဖွဲ့များကို စွမ်းဆောင်ရည်မြှင့်ပါ
+Teams နှင့် Enterprise အစီအစဉ်များတွင် ပရောဖက်ရှင်နယ် လုပ်ငန်းသုံး အင်္ဂါရပ်များ ပါဝင်သည်။ ဥပမာများအနေဖြင့် SSO ပေါင်းစပ်မှု၊ self-hosting၊ directory ပေါင်းစပ်မှုနှင့် SCIM provisioning၊ ကမ္ဘာတစ်ဝန်း မူဝါဒများ၊ API ဝင်ရောက်ခွင့်၊ event logs စသည်တို့ ပါဝင်သည်။
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+သင့်ဝန်ထမ်းများကို လုံခြုံစေရန်နှင့် လုပ်ဖော်ကိုင်ဖက်များနှင့် လျှို့ဝှက်အချက်အလက်များ မျှဝေရန် Bitwarden ကို အသုံးပြုပါ။
 
 
-More reasons to choose Bitwarden:
+Bitwarden ကို ရွေးချယ်ရန် အကြောင်းပြချက်များစွာ:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+ကမ္ဘာ့အဆင့် Encryption
+စကားဝှက်များကို ခေတ်မီ end-to-end encryption (AES-256 bit၊ salted hashing နှင့် PBKDF2 SHA-256) ဖြင့် ကာကွယ်ထားသဖြင့် သင့်ဒေတာသည် လုံခြုံပြီး ကိုယ်ပိုင်ဖြစ်နေပါသည်။
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+တတိယပါတီ စစ်ဆေးမှုများ
+Bitwarden သည် နာမည်ကျော် လုံခြုံရေးကုမ္ပဏီများနှင့် အပြည့်အစုံ တတိယပါတီ လုံခြုံရေးစစ်ဆေးမှုများကို ပုံမှန် ပြုလုပ်သည်။ ဤနှစ်စဉ် စစ်ဆေးမှုများတွင် source code သုံးသပ်မှုများနှင့် Bitwarden IP များ၊ ဆာဗာများ၊ web application များပေါ်တွင် penetration testing တို့ ပါဝင်သည်။
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+အဆင့်မြင့် 2FA
+third-party authenticator၊ အီးမေးလ်ပို့ code များ သို့မဟုတ် hardware security key သို့မဟုတ် passkey ကဲ့သို့သော FIDO2 WebAuthn အထောက်အထားများဖြင့် သင့်အကောင့်ဝင်ခြင်းကို လုံခြုံစေပါ။
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+end-to-end encryption လုံခြုံရေးကို ထိန်းသိမ်းထားပြီး ထိတွေ့မှုကို လျှော့ချကာ ဒေတာများကို တိုက်ရိုက် အခြားသူများထံ ပို့ဆောင်ပါ။
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+ပါဝင်ပြီးသား Generator
+သင်သွားရောက်လေ့ရှိသော ဝက်ဘ်ဆိုက်တိုင်းအတွက် ရှည်လျားပြီး ရှုပ်ထွေးကာ ကွဲပြားသော စကားဝှက်များနှင့် ထူးခြားသော အသုံးပြုသူအမည်များ ဖန်တီးပါ။ ပိုမိုကိုယ်ပိုင်ရေးအတွက် email alias ပေးသည့် providers များနှင့် ပေါင်းစပ်ပါ။
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+ကမ္ဘာ့ဘာသာပြန်ဆိုမှုများ
+Bitwarden ဘာသာပြန်ဆိုမှုများသည် ဘာသာစကား 60 ကျော်ဖြင့် ရရှိနိုင်ပြီး Crowdin မှတဆင့် ကမ္ဘာ့အသိုက်အဝန်းက ဘာသာပြန်ဆိုထားသည်။
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Platform မျိုးစုံ Application များ
+ဘရောက်ဇာ၊ မိုဘိုင်းစက်၊ desktop OS စသည်ဖြင့် မည်သည့်စက်မဆိုမှ သင့် Bitwarden Vault အတွင်းရှိ လျှို့ဝှက်ဒေတာများကို လုံခြုံစွာ သိမ်းဆည်းပြီး မျှဝေနိုင်သည်။
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden သည် စကားဝှက်များထက် ပိုမိုလုံခြုံစေသည်
+Bitwarden မှ end-to-end encryption ဖြင့် အထောက်အထား စီမံခန့်ခွဲမှု ဖြေရှင်းနည်းများသည် developer secrets နှင့် passkey အတွေ့အကြုံများအပါအဝင် အားလုံးကို လုံခြုံစေရန် အဖွဲ့အစည်းများကို စွမ်းဆောင်ရည် ပေးသည်။ Bitwarden Secrets Manager နှင့် Bitwarden Passwordless.dev အကြောင်း ပိုမိုသိရှိရန် Bitwarden.com ကို သွားရောက်ကြည့်ရှုပါ!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>အိမ်တွင်ဖြစ်စေ၊ အလုပ်တွင်ဖြစ်စေ၊ ခရီးသွားနေစဉ်ဖြစ်စေ Bitwarden သည် သင့်စကားဝှက်များ၊ ပါ့စ်ကီးများနှင့် အရေးကြီးသောအချက်အလက်များအားလုံးကို အလွယ်တကူ လုံခြုံစေပါသည်။</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>စက်ပစ္စည်းများစွာမှ သင့်သေတ္တာကို စင့်ခ်လုပ်ပြီး အသုံးပြုပါ</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>လုံခြုံသောသေတ္တာမှ သင့်လော့ဂ်အင်များနှင့် စကားဝှက်များအားလုံးကို စီမံပါ</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>သင်ဝင်ရောက်သည့်မည်သည့်ဝဘ်ဆိုက်တွင်မဆို သင့်လော့ဂ်အင်အထောက်အထားများကို လျင်မြန်စွာ အလိုအလျောက်ဖြည့်ပါ</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>သင့်သေတ္တာကို ညာကလစ်မီနူးမှလည်း အဆင်ပြေစွာ အသုံးပြုနိုင်သည်</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>ခိုင်မာ၊ ကျပန်းနှင့် လုံခြုံသောစကားဝှက်များကို အလိုအလျောက်ဖန်တီးပါ</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>သင့်အချက်အလက်များကို AES-256 bit စာဝှက်ခြင်းဖြင့် လုံခြုံစွာစီမံသည်</value>
   </data>
 </root>

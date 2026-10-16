@@ -25,6 +25,30 @@ describe("CipherViewLikeUtils", () => {
     return cipherView;
   };
 
+  describe("getId", () => {
+    const id = "cccc1111-dddd-4eee-8fff-000011112222";
+
+    it("returns the id of a CipherView", () => {
+      const cipherView = createCipherView();
+      cipherView.id = id;
+
+      expect(CipherViewLikeUtils.getId(cipherView)).toBe(id);
+    });
+
+    it("returns the id of a CipherListView", () => {
+      const cipherListView = { id, type: "identity" } as unknown as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBe(id);
+    });
+
+    it("returns undefined when the cipher has no id", () => {
+      const cipherListView = { id: undefined, type: "identity" } as CipherListView;
+
+      expect(CipherViewLikeUtils.getId(createCipherView())).toBeUndefined();
+      expect(CipherViewLikeUtils.getId(cipherListView)).toBeUndefined();
+    });
+  });
+
   describe("isCipherListView", () => {
     it("returns true when the cipher is a CipherListView", () => {
       const cipherListViewLogin = {
@@ -926,6 +950,34 @@ describe("CipherViewLikeUtils", () => {
       const cipherListView = { type: "secureNote" } as CipherListView;
 
       expect(CipherViewLikeUtils.decryptionFailure(cipherListView)).toBe(false);
+    });
+  });
+
+  describe("isPartial", () => {
+    it("returns true when a CipherView is a partial (PAM-gated) row", () => {
+      const cipherView = createCipherView();
+      cipherView.partial = true;
+
+      expect(CipherViewLikeUtils.isPartial(cipherView)).toBe(true);
+    });
+
+    it("returns false when a CipherView is not partial", () => {
+      const cipherView = createCipherView();
+      cipherView.partial = false;
+
+      expect(CipherViewLikeUtils.isPartial(cipherView)).toBe(false);
+    });
+
+    it("reads the partial flag off a CipherListView when present", () => {
+      const cipherListView = { type: "secureNote", partial: true } as unknown as CipherListView;
+
+      expect(CipherViewLikeUtils.isPartial(cipherListView)).toBe(true);
+    });
+
+    it("returns false when the cipher is a CipherListView without a partial flag", () => {
+      const cipherListView = { type: "secureNote" } as CipherListView;
+
+      expect(CipherViewLikeUtils.isPartial(cipherListView)).toBe(false);
     });
   });
 

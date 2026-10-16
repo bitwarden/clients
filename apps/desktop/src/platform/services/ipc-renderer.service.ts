@@ -19,6 +19,8 @@ import {
   Source,
 } from "@bitwarden/sdk-internal";
 
+import { nativeMessagingHost } from "../utils/native-messaging-host";
+
 export class IpcRendererService extends IpcService {
   private logService = inject(LogService);
   private platformUtilsService = inject(PlatformUtilsService);
@@ -37,21 +39,22 @@ export class IpcRendererService extends IpcService {
             );
           }
 
+          // Main relays native-messaging hosts (browser, CLI) and handles its own messages.
           if (
-            (typeof message.destination === "object" &&
-              "BrowserBackground" in message.destination) ||
-            message.destination === "DesktopMain"
+            nativeMessagingHost(message.destination) == null &&
+            message.destination !== "DesktopMain"
           ) {
-            ipc.platform.ipcService.send({
-              type: "bitwarden-ipc-message",
-              message: {
-                destination: message.destination,
-                payload: [...message.payload],
-                topic: message.topic,
-              },
-            } satisfies IpcMessage);
-            return;
+            throw new Error(`Destination not supported: ${JSON.stringify(message.destination)}`);
           }
+
+          ipc.platform.ipcService.send({
+            type: "bitwarden-ipc-message",
+            message: {
+              destination: message.destination,
+              payload: [...message.payload],
+              topic: message.topic,
+            },
+          } satisfies IpcMessage);
         },
       });
 
