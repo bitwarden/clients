@@ -6,6 +6,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/
 import { ActivatedRoute } from "@angular/router";
 import { takeUntil } from "rxjs";
 
+import { ServiceAccountEventLogApiService } from "@bitwarden/bit-common/secrets-manager/service-accounts/event-logs/service-account-event-log-api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -15,8 +16,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ToastService } from "@bitwarden/components";
 import { EventService, BaseEventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
-
-import { ServiceAccountEventLogApiService } from "./service-account-event-log-api.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

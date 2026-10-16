@@ -2,11 +2,10 @@
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
-
-import { SecretService } from "../../secrets/secret.service";
 
 export interface SecretHardDeleteOperation {
   secretIds: string[];

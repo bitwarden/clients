@@ -5,6 +5,8 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
+import { SecretsManagerImportError } from "@bitwarden/bit-common/secrets-manager/settings/models/error/sm-import-error";
+import { SecretsManagerPortingApiService } from "@bitwarden/bit-common/secrets-manager/settings/services/sm-porting-api.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -15,8 +17,6 @@ import {
   SecretsManagerImportErrorDialogComponent,
   SecretsManagerImportErrorDialogOperation,
 } from "../dialog/sm-import-error-dialog.component";
-import { SecretsManagerImportError } from "../models/error/sm-import-error";
-import { SecretsManagerPortingApiService } from "../services/sm-porting-api.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

@@ -99,6 +99,7 @@ bitwarden_license/bit-web/src/app/billing  @bitwarden/team-billing-dev
 
 ## Secrets Manager team files ##
 bitwarden_license/bit-web/src/app/secrets-manager  @bitwarden/team-secrets-manager-dev
+bitwarden_license/bit-common/src/secrets-manager  @bitwarden/team-secrets-manager-dev
 
 ## Platform team files ##
 apps/browser/src/platform         @bitwarden/team-platform-dev

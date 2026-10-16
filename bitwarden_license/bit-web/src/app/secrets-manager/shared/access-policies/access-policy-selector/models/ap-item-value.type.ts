@@ -3,13 +3,13 @@ import {
   GroupAccessPolicyView,
   ServiceAccountAccessPolicyView,
   GrantedProjectAccessPolicyView,
-} from "../../../../models/view/access-policies/access-policy.view";
-import { ProjectServiceAccountsAccessPoliciesView } from "../../../../models/view/access-policies/project-service-accounts-access-policies.view";
-import { SecretAccessPoliciesView } from "../../../../models/view/access-policies/secret-access-policies.view";
+} from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/access-policy.view";
+import { ProjectServiceAccountsAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/project-service-accounts-access-policies.view";
+import { SecretAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/secret-access-policies.view";
 import {
   ServiceAccountGrantedPoliciesView,
   GrantedProjectPolicyPermissionDetailsView,
-} from "../../../../models/view/access-policies/service-account-granted-policies.view";
+} from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/service-account-granted-policies.view";
 
 import { ApItemEnum } from "./enums/ap-item.enum";
 import { ApPermissionEnum, ApPermissionEnumUtil } from "./enums/ap-permission.enum";

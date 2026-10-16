@@ -5,6 +5,8 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ServiceAccountView } from "@bitwarden/bit-common/secrets-manager/models/view/service-account.view";
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,9 +16,6 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { RouterService } from "@bitwarden/web-vault/app/core";
-
-import { ServiceAccountView } from "../../models/view/service-account.view";
-import { ServiceAccountService } from "../service-account.service";
 
 import { serviceAccountAccessGuard } from "./service-account-access.guard";
 

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 
+import { BulkOperationStatus } from "@bitwarden/bit-common/secrets-manager/models/bulk-operation-status";
 import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkStatusDetails {
@@ -10,12 +11,6 @@ export interface BulkStatusDetails {
   columnTitle: string;
   message: string;
   details: BulkOperationStatus[];
-}
-
-export class BulkOperationStatus {
-  id: string;
-  name: string;
-  errorMessage?: string;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

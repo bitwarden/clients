@@ -4,6 +4,8 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
+import { SecretListView } from "@bitwarden/bit-common/secrets-manager/models/view/secret-list.view";
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -22,7 +24,6 @@ import {
 } from "@bitwarden/components";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
-import { SecretListView } from "../models/view/secret-list.view";
 import { SecretsListComponent } from "../shared/secrets-list.component";
 
 import {
@@ -39,7 +40,6 @@ import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
 } from "./dialog/secret-view-dialog.component";
-import { SecretService } from "./secret.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

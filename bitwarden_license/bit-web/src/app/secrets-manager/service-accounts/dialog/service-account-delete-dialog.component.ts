@@ -9,17 +9,17 @@ import {
   AbstractControl,
 } from "@angular/forms";
 
+import { BulkOperationStatus } from "@bitwarden/bit-common/secrets-manager/models/bulk-operation-status";
+import { ServiceAccountView } from "@bitwarden/bit-common/secrets-manager/models/view/service-account.view";
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
-import { ServiceAccountView } from "../../models/view/service-account.view";
 import {
-  BulkOperationStatus,
   BulkStatusDetails,
   BulkStatusDialogComponent,
 } from "../../shared/dialogs/bulk-status-dialog.component";
-import { ServiceAccountService } from "../service-account.service";
 
 export interface ServiceAccountDeleteOperation {
   serviceAccounts: ServiceAccountView[];
