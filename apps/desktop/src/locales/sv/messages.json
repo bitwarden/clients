@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden-logotyp"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -120,6 +123,10 @@
   "resetSearch": {
     "message": "Nollställ sökning"
   },
+  "clearSearchTooltip": {
+    "message": "Rensa genom att klicka här eller trycka på Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Lägg till objekt"
   },
@@ -160,6 +167,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nästlade delade mappar",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nästlad delad mapp",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Min mapp"
   },
@@ -177,9 +198,6 @@
   },
   "addSharedFolder": {
     "message": "Lägg till delad mapp"
-  },
-  "newSharedFolder": {
-    "message": "Ny delad mapp"
   },
   "searchSharedFolder": {
     "message": "Sök delad mapp"
@@ -340,58 +358,6 @@
   "addItemHeaderPassport": {
     "message": "Lägg till pass",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Ny inloggning",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nytt kort",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Ny identitet",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Ny anteckning",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Ny säker anteckning",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Ny SSH-nyckel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nytt bankkonto",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nytt körkort",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nytt pass",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Redigera inloggning",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Redigera kort",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Redigera identitet",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Redigera anteckning",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Redigera säker anteckning",
@@ -1423,6 +1389,27 @@
   "selectFile": {
     "message": "Välj en fil"
   },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
+  },
   "maxFileSize": {
     "message": "Maximal filstorlek är 500 MB."
   },
@@ -2138,6 +2125,25 @@
   "languageDesc": {
     "message": "Ändra språket som används i programmet. Omstart krävs."
   },
+  "passkeyProvider": {
+    "message": "Leverantör av passkeys"
+  },
+  "passkeyProviderDesc": {
+    "message": "Använd Bitwarden för att spara och logga in med passkeys i andra appar."
+  },
+  "turnedOn": {
+    "message": "På"
+  },
+  "turnedOff": {
+    "message": "Av"
+  },
+  "manageInSystemSettings": {
+    "message": "Hantera i systeminställningarna"
+  },
+  "mayOpenSystemSettings": {
+    "message": "Kan öppna appen Systeminställningar.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
+  },
   "theme": {
     "message": "Tema"
   },
@@ -2786,6 +2792,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Kräv huvudlösenord vid omstart av appen"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Den här inställningen ger ett extra skydd genom att hjälpa till att förhindra att andra program på datorn låser upp Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Om du avmarkerar detta kan alla program på datorn låsa upp Bitwarden och få åtkomst till alla sparade lösenord."
   },
   "deleteAccount": {
     "message": "Radera konto"
@@ -3916,6 +3928,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Denna URL är inte tillåten. Den måste använda https och får inte peka på en lokal eller privat nätverksadress.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Ange en giltig URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Osäker URL upptäcktes",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Denna URL kan vara osäker eller peka på ett privat nätverk. Om du använder den kan privata data exponeras. Fortsätt bara om du litar på servern.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Lita på URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Denna URL har markerats som betrodd. Du kan redigera den när som helst.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Okänt $SERVICENAME$ fel uppstod.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4627,11 +4663,7 @@
     "message": "Välj en samling"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+    "message": "Välj en delad mapp"
   },
   "importTargetHintCollection": {
     "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en samling"
@@ -4640,7 +4672,7 @@
     "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Välj detta alternativ om du vill flytta innehållet i den importerade filen till en delad mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -4652,28 +4684,31 @@
     "message": "Välj importfilen"
   },
   "importSourceBreadcrumb": {
-    "message": "Select source"
+    "message": "Välj källa"
+  },
+  "importData": {
+    "message": "Import data"
   },
   "importSourceSelectTitle": {
-    "message": "Select your source"
+    "message": "Välj din källa"
   },
   "importSourceSelectDescription": {
-    "message": "Choose the password manager or browser you are importing from."
+    "message": "Välj lösenordshanteraren eller webbläsaren som du importerar från."
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "Webbläsare"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "Lösenordshanterare"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "Visa alla"
   },
   "importSourceShowLess": {
-    "message": "Show less"
+    "message": "Visa mindre"
   },
   "importSourceStepCount": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "Steg $CURRENT$ av $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -4792,6 +4827,113 @@
   },
   "importHelpCenterLinkText": {
     "message": "Hjälpcenter"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Processen är exakt samma som när du importerar från Google Chrome.",
@@ -4993,11 +5135,44 @@
   "keePassMasterPassword": {
     "message": "KeePass-huvudlösenord"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Lägg till nyckelfil"
   },
   "keyFileUpload": {
     "message": "Uppladdning av nyckelfil"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "Uppladdning av KDBX-fil"
@@ -5111,13 +5286,13 @@
     "message": "Sätt in YubiKey som associeras med ditt LastPass-konto i din dators USB-port, tryck sedan på knappen."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Hemlig nyckel"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Hemlig nyckel och lösenord"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Ditt konto skyddas med en hemlig nyckel och ett lösenord. Du måste ange båda för att fortsätta."
   },
   "keeperEmail": {
     "message": "Keeper-e-post"
@@ -5439,6 +5614,9 @@
     "message": "för att skapa ett starkt unikt lösenord",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometrisk upplåsning är inte tillgänglig eftersom upplåsning med PIN-kod eller lösenord krävs först."
   },
@@ -5581,6 +5759,12 @@
   "savePasskey": {
     "message": "Spara passkey"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "Välj en inloggning där denna passkey ska sparas"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Välj en passkey att logga in med"
+  },
   "saveNewPasskey": {
     "message": "Spara som ny inloggning"
   },
@@ -5608,6 +5792,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "Denna applikation har inte stöd för dubbletter."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Inga passkeys hittades för detta program."
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
   },
   "closeThisWindow": {
     "message": "Stäng detta fönster"
@@ -6270,6 +6469,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Bevilja åtkomst"
   },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
   "upgrade": {
     "message": "Uppgradera"
   },
@@ -6412,10 +6614,10 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "Du har inga mappar"
   },
   "emptyFoldersDescriptionV2": {
-    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+    "message": "Använd mappar för att ordna objekt i valvet. De är bara för dig. Ingen annan kan se eller använda dem."
   },
   "emptyVaultsDescription": {
     "message": "Lägg till inloggningar, ID, kort och andra objekt för att komma igång."
@@ -6795,9 +6997,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "skapa en ny $RPID$-passkey för $USERNAME$",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6809,9 +7011,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "skriv över en $RPID$-passkey för $USERNAME$",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6823,9 +7025,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "logga in som $USERNAME$ med din $RPID$-passkey",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6837,8 +7039,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "Verifiera att det är du för att skapa en ny $RPID$-passkey för $USERNAME$.",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6851,8 +7053,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "Verifiera att det är du för att skriva över en $RPID$-passkey för $USERNAME$.",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6865,8 +7067,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "Verifiera att det är du för att logga in som $USERNAME$ med din $RPID$-passkey.",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6968,5 +7170,82 @@
   },
   "unknownCipher": {
     "message": "Okänt objekt, du kan behöva begära behörighet för att komma åt detta objekt."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden har fått ett nytt utseende",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "En bättre upplevelse med samma pålitliga säkerhet. Bitwarden-valvet har fått en ny utformning baserad på din återkoppling, så det är enklare att hitta och använda.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "En förhandsvisning av Bitwarden-valvet med ny utformning.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Utforska det nya valvet",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Anpassa"
+  },
+  "customizeYourView": {
+    "message": "Anpassa vyn"
+  },
+  "showColumns": {
+    "message": "Visa kolumner"
+  },
+  "resetToDefault": {
+    "message": "Återställ till standardvärden"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importera lösenorden snabbt"
+  },
+  "coachmarkImportDescription": {
+    "message": "Har du använt en lösenordshanterare tidigare? Du kan importera en CSV-fil med befintliga inloggningar och andra data till valvet."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Lägg till ett objekt"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Lägg till nya lösenord, anteckningar och annan information i valvet. Allt skyddas med kryptering från ände till ände."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Dela objekt säkert med andra"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Genom att flytta ett objekt till en samling kan du dela det säkert med andra personer i organisationen."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Genom att flytta ett objekt till en delad mapp kan du dela det säkert med andra medlemmar i valvet."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Övervaka lösenordssäkerheten"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Håll säkerheten för objekten i valvet hög genom att kontrollera rapporter om sårbarheter."
+  },
+  "tourTheNewVault": {
+    "message": "Rundtur i det nya valvet"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Med uppdaterad navigering och utformning är det enklare än någonsin att hitta det du behöver."
+  },
+  "takeTheTour": {
+    "message": "Starta rundturen"
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ av $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

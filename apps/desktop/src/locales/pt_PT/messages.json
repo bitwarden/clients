@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Logótipo do Bitwarden"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -120,6 +123,10 @@
   "resetSearch": {
     "message": "Repor pesquisa"
   },
+  "clearSearchTooltip": {
+    "message": "Clique aqui ou prima Esc para limpar.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Adicionar item"
   },
@@ -160,6 +167,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ pastas partilhadas aninhadas",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 pasta partilhada aninhada",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -177,9 +198,6 @@
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
-  },
-  "newSharedFolder": {
-    "message": "Nova pasta partilhada"
   },
   "searchSharedFolder": {
     "message": "Pesquisar pasta partilhada"
@@ -340,58 +358,6 @@
   "addItemHeaderPassport": {
     "message": "Adicionar passaporte",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Nova credencial",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Novo cartão",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nova identidade",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nova nota",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nova nota segura",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nova chave SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nova conta bancária",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nova licença",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Novo passaporte",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Editar credencial",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Editar cartão",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Editar identidade",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Editar nota",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Editar nota segura",
@@ -1423,6 +1389,27 @@
   "selectFile": {
     "message": "Selecionar um ficheiro"
   },
+  "selectFileUnsupportedType": {
+    "message": "Este tipo de ficheiro não é aceite para esta origem. Escolha outro ficheiro"
+  },
+  "pasteContentRequired": {
+    "message": "Cole o conteúdo exportado"
+  },
+  "fileTypeNotSupported": {
+    "message": "Este tipo de ficheiro não é suportado. Selecione um ficheiro $TYPES$",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "O conteúdo colado não corresponde ao formato selecionado"
+  },
+  "errorReadingFile": {
+    "message": "Não foi possível ler o ficheiro selecionado"
+  },
   "maxFileSize": {
     "message": "O tamanho máximo do ficheiro é de 500 MB."
   },
@@ -2138,6 +2125,25 @@
   "languageDesc": {
     "message": "Altere o idioma utilizado pela aplicação. É necessário reiniciar."
   },
+  "passkeyProvider": {
+    "message": "Fornecedor de chaves de acesso"
+  },
+  "passkeyProviderDesc": {
+    "message": "Utilize o Bitwarden para guardar chaves de acesso e iniciar sessão com elas noutras apps."
+  },
+  "turnedOn": {
+    "message": "Ativado"
+  },
+  "turnedOff": {
+    "message": "Desativado"
+  },
+  "manageInSystemSettings": {
+    "message": "Gerir nas definições do sistema"
+  },
+  "mayOpenSystemSettings": {
+    "message": "Pode abrir a app de definições do sistema.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
+  },
   "theme": {
     "message": "Tema"
   },
@@ -2786,6 +2792,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Exigir a palavra-passe mestra ao reiniciar a app"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Esta definição proporciona uma camada adicional de proteção, ajudando a impedir que outras aplicações no seu computador desbloqueiem o Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Ao desmarcar esta opção, qualquer aplicação no seu computador poderá desbloquear o Bitwarden e aceder a todas as suas palavras-passe guardadas."
   },
   "deleteAccount": {
     "message": "Eliminar conta"
@@ -3916,6 +3928,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Este URL não é permitido. Tem de utilizar HTTPS e não pode apontar para um endereço de uma rede local ou privada.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Introduza um URL válido",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "URL não seguro detetado",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Este URL pode não ser seguro ou apontar para uma rede privada. A sua utilização pode resultar na exposição de dados privados. Continue apenas se confiar neste servidor.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Confiar no URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Este URL foi marcado como fidedigno. Pode editá-lo a qualquer momento.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Ocorreu um erro desconhecido de $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4629,10 +4665,6 @@
   "selectImportSharedFolder": {
     "message": "Selecionar uma pasta partilhada"
   },
-  "importTargetMyFolder": {
-    "message": "A minha pasta",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
@@ -4653,6 +4685,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Selecionar origem"
+  },
+  "importData": {
+    "message": "Importar dados"
   },
   "importSourceSelectTitle": {
     "message": "Selecionar a origem"
@@ -4792,6 +4827,113 @@
   },
   "importHelpCenterLinkText": {
     "message": "Centro de ajuda"
+  },
+  "uploadFile": {
+    "message": "Carregar ficheiro"
+  },
+  "pasteAsPlainText": {
+    "message": "Colar como texto simples"
+  },
+  "plainText": {
+    "message": "Texto simples"
+  },
+  "profile": {
+    "message": "Perfil"
+  },
+  "importManuallyInstead": {
+    "message": "Importar manualmente em alternativa"
+  },
+  "directlyImportInstead": {
+    "message": "Importar diretamente em alternativa"
+  },
+  "fastest": {
+    "message": "Mais rápido"
+  },
+  "importDataTitle": {
+    "message": "Importar os seus dados"
+  },
+  "importDataDirectTitle": {
+    "message": "Importe os seus dados em minutos"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importe os seus itens diretamente do",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "para obter todos os seus dados.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importe a partir do $VENDOR$ ou copie e cole o conteúdo exportado.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Selecione o perfil de onde pretende importar as palavras-passe."
+  },
+  "importDataLoginTitle": {
+    "message": "Iniciar sessão no $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "As suas credenciais são encriptadas durante a transmissão e nunca são armazenadas."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Segurança desde a conceção"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Transferência com encriptação ponto a ponto. O Bitwarden nunca tem acesso às suas credenciais do $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Serão solicitadas as suas credenciais"
+  },
+  "importDataLoginInfoBody": {
+    "message": "No passo seguinte, inicie sessão na sua conta do $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Tudo é transferido"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Credenciais, cartões, identidades, notas seguras e códigos TOTP, mantendo a estrutura das pastas."
+  },
+  "importAcceptedFormats": {
+    "message": "Formatos aceites: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Tipo de ficheiro do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "O processo é exatamente igual ao da importação a partir do Google Chrome.",
@@ -4993,11 +5135,44 @@
   "keePassMasterPassword": {
     "message": "Palavra-passe mestra do KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Palavra-passe do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "A palavra-passe é obrigatória."
+  },
+  "filePasswordRequired": {
+    "message": "A palavra-passe do ficheiro é obrigatória"
+  },
+  "filePasswordInvalid": {
+    "message": "Introduza uma palavra-passe de ficheiro válida."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "O ficheiro carregado está protegido por palavra-passe. Introduza a palavra-passe para continuar."
+  },
+  "selectProfile": {
+    "message": "Selecionar perfil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Introduza uma palavra-passe válida"
+  },
+  "importAccountMismatchError": {
+    "message": "Este ficheiro só pode ser importado para a conta a partir da qual foi exportado."
+  },
   "addKeyFile": {
     "message": "Adicionar ficheiro de chave"
   },
   "keyFileUpload": {
     "message": "Carregar ficheiro de chave"
+  },
+  "keyFileUploadV2": {
+    "message": "Ficheiro de chave"
   },
   "kdbxFileUpload": {
     "message": "Carregar ficheiro KDBX"
@@ -5111,13 +5286,13 @@
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Chave secreta"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Chave secreta e palavra-passe"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A sua conta está protegida por uma chave secreta e uma palavra-passe. Terá de introduzir ambas para continuar."
   },
   "keeperEmail": {
     "message": "E-mail do Keeper"
@@ -5439,6 +5614,9 @@
     "message": "para criar uma palavra-passe forte e única",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "O desbloqueio biométrico ao reiniciar a app foi desativado. Volte a ativá-lo nas definições."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "O desbloqueio biométrico não está disponível porque o desbloqueio por PIN ou palavra-passe é necessário primeiro."
   },
@@ -5581,6 +5759,12 @@
   "savePasskey": {
     "message": "Guardar chave de acesso"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "Escolha uma credencial para guardar esta chave de acesso"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Escolha uma chave de acesso para iniciar sessão"
+  },
   "saveNewPasskey": {
     "message": "Guardar como nova credencial"
   },
@@ -5608,6 +5792,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "Esta aplicação não suporta duplicados."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Não foram encontradas chaves de acesso para esta aplicação."
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "As chaves de acesso de $DOMAIN$ não podem ser guardadas nem utilizadas no Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Guardar a chave de acesso da sua conta Bitwarden no seu cofre pode impedir que volte a aceder à sua conta."
   },
   "closeThisWindow": {
     "message": "Fechar esta janela"
@@ -6270,6 +6469,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Conceder acesso"
   },
+  "noBrowserProfilesFound": {
+    "message": "Não foram encontrados perfis do navegador"
+  },
   "upgrade": {
     "message": "Atualizar"
   },
@@ -6795,9 +6997,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "criar uma nova chave de acesso de $RPID$ para $USERNAME$",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "criar uma nova chave de acesso para $USERNAME$ em $RPID$. O $RPID$ está a solicitar esta verificação para a autenticação multifator",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6809,9 +7011,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "substituir uma chave de acesso de $RPID$ para $USERNAME$",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "substituir uma chave de acesso de $USERNAME$ em $RPID$. O $RPID$ está a solicitar esta verificação para a autenticação multifator",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6823,9 +7025,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "iniciar sessão como $USERNAME$ com a sua chave de acesso de $RPID$",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "iniciar sessão como $USERNAME$ com a sua chave de acesso de $RPID$. O $RPID$ está a solicitar esta verificação para a autenticação multifator",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6837,8 +7039,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "Verifique a sua identidade para criar uma nova chave de acesso $RPID$ para $USERNAME$.",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "Verifique a sua identidade para criar uma nova chave de acesso para $USERNAME$ em $RPID$. O $RPID$ está a solicitar esta verificação para a autenticação multifator.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6851,8 +7053,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "Verifique a sua identidade para substituir uma chave de acesso $RPID$ de $USERNAME$.",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "Verifique a sua identidade para substituir uma chave de acesso de $USERNAME$ em $RPID$. O $RPID$ está a solicitar esta verificação para a autenticação multifator.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6865,8 +7067,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "Verifique a sua identidade para iniciar sessão como $USERNAME$ com a sua chave de acesso $RPID$.",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "Verifique a sua identidade para iniciar sessão como $USERNAME$ com a sua chave de acesso de $RPID$. O $RPID$ está a solicitar esta verificação para a autenticação multifator.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6968,5 +7170,82 @@
   },
   "unknownCipher": {
     "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
+  },
+  "newExperienceDialogTitle": {
+    "message": "O Bitwarden tem um novo visual",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Uma experiência melhor, a mesma segurança em que confia. O cofre do Bitwarden foi redesenhado com base no seu feedback, para que seja mais fácil encontrar o que procura e tudo funcione como espera.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Uma pré-visualização do cofre do Bitwarden redesenhado.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explorar o novo cofre",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personalizar"
+  },
+  "customizeYourView": {
+    "message": "Personalizar a sua vista"
+  },
+  "showColumns": {
+    "message": "Mostrar colunas"
+  },
+  "resetToDefault": {
+    "message": "Repor predefinições"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importe rapidamente as suas palavras-passe"
+  },
+  "coachmarkImportDescription": {
+    "message": "Utilizou um gestor de palavras-passe anteriormente? Pode importar um ficheiro CSV com as credenciais e outros dados existentes para o seu cofre."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Adicionar um item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Adicione novas palavras-passe, notas e outras informações ao seu cofre. Tudo é protegido com encriptação de ponta a ponta."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Partilhe itens com outras pessoas em segurança"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ao mover um item para uma coleção, pode partilhá-lo em segurança com outras pessoas na sua organização."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Ao mover um item para uma pasta partilhada, pode partilhá-lo de forma segura com outros membros do cofre."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitorize a segurança das suas palavras-passe"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Mantenha a segurança dos itens do seu cofre elevada ao consultar relatórios para detetar vulnerabilidades."
+  },
+  "tourTheNewVault": {
+    "message": "Explore o novo cofre"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Com a navegação e o design atualizados, é mais fácil do que nunca encontrar o que procura."
+  },
+  "takeTheTour": {
+    "message": "Fazer o tour"
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden Logo"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -120,6 +123,10 @@
   "resetSearch": {
     "message": "重置搜索"
   },
+  "clearSearchTooltip": {
+    "message": "点击此处或按 Esc 键清除。",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "添加项目"
   },
@@ -160,6 +167,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ 个嵌套的共享文件夹",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 个嵌套的共享文件夹",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "我的文件夹"
   },
@@ -177,9 +198,6 @@
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
-  },
-  "newSharedFolder": {
-    "message": "新增共享文件夹"
   },
   "searchSharedFolder": {
     "message": "搜索共享文件夹"
@@ -340,58 +358,6 @@
   "addItemHeaderPassport": {
     "message": "添加护照",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "新增登录",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增支付卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身份",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增笔记",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全笔记",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 密钥",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增银行账户",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增驾驶证",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增护照",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "编辑登录",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "编辑支付卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "编辑身份",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "编辑笔记",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "编辑安全笔记",
@@ -1423,6 +1389,27 @@
   "selectFile": {
     "message": "选择一个文件"
   },
+  "selectFileUnsupportedType": {
+    "message": "此来源不接受该文件类型。请选择其他文件"
+  },
+  "pasteContentRequired": {
+    "message": "粘贴导出的内容"
+  },
+  "fileTypeNotSupported": {
+    "message": "不支持此文件类型。请选择 $TYPES$ 类型的文件",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "粘贴的内容与所选格式不匹配"
+  },
+  "errorReadingFile": {
+    "message": "所选文件无法读取"
+  },
   "maxFileSize": {
     "message": "文件最大为 500 MB。"
   },
@@ -2138,6 +2125,25 @@
   "languageDesc": {
     "message": "更改应用程序所使用的语言。需要重启。"
   },
+  "passkeyProvider": {
+    "message": "通行密钥提供程序"
+  },
+  "passkeyProviderDesc": {
+    "message": "使用 Bitwarden 保存通行密钥并使用通行密钥在其他 App 中登录。"
+  },
+  "turnedOn": {
+    "message": "已启用"
+  },
+  "turnedOff": {
+    "message": "已停用"
+  },
+  "manageInSystemSettings": {
+    "message": "在系统设置中管理"
+  },
+  "mayOpenSystemSettings": {
+    "message": "可能打开系统设置 App。",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
+  },
   "theme": {
     "message": "主题"
   },
@@ -2786,6 +2792,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "App 重启时要求主密码"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "此设置提供额外的保护，有助于防止计算机上的其他应用程序解锁 Bitwarden。"
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "取消勾选此项意味着计算机上的任何应用程序都可能解锁 Bitwarden 并访问您保存的所有密码。"
   },
   "deleteAccount": {
     "message": "删除账户"
@@ -3916,6 +3928,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "此 URL 不被允许。它必须使用 https，并且不能指向本地或私有网络地址。",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "请输入有效的 URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "检测到不安全的 URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "此 URL 可能不安全或指向私有网络。使用此 URL 可能导致私人数据暴露。请仅在您信任此服务器的情况下继续。",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "信任 URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "此 URL 已被标记为受信任。您可以随时进行编辑。",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "发生未知的 $SERVICENAME$ 错误。",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4629,10 +4665,6 @@
   "selectImportSharedFolder": {
     "message": "选择共享文件夹"
   },
-  "importTargetMyFolder": {
-    "message": "我的文件夹",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
   },
@@ -4653,6 +4685,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "选择源"
+  },
+  "importData": {
+    "message": "导入数据"
   },
   "importSourceSelectTitle": {
     "message": "选择您的源"
@@ -4792,6 +4827,113 @@
   },
   "importHelpCenterLinkText": {
     "message": "帮助中心"
+  },
+  "uploadFile": {
+    "message": "上传文件"
+  },
+  "pasteAsPlainText": {
+    "message": "以纯文本形式粘贴"
+  },
+  "plainText": {
+    "message": "纯文本"
+  },
+  "profile": {
+    "message": "配置文件"
+  },
+  "importManuallyInstead": {
+    "message": "改为手动导入"
+  },
+  "directlyImportInstead": {
+    "message": "改为直接导入"
+  },
+  "fastest": {
+    "message": "最快"
+  },
+  "importDataTitle": {
+    "message": "导入您的数据"
+  },
+  "importDataDirectTitle": {
+    "message": "几分钟即可导入您的数据"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "直接导入您的项目自",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "以获取您的所有数据。",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "从 $VENDOR$ 导入，或复制并粘贴导出的内容。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "选择您希望从中导入密码的配置文件。"
+  },
+  "importDataLoginTitle": {
+    "message": "登录到 $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "您的凭据在传输过程中经过加密，且绝不会被存储。"
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "设计即安全"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "端到端加密传输。Bitwarden 绝不会获取您的 $VENDOR$ 登录详细信息。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "我们将询问您的登录信息"
+  },
+  "importDataLoginInfoBody": {
+    "message": "在下一步中，请登录您的 $VENDOR$ 账户。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "所有内容均可转移"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importAcceptedFormats": {
+    "message": "可接受的格式：$FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ 文件类型",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "此过程与从 Google Chrome 导入完全相同。",
@@ -4993,11 +5135,44 @@
   "keePassMasterPassword": {
     "message": "KeePass 主密码"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ 密码",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "必须填写密码。"
+  },
+  "filePasswordRequired": {
+    "message": "必须填写文件密码"
+  },
+  "filePasswordInvalid": {
+    "message": "请输入有效的文件密码。"
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "上传的文件受密码保护。请输入密码以继续。"
+  },
+  "selectProfile": {
+    "message": "选择配置文件"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "请输入有效的密码"
+  },
+  "importAccountMismatchError": {
+    "message": "此文件只能导入到导出它的账户中。"
+  },
   "addKeyFile": {
     "message": "添加密钥文件"
   },
   "keyFileUpload": {
     "message": "密钥文件上传"
+  },
+  "keyFileUploadV2": {
+    "message": "密钥文件"
   },
   "kdbxFileUpload": {
     "message": "KDBX 文件上传"
@@ -5111,13 +5286,13 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "安全密钥"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "安全密钥和密码"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的账户受安全密钥和密码保护。您需要同时输入两者才能继续。"
   },
   "keeperEmail": {
     "message": "Keeper 电子邮箱"
@@ -5439,6 +5614,9 @@
     "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "生物识别解锁不可用，因为需要先使用 PIN 码或密码解锁。"
   },
@@ -5581,6 +5759,12 @@
   "savePasskey": {
     "message": "保存通行密钥"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "选择一个用于保存此通行密钥的登录项目"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "选择一个用于登录的通行密钥"
+  },
   "saveNewPasskey": {
     "message": "保存为新的登录"
   },
@@ -5608,6 +5792,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "此应用程序不支持重复。"
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "未找到此应用程序的通行密钥。"
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
   },
   "closeThisWindow": {
     "message": "关闭此窗口"
@@ -5677,7 +5876,7 @@
     "message": "未返回搜索结果"
   },
   "sendsBodyNoItems": {
-    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制暴露的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
@@ -6270,6 +6469,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "授予访问权限"
   },
+  "noBrowserProfilesFound": {
+    "message": "未找到浏览器配置文件"
+  },
   "upgrade": {
     "message": "升级"
   },
@@ -6379,7 +6581,7 @@
     "message": "您的密码库是空的"
   },
   "noItemsMatchSelectedFilters": {
-    "message": "没有匹配所选筛选规则的项目"
+    "message": "没有匹配所选筛选的项目"
   },
   "noItemsMatchSearchTerm": {
     "message": "没有匹配「$SEARCH_TERM$」的项目",
@@ -6795,9 +6997,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "为 $USERNAME$ 创建新的通行密钥 $RPID$",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "为 $USERNAME$ 创建新的用于 $RPID$ 的通行密钥。$RPID$ 正在请求此 MFA 检查",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6809,9 +7011,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "覆盖 $USERNAME$ 的通行密钥 $RPID$",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "为 $USERNAME$ 覆盖用于 $RPID$ 的通行密钥。$RPID$ 正在请求此 MFA 检查",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6823,9 +7025,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "使用您的通行密钥 $RPID$，以 $USERNAME$ 身份登录",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "使用用于 $RPID$ 的通行密钥以 $USERNAME$ 身份登录。$RPID$ 正在请求此 MFA 检查",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6837,8 +7039,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "验证是您本人以为 $USERNAME$ 创建新的通行密钥 $RPID$。",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "请验证是您在为 $USERNAME$ 创建新的用于 $RPID$ 的通行密钥。$RPID$ 正在请求此 MFA 检查。",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6851,8 +7053,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "验证是您本人以覆盖 $USERNAME$ 的通行密钥 $RPID$。",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "请验证是您在为 $USERNAME$ 覆盖用于 $RPID$ 的通行密钥。$RPID$ 正在请求此 MFA 检查。",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6865,8 +7067,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "验证是您本人以使用您的通行密钥 $RPID$，以 $USERNAME$ 身份登录。",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "请验证是您在使用用于 $RPID$ 的通行密钥以 $USERNAME$ 身份登录。$RPID$ 正在请求此 MFA 检查。",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6968,5 +7170,82 @@
   },
   "unknownCipher": {
     "message": "未知的项目，您可能需要请求权限才能访问此项目。"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden 拥有一个新的外观",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "体验更佳，安全如初。我们根据您们的反馈重新设计了 Bitwarden 密码库，让查找更便捷，操作更符合您的预期。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "重新设计后的 Bitwarden 密码库预览。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "探索新的密码库",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "自定义"
+  },
+  "customizeYourView": {
+    "message": "自定义您的视图"
+  },
+  "showColumns": {
+    "message": "显示列"
+  },
+  "resetToDefault": {
+    "message": "恢复默认设置"
+  },
+  "coachmarkImportTitle": {
+    "message": "快速导入您的密码"
+  },
+  "coachmarkImportDescription": {
+    "message": "您以前拥有过密码管理器吗？您可以将包含现有登录和其他数据的 CSV 文件导入您的密码库。"
+  },
+  "coachmarkAddItemTitle": {
+    "message": "添加项目"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "将新的密码、笔记及其他信息添加到您的密码库。所有内容均受到端到端加密的保护。"
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "安全地与他人共享项目"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "通过将项目移动到集合，您可以与组织中的其他人安全地共享该项目。"
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "通过将项目移动到共享文件夹，您可以与其他密码库成员安全地共享该项目。"
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "监测您的密码安全性"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
+  },
+  "tourTheNewVault": {
+    "message": "导览新版密码库"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "凭借更新后的导航和设计，查找所需内容变得前所未有的简单。"
+  },
+  "takeTheTour": {
+    "message": "开始导览"
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden-emblemo"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -120,6 +123,10 @@
   "resetSearch": {
     "message": "Nuligi serĉon"
   },
+  "clearSearchTooltip": {
+    "message": "Por nuligi, klaku ĉi tie aŭ premi la eskapo-klavon.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Aldoni eron"
   },
@@ -133,7 +140,7 @@
     "message": "Komunaj dosierujoj"
   },
   "sharedFoldersInParent": {
-    "message": "Kunhavigitaj dosierujoj en $NAME$",
+    "message": "Komunaj dosierujoj en $NAME$",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -143,7 +150,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ kunhavigitaj dosierujoj",
+    "message": "$COUNT$ komunaj dosierujoj",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -152,13 +159,27 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ kunhavigita dosierujo",
+    "message": "$COUNT$ komuna dosierujo",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
     }
+  },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ ingitaj komunaj dosierujoj",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 ingita komuna dosierujo",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
   "myFolder": {
     "message": "Mia dosierujo"
@@ -170,25 +191,22 @@
     "message": "Aldonu dosierujojn al eroj por filtri ilin ĉi tie."
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "Aldoni erojn al Miaj Eroj por filtri ilin ĉi tie."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Aldonu erojn al kunhavigita dosierujo por filtri ĉi tie."
+    "message": "Aldonu erojn al komuna dosierujo por filtri ĉi tie."
   },
   "addSharedFolder": {
     "message": "Aldoni komunan dosierujon"
   },
-  "newSharedFolder": {
-    "message": "Nova komuna dosierujo"
-  },
   "searchSharedFolder": {
-    "message": "Serĉi kunhavigitan dosierujon"
+    "message": "Traserĉi komunan dosierujon"
   },
   "searchMyFolder": {
     "message": "Serĉi Miaj dosierujoj"
   },
   "viewSharedFolderWithName": {
-    "message": "Vidi kunhavigitan dosierujon - $NAME$",
+    "message": "Vidi komunan dosierujon - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -197,10 +215,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Forigi kunhavigitan dosierujon"
+    "message": "Forigi komunan dosierujon"
   },
   "deleteSharedFoldersCount": {
-    "message": "Forigi $COUNT$ kunhavigitajn dosierujojn",
+    "message": "Forigi $COUNT$ komunajn dosierujojn",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -209,19 +227,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "Ĉi tiu kunhavigita dosierujo estos permanente forigita. La eroj en la dosierujo ne estos forigitaj."
+    "message": "Ĉi tiu komuna dosierujo estos permanente forigita. La eroj en la dosierujo ne estos forigitaj."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "Ĉi tiuj kunhavigitaj dosierujoj estos permanente forigitaj. La eroj en la dosierujoj ne estos forigitaj."
+    "message": "Ĉi tiuj komunaj dosierujoj estos permanente forigitaj. La eroj en la dosierujoj ne estos forigitaj."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "La elektitaj eroj kaj kunhavigitaj dosierujoj estos permanente forigitaj."
+    "message": "La elektitaj eroj kaj komunaj dosierujoj estos permanente forigitaj."
   },
   "sharedFolderDeleted": {
-    "message": "Kunhavigita dosierujo forigita"
+    "message": "Komuna dosierujo forigita"
   },
   "sharedFoldersDeleted": {
-    "message": "Kunhavigitaj dosierujoj forigitaj"
+    "message": "Komunaj dosierujoj forigitaj"
   },
   "share": {
     "message": "Konigi"
@@ -340,58 +358,6 @@
   "addItemHeaderPassport": {
     "message": "Aldoni pasporton",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Nova salutilo",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nova karto",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nova idento",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nova noto",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nova sekura noto",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nova SSH-ŝlosilo",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nova banka konto",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nova permesilo",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nova pasporto",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Redakti salutilon",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Redakti karton",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Redakti identon",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Redakti noton",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Redakti sekuran noton",
@@ -792,24 +758,24 @@
     "message": "Eraro en malĉifrado"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
+    "message": "Bitwarden ne povis malĉifri la suban eron de la trezorejo. Kontaktu la klientan subtenon de Bitwarden kaj provizu la identigilon de la ero por kontroli ĉu ĝi estas restaŭrebla."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
+    "message": "Bitwarden ne povis malĉifri la subajn erojn de la trezorejo. Kontaktu la klientan subtenon de Bitwarden kaj provizu la identigilon de ĉiu ero por kontroli ĉu ili estas restaŭreblaj."
   },
   "itemId": {
-    "message": "Item ID",
+    "message": "Identigilo de ero",
     "description": "Label for a field listing the unique identifier of a single vault item."
   },
   "itemIds": {
-    "message": "Item IDs",
+    "message": "Identigiloj de eroj",
     "description": "Label for a field listing the unique identifiers of multiple vault items."
   },
   "copyId": {
-    "message": "Copy ID"
+    "message": "Kopii identigilon"
   },
   "copyAllIds": {
-    "message": "Copy all IDs"
+    "message": "Kopii ĉiujn identigilojn"
   },
   "january": {
     "message": "januaro"
@@ -1422,6 +1388,27 @@
   },
   "selectFile": {
     "message": "Elekti dosieron"
+  },
+  "selectFileUnsupportedType": {
+    "message": "Tiu dosierformo estas neakceptita por tiu ĉi fonto. Elektu alian dosieron"
+  },
+  "pasteContentRequired": {
+    "message": "Algluu la eksportitan enhavon"
+  },
+  "fileTypeNotSupported": {
+    "message": "Tiu ĉi dosierformo estas nesubtenata. Elektu $TYPES$ dosieron",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "La algluita enhavo kaj la elektita formo ne kongruas"
+  },
+  "errorReadingFile": {
+    "message": "La elektita dosiero ne povas esti legita"
   },
   "maxFileSize": {
     "message": "La minimuma dosiergrando estas 500 MB"
@@ -2130,13 +2117,32 @@
     "message": "Aŭtomate starti ĉe ensaluto"
   },
   "openAtLoginDesc": {
-    "message": "Aŭtomate starti la Bitwarden-surtablan aplikon ĉe ensaluto."
+    "message": "Aŭtomate starti la surtablan aplikaĵon Bitwarden ĉe ensaluto."
   },
   "language": {
     "message": "Lingvo"
   },
   "languageDesc": {
     "message": "Ŝanĝi la lingvon uzatan de la aplikaĵo. Postulata estas relanĉo."
+  },
+  "passkeyProvider": {
+    "message": "Provizanto de la pasoŝlosilo"
+  },
+  "passkeyProviderDesc": {
+    "message": "Uzu Bitwarden por konservi kaj ensaluti per pasoŝlosiloj en aliaj apoj."
+  },
+  "turnedOn": {
+    "message": "Ŝaltita"
+  },
+  "turnedOff": {
+    "message": "Malŝaltita"
+  },
+  "manageInSystemSettings": {
+    "message": "Administri en sistemagordoj"
+  },
+  "mayOpenSystemSettings": {
+    "message": "Tio povas malfermi la apon de sistemagordoj.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
   },
   "theme": {
     "message": "Koloraro"
@@ -2786,6 +2792,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Postuli ĉefpasvorton ĉe apo-restarto"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Tiu ĉi agordo provizas pluan tavolon da protekto kontraŭ aliaj aplikaĵoj penantaj malŝlosi Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Malmarki tion ĉi kaŭzus ke ĉiuj aplikaĵoj en via komputilo povas malŝlosi Bitwarden kaj atingi ĉiujn viajn konservitajn pasvortojn."
   },
   "deleteAccount": {
     "message": "Forigi la konton"
@@ -3614,7 +3626,7 @@
     }
   },
   "noSharedFolder": {
-    "message": "Neniu kunhavigita dosierujo"
+    "message": "Neniu komuna dosierujo"
   },
   "filterByName": {
     "message": "Filtri laŭ $NAME$",
@@ -3915,6 +3927,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "Tiu ĉi URL ne permesiĝis. Ĝi devas uzi https kaj devas ne montri retan adreson lokan aŭ privatan.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enigu validan URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Nesekura URL detektita",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Tiu ĉi URL povas esti nesekura aŭ montras privatan reton. Uzi ĝin povas rezulti viajn privatajn datumojn igi videblaj. Daŭrigu nur se vi fidas la servilon.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Fidi URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Tiu ĉi URL estas markita kiel fidinda. Vi povas redakti ĝin iam ajn.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "Nekonata $SERVICENAME$-eraro okazis.",
@@ -4627,11 +4663,7 @@
     "message": "Elekti kolekton"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+    "message": "Elekti komunan dosierujon"
   },
   "importTargetHintCollection": {
     "message": "Elektu ĉi tiun opcion se vi volas, ke la enhavo de la importita dosiero estu movita al kolekto"
@@ -4640,7 +4672,7 @@
     "message": "Elektu ĉi tiun opcion se vi volas, ke la enhavo de la importita dosiero estu movita al dosierujo"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Elektu tiun ĉi opcion se vi volas movi enhavon de la importita dosiero al komuna dosierujo"
   },
   "importUnassignedItemsError": {
     "message": "Dosiero enhavas neasignitajn erojn."
@@ -4652,28 +4684,31 @@
     "message": "Elekti la enportan dosieron"
   },
   "importSourceBreadcrumb": {
-    "message": "Select source"
+    "message": "Elekti fonton"
+  },
+  "importData": {
+    "message": "Importi datumojn"
   },
   "importSourceSelectTitle": {
-    "message": "Select your source"
+    "message": "Elekti vian fonton"
   },
   "importSourceSelectDescription": {
-    "message": "Choose the password manager or browser you are importing from."
+    "message": "Elekti la pasvortmanaĝeron aŭ retumilon de kiu vi importas."
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "Retumiloj"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "Pasvortmanaĝeroj"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "Montri ĉiujn"
   },
   "importSourceShowLess": {
-    "message": "Show less"
+    "message": "Montri malpli"
   },
   "importSourceStepCount": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "Paŝo $CURRENT$ de $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -4793,12 +4828,119 @@
   "importHelpCenterLinkText": {
     "message": "Helpo-Centro"
   },
+  "uploadFile": {
+    "message": "Alŝuti dosieron"
+  },
+  "pasteAsPlainText": {
+    "message": "Alglui kiel puran tekston"
+  },
+  "plainText": {
+    "message": "Pura teksto"
+  },
+  "profile": {
+    "message": "Profilo"
+  },
+  "importManuallyInstead": {
+    "message": "Importi mane anstataŭe"
+  },
+  "directlyImportInstead": {
+    "message": "Importi rekte anstataŭe"
+  },
+  "fastest": {
+    "message": "Plej rapida"
+  },
+  "importDataTitle": {
+    "message": "Importi viajn datumojn"
+  },
+  "importDataDirectTitle": {
+    "message": "Importi viajn datumojn je minutoj"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importi viajn erojn rekte de",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "por preni ĉiujn viajn datumojn.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importi de $VENDOR$ aŭ kopii kaj alglui la enhavon de la eksporto.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Elektu la profilon de kiu vi volas importi pasvortojn."
+  },
+  "importDataLoginTitle": {
+    "message": "Ensaluti al $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Sekureco pro desegno"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
   "importChromiumAliasPreamble": {
     "message": "La procezo estas ekzakte la sama kiel importado el Google Chrome.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Uzante la KeePassX-surtablan aplikon, navigu al \"Datumbazo\" → \"Eksporti al CSV-dosiero\" kaj konservu la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon KeePassX, navigu al \"Datumbazo\" → \"Eksporti al CSV-dosiero\" kaj konservu la CSV-dosieron."
   },
   "importAviraInstructions": {
     "message": "En la Avira rettrezoro, iru al \"Agordoj\" → \"Miaj Datumoj\" → \"Eksporti datumojn\" kaj konservu la CSV-dosieron."
@@ -4807,16 +4949,16 @@
     "message": "En la Blur rettrezoro, alklaku vian uzantnomon supre kaj iru al \"Agordoj\" → \"Eksporti Datumojn\", poste alklaku \"Eksporti CSV\" por viaj \"Kontoj\"."
   },
   "importSafeincloudInstructions": {
-    "message": "Uzante la SafeInCloud-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti\" → \"Kiel XML\" kaj konservu la XML-dosieron."
+    "message": "Uzante la surtablan aplikaĵon SafeInCloud, navigu al \"Dosiero\" → \"Eksporti\" → \"Kiel XML\" kaj konservu la XML-dosieron."
   },
   "importPadlockInstructions": {
     "message": "Uzante la Padlock-surtablan aplikon, alklaku la hamburgeran piktogramon en la supra maldekstra angulo kaj navigu al \"Agordoj\" → butono \"Eksporti\" kaj konservu la dosieron \"Kiel CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Uzante la KeePass 2-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti\" kaj elektu la opcion \"KeePass XML (2.x)\"."
+    "message": "Uzante la surtablan aplikaĵon KeePass 2, navigu al \"Dosiero\" → \"Eksporti\" kaj elektu la opcion \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "Uzante la Universal Password Manager-surtablan aplikon, navigu al \"Datumbazo\" → \"Eksporti\" kaj konservu la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Universal Password Manager, navigu al \"Datumbazo\" → \"Eksporti\" kaj konservu la CSV-dosieron."
   },
   "importSaferpassInstructions": {
     "message": "Uzante la SaferPass-retumilan etendaĵon, alklaku la hamburgeran piktogramon en la supra maldekstra angulo kaj navigu al \"Agordoj\". Alklaku la butonon \"Eksporti kontojn\" por konservi la CSV-dosieron."
@@ -4825,16 +4967,16 @@
     "message": "Uzante la Meldium rettrezoron, navigu al \"Agordoj\". Trovu la funkcion \"Eksporti datumojn\" kaj alklaku \"Montru al mi miajn datumojn\" por konservi la CSV-dosieron."
   },
   "importPassworddragonInstructions": {
-    "message": "Uzante la Password Dragon-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti\" → \"Al XML\". En la aperanta dialogo elektu \"Ĉiujn Vicojn\" kaj marku ĉiujn kampojn. Alklaku la butonon \"Eksporti\" kaj konservu la XML-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Password Dragon, navigu al \"Dosiero\" → \"Eksporti\" → \"Al XML\". En la aperanta dialogo elektu \"Ĉiujn Vicojn\" kaj marku ĉiujn kampojn. Alklaku la butonon \"Eksporti\" kaj konservu la XML-dosieron."
   },
   "importEnpassCsvInstructions": {
-    "message": "Uzante la Enpass-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti\" → \"Kiel CSV\". Elektu \"Bone\" al la averta atentigo kaj konservu la CSV-dosieron. Notu, ke la importilo nur subtenas dosierojn eksportitajn dum Enpass estas agordita al la angla lingvo, do ĝustigu viajn agordojn konforme."
+    "message": "Uzante la surtablan aplikaĵon Enpass, navigu al \"Dosiero\" → \"Eksporti\" → \"Kiel CSV\". Elektu \"Bone\" en la averta atentigo kaj konservu la CSV-dosieron. Notu, ke la importilo nur subtenas dosierojn eksportitajn dum Enpass estas agordita al la angla lingvo, do ĝustigu viajn agordojn konforme."
   },
   "importEnpassJsonInstructions": {
-    "message": "Uzante la Enpass 6-surtablan aplikon, alklaku la menuobutonon kaj navigu al \"Dosiero\" → \"Eksporti\". Elektu la dosierformatan opcion \".json\" kaj konservu la JSON-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Enpass 6, alklaku la menuobutonon kaj navigu al \"Dosiero\" → \"Eksporti\". Elektu la dosierformon \".json\" kaj konservu la JSON-dosieron."
   },
   "importPwsafeInstructions": {
-    "message": "Uzante la Password Safe-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti Al\" → \"XML-formato...\" kaj konservu la XML-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Password Safe, navigu al \"Dosiero\" → \"Eksporti Al\" → \"XML-formato...\" kaj konservu la XML-dosieron."
   },
   "importDashlaneCsvInstructions": {
     "message": "Ensalutu al Dashlane, alklaku \"Mia Konto\" → \"Agordoj\" → \"Eksporti dosieron\" kaj elektu \"Eksporti kiel CSV-dosiero\". Ĉi tio elŝutos zip-arkivon enhavantan diversajn CSV-dosierojn. Malzipu la arkivon kaj importu ĉiun CSV-dosieron individue."
@@ -4843,13 +4985,13 @@
     "message": "Dashlane ne plu subtenas la JSON-formaton. Uzu ĉi tion nur se vi havas ekzistantan JSON por importo. Uzu la CSV-importilon kiam vi kreas novajn eksportojn."
   },
   "importMsecureInstructions": {
-    "message": "Uzante la mSecure-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti\" → \"CSV-Dosiero...\" kaj konservu la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon mSecure, navigu al \"Dosiero\" → \"Eksporti\" → \"CSV-Dosiero...\" kaj konservu la CSV-dosieron."
   },
   "importStickypasswordInstructions": {
-    "message": "Uzante la Sticky Password-surtablan aplikon, navigu al \"Menuo\" (supre dekstre) → \"Eksporti\" → \"Eksporti ĉion\". Elektu la neĉifritan formaton XML-opcion kaj konservu la XML-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Sticky Password, navigu al \"Menuo\" (supre dekstre) → \"Eksporti\" → \"Eksporti ĉion\". Elektu la neĉifritan XML formaton kaj konservu la XML-dosieron."
   },
   "importTruekeyInstructions": {
-    "message": "Uzante la True Key-surtablan aplikon, alklaku la dentradan piktogramon (supre dekstre) kaj poste navigu al \"Apaj Agordoj\". Alklaku la butonon \"Eksporti\", enigu vian pasvorton kaj konservu la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon True Key, alklaku la dentradan piktogramon (supre dekstre) kaj poste navigu al \"Apaj Agordoj\". Alklaku la butonon \"Eksporti\", enigu vian pasvorton kaj konservu la CSV-dosieron."
   },
   "importClipperzInstructions": {
     "message": "Ensalutu al la Clipperz-reta aplikaĵo (clipperz.is/app). Alklaku la hamburgeran menuopiktogramon supre dekstre por etendi la navigbreton. Navigu al \"Datumoj\" → \"Eksporti\". Alklaku la butonon \"elŝuti HTML+JSON\" por konservi la HTML-dosieron."
@@ -4861,20 +5003,20 @@
     "message": "Ensalutu al la Passbolt rettrezoro kaj navigu al la listo \"Pasvortoj\". Elektu ĉiujn pasvortojn, kiujn vi volas eksporti, kaj alklaku la butonon \"Eksporti\" ĉe la supro de la listo. Elektu la eksportformaton \"csv (lastpass)\" kaj alklaku la butonon \"Eksporti\"."
   },
   "importAscendoInstructions": {
-    "message": "Uzante la Ascendo DataVault-surtablan aplikon, navigu al \"Iloj\" → \"Eksporti\". En la aperanta dialogo, elektu la opcion \"Ĉiuj Eroj (DVX, CSV)\". Alklaku la butonon \"Bone\" por konservi la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Ascendo DataVault, navigu al \"Iloj\" → \"Eksporti\". En la aperanta dialogo, elektu la opcion \"Ĉiuj Eroj (DVX, CSV)\". Alklaku la butonon \"Bone\" por konservi la CSV-dosieron."
   },
   "importPasswordbossInstructions": {
-    "message": "Uzante la Password Boss-surtablan aplikon, navigu al \"Dosiero\" → \"Eksporti datumojn\" → \"Password Boss JSON - neĉifrita\" kaj konservu la JSON-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Password Boss, navigu al \"Dosiero\" → \"Eksporti datumojn\" → \"Password Boss JSON - neĉifrita\" kaj konservu la JSON-dosieron."
   },
   "importZohoInstructions": {
     "message": "Ensalutu al la Zoho rettrezoro (vault.zoho.com). Navigu al \"Iloj\" → \"Eksporti Sekretojn\". Elektu \"Ĉiujn Sekretojn\" kaj alklaku la butonon \"Zoho Vault Format CSV\". Elektu kaj kopiu la datumojn el la tekstareo. Malfermu tekstredaktilon kiel Notepad kaj algluu la datumojn. Konservu la datumojn el la tekstredaktilo kiel",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Uzante la SplashID Safe-surtablan aplikon, alklaku la bluan ŝlosilan emblemon de SplashID en la supra dekstra angulo. Navigu al \"Eksporti\" → \"Eksporti kiel CSV\" kaj konservu la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon SplashID Safe, alklaku la bluan ŝlosilan emblemon de SplashID en la supra dekstra angulo. Navigu al \"Eksporti\" → \"Eksporti kiel CSV\" kaj konservu la CSV-dosieron."
   },
   "importPasskeepInstructions": {
-    "message": "Uzante la PassKeep-poŝtelefonan aplikon, navigu al \"Sekurkopio/Restarigo\". Trovu la sekcion \"CSV-Sekurkopio/Restarigo\" kaj alklaku \"Sekurkopio al CSV\" por konservi la CSV-dosieron."
+    "message": "Uzante la poŝtelefonan aplikaĵon PassKeep, navigu al \"Sekurkopio/Restarigo\". Trovu la sekcion \"CSV-Sekurkopio/Restarigo\" kaj alklaku \"Sekurkopio al CSV\" por konservi la CSV-dosieron."
   },
   "importGnomeInstructionsIntro": {
     "message": "Certiĝu, ke vi havas python-keyring kaj python-gnomekeyring instalitajn. Konservu la",
@@ -4904,7 +5046,7 @@
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Uzante la Password Agent-surtablan aplikon navigu al \"Dosiero\" → \"Eksporti\", elektu la butonon \"Kampoj por eksporti\" kaj marku ĉiujn kampojn, ŝanĝu la \"Eligan formaton\" al \"CSV\", kaj poste alklaku la butonon \"Komenci\" por konservi la CSV-dosieron."
+    "message": "Uzante la surtablan aplikaĵon Password Agent, navigu al \"Dosiero\" → \"Eksporti\", elektu la butonon \"Kampoj por eksporti\" kaj marku ĉiujn kampojn, ŝanĝu la \"Eligan formon\" al \"CSV\", kaj poste alklaku la butonon \"Komenci\" por konservi la CSV-dosieron."
   },
   "importPasspackInstructions": {
     "message": "Ensalutu al la Passpack-reteja trezoro kaj navigu al \"Agordoj\" → \"Eksporti\", poste alklaku la butonon \"Elŝuti\" por konservi la CSV-dosieron."
@@ -4913,22 +5055,22 @@
     "message": "Malfermu vian Passman-trezoron kaj alklaku \"Agordoj\" en la malsupra maldekstra angulo. En la fenestro \"Agordoj\" ŝanĝu al la langeto \"Eksporti akreditilojn\" kaj elektu \"JSON\" kiel la eksportan tipon. Enigu la pasfrazon de via trezoro kaj alklaku la butonon \"Eksporti\" por konservi la JSON-dosieron."
   },
   "importAvastCsvInstructions": {
-    "message": "Malfermu la Avast Passwords-surtablan aplikon kaj navigu al \"Agordoj\" → \"Importi/eksporti datumojn\". Elektu la butonon \"Eksporti\" por la opcio \"Eksporti al CSV-dosiero\" por konservi la CSV-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon Avast Passwords kaj navigu al \"Agordoj\" → \"Importi/eksporti datumojn\". Elektu la butonon \"Eksporti\" por la opcio \"Eksporti al CSV-dosiero\" por konservi la CSV-dosieron."
   },
   "importAvastJsonInstructions": {
-    "message": "Malfermu la Avast Passwords-surtablan aplikon kaj navigu al \"Agordoj\" → \"Importi/eksporti datumojn\". Elektu la butonon \"Eksporti\" por la opcio \"Eksporti al JSON-dosiero\" por konservi la JSON-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon Avast Passwords kaj navigu al \"Agordoj\" → \"Importi/eksporti datumojn\". Elektu la butonon \"Eksporti\" por la opcio \"Eksporti al JSON-dosiero\" por konservi la JSON-dosieron."
   },
   "importFsecureInstructions": {
-    "message": "Malfermu la F-Secure KEY-surtablan aplikon kaj navigu al \"Agordoj\" → \"Eksporti Pasvortojn\". Elektu la butonon \"Eksporti\", enigu vian ĉefpasvorton, kaj konservu la FSK-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon F-Secure KEY kaj navigu al \"Agordoj\" → \"Eksporti Pasvortojn\". Elektu la butonon \"Eksporti\", enigu vian ĉefpasvorton, kaj konservu la FSK-dosieron."
   },
   "importKasperskyInstructions": {
-    "message": "Malfermu la Kaspersky Password Manager-surtablan aplikon kaj navigu al \"Agordoj\" → \"Importi/Eksporti\". Trovu la sekcion \"Eksporti al tekstdosiero\" kaj elektu la butonon \"Eksporti\" por konservi la TXT-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon Kaspersky Password Manager kaj navigu al \"Agordoj\" → \"Importi/Eksporti\". Trovu la sekcion \"Eksporti al tekstdosiero\" kaj elektu la butonon \"Eksporti\" por konservi la TXT-dosieron."
   },
   "importRemembearInstructions": {
-    "message": "Malfermu la RememBear-surtablan aplikon kaj navigu al \"Agordoj\" → \"Konto\" → \"Eksporti\". Enigu vian ĉefpasvorton kaj elektu la butonon \"Eksporti Malgraŭe\" por konservi la CSV-dosieron."
+    "message": "Malfermu la surtablan aplikon RememBear kaj navigu al \"Agordoj\" → \"Konto\" → \"Eksporti\". Enigu vian ĉefpasvorton kaj elektu la butonon \"Eksporti Malgraŭe\" por konservi la CSV-dosieron."
   },
   "importPasswordwalletInstructions": {
-    "message": "Malfermu la PasswordWallet-surtablan aplikon kaj navigu al \"Dosiero\" → \"Eksporti\" → \"Videblaj eroj al tekstdosiero\". Enigu vian pasvorton kaj elektu la butonon \"Bone\" por konservi la TXT-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon PasswordWallet kaj navigu al \"Dosiero\" → \"Eksporti\" → \"Videblaj eroj al tekstdosiero\". Enigu vian pasvorton kaj elektu la butonon \"Bone\" por konservi la TXT-dosieron."
   },
   "importMykiInstructions": {
     "message": "Malfermu la Myki-surtablan retumilan etendaĵon kaj navigu al \"Altnivela\" → \"Eksporti Kontojn\" kaj poste skanu la QR-kodon per via poŝtelefona aparato. Diversaj CSV-dosieroj tiam estos konservitaj al la elŝuta dosierujo de via komputilo."
@@ -4943,10 +5085,10 @@
     "message": "Malfermu la BlackBerry Password Keeper-aplikaĵon, poste navigu al \"Agordoj\" → \"Importi/Eksporti\". Elektu \"Eksporti Pasvortojn\" kaj sekvu la surskranajn instrukciojn por konservi la neĉifritan CSV-dosieron."
   },
   "importButtercupInstructions": {
-    "message": "Malfermu la Buttercup-surtablan aplikon kaj malŝlosu vian trezoron. Dekstre alklaku la piktogramon de via trezoro kaj elektu \"Eksporti\" por konservi la CSV-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon Buttercup kaj malŝlosu vian trezoron. Dekstre alklaku la piktogramon de via trezoro kaj elektu \"Eksporti\" por konservi la CSV-dosieron."
   },
   "importCodebookInstructions": {
-    "message": "Malfermu la Codebook-surtablan aplikon kaj ensalutu. Navigu al \"Dosiero\" → \"Eksporti ĉion\", poste alklaku \"Jes\" en la dialogo kaj konservu la CSV-dosieron."
+    "message": "Malfermu la surtablan aplikaĵon Codebook kaj ensalutu. Navigu al \"Dosiero\" → \"Eksporti ĉion\", poste alklaku \"Jes\" en la dialogo kaj konservu la CSV-dosieron."
   },
   "importEncryptrInstructions": {
     "message": "Malfermu la plej novan version de la Encryptr-surtabla aplikaĵo kaj permesu, ke ĉiuj viaj datumoj sinkroniziĝu. Post kiam sinkronigo de viaj datumoj finiĝos, la elŝuta piktogramo en la supra dekstra angulo fariĝos rozkolora. Alklaku la elŝutan piktogramon kaj konservu la CSV-dosieron."
@@ -4993,11 +5135,44 @@
   "keePassMasterPassword": {
     "message": "KeePass-ĉefpasvorto"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Aldoni ŝlosildosieron"
   },
   "keyFileUpload": {
     "message": "Ŝlosildosiera alŝuto"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX-dosiera alŝuto"
@@ -5057,7 +5232,7 @@
     "message": "Estis problemo komunikante kun Keeper. Bonvolu provi la importon denove."
   },
   "includeSharedFolders": {
-    "message": "Inkluzivi kunhavigitajn dosierujojn"
+    "message": "Inkluzivi komunajn dosierujojn"
   },
   "lastPassEmail": {
     "message": "Retpoŝto ĉe LastPass"
@@ -5111,13 +5286,13 @@
     "message": "Enmetu la YubiKey asociitan kun via LastPass-konto en la USB-ingon de via komputilo, poste tuŝu ĝian butonon."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Sekreta ŝlosilo"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Sekreta ŝlosilo kaj pasvorto"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Via konto sekuriĝas per sekreta ŝlosilo kaj pasvorto. Vi devas enigi ambaŭ por daŭrigi."
   },
   "keeperEmail": {
     "message": "Keeper-retpoŝto"
@@ -5439,6 +5614,9 @@
     "message": "por krei fortan unikan pasvorton",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometrika malŝloso ne disponeblas ĉar PIN aŭ pasvorta malŝloso estas postulata unue."
   },
@@ -5581,6 +5759,12 @@
   "savePasskey": {
     "message": "Konservi pasŝlosilon"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "Elektu ensaluton al kiu konservi tiun ĉi pasoŝlosilon"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Elektu pasoŝlosilon per kiu ensaluti"
+  },
   "saveNewPasskey": {
     "message": "Konservi kiel novan ensaluton"
   },
@@ -5608,6 +5792,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "Ĉi tiu aplikaĵo ne subtenas duplikatojn."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Neniu pasoŝlosilo trovita por tiu ĉi aplikaĵo."
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
   },
   "closeThisWindow": {
     "message": "Fermi ĉi tiun fenestron"
@@ -5649,7 +5848,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "Vi ne povas forigi kunhavigitajn dosierujojn kun nur-vidaj permesoj: $SHAREDFOLDERS$",
+    "message": "Vi ne povas forigi komunajn dosierujojn kun nur-vidaj permesoj: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -5762,7 +5961,7 @@
     "message": "Asigni al kolektoj"
   },
   "addToSharedFolder": {
-    "message": "Aldoni al kunhavigita dosierujo"
+    "message": "Aldoni al komuna dosierujo"
   },
   "transferAndAdd": {
     "message": "Transigi kaj aldoni"
@@ -5780,13 +5979,13 @@
     "message": "Nur organizaj membroj kun aliro al ĉi tiuj kolektoj povos vidi la eron."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Nur trezoraj membroj kun aliro al ĉi tiuj kunhavigitaj dosierujoj povos vidi la eron."
+    "message": "Nur trezoraj membroj kun aliro al ĉi tiuj komunaj dosierujoj povos vidi la eron."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Nur organizaj membroj kun aliro al ĉi tiuj kolektoj povos vidi la erojn."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Nur trezoraj membroj kun aliro al ĉi tiuj kunhavigitaj dosierujoj povos vidi la erojn."
+    "message": "Nur trezoraj membroj kun aliro al ĉi tiuj komunaj dosierujoj povos vidi la erojn."
   },
   "noCollectionsAssigned": {
     "message": "Neniuj kolektoj estis asignitaj"
@@ -5884,31 +6083,31 @@
     "message": "Sukcese asignitaj kolektoj"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Sukcese aldonitaj kunhavigitaj dosierujoj"
+    "message": "Sukcese aldonitaj komunaj dosierujoj"
   },
   "itemMovedToCollection": {
     "message": "Ero movita al kolekto"
   },
   "itemAddedToSharedFolder": {
-    "message": "Ero aldonita al kunhavigita dosierujo"
+    "message": "Ero aldonita al komuna dosierujo"
   },
   "itemMovedToCollections": {
     "message": "Ero movita al kolektoj"
   },
   "itemAddedToSharedFolders": {
-    "message": "Ero aldonita al kunhavigitaj dosierujoj"
+    "message": "Ero aldonita al komunaj dosierujoj"
   },
   "itemsMovedToCollection": {
     "message": "Eroj movitaj al kolekto"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Eroj aldonitaj al kunhavigita dosierujo"
+    "message": "Eroj aldonitaj al komuna dosierujo"
   },
   "itemsMovedToCollections": {
     "message": "Eroj movitaj al kolektoj"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Eroj aldonitaj al kunhavigitaj dosierujoj"
+    "message": "Eroj aldonitaj al komunaj dosierujoj"
   },
   "itemAssignedToCollections": {
     "message": "Ero asignita al kolektoj"
@@ -6270,6 +6469,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Doni aliron"
   },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
   "upgrade": {
     "message": "Ĝisdatigi"
   },
@@ -6277,7 +6479,7 @@
     "message": "Ĉu vi certas, ke vi volas foriri?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "Rifuzante, viaj personaj eroj restos en via konto, sed vi perdos aliron al kunhavigitaj eroj kaj organizaj funkcioj."
+    "message": "Rifuzante, viaj personaj eroj restos en via konto, sed vi perdos aliron al komunaj eroj kaj organizaj funkcioj."
   },
   "leaveConfirmationDialogContentTwo": {
     "message": "Kontaktu vian administranton por regajni aliron."
@@ -6394,7 +6596,7 @@
     "message": "La trezoro protektas pli ol nur viajn pasvortojn. Konservu sekurajn ensalutojn, identigilojn, kartojn kaj notojn sekure ĉi tie."
   },
   "emptySharedFolderDescription": {
-    "message": "Aldonu erojn al ĉi tiu kunhavigita dosierujo, poste donu aliron al aliaj membroj de $VAULT_NAME$.",
+    "message": "Aldonu erojn al ĉi tiu komuna dosierujo, poste donu aliron al aliaj membroj de $VAULT_NAME$.",
     "placeholders": {
       "vault_name": {
         "content": "$1",
@@ -6412,10 +6614,10 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "Vi havas nul dosierujojn"
   },
   "emptyFoldersDescriptionV2": {
-    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+    "message": "Uzu dosierujojn por ordigi erojn en la trezorejo. Ili estas por nur vi. Neniu alia vidos aŭ uzos ilin."
   },
   "emptyVaultsDescription": {
     "message": "Aldonu ensalutojn, identigilojn, kartojn kaj aliajn erojn por komenci."
@@ -6433,10 +6635,10 @@
     "message": "Viŝu filtrilojn aŭ provu alian serĉterminon"
   },
   "noSharedFoldersAdded": {
-    "message": "Neniuj kunhavigitaj dosierujoj aldonitaj"
+    "message": "Neniuj komunaj dosierujoj aldonitaj"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Aldonu kunhavigitan dosierujon por sekure kunhavigi trezorajn erojn kun aliaj membroj."
+    "message": "Aldonu komunan dosierujon por sekure kunhavigi trezorajn erojn kun aliaj membroj."
   },
   "sendPasswordHelperText": {
     "message": "Individuoj devos enigi la pasvorton por vidi ĉi tiun Send",
@@ -6795,9 +6997,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "krei novan $RPID$-pasŝlosilon por $USERNAME$",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6809,9 +7011,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "anstataŭigi $RPID$-pasŝlosilon por $USERNAME$",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6823,9 +7025,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "ensaluti kiel $USERNAME$ per via $RPID$-pasŝlosilo",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6837,8 +7039,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "Konfirmu, ke ĝi estas vi, por krei novan $RPID$-pasŝlosilon por $USERNAME$.",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6851,8 +7053,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "Konfirmu, ke ĝi estas vi, por anstataŭigi $RPID$-pasŝlosilon por $USERNAME$.",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6865,8 +7067,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "Konfirmu, ke ĝi estas vi, por ensaluti kiel $USERNAME$ per via $RPID$-pasŝlosilo.",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6895,14 +7097,14 @@
     "message": "Redakti erojn, kaŝitajn pasvortojn"
   },
   "shareVerb": {
-    "message": "Share"
+    "message": "Kundividi"
   },
   "peopleWhoCanView": {
-    "message": "People who can view",
+    "message": "Personoj kiuj povas vidi tiun ĉi",
     "description": "Heading for the section listing who has access to view a shared vault item"
   },
   "shareEmailVerificationDescription": {
-    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "message": "Kunhaviginte tiun ĉi ligilon, ricevantoj devas kontroli sian retadreson per kodo por vidi la eron.",
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
@@ -6930,27 +7132,27 @@
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
-    "message": "Link saved and copied to clipboard",
+    "message": "Ligilo konservita kaj kopiita tondujen",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Failed to copy share link to clipboard",
+    "message": "Malsukcesis kopii kundividantan ligilon tondujen",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
-    "message": "Share link deleted",
+    "message": "Kundividanta ligilo forigita",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Failed to delete share link",
+    "message": "Malsukcesis forigi kundividantan ligilon",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
-    "message": "Share via link",
+    "message": "Kundividi per ligilo",
     "description": "Menu option to share a vault item via a shareable link"
   },
   "itemSendTitle": {
-    "message": "Share for vault item $ITEM$",
+    "message": "Kundividi por ero $ITEM$ de trezorejo",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -6959,14 +7161,91 @@
     }
   },
   "shareLinkExpires": {
-    "message": "Expires",
+    "message": "Eksvalidiĝos",
     "description": "Label preceding the expiration date of an active share link."
   },
   "expires": {
-    "message": "Expires",
+    "message": "Eksvalidiĝos",
     "description": "Label for the expiration date of an access token."
   },
   "unknownCipher": {
-    "message": "Unknown item, you may need to request permission to access this item."
+    "message": "Ero nekonata, vi eble devas peti por permeso atingi tiun ĉi eron."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden havas novan aspekton",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Pli bona sperto, la sama fidinda sekureco. La Bitwarden-trezorejo estis redesegnita per viaj komentoj, do estas pli facile trovi aĵojn kaj ili funkcias kiel oni atendas.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Esplori la novan trezorejon",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Agordi"
+  },
+  "customizeYourView": {
+    "message": "Agordi la aspekton"
+  },
+  "showColumns": {
+    "message": "Montri vertikalojn"
+  },
+  "resetToDefault": {
+    "message": "Restaŭri al la normo"
+  },
+  "coachmarkImportTitle": {
+    "message": "Rapide importi viajn pasvortojn"
+  },
+  "coachmarkImportDescription": {
+    "message": "Ĉu vi antaŭe havis pasvortmanaĝero? Vi povas importi CSV de jamaj ensalutoj kaj aliaj datumoj en vian trezorejon."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Aldoni eron"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Aldoni novajn pasvortojn, notojn, kaj aliajn al via trezorejo. Ĉio estas protektita de tutvoja ĉifrado."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "tourTheNewVault": {
+    "message": "Tour the new vault"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "takeTheTour": {
+    "message": "Take the tour"
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }
