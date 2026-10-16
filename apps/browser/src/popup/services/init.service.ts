@@ -11,8 +11,10 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+import { devFlagEnabled } from "../../platform/flags";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
+import { BrowserManagedConfigReader } from "../../platform/services/browser-managed-config-reader";
 
 @Injectable()
 export class InitService {
@@ -29,11 +31,16 @@ export class InitService {
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
     private readonly unlockService: ForegroundUnlockService,
+    private readonly managedConfigReader: BrowserManagedConfigReader,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      if (!devFlagEnabled("managedSettingsDevSource")) {
+        await this.managedConfigReader.init();
+      }
+
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations

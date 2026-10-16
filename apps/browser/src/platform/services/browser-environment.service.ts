@@ -51,10 +51,10 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
 
   /**
    * @param managedSettingsService - Source of the administrator's `environment.*` settings. In a
-   *   released build only the background's instance is fed, by `BrowserManagedConfigReader`, so
-   *   the popup's instance is empty and {@link managedEnvironment$} never emits anything but
-   *   `null` there. Under the `managedSettingsDevSource` dev flag the background skips the reader
-   *   and both contexts are seeded from the flag instead, so the popup's stream emits as well.
+   *   released build each extension context feeds its own instance with a
+   *   `BrowserManagedConfigReader` that reads managed storage directly, so the background and the
+   *   popup see the same profile. Under the `managedSettingsDevSource` dev flag both contexts skip
+   *   the reader and are seeded from the flag instead.
    */
   constructor(
     stateProvider: StateProvider,
