@@ -1273,6 +1273,20 @@
     "message": "1 nested shared folder",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
+  "nestedFolderCount": {
+    "message": "$COUNT$ nested folders",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 nested folder",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
+  },
   "myFolder": {
     "message": "My folder"
   },
@@ -2573,6 +2587,20 @@
         "example": "Engineering"
       }
     }
+  },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "No items in My items"

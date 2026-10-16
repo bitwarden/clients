@@ -14,7 +14,7 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -130,16 +130,16 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  folderNameForScope,
   hasMultipleVaults,
   MY_ITEMS_ROUTE,
   organizationInScope,
   organizationNameForScope,
   organizationVaultPage,
   OrganizationVaultPage,
-  parseVaultScope,
   resolveVaultScope,
+  routeVaultScope,
   scopeKey,
-  scopedCollectionSegment,
   SharedFolderCardGridComponent,
   VaultBreadcrumbsComponent,
   VaultRemountOnDirective,
@@ -322,11 +322,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
             map(
               ([params, data, nav]) =>
-                resolveVaultScope(
-                  params.get("vaultId"),
-                  scopedCollectionSegment(params, data),
-                  nav,
-                ) ?? ALL_ITEMS_SCOPE,
+                resolveVaultScope(routeVaultScope(params, data), nav) ?? ALL_ITEMS_SCOPE,
             ),
           )
         : of(ALL_ITEMS_SCOPE),
@@ -343,12 +339,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   protected readonly filterScopeKey = toSignal(
     combineLatest([this.route.paramMap, this.route.data]).pipe(
-      map(([params, data]) =>
-        scopeKey(
-          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
-            ALL_ITEMS_SCOPE,
-        ),
-      ),
+      map(([params, data]) => scopeKey(routeVaultScope(params, data) ?? ALL_ITEMS_SCOPE)),
     ),
     { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
   );
@@ -392,11 +383,23 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
   protected readonly title = toSignal(
-    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
-      map(([vfo1Foundation, scope, nav]) =>
-        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
+    combineLatest([
+      this.vfo1Foundation$,
+      this.vaultScope$,
+      this.vaultNav$,
+      toObservable(this.folders),
+    ]).pipe(
+      map(([vfo1Foundation, scope, nav, folders]) =>
+        vfo1Foundation
+          ? (vaultScopeTitle(scope, this.i18nService, nav) ?? folderNameForScope(scope, folders))
+          : undefined,
       ),
     ),
+  );
+
+  /** The folder the scope names, for the empty state. */
+  protected readonly emptyFolderName = computed(() =>
+    folderNameForScope(this.vaultScope(), this.folders()),
   );
 
   /**
@@ -1056,6 +1059,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
           collectionIds = [scope.collectionId];
         }
+      } else if (scope.type === VaultScopeType.Folder) {
+        folderId = scope.folderId;
       }
     } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
