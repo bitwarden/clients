@@ -149,6 +149,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   SHARE_ITEM_PRESENTER,
@@ -170,6 +171,9 @@ import {
   Vfo1TerminologyService,
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -231,6 +235,10 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP],
+  }),
+  safeProvider({
     provide: CipherFormGenerationService,
     useClass: DesktopCredentialGenerationService,
     deps: [],
@@ -259,14 +267,18 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AutomationCapability,
-    useFactory: () =>
-      new BiometricsCapability({
-        setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
-        listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
-        approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
-        deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
-      }),
-    deps: [],
+    useFactory: (toastService: ToastService) =>
+      new BiometricsCapability(
+        {
+          setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+          listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+          approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+          deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+          onRequest: (callback) => ipc.keyManagement.automation.biometrics.onRequest(callback),
+        },
+        toastService,
+      ),
+    deps: [ToastService],
     multi: true,
   }),
   safeProvider({
@@ -287,8 +299,9 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: LogServiceAbstraction,
-    useClass: ElectronLogRendererService,
-    deps: [],
+    useFactory: (recorder: FlightRecorderLogRecorderService) =>
+      new ElectronLogRendererService(null, recorder),
+    deps: [FlightRecorderLogRecorderService],
   }),
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,
@@ -458,6 +471,7 @@ const safeProviders: SafeProvider[] = [
       SharedUnlockSettingsService,
       UnlockService,
       ConfigService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -473,7 +487,9 @@ const safeProviders: SafeProvider[] = [
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
       AuthService,
+      EnvironmentService,
       PlatformUtilsService,
+      DesktopFido2UserInterfaceService,
     ],
   }),
   safeProvider({
@@ -665,10 +681,9 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
-      DesktopAutotypeDefaultSettingPolicy,
-      LogService,
     ],
   }),
+  // Autotype MVP only: must only be consumed within the Autotype MVP scope
   safeProvider({
     provide: DesktopAutotypeDefaultSettingPolicy,
     useClass: DesktopAutotypeDefaultSettingPolicy,

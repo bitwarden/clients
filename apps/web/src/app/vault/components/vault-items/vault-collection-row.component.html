@@ -35,7 +35,7 @@
         'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name
       }}"
       [routerLink]="[]"
-      [queryParams]="{ collectionId: collection.id }"
+      [queryParams]="collectionQueryParams"
       queryParamsHandling="merge"
       appStopProp
     >
@@ -89,6 +89,9 @@
       {{ permissionText }}
     </p>
   </td>
+}
+@if (showControlledAccess) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell"></td>
 }
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   @if (canEditCollection || canDeleteCollection || canViewCollectionInfo) {

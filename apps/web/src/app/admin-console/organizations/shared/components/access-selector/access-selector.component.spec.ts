@@ -1,14 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
+import { SelectItemView } from "@bitwarden/components";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
@@ -51,10 +47,8 @@ describe("AccessSelectorComponent", () => {
   let component: TestableAccessSelectorComponent;
   let fixture: ComponentFixture<TestableAccessSelectorComponent>;
 
-  beforeEach(() => {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
       providers: [
         { provide: Vfo1TerminologyService, useValue: buildVfo1TerminologyService(false) },

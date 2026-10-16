@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, switchMap, takeUntil } from "rxjs";
 
@@ -15,14 +16,36 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  AvatarComponent,
+  ButtonModule,
+  ContainerComponent,
+  DialogService,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "provider-account",
   templateUrl: "account.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    HeaderModule,
+    ContainerComponent,
+    FormFieldModule,
+    ButtonModule,
+    AsyncActionsModule,
+    AvatarComponent,
+    DangerZoneComponent,
+    I18nPipe,
+  ],
 })
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;

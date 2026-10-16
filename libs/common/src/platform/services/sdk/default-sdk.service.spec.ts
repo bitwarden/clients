@@ -6,7 +6,8 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { Measurement } from "@bitwarden/logging";
+import { PasswordManagerClient, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -21,12 +22,14 @@ import { AccountCryptographicStateService } from "../../../key-management/accoun
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
+import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { asUuid } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
@@ -40,57 +43,77 @@ class TestSdkLoadService extends SdkLoadService {
 }
 
 describe("DefaultSdkService", () => {
-  describe("userClient$", () => {
-    let sdkClientFactory!: MockProxy<SdkClientFactory>;
-    let environmentService!: MockProxy<EnvironmentService>;
-    let platformUtilsService!: MockProxy<PlatformUtilsService>;
-    let kdfConfigService!: MockProxy<KdfConfigService>;
-    let keyService!: MockProxy<KeyService>;
-    let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
-    let configService!: MockProxy<ConfigService>;
-    let service!: DefaultSdkService;
-    let accountService!: FakeAccountService;
-    let fakeStateProvider!: FakeStateProvider;
-    let apiService!: MockProxy<ApiService>;
-    let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+  const appId = "app-id";
 
-    beforeEach(async () => {
-      await new TestSdkLoadService().loadAndInit();
+  let sdkClientFactory!: MockProxy<SdkClientFactory>;
+  let environmentService!: MockProxy<EnvironmentService>;
+  let platformUtilsService!: MockProxy<PlatformUtilsService>;
+  let kdfConfigService!: MockProxy<KdfConfigService>;
+  let keyService!: MockProxy<KeyService>;
+  let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
+  let configService!: MockProxy<ConfigService>;
+  let service!: DefaultSdkService;
+  let accountService!: FakeAccountService;
+  let fakeStateProvider!: FakeStateProvider;
+  let apiService!: MockProxy<ApiService>;
+  let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+  let appIdService!: MockProxy<AppIdService>;
 
-      sdkClientFactory = mock<SdkClientFactory>();
-      environmentService = mock<EnvironmentService>();
-      platformUtilsService = mock<PlatformUtilsService>();
-      kdfConfigService = mock<KdfConfigService>();
-      keyService = mock<KeyService>();
-      accountCryptographicStateService = mock<AccountCryptographicStateService>();
-      apiService = mock<ApiService>();
-      const mockUserId = Utils.newGuid() as UserId;
-      accountService = mockAccountServiceWith(mockUserId);
-      fakeStateProvider = new FakeStateProvider(accountService);
-      configService = mock<ConfigService>();
-      upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  beforeEach(async () => {
+    await new TestSdkLoadService().loadAndInit();
 
-      configService.serverConfig$ = new BehaviorSubject(null);
+    sdkClientFactory = mock<SdkClientFactory>();
+    environmentService = mock<EnvironmentService>();
+    platformUtilsService = mock<PlatformUtilsService>();
+    kdfConfigService = mock<KdfConfigService>();
+    keyService = mock<KeyService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    apiService = mock<ApiService>();
+    const mockUserId = Utils.newGuid() as UserId;
+    accountService = mockAccountServiceWith(mockUserId);
+    fakeStateProvider = new FakeStateProvider(accountService);
+    configService = mock<ConfigService>();
+    upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+    appIdService = mock<AppIdService>();
+    appIdService.getAppId.mockResolvedValue(appId);
 
-      // Can't use `of(mock<Environment>())` for some reason
-      environmentService.environment$ = new BehaviorSubject(mock<Environment>());
+    configService.serverConfig$ = new BehaviorSubject(null);
 
-      service = new DefaultSdkService(
-        sdkClientFactory,
-        environmentService,
-        platformUtilsService,
-        accountService,
-        kdfConfigService,
-        keyService,
-        accountCryptographicStateService,
-        apiService,
-        fakeStateProvider,
-        configService,
-        upgradeTokenStateService,
-        mockManagedSettingsService(),
-      );
+    // Can't use `of(mock<Environment>())` for some reason
+    environmentService.environment$ = new BehaviorSubject(mock<Environment>());
+
+    service = new DefaultSdkService(
+      sdkClientFactory,
+      environmentService,
+      platformUtilsService,
+      accountService,
+      () => kdfConfigService,
+      () => keyService,
+      () => accountCryptographicStateService,
+      () => apiService,
+      fakeStateProvider,
+      () => configService,
+      upgradeTokenStateService,
+      mockManagedSettingsService(),
+      appIdService,
+      mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
+    );
+  });
+
+  describe("client$ without BW user", () => {
+    beforeEach(() => {
+      sdkClientFactory.createSdkClient.mockResolvedValue(createMockClient());
     });
 
+    it("creates the SDK client with the app ID as the device identifier", async () => {
+      await firstValueFrom(service.client$);
+
+      const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+      expect(settings?.deviceIdentifier).toBe(appId);
+    });
+  });
+
+  describe("userClient$", () => {
     describe("given the user is logged in", () => {
       const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
       beforeEach(() => {
@@ -122,7 +145,7 @@ describe("DefaultSdkService", () => {
         upgradeTokenStateService.v2UpgradeToken$.calledWith(userId).mockReturnValue(of(null));
       });
 
-      describe("given no client override has been set for the user", () => {
+      describe("given the SDK client factory creates a client", () => {
         let mockClient!: MockProxy<PasswordManagerClient>;
 
         beforeEach(() => {
@@ -134,6 +157,22 @@ describe("DefaultSdkService", () => {
           await firstValueFrom(service.userClient$(userId));
 
           expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
+        });
+
+        it("creates the SDK client with the app ID as the device identifier", async () => {
+          await firstValueFrom(service.userClient$(userId));
+
+          const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+          expect(settings?.deviceIdentifier).toBe(appId);
+        });
+
+        it("provides the user's access token from the API service to the SDK client", async () => {
+          apiService.getActiveBearerToken.calledWith(userId).mockResolvedValue("access-token");
+          await firstValueFrom(service.userClient$(userId));
+
+          const [tokenProvider] = sdkClientFactory.createSdkClient.mock.calls[0];
+          await expect(tokenProvider.get_access_token()).resolves.toBe("access-token");
+          expect(apiService.getActiveBearerToken).toHaveBeenCalledWith(userId);
         });
 
         it("does not create an SDK client when called the second time with same userId", async () => {
@@ -225,85 +264,33 @@ describe("DefaultSdkService", () => {
           expect(mockClient.free).toHaveBeenCalledTimes(1);
         });
       });
+    });
+  });
 
-      describe("given overrides are used", () => {
-        it("does not create a new client and emits the override client when a client override has already been set ", async () => {
-          const mockClient = mock<PasswordManagerClient>();
-          service.setClient(userId, mockClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
+  describe("push methods", () => {
+    const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
 
-          expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-          expect(userClientTracker.emissions[0].take().value).toBe(mockClient);
-        });
+    it("resolves unlock with null without creating a client", async () => {
+      await expect(
+        service.unlock(userId, {
+          userId: asUuid(userId),
+          method: { clientManagedState: {} },
+          accountCryptographicState: mock<WrappedAccountCryptographicState>(),
+        }),
+      ).resolves.toBeNull();
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
+    });
 
-        it("emits the internal client then switches to override when an override is set", async () => {
-          const mockInternalClient = createMockClient();
-          const mockOverrideClient = createMockClient();
-          sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+    it("resolves lock, setFlags and setOrgKeys without creating a client", async () => {
+      await expect(service.lock(userId)).resolves.toBeUndefined();
+      await expect(service.setFlags(userId, new Map([["flag", true]]))).resolves.toBeUndefined();
+      await expect(service.setOrgKeys(userId, {})).resolves.toBeUndefined();
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
+    });
 
-          await userClientTracker.pauseUntilReceived(1, 200);
-          expect(userClientTracker.emissions[0].take().value).toBe(mockInternalClient);
-
-          service.setClient(userId, mockOverrideClient);
-
-          await userClientTracker.pauseUntilReceived(2, 200);
-          expect(userClientTracker.emissions[1].take().value).toBe(mockOverrideClient);
-        });
-
-        it("throws error when the client has explicitly been set as undefined", async () => {
-          service.setClient(userId, undefined);
-
-          const result = () => firstValueFrom(service.userClient$(userId));
-
-          await expect(result).rejects.toThrow(UserNotLoggedInError);
-        });
-
-        it("completes the subscription when the override is set to undefined after having been defined", async () => {
-          const mockOverrideClient = createMockClient();
-          service.setClient(userId, mockOverrideClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
-
-          service.setClient(userId, undefined);
-
-          await userClientTracker.expectCompletion();
-        });
-
-        it("destroys the internal client when an override is set", async () => {
-          jest.useFakeTimers();
-          const mockInternalClient = createMockClient();
-          const mockOverrideClient = createMockClient();
-          sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-
-          const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
-          // Drain the microtask queue so the async client initialization completes and emits.
-          await jest.advanceTimersByTimeAsync(0);
-          await firstEmission;
-
-          service.setClient(userId, mockOverrideClient);
-          await userClientTracker.pauseUntilReceived(2, 200);
-
-          expect(mockInternalClient.free).not.toHaveBeenCalled();
-          await jest.advanceTimersByTimeAsync(1000);
-          expect(mockInternalClient.free).toHaveBeenCalled();
-          jest.useRealTimers();
-        });
-
-        it("destroys the override client when explicitly setting the client to undefined", async () => {
-          const mockOverrideClient = createMockClient();
-          service.setClient(userId, mockOverrideClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
-
-          service.setClient(userId, undefined);
-          await userClientTracker.expectCompletion();
-
-          expect(mockOverrideClient.free).toHaveBeenCalled();
-        });
-      });
+    it("returns from logout without creating a client", () => {
+      expect(() => service.logout(userId)).not.toThrow();
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
     });
   });
 });

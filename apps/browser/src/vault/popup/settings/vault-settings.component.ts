@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
@@ -10,6 +10,8 @@ import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -28,6 +30,7 @@ import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../../../autofill/services
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { ImportUpgradeNavigationService } from "../../../tools/popup/settings/import/import-upgrade-navigation.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -52,6 +55,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class VaultSettingsComponent implements OnInit, OnDestroy {
   private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
 
   lastSync = "--";
   syncLoading = false;
@@ -85,6 +89,7 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private cipherArchiveService: CipherArchiveService,
     private messagingService: MessagingService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -98,6 +103,11 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
   }
 
   async import() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
     await this.router.navigate(["/import"]);
   }
 

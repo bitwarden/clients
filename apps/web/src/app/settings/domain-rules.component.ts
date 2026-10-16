@@ -29,9 +29,6 @@ export class DomainRulesComponent implements OnInit {
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-  );
   loading = true;
   custom: string[] = [];
   global: any[] = [];

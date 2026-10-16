@@ -121,72 +121,71 @@
     <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Kod kuće, na poslu ili u pokretu, Bitwarden lako štiti sve vaše lozinke, pristupne ključeve i osjetljive informacije.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Prepoznat kao najbolji upravitelj lozinkama od strane PCMag, WIRED, The Verge, CNET, G2 i drugih!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+OSIGURAJTE SVOJ DIGITALNI ŽIVOT
+Osigurajte svoj digitalni život i zaštitite se od curenja podataka generisanjem i čuvanjem jedinstvenih, snažnih lozinki za svaki račun. Održavajte sve u end-to-end šifrovanom sefu lozinki kojem samo vi možete pristupiti.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+PRISTUPITE SVOJIM PODACIMA, BILO GDJE, BILO KADA, NA BILO KOM UREĐAJU
+Lako upravljajte, pohranjujte, osiguravajte i dijelite neograničen broj lozinki na neograničenom broju uređaja bez ograničenja.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+SVAKO TREBA IMATI ALATE DA OSTANE SIGURAN ONLINE
+Koristite Bitwarden besplatno bez reklama ili prodaje podataka. Bitwarden vjeruje da svako treba imati mogućnost da ostane siguran online. Premium planovi nude pristup naprednim funkcijama.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+OSNAŽITE SVOJE TIMOVE S BITWARDENOM
+Planovi za timove i preduzeća dolaze s profesionalnim poslovnim funkcijama. Neki primjeri uključuju SSO integraciju, samohostovanje, integraciju direktorija i SCIM provisioning, globalne politike, API pristup, evidenciju događaja i više.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Koristite Bitwarden da osigurate svoju radnu snagu i podijelite osjetljive informacije s kolegama.
 
 
-More reasons to choose Bitwarden:
+Više razloga za odabir Bitwardena:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Šifrovanje svjetske klase
+Lozinke su zaštićene naprednim end-to-end šifrovanjem (AES-256 bit, salted hashing i PBKDF2 SHA-256) tako da vaši podaci ostaju sigurni i privatni.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Revizije trećih strana
+Bitwarden redovno provodi sveobuhvatne sigurnosne revizije trećih strana s poznatim sigurnosnim firmama. Ove godišnje revizije uključuju procjene izvornog koda i penetracijsko testiranje na Bitwarden IP-ovima, serverima i web aplikacijama.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Napredna 2FA
+Osigurajte svoju prijavu s autentifikatorom treće strane, kodovima poslanim e-poštom ili FIDO2 WebAuthn akreditivima kao što je hardverski sigurnosni ključ ili pristupni ključ.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Prenosite podatke direktno drugima uz održavanje end-to-end šifrovane sigurnosti i ograničeno izlaganje.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Ugrađeni generator
+Kreirajte duge, složene i različite lozinke i jedinstvena korisnička imena za svaku stranicu koju posjetite. Integrirajte s pružateljima aliasa e-pošte za dodatnu privatnost.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Globalni prijevodi
+Bitwarden prijevodi postoje za više od 60 jezika, prevedeni od strane globalne zajednice putem Crowdina.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Cross-platform aplikacije
+Sigurno dijelite osjetljive podatke unutar svog Bitwarden sefa s bilo kojeg preglednika, mobilnog uređaja ili desktop OS-a i više.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden osigurava više od samo lozinki
+End-to-end šifrovana rješenja za upravljanje akreditivima od Bitwardena osnažuju organizacije da osiguraju sve, uključujući razvojne tajne i iskustva s pristupnim ključevima. Posjetite Bitwarden.com da saznate više o Bitwarden Secrets Manager i Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Kod kuće, na poslu ili u pokretu, Bitwarden lako štiti sve vaše lozinke, pristupne ključeve i osjetljive informacije.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>Sinhronizujte i pristupite svom sefu s više uređaja</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>Upravljajte svim svojim prijavama i lozinkama iz sigurnog sefa</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>Brzo automatski popunite svoje akreditive za prijavu na bilo koju web stranicu koju posjetite</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>Vaš sef je također praktično dostupan iz menija desnog klika</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>Automatski generišite snažne, nasumične i sigurne lozinke</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>Vašim informacijama se sigurno upravlja koristeći AES-256 bitno šifrovanje</value>
   </data>
 </root>

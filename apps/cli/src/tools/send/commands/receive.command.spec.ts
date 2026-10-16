@@ -9,6 +9,7 @@ import {
   SendAccessToken,
   passwordHashB64Required,
 } from "@bitwarden/common/auth/send-access";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
@@ -49,9 +50,11 @@ describe("SendReceiveCommand", () => {
   const sendTokenService = mock<SendTokenService>();
   const configService = mock<ConfigService>();
   const sendDecryptionService = mock<SendDecryptionService>();
+  const appIdService = mock<AppIdService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
+  const testAppId = "test-app-id";
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,6 +73,8 @@ describe("SendReceiveCommand", () => {
 
     configService.getFeatureFlag.mockResolvedValue(false);
 
+    appIdService.getAppId.mockResolvedValue(testAppId);
+
     command = new SendReceiveCommand(
       encryptService,
       cryptoFunctionService,
@@ -79,6 +84,7 @@ describe("SendReceiveCommand", () => {
       apiService,
       sendTokenService,
       sendDecryptionService,
+      appIdService,
     );
   });
 
@@ -406,6 +412,109 @@ describe("SendReceiveCommand", () => {
           expect.any(Function),
           undefined,
         );
+      });
+
+      it("should block a download url that isn't https and never call saveAttachmentToFile", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "http://example.com/download",
+        } as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("security check");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+      });
+
+      it("should block a download url that targets a restricted host and never call saveAttachmentToFile", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "https://169.254.169.254/download",
+        } as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("security check");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not block a download url on the same origin as the trusted api, even over http", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "http://bw.internal/download",
+        } as any);
+        encryptService.decryptFileData.mockResolvedValue(new ArrayBuffer(1024) as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        // A self-hosted server whose download url shares the api's own (non-https, private) origin.
+        const response = await (command as any).accessSendWithToken(
+          mockToken,
+          new Uint8Array(32),
+          "http://bw.internal/api",
+          {},
+        );
+
+        expect(response.success).toBe(true);
+        expect(saveAttachmentToFileSpy).toHaveBeenCalled();
       });
     });
 
@@ -743,6 +852,75 @@ describe("SendReceiveCommand", () => {
           email: "user+tag@example.com",
           otp: "012345",
         });
+      });
+    });
+
+    describe("device identifier", () => {
+      const deviceIdentifierOf = (call: number): string | null =>
+        (apiService.nativeFetch.mock.calls[call][0] as Request).headers.get("Device-Identifier");
+
+      it.each([
+        ["no credentials", undefined],
+        ["password", { kind: "password", passwordHashB64: "hash" }],
+        ["email", { kind: "email", email: "user@example.com" }],
+        ["email_otp", { kind: "email_otp", email: "user@example.com", otp: "012345" }],
+      ])("sends the app id as the Device-Identifier with %s", async (_, credentials) => {
+        respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+
+        await (command as any).requestToken(foreignServer, testSendId, credentials);
+
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+      });
+
+      it("sends the app id as the Device-Identifier when a cross-region Send is received", async () => {
+        // beforeEach configures US cloud; this link is EU.
+        respondWith(200, { access_token: "eu-token", expires_in: 3600 });
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          { type: SendType.Text, text: { text: "secret" } } as any,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+        const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
+
+        expect(response.success).toBe(true);
+        expect(apiService.nativeFetch).toHaveBeenCalledTimes(1);
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+
+        stdoutSpy.mockRestore();
+      });
+
+      it("sends the same Device-Identifier on the email and email + OTP requests", async () => {
+        jest.spyOn(command as any, "promptForEmail").mockResolvedValue("user@example.com");
+        jest.spyOn(command as any, "promptForOtp").mockResolvedValue("012345");
+        jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+        apiService.nativeFetch
+          .mockResolvedValueOnce({
+            status: 400,
+            headers: { get: () => "application/json" },
+            json: async () => ({
+              error: "invalid_request",
+              send_access_error_type: "email_and_otp_required",
+            }),
+          } as any)
+          .mockResolvedValueOnce({
+            status: 200,
+            headers: { get: () => "application/json" },
+            json: async () => ({ access_token: "foreign-token", expires_in: 3600 }),
+          } as any);
+
+        const response = await (command as any).handleEmailOtpAuth(
+          testSendId,
+          new Uint8Array(64),
+          foreignServer,
+          {},
+        );
+
+        expect(response.success).toBe(true);
+        expect(apiService.nativeFetch).toHaveBeenCalledTimes(2);
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+        expect(deviceIdentifierOf(1)).toBe(testAppId);
       });
     });
 

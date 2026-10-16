@@ -5,15 +5,10 @@ import { KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { assertNonNullish } from "../../../auth/utils";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
-import {
-  InternalMasterPasswordServiceAbstraction,
-  syncLegacyMasterKeyState,
-} from "../../master-password/abstractions/master-password.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { withPasswordManagerSdk } from "../../utils";
 
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
@@ -28,7 +23,6 @@ export class MinimumKdfMigration implements EncryptedMigration {
     private readonly kdfConfigService: KdfConfigService,
     private readonly sdkService: SdkService,
     private readonly logService: LogService,
-    private readonly configService: ConfigService,
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly syncService: SyncService,
   ) {}
@@ -46,7 +40,6 @@ export class MinimumKdfMigration implements EncryptedMigration {
     await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
       await sdk.user_crypto_management().change_kdf(masterPassword!, kdf.toSdkConfig());
     });
-    await syncLegacyMasterKeyState(userId, masterPassword!, this.masterPasswordService);
   }
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
@@ -57,10 +50,6 @@ export class MinimumKdfMigration implements EncryptedMigration {
     }
 
     if (!(await this.localStateNeedsMigration(userId))) {
-      return "noMigrationNeeded";
-    }
-
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.ForceUpdateKDFSettings))) {
       return "noMigrationNeeded";
     }
 
