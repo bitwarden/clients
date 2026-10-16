@@ -9,7 +9,7 @@ export class ServiceAccountEventLogApiService {
     serviceAccountId: string,
     start: string,
     end: string,
-    token: string,
+    token?: string,
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.apiService.send(
       "GET",
@@ -21,7 +21,7 @@ export class ServiceAccountEventLogApiService {
     return new ListResponse(r, EventResponse);
   }
 
-  private addEventParameters(base: string, start: string, end: string, token: string) {
+  private addEventParameters(base: string, start: string, end: string, token?: string) {
     if (start != null) {
       base += "?start=" + start;
     }
