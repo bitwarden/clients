@@ -18282,9 +18282,6 @@
   "pamAccessRuleCopyCreated": {
     "message": "Copy created. Choose the collections it applies to."
   },
-  "pamAccessRuleDuplicate": {
-    "message": "Duplicate rule"
-  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
