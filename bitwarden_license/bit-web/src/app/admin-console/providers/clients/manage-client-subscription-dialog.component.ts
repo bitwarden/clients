@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
-import { FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
@@ -11,7 +19,17 @@ import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/comm
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
 type ManageClientSubscriptionDialogParams = {
@@ -39,7 +57,15 @@ export const openManageClientSubscriptionDialog = (
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./manage-client-subscription-dialog.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    I18nPipe,
+    DialogModule,
+    FormFieldModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
 })
 export class ManageClientSubscriptionDialogComponent implements OnInit {
   protected loading = true;
