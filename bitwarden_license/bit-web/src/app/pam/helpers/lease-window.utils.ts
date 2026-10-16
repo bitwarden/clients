@@ -1,8 +1,6 @@
 /**
- * Preset durations offered by the access-rule dialog's default/max lease
- * pickers. Expressed in seconds (to match the rule's `*LeaseDurationSeconds`
- * controls) and offering a wide range, since an administrator configuring a
- * rule can grant longer windows than a self-service request.
+ * The access-rule edit form's lease duration presets, wider than a requester's since an admin can
+ * grant longer windows.
  */
 export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
   { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
@@ -10,14 +8,16 @@ export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labe
   { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
   { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
   { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration24h" },
+  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
+  { seconds: 2 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration2d" },
   { seconds: 7 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration7d" },
+  { seconds: 30 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration30d" },
 ];
 
 /** Default lease duration (1h) for a new access rule with no stored value. */
 export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
 
-/** Admin-selectable maximum extension lengths, in seconds (30m–8h). */
+/** Admin-selectable maximum extension lengths, in seconds. */
 export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
   { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
   { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },

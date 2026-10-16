@@ -167,6 +167,10 @@ import {
   SshImportPromptService,
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavService,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_SWITCH_PRODUCTS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { OrganizationOptionsComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/components/organization-options.component";
@@ -629,6 +633,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SHARE_ITEM_ENTRY_POINT,
     useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [VFO1_SWITCH_PRODUCTS_STEP, VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,
