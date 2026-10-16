@@ -27,7 +27,7 @@ describe("VaultSwitcherComponent", () => {
 
   const nav$ = new BehaviorSubject<any>({ vaults: [], organizationDataOwnership: false });
   const navigate = jest.fn();
-  const clearVaultScopedFilters = jest.fn();
+  const listFiltersService = { saveFilters: jest.fn(), setScope: jest.fn() };
   const stopScrollPosition = jest.fn();
 
   const trigger = () => fixture.debugElement.query(By.css('[data-testid="vault-switcher"]'));
@@ -41,7 +41,8 @@ describe("VaultSwitcherComponent", () => {
 
   beforeEach(async () => {
     navigate.mockClear();
-    clearVaultScopedFilters.mockClear();
+    listFiltersService.saveFilters.mockClear();
+    listFiltersService.setScope.mockClear();
     stopScrollPosition.mockClear();
     nav$.next({ vaults: [], organizationDataOwnership: false });
 
@@ -54,7 +55,7 @@ describe("VaultSwitcherComponent", () => {
         { provide: VAULT_BASE_ROUTE, useValue: "/tabs/vault" },
         {
           provide: VaultPopupListTableFiltersService,
-          useValue: { clearVaultScopedFilters },
+          useValue: listFiltersService,
         },
         {
           provide: VaultPopupScrollPositionService,
@@ -198,39 +199,18 @@ describe("VaultSwitcherComponent", () => {
       });
     });
 
-    /** Cleared here rather than on the scope publish, which also fires on popup open. */
-    describe("vault-scoped chip filters", () => {
-      it("clears them when entering an organization's vault", () => {
+    /** Each vault keeps its own selection, which the page it opens restores — see `setScope`. */
+    describe("chip filters", () => {
+      it.each([
+        ["an organization's vault", 2],
+        ["the personal vault", 1],
+      ])("are left untouched when switching to %s", (_label: string, option: number) => {
         const options = openMenu();
-        (options[2] as HTMLElement).click();
+        (options[option] as HTMLElement).click();
 
-        expect(clearVaultScopedFilters).toHaveBeenCalled();
-      });
-
-      it("clears them when entering the personal vault", () => {
-        const options = openMenu();
-        (options[1] as HTMLElement).click();
-
-        expect(clearVaultScopedFilters).toHaveBeenCalled();
-      });
-
-      /** All items widens, so nothing selected under a vault has stopped existing. */
-      it("keeps them when widening to All items", () => {
-        const options = openMenu();
-        (options[0] as HTMLElement).click();
-
-        expect(clearVaultScopedFilters).not.toHaveBeenCalled();
-      });
-
-      /** Nothing is cleared until the user actually picks a vault. */
-      it("keeps them while the popup merely opens on a scoped route", () => {
-        fixture.componentRef.setInput("scope", {
-          type: VaultScopeType.Organization,
-          organizationId: ORG_ID as OrganizationId,
-        });
-        fixture.detectChanges();
-
-        expect(clearVaultScopedFilters).not.toHaveBeenCalled();
+        expect(navigate).toHaveBeenCalled();
+        expect(listFiltersService.saveFilters).not.toHaveBeenCalled();
+        expect(listFiltersService.setScope).not.toHaveBeenCalled();
       });
     });
 
@@ -271,7 +251,6 @@ describe("VaultSwitcherComponent", () => {
         const options = openMenu();
         (options[2] as HTMLElement).click();
 
-        expect(clearVaultScopedFilters).not.toHaveBeenCalled();
         expect(stopScrollPosition).not.toHaveBeenCalled();
         expect(navigate).not.toHaveBeenCalled();
       });
@@ -280,7 +259,7 @@ describe("VaultSwitcherComponent", () => {
         const options = openMenu();
         (options[1] as HTMLElement).click();
 
-        expect(clearVaultScopedFilters).toHaveBeenCalled();
+        expect(stopScrollPosition).toHaveBeenCalledWith(true);
         expect(navigate).toHaveBeenCalledWith(["/tabs/vault", "my-vault"], { replaceUrl: true });
       });
     });

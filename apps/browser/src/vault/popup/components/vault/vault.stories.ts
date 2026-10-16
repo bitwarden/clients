@@ -4,7 +4,7 @@ import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { applicationConfig, componentWrapperDecorator, Meta, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -426,6 +426,7 @@ const buildProviders = (args: StoryArgs) => {
         autoFillCiphers$: of(populated ? AUTOFILL_CIPHERS : []),
         cipherCount$: of(allItems.length),
         searchText$: of(""),
+        searchText: signal(""),
         loading$: of(false),
         // Drives the autofill section's type grouping and its empty-state tip.
         hasFilterApplied$: of(false),
@@ -491,9 +492,8 @@ const buildProviders = (args: StoryArgs) => {
         restoreFilters$: () => of({}),
         saveFilters: () => {},
         cachedFilters: signal({}),
-        clearVaultScopedFilters: () => {},
+        setScope: () => {},
         filterDialogOpen: signal(false),
-        vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
           cipherType: null,
