@@ -47,7 +47,7 @@ describe("AccessStateBadgeComponent", () => {
     ["privileged", "primary", "bwi-key", "pamAccessBadgePrivileged"],
     ["pending", "warning", "bwi-clock", "pamAccessBadgePending"],
     ["unavailable", "subtle", "bwi-lock", "pamAccessBadgeUnavailable"],
-    ["ready", "success", "bwi-check", "pamAccessBadgeReady"],
+    ["ready", "success", "bwi-check-circle", "pamAccessBadgeReady"],
     ["expired", "subtle", "bwi-lock", "pamAccessBadgeEnded"],
   ])("maps the %s state to its badge recipe", (kind, variant, icon, label) => {
     create({ kind } as AccessBadgeState);
@@ -72,7 +72,7 @@ describe("AccessStateBadgeComponent", () => {
 
     const recipe = component["recipe"]()!;
     expect(recipe.variant).toBe("danger");
-    expect(recipe.icon).toBe("bwi-exclamation-triangle");
+    expect(recipe.icon).toBe("bwi-warning");
     expect(recipe.label).toContain("pamAccessBadgeEndingSoon");
   });
 

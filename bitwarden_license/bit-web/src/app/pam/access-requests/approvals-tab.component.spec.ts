@@ -6,25 +6,39 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  DialogService,
+  FilterControl,
+  ToastService,
+} from "@bitwarden/components";
 
 import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
-import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
+import { toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";
+import {
+  ApproverRow,
+  fromApprovalRow,
+  fromManagedLease,
+  fromUnstartedApproval,
+} from "../approvals/approver-row";
+import { toManagedLeaseRow } from "../approvals/managed-lease-row";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
+const MINUTE = 60_000;
 
 const NAMES = {
   ...emptyResolvedNames(),
-  cipherNameById: new Map([["cipher-1", "Prod database"]]),
+  cipherNameById: new Map([
+    ["cipher-1", "Prod database"],
+    ["cipher-2", "Billing API"],
+  ]),
   collectionNameById: new Map([
     ["col-1", "Production"],
     ["col-2", "Staging"],
@@ -51,64 +65,76 @@ function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestVi
   } as unknown as AccessRequestView;
 }
 
-function row(overrides: Record<string, unknown> = {}, canDecide = true): ApprovalRow {
-  return toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide);
+function pending(overrides: Record<string, unknown> = {}, canDecide = true): ApproverRow {
+  return fromApprovalRow(toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide), NOW);
 }
 
-function leaseRow(
-  overrides: Record<string, unknown> = {},
-  extension?: { addedSeconds: number; latestEndMs: number },
-): ManagedLeaseRow {
-  return toManagedLeaseRow(
+function ready(overrides: Record<string, unknown> = {}): ApproverRow {
+  return fromUnstartedApproval(
+    accessRequest({
+      status: "approved",
+      leaseNotBefore: "2026-08-18T09:00:00.000Z",
+      leaseNotAfter: "2026-08-18T13:00:00.000Z",
+      ...overrides,
+    }),
+    NAMES,
+    NOW,
+  );
+}
+
+function active(overrides: Record<string, unknown> = {}): ApproverRow {
+  const lease = toManagedLeaseRow(
     accessRequest({
       status: "approved",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "active",
+      leaseNotBefore: "2026-08-17T11:00:00.000Z",
+      leaseNotAfter: "2026-08-17T14:00:00.000Z",
       ...overrides,
     }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
     NAMES,
-    extension,
   );
-}
-
-/**
- * The ids of the per-second clocks a spied `setInterval` created, apart from Angular's own
- * zero-delay scheduler timers.
- */
-function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
-  return spy.mock.results
-    .filter((_, index) => spy.mock.calls[index][1] === 1000)
-    .map((result) => result.value);
-}
-
-/** Asserts a cell stays hidden below `visibleFrom` and shown from it up, nowhere else. */
-function expectVisibleFrom(element: HTMLElement | null, visibleFrom: string): void {
-  expect(element).not.toBeNull();
-  expect(element?.classList).toContain("tw-hidden");
-  expect([...(element?.classList ?? [])].filter((c) => c.endsWith(":tw-table-cell"))).toEqual([
-    `${visibleFrom}:tw-table-cell`,
-  ]);
+  return fromManagedLease(lease, NOW);
 }
 
 describe("ApprovalsTabComponent", () => {
   let fixture: ComponentFixture<ApprovalsTabComponent>;
-  let component: ApprovalsTabComponent;
   let inbox: {
-    inboxRows$: BehaviorSubject<ApprovalRow[]>;
-    activeLeaseRows$: BehaviorSubject<ManagedLeaseRow[]>;
+    approverRows$: BehaviorSubject<ApproverRow[]>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
     loading$: BehaviorSubject<boolean>;
     loadError$: BehaviorSubject<unknown | null>;
     decide: jest.Mock;
     revokeLease: jest.Mock;
+    cancelApproval: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
-  let configService: MockProxy<ConfigService>;
+  let viewportWidth: number;
+  let mediaListeners: Array<() => void>;
+
+  function matchesWidth(query: string): boolean {
+    return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
+  }
+
+  /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
+  function stubMatchMedia(): void {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: matchesWidth(query),
+        media: query,
+        addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
+          mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
+        ),
+        removeEventListener: jest.fn(),
+      }),
+    });
+  }
 
   function create(): void {
     fixture = TestBed.createComponent(ApprovalsTabComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   }
 
@@ -116,22 +142,74 @@ describe("ApprovalsTabComponent", () => {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
   }
 
+  function queryAll(selector: string): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll(selector));
+  }
+
+  function text(element: Element | null): string {
+    return (element?.textContent ?? "").replace(/\s+/g, " ").trim();
+  }
+
+  function headings(): string[] {
+    return queryAll('[data-testid="approvals-table"] [role="columnheader"]').map(text);
+  }
+
+  /** The row ids in display order, read off the Item cells. */
+  function rowOrder(): string[] {
+    return queryAll('[data-testid^="approvals-cell-item-"]').map((cell) =>
+      (cell.getAttribute("data-testid") ?? "").replace("approvals-cell-item-", ""),
+    );
+  }
+
+  function table(): BitTableV2Component {
+    return fixture.debugElement.query(By.directive(BitTableV2Component))
+      .componentInstance as BitTableV2Component;
+  }
+
+  function filterControl(key: string): FilterControl {
+    const control = table()
+      .filterControls()
+      .find((c) => c.key() === key);
+    if (control == null) {
+      throw new Error(`the ${key} control did not register`);
+    }
+    return control;
+  }
+
+  function setFilter(key: string, value: unknown): void {
+    filterControl(key).setValue(value);
+    fixture.detectChanges();
+  }
+
+  /** Lets a clicked action's confirm and mutation run; `whenStable` never settles under the ticker. */
+  async function settle(): Promise<void> {
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+  }
+
+  function tick(ms: number): void {
+    jest.advanceTimersByTime(ms);
+    fixture.detectChanges();
+  }
+
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(NOW);
+    viewportWidth = 1440;
+    mediaListeners = [];
+    stubMatchMedia();
+
     inbox = {
-      inboxRows$: new BehaviorSubject<ApprovalRow[]>([]),
-      activeLeaseRows$: new BehaviorSubject<ManagedLeaseRow[]>([]),
+      approverRows$: new BehaviorSubject<ApproverRow[]>([]),
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
       loading$: new BehaviorSubject<boolean>(false),
       loadError$: new BehaviorSubject<unknown | null>(null),
       decide: jest.fn().mockResolvedValue(undefined),
       revokeLease: jest.fn().mockResolvedValue(undefined),
+      cancelApproval: jest.fn().mockResolvedValue(undefined),
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [ApprovalsTabComponent, NoopAnimationsModule],
@@ -140,7 +218,6 @@ describe("ApprovalsTabComponent", () => {
         { provide: ApproverInboxService, useValue: inbox },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
-        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           // Echoes the key plus params, since I18nMockService throws on any key not given.
@@ -160,1210 +237,460 @@ describe("ApprovalsTabComponent", () => {
 
   afterEach(() => {
     fixture?.destroy();
+    delete (window as { matchMedia?: unknown }).matchMedia;
     jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
-  describe("rendering", () => {
-    it("shows the skeleton table once loading has run for a second", () => {
+  describe("loading", () => {
+    it("shows a skeleton table, hidden from assistive tech, once loading has run for a second", () => {
       inbox.loading$.next(true);
 
       create();
 
       const status = query('[data-testid="approvals-loading-status"]');
       expect(status?.getAttribute("role")).toBe("status");
-      expect(status?.getAttribute("aria-live")).toBe("polite");
       expect(status?.textContent?.trim()).toBe("");
-      expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
       expect(query("bit-skeleton")).toBeNull();
 
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
+      tick(1000);
 
       const skeleton = query('[data-testid="approvals-loading"]');
-      expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
-      expect(skeleton?.querySelector("bit-table")?.getAttribute("aria-hidden")).toBe("true");
-      expect(query('[data-testid="approvals-loading-status"]')).toBe(status);
+      expect(skeleton?.querySelector("bit-table-v2")?.getAttribute("aria-hidden")).toBe("true");
+      expect(skeleton?.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
       expect(status?.textContent).toContain("loading");
-      expect(query('p[bitTypography="body2"]')).toBeNull();
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
     });
 
-    it("keeps the skeleton on screen for its minimum display time", () => {
+    it("never shows the skeleton when the rows arrive inside a second", () => {
       inbox.loading$.next(true);
-
       create();
 
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query("bit-skeleton")).not.toBeNull();
-
+      inbox.approverRows$.next([pending()]);
       inbox.loading$.next(false);
-      jest.advanceTimersByTime(300);
-      fixture.detectChanges();
+      tick(1000);
 
-      expect(query("bit-skeleton")).not.toBeNull();
-
-      jest.advanceTimersByTime(700);
-      fixture.detectChanges();
-
-      expect(query("bit-skeleton")).toBeNull();
       expect(query('[data-testid="approvals-loading"]')).toBeNull();
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain(
-        "pamApprovalsLoaded",
-      );
-      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
+      expect(rowOrder()).toEqual(["req-1"]);
     });
 
-    it("never shows the skeleton when the inbox arrives inside a second", () => {
+    it("announces the rows once a shown skeleton clears", () => {
       inbox.loading$.next(true);
-
       create();
+      tick(1000);
 
-      jest.advanceTimersByTime(500);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
-
+      inbox.approverRows$.next([pending()]);
       inbox.loading$.next(false);
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
+      tick(1000);
 
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
-      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
-    });
-
-    it("leaves the empty state up while an already-loaded empty inbox reloads", () => {
-      // PAM pushes on every managed-request change, so blanking the panel each reload would
-      // flicker an empty inbox.
-      create();
-
-      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
-
-      inbox.loading$.next(true);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-loading"]')).toBeNull();
-
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-empty"]')).toBeNull();
-      expect(query("bit-skeleton")).not.toBeNull();
+      expect(text(query('[data-testid="approvals-loading-status"]'))).toBe("pamApprovalsLoaded");
     });
 
     it("does not announce a load that failed as loaded", () => {
       inbox.loading$.next(true);
-
       create();
-
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
+      tick(1000);
 
       inbox.loadError$.next(new Error("boom"));
       inbox.loading$.next(false);
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
+      tick(1000);
 
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+      expect(text(query('[data-testid="approvals-loading-status"]'))).toBe("");
     });
+  });
 
-    it("does not announce a retry of a failed load as loaded while it is still in flight", () => {
-      inbox.loading$.next(true);
-
-      create();
-
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      inbox.loadError$.next(new Error("boom"));
-      inbox.loading$.next(false);
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
-
-      // A push retries the load, and the service clears the error before the fetch is sent.
-      inbox.loading$.next(true);
-      inbox.loadError$.next(null);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
-
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
-
-      inbox.loading$.next(false);
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain(
-        "pamApprovalsLoaded",
-      );
-    });
-
-    it("does not announce a reload that shows no skeleton as loaded", () => {
-      inbox.loading$.next(true);
-
-      create();
-
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      inbox.loading$.next(false);
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain(
-        "pamApprovalsLoaded",
-      );
-
-      inbox.loading$.next(true);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(500);
-      inbox.loading$.next(false);
-      jest.advanceTimersByTime(500);
-      fixture.detectChanges();
-
-      expect(query("bit-skeleton")).toBeNull();
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
-    });
-
-    it("shows the empty state when there is nothing to approve", () => {
+  describe("table", () => {
+    it("shows the empty state when there is nothing to act on", () => {
       create();
 
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-table"]')).toBeNull();
     });
 
-    it("renders a row per pending request", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" }), row({ id: "req-2" })]);
+    it("renders the five columns in order, with no reason column", () => {
+      inbox.approverRows$.next([pending()]);
 
       create();
 
-      expect(query('[data-testid="approvals-row-req-1"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-row-req-2"]')).not.toBeNull();
-    });
-
-    it("shows the item, requester, window and reason", () => {
-      inbox.inboxRows$.next([row()]);
-
-      create();
-
-      const text = fixture.nativeElement.textContent as string;
-      expect(text).toContain("Prod database");
-      expect(text).toContain("Grace");
-      expect(text).toContain("pamInboxDuration1Hour");
-      expect(text).toContain("prod incident");
-    });
-
-    // jsdom does no layout; these assert breakpoint classes only, not real 1024px/1280px behavior.
-    it.each([
-      ["window", "xl"],
-      ["reason", "xl"],
-      ["submitted", "lg"],
-    ] as const)("shows the %s column only from the %s breakpoint up", (column, visibleFrom) => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      for (const element of [
-        query(`[data-testid="approvals-col-${column}"]`),
-        query(`[data-testid="approvals-cell-${column}-req-1"]`),
-      ]) {
-        expectVisibleFrom(element, visibleFrom);
-      }
-
-      // The skeleton is the table's placeholder, so it hides the same columns at the same widths.
-      fixture.destroy();
-      inbox.inboxRows$.next([]);
-      inbox.loading$.next(true);
-      create();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expectVisibleFrom(query(`[data-testid="approvals-skeleton-col-${column}"]`), visibleFrom);
-    });
-
-    it("keeps the actions column visible at every width", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      expect(query('[data-testid="approvals-col-actions"]')?.classList).not.toContain("tw-hidden");
-      const actionsCell = query('[data-testid="approvals-approve-req-1"]')?.closest("td");
-      expect(actionsCell).not.toBeNull();
-      expect(actionsCell?.classList).not.toContain("tw-hidden");
-    });
-
-    it("links each row to the request detail, which is where a hidden column is read", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      expect(query('[data-testid="approvals-row-req-1"] a')?.getAttribute("href")).toBe(
-        "/pam/requests/req-1",
-      );
-    });
-
-    it("carries the exact window and the unclamped reason on title, where those columns show", () => {
-      const pending = row({ id: "req-1" });
-      inbox.inboxRows$.next([pending]);
-
-      create();
-
-      expect(query('[data-testid="approvals-cell-window-req-1"] span')?.title).toBe(
-        pending.exactWindow,
-      );
-      expect(query('[data-testid="approvals-cell-reason-req-1"] div')?.title).toBe(pending.reason);
-    });
-
-    it("says so explicitly when a request carries no reason", () => {
-      inbox.inboxRows$.next([row({ reason: undefined })]);
-
-      create();
-
-      expect(fixture.nativeElement.textContent).toContain("pamInboxReasonMissing");
-    });
-
-    it("disables both decisions on the caller's own request", () => {
-      inbox.inboxRows$.next([row({ id: "mine" }, false)]);
-
-      create();
-
-      // `bitButton` marks aria-disabled and keeps the native attribute off, so the button stays
-      // focusable for screen readers.
-      expect(query('[data-testid="approvals-approve-mine"]')?.getAttribute("aria-disabled")).toBe(
-        "true",
-      );
-      expect(query('[data-testid="approvals-deny-mine"]')?.getAttribute("aria-disabled")).toBe(
-        "true",
-      );
-    });
-
-    it("keeps the filter toolbar on screen when a filter matches nothing", () => {
-      // The only way to clear a filter that emptied the table.
-      inbox.inboxRows$.next([row()]);
-      create();
-
-      component["searchControl"].setValue("nothing matches this");
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-no-results"]')).not.toBeNull();
-      expect(query("bit-search")).not.toBeNull();
-    });
-
-    it("filters by search term across item, collection and requester", () => {
-      inbox.inboxRows$.next([
-        row({ id: "keep" }),
-        row({ id: "drop", requesterName: "Someone", requesterEmail: undefined }),
+      expect(headings()).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamInboxRequester",
+        "pamColumnRequestedWindow",
+        "pamColumnActions",
       ]);
+    });
+
+    it("drops the window below lg, leaving the detail dialog to carry it", () => {
+      inbox.approverRows$.next([pending()]);
+      viewportWidth = 800;
+
       create();
 
-      component["searchControl"].setValue("grace");
-      fixture.detectChanges();
-
-      expect(component["rows"]().map((r) => r.id)).toEqual(["keep"]);
-    });
-  });
-
-  describe("deciding", () => {
-    beforeEach(() => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-    });
-
-    it("records an approval once confirmed, and toasts", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, verdict: "approve", comment: "fine" }),
-      } as never);
-      create();
-
-      await component["decide"](component["rows"]()[0], "approve");
-
-      expect(inbox.decide).toHaveBeenCalledWith("req-1", "approve", "fine");
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success" }),
-      );
-    });
-
-    it("records the verdict the dialog closed with, not the one it was opened on", async () => {
-      // The approve dialog offers "Deny request" and switches in place.
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, verdict: "deny", comment: "wrong window" }),
-      } as never);
-      create();
-
-      await component["decide"](component["rows"]()[0], "approve");
-
-      expect(inbox.decide).toHaveBeenCalledWith("req-1", "deny", "wrong window");
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "pamInboxDeniedToast",
-      });
-    });
-
-    it("does nothing when the dialog is dismissed", async () => {
-      // Cancel, the header X, Escape and a backdrop click all close with undefined.
-      dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
-      create();
-
-      await component["decide"](component["rows"]()[0], "approve");
-
-      expect(inbox.decide).not.toHaveBeenCalled();
-    });
-
-    it("toasts an error when recording the decision fails", async () => {
-      dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, verdict: "deny", comment: undefined }),
-      } as never);
-      inbox.decide.mockRejectedValue(new Error("boom"));
-      create();
-
-      await component["decide"](component["rows"]()[0], "deny");
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamInboxDecisionFailed",
-      });
-    });
-
-    it("never opens the dialog for the caller's own request", async () => {
-      inbox.inboxRows$.next([row({ id: "mine" }, false)]);
-      create();
-
-      await component["decide"](component["rows"]()[0], "approve");
-
-      expect(dialogService.open).not.toHaveBeenCalled();
-      expect(inbox.decide).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("active access", () => {
-    it("renders a row per live lease, with the holder and the item on it", () => {
-      inbox.activeLeaseRows$.next([
-        leaseRow({ producedLeaseId: "lease-1" }),
-        leaseRow(
-          { id: "req-2", producedLeaseId: "lease-2", requesterName: "Alan" },
-          {
-            addedSeconds: 3600,
-            latestEndMs: Date.parse("2026-08-17T14:00:00.000Z"),
-          },
-        ),
+      expect(headings()).toEqual([
+        "pamColumnItem",
+        "pamColumnStatus",
+        "pamInboxRequester",
+        "pamColumnActions",
       ]);
 
-      create();
-
-      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-lease-lease-2"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-lease-extended-lease-2"]')).not.toBeNull();
-      const text = fixture.nativeElement.textContent as string;
-      expect(text).toContain("Prod database");
-      expect(text).toContain("Grace");
-      expect(text).toContain("Alan");
-    });
-
-    it("shows both sections when there is live access but nothing pending", () => {
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      create();
-
-      expect(query('[data-testid="approvals-empty"]')).toBeNull();
-      expect(query("bit-accordion-group")).not.toBeNull();
-      expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
-    });
-
-    it("still renders the section, empty, when there is nothing live but something pending", () => {
-      inbox.inboxRows$.next([row()]);
-
-      create();
-
-      expect(query("bit-accordion-group")).not.toBeNull();
-      expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-empty"]')).toBeNull();
-    });
-
-    it("does not claim there is no active access when a filter hid the live rows", () => {
-      inbox.inboxRows$.next([row({ id: "req-pending", collectionId: "col-2" })]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-      create();
-
-      component["collectionFilterMenu"]()?.setValue("Staging");
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
-      expect(query('[data-testid="approvals-active-access-empty"]')?.textContent).toContain(
-        "pamApprovalsNoResults",
-      );
-    });
-
-    it("does not claim there is nothing to decide when a filter hid the pending rows", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow({ id: "req-live", collectionId: "col-2" })]);
-      create();
-
-      component["collectionFilterMenu"]()?.setValue("Staging");
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-row-req-1"]')).toBeNull();
-      expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
-        "pamApprovalsNoResults",
-      );
-    });
-
-    it("shows the inbox-zero empty state only when both sections are empty", () => {
-      create();
-
-      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
-      expect(query("bit-accordion-group")).toBeNull();
-    });
-
-    it("stops listing a lease once its window closes, with no server push", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow({ leaseNotAfter: "2026-08-17T12:00:30.000Z" })]);
-      create();
-      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
-
-      jest.advanceTimersByTime(31_000);
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
-      expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
-    });
-
-    it("runs no clock at all when there is no lease to expire", () => {
-      // The shared ticker is ref-counted, so a pending-only queue leaves it torn down.
-      const setIntervalSpy = jest.spyOn(global, "setInterval");
-      inbox.inboxRows$.next([row()]);
-
-      create();
-
-      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(0);
-    });
-
-    it("shares one clock with the badges it renders, and tears it down on destroy", () => {
-      const setIntervalSpy = jest.spyOn(global, "setInterval");
-      const clearIntervalSpy = jest.spyOn(global, "clearInterval");
-      inbox.activeLeaseRows$.next([
-        leaseRow(),
-        leaseRow({ id: "req-2", producedLeaseId: "lease-2" }),
-      ]);
-
-      create();
-
-      const [intervalId] = secondlyIntervalIds(setIntervalSpy);
-      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(1);
-      expect(clearIntervalSpy).not.toHaveBeenCalledWith(intervalId);
-
-      fixture.destroy();
-
-      expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
-    });
-
-    it("revokes the lease once confirmed, and toasts", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-      create();
-
-      await component["revoke"](component["leaseRows"]()[0]);
-
-      expect(inbox.revokeLease).toHaveBeenCalledWith("req-1", "lease-1");
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success" }),
-      );
-    });
-
-    it("does nothing when the confirm is dismissed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-      create();
-
-      await component["revoke"](component["leaseRows"]()[0]);
-
-      expect(inbox.revokeLease).not.toHaveBeenCalled();
-      expect(toastService.showToast).not.toHaveBeenCalled();
-    });
-
-    it("toasts an error when the revoke fails", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-      inbox.revokeLease.mockRejectedValue(new Error("boom"));
-      inbox.activeLeaseRows$.next([leaseRow()]);
-      create();
-
-      await component["revoke"](component["leaseRows"]()[0]);
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamInboxRevokeFailed",
-      });
-    });
-  });
-
-  describe("with the VFO1 flag on", () => {
-    let viewportWidth: number;
-    let mediaListeners: Array<() => void>;
-
-    function matchesWidth(query: string): boolean {
-      return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
-    }
-
-    /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
-    function stubMatchMedia(): void {
-      Object.defineProperty(window, "matchMedia", {
-        configurable: true,
-        writable: true,
-        value: (query: string) => ({
-          matches: matchesWidth(query),
-          media: query,
-          addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
-            mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
-          ),
-          removeEventListener: jest.fn(),
-        }),
-      });
-    }
-
-    function resizeTo(width: number): void {
-      viewportWidth = width;
+      viewportWidth = 1100;
       mediaListeners.forEach((notify) => notify());
       fixture.detectChanges();
-    }
 
-    function createWithFlag(enabled: boolean): void {
-      fixture?.destroy();
-      configService.getFeatureFlag$.mockReturnValue(of(enabled));
+      expect(headings()).toContain("pamColumnRequestedWindow");
+    });
+
+    it("renders one row per request, in every stage", () => {
+      inbox.approverRows$.next([
+        pending({ id: "req-p" }),
+        ready({ id: "req-r" }),
+        active({ id: "req-a" }),
+      ]);
+
       create();
-    }
 
-    function queryAll(root: ParentNode, selector: string): HTMLElement[] {
-      return Array.from(root.querySelectorAll<HTMLElement>(selector));
-    }
+      expect(rowOrder()).toEqual(["req-p", "req-r", "req-a"]);
+    });
 
-    function text(element: Element): string {
-      return (element.textContent ?? "").replace(/\s+/g, " ").trim();
-    }
+    it("badges each row with its stage", () => {
+      inbox.approverRows$.next([
+        pending({ id: "req-p" }),
+        ready({ id: "req-r" }),
+        active({ id: "req-a" }),
+      ]);
 
-    function pendingTable(): HTMLElement {
-      return queryAll(fixture.nativeElement, "bit-accordion")[0].querySelector(
-        "bit-table, bit-table-v2",
-      ) as HTMLElement;
-    }
+      create();
 
-    function leaseTable(): HTMLElement {
-      return queryAll(fixture.nativeElement, "bit-accordion")[1].querySelector(
-        "bit-table, bit-table-v2",
-      ) as HTMLElement;
-    }
+      const badge = (id: string) =>
+        query(`[data-testid="approvals-cell-status-${id}"] [data-testid^="access-state-badge-"]`);
+      expect(badge("req-p")?.getAttribute("data-testid")).toBe("access-state-badge-pending");
+      expect(badge("req-r")?.getAttribute("data-testid")).toBe("access-state-badge-ready");
+      expect(badge("req-a")?.getAttribute("data-testid")).toBe("access-state-badge-active");
+    });
 
-    function headings(table: HTMLElement): string[] {
-      return queryAll(table, 'th, [role="columnheader"]').map(text);
-    }
+    it("shows the item, its shared folder, and links it to the request's detail dialog", () => {
+      inbox.approverRows$.next([pending()]);
 
-    function pendingOrder(): string[] {
-      return queryAll(pendingTable(), '[data-testid^="approvals-approve-"]').map((button) =>
-        (button.getAttribute("data-testid") ?? "").replace("approvals-approve-", ""),
+      create();
+
+      const item = query('[data-testid="approvals-cell-item-req-1"]');
+      expect(text(item)).toContain("Prod database");
+      expect(text(item)).toContain("pamInboxInCollection Production");
+      expect(item?.querySelector('bit-icon[name="bwi-collection-shared"]')).not.toBeNull();
+      expect(item?.querySelector("a")?.getAttribute("href")).toBe("/pam/requests/req-1");
+    });
+
+    it("shows the duration over the window, with the exact window on title", () => {
+      inbox.approverRows$.next([ready()]);
+
+      create();
+
+      const cell = query('[data-testid="approvals-cell-window-req-1"]');
+      expect(text(cell)).toContain("pamInboxDurationHours 4");
+      expect(text(cell)).toMatch(/pamWindow\w+/);
+      expect(cell?.querySelector("[title]")?.getAttribute("title")).toContain("–");
+    });
+
+    it("re-sorts by status when its header is clicked", () => {
+      inbox.approverRows$.next([
+        active({ id: "req-a" }),
+        pending({ id: "req-p" }),
+        ready({ id: "req-r" }),
+      ]);
+      create();
+
+      const statusHeader = queryAll('[role="columnheader"]').find(
+        (header) => text(header) === "pamColumnStatus",
       );
-    }
+      statusHeader?.querySelector("button")?.click();
+      fixture.detectChanges();
 
-    beforeEach(() => {
-      viewportWidth = 1440;
-      mediaListeners = [];
-      stubMatchMedia();
+      expect(rowOrder()).toEqual(["req-p", "req-r", "req-a"]);
     });
+  });
 
-    afterEach(() => {
-      delete (window as { matchMedia?: unknown }).matchMedia;
-    });
+  describe("row actions", () => {
+    it("offers a solid green approve and a solid red deny, with tooltips, only on a pending request", () => {
+      inbox.approverRows$.next([pending()]);
 
-    it("renders bit-table-v2 for both sections instead of bit-table", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
+      create();
 
-      createWithFlag(true);
-
-      expect(pendingTable().tagName).toBe("BIT-TABLE-V2");
-      expect(leaseTable().tagName).toBe("BIT-TABLE-V2");
-      expect(query("bit-table")).toBeNull();
-    });
-
-    it("renders the v1 table, and no v2 table, with the flag off", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      createWithFlag(false);
-
-      expect(pendingTable().tagName).toBe("BIT-TABLE");
-      expect(leaseTable().tagName).toBe("BIT-TABLE");
-      expect(query("bit-table-v2")).toBeNull();
-    });
-
-    it("renders the same column headings, in the same order, as the v1 tables", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      createWithFlag(false);
-      const v1Pending = headings(pendingTable());
-      const v1Leases = headings(leaseTable());
-
-      createWithFlag(true);
-
-      expect(v1Pending).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamInboxWindow",
-        "pamInboxReason",
-        "pamColumnSubmitted",
-        "pamColumnActions",
-      ]);
-      expect(headings(pendingTable())).toEqual(v1Pending);
-      expect(v1Leases).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamColumnWindow",
-        "pamColumnRemaining",
-        "pamColumnActions",
-      ]);
-      expect(headings(leaseTable())).toEqual(v1Leases);
+      const approve = query('[data-testid="approvals-approve-req-1"]');
+      const deny = query('[data-testid="approvals-deny-req-1"]');
+      expect(approve?.getAttribute("aria-label")).toBe("pamApprovalsApproveRequest");
+      expect(deny?.getAttribute("aria-label")).toBe("pamApprovalsDenyRequest");
+      expect(approve?.querySelector(".bwi-check-circle")).not.toBeNull();
+      expect(approve?.className).toContain("tw-bg-bg-success");
+      expect(deny?.querySelector(".bwi-clear")).not.toBeNull();
+      expect(deny?.className).toContain("tw-bg-bg-danger");
+      expect(query('[data-testid="approvals-revoke-req-1"]')).toBeNull();
     });
 
     it.each([
-      [1100, ["pamColumnItem", "pamInboxRequester", "pamColumnSubmitted", "pamColumnActions"]],
-      [800, ["pamColumnItem", "pamInboxRequester", "pamColumnActions"]],
-    ])("drops the columns v1 hides below its breakpoints at %ipx", (width, expectedPending) => {
-      viewportWidth = width;
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
+      ["ready", ready],
+      ["active", active],
+    ])("offers only revoke on a %s row", (_kind, build) => {
+      inbox.approverRows$.next([build()]);
 
-      createWithFlag(true);
+      create();
 
-      expect(headings(pendingTable())).toEqual(expectedPending);
-      expect(query('[data-testid="approvals-cell-window-req-1"]')).toBeNull();
-      expect(query('[data-testid="approvals-cell-reason-req-1"]')).toBeNull();
-      expect(headings(leaseTable())).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamColumnRemaining",
-        "pamColumnActions",
-      ]);
-    });
-
-    it("renders one row per pending request and per live lease, as v1 does", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" }), row({ id: "req-2" }), row({ id: "req-3" })]);
-      inbox.activeLeaseRows$.next([
-        leaseRow({ producedLeaseId: "lease-1" }),
-        leaseRow({ id: "req-4", producedLeaseId: "lease-2" }),
-      ]);
-
-      createWithFlag(false);
-      const v1PendingRows = queryAll(pendingTable(), "tr[bitRow]").length;
-      const v1LeaseRows = queryAll(leaseTable(), "tr[bitRow]").length;
-
-      createWithFlag(true);
-
-      expect(v1PendingRows).toBe(3);
-      expect(queryAll(pendingTable(), "bit-row")).toHaveLength(v1PendingRows);
-      expect(v1LeaseRows).toBe(2);
-      expect(queryAll(leaseTable(), "bit-row")).toHaveLength(v1LeaseRows);
-    });
-
-    it("shows the same cell content as v1", () => {
-      const pending = row({ id: "req-1" });
-      inbox.inboxRows$.next([pending]);
-      inbox.activeLeaseRows$.next([
-        leaseRow(
-          { producedLeaseId: "lease-1" },
-          { addedSeconds: 3600, latestEndMs: Date.parse("2026-08-17T14:00:00.000Z") },
-        ),
-      ]);
-
-      createWithFlag(true);
-
-      const pendingText = text(pendingTable());
-      expect(pendingText).toContain("Prod database");
-      expect(pendingText).toContain("pamInboxInCollection Production");
-      expect(pendingText).toContain("Grace");
-      expect(pendingText).toContain("grace@example.com");
-      expect(pendingText).toContain("pamInboxDuration1Hour");
-      expect(pendingText).toContain("prod incident");
-      expect(query('[data-testid="approvals-cell-item-req-1"] a')?.getAttribute("href")).toBe(
-        "/pam/requests/req-1",
+      expect(query('[data-testid="approvals-revoke-req-1"]')?.getAttribute("aria-label")).toBe(
+        "pamApprovalsRevokeAccess",
       );
-      expect(query('[data-testid="approvals-cell-window-req-1"] span')?.title).toBe(
-        pending.exactWindow,
+      expect(query('[data-testid="approvals-revoke-req-1"]')?.className).toContain(
+        "tw-bg-bg-danger",
       );
-      expect(query('[data-testid="approvals-cell-reason-req-1"] [title]')?.title).toBe(
-        pending.reason,
+      expect(query('[data-testid="approvals-approve-req-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
+    });
+
+    it("reveals the actions only on row hover or keyboard focus", () => {
+      inbox.approverRows$.next([pending()]);
+
+      create();
+
+      const strip = query('[data-testid="approvals-approve-req-1"]')?.parentElement;
+      expect(strip?.className).toContain("tw-opacity-0");
+      expect(strip?.className).toContain("group-hover/row:tw-opacity-100");
+      expect(strip?.className).toContain("group-has-[:focus-visible]/row:tw-opacity-100");
+    });
+
+    it("disables both decisions on the caller's own request, saying why", () => {
+      inbox.approverRows$.next([pending({}, false)]);
+
+      create();
+
+      expect(query('[data-testid="approvals-approve-req-1"]')?.getAttribute("aria-label")).toBe(
+        "pamInboxCannotApproveOwn",
       );
-      expect(query('[data-testid="approvals-lease-extended-lease-1"]')).not.toBeNull();
-      expect(leaseTable().querySelector("app-pam-access-state-badge")).not.toBeNull();
-    });
-
-    it("says so explicitly when a request carries no reason", () => {
-      inbox.inboxRows$.next([row({ reason: undefined })]);
-
-      createWithFlag(true);
-
-      expect(text(pendingTable())).toContain("pamInboxReasonMissing");
-    });
-
-    it("sorts by submitted time, oldest first, by default, as v1 does", () => {
-      inbox.inboxRows$.next([
-        row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
-        row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
-        row({ id: "middle", submittedAt: "2026-08-17T11:00:00.000Z" }),
-      ]);
-
-      createWithFlag(false);
-      const v1Order = pendingOrder();
-
-      createWithFlag(true);
-
-      expect(v1Order).toEqual(["oldest", "middle", "newest"]);
-      expect(pendingOrder()).toEqual(v1Order);
-      const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
-        (header) => text(header) === "pamColumnSubmitted",
-      );
-      expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
-    });
-
-    it("keeps the default sort when opened below lg and widened, as v1 does", () => {
-      viewportWidth = 800;
-      inbox.inboxRows$.next([
-        row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
-        row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
-      ]);
-
-      createWithFlag(true);
-      resizeTo(1440);
-
-      const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
-        (header) => text(header) === "pamColumnSubmitted",
-      );
-      expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
-      expect(pendingOrder()).toEqual(["oldest", "newest"]);
-    });
-
-    it("sorts on the same three columns as v1 in each section", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      createWithFlag(true);
-
-      const sortable = (table: HTMLElement) =>
-        queryAll(table, '[role="columnheader"]')
-          .filter((header) => header.querySelector("button") != null)
-          .map(text);
-      expect(sortable(pendingTable())).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamColumnSubmitted",
-      ]);
-      expect(sortable(leaseTable())).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamColumnRemaining",
-      ]);
-    });
-
-    it("re-sorts by item when its header is clicked", () => {
-      inbox.inboxRows$.next([
-        row({ id: "b", cipherId: "cipher-b" }),
-        row({ id: "a", cipherId: "cipher-a" }),
-      ]);
-
-      createWithFlag(true);
-
-      const itemSort = queryAll(pendingTable(), '[role="columnheader"] button').find(
-        (button) => text(button) === "pamColumnItem",
-      );
-      itemSort?.click();
-      fixture.detectChanges();
-
-      expect(pendingOrder()).toEqual(["a", "b"]);
-    });
-
-    it("offers approve then deny on each pending row, and revoke on each lease", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      createWithFlag(true);
-
-      expect(
-        queryAll(
-          query('[data-testid="approvals-cell-actions-req-1"]') as HTMLElement,
-          "button",
-        ).map(text),
-      ).toEqual(["pamInboxApprove", "pamInboxDeny"]);
-      expect(text(query('[data-testid="approvals-revoke-lease-1"]') as HTMLElement)).toBe(
-        "pamInboxRevoke",
-      );
-    });
-
-    it("disables both decisions on the caller's own request", () => {
-      inbox.inboxRows$.next([row({ id: "mine" }, false)]);
-
-      createWithFlag(true);
-
-      expect(query('[data-testid="approvals-approve-mine"]')?.getAttribute("aria-disabled")).toBe(
+      // aria-disabled rather than disabled, so the buttons stay hoverable for their tooltips.
+      expect(query('[data-testid="approvals-approve-req-1"]')?.getAttribute("aria-disabled")).toBe(
         "true",
       );
-      expect(query('[data-testid="approvals-deny-mine"]')?.getAttribute("aria-disabled")).toBe(
+      expect(query('[data-testid="approvals-deny-req-1"]')?.getAttribute("aria-disabled")).toBe(
         "true",
       );
     });
 
-    it("opens the decide dialog from the approve and deny buttons", () => {
+    it.each(["approve", "deny"] as const)(
+      "records a %s through the decide dialog, with the verdict it closed on",
+      async (verdict) => {
+        dialogService.open.mockReturnValue({
+          closed: of({ confirmed: true, verdict, comment: "ok" }),
+        } as never);
+        inbox.approverRows$.next([pending()]);
+        create();
+
+        query(`[data-testid="approvals-${verdict}-req-1"]`)?.click();
+        await settle();
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({ data: expect.objectContaining({ verdict }) }),
+        );
+        expect(inbox.decide).toHaveBeenCalledWith("req-1", verdict, "ok");
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "success" }),
+        );
+      },
+    );
+
+    it("records nothing when the decide dialog is dismissed", async () => {
       dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      createWithFlag(true);
+      inbox.approverRows$.next([pending()]);
+      create();
 
       query('[data-testid="approvals-approve-req-1"]')?.click();
-      query('[data-testid="approvals-deny-req-1"]')?.click();
+      await settle();
 
-      expect(dialogService.open).toHaveBeenCalledTimes(2);
+      expect(inbox.decide).not.toHaveBeenCalled();
     });
 
-    it("confirms before revoking from the revoke button", () => {
+    it("withdraws an approval not yet started, once confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      inbox.approverRows$.next([ready()]);
+      create();
+
+      query('[data-testid="approvals-revoke-req-1"]')?.click();
+      await settle();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamInboxWithdrawApproval" } }),
+      );
+      expect(inbox.cancelApproval).toHaveBeenCalledWith("req-1");
+      expect(inbox.revokeLease).not.toHaveBeenCalled();
+    });
+
+    it("ends a running lease, once confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      inbox.approverRows$.next([active()]);
+      create();
+
+      query('[data-testid="approvals-revoke-req-1"]')?.click();
+      await settle();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamInboxRevoke" } }),
+      );
+      expect(inbox.revokeLease).toHaveBeenCalledWith("req-1", "lease-1");
+      expect(inbox.cancelApproval).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the revoke confirm is dismissed", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
-      inbox.activeLeaseRows$.next([leaseRow()]);
+      inbox.approverRows$.next([active()]);
+      create();
 
-      createWithFlag(true);
+      query('[data-testid="approvals-revoke-req-1"]')?.click();
+      await settle();
 
-      query('[data-testid="approvals-revoke-lease-1"]')?.click();
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      expect(inbox.revokeLease).not.toHaveBeenCalled();
     });
+  });
 
-    it("applies the toolbar filters to the v2 rows", () => {
-      inbox.inboxRows$.next([
-        row({ id: "keep" }),
-        row({ id: "drop", requesterName: "Someone", requesterEmail: undefined }),
+  describe("row lifecycle", () => {
+    it("drops a lease once its window closes, with no server push", () => {
+      inbox.approverRows$.next([
+        pending({ id: "req-p" }),
+        active({ id: "req-a", leaseNotAfter: new Date(NOW.getTime() + 2000).toISOString() }),
       ]);
-      createWithFlag(true);
+      create();
 
-      component["searchControl"].setValue("grace");
-      fixture.detectChanges();
+      expect(rowOrder()).toEqual(["req-p", "req-a"]);
 
-      expect(pendingOrder()).toEqual(["keep"]);
+      tick(3000);
+
+      expect(rowOrder()).toEqual(["req-p"]);
     });
 
-    it("keeps the pending empty state inside its table, and the lease one outside", () => {
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      createWithFlag(true);
-
-      const pendingEmpty = query('[data-testid="approvals-pending-empty"]');
-      expect(pendingEmpty?.closest("bit-table-v2")).toBe(pendingTable());
-      expect(query('[data-testid="approvals-active-access-empty"]')).toBeNull();
-      expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(2);
-    });
-
-    it("shows a v2 skeleton, hidden from assistive tech, once loading has run for a second", () => {
-      inbox.loading$.next(true);
-
-      createWithFlag(true);
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      const skeleton = query('[data-testid="approvals-loading"]');
-      const table = skeleton?.querySelector("bit-table-v2");
-      expect(table?.getAttribute("aria-hidden")).toBe("true");
-      expect(skeleton?.querySelector("bit-table")).toBeNull();
-      expect(queryAll(table as HTMLElement, "bit-row")).toHaveLength(5);
-      expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
-      expect(headings(table as HTMLElement)).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamInboxWindow",
-        "pamInboxReason",
-        "pamColumnSubmitted",
-        "pamColumnActions",
+    it("drops an approval whose window ends unstarted", () => {
+      inbox.approverRows$.next([
+        ready({
+          leaseNotBefore: new Date(NOW.getTime() - MINUTE).toISOString(),
+          leaseNotAfter: new Date(NOW.getTime() + 2000).toISOString(),
+        }),
       ]);
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
+      create();
+
+      tick(3000);
+
+      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
-    describe("toolbar", () => {
-      function chips(root: ParentNode): HTMLElement[] {
-        return queryAll(root, "bit-filter-menu");
-      }
+    it("runs no clock when every row is pending", () => {
+      const setInterval = jest.spyOn(window, "setInterval");
+      inbox.approverRows$.next([pending()]);
 
-      /** The toolbar's chip row, which collapses into the filter dialog below md. */
-      function filterRow(): HTMLElement {
-        return query("bit-table-toolbar [bitOverflowList]") as HTMLElement;
-      }
+      create();
 
-      function optionLabels(chip: HTMLElement): string[] {
-        return queryAll(chip, "bit-filter-option").map(text);
-      }
+      expect(setInterval.mock.calls.filter(([, delay]) => delay === 1000)).toHaveLength(0);
+    });
+  });
 
-      function searchPlaceholder(): string | null | undefined {
-        return query("bit-search input")?.getAttribute("placeholder");
-      }
+  describe("toolbar", () => {
+    beforeEach(() => {
+      inbox.approverRows$.next([
+        pending({ id: "req-p" }),
+        ready({ id: "req-r", collectionId: "col-2", requesterName: "Ada", cipherId: "cipher-2" }),
+        active({ id: "req-a" }),
+        active({
+          id: "req-e",
+          producedLeaseId: "lease-2",
+          requesterName: "Ada",
+          leaseNotAfter: new Date(NOW.getTime() + 4 * MINUTE).toISOString(),
+        }),
+      ]);
+    });
 
-      function leaseIds(): string[] {
-        return queryAll(fixture.nativeElement, '[data-testid^="approvals-revoke-"]').map((button) =>
-          (button.getAttribute("data-testid") ?? "").replace("approvals-revoke-", ""),
-        );
-      }
+    it("offers search plus multi-select Status, Shared folders and Requester chips", () => {
+      create();
 
-      /** Two collections and two requesters across both sections, so either chip can narrow. */
-      function twoOfEach(): void {
-        inbox.inboxRows$.next([
-          row({ id: "prod-grace" }),
-          row({
-            id: "staging-alan",
-            collectionId: "col-2",
-            requesterName: "Alan",
-            requesterEmail: "alan@example.com",
-          }),
-        ]);
-        inbox.activeLeaseRows$.next([
-          leaseRow({ id: "req-live-1", producedLeaseId: "lease-prod" }),
-          leaseRow({
-            id: "req-live-2",
-            producedLeaseId: "lease-staging",
-            collectionId: "col-2",
-            requesterName: "Alan",
-            requesterEmail: "alan@example.com",
-          }),
-        ]);
-      }
+      const chips = queryAll("bit-filter-menu");
+      expect(chips.map((chip) => chip.getAttribute("key"))).toEqual([
+        "status",
+        "collection",
+        "requester",
+      ]);
+      expect(chips.every((chip) => chip.hasAttribute("multiple"))).toBe(true);
+      expect(filterControl("search")).toBeDefined();
+    });
 
-      it("projects the search and both filter chips into bit-table-toolbar", () => {
-        inbox.inboxRows$.next([row()]);
+    it("gives each status option its own icon tile", () => {
+      create();
 
-        createWithFlag(true);
+      expect(
+        fixture.componentInstance["statusOptions"].map((option) => [option.value, option.iconTile]),
+      ).toEqual([
+        ["pending", { icon: "bwi-clock", variant: "warning" }],
+        ["ready", { icon: "bwi-check-circle", variant: "success" }],
+        ["inUse", { icon: "bwi-unlock", variant: "teal" }],
+        ["endingSoon", { icon: "bwi-warning", variant: "danger" }],
+      ]);
+    });
 
-        const toolbar = query("bit-table-toolbar");
-        expect(toolbar).not.toBeNull();
-        expect(toolbar?.querySelector("bit-search")).not.toBeNull();
-        expect(chips(toolbar as HTMLElement)).toHaveLength(2);
-        expect(queryAll(fixture.nativeElement, "bit-search")).toHaveLength(1);
-        expect(chips(fixture.nativeElement)).toHaveLength(2);
-      });
+    it("counts the rows the filters leave", () => {
+      create();
 
-      it("leaves the controls outside any toolbar with the flag off", () => {
-        inbox.inboxRows$.next([row()]);
+      expect(table().filteredCount()).toBe(4);
 
-        createWithFlag(false);
+      setFilter("requester", ["Ada"]);
 
-        expect(query("bit-table-toolbar")).toBeNull();
-        expect(query("bit-search")).not.toBeNull();
-        expect(chips(fixture.nativeElement)).toHaveLength(2);
-      });
+      expect(table().filteredCount()).toBe(2);
+    });
 
-      it("keeps the search placeholder and id the v1 toolbar rendered", () => {
-        inbox.inboxRows$.next([row()]);
+    it("filters by search term across item, shared folder and requester", () => {
+      create();
 
-        createWithFlag(false);
-        const v1Placeholder = searchPlaceholder();
-        const v1Id = query("bit-search")?.getAttribute("id");
+      setFilter("search", "billing");
 
-        createWithFlag(true);
+      expect(rowOrder()).toEqual(["req-r"]);
+    });
 
-        expect(v1Placeholder).toBe("pamApprovalsSearchPlaceholder");
-        expect(searchPlaceholder()).toBe(v1Placeholder);
-        expect(query("bit-search")?.getAttribute("id")).toBe(v1Id);
-      });
+    it("splits running leases into in use and ending soon by the live clock", () => {
+      create();
 
-      it("keeps both chips' keys, labels and options", () => {
-        twoOfEach();
+      setFilter("status", ["endingSoon"]);
+      expect(rowOrder()).toEqual(["req-e"]);
 
-        createWithFlag(false);
-        const v1Options = chips(fixture.nativeElement).map(optionLabels);
-        const v1Labels = chips(fixture.nativeElement).map(text);
+      setFilter("status", ["inUse"]);
+      expect(rowOrder()).toEqual(["req-a"]);
+    });
 
-        createWithFlag(true);
+    it("ORs the options within a filter", () => {
+      create();
 
-        expect(v1Options).toEqual([
-          ["Production", "Staging"],
-          ["Alan", "Grace"],
-        ]);
-        expect(chips(fixture.nativeElement).map(optionLabels)).toEqual(v1Options);
-        expect(chips(fixture.nativeElement).map(text)).toEqual(v1Labels);
-        expect([
-          component["collectionFilterMenu"]()?.key(),
-          component["requesterFilterMenu"]()?.key(),
-        ]).toEqual(["collection", "requester"]);
-      });
+      setFilter("status", ["pending", "ready"]);
 
-      it("starts with both chips unset, as v1 does", () => {
-        twoOfEach();
+      expect(rowOrder()).toEqual(["req-p", "req-r"]);
+    });
 
-        createWithFlag(true);
+    it("ANDs across filters", () => {
+      create();
 
-        expect(component["collectionFilterMenu"]()?.active()).toBe(false);
-        expect(component["requesterFilterMenu"]()?.active()).toBe(false);
-        expect(pendingOrder()).toEqual(["prod-grace", "staging-alan"]);
-        expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
-      });
+      setFilter("requester", ["Ada"]);
+      setFilter("collection", ["Production"]);
 
-      it("narrows both sections from the collection chip, as v1 does", () => {
-        twoOfEach();
-        createWithFlag(true);
+      expect(rowOrder()).toEqual(["req-e"]);
+    });
 
-        component["collectionFilterMenu"]()?.setValue("Staging");
-        fixture.detectChanges();
+    it("counts each status option against the current rows", () => {
+      create();
 
-        expect(pendingOrder()).toEqual(["staging-alan"]);
-        expect(leaseIds()).toEqual(["lease-staging"]);
-      });
+      expect(table().optionCount("status", ["pending"])).toBe(1);
+      expect(table().optionCount("status", ["inUse"])).toBe(1);
+      expect(table().optionCount("status", ["endingSoon"])).toBe(1);
+      expect(table().optionCount("collection", ["Staging"])).toBe(1);
+    });
 
-      it("narrows both sections from the requester chip, as v1 does", () => {
-        twoOfEach();
-        createWithFlag(true);
+    it("keeps the toolbar up and says so when the filters match nothing", () => {
+      create();
 
-        component["requesterFilterMenu"]()?.setValue("Grace");
-        fixture.detectChanges();
+      setFilter("search", "nothing matches this");
 
-        expect(pendingOrder()).toEqual(["prod-grace"]);
-        expect(leaseIds()).toEqual(["lease-prod"]);
-      });
-
-      it("intersects the chips with the search term, as v1 does", () => {
-        twoOfEach();
-        createWithFlag(true);
-
-        // Either control alone leaves rows; together they must leave none.
-        component["collectionFilterMenu"]()?.setValue("Production");
-        component["searchControl"].setValue("alan");
-        fixture.detectChanges();
-
-        expect(pendingOrder()).toEqual([]);
-        expect(leaseIds()).toEqual([]);
-        expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
-          "pamApprovalsNoResults",
-        );
-        expect(query('[data-testid="approvals-active-access-empty"]')?.textContent).toContain(
-          "pamApprovalsNoResults",
-        );
-      });
-
-      it("narrows both sections from the search box, matching the same fields as v1", () => {
-        twoOfEach();
-        createWithFlag(true);
-
-        component["searchControl"].setValue("staging");
-        fixture.detectChanges();
-
-        expect(pendingOrder()).toEqual(["staging-alan"]);
-        expect(leaseIds()).toEqual(["lease-staging"]);
-      });
-
-      it("keeps the toolbar on screen when a filter matches nothing", () => {
-        // The only way to clear a filter that emptied both sections.
-        twoOfEach();
-        createWithFlag(true);
-
-        component["searchControl"].setValue("nothing matches this");
-        fixture.detectChanges();
-
-        expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
-          "pamApprovalsNoResults",
-        );
-        expect(query("bit-table-toolbar bit-search")).not.toBeNull();
-        expect(chips(query("bit-table-toolbar") as HTMLElement)).toHaveLength(2);
-      });
-
-      it("projects the toolbar into the pending table, which holds its place when emptied", () => {
-        twoOfEach();
-        createWithFlag(true);
-
-        component["requesterFilterMenu"]()?.setValue("Alan");
-        component["searchControl"].setValue("nothing matches this");
-        fixture.detectChanges();
-
-        const toolbar = query("bit-table-toolbar") as HTMLElement;
-        expect(toolbar.closest("bit-table-v2")).toBe(pendingTable());
-        expect(pendingOrder()).toEqual([]);
-        expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
-        expect(chips(toolbar)).toHaveLength(2);
-      });
-
-      it("counts a chip's options against the pending rows the other chips have not seen", () => {
-        twoOfEach();
-        createWithFlag(true);
-
-        component["collectionFilterMenu"]()?.setValue("Production");
-        fixture.detectChanges();
-
-        const table = fixture.debugElement.query(By.css("bit-table-v2")).componentInstance as {
-          optionCount(key: string, value: unknown): number | undefined;
-        };
-        expect(table.optionCount("requester", "Alan")).toBe(1);
-        expect(pendingOrder()).toEqual(["prod-grace"]);
-      });
-
-      it("lays both chips out in the visible filter row at md and up", () => {
-        twoOfEach();
-
-        createWithFlag(true);
-
-        expect(chips(filterRow())).toHaveLength(2);
-        expect(filterRow().classList).not.toContain("tw-invisible");
-        expect(query("bit-table-toolbar .bwi-sliders")).toBeNull();
-      });
-
-      it("collapses the same chips into the filter dialog trigger below md", () => {
-        twoOfEach();
-        createWithFlag(true);
-
-        resizeTo(500);
-
-        expect(query("bit-table-toolbar .bwi-sliders")).not.toBeNull();
-        // Laid out but invisible, so the overflow list can keep measuring it.
-        expect(chips(filterRow())).toHaveLength(2);
-        expect(filterRow().classList).toContain("tw-invisible");
-      });
-
-      it("clears a collapsed selection from its active-filter chip, re-listing both sections", () => {
-        twoOfEach();
-        createWithFlag(true);
-        resizeTo(500);
-
-        component["collectionFilterMenu"]()?.setValue("Staging");
-        fixture.detectChanges();
-
-        const applied = queryAll(fixture.nativeElement, "bit-table-toolbar bit-chip");
-        expect(applied).toHaveLength(1);
-        expect(text(applied[0])).toContain("Staging");
-        expect(pendingOrder()).toEqual(["staging-alan"]);
-
-        applied[0].querySelector<HTMLElement>("button[bit-chip-dismiss-button]")?.click();
-        fixture.detectChanges();
-
-        expect(component["collectionFilterMenu"]()?.active()).toBe(false);
-        expect(pendingOrder()).toEqual(["prod-grace", "staging-alan"]);
-        expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
-      });
-
-      it("shows no toolbar while the skeleton is up, as v1 does", () => {
-        inbox.loading$.next(true);
-
-        createWithFlag(true);
-        jest.advanceTimersByTime(1000);
-        fixture.detectChanges();
-
-        expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
-        expect(query("bit-table-toolbar")).toBeNull();
-      });
-
-      it("shows no toolbar over the inbox-zero empty state, as v1 does", () => {
-        createWithFlag(true);
-
-        expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
-        expect(query("bit-table-toolbar")).toBeNull();
-      });
+      expect(query('[data-testid="approvals-no-results"]')).not.toBeNull();
+      expect(query("bit-table-toolbar")).not.toBeNull();
+      expect(query('[data-testid="approvals-empty"]')).toBeNull();
     });
   });
 });

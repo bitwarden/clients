@@ -11,7 +11,7 @@ import { AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "./access-badge-state
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 type BadgeIcon =
-  "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check" | "bwi-exclamation-triangle";
+  "bwi-key" | "bwi-clock" | "bwi-lock" | "bwi-unlock" | "bwi-check-circle" | "bwi-warning";
 
 type BadgeRecipe = {
   readonly variant: BadgeVariant;
@@ -60,7 +60,7 @@ export class AccessStateBadgeComponent {
       if (remainingMs <= ENDING_SOON_THRESHOLD_MS) {
         return {
           variant: "danger",
-          icon: "bwi-exclamation-triangle",
+          icon: "bwi-warning",
           label: this.i18nService.t("pamAccessBadgeEndingSoon", remaining),
           testId: "access-state-badge-ending-soon",
         };
@@ -102,7 +102,7 @@ export class AccessStateBadgeComponent {
       case "ready":
         return {
           variant: "success",
-          icon: "bwi-check",
+          icon: "bwi-check-circle",
           label: this.i18nService.t("pamAccessBadgeReady"),
           testId: "access-state-badge-ready",
         };
