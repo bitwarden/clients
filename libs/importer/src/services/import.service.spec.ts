@@ -300,6 +300,16 @@ describe("ImportService", () => {
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
     });
 
+    it("passing importTarget assigns it to ciphers whose folderId has no folder relationship", async () => {
+      // Bitwarden JSON exports keep the source vault's folder id on each item
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: "source-folder-id" }));
+
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
+
+      expect(importResult.ciphers[0].folderId).toBe(mockImportTargetFolder.id);
+      expect(importResult.folderRelationships).toEqual([[0, 0]]);
+    });
+
     it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
