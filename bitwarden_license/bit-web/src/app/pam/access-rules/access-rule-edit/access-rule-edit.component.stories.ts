@@ -10,16 +10,19 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { of } from "rxjs";
-import { getByText, userEvent } from "storybook/test";
+import { findByLabelText, findByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DialogModule, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
+import { unsavedChangesDialogGuard } from "../../unsaved-changes.guard";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -30,9 +33,13 @@ const ORG_COLLECTIONS = [
   { id: "col-3", name: "Marketing" },
 ];
 
+/** A GUID, since the page turns away any other id as not found. */
+const RULE_ID = "6f0c8a1e-3b2d-4c5e-9f7a-1d2e3f4a5b6c";
+const EDIT_URL = `/organizations/org-1/access-rules/${RULE_ID}`;
+
 /** Exercises conditions, extensions and duration caps. */
 const SAMPLE_RULE = {
-  id: "rule-1",
+  id: RULE_ID,
   organizationId: "org-1",
   name: "Production database access",
   description: "Elevated, audited access to the production database collections.",
@@ -55,8 +62,8 @@ const pamApi: Partial<AccessRuleSdkService> = {
 };
 
 /**
- * Mirrors `pam-routing.module.ts` without its guards, since a stubbed `ActivatedRoute` can't
- * resolve the `['..']` breadcrumb and renders it as the active page.
+ * Mirrors `pam-routing.module.ts`, since a stubbed `ActivatedRoute` can't resolve the `['..']`
+ * breadcrumb and renders it as the active page. Only the discard guard is kept.
  */
 const routes: Routes = [
   {
@@ -64,8 +71,16 @@ const routes: Routes = [
     children: [
       { path: "", children: [] },
       // List "new" before ":accessRuleId" so the literal path wins.
-      { path: "new", component: AccessRuleEditComponent },
-      { path: ":accessRuleId", component: AccessRuleEditComponent },
+      {
+        path: "new",
+        component: AccessRuleEditComponent,
+        canDeactivate: [unsavedChangesDialogGuard],
+      },
+      {
+        path: ":accessRuleId",
+        component: AccessRuleEditComponent,
+        canDeactivate: [unsavedChangesDialogGuard],
+      },
     ],
   },
 ];
@@ -115,6 +130,13 @@ export default {
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
+          provide: AuthService,
+          useValue: {
+            activeAccountStatus$: of(AuthenticationStatus.Unlocked),
+            getAuthStatus: () => Promise.resolve(AuthenticationStatus.Unlocked),
+          },
+        },
+        {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
@@ -155,15 +177,15 @@ export const CreateWithGovernedCollections: Story = {
   ],
 };
 
-/** `rule-1` governs its own collections, which stay selectable. */
+/** The rule governs its own collections, which stay selectable. */
 export const Edit: Story = {
-  decorators: [atUrl("/organizations/org-1/access-rules/rule-1"), governedBy([SAMPLE_RULE])],
+  decorators: [atUrl(EDIT_URL), governedBy([SAMPLE_RULE])],
 };
 
 /** The header badge reads "Off" and the Status checkbox is clear. */
 export const EditInactive: Story = {
   decorators: [
-    atUrl("/organizations/org-1/access-rules/rule-1"),
+    atUrl(EDIT_URL),
     moduleMetadata({
       providers: [
         {
@@ -181,7 +203,7 @@ export const EditInactive: Story = {
 /** Edit mode, so the form is already valid and Save goes straight to the failure callout. */
 export const SaveError: Story = {
   decorators: [
-    atUrl("/organizations/org-1/access-rules/rule-1"),
+    atUrl(EDIT_URL),
     moduleMetadata({
       providers: [
         {
@@ -196,7 +218,7 @@ export const SaveError: Story = {
     }),
   ],
   play: async (context) => {
-    await userEvent.click(getByText(context.canvasElement, "Save"));
+    await userEvent.click(await findByText(context.canvasElement, "Save"));
   },
 };
 
@@ -206,7 +228,7 @@ export const SaveError: Story = {
  */
 export const SaveErrorOnField: Story = {
   decorators: [
-    atUrl("/organizations/org-1/access-rules/rule-1"),
+    atUrl(EDIT_URL),
     moduleMetadata({
       providers: [
         {
@@ -216,7 +238,10 @@ export const SaveErrorOnField: Story = {
             updateAccessRule: () =>
               Promise.reject(
                 Object.assign(
-                  new Error("One or more collections are already governed by another access rule."),
+                  // The SDK wraps the server's response body in its transport message.
+                  new Error(
+                    'error in response: status code 400 Bad Request: {"message":"One or more collections are already governed by another access rule."}',
+                  ),
                   { name: "AccessRuleError", variant: "Api" },
                 ),
               ),
@@ -226,31 +251,31 @@ export const SaveErrorOnField: Story = {
     }),
   ],
   play: async (context) => {
-    await userEvent.click(getByText(context.canvasElement, "Save"));
+    await userEvent.click(await findByText(context.canvasElement, "Save"));
   },
 };
 
 /** Submits the empty create form, where name and collections are required. */
 export const ValidationSummary: Story = {
+  decorators: [atUrl("/organizations/org-1/access-rules/new")],
   play: async (context) => {
-    await userEvent.click(getByText(context.canvasElement, "Save"));
+    await userEvent.click(await findByText(context.canvasElement, "Save"));
   },
 };
 
 /**
- * Typing dirties the form, so Cancel asks first. `DialogModule` replaces the default
+ * Typing dirties the form, so the route's guard asks on Cancel. `DialogModule` replaces the default
  * {@link DialogService} stub so the dialog renders.
  */
 export const DiscardConfirmation: Story = {
   decorators: [
-    applicationConfig({ providers: [provideAnimations()] }),
-    moduleMetadata({ imports: [DialogModule] }),
+    atUrl("/organizations/org-1/access-rules/new"),
+    applicationConfig({ providers: [provideAnimations(), importProvidersFrom(DialogModule)] }),
   ],
   play: async (context) => {
     const canvas = context.canvasElement;
-    const name = canvas.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
 
-    await userEvent.type(name, "Half-finished rule");
-    await userEvent.click(getByText(canvas, "Cancel"));
+    await userEvent.type(await findByLabelText(canvas, /^Name/), "Half-finished rule");
+    await userEvent.click(await findByText(canvas, "Cancel"));
   },
 };
