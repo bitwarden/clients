@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Логотип Bitwarden"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -120,6 +123,10 @@
   "resetSearch": {
     "message": "Скинути пошук"
   },
+  "clearSearchTooltip": {
+    "message": "Очистьте, натиснувши тут або Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Додати запис"
   },
@@ -160,6 +167,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ вкладених спільних тек",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вкладена спільна тека",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Моя тека"
   },
@@ -177,9 +198,6 @@
   },
   "addSharedFolder": {
     "message": "Додати спільну теку"
-  },
-  "newSharedFolder": {
-    "message": "Нова спільна тека"
   },
   "searchSharedFolder": {
     "message": "Пошук спільної папки"
@@ -340,58 +358,6 @@
   "addItemHeaderPassport": {
     "message": "Додати паспорт",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Новий запис",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Нова картка",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Нове посвідчення",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Нова нотатка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Нова захищена нотатка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новий ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новий банківський рахунок",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Нова ліцензія",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новий паспорт",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Редагування запису",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редагування картки",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редагування посвідчення",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редагування нотатки",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Редагування захищеної нотатки",
@@ -1423,6 +1389,27 @@
   "selectFile": {
     "message": "Оберіть файл"
   },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
+  },
   "maxFileSize": {
     "message": "Максимальний розмір файлу 500 МБ."
   },
@@ -2138,6 +2125,25 @@
   "languageDesc": {
     "message": "Змінити мову програми. Потрібен перезапуск."
   },
+  "passkeyProvider": {
+    "message": "Постачальник ключів доступу"
+  },
+  "passkeyProviderDesc": {
+    "message": "Використовуйте Bitwarden, щоб зберігати ключі доступу та використовувати їх для входу в інших програмах."
+  },
+  "turnedOn": {
+    "message": "Увімк"
+  },
+  "turnedOff": {
+    "message": "Вимк"
+  },
+  "manageInSystemSettings": {
+    "message": "Керувати в налаштуваннях системи"
+  },
+  "mayOpenSystemSettings": {
+    "message": "Може відкривати налаштування системи.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
+  },
   "theme": {
     "message": "Тема"
   },
@@ -2786,6 +2792,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Вимагати головний пароль після перезапуску програми"
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Цей параметр забезпечує додатковий захист завдяки запобіганню іншим програмам на вашому комп'ютері розблоковувати Bitwarden."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Якщо його вимкнути, то будь-яка програма на вашому комп'ютері може розблокувати Bitwarden та отримати доступ до всіх збережених паролів."
   },
   "deleteAccount": {
     "message": "Видалити обліковий запис"
@@ -3916,6 +3928,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Ця URL-адреса не дозволена. Вона має використовувати https і не може вказувати на локальну або приватну мережу.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Введіть дійсну URL-адресу",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Виявлено небезпечну URL-адресу",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Ця URL-адреса може бути небезпечною або спрямовувати на приватну мережу. Її використання може спричинити розкриття особистих даних. Продовжуйте лише якщо ви довіряєте цьому серверу.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Довіряти URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Цю URL-адресу позначено довіреною. Ви можете це змінити будь-коли.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Сталася невідома помилка $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4627,11 +4663,7 @@
     "message": "Вибрати збірку"
   },
   "selectImportSharedFolder": {
-    "message": "Select a shared folder"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
+    "message": "Вибрати спільну теку"
   },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
@@ -4640,7 +4672,7 @@
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Виберіть цей параметр, якщо ви хочете, щоб вміст імпортованого файлу було переміщено до спільної теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -4652,28 +4684,31 @@
     "message": "Оберіть файл для імпорту"
   },
   "importSourceBreadcrumb": {
-    "message": "Select source"
+    "message": "Вибрати джерело"
+  },
+  "importData": {
+    "message": "Import data"
   },
   "importSourceSelectTitle": {
-    "message": "Select your source"
+    "message": "Вибір джерела"
   },
   "importSourceSelectDescription": {
-    "message": "Choose the password manager or browser you are importing from."
+    "message": "Виберіть менеджер паролів або браузер, з якого ви здійснюєте імпорт."
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "Браузери"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "Менеджери паролів"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "Показати все"
   },
   "importSourceShowLess": {
-    "message": "Show less"
+    "message": "Згорнути"
   },
   "importSourceStepCount": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "Крок $CURRENT$ з $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -4792,6 +4827,113 @@
   },
   "importHelpCenterLinkText": {
     "message": "Довідковому центрі"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Процес точно такий самий, як імпорт із Google Chrome.",
@@ -4993,11 +5135,44 @@
   "keePassMasterPassword": {
     "message": "Головний пароль KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Додати файл ключа"
   },
   "keyFileUpload": {
     "message": "Завантаження файлу ключа"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "Завантаження файлу KDBX"
@@ -5111,13 +5286,13 @@
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Секретний ключ"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Секретний ключ і пароль"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Ваш обліковий запис захищений секретним ключем і паролем. Щоб продовжити, вам потрібно ввести їх обидва."
   },
   "keeperEmail": {
     "message": "Електронна пошта Keeper"
@@ -5439,6 +5614,9 @@
     "message": "щоб створити надійний, унікальний пароль",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Біометричне розблокування недоступне, оскільки спочатку потрібно ввести PIN-код або пароль."
   },
@@ -5581,6 +5759,12 @@
   "savePasskey": {
     "message": "Зберегти ключ доступу"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "Виберіть запис для збереження цього ключа доступу"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Виберіть ключ доступу для входу"
+  },
   "saveNewPasskey": {
     "message": "Зберегти як новий запис"
   },
@@ -5608,6 +5792,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "Ця програма не підтримує дублікати."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Для цієї програми не знайдено ключів доступу."
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
   },
   "closeThisWindow": {
     "message": "Закрити це вікно"
@@ -6270,6 +6469,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Надати доступ"
   },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
   "upgrade": {
     "message": "Оновити"
   },
@@ -6412,10 +6614,10 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "У вас немає тек"
   },
   "emptyFoldersDescriptionV2": {
-    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+    "message": "Використовуйте теки для впорядкування записів. Вони доступні тільки вам. Ніхто інший їх не побачить і не зможе використати."
   },
   "emptyVaultsDescription": {
     "message": "Додайте логіни, ідентифікатори, картки та інші елементи, щоб почати."
@@ -6795,9 +6997,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "створити новий ключ доступу $RPID$ для $USERNAME$",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6809,9 +7011,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "перезаписати ключ доступу $RPID$ для $USERNAME$",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6823,9 +7025,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "увійти як $USERNAME$ за допомогою вашого ключа доступу $RPID$",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6837,8 +7039,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "Підтвердьте, що це ви, щоб створити новий ключ доступу $RPID$ для $USERNAME$.",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6851,8 +7053,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "Підтвердьте, що це ви, щоб перезаписати ключ доступу $RPID$ для $USERNAME$.",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6865,8 +7067,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "Підтвердьте, що це ви, щоб увійти як $USERNAME$ за допомогою вашого ключа доступу $RPID$.",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6968,5 +7170,82 @@
   },
   "unknownCipher": {
     "message": "Невідомий елемент, можливо, вам потрібно запитати дозвіл на доступ до цього елемента."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden має новий вигляд",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Краща робота з такою ж довіреною безпекою. Сховище Bitwarden тепер має оновлений дизайн, у якому враховано ваші  побажання, тому працювати з ним стало ще зручніше.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Знайомство з оновленим сховищем Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Дослідити нове сховище",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Налаштувати"
+  },
+  "customizeYourView": {
+    "message": "Налаштувати подання"
+  },
+  "showColumns": {
+    "message": "Показати стовпці"
+  },
+  "resetToDefault": {
+    "message": "Відновити типові налаштування"
+  },
+  "coachmarkImportTitle": {
+    "message": "Швидке імпортування ваших паролів"
+  },
+  "coachmarkImportDescription": {
+    "message": "Чи користувалися ви раніше менеджером паролів? Ви можете імпортувати до свого сховища CSV з наявними записами входу та іншими даними."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Додавання запису"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Додавайте до свого сховища нові паролі, нотатки та іншу інформацію. Всі дані захищаються наскрізним шифруванням."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Безпечний обмін записами"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Якщо ви перемістите запис до збірки, то зможете безпечно поділитися ним з іншими користувачами у своїй організації."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Якщо ви перемістите запис до спільної теки, то зможете безпечно поділитися ним з іншими учасниками сховища."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Моніторинг безпеки вашого пароля"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Контролюйте безпеку записів свого сховища, перевіряючи звіти про вразливості."
+  },
+  "tourTheNewVault": {
+    "message": "Огляд нового сховища"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Завдяки оновленню дизайну та засобів навігації стало значно простіше знаходити потрібну інформацію."
+  },
+  "takeTheTour": {
+    "message": "Оглянути"
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ з $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }

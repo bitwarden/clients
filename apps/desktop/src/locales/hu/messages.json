@@ -1,4 +1,7 @@
 {
+  "appLogoLabel": {
+    "message": "Bitwarden logó"
+  },
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -120,6 +123,10 @@
   "resetSearch": {
     "message": "Keresés visszaállítása"
   },
+  "clearSearchTooltip": {
+    "message": "Törlés ide kattintva vagy az Esc billentyűt lenyomva.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "addItem": {
     "message": "Elem hozzáadása"
   },
@@ -160,6 +167,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ beágyazott megosztott mappa",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 beágyazott megosztott mappa",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Saját mappa"
   },
@@ -177,9 +198,6 @@
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
-  },
-  "newSharedFolder": {
-    "message": "Új megosztott mappa"
   },
   "searchSharedFolder": {
     "message": "Megosztott mappa keresése"
@@ -340,58 +358,6 @@
   "addItemHeaderPassport": {
     "message": "Útlevél hozzáadása",
     "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Új bejelentkezés",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Új kártya",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Új személyazonosság",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Új jegyzet",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Új biztonságos jegyzet",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Új SSH kulcs",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Új bankszámla",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Új licensz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Új útlevél",
-    "description": "Header for new passport item type"
-  },
-  "editItemHeaderLogin": {
-    "message": "Bejelentkezés szerkesztése",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kártya szerkesztése",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Személyazonossság szerkesztése",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Jegyzet szerkesztése",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Biztonságos jegyzet szerkesztése",
@@ -1423,6 +1389,27 @@
   "selectFile": {
     "message": "Válasszunk egy fájlt."
   },
+  "selectFileUnsupportedType": {
+    "message": "Ez a fájltípus nem elfogadott ehhez a forráshoz. Válasszunk egy másik fájlt."
+  },
+  "pasteContentRequired": {
+    "message": "Exportált tartalom beszúrása"
+  },
+  "fileTypeNotSupported": {
+    "message": "Ez a fájltípus nem támogatott. Válasszunk egy $TYPES$ fájlt.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "A beillesztett tartalom nem egyezik a kiválasztott formátummal."
+  },
+  "errorReadingFile": {
+    "message": "A kiválasztott fájl nem volt olvasható."
+  },
   "maxFileSize": {
     "message": "Maximális fájl méret 500 MB."
   },
@@ -2138,6 +2125,25 @@
   "languageDesc": {
     "message": "Az alkalmazás nyelvének megváltoztatása. Újraindítás szükséges."
   },
+  "passkeyProvider": {
+    "message": "Hozzáférési kulcs kiszolgáló"
+  },
+  "passkeyProviderDesc": {
+    "message": "A Bitwarden használatával menthetünk és bejelentkezhetünk más alkalmazásokban lévő hozzáférési kulcsokkal."
+  },
+  "turnedOn": {
+    "message": "Be"
+  },
+  "turnedOff": {
+    "message": "Ki"
+  },
+  "manageInSystemSettings": {
+    "message": "Kezelés a rendszer beállításokban"
+  },
+  "mayOpenSystemSettings": {
+    "message": "Megnyithatja a rendszer beállítások alkalmazást.",
+    "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
+  },
   "theme": {
     "message": "Téma"
   },
@@ -2786,6 +2792,12 @@
   },
   "requireMasterPasswordOnAppRestart": {
     "message": "Mesterjelszó szükséges az alkalmazás indításakor."
+  },
+  "requireMasterPasswordOnAppRestartDesc": {
+    "message": "Ez a beállítás további védelmi réteget biztosít azáltal, hogy segít megakadályozni, hogy a számítógép más alkalmazásai feloldják a Bitwarden zárolását."
+  },
+  "requireMasterPasswordOnAppRestartWarning": {
+    "message": "Ennek törlése azt jelenti, hogy a számítógép bármely alkalmazása feloldhatja a Bitwarden zárolását és hozzáférhet az összes mentett jelszóhoz."
   },
   "deleteAccount": {
     "message": "Fiók törlése"
@@ -3916,6 +3928,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Ez a webcím nem engedélyezett. Https-t kell használni és nem lehet helyi vagy privát hálózati címre mutatni.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Adjunk meg egy érvényes webcímet.",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Nem biztonságos webcím lett észlelve.",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Előfordulhat, hogy ez a webcím nem biztonságos vagy személyes hálózatra mutat. Használata személyes adatok nyilvánosságra hozatalát eredményezheti. Csak akkor folytassuk, ha megbízunk ebben a szerverben.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Bizalmas webcím",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Ez a webcím megbízhatónak lett megjelölve. Szerkeszteni bármikor lehet.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Ismeretlen $SERVICENAME$ hiba történt.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4629,10 +4665,6 @@
   "selectImportSharedFolder": {
     "message": "Megosztott mappa kiválasztása"
   },
-  "importTargetMyFolder": {
-    "message": "Saját mappa",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
   },
@@ -4653,6 +4685,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Forrás kiválasztása"
+  },
+  "importData": {
+    "message": "Adatok importálása"
   },
   "importSourceSelectTitle": {
     "message": "Válasszuk ki a forrást."
@@ -4792,6 +4827,113 @@
   },
   "importHelpCenterLinkText": {
     "message": "Súgóközpont"
+  },
+  "uploadFile": {
+    "message": "Fájl feltöltése"
+  },
+  "pasteAsPlainText": {
+    "message": "Beillesztés egyszerű szövegként"
+  },
+  "plainText": {
+    "message": "Egyszerű szöveg"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "importManuallyInstead": {
+    "message": "Manuális importálás helyette"
+  },
+  "directlyImportInstead": {
+    "message": "Közvetlen importálás helyette"
+  },
+  "fastest": {
+    "message": "Leggyorsabb"
+  },
+  "importDataTitle": {
+    "message": "Adatok importálása"
+  },
+  "importDataDirectTitle": {
+    "message": "Adatok importálása percek alatt"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importáljuk az elemeket közvetlenül innen",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "az összes adat beolvasásához.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importálás $VENDOR$ alkalmazásból vagy az exportált tartalom beillsztése vágólapon át.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Válasszuk ki azt a profilt, amelyből jelszavakat szeretnénk importálni."
+  },
+  "importDataLoginTitle": {
+    "message": "Bejelentkezés $VENDOR$ alkalmazásba",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "A hitelesítő adatok titkosítva vannak az átvitel során és soha nem tárolódnak."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Biztonságos a tervezéssel"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Végpontok közötti titkosított átadás. A Bitwarden soha nem látja $VENDOR$ bejelentkezési adatait.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "A bejelentkezési adatok bekérése"
+  },
+  "importDataLoginInfoBody": {
+    "message": "A következő lépésben jelentkezzünk be $VENDOR$ fiókba.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Minden átmegy"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Megőrzött mappa struktúrájú bejelentkezések, kártyák, személyazonosságok, biztonságos jegyzetek és TOTP elemek."
+  },
+  "importAcceptedFormats": {
+    "message": "Elfogadva: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ fájltípus",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "A folyamat pontosan ugyanaz, mint a Google Chrome-ból történő importálás.",
@@ -4993,11 +5135,44 @@
   "keePassMasterPassword": {
     "message": "KeePass mesterjelszó"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ jelszó",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Jelszó szükséges."
+  },
+  "filePasswordRequired": {
+    "message": "Fájl jelszó megadása szükséges."
+  },
+  "filePasswordInvalid": {
+    "message": "Adjunk meg egy érvényes fájl jelszót."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "A feltöltött fájl jelszóval védett. A folytatáshoz adjuk meg a jelszót."
+  },
+  "selectProfile": {
+    "message": "Profil kiválasztása"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Adjunk meg egy érvényes jelszót."
+  },
+  "importAccountMismatchError": {
+    "message": "Ez a fájl csak abba a fiókba importálható, ahonnan exportálva lett."
+  },
   "addKeyFile": {
     "message": "Kulcs fájl hozzáadása"
   },
   "keyFileUpload": {
     "message": "Kulcs fájl feltöltés"
+  },
+  "keyFileUploadV2": {
+    "message": "Kulcs fájl"
   },
   "kdbxFileUpload": {
     "message": "KDBX fájl feltöltés"
@@ -5111,13 +5286,13 @@
     "message": "Illesszük be a LastPass fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Titkos kulcs"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Titkos kulcs és jelszó"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "A fók titkos kulccsal és jelszóval van biztosítva. A folytatáshoz mindkettőt be kell írni."
   },
   "keeperEmail": {
     "message": "Keeper email cím"
@@ -5439,6 +5614,9 @@
     "message": "erős egyedi jelszó létrehozásához",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "biometricUnlockOnRestartTurnedOff": {
+    "message": "A biometrikus feloldás az alkalmazás újraindításakor ki volt kapcsolva. Kapcsoljuk be újra a beállításokban."
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "A biometrikus feloldás nem érhető el, mert először PIN kóddal vagy jelszóval kell feloldani."
   },
@@ -5581,6 +5759,12 @@
   "savePasskey": {
     "message": "Hozzáférési kulcs mentése"
   },
+  "chooseCipherForPasskeySave": {
+    "message": "Bejelentkezés választás a hozzáférési kulcs mentéséhez:"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Hozzáférési kulcs választás a bejelentkezéshez:"
+  },
   "saveNewPasskey": {
     "message": "Mentés új bejelentkezésként"
   },
@@ -5608,6 +5792,21 @@
   },
   "applicationDoesNotSupportDuplicates": {
     "message": "Ez az alkalmazás nem támogatja a másolatokat."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Az alkalmazáshoz nem található hozzáférési kulcs."
+  },
+  "passkeyNotAllowedForBitwardenVault": {
+    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "passkeyNotAllowedForBitwardenVaultDesc": {
+    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
   },
   "closeThisWindow": {
     "message": "Ezen ablak bezárása"
@@ -6270,6 +6469,9 @@
   "chromiumImporterPickerPrompt": {
     "message": "Hozzáférés megadása"
   },
+  "noBrowserProfilesFound": {
+    "message": "Nem található böngésző profil."
+  },
   "upgrade": {
     "message": "Áttérés"
   },
@@ -6795,9 +6997,9 @@
       }
     }
   },
-  "confirmPasskeyRegistrationMacOS": {
-    "message": "hozzunk létre egy új $RPID$ belépőkulcsot $USERNAME$ email címhez.",
-    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyRegistrationMfaMacOS": {
+    "message": "hozzunk létre egy új $RPID$ belépőkulcsot $USERNAME$ email címhez. $RPID$ kéri ezt az ellenőrzést az MFA-hoz",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6809,9 +7011,9 @@
       }
     }
   },
-  "confirmPasskeyOverwriteMacOS": {
-    "message": "írjunk felül egy $RPID$ belépőkulcsot $USERNAME$ email címhez.",
-    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyOverwriteMfaMacOS": {
+    "message": "írjunk felül egy $RPID$ belépőkulcsot $USERNAME$ email címhez. $RPID$ kéri ezt az ellenőrzést az MFA-hoz",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6823,9 +7025,9 @@
       }
     }
   },
-  "confirmPasskeyAssertionMacOS": {
-    "message": "jelentkezzünk be $USERNAME$ email címmel $RPID$ belépőkulcs segítségével.",
-    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+  "confirmPasskeyAssertionMfaMacOS": {
+    "message": "jelentkezzünk be $USERNAME$ email címmek $RPID$ belépőkulccsal. $RPID$ kéri ezt az ellenőrzést az MFA-hoz",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
         "content": "$1",
@@ -6837,8 +7039,8 @@
       }
     }
   },
-  "confirmPasskeyRegistrationWindows": {
-    "message": "Új $RPID$ belépőkulcs létrehozása $USERNAME$ felhasználó számára a személyazonosság igazolásával.",
+  "confirmPasskeyRegistrationMfaWindows": {
+    "message": "Ellenőrizzük, hogy mi magunk vagyunk-e egy új $RPID$ belépőkulcs létrehozásához $USERNAME$ esetében. $RPID$ kéri ezt az ellenőrzést az MFA-hoz.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6851,8 +7053,8 @@
       }
     }
   },
-  "confirmPasskeyOverwriteWindows": {
-    "message": "Új $RPID$ belépőkulcs felülírása $USERNAME$ felhasználónál a személyazonosság igazolásával.",
+  "confirmPasskeyOverwriteMfaWindows": {
+    "message": "Ellenőrizzük, hogy mi magunk vagyunk-e egy $RPID$ belépőkulcs felülírásához $USERNAME$ esetében. $RPID$ kéri ezt az ellenőrzést az MFA-hoz.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6865,8 +7067,8 @@
       }
     }
   },
-  "confirmPasskeyAssertionWindows": {
-    "message": "Ellenőrizzük a személyazonosságot, mielőtt $USERNAME$ néven jelentkezünk be $RPID$ belépőkulccsal.",
+  "confirmPasskeyAssertionMfaWindows": {
+    "message": "Ellenőrizzük, hogy mi magunk vagyunk-e, aki $USERNAME$ email címmel jelentkezünk be $RPID$ belépőkulccsal. $RPID$ kéri ezt az ellenőrzést az MFA-hoz.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6968,5 +7170,82 @@
   },
   "unknownCipher": {
     "message": "Ismeretlen elem, lehet hogy egy másik fiókkal kell bejelentkezni az elem eléréséhez."
+  },
+  "newExperienceDialogTitle": {
+    "message": "A Bitwarden új külsővel rendelkezik.",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Jobb élmény, ugyanaz a megbízható biztonság. A Bitwarden széf a visszajelzések alapján újratervezésre került, így a dolgok könnyebben megtalálhatók és úgy működnek, ahogy az elvárható.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Az újratervezett Bitwarden széf előnézete.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Fedezzük fel az új széfet.",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Testreszabás"
+  },
+  "customizeYourView": {
+    "message": "Nézet testreszabása"
+  },
+  "showColumns": {
+    "message": "Oszlopok megjelenítése"
+  },
+  "resetToDefault": {
+    "message": "Visszaállítás alaphelyzetbe"
+  },
+  "coachmarkImportTitle": {
+    "message": "Saját jelszavak gyors importálása"
+  },
+  "coachmarkImportDescription": {
+    "message": "Volt korábban jelszókezelőnk? Importálhatjuk a meglévő bejelentkezéseket és egyéb adatokat CSV formátumban a széfbe."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Elem hozzáadása"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Adjunk hozzá új jelszavakat, jegyzeteket és egyéb információkat a széfhez. Minden védett a végpontok közötti titkosítással."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Az elemek biztonságos megosztása másokkal"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Ha egy elemet áthelyezünk egy gyűjteménybe, biztonságosan megoszthatjuk azt a szervezet többi tagjával."
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Ha egy elemet megosztott mappába helyezünk, biztonságosan megoszthatjuk azt más széf tagokkal."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "A jelszó biztonság monitorozása"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Tartsuk meg erősen a széfelemek biztonságát azáltal, hogy ellenőrizzük a jelentéseket a sebezhetőség tekintetében."
+  },
+  "tourTheNewVault": {
+    "message": "Fedezzük fel az új széfet."
+  },
+  "tourTheNewVaultDescription": {
+    "message": "A frissített navigációval és megjelenéssel minden eddiginél könnyebben megtalálhatjuk, amire szükség van."
+  },
+  "takeTheTour": {
+    "message": "Induljon a túra"
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   }
 }
