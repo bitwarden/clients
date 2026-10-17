@@ -1,0 +1,73 @@
+{
+  "title_patterns": {
+    "t:feature": ["feat", "feature", "tool"],
+    "t:bugfix": ["fix", "bug", "bugfix"],
+    "t:tech-debt": ["refactor", "chore", "cleanup", "revert", "debt", "test", "perf"],
+    "t:docs": ["docs"],
+    "t:ci": ["ci", "build", "chore(ci)"],
+    "t:deps": ["deps", "[deps]"],
+    "t:breaking-change": ["breaking", "breaking-change"],
+    "t:misc": ["misc"],
+    "t:llm": ["llm"]
+  },
+  "path_patterns": {
+    "web": [
+      "apps/web",
+      "bitwarden_license/bit-web",
+      "bitwarden_license/bit-common",
+      "libs/",
+      "!libs/common/src/autofill"
+    ],
+    "browser": [
+      "apps/browser",
+      "bitwarden_license/bit-browser",
+      "bitwarden_license/bit-common",
+      "libs/"
+    ],
+    "desktop": [
+      "apps/desktop",
+      "bitwarden_license/bit-desktop",
+      "bitwarden_license/bit-common",
+      "libs/",
+      "!libs/common/src/autofill"
+    ],
+    "cli": [
+      "apps/cli",
+      "bitwarden_license/bit-cli",
+      "bitwarden_license/bit-common",
+      "libs/",
+      "!libs/angular",
+      "!libs/auth/src/angular",
+      "!libs/auto-confirm/src/angular",
+      "!libs/assets",
+      "!libs/common/src/autofill",
+      "!libs/components",
+      "!libs/dirt/card/",
+      "!libs/importer/src/components",
+      "!libs/key-management-ui",
+      "!libs/pricing/src/components",
+      "!libs/subscription/src/components",
+      "!libs/tools/export/vault-export/vault-export-ui",
+      "!libs/tools/generator/components",
+      "!libs/tools/send/send-ui",
+      "!libs/vault/src/cipher-form",
+      "!libs/vault/src/cipher-view",
+      "!libs/vault/src/components"
+    ],
+    "feature-flag": ["libs/common/src/enums/feature-flag.enum.ts"],
+    "t:feature": ["libs/common/src/enums/feature-flag.enum.ts"],
+    "t:tech-debt": [],
+    "t:ci": [
+      ".checkmarx/",
+      ".github/",
+      "scripts/",
+      "apps/desktop/electron-builder.json",
+      "apps/desktop/electron-builder-beta.json",
+      "apps/desktop/scripts",
+      "apps/desktop/stores"
+    ],
+    "t:docs": ["docs/", "README.md", "CONTRIBUTING.md", "SECURITY.md"],
+    "t:deps": [],
+    "t:llm": [".claude/"]
+  }
+}
