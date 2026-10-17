@@ -33,6 +33,8 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
 
   protected credentials?: WebauthnLoginCredentialView[];
   protected loading = true;
+  protected showAll = false;
+  protected readonly displayLimit = 10;
 
   protected requireSsoPolicyEnabled = false;
 
@@ -86,6 +88,24 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
 
   get limitReached() {
     return (this.credentials?.length ?? 0) >= this.MaxCredentialCount;
+  }
+
+  get displayedCredentials(): WebauthnLoginCredentialView[] {
+    if (!this.credentials) {
+      return [];
+    }
+    if (this.showAll || this.credentials.length <= this.displayLimit) {
+      return this.credentials;
+    }
+    return this.credentials.slice(0, this.displayLimit);
+  }
+
+  get hasMoreCredentials(): boolean {
+    return (this.credentials?.length ?? 0) > this.displayLimit;
+  }
+
+  protected toggleShowAll() {
+    this.showAll = !this.showAll;
   }
 
   protected createCredential() {
