@@ -8,6 +8,7 @@ import { emptyResolvedNames, ResolvedNames } from "./access-name-resolver.servic
 import {
   buildMyAccessRequestRows,
   extensionsByLeaseId,
+  findFinalDeny,
   historyDisplayStatus,
   resolveResolver,
   resolvedOrSubmittedMs,
@@ -272,7 +273,66 @@ describe("resolveResolver", () => {
   });
 });
 
+describe("findFinalDeny", () => {
+  it("names whoever recorded the latest human Deny, and when", () => {
+    expect(
+      findFinalDeny([
+        decision({ deciderKind: "human", name: "Ada", verdict: "approve" }),
+        decision({
+          deciderKind: "human",
+          name: "Grace",
+          verdict: "deny",
+          decidedAt: "2024-01-01T00:40:00.000Z",
+        }),
+      ]),
+    ).toEqual({ name: "Grace", at: "2024-01-01T00:40:00.000Z" });
+  });
+
+  it("ignores an approval and an automatic denial", () => {
+    expect(
+      findFinalDeny([
+        decision({ deciderKind: "human", name: "Ada", verdict: "approve" }),
+        decision({ verdict: "deny" }),
+      ]),
+    ).toBeNull();
+  });
+
+  it("falls back to the email, then to no name", () => {
+    expect(
+      findFinalDeny([decision({ deciderKind: "human", email: "ada@example.com", verdict: "deny" })])
+        ?.name,
+    ).toBe("ada@example.com");
+    expect(findFinalDeny([decision({ deciderKind: "human", verdict: "deny" })])?.name).toBeNull();
+  });
+});
+
 describe("toRequestRow", () => {
+  it("names the requester, falling back to their email", () => {
+    expect(
+      toRequestRow(
+        request("req-1", { requesterName: "Ada", requesterEmail: "ada@example.com" }),
+        names(),
+      ),
+    ).toMatchObject({ requester: "Ada", requesterEmail: "ada@example.com" });
+    expect(
+      toRequestRow(request("req-1", { requesterEmail: "ada@example.com" }), names()).requester,
+    ).toBe("ada@example.com");
+    expect(toRequestRow(request("req-1"), names()).requester).toBe("");
+  });
+
+  it("carries the produced lease's current end", () => {
+    const row = toRequestRow(
+      request("req-1", {
+        status: "approved",
+        producedLeaseId: "lease-1",
+        producedLeaseNotAfter: "2024-01-01T02:00:00.000Z",
+      }),
+      names(),
+    );
+
+    expect(row.producedLeaseNotAfter).toBe("2024-01-01T02:00:00.000Z");
+  });
+
   it("resolves cipher/collection names when known", () => {
     const n = names({
       cipherNameById: new Map([["cipher-1", "Prod DB"]]),

@@ -3,10 +3,8 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
@@ -17,7 +15,6 @@ import {
   MINUTE,
   accessRequest,
   decision,
-  fromNow,
   liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
@@ -25,148 +22,141 @@ import {
 } from "../testing/story-fixtures";
 
 import { HistoryTabComponent } from "./history-tab.component";
-import { toRequestRow } from "./my-access-row";
+import { MyAccessRequestRow, toRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
 
 /** The chip's menu renders in a CDK overlay on `document.body`, outside the story's canvas. */
-async function selectHistoryScope(canvasElement: HTMLElement, option: string): Promise<void> {
+async function selectFilterOptions(
+  canvasElement: HTMLElement,
+  filter: string,
+  options: string[],
+): Promise<void> {
   const trigger = canvasElement.querySelector<HTMLButtonElement>(
-    'bit-filter-menu button[title^="History scope"]',
+    `bit-filter-menu button[title^="${filter}"]`,
   )!;
   await userEvent.click(trigger);
   // Scoped to the popover, since the chip also stamps each option into a hidden slot that an
   // unscoped query would match.
-  const menu = await within(document.body).findByRole("dialog", { name: "History scope" });
-  await userEvent.click(await within(menu).findByText(option));
-  // Option rows are not `bitMenuItem`, so selecting one leaves the menu open over the table.
+  const menu = await within(document.body).findByRole("dialog", { name: filter });
+  for (const option of options) {
+    await userEvent.click(await within(menu).findByText(option));
+  }
+  // The berry updates only once the menu closes.
   await userEvent.keyboard("{Escape}");
 }
 
-const request = (overrides: Record<string, unknown>) =>
-  toRequestRow(accessRequest(overrides), names);
+const derek = { human: { id: "approver-1", name: "derek.finnegan", email: "derek@example.com" } };
 
-/** The caller's own terminal requests: one of each outcome the status column can show. */
-const MY_ROWS = [
-  request({
-    id: "req-approved",
-    status: "approved",
-    producedLeaseId: "lease-1",
-    producedLeaseStatus: "expired",
-    resolvedAt: fromNow(-2 * DAY),
-    decisions: [decision({ comment: "Approved for the incident window." })],
-  }),
-  request({
-    id: "req-denied",
-    cipherId: "cipher-2",
-    collectionId: "col-2",
-    status: "denied",
-    resolvedAt: fromNow(-3 * DAY),
-    decisions: [decision({ verdict: "deny", comment: "Use the read replica instead." })],
-  }),
-  request({
-    id: "req-canceled",
-    cipherId: "cipher-3",
-    status: "canceled",
-    resolvedAt: fromNow(-4 * DAY),
-  }),
-  // Auto-approved by the rule: the resolver column credits the rule, not a person.
-  request({
-    id: "req-auto",
-    status: "approved",
-    producedLeaseId: "lease-9",
-    producedLeaseStatus: "expired",
-    resolvedAt: fromNow(-5 * DAY),
-    decisions: [decision({ decider: "automatic" })],
-  }),
-];
+const request = (overrides: Record<string, unknown>) =>
+  toRequestRow(accessRequest({ requesterName: "marcus.chen", ...overrides }), names);
 
 /**
- * Rows the caller decided as an approver: a running grant (the only revocable shape), an approval
- * the requester has not started (the only withdrawable one), and a denial, which offers neither.
+ * One row per end state, as the design frame lists them. Built in a factory, since the tab reads
+ * the real clock and the times must stay relative to it.
  */
-function managedRows() {
+function frameRows(): MyAccessRequestRow[] {
   return [
-    toRequestRow(
-      accessRequest({
-        id: "req-managed-active",
-        requesterName: "Alan Turing",
-        requesterEmail: "alan@example.com",
-        status: "approved",
-        producedLeaseId: "lease-managed",
-        producedLeaseStatus: "active",
-        resolvedAt: liveFromNow(-30 * MINUTE),
-        leaseNotAfter: liveFromNow(HOUR),
-        decisions: [decision()],
-      }),
-      names,
-    ),
-    toRequestRow(
-      accessRequest({
-        id: "req-managed-approved",
-        cipherId: "cipher-3",
-        requesterName: "Grace Hopper",
-        status: "approved",
-        resolvedAt: fromNow(-2 * HOUR),
-        leaseNotBefore: fromNow(HOUR),
-        leaseNotAfter: fromNow(3 * HOUR),
-        decisions: [decision()],
-      }),
-      names,
-    ),
-    toRequestRow(
-      accessRequest({
-        id: "req-managed-denied",
-        cipherId: "cipher-2",
-        requesterName: "Katherine Johnson",
-        status: "denied",
-        resolvedAt: fromNow(-DAY),
-        decisions: [decision({ verdict: "deny" })],
-      }),
-      names,
-    ),
+    request({
+      id: "req-denied",
+      cipherId: "cipher-2",
+      collectionId: "col-2",
+      status: "denied",
+      resolvedAt: liveFromNow(0),
+      decisions: [decision({ decider: derek, verdict: "deny", decidedAt: liveFromNow(0) })],
+    }),
+    request({
+      id: "req-revoked",
+      status: "approved",
+      producedLeaseId: "lease-revoked",
+      producedLeaseStatus: "revoked",
+      resolvedAt: liveFromNow(-2 * HOUR),
+      decisions: [
+        decision({ decider: derek, decidedAt: liveFromNow(-2 * HOUR) }),
+        decision({ decider: derek, verdict: "deny", decidedAt: liveFromNow(-HOUR) }),
+      ],
+    }),
+    request({
+      id: "req-canceled",
+      cipherId: "cipher-3",
+      status: "canceled",
+      resolvedAt: liveFromNow(-3 * HOUR),
+    }),
+    request({
+      id: "req-expired",
+      cipherId: "cipher-2",
+      collectionId: "col-2",
+      requesterName: "sam.okafor",
+      status: "expired",
+      leaseNotBefore: liveFromNow(-DAY - HOUR),
+      leaseNotAfter: liveFromNow(-DAY),
+    }),
+    request({
+      id: "req-lapsed",
+      requesterName: "sam.okafor",
+      status: "approved",
+      producedLeaseId: "lease-lapsed",
+      producedLeaseStatus: "expired",
+      producedLeaseNotAfter: liveFromNow(-2 * DAY),
+      resolvedAt: liveFromNow(-2 * DAY - HOUR),
+      decisions: [decision({ decider: "automatic" })],
+    }),
+    request({
+      id: "req-ended",
+      cipherId: "cipher-3",
+      requesterName: "sam.okafor",
+      status: "approved",
+      producedLeaseId: "lease-ended",
+      producedLeaseStatus: "canceled",
+      resolvedAt: liveFromNow(-7 * DAY - HOUR),
+      decisions: [
+        decision({ decider: derek, decidedAt: liveFromNow(-7 * DAY - HOUR) }),
+        decision({
+          decider: { human: { id: "user-2", name: "sam.okafor", email: undefined } },
+          verdict: "deny",
+          decidedAt: liveFromNow(-7 * DAY),
+        }),
+      ],
+    }),
+    // Still running, so it stays on Approvals and My requests rather than listing here.
+    request({
+      id: "req-running",
+      status: "approved",
+      producedLeaseId: "lease-running",
+      producedLeaseStatus: "active",
+      producedLeaseNotAfter: liveFromNow(30 * MINUTE),
+      decisions: [decision({ decider: derek })],
+    }),
   ];
 }
 
-function history(
-  options: {
-    mine?: typeof MY_ROWS;
-    managed?: () => typeof MY_ROWS;
-    canApprove?: boolean;
-  } = {},
-) {
-  const { mine = MY_ROWS, managed, canApprove = managed != null } = options;
+function history(options: { mine?: () => MyAccessRequestRow[]; canApprove?: boolean } = {}) {
+  const { mine = () => [], canApprove = true } = options;
   return moduleMetadata({
     imports: [HistoryTabComponent],
     providers: [
       {
         provide: MyAccessService,
-        useValue: {
-          historyRows$: of(mine),
+        useFactory: () => ({
+          historyRows$: of(mine()),
           cipherById$: of(names.cipherById),
           loading$: of(false),
           loadError$: of(null),
-        },
+        }),
       },
       {
         provide: ApproverInboxService,
-        useFactory: () => {
-          const rows = managed?.() ?? [];
-          return {
-            historyRows$: of(rows),
-            managedIds$: of(new Set(rows.map((row) => String(row.id)))),
-            cipherById$: of(names.cipherById),
-            loading$: of(false),
-            loadError$: of(null),
-            revokeLease: () => Promise.resolve(),
-            cancelApproval: () => Promise.resolve(),
-          };
-        },
+        useFactory: () => ({
+          historyRows$: of(canApprove ? frameRows() : []),
+          cipherById$: of(names.cipherById),
+          loading$: of(false),
+          loadError$: of(null),
+        }),
       },
       { provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } },
       { provide: SyncService, useValue: { activeUserLastSync$: () => of(new Date()) } },
-      { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
+      { provide: DialogService, useValue: { open: () => {} } },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
   });
@@ -189,70 +179,39 @@ export default {
 
 type Story = StoryObj<HistoryTabComponent>;
 
-/** The history of a member who cannot approve, so no scope chip renders. */
+/** An approver's history: every end state, newest first, with who or what resolved each. */
 export const Default: Story = {
   decorators: [history()],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
 };
 
-export const FlagOn: Story = {
-  decorators: [history()],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+/** A member who cannot approve sees only their own requests. */
+export const Requester: Story = {
+  decorators: [
+    history({
+      canApprove: false,
+      mine: () => frameRows().filter((row) => row.requester === "marcus.chen"),
+    }),
+  ],
 };
 
-/** Nothing resolved yet. */
+/** Nothing has ended yet. */
 export const Empty: Story = {
-  decorators: [history({ mine: [] })],
+  decorators: [history({ canApprove: false })],
 };
 
-export const EmptyForAnApprover: Story = {
-  decorators: [history({ mine: [], canApprove: true })],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
-};
-
-/** An approver's view, opening on All with revoke and withdraw offered only on managed rows. */
-export const WithManagedHistory: Story = {
-  decorators: [history({ managed: managedRows })],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
-};
-
-export const WithManagedHistoryFlagOn: Story = {
-  decorators: [history({ managed: managedRows })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-};
-
-/**
- * A scope picked on the `bit-table-v2` path, which shows the applied-filter styling and the
- * clear-all button.
- */
-export const FlagOnFiltered: Story = {
-  decorators: [history({ managed: managedRows })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+/** Two Status options picked, matching either. */
+export const FilteredByStatus: Story = {
+  decorators: [history()],
   play: async ({ canvasElement }) => {
-    await selectHistoryScope(canvasElement, "For my collections");
+    await selectFilterOptions(canvasElement, "Status", ["Denied", "Session ended"]);
   },
 };
 
-/** An approver with nothing decided yet still gets the scope chip. */
-export const ApproverWithoutManagedHistory: Story = {
-  decorators: [history({ canApprove: true })],
-};
-
-/**
- * An approver whose own history is empty but who has decided other people's requests, filtered down
- * to the managed rows.
- */
-export const ManagedOnly: Story = {
-  decorators: [history({ mine: [], managed: managedRows })],
+/** Filters across chips narrow together. */
+export const FilteredAcrossFilters: Story = {
+  decorators: [history()],
   play: async ({ canvasElement }) => {
-    await selectHistoryScope(canvasElement, "For my collections");
-  },
-};
-
-/** The "Raised by me" filter applied over a history that has both sources. */
-export const MineFilter: Story = {
-  decorators: [history({ managed: managedRows })],
-  play: async ({ canvasElement }) => {
-    await selectHistoryScope(canvasElement, "Raised by me");
+    await selectFilterOptions(canvasElement, "Status", ["Session ended"]);
+    await selectFilterOptions(canvasElement, "Requester", ["sam.okafor"]);
   },
 };
