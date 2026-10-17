@@ -127,6 +127,7 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -231,6 +232,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
+import { IpcForegroundService } from "../../platform/ipc/ipc-foreground.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
 import { ForegroundServerNotificationsService } from "../../platform/notifications/foreground-server-notifications.service";
@@ -305,6 +307,11 @@ const safeProviders: SafeProvider[] = [
       return new ConsoleLogService(isDev, null, recorder);
     },
     deps: [FlightRecorderLogRecorderService],
+  }),
+  safeProvider({
+    provide: IpcService,
+    useClass: IpcForegroundService,
+    deps: [PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: EnvironmentService,
