@@ -852,7 +852,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private handleFormFieldInputEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
-      debounce(() => this.triggerFormFieldInput(formFieldElement), 100, true),
+      debounce((event: unknown) => this.triggerFormFieldInput(formFieldElement, event), 100, true),
       this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT),
     );
   };
@@ -860,11 +860,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the inline menu list while the user is typing.
+   * vault item. While the user types into a login username field, the inline menu list is
+   * filtered by the typed value. Otherwise it removes the inline menu list while the user is typing.
    *
    * @param formFieldElement - The form field element that triggered the input event.
+   * @param event - The input event that was triggered.
    */
-  private async triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
+  private async triggerFormFieldInput(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    event?: unknown,
+  ) {
     if (!elementIsFillableFormField(formFieldElement)) {
       return;
     }
@@ -877,6 +882,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (this.isInlineMenuListFilterField(formFieldElement)) {
+      const isUserInput = event instanceof Event && EventSecurity.isEventTrusted(event);
+      void this.sendExtensionMessage("updateAutofillInlineMenuListFilter", {
+        inlineMenuListFilter: isUserInput ? formFieldElement.value : "",
+      });
+      if (isUserInput && formFieldElement.value) {
+        return;
+      }
+    }
+
     await this.sendExtensionMessage("closeAutofillInlineMenu", {
       overlayElement: AutofillOverlayElement.List,
       forceCloseInlineMenu: true,
@@ -885,6 +900,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!formFieldElement?.value) {
       await this.sendExtensionMessage("openAutofillInlineMenu");
     }
+  }
+
+  /**
+   * Identifies whether the value typed into the form field should filter the inline menu list.
+   * Only login username fields qualify, password values are never used as a filter.
+   *
+   * @param formFieldElement - The form field element to check
+   */
+  private isInlineMenuListFilterField(formFieldElement: ElementWithOpId<FillableFormFieldElement>) {
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    return (
+      autofillFieldData?.inlineMenuFillType === CipherType.Login &&
+      autofillFieldData.type !== "password" &&
+      formFieldElement.type !== "password"
+    );
   }
 
   /**

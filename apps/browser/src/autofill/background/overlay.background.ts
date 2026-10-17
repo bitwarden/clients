@@ -170,6 +170,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuListPort: chrome.runtime.Port | null = null;
   private inlineMenuListMessageConnectorPort: chrome.runtime.Port | null = null;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
+  private inlineMenuListFilter: string = "";
   private inlineMenuFido2Credentials: Set<string> = new Set();
   private inlineMenuPageTranslations: Record<string, string> | null = null;
   private inlineMenuPosition: InlineMenuPosition = {};
@@ -209,6 +210,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.withSenderTab(sender, () =>
         this.openInlineMenu(sender, message.isOpeningFullInlineMenu),
       ),
+    updateAutofillInlineMenuListFilter: ({ message, sender }) =>
+      this.withSenderTab(sender, (tab) => this.updateInlineMenuListFilter(message, sender, tab)),
     getInlineMenuCardsVisibility: () => this.getInlineMenuCardsVisibility(),
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
     getInlineMenuSshKeysVisibility: () => this.getInlineMenuSshKeysVisibility(),
@@ -780,6 +783,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         continue;
       }
 
+      if (!this.cipherMatchesInlineMenuListFilter(cipher)) {
+        continue;
+      }
+
       if (!passkeysEnabled || !(await this.showCipherAsPasskey(cipher, domainExclusionsSet))) {
         inlineMenuCipherData.push(
           await this.buildCipherData({ inlineMenuCipherId, cipher, iconsServerUrl, showFavicons }),
@@ -811,6 +818,58 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return inlineMenuCipherData;
+  }
+
+  /**
+   * Identifies whether a login cipher matches the text the user has typed into the
+   * focused username field. Non-login ciphers and an empty filter always match.
+   *
+   * @param cipher - The cipher to check
+   */
+  private cipherMatchesInlineMenuListFilter(cipher: CipherView): boolean {
+    if (!this.inlineMenuListFilter || cipher.type !== CipherType.Login) {
+      return true;
+    }
+
+    return [cipher.login?.username, cipher.name].some((value) =>
+      value?.toLocaleLowerCase().includes(this.inlineMenuListFilter),
+    );
+  }
+
+  /**
+   * Updates the inline menu list filter with the value typed into the focused field and
+   * refreshes the inline menu list so that only matching ciphers are shown.
+   *
+   * @param inlineMenuListFilter - The value typed into the focused field
+   * @param sender - The sender of the extension message
+   * @param tab - The tab the message was sent from
+   */
+  private async updateInlineMenuListFilter(
+    { inlineMenuListFilter }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+    tab: chrome.tabs.Tab,
+  ) {
+    if (!this.senderFrameHasFocusedField(sender)) {
+      return;
+    }
+
+    this.inlineMenuListFilter = inlineMenuListFilter?.trim().toLocaleLowerCase() ?? "";
+    if (
+      !this.inlineMenuListFilter ||
+      this.isFieldCurrentlyFilling ||
+      (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked
+    ) {
+      return;
+    }
+
+    if (this.inlineMenuListPort) {
+      await this.updateInlineMenuListCiphers(tab);
+      return;
+    }
+
+    if ((await this.getInlineMenuVisibility()) === AutofillOverlayVisibility.OnFieldFocus) {
+      await this.openInlineMenu(sender, true);
+    }
   }
 
   /**
@@ -2108,6 +2167,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const previousFocusedFieldData = this.focusedFieldData;
+    // Keep the filter while moving between fields of the same form (e.g. username -> password)
+    if (
+      previousFocusedFieldData?.tabId !== sender.tab.id ||
+      previousFocusedFieldData?.focusedFieldForm !== focusedFieldData.focusedFieldForm
+    ) {
+      this.inlineMenuListFilter = "";
+    }
     const frameId = sender.frameId !== null && sender.frameId !== undefined ? sender.frameId : 0;
     this.focusedFieldData = {
       ...focusedFieldData,

@@ -609,6 +609,22 @@ describe("AutofillInlineMenuIframeService", () => {
         expect(autofillInlineMenuIframeService["iframe"].style.display).toBe("none");
       });
 
+      it("prevents a transparent iframe from capturing clicks and restores them once visible", () => {
+        sendPortMessage(portSpy, {
+          command: "toggleAutofillInlineMenuHidden",
+          styles: { display: "block", opacity: "0" },
+        });
+
+        expect(autofillInlineMenuIframeService["iframe"].style.pointerEvents).toBe("none");
+
+        sendPortMessage(portSpy, {
+          command: "toggleAutofillInlineMenuHidden",
+          styles: { display: "block", opacity: "1" },
+        });
+
+        expect(autofillInlineMenuIframeService["iframe"].style.pointerEvents).toBe("auto");
+      });
+
       it("updates the button based on the web page's color scheme", () => {
         sendPortMessage(portSpy, {
           command: "updateAutofillInlineMenuColorScheme",
