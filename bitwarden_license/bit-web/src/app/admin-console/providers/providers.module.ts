@@ -31,11 +31,8 @@ import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-o
 import { CreateClientDialogComponent } from "./clients/create-client-dialog.component";
 import { ManageClientNameDialogComponent } from "./clients/manage-client-name-dialog.component";
 import { ManageClientSubscriptionDialogComponent } from "./clients/manage-client-subscription-dialog.component";
-import { AcceptProviderComponent } from "./manage/accept-provider.component";
-import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
-import { MembersComponent } from "./manage/members.component";
 import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
@@ -63,10 +60,7 @@ import { WebProviderService } from "./services/web-provider.service";
     BulkRemoveDialogComponent,
   ],
   declarations: [
-    AcceptProviderComponent,
     EventsComponent,
-    MembersComponent,
-    AddEditMemberDialogComponent,
     AddExistingOrganizationDialogComponent,
     CreateClientDialogComponent,
     InvoicesComponent,

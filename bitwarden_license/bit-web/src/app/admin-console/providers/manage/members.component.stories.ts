@@ -19,6 +19,8 @@ import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admi
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -76,8 +78,8 @@ export default {
       (story) => `<bit-layout style="height: 800px" class="tw-p-6">${story}</bit-layout>`,
     ),
     moduleMetadata({
-      declarations: [MembersComponent],
       imports: [
+        MembersComponent,
         StubHeaderComponent,
         SharedModule,
         JslibModule,
@@ -169,6 +171,12 @@ export default {
               return { closed: NEVER };
             },
             openSimpleDialog: async () => true,
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.VFO1Foundation),
           },
         },
         {
