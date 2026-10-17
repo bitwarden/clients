@@ -9,6 +9,14 @@ ignore = [
   # https://rustsec.org/advisories/RUSTSEC-2026-0194 / https://rustsec.org/advisories/RUSTSEC-2026-0195
   { id = "RUSTSEC-2026-0194", reason = "quick-xml is used only by the wayland-scanner proc-macro at build time, parsing trusted protocol XML vendored in the wayland crates (few attributes per element). Not runtime-reachable; wayland-client speaks the binary wire protocol at runtime." },
   { id = "RUSTSEC-2026-0195", reason = "Not affected: wayland-scanner uses quick_xml::Reader, never NsReader, so the vulnerable namespace-resolution path is not present." },
+  # rustls Debug impls for client session values expose TLS secrets: https://rustsec.org/advisories/RUSTSEC-2026-0346
+  { id = "RUSTSEC-2026-0346", expiry = "P7D", reason = "Temporary ignore while we upgrade rustls to >= 0.23.46." },
+  # rustls Buffered application data sent to outer server after ECH rejection: https://rustsec.org/advisories/RUSTSEC-2026-0347
+  { id = "RUSTSEC-2026-0347", expiry = "P7D", reason = "Temporary ignore while we upgrade rustls to >= 0.23.46." },
+  # rustls Brotli certificate decompression can allocate up to 1 GiB before authentication: https://rustsec.org/advisories/RUSTSEC-2026-0348
+  { id = "RUSTSEC-2026-0348", expiry = "P7D", reason = "Temporary ignore while we upgrade rustls to >= 0.23.46." },
+  # rustls ServerHello key-exchange downgrade: https://rustsec.org/advisories/RUSTSEC-2026-0349
+  { id = "RUSTSEC-2026-0349", expiry = "P7D", reason = "Temporary ignore while we upgrade rustls to >= 0.23.46." },
 ]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html

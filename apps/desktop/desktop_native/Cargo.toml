@@ -103,7 +103,9 @@ unwrap_used = "deny"
 # Bootstrap once with `cargo install cargo-run-bin --locked`, then invoke any
 # tool via `cargo bin <tool> <args>`.
 [workspace.metadata.bin]
-cargo-deny = { version = "0.20.0", locked = true }
+# Pinned to an unreleased commit for advisory ignore `expiry` support (EmbarkStudios/cargo-deny#904).
+# TODO: switch back to a crates.io release once one ships with this change.
+cargo-deny = { version = "0.20.2", git = "https://github.com/EmbarkStudios/cargo-deny", rev = "f5c93bec8c5ca3ac5cc201bdddab5f22d7a4bc42", locked = true }
 cargo-sort = { version = "2.0.2", locked = true }
 cargo-udeps = { version = "0.1.57", locked = true }
 cargo-llvm-cov = { version = "0.6.16", locked = true }
