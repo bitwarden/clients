@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "重設搜尋"
   },
+  "clearSearchTooltip": {
+    "message": "按此或Esc鍵以清除。",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "所有項目"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "集合"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "名"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ 個多層共用資料夾",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "一個多層共用資料夾",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "我的資料夾"
   },
@@ -1268,9 +1289,6 @@
     "message": "新增項目至共用資料夾以在此篩選。"
   },
   "addSharedFolder": {
-    "message": "新增共享資料夾"
-  },
-  "newSharedFolder": {
     "message": "新增共享資料夾"
   },
   "searchSharedFolder": {
@@ -1464,42 +1482,6 @@
     "message": "新增護照",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新增登入資訊",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新增付款卡",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新增身分",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新增備註",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新增安全筆記",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新增 SSH 金鑰",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新增銀行帳戶",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新增駕照",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新增護照",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新增文字",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新增檔案",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "編輯登入資訊",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "編輯付款卡",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "編輯身分",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "編輯備註",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "編輯安全筆記",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "選擇檔案。"
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file."
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content."
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format."
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read."
   },
   "maxFileSize": {
     "message": "檔案最大為 500MB。"
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "KeePass 主密碼"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "新增金鑰檔案"
   },
   "keyFileUpload": {
     "message": "上傳金鑰檔案"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "上傳 KDBX 檔案"
@@ -3461,10 +3481,6 @@
   "selectImportSharedFolder": {
     "message": "選擇共用資料夾"
   },
-  "importTargetMyFolder": {
-    "message": "我的資料夾",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
   },
@@ -3624,6 +3640,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "說明中心"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "Include shared folders"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "程序與從 Google Chrome 匯入完全相同。",
@@ -3881,9 +4013,6 @@
   },
   "customize": {
     "message": "自訂"
-  },
-  "newCustomDomain": {
-    "message": "新增自訂網域"
   },
   "addCustomDomain": {
     "message": "新增自訂網域"
@@ -5400,9 +5529,6 @@
   "groups": {
     "message": "群組"
   },
-  "newGroup": {
-    "message": "新增群組"
-  },
   "addGroup": {
     "message": "新增群組"
   },
@@ -5457,9 +5583,6 @@
   },
   "readOnly": {
     "message": "唯讀"
-  },
-  "newCollection": {
-    "message": "新增集合"
   },
   "addCollection": {
     "message": "新增集合"
@@ -6155,6 +6278,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "已建立集合 $ID$。",
     "placeholders": {
@@ -6774,11 +6906,26 @@
   "resendInvitation": {
     "message": "重新傳送邀請"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "重新傳送電子郵件"
   },
   "hasBeenReinvited": {
     "message": "已重新邀請 $USER$",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7720,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "新增允許的電子郵件網域（例如 acme.com），只有使用符合網域之電子郵件地址的使用者才能使用此邀請連結。您可以隨時更新。"
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "您目前在遊覽預覽狀態，因此這些網域均為範例。"
+  },
   "adjustTheLink": {
     "message": "調整連結"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "您的需求會改變，連結也能隨之調整。<strong>重新產生</strong>連結即可使舊連結失效並建立新連結。"
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "您的需求會改變，連結也能隨之調整。"
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>重新產生</strong>連結即可使舊連結失效並建立新連結。"
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>要求管理員確認</strong>，以便在新成員加入組織前進行核准。"
   },
   "shareTheLinkAnywhere": {
     "message": "隨處分享連結"
@@ -8471,6 +8612,10 @@
     "message": "找不到與此 Send 關聯的檔案。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "無法下載此檔案因為該下載連結未能通過安全檢查。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "沒有可列出的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8968,17 +9113,43 @@
     "message": "啟用 fill assist",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "啟用填寫輔助",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "預設為所有成員開啟 fill assist。此功能使用經過審查、針對特定網站的指示，以提升在難以自動填入之網站上的自動填入準確度。"
+  },
+  "fillAssistRuleSource": {
+    "message": "自動填寫規則集"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "預設"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "使用已經Bitwarden審查的自動填寫規則集。"
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "自訂"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "輸入您個人的自訂規則集。"
   },
   "fillAssistRulesUrl": {
     "message": "自訂自動填入規則集"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "fill assist 預設使用 Bitwarden 精選的規則集。在此輸入 URL 即可改用您自己的規則集。"
+  "fillAssistRulesUrlV2": {
+    "message": "自訂規則集"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "了解更多有關自訂規則"
   },
   "invalidFillAssistRulesUrl": {
     "message": "請輸入有效的 URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "輸入有效網址以用於自訂規則集。",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11124,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "輸入有效的網址",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "偵測到不安全的網址",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "此網址已被標記為可信。您可以隨時編輯此項。",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "發生未知的 $SERVICENAME$ 錯誤。",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12071,6 @@
   "domainVerification": {
     "message": "網域驗證"
   },
-  "newDomain": {
-    "message": "新增網域"
-  },
   "addDomain": {
     "message": "新增網域"
   },
@@ -12247,9 +12439,6 @@
   },
   "groupSlashUser": {
     "message": "群組/使用者"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "繼續操作會登出您所有活動工作階段。您需要重新登入並完成兩步驟登入設定。 我們建議在變更加密設定之前匯出您的密碼庫，以防止資料遺失。"
   },
   "secretsManager": {
     "message": "機密管理員"
@@ -13867,10 +14056,6 @@
     "message": "機器帳戶",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "新增機器帳號",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "新增機器帳戶",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14525,9 @@
   "organizationOptionsMenu": {
     "message": "切換組織選單"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "選擇密碼庫項目"
   },
@@ -14500,6 +14688,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "預覽發票時發生錯誤。請稍後再試。"
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "請您確認帳單資訊並再重試。"
+  },
+  "planChangeTrialIncluded": {
+    "message": "此升級包含了$DAYS$天試用期。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "您的試用期還剩下一天。您將於$DATE$被收取上述總額。",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "您的試用期還剩下$DAYS$天。您將於$DATE$被收取上述總額。",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "未驗證"
@@ -16811,8 +17033,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium 訂閱抵扣金額"
   },
-  "appliedSubscriptionCredits": {
-    "message": "已套用的訂閱抵用額"
+  "appliedProrationCredits": {
+    "message": "已套用按比例計算的抵用額"
   },
   "enterpriseMembership": {
     "message": "Enterprise 會籍"
@@ -16977,6 +17199,15 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "透過檢查報告中的漏洞來保持您的保管庫項目安全。"
   },
+  "tourTheNewVault": {
+    "message": "Tour the new vault"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "takeTheTour": {
+    "message": "Take the tour"
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "監控安全性活動"
   },
@@ -17034,13 +17265,13 @@
     }
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "金鑰"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "金鑰及密碼"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "您的帳號已受金鑰及密碼保護。您需要輸入兩者才能繼續。"
   },
   "keeperEmail": {
     "message": "Keeper 電子郵件"
@@ -17837,6 +18068,9 @@
   "inviteLinkCalloutBody": {
     "message": "任何使用公司電子郵件地址的人都能使用邀請連結加入您的組織。將連結放在新人到職資源中，讓新進員工準備好時即可加入。"
   },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "導覽使用了範例數據。您組織裡的資料不會受影響。"
+  },
   "inviteLinkCalloutImageAlt": {
     "message": "顯示新「透過連結」分頁的邀請成員對話方塊預覽"
   },
@@ -17977,5 +18211,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "服務帳戶按比例計算的費用"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden 有了新外觀",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "更好的使用體驗，同樣值得信賴的安全性。Bitwarden密碼庫已就您們的回饋重新設計，因此項目將會更容易被找到，亦會如您所料地運作。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "全新改版的Bitwarden密碼庫之預覽。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "匯出該新的密碼庫",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "自訂您的介面檢視"
+  },
+  "showColumns": {
+    "message": "顯示直欄"
+  },
+  "resetToDefault": {
+    "message": "重設至預設值"
   }
 }
