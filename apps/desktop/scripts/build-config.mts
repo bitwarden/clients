@@ -8,6 +8,9 @@
 /// This module deliberately touches no filesystem, `process`, or `import.meta`, so it stays
 /// unit-testable. Anything needing those lives in `configure.mts`.
 
+// Named rather than a default import: this module is the one that gets unit tested, and the
+// CommonJS the test transform emits has no default export for a builtin.
+import { isAbsolute, relative, resolve, sep } from "path";
 import { parseArgs } from "util";
 
 export const CONFIG_VERSION = 1;
@@ -98,6 +101,9 @@ export interface TargetDefinition {
   /// rather than a file wherever the filename carries `<platform>-<arch>`, since a universal
   /// build produces more than one.
   readonly intermediate: string;
+  /// Script that builds it, relative to the scripts directory, so that `bw-task build` does not
+  /// keep a second list of targets.
+  readonly script: string;
 }
 
 export const TARGETS: readonly TargetDefinition[] = [
@@ -110,6 +116,7 @@ export const TARGETS: readonly TargetDefinition[] = [
     // pack:local:mac build it.
     enabledByDefault: false,
     intermediate: "macos/autofill-extension.appex",
+    script: "build-macos-autofill-extension.mts",
   },
   {
     key: "desktopProxy",
@@ -118,6 +125,7 @@ export const TARGETS: readonly TargetDefinition[] = [
     platforms: ["macos", "windows", "linux"],
     enabledByDefault: true,
     intermediate: "desktop_native/proxy",
+    script: "build-desktop-proxy.mts",
   },
   {
     key: "windowsPasskeyPlugin",
@@ -126,6 +134,7 @@ export const TARGETS: readonly TargetDefinition[] = [
     platforms: ["windows"],
     enabledByDefault: true,
     intermediate: "desktop_native/windows_plugin_authenticator",
+    script: "build-windows-passkey-plugin.mts",
   },
   {
     key: "chromiumImportHelper",
@@ -134,6 +143,7 @@ export const TARGETS: readonly TargetDefinition[] = [
     platforms: ["windows"],
     enabledByDefault: true,
     intermediate: "desktop_native/bitwarden_chromium_import_helper",
+    script: "build-chromium-import-helper.mts",
   },
   {
     key: "processIsolation",
@@ -142,6 +152,7 @@ export const TARGETS: readonly TargetDefinition[] = [
     platforms: ["linux"],
     enabledByDefault: true,
     intermediate: "desktop_native/process_isolation",
+    script: "build-process-isolation.mts",
   },
   {
     key: "napi",
@@ -150,6 +161,7 @@ export const TARGETS: readonly TargetDefinition[] = [
     platforms: ["macos", "windows", "linux"],
     enabledByDefault: true,
     intermediate: "desktop_native/napi",
+    script: "build-napi.mts",
   },
 ];
 
@@ -264,7 +276,7 @@ export function usage(): string {
   const option = (flag: string, description: string) => `  ${flag.padEnd(33)} ${description}`;
 
   return [
-    "Usage: node scripts/configure.mts --build-dir <dir> [options]",
+    "Usage: bw-task configure --build-dir <dir> [options]",
     "",
     "Writes <build-dir>/build-config.json describing what this build should contain.",
     "",
@@ -367,12 +379,11 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
 export function validate(raw: RawOptions): string[] {
   const errors: string[] = [];
 
+  // The shape of --build-dir is `resolveBuildDir`'s to check; by the time validation runs the
+  // caller has already turned it into a path relative to apps/desktop, or reported why it
+  // could not.
   if (raw.buildDir == null || raw.buildDir.trim() === "") {
     errors.push("--build-dir is required.");
-  } else if (isAbsolutePath(raw.buildDir)) {
-    // Everything in the file is recorded relative to apps/desktop, so the directory it
-    // describes has to be too, or the file stops meaning the same thing on another machine.
-    errors.push(`--build-dir '${raw.buildDir}' must be relative to apps/desktop.`);
   }
 
   if (raw.channel != null && !isChannel(raw.channel)) {
@@ -565,6 +576,75 @@ function macosConfig(
   };
 }
 
+/// Name a target answers to on the command line. Derived from the key rather than stored, so a
+/// target cannot be called one thing by `--with-` and another by `bw-task build`.
+export function targetName(target: TargetDefinition): string {
+  return target.key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+}
+
+export interface BuildDirLocation {
+  /// Absolute path, for telling the caller which directory they actually named.
+  absolute: string;
+  /// POSIX and relative to apps/desktop: what gets recorded, and what every other path in the
+  /// configuration is relative to.
+  recorded: string;
+}
+
+export type BuildDirResolution =
+  { ok: true; location: BuildDirLocation } | { ok: false; error: string };
+
+/// Resolves `--build-dir` the way a shell would -- against the caller's working directory --
+/// and converts it to the form the configuration records.
+///
+/// The two are separate on purpose. A developer typing a path means it relative to where they
+/// are standing, while the written file has to mean the same thing on a machine whose checkout
+/// lives somewhere else, which it only does if its paths are relative to apps/desktop. That is
+/// also why a directory outside the repository is refused rather than recorded absolute.
+///
+/// `cwd` and `projectDir` are expected to be real paths; a symlinked component in one but not
+/// the other would make the comparisons below textual nonsense.
+export function resolveBuildDir(
+  argument: string,
+  cwd: string,
+  projectDir: string,
+  repoRoot: string,
+): BuildDirResolution {
+  const absolute = resolve(cwd, argument);
+
+  // TODO: allow a build directory outside the repository. It would have to be recorded
+  // absolute, since there is nothing to be relative to, which makes that configuration
+  // machine-specific -- so the recorded form has to say which of the two it is rather than
+  // leaving a reader to guess from the leading slash.
+  const fromRepoRoot = relative(repoRoot, absolute);
+  if (fromRepoRoot === "" || fromRepoRoot.startsWith("..") || isAbsolute(fromRepoRoot)) {
+    return {
+      ok: false,
+      error:
+        `--build-dir '${argument}' resolves to ${absolute}, which is not inside the ` +
+        `repository at ${repoRoot}. Build directories live in the checkout, so that ` +
+        "build-config.json can name what it contains relative to apps/desktop.",
+    };
+  }
+
+  if (relative(projectDir, absolute) === "") {
+    return {
+      ok: false,
+      error:
+        `--build-dir '${argument}' resolves to ${absolute}, which is apps/desktop itself. ` +
+        "The build directory holds everything a build produces, so it has to be a directory " +
+        "of its own.",
+    };
+  }
+
+  return {
+    ok: true,
+    location: {
+      absolute,
+      recorded: relative(projectDir, absolute).split(sep).join("/"),
+    },
+  };
+}
+
 export function targetByKey(key: string): TargetDefinition | undefined {
   return TARGETS.find((target) => target.key === key);
 }
@@ -637,10 +717,6 @@ function platformsOf(distributionChannels: readonly DistributionChannel[]): Plat
     }
   }
   return [...platforms];
-}
-
-function isAbsolutePath(value: string): boolean {
-  return value.startsWith("/") || /^[a-zA-Z]:[\\/]/.test(value) || value.startsWith("\\\\");
 }
 
 function normalizeBuildDir(buildDir: string): string {
