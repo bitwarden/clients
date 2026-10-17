@@ -664,6 +664,10 @@
   "resetSearch": {
     "message": "Сбросить поиск"
   },
+  "clearSearchTooltip": {
+    "message": "Чтобы очистить, нажмите здесь или клавишу Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "archiveNoun": {
     "message": "Архив",
     "description": "Noun"
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Автозаполнение логинов в браузере",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Отвечать на базовую HTTP-аутентификацию, когда логин в хранилище соответствует сайту."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
   },
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Выберите источник"
+  },
+  "importData": {
+    "message": "Импорт данных"
   },
   "importSourceSelectTitle": {
     "message": "Выберите источник"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
-  },
-  "newSharedFolder": {
-    "message": "Новая общая папка"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden для Бизнеса позволяет предоставлять доступ к элементам вашего хранилища другим пользователям с помощью организации. Более подробную информацию можно найти на сайте bitwarden.com."
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "Выбрать файл"
+  },
+  "selectFileUnsupportedType": {
+    "message": "Этот тип файла не поддерживается для данного источника. Выберите другой файл"
+  },
+  "pasteContentRequired": {
+    "message": "Вставьте экспортированный контент"
+  },
+  "fileTypeNotSupported": {
+    "message": "Этот тип файла не поддерживается. Выберите файл типа $TYPES$",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Вставленный текст не соответствует выбранному формату"
+  },
+  "errorReadingFile": {
+    "message": "Не удалось прочитать выбранный файл"
   },
   "itemsTransferred": {
     "message": "Элементы переданы"
@@ -2548,42 +2584,6 @@
     "message": "Добавить паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Новый логин",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Новая карта",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Новая личная информация",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Новая заметка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Новая защищенная заметка",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новый ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новый банковский счет",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Новое водительское удостоверение",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новый паспорт",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Новый текст",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Новый файл",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Изменить логин",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редактировать карту",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редактировать личную информацию",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редактировать заметку",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Изменить защищенную заметку",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Этот URL не допускается. Он должен использовать протокол https и не может указывать на адрес в локальной или частной сети.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Введите корректный URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Обнаружен небезопасный URL",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Этот URL может быть небезопасным или вести в частную сеть. Его использование может привести к раскрытию конфиденциальных данных. Продолжайте только в том случае, если вы доверяете этому серверу.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Доверять URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Этот URL помечен как доверенный. Вы можете изменить его в любое время.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Произошла неизвестная ошибка $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5175,10 +5183,6 @@
   "selectImportSharedFolder": {
     "message": "Выберите общую папку"
   },
-  "importTargetMyFolder": {
-    "message": "Моя папка",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
   },
@@ -5304,6 +5308,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "Центр поддержки"
+  },
+  "uploadFile": {
+    "message": "Загрузить файл"
+  },
+  "pasteAsPlainText": {
+    "message": "Вставить как обычный текст"
+  },
+  "plainText": {
+    "message": "Обычный текст"
+  },
+  "profile": {
+    "message": "Профиль"
+  },
+  "importManuallyInstead": {
+    "message": "Вместо этого импортировать вручную"
+  },
+  "directlyImportInstead": {
+    "message": "Вместо этого импортировать напрямую"
+  },
+  "fastest": {
+    "message": "Самый быстрый"
+  },
+  "importDataTitle": {
+    "message": "Импортируйте ваши данные"
+  },
+  "importDataDirectTitle": {
+    "message": "Импортируйте ваши данные за считанные минуты"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Импортируйте свои элементы напрямую из",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "чтобы получить все ваши данные.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Импортируйте из $VENDOR$ или скопируйте и вставьте содержимое экспорта.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Выберите профиль, из которого вы хотите импортировать пароли."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Профили браузеров не найдены"
+  },
+  "importDataLoginTitle": {
+    "message": "Войти в $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Ваши учетные данные шифруются при передаче и никогда не сохраняются."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Безопасность заложена в самом дизайне"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Передача данных со сквозным шифрованием. Bitwarden никогда не получает доступ к вашим учетным данным для $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Мы запросим ваши регистрационные данные"
+  },
+  "importDataLoginInfoBody": {
+    "message": "На следующем шаге войдите в свой аккаунт $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Все передачи"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Логины, карты, личная информация, защищенные заметки и TOTP с сохраненной структурой папок."
+  },
+  "importAcceptedFormats": {
+    "message": "Принято: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Тип файла $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Этот процесс полностью аналогичен импорту из Google Chrome.",
@@ -5505,11 +5619,44 @@
   "keePassMasterPassword": {
     "message": "Мастер-пароль KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Пароль $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "filePasswordRequired": {
+    "message": "Требуется пароль для файла"
+  },
+  "filePasswordInvalid": {
+    "message": "Введите правильный пароль файла."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Загруженный файл защищен паролем. Для продолжения введите пароль."
+  },
+  "selectProfile": {
+    "message": "Выберите профиль"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Введите правильный пароль"
+  },
+  "importAccountMismatchError": {
+    "message": "Этот файл может быть импортирован только в аккаунт, из которого он был экспортирован."
+  },
   "addKeyFile": {
     "message": "Добавить файл ключа"
   },
   "keyFileUpload": {
     "message": "Загрузка файла ключа"
+  },
+  "keyFileUploadV2": {
+    "message": "Файл ключа"
   },
   "kdbxFileUpload": {
     "message": "Загрузка файла KDBX"
@@ -7743,17 +7890,17 @@
   "sharedUnlock": {
     "message": "Совместная разблокировка"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Общая разблокировка с компьютером"
+  "syncUnlockWithDesktop": {
+    "message": "Sync unlock with desktop app"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "При включении информация о состоянии разблокировки будет передаваться в приложение Bitwarden для компьютера."
+  "syncUnlockWithDesktopDescription": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Общая разблокировка с веб-хранилищем"
+  "syncUnlockWithWeb": {
+    "message": "Sync unlock with web app"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "При включении информация о состоянии разблокировки будет передаваться в веб-хранилище Bitwarden."
+  "syncUnlockWithWebDescription": {
+    "message": "The Bitwarden browser extension and web app lock and unlock together."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Общая разблокировка недоступна, поскольку вы выбрали не запоминать это устройство. Чтобы включить эту настройку, попробуйте авторизоваться повторно."
@@ -8251,5 +8398,33 @@
   },
   "unknownCipher": {
     "message": "Неизвестный элемент. Вам может потребоваться запросить разрешение на доступ к этому элементу."
+  },
+  "newExperienceDialogTitle": {
+    "message": "У Bitwarden новый облик!",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Улучшенный интерфейс, та же надежная защита. Хранилище Bitwarden было переработано с учетом ваших отзывов, поэтому теперь в нем стало проще находить нужные элементы и все работает так, как вы ожидаете.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Познакомиться с обновленным хранилищем Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Исследуйте новое хранилище",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Настроить"
+  },
+  "customizeYourView": {
+    "message": "Настроить вид"
+  },
+  "showColumns": {
+    "message": "Показать столбцы"
+  },
+  "resetToDefault": {
+    "message": "Сбросить по умолчанию"
   }
 }

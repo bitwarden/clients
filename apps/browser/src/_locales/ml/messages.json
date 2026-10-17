@@ -664,6 +664,10 @@
   "resetSearch": {
     "message": "തിരയൽ പുനഃസജ്ജീകരിക്കുക"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "archiveNoun": {
     "message": "ആർക്കൈവ്",
     "description": "Noun"
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "ഒരു വെബ്‌സൈറ്റ് `data-bwautofill` ആട്രിബ്യൂട്ട് ഉപയോഗിച്ച് അടയാളപ്പെടുത്തുന്ന ഏതെങ്കിലും സ്പാൻ ഘടകങ്ങൾ ഉപയോഗിക്കുക."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "കോൺടെക്‌സ്റ്റ് മെനു ഓപ്ഷനുകൾ കാണിക്കുക"
   },
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Select source"
+  },
+  "importData": {
+    "message": "Import data"
   },
   "importSourceSelectTitle": {
     "message": "Select your source"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "പങ്കിട്ട ഫോൾഡർ ചേർക്കുക"
-  },
-  "newSharedFolder": {
-    "message": "പുതിയ പങ്കിട്ട ഫോൾഡർ"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "ബിസിനസ്സിനുള്ള Bitwarden ഒരു ഓർഗനൈസേഷൻ ഉപയോഗിച്ച് നിങ്ങളുടെ വോൾട്ട് ഇനങ്ങൾ മറ്റുള്ളവരുമായി പങ്കിടാൻ നിങ്ങളെ അനുവദിക്കുന്നു. bitwarden.com വെബ്‌സൈറ്റിൽ കൂടുതലറിയുക."
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "ഒരു ഫയൽ തിരഞ്ഞെടുക്കുക"
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
   },
   "itemsTransferred": {
     "message": "ഇനങ്ങൾ കൈമാറി"
@@ -2548,42 +2584,6 @@
     "message": "പാസ്‌പോർട്ട് ചേർക്കുക",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "പുതിയ ലോഗിൻ",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "പുതിയ കാർഡ്",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "പുതിയ ഐഡന്റിറ്റി",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "പുതിയ കുറിപ്പ്",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "പുതിയ സുരക്ഷിത കുറിപ്പ്",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "പുതിയ SSH കീ",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "പുതിയ ബാങ്ക് അക്കൗണ്ട്",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "പുതിയ ലൈസൻസ്",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "പുതിയ പാസ്‌പോർട്ട്",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "പുതിയ ടെക്സ്റ്റ്",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "പുതിയ ഫയൽ",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "ലോഗിൻ എഡിറ്റ് ചെയ്യുക",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "കാർഡ് എഡിറ്റ് ചെയ്യുക",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "ഐഡന്റിറ്റി എഡിറ്റ് ചെയ്യുക",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "കുറിപ്പ് എഡിറ്റ് ചെയ്യുക",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "സുരക്ഷിത കുറിപ്പ് എഡിറ്റ് ചെയ്യുക",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "അജ്ഞാതമായ $SERVICENAME$ പിശക് സംഭവിച്ചു.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5175,10 +5183,6 @@
   "selectImportSharedFolder": {
     "message": "ഒരു പങ്കിട്ട ഫോൾഡർ തിരഞ്ഞെടുക്കുക"
   },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "ഇമ്പോർട്ട് ചെയ്ത ഫയൽ ഉള്ളടക്കം ഒരു കളക്ഷനിലേക്ക് നീക്കാൻ ആഗ്രഹിക്കുന്നുവെങ്കിൽ ഈ ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക"
   },
@@ -5304,6 +5308,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Google Chrome-ൽ നിന്ന് ഇമ്പോർട്ട് ചെയ്യുന്നതിന് സമാനമാണ് ഈ പ്രക്രിയ.",
@@ -5505,11 +5619,44 @@
   "keePassMasterPassword": {
     "message": "KeePass മാസ്റ്റർ പാസ്‌വേഡ്"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "കീ ഫയൽ ചേർക്കുക"
   },
   "keyFileUpload": {
     "message": "കീ ഫയൽ അപ്‌ലോഡ്"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX ഫയൽ അപ്‌ലോഡ്"
@@ -7743,17 +7890,17 @@
   "sharedUnlock": {
     "message": "പങ്കിട്ട അൺലോക്ക്"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "ഡെസ്ക്ടോപ്പുമായി അൺലോക്ക് പങ്കിടുക"
+  "syncUnlockWithDesktop": {
+    "message": "Sync unlock with desktop app"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "പ്രവർത്തനക്ഷമമാക്കുമ്പോൾ, അൺലോക്ക് അവസ്ഥ Bitwarden ഡെസ്ക്ടോപ്പ് ആപ്പുമായി പങ്കിടും."
+  "syncUnlockWithDesktopDescription": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
   },
-  "sharedUnlockWithWeb": {
-    "message": "വെബ് വോൾട്ടുമായി അൺലോക്ക് പങ്കിടുക"
+  "syncUnlockWithWeb": {
+    "message": "Sync unlock with web app"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "പ്രവർത്തനക്ഷമമാക്കുമ്പോൾ, അൺലോക്ക് അവസ്ഥ Bitwarden വെബ് വോൾട്ടുകളുമായി പങ്കിടും."
+  "syncUnlockWithWebDescription": {
+    "message": "The Bitwarden browser extension and web app lock and unlock together."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "ഈ ഉപകരണം ഓർക്കേണ്ടതില്ലെന്ന് നിങ്ങൾ തിരഞ്ഞെടുത്തതിനാൽ പങ്കിട്ട അൺലോക്ക് ലഭ്യമല്ല. ഈ ക്രമീകരണം പ്രവർത്തനക്ഷമമാക്കാൻ, വീണ്ടും ലോഗിൻ ചെയ്യാൻ ശ്രമിക്കുക."
@@ -8251,5 +8398,33 @@
   },
   "unknownCipher": {
     "message": "അജ്ഞാത ഇനം, ഈ ഇനം ആക്‌സസ് ചെയ്യാൻ നിങ്ങൾ അനുമതി അഭ്യർത്ഥിക്കേണ്ടതായേക്കാം."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

@@ -664,6 +664,10 @@
   "resetSearch": {
     "message": "検索をリセット"
   },
+  "clearSearchTooltip": {
+    "message": "ここをクリックするか、Esc キーを押すと消去します。",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "archiveNoun": {
     "message": "アーカイブ",
     "description": "Noun"
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "ウェブサイトが「data-bwautofill」属性でマークしたすべての span 要素を使用します。"
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "ブラウザーのログインプロンプトの自動入力",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "保管庫のログインアイテムがウェブサイトと一致したとき、HTTP Basic 認証プロンプトに応答します。"
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "ウェブサイトはあなたへの確認なしにプロンプトをトリガーできるため、ログイン情報を予期せず漏洩する可能性があります。",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
   },
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "ソースを選択"
+  },
+  "importData": {
+    "message": "データのインポート"
   },
   "importSourceSelectTitle": {
     "message": "ソースを選択してください"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "共有フォルダーを追加"
-  },
-  "newSharedFolder": {
-    "message": "新しい共有フォルダー"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business は組織を使って保管庫アイテムを他の人と共有することができます。詳細は bitwarden.com ウェブサイトをご覧ください。"
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "ファイルを選択してください。"
+  },
+  "selectFileUnsupportedType": {
+    "message": "そのファイルタイプはこのソースでは受け入れられません。別のファイルを選択してください"
+  },
+  "pasteContentRequired": {
+    "message": "エクスポートされたコンテンツを貼り付け"
+  },
+  "fileTypeNotSupported": {
+    "message": "このファイルタイプは非対応です。 $TYPES$ ファイルを選択してください",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "貼り付けたコンテンツは、選択済みフォーマットと一致していません"
+  },
+  "errorReadingFile": {
+    "message": "選択したファイルを読み取れませんでした"
   },
   "itemsTransferred": {
     "message": "アイテムを移行しました"
@@ -2548,42 +2584,6 @@
     "message": "パスポートを追加",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "新規ログイン",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "新規カード",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "新規身分証",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "新規メモ",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "新しいセキュアメモ",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "新しい SSH キー",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "新しい銀行口座",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "新しい免許証",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "新しいパスポート",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "新規テキスト",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "新規ファイル",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "ログインを編集",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "カードを編集",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "ID を編集",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "メモを編集",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "セキュアメモを編集",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "この URL は許可されていません。https を使用する必要があり、ローカルまたはプライベートのネットワークアドレスを指すことはできません。",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "有効な URL を入力してください",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "安全でない URL を検出しました",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "この URL は安全でない場合やプライベートネットワークを指している場合があります。 これを使用すると個人情報が漏洩する可能性があります。このサーバーを信頼している場合にのみ続行してください。",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "URL を信頼する",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "この URL を信頼できるものとしてマークしました。いつでも変更できます。",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "不明な $SERVICENAME$ エラーが起きました。",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5175,10 +5183,6 @@
   "selectImportSharedFolder": {
     "message": "共有フォルダーを選択"
   },
-  "importTargetMyFolder": {
-    "message": "マイフォルダー",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "インポートしたファイルコンテンツをコレクションに移動したい場合は、このオプションを選択してください"
   },
@@ -5304,6 +5308,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "ヘルプセンター"
+  },
+  "uploadFile": {
+    "message": "ファイルのアップロード"
+  },
+  "pasteAsPlainText": {
+    "message": "書式なしテキストとして貼り付け"
+  },
+  "plainText": {
+    "message": "プレーンテキスト"
+  },
+  "profile": {
+    "message": "プロファイル"
+  },
+  "importManuallyInstead": {
+    "message": "代わりに手動でインポート"
+  },
+  "directlyImportInstead": {
+    "message": "代わりに直接インポート"
+  },
+  "fastest": {
+    "message": "超高速"
+  },
+  "importDataTitle": {
+    "message": "データをインポート"
+  },
+  "importDataDirectTitle": {
+    "message": "データを数分でインポート"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "すべてのデータを",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "から直接インポートできます。",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "$VENDOR$ からインポートするか、エクスポート内容をコピー&ペーストしてください。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "パスワードをインポートするプロファイルを選択します。"
+  },
+  "noBrowserProfilesFound": {
+    "message": "ブラウザーのプロファイルが見つかりませんでした"
+  },
+  "importDataLoginTitle": {
+    "message": "$VENDOR$ にログイン",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "資格情報は転送中に暗号化され、保存されません。"
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "セキュア・バイ・デザイン"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "エンドツーエンドで暗号化されたハンドオフ。Bitwarden が $VENDOR$ のログイン情報を目にすることはありません。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "ログイン情報を要求します"
+  },
+  "importDataLoginInfoBody": {
+    "message": "次のステップで、あなたの $VENDOR$ アカウントにログインします。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "すべてを転送"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "フォルダー構造を維持したままログイン、カード、ID、セキュアメモ、TOTP を保存します。"
+  },
+  "importAcceptedFormats": {
+    "message": "承認済み: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ ファイルタイプ",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Google Chrome からインポートするのとまったく同じ手順です。",
@@ -5505,11 +5619,44 @@
   "keePassMasterPassword": {
     "message": "KeePass のマスターパスワード"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ パスワード",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "パスワードが必要です。"
+  },
+  "filePasswordRequired": {
+    "message": "ファイルパスワードが必要です"
+  },
+  "filePasswordInvalid": {
+    "message": "有効なファイルパスワードを入力してください。"
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "アップロードされたファイルはパスワードで保護されています。続行するにはパスワードを入力してください。"
+  },
+  "selectProfile": {
+    "message": "プロファイルを選択"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "有効なパスワードを入力"
+  },
+  "importAccountMismatchError": {
+    "message": "このファイルは、エクスポートされたアカウントにのみインポートできます。"
+  },
   "addKeyFile": {
     "message": "キーファイルを追加"
   },
   "keyFileUpload": {
     "message": "キーファイルのアップロード"
+  },
+  "keyFileUploadV2": {
+    "message": "キーファイル"
   },
   "kdbxFileUpload": {
     "message": "KDBX ファイルのアップロード"
@@ -7743,17 +7890,17 @@
   "sharedUnlock": {
     "message": "共有ロック解除"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "デスクトップでロック解除を共有"
+  "syncUnlockWithDesktop": {
+    "message": "デスクトップアプリとロック解除を同期"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "有効にすると、ロック解除状態は Bitwarden デスクトップアプリで共有されます。"
+  "syncUnlockWithDesktopDescription": {
+    "message": "Bitwarden ブラウザ拡張機能とデスクトップアプリを同時にロックまたはロック解除します。"
   },
-  "sharedUnlockWithWeb": {
-    "message": "ウェブ保管庫でロック解除を共有"
+  "syncUnlockWithWeb": {
+    "message": "ウェブアプリとロック解除を同期"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "有効にすると、ロック解除状態は Bitwarden ウェブ保管庫で共有されます。"
+  "syncUnlockWithWebDescription": {
+    "message": "Bitwarden ブラウザ拡張機能とウェブアプリを同時にロックまたはロック解除します。"
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "このデバイスを記憶しないことを選択したため、共有ロック解除は利用できません。この設定を有効にするには、再度ログインしてください。"
@@ -8251,5 +8398,33 @@
   },
   "unknownCipher": {
     "message": "不明なアイテムです。このアイテムにアクセスする権限をリクエストする必要がある場合があります。"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden が新しい見た目になりました",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "信頼できるセキュリティは変わらず、使い勝手を向上。 フィードバックに基づいて再設計された Bitwarden 保管庫で、思い通りの検索や作業を簡単にできます。",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "再設計された Bitwarden 保管庫のプレビューです。",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "新しい保管庫を見てみる",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "カスタマイズ"
+  },
+  "customizeYourView": {
+    "message": "表示のカスタマイズ"
+  },
+  "showColumns": {
+    "message": "列を表示する"
+  },
+  "resetToDefault": {
+    "message": "初期設定に戻す"
   }
 }
