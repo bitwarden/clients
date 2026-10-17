@@ -1,3 +1,6 @@
+import { readFileSync } from "fs";
+import { join } from "path";
+
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -84,6 +87,31 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
     fixture.detectChanges();
   };
 
+  // A scripted Keeper client answers only after `reply()`, so each prompt passes through the busy
+  // state a real login has between a submit and the server's answer.
+  let replies: Array<() => void>;
+  const serverReply = () => new Promise<void>((resolve) => replies.push(resolve));
+  const reply = async () => {
+    await settle();
+    replies.shift()?.();
+    await settle();
+  };
+
+  const typeAndContinue = async (id: string, value: string) => {
+    const input = byId(id).nativeElement as HTMLInputElement;
+    input.value = value;
+    input.dispatchEvent(new Event("input"));
+    // The keystroke and the click are separate events: the screen renders in between.
+    await settle();
+    await component().submit();
+    await settle();
+  };
+  const typeCode = (value: string) => typeAndContinue("importer-controls_input_keeper-code", value);
+  const typePassword = (value: string) =>
+    typeAndContinue("importer-controls_input_keeper-password", value);
+  const codeInput = () =>
+    byId("importer-controls_input_keeper-code").nativeElement as HTMLInputElement;
+
   const providers = () => [
     { provide: ImportUpgradeServiceAbstraction, useValue: importService },
     { provide: ImportUpgradeMetadataServiceAbstraction, useValue: importMetadataService },
@@ -136,6 +164,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
   };
 
   beforeEach(() => {
+    replies = [];
     result = new ImportResult();
     importService = mock<ImportUpgradeServiceAbstraction>();
     importService.importImportResult.mockResolvedValue(result);
@@ -160,6 +189,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     dialogService = mock<DialogService>();
     dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+    dialogService.openSimpleDialog.mockResolvedValue(true);
     toastService = mock<ToastService>();
     policyService = mock<PolicyService>();
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
@@ -223,6 +253,27 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(importService.importImportResult).toHaveBeenCalled();
     });
 
+    it("offers Keeper DNA, and choosing it waits for the device with no code field", async () => {
+      await startLogin(async (ui) => {
+        await ui.selectApprovalMethod([
+          DeviceApprovalChannel.Email,
+          DeviceApprovalChannel.TwoFactor,
+          DeviceApprovalChannel.KeeperDna,
+        ]);
+        await ui.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true });
+      });
+      expect(text()).toContain("keeperDna");
+
+      loginControls().keeperApprovalMethod.setValue(DeviceApprovalChannel.KeeperDna);
+      await component().submit();
+      await settle();
+
+      expect(text()).toContain("keeperLoginDnaSent");
+      expect(text()).toContain("keeperLoginDnaSentDesc");
+      expect(byId("importer-controls_input_keeper-code")).toBeNull();
+      expect(continueDisabled()).toBe(true);
+    });
+
     it("labels the two-factor approval channel 'Two-factor method'", async () => {
       await startLogin(async (ui) => {
         await ui.selectApprovalMethod([
@@ -254,7 +305,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       releaseServer();
       await settle();
 
-      expect(text()).toContain("totpCodePrompt");
+      expect(text()).toContain("keeperLoginAuthenticatorDesc");
       expect(loginControls().keeperCode.enabled).toBe(true);
       expect(loginControls().keeperCode.touched).toBe(false);
 
@@ -350,32 +401,6 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
   // Each script repeats the Ui calls the Keeper client makes in a real login (client.ts), with the
   // server's answer arriving only after `reply()`, so every prompt passes through the busy state.
   describe("login sequences as the Keeper client runs them", () => {
-    let replies: Array<() => void>;
-    const serverReply = () => new Promise<void>((resolve) => replies.push(resolve));
-    const reply = async () => {
-      await settle();
-      replies.shift()?.();
-      await settle();
-    };
-
-    const typeAndContinue = async (id: string, value: string) => {
-      const input = byId(id).nativeElement as HTMLInputElement;
-      input.value = value;
-      input.dispatchEvent(new Event("input"));
-      await component().submit();
-      await settle();
-    };
-    const typeCode = (value: string) =>
-      typeAndContinue("importer-controls_input_keeper-code", value);
-    const typePassword = (value: string) =>
-      typeAndContinue("importer-controls_input_keeper-password", value);
-    const codeInput = () =>
-      byId("importer-controls_input_keeper-code").nativeElement as HTMLInputElement;
-
-    beforeEach(() => {
-      replies = [];
-    });
-
     it("email code rejected, then accepted", async () => {
       const answers: unknown[] = [];
       await startLogin(async (ui) => {
@@ -385,13 +410,13 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
           await ui.provideApprovalCode(DeviceApprovalChannel.Email, { previousCodeRejected: true }),
         );
       });
-      expect(text()).toContain("approvalEmailDesc");
+      expect(text()).toContain("keeperLoginEmailCodeDesc");
 
       await typeCode("000000");
       expect(text()).toContain("importingYourAccount");
       await reply();
 
-      expect(text()).toContain("approvalEmailDesc");
+      expect(text()).toContain("keeperLoginEmailCodeDesc");
       expect(text()).toContain("keeperLoginCodeInvalid");
       expect(codeInput().value).toBe("");
 
@@ -414,13 +439,13 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
       await typeCode("111111");
       await reply();
-      expect(text()).toContain("totpCodePrompt");
-      expect(text()).not.toContain("approvalEmailDesc");
+      expect(text()).toContain("keeperLoginAuthenticatorDesc");
+      expect(text()).not.toContain("keeperLoginEmailCodeDesc");
       expect(text()).not.toContain("verificationCodeRequired");
 
       await typeCode("222222");
       await reply();
-      expect(text()).toContain("keeperMasterPasswordPrompt");
+      expect(text()).toContain("keeperLoginPasswordDesc");
       expect(text()).not.toContain("keeperLoginPasswordRequired");
 
       await typePassword("wrong");
@@ -447,7 +472,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
       await typeCode("000000");
       await reply();
-      expect(text()).toContain("totpCodePrompt");
+      expect(text()).toContain("keeperLoginAuthenticatorDesc");
       expect(text()).toContain("keeperLoginCodeInvalid");
 
       await typeCode("654321");
@@ -467,24 +492,32 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
       expect(answers).toEqual([Resend]);
       expect(toastService.showToast).toHaveBeenCalled();
-      expect(text()).toContain("approvalEmailDesc");
+      expect(text()).toContain("keeperLoginEmailCodeDesc");
       expect(text()).not.toContain("keeperLoginCodeInvalid");
       expect(codeInput().value).toBe("");
     });
 
-    it("text message code offers Resend; authenticator code does not", async () => {
+    // Resend only where a code may really be sent: email, a text message, or the Two-factor method
+    // path, where Keeper doesn't say which method the account uses.
+    it("offers Resend for a text message and for the unknown-method path, not an authenticator code", async () => {
       await startLogin(async (ui) => {
         await ui.provideTwoFactorCode(TwoFactorMethod.Sms, { canResend: true });
         await serverReply();
+        await ui.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true, canResend: true });
+        await serverReply();
         await ui.provideTwoFactorCode(TwoFactorMethod.Totp);
       });
-      expect(text()).toContain("smsCodePrompt");
+      expect(text()).toContain("keeperLoginSmsDesc");
       expect(byId("importer-controls_button_keeper-resend-code")).toBeTruthy();
 
       await typeCode("123456");
       await reply();
+      expect(text()).toContain("twoFactorCodePrompt");
+      expect(byId("importer-controls_button_keeper-resend-code")).toBeTruthy();
 
-      expect(text()).toContain("totpCodePrompt");
+      await typeCode("123456");
+      await reply();
+      expect(text()).toContain("keeperLoginAuthenticatorDesc");
       expect(byId("importer-controls_button_keeper-resend-code")).toBeNull();
     });
 
@@ -494,7 +527,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
         answer = await ui.waitForDnaPush();
       });
 
-      expect(text()).toContain("keeperDnaPushWaiting");
+      expect(text()).toContain("keeperLoginDnaSentDesc");
       expect(continueDisabled()).toBe(true);
 
       component().onBack();
@@ -512,7 +545,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
           await ui.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true, canResend: true }),
         );
       });
-      expect(text()).toContain("selectApprovalMethodDesc");
+      expect(text()).toContain("keeperLoginApprovalMethodDesc");
 
       loginControls().keeperApprovalMethod.setValue(DeviceApprovalChannel.TwoFactor);
       await component().submit();
@@ -523,23 +556,249 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       await settle();
 
       expect(picked).toEqual([DeviceApprovalChannel.TwoFactor, Cancel]);
-      expect(text()).not.toContain("selectApprovalMethodDesc");
+      expect(text()).not.toContain("keeperLoginApprovalMethodDesc");
       expect(component().directStep()).toBe("intro");
     });
 
-    it("an unsupported second factor shows Keeper's error, then the failure on the email field", async () => {
+    it("an unsupported second factor shows an error toast and a fresh step 2, with no error on the email", async () => {
       await startLogin(async (ui) => {
         await ui.showError("keeperUnsupported2faMethod");
         throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "none");
       });
-      expect(text()).toContain("keeperUnsupported2faMethod");
-
-      await component().submit();
       await component().keeperLogin();
       await settle();
 
-      expect(controls().keeperEmail.errors.errors.message).toBe("keeperUnsupported2faMethod");
-      expect(isShown("importer-controls_input_keeper-email")).toBe(true);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "keeperUnsupported2faMethod" }),
+      );
+      expect(component().directStep()).toBe("intro");
+      expect(controls().keeperEmail.value).toBe("");
+      expect(controls().keeperEmail.errors).toBeNull();
+      expect(text()).not.toContain("keeperUnsupported2faMethod");
+    });
+  });
+
+  // The tests above echo i18n keys. These render with the real English strings and check the exact
+  // text the Figma frames show, screen by screen.
+  describe("copy on each screen, against the Figma frames", () => {
+    type Message = { message: string; placeholders?: Record<string, { content: string }> };
+    const messages: Record<string, Message> = JSON.parse(
+      readFileSync(join(__dirname, "../../../../../apps/web/src/locales/en/messages.json"), "utf8"),
+    );
+    const real = (key: string, ...subs: string[]): string => {
+      const entry = messages[key];
+      if (entry === undefined) {
+        throw new Error(`No en message for ${key}`);
+      }
+      return Object.entries(entry.placeholders ?? {}).reduce(
+        (text, [name, { content }]) =>
+          text.replace(
+            new RegExp(`\\$${name.toUpperCase()}\\$`, "g"),
+            subs[Number(content.slice(1)) - 1],
+          ),
+        entry.message,
+      );
+    };
+    const withRealCopy = [
+      {
+        provide: I18nService,
+        useValue: mock<I18nService>({ t: (key: string, ...s: string[]) => real(key, ...s) }),
+      },
+    ];
+    const login = (script: (ui: Ui) => Promise<unknown>) =>
+      startLogin(script, ClientType.Desktop, withRealCopy);
+    const shows = (...expected: string[]) => expected.forEach((t) => expect(text()).toContain(t));
+
+    it("credentials: logo title, default subtitle, labels, and the email errors", async () => {
+      await mount(ClientType.Desktop, withRealCopy);
+      shows(
+        "Log in to Keeper",
+        "Your credentials are encrypted in transit and never stored.",
+        "Email",
+        "Server",
+        "Import manually instead",
+        "Back",
+        "Continue",
+      );
+
+      await component().submit();
+      await settle();
+      expect(controls().keeperEmail.errors.keeperEmailRequired.message).toBe("Email is required.");
+      shows("Email is required.");
+
+      await typeAndContinue("importer-controls_input_keeper-email", "not-an-email");
+      expect(controls().keeperEmail.errors.keeperEmailInvalid.message).toBe(
+        "Enter a valid email address.",
+      );
+      shows("Enter a valid email address.");
+    });
+
+    it("device approval picker: subtitle, group label and the four choices", async () => {
+      await login(async (ui) => {
+        await ui.selectApprovalMethod([
+          DeviceApprovalChannel.Email,
+          DeviceApprovalChannel.KeeperPush,
+          DeviceApprovalChannel.TwoFactor,
+          DeviceApprovalChannel.KeeperDna,
+        ]);
+      });
+      shows(
+        "Log in to Keeper",
+        "Approve this device by selecting a method below.",
+        "Device approval method",
+        "Email",
+        "Keeper Push",
+        "Two-factor method",
+        "Keeper DNA",
+      );
+      expect(text()).not.toContain("Your credentials are encrypted");
+    });
+
+    it("email code: subtitle, label, Resend, and both code errors", async () => {
+      await login(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.Email);
+        await serverReply();
+        await ui.provideApprovalCode(DeviceApprovalChannel.Email, { previousCodeRejected: true });
+      });
+      shows(
+        "Please check your email and enter the verification code below.",
+        "Verification code",
+        "Resend code",
+      );
+
+      await component().submit();
+      await settle();
+      shows("Verification code is required.");
+
+      await typeCode("000000");
+      await reply();
+      shows("Enter a valid verification code.");
+    });
+
+    it("resending shows the toast text from Figma", async () => {
+      await login(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.Email);
+      });
+
+      byId("importer-controls_button_keeper-resend-code").nativeElement.click();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "Resent verification code" }),
+      );
+    });
+
+    it.each([
+      [
+        "authenticator app",
+        (ui: Ui) => ui.provideTwoFactorCode(TwoFactorMethod.Totp),
+        "Please enter the code from your authenticator app.",
+        false,
+      ],
+      [
+        "text message",
+        (ui: Ui) => ui.provideTwoFactorCode(TwoFactorMethod.Sms, { canResend: true }),
+        "Please enter the code sent as a text message.",
+        true,
+      ],
+    ])("%s: subtitle and label, Resend: %s", async (_name, script, subtitle, resend) => {
+      await login(async (ui) => {
+        await script(ui);
+      });
+
+      shows(subtitle, "Verification code");
+      expect(text().includes("Resend code")).toBe(resend);
+    });
+
+    it("Keeper Push wait: title, body, and a disabled Continue", async () => {
+      await login(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush);
+      });
+
+      shows(
+        "Your credentials are encrypted in transit and never stored.",
+        "Keeper Push sent",
+        "Keeper Push notification sent to approved device.",
+      );
+      expect(continueDisabled()).toBe(true);
+    });
+
+    it("Keeper DNA wait: title, body, and a disabled Continue", async () => {
+      await login(async (ui) => {
+        await ui.selectApprovalMethod([
+          DeviceApprovalChannel.TwoFactor,
+          DeviceApprovalChannel.KeeperDna,
+        ]);
+        await ui.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true });
+      });
+      loginControls().keeperApprovalMethod.setValue(DeviceApprovalChannel.KeeperDna);
+      await component().submit();
+      await settle();
+
+      shows(
+        "Your credentials are encrypted in transit and never stored.",
+        "Keeper DNA sent",
+        "Approve the Keeper DNA notification on your device.",
+      );
+      expect(continueDisabled()).toBe(true);
+    });
+
+    it("admin approval wait: title and body", async () => {
+      await login(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.AdminApproval);
+      });
+
+      shows("Admin approval requested", "We’ve sent an admin approval request to your admin.");
+      expect(continueDisabled()).toBe(true);
+    });
+
+    it("master password: subtitle, label and both password errors", async () => {
+      await login(async (ui) => {
+        await ui.promptForPassword();
+        await serverReply();
+        await ui.promptForPassword({ previousPasswordRejected: true });
+      });
+      shows("Please enter your Keeper master password.", "Master password");
+
+      await component().submit();
+      await settle();
+      shows("Password is required.");
+
+      await typePassword("wrong");
+      await reply();
+      shows("Enter a valid password.");
+    });
+
+    it("Cancel request dialog: title, body and buttons use the Figma text", async () => {
+      await login(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush);
+      });
+
+      component().onBack();
+
+      const options = dialogService.openSimpleDialog.mock.calls[0][0] as any;
+      expect(real(options.title.key)).toBe("Cancel request");
+      expect(real(options.content.key)).toBe(
+        "Your approval request will be canceled. Are you sure you want to proceed?",
+      );
+      expect(real(options.acceptButtonText.key)).toBe("Cancel request");
+      expect(real(options.cancelButtonText.key)).toBe("Close");
+      expect(options.type).toBe("danger");
+    });
+
+    it("unsupported second factor: the toast carries Keeper's real message", async () => {
+      await login(async (ui) => {
+        await ui.showError("keeperUnsupported2faMethod");
+        throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "none");
+      });
+      await component().keeperLogin();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: "error",
+          message:
+            "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer.",
+        }),
+      );
     });
   });
 
@@ -549,7 +808,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
         await ui.provideApprovalCode(DeviceApprovalChannel.Email);
       });
 
-      expect(text()).toContain("approvalEmailDesc");
+      expect(text()).toContain("keeperLoginEmailCodeDesc");
     });
 
     it("requires a code, trims it, and sends it", async () => {
@@ -737,24 +996,6 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(answer).toBe("");
     });
 
-    it("shows an unsupported-method error in the card, then returns to the form with the message", async () => {
-      await startLogin(async (ui) => {
-        await ui.showError("keeperUnsupported2faMethod");
-        throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "unsupported");
-      });
-
-      expect(byId("importer-controls_callout_keeper-error")).toBeTruthy();
-
-      await component().submit();
-      await component().keeperLogin();
-      fixture.detectChanges();
-
-      expect(controls().keeperEmail.errors).toEqual({
-        errors: { message: "keeperUnsupported2faMethod" },
-      });
-      expect(isShown("importer-controls_input_keeper-email")).toBe(true);
-    });
-
     it("returns to the email form with the login error when Keeper rejects the login", async () => {
       await startLogin(async (ui) => {
         await ui.provideApprovalCode(DeviceApprovalChannel.Email);
@@ -782,7 +1023,72 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       }
     };
 
-    it("Back cancels a pending Keeper Push login without asking, and shows a fresh step 2", async () => {
+    it("Close on the cancel dialog keeps waiting for the Keeper Push approval", async () => {
+      const outcome: { value?: unknown } = {};
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      await startLogin((ui) => cancelledByClient(ui, outcome));
+
+      component().onBack();
+      component().toggleToManual();
+      await settle();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(2);
+      expect(outcome.value).toBeUndefined();
+      expect(text()).toContain("keeperPushSent");
+      expect(component().primaryMode()).toBe("direct");
+    });
+
+    // The push is approved on the device while the cancel dialog is still open.
+    const approvedWhileDialogOpen = async (next: (ui: Ui) => Promise<unknown>) => {
+      let approve: () => void = () => undefined;
+      const approved = new Promise<void>((resolve) => {
+        approve = resolve;
+      });
+      let confirm: (value: boolean) => void = () => undefined;
+      dialogService.openSimpleDialog.mockReturnValue(
+        new Promise<boolean>((resolve) => {
+          confirm = resolve;
+        }),
+      );
+      const outcome: { value?: unknown } = {};
+      await startLogin(async (ui) => {
+        await Promise.race([ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush), approved]);
+        outcome.value = await next(ui);
+        if (outcome.value === Cancel) {
+          throw new KeeperAuthError(KeeperAuthErrorCode.Cancelled, "cancelled");
+        }
+      });
+
+      component().onBack();
+      approve();
+      await settle();
+      return { confirm: async (value: boolean) => (confirm(value), await settle()), outcome };
+    };
+
+    it("Cancel request does nothing once the approval has started the import", async () => {
+      importService.importImportResult.mockReturnValue(new Promise<ImportResult>(() => undefined));
+      const { confirm } = await approvedWhileDialogOpen(async () => undefined);
+      expect(text()).toContain("importingYourAccount");
+
+      await confirm(true);
+
+      expect(text()).toContain("importingYourAccount");
+      expect(continueDisabled()).toBe(true);
+      expect(component().directStep()).toBe("credentials");
+    });
+
+    it("Cancel request still cancels when the approval moved the login to the password", async () => {
+      const { confirm, outcome } = await approvedWhileDialogOpen((ui) => ui.promptForPassword());
+      expect(text()).toContain("keeperLoginPasswordDesc");
+
+      await confirm(true);
+      await component().keeperLogin();
+
+      expect(outcome.value).toBe(Cancel);
+      expect(component().directStep()).toBe("intro");
+    });
+
+    it("Back asks first on a Keeper Push wait, then cancels and shows a fresh step 2", async () => {
       const outcome: { value?: unknown } = {};
       await startLogin((ui) => cancelledByClient(ui, outcome));
       const back = jest.fn();
@@ -792,7 +1098,13 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       await settle();
       await component().keeperLogin();
 
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "cancelRequest" },
+          content: { key: "keeperLoginCancelRequestDesc" },
+          type: "danger",
+        }),
+      );
       expect(outcome.value).toBe(Cancel);
       expect(back).not.toHaveBeenCalled();
       expect(component().directStep()).toBe("intro");
@@ -931,24 +1243,43 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
         expect(mousedown.defaultPrevented).toBe(true);
       },
     );
+
+    it("Resend code doesn't take focus from the empty code field on mousedown", async () => {
+      await startLogin(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.Email);
+      });
+
+      const mousedown = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+      byId("importer-controls_button_keeper-resend-code").nativeElement.dispatchEvent(mousedown);
+
+      expect(mousedown.defaultPrevented).toBe(true);
+    });
   });
 
   describe("Back starts step 2 over", () => {
-    const stageScripts: Array<[string, (ui: Ui) => Promise<unknown>]> = [
-      ["a method picker", (ui) => ui.selectApprovalMethod([1, 2])],
-      ["the email code", (ui) => ui.provideApprovalCode(DeviceApprovalChannel.Email)],
-      ["a Keeper Push wait", (ui) => ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush)],
+    // The third column: whether Back asks first, which it does only where a request was sent to
+    // the user's device.
+    const stageScripts: Array<[string, (ui: Ui) => Promise<unknown>, boolean]> = [
+      ["a method picker", (ui) => ui.selectApprovalMethod([1, 2]), false],
+      ["the email code", (ui) => ui.provideApprovalCode(DeviceApprovalChannel.Email), false],
+      [
+        "a Keeper Push wait",
+        (ui) => ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush),
+        true,
+      ],
+      ["a Keeper DNA wait", (ui) => ui.waitForDnaPush(), true],
       [
         "an admin approval wait",
         (ui) => ui.provideApprovalCode(DeviceApprovalChannel.AdminApproval),
+        false,
       ],
-      ["an authenticator code", (ui) => ui.provideTwoFactorCode(TwoFactorMethod.Totp)],
-      ["the master password", (ui) => ui.promptForPassword()],
+      ["an authenticator code", (ui) => ui.provideTwoFactorCode(TwoFactorMethod.Totp), false],
+      ["the master password", (ui) => ui.promptForPassword(), false],
     ];
 
     it.each(stageScripts)(
       "from %s: cancels the login and shows an empty first page, without leaving step 2",
-      async (_name, script) => {
+      async (_name, script, asks) => {
         const outcome: { value?: unknown } = {};
         await startLogin(async (ui) => {
           outcome.value = await script(ui);
@@ -963,7 +1294,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
         await settle();
         await component().keeperLogin();
 
-        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(asks ? 1 : 0);
         expect(outcome.value).toBe(Cancel);
         expect(back).not.toHaveBeenCalled();
         expect(component().directStep()).toBe("intro");

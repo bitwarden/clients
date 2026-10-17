@@ -662,7 +662,11 @@ export class ImportControlsComponent {
   private readonly formatChoiceByMethod = new Map<"file" | "paste", ImportType | null>();
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.keeperUi.leave());
+    this.keeperUi.registerStartOver(() => this.startOver());
+    this.destroyRef.onDestroy(() => {
+      this.keeperUi.registerStartOver(undefined);
+      this.keeperUi.leave();
+    });
 
     let previousMethod = this.formGroup.controls.method.value;
     this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe((method) => {
@@ -838,19 +842,35 @@ export class ImportControlsComponent {
       this.back.emit();
       return;
     }
-    this.startOver();
+    this.afterLeaveConfirmed(() => this.startOver());
   }
 
   protected toggleToManual(): void {
     if (this.keeperImporting()) {
       return;
     }
-    this.keeperUi.leave();
-    this.primaryModeOverride.set("manual");
-    this.directStep.set("intro");
-    // touched survives disable/enable; clear it to avoid a stale error.
-    this.formGroup.controls.file.markAsUntouched();
-    this.formGroup.controls.fileContents.markAsUntouched();
+    this.afterLeaveConfirmed(() => {
+      this.keeperUi.leave();
+      this.primaryModeOverride.set("manual");
+      this.directStep.set("intro");
+      // touched survives disable/enable; clear it to avoid a stale error.
+      this.formGroup.controls.file.markAsUntouched();
+      this.formGroup.controls.fileContents.markAsUntouched();
+    });
+  }
+
+  /** Runs `action` at once, or once the user confirms cancelling a request sent to their device. */
+  private afterLeaveConfirmed(action: () => void): void {
+    if (!this.keeperUi.leaveNeedsConfirm()) {
+      action();
+      return;
+    }
+    void this.keeperUi.confirmLeave().then((confirmed) => {
+      // The approval can land while the dialog is open; once importing there is nothing to cancel.
+      if (confirmed && !this.keeperImporting()) {
+        action();
+      }
+    });
   }
 
   /** Step 2 as first shown: the default mode's first page, with nothing filled in or chosen. */

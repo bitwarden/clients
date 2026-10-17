@@ -23,7 +23,6 @@ import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verb
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   A11yTitleDirective,
-  CalloutModule,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
@@ -60,7 +59,6 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     A11yTitleDirective,
-    CalloutModule,
     FormFieldModule,
     I18nPipe,
     IconButtonModule,
@@ -228,9 +226,6 @@ export class ImportControlsKeeperLoginComponent {
       case "ssoToken":
         this.answerField(controls.keeperSsoToken, (token) => token.trim());
         break;
-      case "error":
-        this.keeperUi.dismissError();
-        break;
     }
   }
 
@@ -261,6 +256,8 @@ export class ImportControlsKeeperLoginComponent {
         return "twoFactorMethod";
       case DeviceApprovalChannel.AdminApproval:
         return "adminApproval";
+      case DeviceApprovalChannel.KeeperDna:
+        return "keeperDna";
       default:
         return "email";
     }
@@ -314,22 +311,6 @@ export class ImportControlsKeeperLoginComponent {
         return "enterCodeManually";
       default:
         return "unknownMethod";
-    }
-  }
-
-  protected twoFactorCodePrompt(method: TwoFactorMethod, hidden: boolean): string {
-    if (hidden) {
-      return "twoFactorCodePrompt";
-    }
-    switch (method) {
-      case TwoFactorMethod.Totp:
-        return "totpCodePrompt";
-      case TwoFactorMethod.Sms:
-        return "smsCodePrompt";
-      case TwoFactorMethod.KeeperDna:
-        return "keeperDnaCodePrompt";
-      default:
-        return "twoFactorCodePrompt";
     }
   }
 }

@@ -30,7 +30,6 @@ interface Actions {
   submit(value: unknown): void;
   resend(): void;
   cancel(): void;
-  dismiss(): void;
 }
 
 interface Harness {
@@ -93,7 +92,6 @@ function legacyHarness(scenario: Scenario): Harness {
       submit: (value) => service.submit(value),
       resend: () => service.resend(),
       cancel: () => service.cancel(),
-      dismiss: () => service.dismissError(),
     },
   };
 }
@@ -103,6 +101,7 @@ function inlineHarness(scenario: Scenario): Harness {
   TestBed.configureTestingModule({
     providers: [
       KeeperInlineAuthUi,
+      { provide: DialogService, useValue: mock<DialogService>() },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: I18nService, useValue: mock<I18nService>() },
       {
@@ -121,7 +120,6 @@ function inlineHarness(scenario: Scenario): Harness {
       submit: (value) => session.submit(value),
       resend: () => session.resend(),
       cancel: () => session.leave(),
-      dismiss: () => session.dismissError(),
     },
   };
 }
@@ -262,11 +260,6 @@ const scenarios: Scenario[] = [
       act: (a) => (action === "submit" ? a.submit("hunter2") : a.cancel()),
     })),
   ),
-  {
-    name: "error display",
-    call: (u) => u.showError("keeperUnsupported2faMethod"),
-    act: (a) => a.dismiss(),
-  },
 ];
 
 describe("Keeper login UI parity: inline card against the legacy dialog service", () => {
@@ -280,7 +273,8 @@ describe("Keeper login UI parity: inline card against the legacy dialog service"
     },
   );
 
-  it("covers every Ui method", () => {
+  // showError is left out on purpose: the card shows a toast where the dialog shows a stage.
+  it("covers every other Ui method", () => {
     const calledMethods = new Set<string>();
     for (const scenario of scenarios) {
       const probe = new Proxy({} as Ui, {
@@ -301,7 +295,6 @@ describe("Keeper login UI parity: inline card against the legacy dialog service"
         "selectDnaMethod",
         "selectDuoMethod",
         "selectTwoFactorMethod",
-        "showError",
         "ssoLogin",
         "waitForDnaPush",
         "waitForDuoPush",

@@ -20,6 +20,7 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
+import { KEEPER_SSO_TAB_MONITOR } from "../keeper/services/keeper-sso-tab-monitor";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
 import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
@@ -226,6 +227,14 @@ function decoratorsFor(
         {
           provide: PlatformUtilsService,
           useValue: { getClientType: () => clientType } as Partial<PlatformUtilsService>,
+        },
+        // Root-provided, so it can't see the platform service above.
+        {
+          provide: KEEPER_SSO_TAB_MONITOR,
+          useValue: {
+            launchAndWaitForToken: () => Promise.reject(new Error("No SSO tab in Storybook")),
+            cancel: (): void => undefined,
+          },
         },
         {
           provide: LogService,

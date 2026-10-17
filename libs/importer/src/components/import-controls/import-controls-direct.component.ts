@@ -47,7 +47,9 @@ export class ImportControlsDirectComponent {
   readonly vendorIcon = input<BitSvg>();
 
   /** The Keeper login prompt currently showing in place of the credential fields. */
-  protected readonly keeperStage = inject(KeeperInlineAuthUi).stage;
+  private readonly keeperUi = inject(KeeperInlineAuthUi);
+  protected readonly keeperStage = this.keeperUi.stage;
+  protected readonly keeperSubtitleKey = this.keeperUi.subtitleKey;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 

@@ -5,9 +5,9 @@
       role="status"
       tabindex="-1"
     >
-      <bit-spinner size="lg" class="tw-mb-1" />
+      <bit-spinner size="base" class="tw-mb-1" />
       @if (title) {
-        <h3 bitTypography="h6" noMargin>{{ title | i18n }}</h3>
+        <p bitTypography="body1" class="tw-font-semibold" noMargin>{{ title | i18n }}</p>
       }
       @if (body) {
         <p bitTypography="body1" noMargin>{{ body | i18n }}</p>
@@ -32,6 +32,7 @@
         bitLink
         linkType="primary"
         class="tw-text-xs"
+        (mousedown)="$event.preventDefault()"
         (click)="resend()"
         id="importer-controls_button_keeper-resend-code"
       >
@@ -53,7 +54,6 @@
       />
     }
     @case ("selectApproval") {
-      <p bitTypography="body1">{{ "selectApprovalMethodDesc" | i18n }}</p>
       <bit-radio-group formControlName="keeperApprovalMethod" [block]="true">
         <bit-label>{{ "keeperLoginApprovalMethod" | i18n }}</bit-label>
         @for (method of current.methods; track method) {
@@ -69,7 +69,6 @@
     }
     @case ("approvalCode") {
       @if (current.variant === "email") {
-        <p bitTypography="body1">{{ "approvalEmailDesc" | i18n }}</p>
         <ng-container *ngTemplateOutlet="codeField; context: { canResend: true }" />
       } @else if (current.variant === "admin") {
         <ng-container
@@ -103,9 +102,6 @@
     }
     @case ("twoFactorCode") {
       @if (current.needsInput) {
-        <p bitTypography="body1">
-          {{ twoFactorCodePrompt(current.method, current.hidden) | i18n }}
-        </p>
         <ng-container *ngTemplateOutlet="codeField; context: { canResend: current.canResend }" />
       } @else {
         <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
@@ -149,7 +145,7 @@
       <ng-container
         *ngTemplateOutlet="
           waiting;
-          context: { title: 'keeperDnaVerification', body: 'keeperDnaPushWaiting' }
+          context: { title: 'keeperLoginDnaSent', body: 'keeperLoginDnaSentDesc' }
         "
       />
     }
@@ -181,7 +177,6 @@
       </bit-popover>
     }
     @case ("password") {
-      <p bitTypography="body2">{{ "keeperMasterPasswordPrompt" | i18n }}</p>
       <bit-form-field class="tw-max-w-sm">
         <bit-label>{{ "masterPassword" | i18n }}</bit-label>
         <input
@@ -193,11 +188,6 @@
         />
         <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
       </bit-form-field>
-    }
-    @case ("error") {
-      <bit-callout type="danger" id="importer-controls_callout_keeper-error">
-        {{ current.message | i18n }}
-      </bit-callout>
     }
   }
 </ng-container>

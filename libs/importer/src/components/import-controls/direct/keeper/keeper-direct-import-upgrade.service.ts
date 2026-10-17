@@ -15,7 +15,7 @@ export class KeeperDirectImportUpgradeService {
     region: KeeperRegion,
     ui: Ui,
   ): Promise<KeeperDirectImportResult> {
-    const options: ClientOptions = { ui, region };
+    const options: ClientOptions = { ui, region, accountDeviceApproval: true };
     const vault = await Vault.open(email, options);
     return new KeeperDirectImporter().convertVaultToImportResult(vault);
   }

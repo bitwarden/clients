@@ -16,7 +16,8 @@ import { KeeperSsoTabMonitor } from "../../../keeper/services/keeper-sso-tab-mon
 
 /** `loading`: a request is in flight, or the browser extension is waiting on the SSO tab.
  *  `importing`: the login is done and the vault is being written, which can't be cancelled. */
-export type KeeperInlineStage = KeeperAuthStage | { kind: "loading" } | { kind: "importing" };
+export type KeeperInlineStage =
+  Exclude<KeeperAuthStage, { kind: "error" }> | { kind: "loading" } | { kind: "importing" };
 
 type PendingResolver = (value: unknown) => void;
 
@@ -26,11 +27,13 @@ type PendingResolver = (value: unknown) => void;
 export class KeeperAuthSession implements Ui {
   private pendingResolver: PendingResolver | undefined;
   private _userLeft = false;
+  private dnaChosen = false;
 
   constructor(
     private readonly show: (session: KeeperAuthSession, stage: KeeperInlineStage) => void,
     private readonly ssoTabMonitor: KeeperSsoTabMonitor,
     private readonly autoCaptureSsoToken: boolean,
+    private readonly reportError: (session: KeeperAuthSession, message: string) => void,
   ) {}
 
   /** True once the user left mid-login, so the resulting cancellation isn't shown as an error. */
@@ -62,10 +65,6 @@ export class KeeperAuthSession implements Ui {
     this.resolvePending(Resend);
   }
 
-  dismissError(): void {
-    this.resolvePending(undefined);
-  }
-
   private waitForUser<T>(): Promise<T> {
     return new Promise<T>((resolve) => {
       this.pendingResolver = resolve as PendingResolver;
@@ -89,10 +88,15 @@ export class KeeperAuthSession implements Ui {
       return Cancel;
     }
     if (methods.length === 1) {
-      return methods[0];
+      return this.toClientChannel(methods[0]);
     }
     this.show(this, { kind: "selectApproval", methods });
-    return this.waitForUser<DeviceApprovalChannel | typeof Cancel>();
+    return this.toClientChannel(await this.waitForUser<DeviceApprovalChannel | typeof Cancel>());
+  }
+
+  private toClientChannel<T>(choice: T | DeviceApprovalChannel): T | DeviceApprovalChannel {
+    this.dnaChosen = choice === DeviceApprovalChannel.KeeperDna;
+    return this.dnaChosen ? DeviceApprovalChannel.TwoFactor : choice;
   }
 
   async provideApprovalCode(
@@ -141,6 +145,10 @@ export class KeeperAuthSession implements Ui {
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
     if (this._userLeft) {
       return Cancel;
+    }
+    if (this.dnaChosen && options?.hidden) {
+      this.show(this, { kind: "dnaPush" });
+      return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
     }
     const needsInput =
       method === TwoFactorMethod.Totp ||
@@ -270,7 +278,6 @@ export class KeeperAuthSession implements Ui {
     if (this._userLeft) {
       return;
     }
-    this.show(this, { kind: "error", message });
-    await this.waitForUser<unknown>();
+    this.reportError(this, message);
   }
 }

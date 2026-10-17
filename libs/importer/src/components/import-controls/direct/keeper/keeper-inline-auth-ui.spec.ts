@@ -4,7 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
   Cancel,
@@ -24,6 +24,7 @@ import { KeeperInlineAuthUi } from "./keeper-inline-auth-ui";
 describe("KeeperInlineAuthUi", () => {
   let ssoTabMonitor: MockProxy<KeeperSsoTabMonitor>;
   let toastService: MockProxy<ToastService>;
+  let dialogService: MockProxy<DialogService>;
 
   const create = (clientType: ClientType = ClientType.Desktop): KeeperInlineAuthUi => {
     TestBed.resetTestingModule();
@@ -33,6 +34,7 @@ describe("KeeperInlineAuthUi", () => {
       providers: [
         KeeperInlineAuthUi,
         { provide: ToastService, useValue: toastService },
+        { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: KEEPER_SSO_TAB_MONITOR, useValue: ssoTabMonitor },
@@ -43,6 +45,7 @@ describe("KeeperInlineAuthUi", () => {
 
   beforeEach(() => {
     toastService = mock<ToastService>();
+    dialogService = mock<DialogService>();
     ssoTabMonitor = mock<KeeperSsoTabMonitor>();
     ssoTabMonitor.launchAndWaitForToken.mockReturnValue(new Promise<string>(() => undefined));
   });
@@ -112,7 +115,7 @@ describe("KeeperInlineAuthUi", () => {
       expect(ui.stage()).toEqual({ kind: "importing" });
     });
 
-    it("delegates submit, resend and dismissError to the current session", async () => {
+    it("delegates submit and resend to the current session", async () => {
       const ui = create();
       const session = ui.begin();
 
@@ -123,10 +126,6 @@ describe("KeeperInlineAuthUi", () => {
       const resend = session.provideApprovalCode(DeviceApprovalChannel.Email);
       ui.resend();
       await expect(resend).resolves.toBe(Resend);
-
-      const error = session.showError("x");
-      ui.dismissError();
-      await expect(error).resolves.toBeUndefined();
     });
 
     it("leave() cancels the current session", async () => {
@@ -337,15 +336,31 @@ describe("KeeperInlineAuthUi", () => {
       await expect(password).resolves.toBe("hunter2");
     });
 
-    it("shows an error until it is dismissed", async () => {
+    it("reports an error as a toast, starts over, and doesn't wait on the user", async () => {
       const ui = create();
+      const startOver = jest.fn();
+      ui.registerStartOver(startOver);
       const session = ui.begin();
 
-      const shown = session.showError("keeperUnsupported2faMethod");
-      expect(ui.stage()).toEqual({ kind: "error", message: "keeperUnsupported2faMethod" });
-      session.dismissError();
+      await expect(session.showError("keeperUnsupported2faMethod")).resolves.toBeUndefined();
 
-      await expect(shown).resolves.toBeUndefined();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "keeperUnsupported2faMethod" }),
+      );
+      expect(startOver).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores an error from a login that was superseded", async () => {
+      const ui = create();
+      const startOver = jest.fn();
+      ui.registerStartOver(startOver);
+      const old = ui.begin();
+      ui.begin();
+
+      await old.showError("keeperUnsupported2faMethod");
+
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(startOver).not.toHaveBeenCalled();
     });
   });
 
@@ -472,6 +487,119 @@ describe("KeeperInlineAuthUi", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success", message: "keeperLoginCodeResent" }),
       );
+    });
+  });
+
+  describe("the header subtitle", () => {
+    const subtitleAt = (show: (session: ReturnType<KeeperInlineAuthUi["begin"]>) => unknown) => {
+      const ui = create();
+      void show(ui.begin());
+      return ui.subtitleKey();
+    };
+
+    it("is the default while idle, loading and waiting", () => {
+      const ui = create();
+      expect(ui.subtitleKey()).toBeNull();
+      ui.begin();
+      expect(ui.subtitleKey()).toBeNull();
+      expect(subtitleAt((s) => s.provideApprovalCode(DeviceApprovalChannel.KeeperPush))).toBeNull();
+      expect(
+        subtitleAt((s) => s.provideApprovalCode(DeviceApprovalChannel.AdminApproval)),
+      ).toBeNull();
+      expect(subtitleAt((s) => s.waitForDnaPush())).toBeNull();
+    });
+
+    it("names the screen for the picker, email code, authenticator, text message and password", () => {
+      expect(subtitleAt((s) => s.selectApprovalMethod([1, 2]))).toBe(
+        "keeperLoginApprovalMethodDesc",
+      );
+      expect(subtitleAt((s) => s.provideApprovalCode(DeviceApprovalChannel.Email))).toBe(
+        "keeperLoginEmailCodeDesc",
+      );
+      expect(subtitleAt((s) => s.provideTwoFactorCode(TwoFactorMethod.Totp))).toBe(
+        "keeperLoginAuthenticatorDesc",
+      );
+      expect(subtitleAt((s) => s.provideTwoFactorCode(TwoFactorMethod.Sms))).toBe(
+        "keeperLoginSmsDesc",
+      );
+      expect(subtitleAt((s) => s.promptForPassword())).toBe("keeperLoginPasswordDesc");
+    });
+
+    it("is generic when the two-factor method is hidden", () => {
+      expect(
+        subtitleAt((s) => s.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true })),
+      ).toBe("twoFactorCodePrompt");
+    });
+  });
+
+  describe("Keeper DNA at device approval", () => {
+    const channels = [
+      DeviceApprovalChannel.Email,
+      DeviceApprovalChannel.TwoFactor,
+      DeviceApprovalChannel.KeeperDna,
+    ];
+
+    it("answers the client with the two-factor channel and waits for the device", async () => {
+      const ui = create();
+      const session = ui.begin();
+
+      const chosen = session.selectApprovalMethod(channels);
+      session.submit(DeviceApprovalChannel.KeeperDna);
+      await expect(chosen).resolves.toBe(DeviceApprovalChannel.TwoFactor);
+
+      const code = session.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true });
+      expect(ui.stage()).toEqual({ kind: "dnaPush" });
+      session.leave();
+      await expect(code).resolves.toBe(Cancel);
+    });
+
+    it("still asks for a code after choosing the two-factor method", async () => {
+      const ui = create();
+      const session = ui.begin();
+
+      const chosen = session.selectApprovalMethod(channels);
+      session.submit(DeviceApprovalChannel.TwoFactor);
+      await expect(chosen).resolves.toBe(DeviceApprovalChannel.TwoFactor);
+
+      void session.provideTwoFactorCode(TwoFactorMethod.Totp, { hidden: true });
+      expect(ui.stage()).toEqual(expect.objectContaining({ kind: "twoFactorCode" }));
+    });
+  });
+
+  describe("confirming before leaving", () => {
+    it("is needed on a Keeper Push or Keeper DNA wait, not on the others", () => {
+      const needsConfirmAt = (
+        show: (session: ReturnType<KeeperInlineAuthUi["begin"]>) => unknown,
+      ) => {
+        const ui = create();
+        void show(ui.begin());
+        return ui.leaveNeedsConfirm();
+      };
+
+      expect(needsConfirmAt((s) => s.provideApprovalCode(DeviceApprovalChannel.KeeperPush))).toBe(
+        true,
+      );
+      expect(needsConfirmAt((s) => s.waitForDnaPush())).toBe(true);
+      expect(needsConfirmAt((s) => s.provideApprovalCode(DeviceApprovalChannel.Email))).toBe(false);
+      expect(
+        needsConfirmAt((s) => s.provideApprovalCode(DeviceApprovalChannel.AdminApproval)),
+      ).toBe(false);
+      expect(needsConfirmAt((s) => s.promptForPassword())).toBe(false);
+    });
+
+    it("asks in the danger dialog the design shows", async () => {
+      const ui = create();
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await expect(ui.confirmLeave()).resolves.toBe(true);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "cancelRequest" },
+        content: { key: "keeperLoginCancelRequestDesc" },
+        acceptButtonText: { key: "cancelRequest" },
+        cancelButtonText: { key: "close" },
+        type: "danger",
+      });
     });
   });
 

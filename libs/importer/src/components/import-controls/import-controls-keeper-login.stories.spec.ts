@@ -21,7 +21,6 @@ const STAGE_KINDS: Record<KeeperInlineStage["kind"], true> = {
   dnaPush: true,
   ssoToken: true,
   password: true,
-  error: true,
 };
 
 /** Guards the Keeper login stories' mock i18n table against drifting from what each stage's

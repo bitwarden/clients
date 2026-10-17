@@ -50,15 +50,29 @@
     </div>
   </div>
 } @else {
-  <div class="tw-flex tw-items-center tw-gap-2">
-    @if (vendorIcon(); as icon) {
-      <bit-svg [content]="icon" class="tw-size-6" />
-    }
-    <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
-  </div>
-  <p bitTypography="body1" class="tw-text-fg-body-subtle tw-mt-1">
-    {{ "importDataLoginSubtitle" | i18n }}
-  </p>
+  @if (importType() === "keeper") {
+    <div class="tw-flex tw-items-center tw-gap-4 tw-mb-4">
+      @if (vendorIcon(); as icon) {
+        <bit-svg [content]="icon" class="tw-size-12" />
+      }
+      <div>
+        <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
+        <p bitTypography="body1" noMargin class="tw-text-fg-body-subtle">
+          {{ keeperSubtitleKey() ?? "importDataLoginSubtitle" | i18n }}
+        </p>
+      </div>
+    </div>
+  } @else {
+    <div class="tw-flex tw-items-center tw-gap-2">
+      @if (vendorIcon(); as icon) {
+        <bit-svg [content]="icon" class="tw-size-6" />
+      }
+      <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
+    </div>
+    <p bitTypography="body1" class="tw-text-fg-body-subtle tw-mt-1">
+      {{ "importDataLoginSubtitle" | i18n }}
+    </p>
+  }
 
   @switch (importType()) {
     @case ("keeper") {

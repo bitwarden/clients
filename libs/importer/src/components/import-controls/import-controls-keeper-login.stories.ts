@@ -34,8 +34,6 @@ export default {
               required: "required",
               loading: "Loading",
               close: "Close",
-              callout: "Callout",
-              error: "Error",
               toggleVisibility: "Toggle visibility",
               inputRequired: "This field is required.",
               verificationCodeRequired: "Verification code is required.",
@@ -44,14 +42,11 @@ export default {
               keeperLoginPasswordInvalid: "Enter a valid password.",
               importingYourAccount: "Importing your account...",
               keeperLoginApprovalMethod: "Device approval method",
-              selectApprovalMethodDesc: "Approve this device by selecting a method below",
-              keeperMasterPasswordPrompt: "Please enter your Keeper master password",
               email: "Email",
               keeperPush: "Keeper Push",
               adminApproval: "Admin approval",
               twoFactorMethod: "Two-factor method",
               keeperDna: "Keeper DNA",
-              approvalEmailDesc: "Please check your email and enter the verification code below",
               verificationCode: "Verification code",
               resendCode: "Resend code",
               keeperPushSent: "Keeper Push sent",
@@ -67,10 +62,6 @@ export default {
               securityKeyU2f: "Security key (U2F)",
               securityKeyWebAuthn: "Security key (WebAuthn)",
               unknownMethod: "Unknown method",
-              totpCodePrompt: "Enter the code from your authenticator app",
-              smsCodePrompt: "Enter the code sent by text message",
-              keeperDnaCodePrompt: "Enter the Keeper DNA code",
-              twoFactorCodePrompt: "Enter your verification code",
               mfaPushDesc: "Approve the request on your device, then select Continue.",
               duoVerification: "Duo verification",
               duoPush: "Duo Push",
@@ -80,13 +71,13 @@ export default {
               keeperDnaVerification: "Keeper DNA verification",
               pushNotification: "Push notification",
               enterCodeManually: "Enter code manually",
-              keeperDnaPushWaiting: "Waiting for you to approve on your Keeper DNA device",
+              keeperLoginDnaSent: "Keeper DNA sent",
+              keeperLoginDnaSentDesc: "Approve the Keeper DNA notification on your device.",
               ssoToken: "SSO token",
               ssoAuthRequired: "SSO authentication required",
               keeperSsoDesc:
                 "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page.",
               masterPassword: "Master password",
-              keeperUnsupported2faMethod: "This second factor isn't supported for import.",
             }),
         },
       ],
@@ -107,8 +98,15 @@ export const DeviceApprovalMethod: Story = storyFor({
   methods: [
     DeviceApprovalChannel.Email,
     DeviceApprovalChannel.KeeperPush,
-    DeviceApprovalChannel.AdminApproval,
+    DeviceApprovalChannel.TwoFactor,
+    DeviceApprovalChannel.KeeperDna,
   ],
+});
+
+/** The picker for the login state that offers Keeper Push and Admin approval only. */
+export const DeviceApprovalMethodAdmin: Story = storyFor({
+  kind: "selectApproval",
+  methods: [DeviceApprovalChannel.KeeperPush, DeviceApprovalChannel.AdminApproval],
 });
 
 export const EmailVerification: Story = storyFor({
@@ -186,11 +184,5 @@ export const KeeperDnaMethodPicker: Story = storyFor({
   methods: [DnaMethod.Push, DnaMethod.Code],
 });
 
-/** Not in Figma: Keeper DNA approval. There is no code entry; the user approves on the device. */
+/** Keeper DNA approval. There is no code entry; the user approves on the device. */
 export const KeeperDnaPushWaiting: Story = storyFor({ kind: "dnaPush" });
-
-/** Not in Figma: the generic error Keeper shows before ending the login. */
-export const LoginError: Story = storyFor({
-  kind: "error",
-  message: "keeperUnsupported2faMethod",
-});
