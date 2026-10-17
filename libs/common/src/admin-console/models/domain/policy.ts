@@ -3,7 +3,6 @@
 import { Policy as SdkPolicy } from "@bitwarden/sdk-internal";
 
 import { ListResponse } from "../../../models/response/list.response";
-import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import Domain from "../../../platform/models/domain/domain-base";
 import { OrganizationId, PolicyId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
@@ -35,7 +34,7 @@ export class Policy extends Domain {
     this.type = obj.type;
     this.data = obj.data;
     this.enabled = obj.enabled;
-    this.revisionDate = new Date(obj.revisionDate);
+    this.revisionDate = obj.revisionDate == null ? undefined : new Date(obj.revisionDate);
   }
 
   static fromResponse(response: PolicyResponse): Policy {
@@ -47,22 +46,19 @@ export class Policy extends Domain {
   }
 
   static fromSdkPolicy(obj: SdkPolicy): Policy {
-    const policy = new Policy();
-    policy.id = uuidAsString(obj.id) as PolicyId;
-    policy.organizationId = uuidAsString(obj.organizationId) as OrganizationId;
-    policy.type = obj.type;
-    policy.data = obj.data == null ? null : JSON.parse(obj.data);
-    policy.enabled = obj.enabled;
-    policy.revisionDate = obj.revisionDate == null ? undefined : new Date(obj.revisionDate);
-    return policy;
+    return new Policy(PolicyData.fromSdk(obj));
   }
 
   toSdkPolicy(): SdkPolicy {
+    return PolicyData.toSdk(this.toPolicyData());
+  }
+
+  toPolicyData(): PolicyData {
     return {
-      id: asUuid(this.id),
-      organizationId: asUuid(this.organizationId),
+      id: this.id,
+      organizationId: this.organizationId,
       type: this.type,
-      data: this.data == null ? undefined : JSON.stringify(this.data),
+      data: this.data,
       enabled: this.enabled,
       revisionDate: this.revisionDate == null ? undefined : this.revisionDate.toISOString(),
     };
