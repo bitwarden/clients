@@ -1,4 +1,5 @@
 import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 
@@ -401,19 +402,19 @@ function createOrganization(
     isFreeOrg?: boolean;
   } = {},
 ): Organization {
-  const org = new Organization();
-
   // Set raw properties
-  org.id = "test-org-id" as any;
-  org.name = "Test Organization";
-  org.type = config.type ?? OrganizationUserType.User;
-  org.isProviderUser = config.isProviderUser ?? false;
-  org.isMember = config.isMember ?? true;
-  org.productTierType = config.productTierType ?? ProductTierType.Teams;
-  org.selfHost = config.selfHost ?? false;
-  // `isFreeOrg` is a getter (`!useTotp`), so drive it through its backing flag. Default to a paid
-  // org so existing tests keep asserting the non-free path.
-  org.useTotp = !(config.isFreeOrg ?? false);
+  const org = new Organization({
+    id: "test-org-id" as any,
+    name: "Test Organization",
+    type: config.type ?? OrganizationUserType.User,
+    isProviderUser: config.isProviderUser ?? false,
+    isMember: config.isMember ?? true,
+    productTierType: config.productTierType ?? ProductTierType.Teams,
+    selfHost: config.selfHost ?? false,
+    // `isFreeOrg` is a getter (`!useTotp`), so drive it through its backing flag. Default to a paid
+    // org so existing tests keep asserting the non-free path.
+    useTotp: !(config.isFreeOrg ?? false),
+  } as unknown as OrganizationData);
 
   // Set provider properties to drive hasProvider, hasBillableProvider, hasReseller
   const needsProvider = config.hasProvider || config.hasBillableProvider || config.hasReseller;

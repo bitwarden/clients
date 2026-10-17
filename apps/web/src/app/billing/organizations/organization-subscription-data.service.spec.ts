@@ -10,6 +10,7 @@ import {
   OrganizationUserType,
   ProviderType,
 } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -346,12 +347,13 @@ function createOrganization(
     hasReseller?: boolean;
   } = {},
 ): Organization {
-  const org = new Organization();
-  org.id = "org-123" as any;
-  org.type = config.type ?? OrganizationUserType.User;
-  org.isProviderUser = config.isProviderUser ?? false;
-  org.isMember = true;
-  org.productTierType = config.productTierType ?? ProductTierType.Teams;
+  const org = new Organization({
+    id: "org-123" as any,
+    type: config.type ?? OrganizationUserType.User,
+    isProviderUser: config.isProviderUser ?? false,
+    isMember: true,
+    productTierType: config.productTierType ?? ProductTierType.Teams,
+  } as unknown as OrganizationData);
 
   const needsProvider = config.hasProvider || config.hasBillableProvider || config.hasReseller;
   if (needsProvider) {

@@ -7,6 +7,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -37,15 +38,12 @@ export class AdminConsoleComponent {}
 export class AdminConsoleSubrouteComponent {}
 
 const orgFactory = (props: Partial<Organization> = {}) =>
-  Object.assign(
-    new Organization(),
-    {
-      id: "myOrgId",
-      enabled: true,
-      type: OrganizationUserType.Admin,
-    },
-    props,
-  );
+  new Organization({
+    id: "myOrgId",
+    enabled: true,
+    type: OrganizationUserType.Admin,
+    ...props,
+  } as unknown as OrganizationData);
 
 describe("Organization Redirect Guard", () => {
   let organizationService: MockProxy<OrganizationService>;

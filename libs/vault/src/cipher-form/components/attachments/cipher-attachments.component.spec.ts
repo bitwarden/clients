@@ -14,6 +14,7 @@ import { BehaviorSubject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -62,10 +63,11 @@ describe("CipherAttachmentsComponent", () => {
 
   const cipherDomain = {};
 
-  const organization = new Organization();
-  organization.id = "org-123" as OrganizationId;
-  organization.type = OrganizationUserType.Admin;
-  organization.allowAdminAccessToAllCollectionItems = true;
+  const organization = new Organization({
+    id: "org-123" as OrganizationId,
+    type: OrganizationUserType.Admin,
+    allowAdminAccessToAllCollectionItems: true,
+  } as unknown as OrganizationData);
 
   const cipherServiceGet = jest.fn().mockResolvedValue(cipherDomain);
   const cipherServiceDecrypt = jest.fn().mockResolvedValue(cipherView);

@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -29,13 +30,13 @@ interface Harness {
 }
 
 async function createComponent(): Promise<Harness> {
-  const organization = Object.assign(new Organization(), {
+  const organization = new Organization({
     id: ORG_ID,
     seats: 100,
     productTierType: ProductTierType.Enterprise,
     useGroups: false,
     useCustomPermissions: true,
-  });
+  } as unknown as OrganizationData);
 
   const organizationService = mock<OrganizationService>();
   organizationService.organizations$.mockReturnValue(of([organization]));

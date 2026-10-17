@@ -5,6 +5,7 @@ import { of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
@@ -37,12 +38,12 @@ import { TrialPaymentDialogComponent } from "./trial-payment-dialog.component";
 
 const ORG_ID = "org-1" as OrganizationId;
 
-const mockOrganization = Object.assign(new Organization(), {
+const mockOrganization = new Organization({
   id: ORG_ID,
   name: "Acme Families",
   productTierType: ProductTierType.Families,
   useSecretsManager: false,
-});
+} as unknown as OrganizationData);
 
 const mockPlan = {
   type: PlanType.FamiliesAnnually,

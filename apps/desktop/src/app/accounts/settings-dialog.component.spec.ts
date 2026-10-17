@@ -25,6 +25,7 @@ class MockTabComponent {
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -248,9 +249,10 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: false,
+    } as unknown as PolicyData);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
@@ -259,9 +261,10 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    } as unknown as PolicyData);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     const account = await firstValueFrom(accountService.activeAccount$);
@@ -288,9 +291,10 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: false,
+    } as unknown as PolicyData);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
@@ -305,9 +309,10 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    } as unknown as PolicyData);
     policyService.policiesByType$.mockReturnValue(of([policy]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
@@ -323,9 +328,10 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = new Policy({
+      type: PolicyType.RemoveUnlockWithPin,
+      enabled: true,
+    } as unknown as PolicyData);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     // Re-trigger pinEnabled by re-emitting the active account so toSignal()
@@ -359,9 +365,10 @@ describe("SettingsDialogComponent", () => {
       test.each([true, false])(
         `correct message display for require MP/PIN on app restart when pin is set, windows desktop, and policy is %s`,
         async (policyEnabled) => {
-          const policy = new Policy();
-          policy.type = PolicyType.RemoveUnlockWithPin;
-          policy.enabled = policyEnabled;
+          const policy = new Policy({
+            type: PolicyType.RemoveUnlockWithPin,
+            enabled: policyEnabled,
+          } as unknown as PolicyData);
           policyService.policiesByType$.mockReturnValue(of([policy]));
           platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
           pinServiceAbstraction.isPinSet.mockResolvedValue(true);
