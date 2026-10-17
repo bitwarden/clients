@@ -4,6 +4,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { DefaultAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/default-auth-request-answering.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -80,7 +81,9 @@ export class ExtensionAuthRequestAnsweringService
 
       const emailForUser = accountInfo.email;
       await this.systemNotificationsService.create({
-        id: `${AuthServerNotificationTags.AuthRequest}_${authRequestId}`, // the underscore is an important delimiter.
+        // The userId is encoded so the click handler can switch to the request's owner.
+        // Both GUIDs are hyphenated with no underscores, so the underscore remains an unambiguous delimiter.
+        id: `${AuthServerNotificationTags.AuthRequest}_${authRequestUserId}_${authRequestId}`, // the underscore is an important delimiter.
         title: this.i18nService.t("accountAccessRequested"),
         body: this.i18nService.t("confirmAccessAttempt", emailForUser),
         buttons: [],
@@ -103,14 +106,62 @@ export class ExtensionAuthRequestAnsweringService
   /**
    * When a system notification is clicked, this function is used to process that event.
    *
+   * Switches the active account to the auth request's owner (if it differs from the active
+   * account and is still a known account) before opening the popup. The popup's own unlock
+   * listeners then surface the approval dialog against the now-active account. If the target
+   * cannot be resolved (malformed id, logged-out/removed account), it falls back to opening the
+   * popup on the current active account.
+   *
    * @param event The event passed in. Check initNotificationSubscriptions in main.background.ts.
    */
   async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {
-    if (event.buttonIdentifier === ButtonLocation.NotificationButton) {
-      await this.systemNotificationsService.clear({
-        id: `${event.id}`,
-      });
-      await this.actionService.openPopup();
+    if (event.buttonIdentifier !== ButtonLocation.NotificationButton) {
+      return;
     }
+
+    await this.systemNotificationsService.clear({
+      id: `${event.id}`,
+    });
+
+    const targetUserId = await this.resolveSwitchTargetUserId(event.id);
+    if (targetUserId != null) {
+      this.messagingService.send("switchAccount", { userId: targetUserId });
+    }
+
+    await this.actionService.openPopup();
+  }
+
+  /**
+   * Parses the target userId out of the notification id and returns it only when a switch is
+   * warranted: the id is well-formed, the target differs from the active account, and the target
+   * is still a known account. Returns null otherwise (fall back to opening the active account).
+   */
+  private async resolveSwitchTargetUserId(notificationId: string): Promise<UserId | null> {
+    const prefix = `${AuthServerNotificationTags.AuthRequest}_`;
+    if (!notificationId.startsWith(prefix)) {
+      return null;
+    }
+
+    // Remainder is `${authRequestUserId}_${authRequestId}` — both GUIDs, so exactly two parts.
+    const parts = notificationId.slice(prefix.length).split("_");
+    if (parts.length !== 2 || !parts[0]) {
+      return null;
+    }
+
+    const targetUserId = parts[0] as UserId;
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (targetUserId === activeUserId) {
+      return null;
+    }
+
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    if (accounts[targetUserId] == null) {
+      return null;
+    }
+
+    return targetUserId;
   }
 }
