@@ -6,7 +6,8 @@ yet contribute to it, or place your tests here. We may in the future standardize
 an ADR at which point other teams may use it.
 ```
 
-Playwright end-to-end suites for the web, browser extension and desktop clients.
+Playwright end-to-end suites for the web, browser extension and desktop clients, plus a
+`shared` suite spanning web and extension.
 
 Install the browser once:
 
@@ -18,7 +19,8 @@ npx playwright install chromium
 npm run test:e2e:web       # webpack dev server + chromium
 npm run test:e2e:browser   # builds the chrome extension, loads it unpacked
 npm run test:e2e:desktop   # builds electron main/renderer/preload, launches the app
-npm run test:e2e:all       # all three, sequentially
+npm run test:e2e:shared    # web + extension together, e.g. passkey unlock
+npm run test:e2e:all       # all four, sequentially
 ```
 
 Failing tests keep a video and a trace (`npx playwright show-trace <trace.zip>`).
@@ -53,15 +55,16 @@ E2E_ACCOUNT=usdev-e2e npm run test:e2e:web
 
 ## Headless
 
-Only the web suite is headless. The other two open a window:
+Only the web suite is headless. The others open a window:
 
 - Chromium's new headless mode is the only one that loads extensions, and it
   restarts the extension's service worker repeatedly.
 - Electron has no headless mode.
 
-On a Linux CI runner, wrap both in a virtual display:
+On a Linux CI runner, wrap them in a virtual display:
 
 ```
 xvfb-run -a npm run test:e2e:browser
 xvfb-run -a npm run test:e2e:desktop
+xvfb-run -a npm run test:e2e:shared
 ```
