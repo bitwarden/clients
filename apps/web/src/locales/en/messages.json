@@ -18339,6 +18339,22 @@
     "message": "One time share",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
+  "viewSharedItem": {
+    "message": "View shared item",
+    "description": "Header for the drawer showing an item that was shared with a link"
+  },
+  "editSharedItem": {
+    "message": "Edit shared item",
+    "description": "Header for the drawer editing the link options of an item that was shared with a link"
+  },
+  "copyShareLink": {
+    "message": "Copy share link",
+    "description": "Button that copies the link for a shared item to the clipboard"
+  },
+  "linkExpiryAfterDeletionDate": {
+    "message": "The link can't expire after the deletion date.",
+    "description": "Error shown when a share link's expiry is set later than its deletion date"
+  },
   "activeLinks": {
     "message": "Active links",
     "description": "Heading for the list of currently active share links for a vault item"
