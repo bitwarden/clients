@@ -4,8 +4,9 @@ import { mock } from "jest-mock-extended";
 
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
@@ -60,5 +61,25 @@ describe("CustomFieldV2Component", () => {
     fixture.detectChanges();
 
     expect(component.fieldOptions).toEqual(IdentityView.prototype.linkedFieldOptions);
+  });
+
+  it("uses a fixed-length mask for hidden field values", () => {
+    const hiddenField = new FieldView();
+    hiddenField.name = "API key";
+    hiddenField.type = FieldType.Hidden;
+    hiddenField.value = "a-value-with-a-variable-length";
+
+    const cipher = new CipherView();
+    cipher.type = CipherType.Login;
+    cipher.viewPassword = false;
+    cipher.fields = [hiddenField];
+    component.cipher = cipher;
+    fixture.detectChanges();
+
+    const hiddenFieldInput = fixture.nativeElement.querySelector(
+      'input[type="password"]',
+    ) as HTMLInputElement;
+
+    expect(hiddenFieldInput.value).toBe(hiddenField.maskedValue);
   });
 });
