@@ -7,8 +7,6 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ClientType } from "@bitwarden/common/enums";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
@@ -58,12 +56,8 @@ export class SshKeySectionComponent implements OnInit {
   });
 
   readonly showImport = computed(() => {
-    return (
-      // Web does not support clipboard access
-      this.platformUtilsService.getClientType() !== ClientType.Web &&
-      // null means a new cipher is being created, which always has edit access
-      (this.originalCipherView() == null || this.originalCipherView()!.edit)
-    );
+    // null means a new cipher is being created, which always has edit access
+    return this.originalCipherView() == null || this.originalCipherView()!.edit;
   });
 
   constructor(
@@ -71,7 +65,6 @@ export class SshKeySectionComponent implements OnInit {
     private formBuilder: FormBuilder,
     private sdkService: SdkService,
     private sshImportPromptService: SshImportPromptService,
-    private platformUtilsService: PlatformUtilsService,
   ) {
     this.cipherFormContainer.registerChildForm("sshKeyDetails", this.sshKeyForm);
     this.sshKeyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
