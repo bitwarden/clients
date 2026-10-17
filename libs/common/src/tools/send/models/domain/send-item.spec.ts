@@ -10,12 +10,17 @@ const ITEM_ID = "5d4fbf2b-7a36-4b3c-9f2e-1a6d8c0e9b71";
 
 describe("SendItem", () => {
   let data: SendItemData;
+  const now = new Date();
 
   beforeEach(() => {
     data = {
       data: SEALED_DATA,
       encryptionVersion: SendEncryptionType.V1,
-      metadata: { itemId: ITEM_ID },
+      metadata: {
+        itemId: ITEM_ID,
+        creationDate: now.toISOString(),
+        revisionDate: now.toISOString(),
+      },
     };
   });
 
@@ -25,7 +30,11 @@ describe("SendItem", () => {
     expect(sendItem).toEqual({
       encryptionVersion: SendEncryptionType.V1,
       data: SEALED_DATA,
-      metadata: { itemId: ITEM_ID },
+      metadata: {
+        itemId: ITEM_ID,
+        creationDate: now.toISOString(),
+        revisionDate: now.toISOString(),
+      },
     });
   });
 
