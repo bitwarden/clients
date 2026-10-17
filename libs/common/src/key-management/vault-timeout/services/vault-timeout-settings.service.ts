@@ -4,6 +4,7 @@ import {
   catchError,
   combineLatest,
   concatMap,
+  defer,
   distinctUntilChanged,
   EMPTY,
   firstValueFrom,
@@ -306,55 +307,61 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       this.getVaultTimeoutByUserId$(userId),
     ]).pipe(
       concatMap(
-        async ([
+        ([
           currentVaultTimeoutAction,
           maxSessionTimeoutPolicyData,
           availableVaultTimeoutActions,
           vaultTimeout,
-        ]) => {
-          const vaultTimeoutAction = this.determineVaultTimeoutAction(
-            availableVaultTimeoutActions,
-            currentVaultTimeoutAction,
-            maxSessionTimeoutPolicyData,
-          );
+        ]) =>
+          defer(async () => {
+            const vaultTimeoutAction = this.determineVaultTimeoutAction(
+              availableVaultTimeoutActions,
+              currentVaultTimeoutAction,
+              maxSessionTimeoutPolicyData,
+            );
 
-          // As a side effect, persist the determined action back to state when needed.
-          const oneActionAvailable = availableVaultTimeoutActions.length === 1;
-          if (oneActionAvailable) {
-            const availableAction = availableVaultTimeoutActions[0];
-            // Always reset to null when only one action is available — even if the stored action
-            // matches. Ensures the default (Lock) is used when an unlock method (e.g. PIN) is
-            // re-enabled later.
-            if (currentVaultTimeoutAction !== null) {
-              await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, userId);
-              // Only migrate tokens if the actual action changes (e.g. Lock → LogOut).
-              // No migration needed when stored action already matches the only available one.
-              if (currentVaultTimeoutAction !== availableAction) {
-                await this.migrateTokenStorage(userId, availableAction, vaultTimeout);
+            // As a side effect, persist the determined action back to state when needed.
+            const oneActionAvailable = availableVaultTimeoutActions.length === 1;
+            if (oneActionAvailable) {
+              const availableAction = availableVaultTimeoutActions[0];
+              // Always reset to null when only one action is available — even if the stored action
+              // matches. Ensures the default (Lock) is used when an unlock method (e.g. PIN) is
+              // re-enabled later.
+              if (currentVaultTimeoutAction !== null) {
+                await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, userId);
+                // Only migrate tokens if the actual action changes (e.g. Lock → LogOut).
+                // No migration needed when stored action already matches the only available one.
+                if (currentVaultTimeoutAction !== availableAction) {
+                  await this.migrateTokenStorage(userId, availableAction, vaultTimeout);
+                }
+              }
+            } else if (vaultTimeoutAction !== currentVaultTimeoutAction) {
+              await this.stateProvider.setUserState(
+                VAULT_TIMEOUT_ACTION,
+                vaultTimeoutAction,
+                userId,
+              );
+
+              // Migrate tokens when effective action changes from LogOut (memory) to Lock (disk).
+              // currentVaultTimeoutAction is null when forced LogOut was reset to null by the
+              // side effect (no unlock methods) or the state migrator.
+              if (
+                currentVaultTimeoutAction === null &&
+                vaultTimeoutAction === VaultTimeoutAction.Lock
+              ) {
+                await this.migrateTokenStorage(userId, vaultTimeoutAction, vaultTimeout);
               }
             }
-          } else if (vaultTimeoutAction !== currentVaultTimeoutAction) {
-            await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, vaultTimeoutAction, userId);
 
-            // Migrate tokens when effective action changes from LogOut (memory) to Lock (disk).
-            // currentVaultTimeoutAction is null when forced LogOut was reset to null by the
-            // side effect (no unlock methods) or the state migrator.
-            if (
-              currentVaultTimeoutAction === null &&
-              vaultTimeoutAction === VaultTimeoutAction.Lock
-            ) {
-              await this.migrateTokenStorage(userId, vaultTimeoutAction, vaultTimeout);
-            }
-          }
-
-          return vaultTimeoutAction;
-        },
+            return vaultTimeoutAction;
+          }).pipe(
+            catchError((error: unknown) => {
+              // Protect outer observable from canceling on error by catching and returning EMPTY
+              this.logService.error(`Error getting vault timeout: ${error}`);
+              return EMPTY;
+            }),
+          ),
       ),
-      catchError((error: unknown) => {
-        // Protect outer observable from canceling on error by catching and returning EMPTY
-        this.logService.error(`Error getting vault timeout: ${error}`);
-        return EMPTY;
-      }),
       distinctUntilChanged(), // Avoid having the set side effect trigger a new emission of the same action
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
