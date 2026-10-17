@@ -28,15 +28,18 @@ import {
   readFileSync,
   readdirSync,
   realpathSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from "fs";
 import { homedir } from "os";
 import path from "path";
 
+import { staleArtifacts } from "./artifacts.mts";
 import {
   BUILD_CONFIG_FILENAME,
   BuildError,
+  CONFIG_VERSION,
   DIST_DIR,
   INTERMEDIATES_DIR,
   type BuildConfig,
@@ -119,7 +122,7 @@ function main(): void {
   const buildDir = located.location?.absolute ?? path.resolve(projectDir, config.buildDir);
   const configPath = path.join(buildDir, BUILD_CONFIG_FILENAME);
 
-  warnAboutChanges(configPath, config);
+  invalidateStaleArtifacts(buildDir, configPath, config);
 
   mkdirSync(path.join(buildDir, INTERMEDIATES_DIR), { recursive: true });
   mkdirSync(path.join(buildDir, DIST_DIR), { recursive: true });
@@ -388,25 +391,65 @@ function recordablePath(absolute: string): string {
   return recorded.split(path.sep).join("/");
 }
 
-function warnAboutChanges(configPath: string, config: BuildConfig): void {
+/// Removes anything the previous configuration built that this one would not accept.
+///
+/// Runs here, after validation and the toolchain probe have passed and before the new
+/// configuration is written: a command line that is going to be rejected must leave the build
+/// directory exactly as it found it, because a typo is not a reason to throw away a build.
+///
+/// Deleting rather than warning, because the alternative is a directory holding a mixture of
+/// two configurations, where whether the next pack picks up the stale half depends on which
+/// build steps the caller happens to re-run.
+function invalidateStaleArtifacts(buildDir: string, configPath: string, config: BuildConfig): void {
   if (!existsSync(configPath)) {
     return;
   }
-  let previous: unknown;
+
+  let previous: BuildConfig;
   try {
-    previous = JSON.parse(readFileSync(configPath, "utf8"));
+    previous = JSON.parse(readFileSync(configPath, "utf8")) as BuildConfig;
   } catch {
-    console.warn(`warning: ${configPath} was unreadable and will be replaced.`);
+    console.warn(`warning: ${configPath} was unreadable; discarding what it built.`);
+    discard(buildDir);
     return;
   }
+
+  // A file some other version of configure wrote does not necessarily mean by `profile` and
+  // `intermediates` what this one does, so nothing can be concluded about what its artifacts
+  // depend on. Everything it built is suspect.
+  if (previous.configVersion !== CONFIG_VERSION) {
+    console.warn(
+      `warning: ${configPath} was written by configure version ${previous.configVersion}, not ` +
+        `${CONFIG_VERSION}; discarding what it built.`,
+    );
+    discard(buildDir);
+    return;
+  }
+
   const changed = diffKeys(previous, config);
   if (changed.length === 0) {
     return;
   }
   console.warn(
-    `warning: reconfiguring an existing build directory. Changed: ${changed.join(", ")}.\n` +
-      "warning: artifacts already built there were produced under the previous configuration.",
+    `warning: reconfiguring an existing build directory. Changed: ${changed.join(", ")}.`,
   );
+
+  for (const artifact of staleArtifacts(previous, config)) {
+    const absolute = path.resolve(projectDir, artifact.path);
+    if (!existsSync(absolute)) {
+      continue;
+    }
+    rmSync(absolute, { recursive: true, force: true });
+    console.log(`Removed ${artifact.path} (${artifact.name}: ${artifact.reason})`);
+  }
+}
+
+/// Everything a build compiles lives under `intermediates`, including the app source, so
+/// emptying it is the answer whenever the previous configuration cannot be read closely enough
+/// to say which parts of it are still good. `dist` is left alone: it holds finished packages,
+/// which are named after what they contain and are the caller's to keep.
+function discard(buildDir: string): void {
+  rmSync(path.join(buildDir, INTERMEDIATES_DIR), { recursive: true, force: true });
 }
 
 function summarize(config: BuildConfig, configPath: string): void {
