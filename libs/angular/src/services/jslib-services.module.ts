@@ -638,6 +638,7 @@ const safeProviders: SafeProvider[] = [
       SdkService,
       StateProvider,
       I18nServiceAbstraction,
+      UserDecryptionOptionsServiceAbstraction,
     ],
   }),
   safeProvider({

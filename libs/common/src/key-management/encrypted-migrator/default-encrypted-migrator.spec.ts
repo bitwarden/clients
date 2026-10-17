@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
   BiometricsService,
@@ -47,6 +49,7 @@ describe("EncryptedMigrator", () => {
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
   const mockUserKeyRotationService = mock<UserKeyRotationServiceAbstraction>();
   const mockCipherService = mock<CipherService>();
+  const mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
@@ -100,6 +103,7 @@ describe("EncryptedMigrator", () => {
       mockSdkService,
       mockStateProvider,
       mockI18nService,
+      mockUserDecryptionOptionsService,
     );
   });
 
