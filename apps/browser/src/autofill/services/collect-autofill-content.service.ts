@@ -294,6 +294,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
       this.updateCachedAutofillFieldVisibility();
+      this.updateCachedSelectElementOptions();
 
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
@@ -651,6 +652,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Re-reads the options for all cached select elements. Pages commonly replace a
+   * select's options after it is first collected (e.g. a state list that changes with
+   * the selected country), and option changes do not trigger a page details rebuild.
+   *
+   * @private
+   */
+  private updateCachedSelectElementOptions() {
+    this.autofillFieldElements.forEach((autofillField, element) => {
+      if (elementIsSelectElement(element)) {
+        autofillField.selectInfo = this.getSelectElementOptions(element);
+      }
+    });
+  }
+
+  /**
    * Queries the DOM for all the forms elements and
    * returns a collection of AutofillForm objects.
    * @returns {Record<string, AutofillForm>}
@@ -861,6 +877,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (index >= 0 && existingAutofillField) {
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
+      if (elementIsSelectElement(element)) {
+        existingAutofillField.selectInfo = this.getSelectElementOptions(element);
+      }
       this.autofillFieldElements.set(element, existingAutofillField);
 
       return existingAutofillField;
