@@ -22,6 +22,7 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
@@ -46,11 +47,12 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
-import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import { UnsignedSharedKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {
   CipherDecryptionKeys,
   KeyService as KeyServiceAbstraction,
+  SdkUnlockData,
 } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 
@@ -76,6 +78,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateProvider: StateProvider,
     protected accountCryptographyStateService: AccountCryptographicStateService,
     protected biometricsService: BiometricsService,
+    protected sdkService: SdkService,
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
@@ -126,25 +129,99 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     providerOrgs: ProfileProviderOrganizationResponse[],
     userId: UserId,
   ): Promise<void> {
-    await this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).update(() => {
-      const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
+    const encOrgKeyData: Record<OrganizationId, EncryptedOrganizationKeyData> = {};
 
-      for (const org of orgs) {
-        encOrgKeyData[org.id] = {
-          type: "organization",
-          key: org.key,
-        };
+    for (const org of orgs) {
+      encOrgKeyData[org.id as OrganizationId] = {
+        type: "organization",
+        key: org.key,
+      };
+    }
+
+    for (const org of providerOrgs) {
+      encOrgKeyData[org.id as OrganizationId] = {
+        type: "provider",
+        providerId: org.providerId,
+        key: org.key,
+      };
+    }
+
+    // The SDK client receives the keys before they are persisted. Built from `encOrgKeyData`
+    // because reading the state back right after the update is not guaranteed to be fresh.
+    const sdkOrgKeys = await this.buildSdkOrgKeys(userId, encOrgKeyData);
+    if (sdkOrgKeys != null) {
+      await this.sdkService.setOrgKeys(userId, sdkOrgKeys);
+    }
+
+    await this.stateProvider
+      .getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS)
+      .update(() => encOrgKeyData);
+  }
+
+  /**
+   * Converts the given encrypted organization keys into the form the SDK client accepts.
+   * Returns `null` when the user's private key is not available or the conversion fails, since
+   * neither may prevent the keys from being persisted.
+   */
+  private async buildSdkOrgKeys(
+    userId: UserId,
+    encOrgKeyData: Record<OrganizationId, EncryptedOrganizationKeyData>,
+  ): Promise<Record<OrganizationId, UnsignedSharedKey> | null> {
+    try {
+      const userPrivateKey = await firstValueFrom(this.userPrivateKey$(userId));
+      if (userPrivateKey == null) {
+        return null;
       }
 
-      for (const org of providerOrgs) {
-        encOrgKeyData[org.id] = {
-          type: "provider",
-          providerId: org.providerId,
-          key: org.key,
-        };
-      }
-      return encOrgKeyData;
-    });
+      const providerKeys = await firstValueFrom(this.providerKeysHelper$(userId, userPrivateKey));
+      return this.toSdkOrgKeys(
+        await this.toUserEncryptedOrgKeys(encOrgKeyData, userPrivateKey, providerKeys),
+      );
+    } catch (e) {
+      this.logService.error(`Failed to build the SDK organization keys for user ${userId}`, e);
+      return null;
+    }
+  }
+
+  async buildSdkUnlockData(userId: UserId, userKey: UserKey): Promise<SdkUnlockData | null> {
+    const accountCryptographicState = await firstValueFrom(
+      this.accountCryptographyStateService.accountCryptographicState$(userId),
+    );
+    if (accountCryptographicState == null) {
+      return null;
+    }
+
+    // Decrypted with the given key: during unlock, the user key is not in state yet.
+    const encPrivateKey = await firstValueFrom(this.userEncryptedPrivateKey$(userId));
+    const userPrivateKey = await this.decryptPrivateKey(encPrivateKey, userKey);
+    const providerKeys =
+      userPrivateKey != null
+        ? await firstValueFrom(this.providerKeysHelper$(userId, userPrivateKey))
+        : null;
+    const encOrgKeys = await firstValueFrom(
+      this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+    );
+
+    return {
+      request: {
+        userId: asUuid(userId),
+        method: { decryptedKey: { decrypted_user_key: userKey.toSdk() } },
+        accountCryptographicState,
+      },
+      orgKeys: this.toSdkOrgKeys(
+        await this.toUserEncryptedOrgKeys(encOrgKeys ?? {}, userPrivateKey, providerKeys),
+      ),
+    };
+  }
+
+  private toSdkOrgKeys(
+    orgKeys: Record<OrganizationId, EncString>,
+  ): Record<OrganizationId, UnsignedSharedKey> {
+    const result: Record<OrganizationId, UnsignedSharedKey> = {};
+    for (const [orgId, orgKey] of Object.entries(orgKeys) as [OrganizationId, EncString][]) {
+      result[orgId] = orgKey.toJSON() as UnsignedSharedKey;
+    }
+    return result;
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey | null> {
@@ -422,39 +499,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
               "Crypto",
               "Reencrypt Organization Keys",
             );
-            const userPubKey = await this.derivePublicKey(userPrivateKey);
-
-            const result: Record<OrganizationId, EncString> = {};
-            encryptedOrgKeys = encryptedOrgKeys ?? {};
-            for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
-              if (result[orgId] != null) {
-                continue;
-              }
-              const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
-              if (encrypted == null) {
-                continue;
-              }
-
-              let orgKey: EncString;
-
-              // Because the SDK only supports user encrypted org keys, we need to re-encrypt
-              // any provider encrypted org keys with the user's public key. This should be removed
-              // once the SDK has support for provider keys.
-              if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
-                if (providerKeys == null) {
-                  continue;
-                }
-                orgKey = await this.encryptService.encapsulateKeyUnsigned(
-                  await encrypted.decrypt(this.encryptService, providerKeys!),
-                  userPubKey!,
-                );
-              } else {
-                orgKey = encrypted.encryptedOrganizationKey;
-              }
-
-              result[orgId] = orgKey;
-            }
-
+            const result = await this.toUserEncryptedOrgKeys(
+              encryptedOrgKeys ?? {},
+              userPrivateKey,
+              providerKeys,
+            );
             measurement.finish([["Organizations", Object.keys(result).length]]);
             return result;
           }),
@@ -468,6 +517,57 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         );
       }),
     );
+  }
+
+  /**
+   * Converts stored encrypted organization keys into the user-encrypted form the SDK accepts.
+   * Provider-encrypted organization keys are skipped when no provider keys are available.
+   *
+   * @param userPrivateKey Nullable because callers may not have a private key. Without one,
+   * no organization keys can be produced and an empty record is returned.
+   */
+  private async toUserEncryptedOrgKeys(
+    encryptedOrgKeys: Record<OrganizationId, EncryptedOrganizationKeyData>,
+    userPrivateKey: UserPrivateKey | null,
+    providerKeys: Record<ProviderId, ProviderKey> | null,
+  ): Promise<Record<OrganizationId, EncString>> {
+    if (userPrivateKey == null) {
+      return {};
+    }
+
+    const userPubKey = await this.derivePublicKey(userPrivateKey);
+
+    const result: Record<OrganizationId, EncString> = {};
+    for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
+      if (result[orgId] != null) {
+        continue;
+      }
+      const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
+      if (encrypted == null) {
+        continue;
+      }
+
+      let orgKey: EncString;
+
+      // Because the SDK only supports user encrypted org keys, we need to re-encrypt
+      // any provider encrypted org keys with the user's public key. This should be removed
+      // once the SDK has support for provider keys.
+      if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
+        if (providerKeys == null) {
+          continue;
+        }
+        orgKey = await this.encryptService.encapsulateKeyUnsigned(
+          await encrypted.decrypt(this.encryptService, providerKeys!),
+          userPubKey!,
+        );
+      } else {
+        orgKey = encrypted.encryptedOrganizationKey;
+      }
+
+      result[orgId] = orgKey;
+    }
+
+    return result;
   }
 
   cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {

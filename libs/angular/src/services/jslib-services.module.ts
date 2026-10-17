@@ -915,6 +915,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       AccountCryptographicStateService,
       BiometricsService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1097,6 +1098,8 @@ const safeProviders: SafeProvider[] = [
       BiometricsService,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      KeyService,
+      SdkService,
       AutoUnlockService,
     ],
   }),
