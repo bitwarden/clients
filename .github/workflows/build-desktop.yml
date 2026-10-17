@@ -726,8 +726,6 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
-            -NewName "Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
           Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-x64.appx" `
             -NewName "Bitwarden-$env:_PACKAGE_VERSION-x64-store.appx"
           Rename-Item -Path "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64.appx" `
@@ -788,8 +786,6 @@ jobs:
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z `
-            -NewName bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z `
             -NewName bitwarden-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z `
@@ -808,30 +804,6 @@ jobs:
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
-          if-no-files-found: error
-
-      - name: Upload appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
-          if-no-files-found: error
-
-      - name: Upload store appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          if-no-files-found: error
-
-      - name: Upload NSIS ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
@@ -1114,8 +1086,6 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
-            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
           Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
             -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
           Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
@@ -1164,8 +1134,6 @@ jobs:
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.nsis.7z `
-            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-ia32.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.nsis.7z `
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
@@ -1184,30 +1152,6 @@ jobs:
         with:
           name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
-          if-no-files-found: error
-
-      - name: Upload appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
-          if-no-files-found: error
-
-      - name: Upload store appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
-          if-no-files-found: error
-
-      - name: Upload NSIS ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ${{ matrix.artifact_prefix }}bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
