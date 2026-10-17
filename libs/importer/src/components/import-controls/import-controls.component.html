@@ -44,12 +44,14 @@
 
     <bit-card-content>
       <div class="tw-flex tw-justify-between tw-items-center">
+        <!-- cancel mousedown so that back navigates as expected instead of surfacing form field error -->
         @if (hasAlternate()) {
           @if (primaryMode() === "manual") {
             <button
               type="button"
               bitButton
               buttonType="primaryGhost"
+              (mousedown)="$event.preventDefault()"
               (click)="toggleToAlternate()"
               id="importer-controls_button_directly-import-instead"
             >
@@ -60,6 +62,8 @@
               type="button"
               bitButton
               buttonType="subtleGhost"
+              [disabled]="keeperImporting()"
+              (mousedown)="$event.preventDefault()"
               (click)="toggleToManual()"
               id="importer-controls_button_import-manually-instead"
             >
@@ -76,6 +80,8 @@
             bitButton
             bitFormButton
             buttonType="secondary"
+            [disabled]="keeperImporting()"
+            (mousedown)="$event.preventDefault()"
             (click)="onBack()"
             id="importer-controls_button_back"
           >

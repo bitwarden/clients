@@ -20,9 +20,10 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
+import { KEEPER_SSO_TAB_MONITOR } from "../keeper/services/keeper-sso-tab-monitor";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
+import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
 import { ImportControlsComponent } from "./import-controls.component";
 
 function buildOption(overrides: Partial<ImportOption> & { id: string }): ImportOption {
@@ -227,6 +228,14 @@ function decoratorsFor(
           provide: PlatformUtilsService,
           useValue: { getClientType: () => clientType } as Partial<PlatformUtilsService>,
         },
+        // Root-provided, so it can't see the platform service above.
+        {
+          provide: KEEPER_SSO_TAB_MONITOR,
+          useValue: {
+            launchAndWaitForToken: () => Promise.reject(new Error("No SSO tab in Storybook")),
+            cancel: (): void => undefined,
+          },
+        },
         {
           provide: LogService,
           useValue: { error: action("LogService.error") } as Partial<LogService>,
@@ -259,10 +268,10 @@ function decoratorsFor(
           useValue: { theme$: of(ThemeTypes.Light) } as Partial<AbstractThemingService>,
         },
         {
-          provide: KeeperDirectImportService,
+          provide: KeeperDirectImportUpgradeService,
           useValue: {
             handleImport: () => Promise.reject(new Error("Not wired up in Storybook.")),
-          } as Partial<KeeperDirectImportService>,
+          } as Partial<KeeperDirectImportUpgradeService>,
         },
         {
           provide: LastPassDirectImportService,
@@ -329,8 +338,10 @@ function decoratorsFor(
               pasteAsPlainText: "Paste as plain text",
               plainText: "Plain text",
               profile: "Profile",
-              keeperEmail: "Email",
-              dataCenterLocation: "Data center location",
+              email: "Email",
+              keeperLoginServerLabel: "Server",
+              keeperLoginEmailRequired: "Email is required.",
+              keeperLoginEmailInvalid: "Enter a valid email address.",
               lastPassEmail: "Email",
               includeSharedFolders: "Include shared folders",
               importManuallyInstead: "Import manually instead",
