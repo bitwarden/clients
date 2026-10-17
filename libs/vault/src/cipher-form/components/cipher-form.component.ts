@@ -376,7 +376,8 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    * loading and disabled state.
    */
   protected submitOnModifierEnter(event: KeyboardEvent): void {
-    if (event.key !== "Enter" || !(event.ctrlKey || event.metaKey)) {
+    // Cmd+Enter (Mac) or Ctrl+Enter (Win/Linux): exactly one of metaKey/ctrlKey.
+    if (event.key !== "Enter" || event.metaKey === event.ctrlKey) {
       return;
     }
 

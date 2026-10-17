@@ -309,6 +309,13 @@ describe("CipherFormComponent", () => {
       expect(event.defaultPrevented).toBe(false);
     });
 
+    it("does not submit the form when Ctrl and Meta are both held", () => {
+      const event = keydown(form, { ctrlKey: true, metaKey: true });
+
+      expect(submit).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
     it("ignores auto-repeated key presses", () => {
       keydown(form, { ctrlKey: true, repeat: true });
 
