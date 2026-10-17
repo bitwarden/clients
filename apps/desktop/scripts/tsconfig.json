@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    // These scripts are run by Node's type stripping rather than compiled, so imports name the
+    // real file on disk and nothing here may emit runtime code. `preserve` keeps tsc from
+    // second-guessing the module format the way `nodenext` would.
+    "module": "preserve",
+    "types": ["node", "jest"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["*.ts", "*.mts"]
+}
