@@ -57,9 +57,8 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     const exportData: ExportData = JSON.parse(data);
 
     const account = exportData.accounts[0];
-    // TODO Add handling of multiple vaults
-    // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
+      const vaultFolderName = vault.attrs?.name;
       vault.items.forEach((item: Item) => {
         // Snapshot folder state so a mid-item failure can be rolled back cleanly — no dangling
         // relationship and no empty folder left behind.
@@ -138,7 +137,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
           cipher.favorite = item.favIndex === 1 ? true : false;
 
-          this.processOverview(item.overview, cipher);
+          this.processOverview(item.overview, cipher, vaultFolderName);
 
           this.processLoginFields(item, cipher);
 
@@ -193,7 +192,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return Promise.resolve(this.result);
   }
 
-  private processOverview(overview: Overview, cipher: CipherView) {
+  private processOverview(overview: Overview, cipher: CipherView, vaultFolderName?: string) {
     if (overview == null) {
       return;
     }
@@ -210,9 +209,15 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       cipher.login.uris = this.makeUriArray(urls);
     }
 
-    if (overview.tags != null && overview.tags.length > 0) {
-      const folderName = this.capitalize(overview.tags[0]);
+    if (!this.isNullOrWhitespace(vaultFolderName)) {
+      const tag =
+        overview.tags != null && overview.tags.length > 0
+          ? this.capitalize(overview.tags[0])
+          : null;
+      const folderName = tag ? `${vaultFolderName}/${tag}` : vaultFolderName;
       this.processFolder(this.result, folderName);
+    } else if (overview.tags != null && overview.tags.length > 0) {
+      this.processFolder(this.result, this.capitalize(overview.tags[0]));
     }
   }
 
