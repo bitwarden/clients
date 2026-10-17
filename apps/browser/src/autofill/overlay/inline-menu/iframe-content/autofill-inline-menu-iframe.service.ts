@@ -37,7 +37,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     transition: this.fadeInOpacityTransition,
     visibility: "visible",
     clipPath: "none",
-    pointerEvents: "auto",
+    pointerEvents: "none",
     margin: "0",
     padding: "0",
     colorScheme: "normal",
@@ -373,6 +373,11 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     this.unobserveIframe();
+
+    // A transparent iframe must not capture clicks meant for the page underneath it
+    if (customElement === this.iframe && styles.opacity !== undefined) {
+      styles = { ...styles, pointerEvents: styles.opacity === "0" ? "none" : "auto" };
+    }
 
     this.setElementStyles(customElement, styles, true);
     if (customElement === this.iframe) {

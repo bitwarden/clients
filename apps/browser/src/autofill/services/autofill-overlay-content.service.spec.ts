@@ -528,7 +528,7 @@ describe("AutofillOverlayContentService", () => {
           );
         });
 
-        it("Closes the inline menu list and does not re-open the inline menu if the field has a value", async () => {
+        it("filters the inline menu list instead of closing it when the user types into a login username field", async () => {
           (autofillFieldElement as HTMLInputElement).value = "test";
 
           await autofillOverlayContentService.setupOverlayListeners(
@@ -539,11 +539,68 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillInlineMenuListFilter",
+            { inlineMenuListFilter: "test" },
+          );
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "closeAutofillInlineMenu",
+            expect.anything(),
+          );
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+        });
+
+        it("clears the filter and closes the inline menu list when the input event is not trusted", async () => {
+          jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(false);
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillInlineMenuListFilter",
+            { inlineMenuListFilter: "" },
+          );
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
             overlayElement: AutofillOverlayElement.List,
             forceCloseInlineMenu: true,
           });
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+        });
+
+        it("never uses a password field value as the inline menu list filter", async () => {
+          const passwordFieldElement = document.getElementById(
+            "password-field",
+          ) as ElementWithOpId<FormFieldElement>;
+          (passwordFieldElement as HTMLInputElement).value = "secret";
+          const passwordFieldData = createAutofillFieldMock({
+            opid: "password-field",
+            form: "validFormId",
+            elementNumber: 2,
+            type: "password",
+          });
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            passwordFieldElement,
+            passwordFieldData,
+            pageDetailsMock,
+          );
+          passwordFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateAutofillInlineMenuListFilter",
+            expect.anything(),
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+            overlayElement: AutofillOverlayElement.List,
+            forceCloseInlineMenu: true,
+          });
         });
 
         it("opens the inline menu if the field does not have a value", async () => {
