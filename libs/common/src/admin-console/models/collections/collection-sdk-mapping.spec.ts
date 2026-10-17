@@ -71,6 +71,7 @@ describe("Collection SDK mapping", () => {
         manage: false,
         defaultUserCollectionEmail: "user@example.com",
         type: CollectionTypes.DefaultUserCollection,
+        hasEnabledAccessRule: true,
       });
 
       const result = Collection.fromSdkCollection(sdkCollection);
@@ -81,6 +82,7 @@ describe("Collection SDK mapping", () => {
       expect(result.manage).toBe(false);
       expect(result.defaultUserCollectionEmail).toBe("user@example.com");
       expect(result.type).toBe(CollectionTypes.DefaultUserCollection);
+      expect(result.hasEnabledAccessRule).toBe(true);
       expect(result.name).toBeInstanceOf(EncString);
     });
 
@@ -106,6 +108,7 @@ describe("Collection SDK mapping", () => {
         manage: false,
         defaultUserCollectionEmail: "user@example.com",
         type: CollectionTypes.DefaultUserCollection,
+        hasEnabledAccessRule: true,
       });
 
       const result = collection.toSdkCollection();
@@ -116,6 +119,7 @@ describe("Collection SDK mapping", () => {
       expect(result.manage).toBe(false);
       expect(result.defaultUserCollectionEmail).toBe("user@example.com");
       expect(result.type).toBe(CollectionTypes.DefaultUserCollection);
+      expect(result.hasEnabledAccessRule).toBe(true);
     });
 
     it("maps SharedCollection type correctly", () => {
@@ -185,17 +189,17 @@ describe("CollectionView SDK mapping", () => {
       expect(result.assigned).toBe(true);
     });
 
-    describe("hasEnabledAccessRule preservation (privileged-access badge)", () => {
-      it("copies hasEnabledAccessRule from the source collection", () => {
+    describe("hasEnabledAccessRule", () => {
+      it("reads hasEnabledAccessRule from the SDK view, not the source collection", () => {
         const result = CollectionView.fromSdkCollectionView(
-          makeSdkCollectionView(),
-          makeCollection({ hasEnabledAccessRule: true }),
+          makeSdkCollectionView({ hasEnabledAccessRule: true }),
+          makeCollection(),
         );
 
         expect(result.hasEnabledAccessRule).toBe(true);
       });
 
-      it("leaves hasEnabledAccessRule false for an ungoverned collection", () => {
+      it("defaults hasEnabledAccessRule to false when the SDK view omits it", () => {
         const result = CollectionView.fromSdkCollectionView(
           makeSdkCollectionView(),
           makeCollection(),
@@ -332,6 +336,7 @@ describe("CollectionView SDK mapping", () => {
       view.readOnly = false;
       view.manage = true;
       view.type = CollectionTypes.DefaultUserCollection;
+      view.hasEnabledAccessRule = true;
 
       const result = view.toSdkCollectionView();
 
@@ -341,6 +346,7 @@ describe("CollectionView SDK mapping", () => {
       expect(result.readOnly).toBe(false);
       expect(result.manage).toBe(true);
       expect(result.type).toBe(CollectionTypes.DefaultUserCollection);
+      expect(result.hasEnabledAccessRule).toBe(true);
     });
 
     it("maps SharedCollection type correctly", () => {
