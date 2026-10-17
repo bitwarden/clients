@@ -40,6 +40,7 @@ import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
 import {
   ACCESS_TOKEN_DISK,
   ACCESS_TOKEN_MEMORY,
+  ACCESS_TOKEN_MEMORY_CACHE,
   API_KEY_CLIENT_ID_DISK,
   API_KEY_CLIENT_ID_MEMORY,
   API_KEY_CLIENT_SECRET_DISK,
@@ -158,7 +159,8 @@ export class TokenService implements TokenServiceAbstraction {
     return combineLatest([
       this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
       this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).state$,
-    ]).pipe(map(([disk, memory]) => Boolean(disk || memory)));
+      this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY_CACHE).state$,
+    ]).pipe(map(([disk, memory, memoryCache]) => Boolean(disk || memory || memoryCache)));
   }
 
   private initializeState(): void {
@@ -378,6 +380,10 @@ export class TokenService implements TokenServiceAbstraction {
           // so that the caller can use it immediately.
           decryptedAccessToken = accessToken;
 
+          // The durable write succeeded, so we can warm the plaintext cache. Order matters: the
+          // cache must never hold a token that failed to persist.
+          await this.setAccessTokenCache(accessToken, userId);
+
           // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
           await this.clearAccessTokenMemoryLocation(userId);
         } catch (error) {
@@ -392,6 +398,13 @@ export class TokenService implements TokenServiceAbstraction {
             .update((_) => accessToken, {
               shouldUpdate: (previousValue) => previousValue !== accessToken,
             });
+
+          // The intended location was secure storage, so we warm the cache here too. Note the
+          // asymmetry with getAccessToken: after a process reload this user reads a plaintext disk
+          // value and does not re-warm the cache. That is harmless, because a plaintext read is
+          // cheap and cannot fail.
+          await this.setAccessTokenCache(accessToken, userId);
+
           // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
           await this.clearAccessTokenMemoryLocation(userId);
         }
@@ -405,8 +418,9 @@ export class TokenService implements TokenServiceAbstraction {
           .update((_) => accessToken, {
             shouldUpdate: (previousValue) => previousValue !== accessToken,
           });
-        // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
+        // Then, we can clear the memory state locations to enforce that a single location holds the access token at a time.
         await this.clearAccessTokenMemoryLocation(userId);
+        await this.clearAccessTokenCache(userId);
         return newAccessToken;
       }
       case TokenStorageLocation.Memory: {
@@ -414,8 +428,9 @@ export class TokenService implements TokenServiceAbstraction {
         const newAccessToken = await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_MEMORY)
           .update((_) => accessToken);
-        // Then, we can clear the disk state location to enforce that a single location holds the access token at a time.
+        // Then, we can clear the other locations to enforce that a single location holds the access token at a time.
         await this.clearAccessTokenDiskLocation(userId);
+        await this.clearAccessTokenCache(userId);
         return newAccessToken;
       }
     }
@@ -460,6 +475,12 @@ export class TokenService implements TokenServiceAbstraction {
     // we can't determine storage location w/out vaultTimeoutAction and vaultTimeout
     // but we can simply clear all locations to avoid the need to require those parameters.
 
+    // Clear the plaintext locations first, so that the cache never serves a token whose
+    // access token key is already deleted.
+    await this.clearAccessTokenMemoryLocation(userId);
+    await this.clearAccessTokenCache(userId);
+    await this.clearAccessTokenDiskLocation(userId);
+
     // When secure storage is supported, clear the encryption key from secure storage.
     // When not supported (e.g., portable builds), tokens are stored on disk and this step is skipped.
     if (this.platformSupportsSecureStorage) {
@@ -467,14 +488,28 @@ export class TokenService implements TokenServiceAbstraction {
       // The next set of the access token will create a new access token key.
       await this.clearAccessTokenKey(userId);
     }
-
-    // Clear from disk and memory.
-    await this.clearAccessTokenDiskLocation(userId);
-    await this.clearAccessTokenMemoryLocation(userId);
   }
 
   private async clearAccessTokenMemoryLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
+  }
+
+  /**
+   * Writes the plaintext access token to the ephemeral cache. Only valid when the durable location
+   * is secure storage; see {@link ACCESS_TOKEN_MEMORY_CACHE}.
+   */
+  private async setAccessTokenCache(accessToken: string, userId: UserId): Promise<void> {
+    await this.singleUserStateProvider
+      .get(userId, ACCESS_TOKEN_MEMORY_CACHE)
+      .update((_) => accessToken, {
+        shouldUpdate: (previousValue) => previousValue !== accessToken,
+      });
+  }
+
+  private async clearAccessTokenCache(userId: UserId): Promise<void> {
+    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY_CACHE).update((_) => null, {
+      shouldUpdate: (previousValue) => previousValue !== null,
+    });
   }
 
   private async clearAccessTokenDiskLocation(userId: UserId): Promise<void> {
@@ -497,7 +532,17 @@ export class TokenService implements TokenServiceAbstraction {
       return accessTokenMemory;
     }
 
-    // If memory is null, read from disk
+    // Then the plaintext cache, which holds a copy when the durable location is secure storage.
+    // It is mutually exclusive with the memory location above.
+    const accessTokenMemoryCache = await this.getStateValueByUserIdAndKeyDef(
+      userId,
+      ACCESS_TOKEN_MEMORY_CACHE,
+    );
+    if (accessTokenMemoryCache != null) {
+      return accessTokenMemoryCache;
+    }
+
+    // If both memory locations are null, read from disk
     const accessTokenDisk = await this.getStateValueByUserIdAndKeyDef(userId, ACCESS_TOKEN_DISK);
     if (!accessTokenDisk) {
       return null;
@@ -552,6 +597,13 @@ export class TokenService implements TokenServiceAbstraction {
           accessTokenKey,
           encryptedAccessTokenEncString,
         );
+
+        // Read-through: the disk value was an EncString, which is exactly the secure storage case,
+        // so the cache applies. Without this write the cache would warm only on login and on token
+        // refresh, and every request between a process reload and the next refresh would pay a
+        // secure storage read plus a decrypt.
+        await this.setAccessTokenCache(decryptedAccessToken, userId);
+
         return decryptedAccessToken;
       } catch (error) {
         // If an error occurs during decryption, logout and then return null.
