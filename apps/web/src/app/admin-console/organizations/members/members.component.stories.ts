@@ -95,7 +95,6 @@ function mockUser(overrides: Partial<OrganizationUserView> = {}): OrganizationUs
     canRestore: false,
     canRevoke: true,
     canRemove: true,
-    canManageMember: true,
     ...overrides,
   } as unknown as OrganizationUserView;
 }

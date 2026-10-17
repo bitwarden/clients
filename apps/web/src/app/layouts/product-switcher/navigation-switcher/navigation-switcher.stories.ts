@@ -1,4 +1,4 @@
-import { Component, Directive, importProvidersFrom, Input } from "@angular/core";
+import { Component, Directive, importProvidersFrom, Input, signal } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
@@ -41,6 +41,7 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { LockService } from "@bitwarden/unlock";
+import { CoachmarkService } from "@bitwarden/vault";
 
 import { UpgradeFlowService } from "../../../billing/individual/upgrade/services/upgrade-flow.service";
 import { UpgradeCalloutComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
@@ -141,6 +142,21 @@ class MockBillingAccountProfileStateService implements Partial<BillingAccountPro
   }
 }
 
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+};
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -205,6 +221,7 @@ export default {
         { provide: LogoutService, useClass: MockLogoutService },
         { provide: LockService, useClass: MockLockService },
         { provide: AvatarService, useClass: MockAvatarService },
+        { provide: CoachmarkService, useValue: mockCoachmarkService },
         {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
@@ -370,7 +387,7 @@ const RealisticTemplate: StoryObj<
           <bit-nav-item text="Vault" icon="bwi-lock" route="vault"></bit-nav-item>
           <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
           <bit-nav-group text="All items" route="all" [open]="true">
-            
+
             <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
               <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
               <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
