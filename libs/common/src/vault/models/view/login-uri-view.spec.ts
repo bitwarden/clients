@@ -2,6 +2,7 @@ import { LoginUriView as SdkLoginUriView, UriMatchType } from "@bitwarden/sdk-in
 
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
+import { NO_REGEX_MATCHES } from "../../utils/uri-regex-matcher";
 
 import { LoginUriView } from "./login-uri.view";
 
@@ -143,13 +144,21 @@ describe("LoginUriView", () => {
     describe("using domain matching", () => {
       it("matches the same domain", () => {
         const uri = uriFactory(UriMatchStrategy.Domain, exampleUris.standard);
-        const actual = uri.matchesUri(exampleUris.subdomain, exampleUris.noEquivalentDomains());
+        const actual = uri.matchesUri(
+          exampleUris.subdomain,
+          exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
         expect(actual).toBe(true);
       });
 
       it("matches equivalent domains", () => {
         const uri = uriFactory(UriMatchStrategy.Domain, exampleUris.standard);
-        const actual = uri.matchesUri(exampleUris.differentDomain, exampleUris.equivalentDomains());
+        const actual = uri.matchesUri(
+          exampleUris.differentDomain,
+          exampleUris.equivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
         expect(actual).toBe(true);
       });
 
@@ -158,6 +167,7 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(
           exampleUris.differentDomain,
           exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
         );
         expect(actual).toBe(false);
       });
@@ -167,22 +177,30 @@ describe("LoginUriView", () => {
       describe.each(idnTestDomains)("$script IDN domains", ({ unicode, punycode }) => {
         it("matches a saved unicode domain against a punycode target", () => {
           const uri = uriFactory(UriMatchStrategy.Domain, unicode);
-          expect(uri.matchesUri(punycode, exampleUris.noEquivalentDomains())).toBe(true);
+          expect(
+            uri.matchesUri(punycode, exampleUris.noEquivalentDomains(), NO_REGEX_MATCHES),
+          ).toBe(true);
         });
 
         it("matches a saved punycode domain against a unicode target", () => {
           const uri = uriFactory(UriMatchStrategy.Domain, punycode);
-          expect(uri.matchesUri(unicode, exampleUris.noEquivalentDomains())).toBe(true);
+          expect(uri.matchesUri(unicode, exampleUris.noEquivalentDomains(), NO_REGEX_MATCHES)).toBe(
+            true,
+          );
         });
 
         it("matches a saved unicode domain against a unicode target", () => {
           const uri = uriFactory(UriMatchStrategy.Domain, unicode);
-          expect(uri.matchesUri(unicode, exampleUris.noEquivalentDomains())).toBe(true);
+          expect(uri.matchesUri(unicode, exampleUris.noEquivalentDomains(), NO_REGEX_MATCHES)).toBe(
+            true,
+          );
         });
 
         it("matches a saved punycode domain against a punycode target", () => {
           const uri = uriFactory(UriMatchStrategy.Domain, punycode);
-          expect(uri.matchesUri(punycode, exampleUris.noEquivalentDomains())).toBe(true);
+          expect(
+            uri.matchesUri(punycode, exampleUris.noEquivalentDomains(), NO_REGEX_MATCHES),
+          ).toBe(true);
         });
       });
 
@@ -192,6 +210,7 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(
           "https://login.xn--0zwm56d.com",
           exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
         );
         expect(actual).toBe(true);
       });
@@ -202,6 +221,7 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(
           "https://www.xn--0zwm56d.com",
           exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
         );
         expect(actual).toBe(false);
       });
@@ -211,7 +231,11 @@ describe("LoginUriView", () => {
         const googleEquivalentDomains = new Set(["google.com", "script.google.com"]);
         const uri = uriFactory(UriMatchStrategy.Domain, "google.com");
 
-        const actual = uri.matchesUri("script.google.com", googleEquivalentDomains);
+        const actual = uri.matchesUri(
+          "script.google.com",
+          googleEquivalentDomains,
+          NO_REGEX_MATCHES,
+        );
 
         expect(actual).toBe(false);
       });
@@ -221,8 +245,12 @@ describe("LoginUriView", () => {
         loginUri.uri = "https://example.org";
         loginUri.match = UriMatchStrategy.Never;
 
-        expect(loginUri.matchesUri("https://example.org", new Set(), undefined, true)).toBe(true);
-        expect(loginUri.matchesUri("https://example.org", new Set(), undefined)).toBe(false);
+        expect(
+          loginUri.matchesUri("https://example.org", new Set(), NO_REGEX_MATCHES, undefined, true),
+        ).toBe(true);
+        expect(
+          loginUri.matchesUri("https://example.org", new Set(), NO_REGEX_MATCHES, undefined),
+        ).toBe(false);
       });
 
       it("overrides Never match strategy when passed in as default strategy", () => {
@@ -233,13 +261,19 @@ describe("LoginUriView", () => {
           loginUriNoMatch.matchesUri(
             "https://example.org",
             new Set(),
+            NO_REGEX_MATCHES,
             UriMatchStrategy.Never,
             true,
           ),
         ).toBe(true);
 
         expect(
-          loginUriNoMatch.matchesUri("https://example.org", new Set(), UriMatchStrategy.Never),
+          loginUriNoMatch.matchesUri(
+            "https://example.org",
+            new Set(),
+            NO_REGEX_MATCHES,
+            UriMatchStrategy.Never,
+          ),
         ).toBe(false);
       });
     });
@@ -247,13 +281,21 @@ describe("LoginUriView", () => {
     describe("using host matching", () => {
       it("matches the same host", () => {
         const uri = uriFactory(UriMatchStrategy.Host, Utils.getHost(exampleUris.standard));
-        const actual = uri.matchesUri(exampleUris.standard, exampleUris.noEquivalentDomains());
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
         expect(actual).toBe(true);
       });
 
       it("does not match a different host", () => {
         const uri = uriFactory(UriMatchStrategy.Host, Utils.getHost(exampleUris.differentDomain));
-        const actual = uri.matchesUri(exampleUris.standard, exampleUris.noEquivalentDomains());
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
         expect(actual).toBe(false);
       });
     });
@@ -261,7 +303,11 @@ describe("LoginUriView", () => {
     describe("using exact matching", () => {
       it("matches if both uris are the same", () => {
         const uri = uriFactory(UriMatchStrategy.Exact, exampleUris.standard);
-        const actual = uri.matchesUri(exampleUris.standard, exampleUris.noEquivalentDomains());
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
         expect(actual).toBe(true);
       });
 
@@ -270,6 +316,7 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(
           exampleUris.standard + "#",
           exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
         );
         expect(actual).toBe(false);
       });
@@ -281,6 +328,7 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(
           exampleUris.standard + "#bookmark",
           exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
         );
         expect(actual).toBe(true);
       });
@@ -290,29 +338,88 @@ describe("LoginUriView", () => {
         const actual = uri.matchesUri(
           exampleUris.standard.slice(1),
           exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
         );
         expect(actual).toBe(false);
       });
     });
 
     describe("using regular expression matching", () => {
-      it("matches if the regular expression matches", () => {
-        const uri = uriFactory(UriMatchStrategy.RegularExpression, exampleUris.standard);
-        const actual = uri.matchesUri(exampleUris.standardRegex, exampleUris.noEquivalentDomains());
+      const regexMatcher = { matches: jest.fn<boolean, [string, string]>() };
+
+      beforeEach(() => {
+        regexMatcher.matches.mockReset();
+      });
+
+      it("evaluates the saved URI as the pattern with the regex matcher", () => {
+        regexMatcher.matches.mockReturnValue(true);
+        const uri = uriFactory(UriMatchStrategy.RegularExpression, "^https://.*\\.example\\.com/");
+
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          regexMatcher,
+        );
+
+        expect(actual).toBe(true);
+        expect(regexMatcher.matches).toHaveBeenCalledWith(
+          "^https://.*\\.example\\.com/",
+          exampleUris.standard,
+        );
+      });
+
+      it("does not match when the regex matcher does not match", () => {
+        regexMatcher.matches.mockReturnValue(false);
+        const uri = uriFactory(UriMatchStrategy.RegularExpression, exampleUris.standardNotMatching);
+
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          regexMatcher,
+        );
+
         expect(actual).toBe(false);
       });
 
-      it("does not match if the regular expression does not match", () => {
-        const uri = uriFactory(UriMatchStrategy.RegularExpression, exampleUris.standardNotMatching);
-        const actual = uri.matchesUri(exampleUris.standardRegex, exampleUris.noEquivalentDomains());
+      it("never evaluates the pattern with RegExp", () => {
+        const regExpSpy = jest.spyOn(global, "RegExp");
+        const uri = uriFactory(UriMatchStrategy.RegularExpression, "^(.+)+#$");
+
+        uri.matchesUri("a".repeat(30), exampleUris.noEquivalentDomains(), regexMatcher);
+
+        expect(regExpSpy).not.toHaveBeenCalledWith("^(.+)+#$", expect.anything());
+        regExpSpy.mockRestore();
+      });
+
+      it("does not match when regex matching is unavailable", () => {
+        const uri = uriFactory(UriMatchStrategy.RegularExpression, ".*");
+
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
+
         expect(actual).toBe(false);
+      });
+
+      it("does not use the regex matcher for other strategies", () => {
+        const uri = uriFactory(UriMatchStrategy.Exact, exampleUris.standard);
+
+        uri.matchesUri(exampleUris.standard, exampleUris.noEquivalentDomains(), regexMatcher);
+
+        expect(regexMatcher.matches).not.toHaveBeenCalled();
       });
     });
 
     describe("using never matching", () => {
       it("does not match even if uris are identical", () => {
         const uri = uriFactory(UriMatchStrategy.Never, exampleUris.standard);
-        const actual = uri.matchesUri(exampleUris.standard, exampleUris.noEquivalentDomains());
+        const actual = uri.matchesUri(
+          exampleUris.standard,
+          exampleUris.noEquivalentDomains(),
+          NO_REGEX_MATCHES,
+        );
         expect(actual).toBe(false);
       });
     });

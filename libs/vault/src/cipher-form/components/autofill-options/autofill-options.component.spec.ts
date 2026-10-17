@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, NEVER } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -12,6 +12,7 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -73,6 +74,7 @@ describe("AutofillOptionsComponent", () => {
         { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ConfigService, useValue: configService },
+        { provide: SdkService, useValue: { client$: NEVER } },
       ],
     }).compileComponents();
 

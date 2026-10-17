@@ -1,18 +1,27 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { of } from "rxjs";
+import { FormBuilder, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { config, of, throwError } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { PasswordManagerClient, validate_uri_regex } from "@bitwarden/sdk-internal";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 import { UriOptionComponent } from "./uri-option.component";
 
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  isUriMatcherError: (error: unknown) => (error as Error)?.name === "UriMatcherError",
+  validate_uri_regex: jest.fn(),
+}));
+
 describe("UriOptionComponent", () => {
   let component: UriOptionComponent;
+  const validateRegex = validate_uri_regex as jest.MockedFunction<typeof validate_uri_regex>;
   let fixture: ComponentFixture<UriOptionComponent>;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let dialogRefMock: jest.Mocked<DialogRef<boolean>>;
@@ -50,6 +59,12 @@ describe("UriOptionComponent", () => {
           provide: I18nService,
           useValue: { t: (...keys: string[]) => keys.filter(Boolean).join(" ") },
         },
+        {
+          provide: SdkService,
+          useValue: {
+            client$: of({} as PasswordManagerClient),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -61,11 +76,160 @@ describe("UriOptionComponent", () => {
   });
 
   afterEach(() => {
+    config.onUnhandledError = null;
     jest.clearAllMocks();
   });
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("regular expression validation", () => {
+    beforeEach(() => {
+      validateRegex.mockReset();
+    });
+
+    const rejectWith = (variant: string) =>
+      validateRegex.mockImplementation(() => {
+        throw Object.assign(new Error("Pattern is not usable"), {
+          name: "UriMatcherError",
+          variant,
+        });
+      });
+
+    const loadRegex = (uri: string) =>
+      component.writeValue({ uri, matchDetection: UriMatchStrategy.RegularExpression });
+
+    it("shows the SDK's reason when an edited regular expression can't be saved", () => {
+      loadRegex("^https://example\\.com/");
+      rejectWith("UnsupportedLookaround");
+
+      component["uriForm"].controls.uri.setValue("x(?!.*logout)");
+
+      expect(validateRegex).toHaveBeenCalledWith("x(?!.*logout)");
+      expect(component["uriForm"].controls.uri.errors).toEqual({
+        invalidRegex: { message: "uriRegexLookaround" },
+      });
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexLookaround" } });
+    });
+
+    it("names backreferences as the reason a pattern can't be saved", () => {
+      loadRegex("a");
+      rejectWith("UnsupportedBackreference");
+
+      component["uriForm"].controls.uri.setValue("(\\w+)\\.\\1");
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexBackreference" } });
+    });
+
+    it("uses a generic message for invalid patterns", () => {
+      loadRegex("a");
+      rejectWith("InvalidPattern");
+
+      component["uriForm"].controls.uri.setValue("(");
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexInvalid" } });
+    });
+
+    it("warns instead of blocking save when an unchanged saved pattern is rejected", () => {
+      rejectWith("UnsupportedLookaround");
+
+      loadRegex("x(?!.*logout)");
+
+      expect(component.validate()).toBeNull();
+      expect(component["savedRegexWarning"]).toBe("uriRegexSavedLookaround");
+    });
+
+    it("blocks save once a rejected saved pattern is edited", () => {
+      rejectWith("UnsupportedLookaround");
+      loadRegex("x(?!.*logout)");
+
+      component["uriForm"].controls.uri.setValue("y(?!.*logout)");
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexLookaround" } });
+      expect(component["savedRegexWarning"]).toBeNull();
+    });
+
+    it("accepts regular expressions the SDK can evaluate", () => {
+      component.writeValue({
+        uri: "^https://example\\.com/",
+        matchDetection: UriMatchStrategy.RegularExpression,
+      });
+
+      expect(component.validate()).toBeNull();
+    });
+
+    it("does not validate URIs using other match strategies", () => {
+      rejectWith("InvalidPattern");
+
+      component.writeValue({ uri: "(", matchDetection: UriMatchStrategy.Domain });
+
+      expect(validateRegex).not.toHaveBeenCalled();
+      expect(component.validate()).toBeNull();
+    });
+
+    it("skips validation when the SDK fails to load", async () => {
+      const onUnhandledError = jest.fn();
+      config.onUnhandledError = onUnhandledError;
+      const failingSdk = { client$: throwError(() => new Error("SDK failed")) };
+      const offline = TestBed.runInInjectionContext(
+        () =>
+          new UriOptionComponent(
+            dialogServiceMock,
+            TestBed.inject(FormBuilder),
+            TestBed.inject(I18nService),
+            failingSdk as unknown as SdkService,
+          ),
+      );
+
+      offline.writeValue({ uri: "(", matchDetection: UriMatchStrategy.RegularExpression });
+
+      expect(offline.validate()).toBeNull();
+      // RxJS reports unhandled errors on a timer.
+      await new Promise((resolve) => setTimeout(resolve));
+      expect(onUnhandledError).not.toHaveBeenCalled();
+    });
+
+    it("revalidates when the match strategy changes", () => {
+      rejectWith("PatternTooLong");
+      component.writeValue({ uri: "a", matchDetection: UriMatchStrategy.Domain });
+      const onValidatorChange = jest.fn();
+      component.registerOnValidatorChange(onValidatorChange);
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.RegularExpression);
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexTooLong" } });
+      expect(onValidatorChange).toHaveBeenCalled();
+    });
+
+    it("doesn't report a change when loading a value", () => {
+      const onChange = jest.fn();
+      component.registerOnChange(onChange);
+
+      component.writeValue({ uri: "a", matchDetection: UriMatchStrategy.RegularExpression });
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it.each([false, true])(
+      "shows the error when switching to regular expression (URI touched: %s)",
+      (touched) => {
+        rejectWith("PatternTooLong");
+        fixture.detectChanges();
+        component.writeValue({ uri: "a", matchDetection: UriMatchStrategy.Domain });
+        if (touched) {
+          component["uriForm"].controls.uri.markAsTouched();
+          fixture.detectChanges();
+        }
+
+        component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.RegularExpression);
+        fixture.detectChanges();
+
+        const input = fixture.nativeElement.querySelector("input[formControlName='uri']");
+        expect(input.getAttribute("aria-invalid")).toBe("true");
+        expect(fixture.nativeElement.textContent).toContain("uriRegexTooLong");
+      },
+    );
   });
 
   it("should not update the default uri match strategy label when it is null", () => {

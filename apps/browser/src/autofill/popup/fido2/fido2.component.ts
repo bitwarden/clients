@@ -197,10 +197,11 @@ export class Fido2Component implements OnInit, OnDestroy {
             this.ciphers = (await this.cipherService.getAllDecrypted(activeUserId)).filter(
               (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
             );
+            const regexMatcher = await this.cipherService.getUriRegexMatcher();
 
             this.displayedCiphers = this.ciphers.filter(
               (cipher) =>
-                cipher.login.matchesUri(url, equivalentDomains) &&
+                cipher.login.matchesUri(url, equivalentDomains, regexMatcher) &&
                 Fido2Utils.cipherHasNoOtherPasskeys(cipher, message.userHandle),
             );
 
@@ -403,8 +404,9 @@ export class Fido2Component implements OnInit, OnDestroy {
     }
     const url = this.url;
     const equivalentDomains = await this.getEquivalentDomains();
+    const regexMatcher = await this.cipherService.getUriRegexMatcher();
     this.displayedCiphers = this.ciphers.filter((cipher) =>
-      cipher.login.matchesUri(url, equivalentDomains),
+      cipher.login.matchesUri(url, equivalentDomains, regexMatcher),
     );
   }
 

@@ -52,6 +52,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
+import { NO_REGEX_MATCHES, UriRegexMatcher } from "@bitwarden/common/vault/utils/uri-regex-matcher";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
@@ -1306,6 +1307,28 @@ describe("AutofillService", () => {
           duplicateUsernameField,
           duplicateUsernameField.value,
         );
+      });
+
+      it("evaluates `regex=` custom field names with the SDK regex matcher", async () => {
+        const regexMatcher = { matches: jest.fn().mockReturnValue(true) };
+        cipherService.getUriRegexMatcher.mockResolvedValue(regexMatcher);
+        defaultUsernameFieldView.name = "regex=^user";
+        jest.spyOn(AutofillService, "fillByOpid");
+
+        await autofillService["generateFillScript"](pageDetail, generateFillScriptOptions);
+
+        expect(regexMatcher.matches).toHaveBeenCalledWith("^user", "username");
+        expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+          expect.anything(),
+          defaultUsernameField,
+          defaultUsernameFieldView.value,
+        );
+      });
+
+      it("does not load the regex matcher when no custom field name uses `regex=`", async () => {
+        await autofillService["generateFillScript"](pageDetail, generateFillScriptOptions);
+
+        expect(cipherService.getUriRegexMatcher).not.toHaveBeenCalled();
       });
 
       it("will not attempt to fill by opid fields that are not viewable and are not a `span` element", async () => {
@@ -3911,12 +3934,14 @@ describe("AutofillService", () => {
       ]);
       const generateFillScriptOptions = createGenerateFillScriptOptionsMock({ tabUrl });
       generateFillScriptOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(true);
+      cipherService.getUriRegexMatcher.mockResolvedValue(NO_REGEX_MATCHES);
 
       const result = await autofillService["inUntrustedIframe"](pageUrl, generateFillScriptOptions);
 
       expect(generateFillScriptOptions.cipher.login.matchesUri).toHaveBeenCalledWith(
         pageUrl,
         equivalentDomains,
+        NO_REGEX_MATCHES,
         generateFillScriptOptions.defaultUriMatch,
       );
       expect(result).toBe(false);
@@ -3938,15 +3963,40 @@ describe("AutofillService", () => {
       jest
         .spyOn(domainSettingsService, "getUrlEquivalentDomains")
         .mockReturnValue(of(equivalentDomains));
+      cipherService.getUriRegexMatcher.mockResolvedValue(NO_REGEX_MATCHES);
 
       const result = await autofillService["inUntrustedIframe"](pageUrl, generateFillScriptOptions);
 
       expect(generateFillScriptOptions.cipher.login.matchesUri).toHaveBeenCalledWith(
         pageUrl,
         equivalentDomains,
+        NO_REGEX_MATCHES,
         generateFillScriptOptions.defaultUriMatch,
       );
       expect(result).toBe(true);
+    });
+    it("only loads the regex matcher when the cipher has a regular expression URI", async () => {
+      const pageUrl = "https://subdomain.example.com";
+      const options = createGenerateFillScriptOptionsMock({ tabUrl: "https://www.example.com" });
+      const uri = new LoginUriView();
+      uri.uri = "https://www.example.com";
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ uris: [uri], matchesUri: jest.fn(() => true) });
+      const regexMatcher = { matches: jest.fn() };
+      cipherService.getUriRegexMatcher.mockResolvedValue(regexMatcher);
+
+      await autofillService["inUntrustedIframe"](pageUrl, options);
+      expect(cipherService.getUriRegexMatcher).not.toHaveBeenCalled();
+
+      uri.match = UriMatchStrategy.RegularExpression;
+      await autofillService["inUntrustedIframe"](pageUrl, options);
+      expect(cipherService.getUriRegexMatcher).toHaveBeenCalledTimes(1);
+      expect(options.cipher.login.matchesUri).toHaveBeenLastCalledWith(
+        pageUrl,
+        expect.anything(),
+        regexMatcher,
+        options.defaultUriMatch,
+      );
     });
   });
 
@@ -5888,6 +5938,8 @@ describe("AutofillService", () => {
   });
 
   describe("findMatchingFieldIndex", () => {
+    const regexMatcher: UriRegexMatcher = NO_REGEX_MATCHES;
+
     beforeEach(() => {
       jest.spyOn(autofillService as any, "fieldPropertyIsMatch");
     });
@@ -5907,14 +5959,17 @@ describe("AutofillService", () => {
       attributes.forEach((attribute) => {
         const field = createAutofillFieldMock({ [attribute[0]]: value });
 
-        const result = autofillService["findMatchingFieldIndex"](field, [
-          `${attribute[1]}=${value}`,
-        ]);
+        const result = autofillService["findMatchingFieldIndex"](
+          field,
+          [`${attribute[1]}=${value}`],
+          regexMatcher,
+        );
 
         expect(autofillService["fieldPropertyIsMatch"]).toHaveBeenCalledWith(
           field,
           attribute[0],
           value,
+          regexMatcher,
         );
         expect(result).toBe(0);
       });
@@ -5935,7 +5990,7 @@ describe("AutofillService", () => {
       attributes.forEach((attribute) => {
         const field = createAutofillFieldMock({ [attribute]: value });
 
-        const result = autofillService["findMatchingFieldIndex"](field, [value]);
+        const result = autofillService["findMatchingFieldIndex"](field, [value], regexMatcher);
 
         expect(result).toBe(0);
       });
@@ -5951,6 +6006,7 @@ describe("AutofillService", () => {
         "htmlID",
         "id=username",
         "id",
+        NO_REGEX_MATCHES,
       );
 
       expect(result).toBe(true);
@@ -5964,6 +6020,7 @@ describe("AutofillService", () => {
         "htmlID",
         "id=some-othername",
         "id",
+        NO_REGEX_MATCHES,
       );
 
       expect(result).toBe(false);
@@ -5972,6 +6029,10 @@ describe("AutofillService", () => {
 
   describe("fieldPropertyIsMatch", () => {
     let field: AutofillField;
+    // Test data only; production code evaluates these in the SDK.
+    const regexMatcher: UriRegexMatcher = {
+      matches: (pattern, target) => new RegExp(pattern, "i").test(target),
+    };
 
     beforeEach(() => {
       field = createAutofillFieldMock();
@@ -5981,7 +6042,12 @@ describe("AutofillService", () => {
     it("returns false if the property within the field does not have a value", () => {
       field.htmlID = "";
 
-      const result = autofillService["fieldPropertyIsMatch"](field, "htmlID", "some-value");
+      const result = autofillService["fieldPropertyIsMatch"](
+        field,
+        "htmlID",
+        "some-value",
+        regexMatcher,
+      );
 
       expect(AutofillService.hasValue).toHaveBeenCalledWith("");
       expect(result).toBe(false);
@@ -5990,7 +6056,12 @@ describe("AutofillService", () => {
     it("returns true if the property within the field provides a value that is equal to the passed `name`", () => {
       field.htmlID = "some-value";
 
-      const result = autofillService["fieldPropertyIsMatch"](field, "htmlID", "some-value");
+      const result = autofillService["fieldPropertyIsMatch"](
+        field,
+        "htmlID",
+        "some-value",
+        regexMatcher,
+      );
 
       expect(AutofillService.hasValue).toHaveBeenCalledWith("some-value");
       expect(result).toBe(true);
@@ -6000,7 +6071,12 @@ describe("AutofillService", () => {
       it("returns false if the property within the field fails the `name` regex check", () => {
         field.htmlID = "some-false-value";
 
-        const result = autofillService["fieldPropertyIsMatch"](field, "htmlID", "regex=some-value");
+        const result = autofillService["fieldPropertyIsMatch"](
+          field,
+          "htmlID",
+          "regex=some-value",
+          regexMatcher,
+        );
 
         expect(result).toBe(false);
       });
@@ -6008,7 +6084,12 @@ describe("AutofillService", () => {
       it("returns true if the property within the field equals the `name` regex check", () => {
         field.htmlID = "some-value";
 
-        const result = autofillService["fieldPropertyIsMatch"](field, "htmlID", "regex=some-value");
+        const result = autofillService["fieldPropertyIsMatch"](
+          field,
+          "htmlID",
+          "regex=some-value",
+          regexMatcher,
+        );
 
         expect(result).toBe(true);
       });
@@ -6016,18 +6097,43 @@ describe("AutofillService", () => {
       it("returns true if the property within the field has a partial match to the `name` regex check", () => {
         field.htmlID = "some-value";
 
-        const result = autofillService["fieldPropertyIsMatch"](field, "htmlID", "regex=value");
+        const result = autofillService["fieldPropertyIsMatch"](
+          field,
+          "htmlID",
+          "regex=value",
+          regexMatcher,
+        );
 
         expect(result).toBe(true);
       });
 
-      it("will log an error when the regex triggers a catch block", () => {
+      it("passes the pattern and field value to the regex matcher", () => {
+        field.htmlID = "some-value";
+        const spyMatcher = { matches: jest.fn().mockReturnValue(true) };
+
+        const result = autofillService["fieldPropertyIsMatch"](
+          field,
+          "htmlID",
+          "regex=^some",
+          spyMatcher,
+        );
+
+        expect(spyMatcher.matches).toHaveBeenCalledWith("^some", "some-value");
+        expect(result).toBe(true);
+      });
+
+      it("returns false without logging when the pattern can't be used", () => {
         field.htmlID = "some-value";
         jest.spyOn(autofillService["logService"], "error");
 
-        const result = autofillService["fieldPropertyIsMatch"](field, "htmlID", "regex=+");
+        const result = autofillService["fieldPropertyIsMatch"](
+          field,
+          "htmlID",
+          "regex=+",
+          NO_REGEX_MATCHES,
+        );
 
-        expect(autofillService["logService"].error).toHaveBeenCalled();
+        expect(autofillService["logService"].error).not.toHaveBeenCalled();
         expect(result).toBe(false);
       });
     });
@@ -6040,6 +6146,7 @@ describe("AutofillService", () => {
           field,
           "htmlID",
           "csv=some-value,some-other-value,some-third-value",
+          regexMatcher,
         );
 
         expect(result).toBe(false);
@@ -6052,6 +6159,7 @@ describe("AutofillService", () => {
           field,
           "htmlID",
           "csv=some-value,some-other-value,some-third-value",
+          regexMatcher,
         );
 
         expect(result).toBe(true);
