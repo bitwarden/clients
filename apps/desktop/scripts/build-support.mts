@@ -88,11 +88,23 @@ export function runCommand(bin: string, args: string[], options: RunOptions = {}
   const cwd = path.resolve(projectDir, options.cwd ?? ".");
   // eslint-disable-next-line no-console
   console.log(`> ${[bin, ...args].join(" ")}${options.cwd == null ? "" : `  (in ${options.cwd})`}`);
-  execFileSync(bin, args, {
-    cwd,
-    stdio: "inherit",
-    env: { ...process.env, ...options.env },
-  });
+  try {
+    execFileSync(bin, args, {
+      cwd,
+      stdio: "inherit",
+      env: { ...process.env, ...options.env },
+    });
+  } catch (error) {
+    // The command inherited stdio, so it has already said what went wrong. Report the failure
+    // rather than letting execFileSync's error object become a stack trace on top of it.
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      throw new BuildError(`${bin} was not found on PATH.`);
+    }
+    const status = (error as { status?: number }).status;
+    throw new BuildError(
+      `${bin} ${args.join(" ")} failed${status == null ? "" : ` with exit code ${status}`}.`,
+    );
+  }
 }
 
 /// Copies a built artifact to where the configuration says it belongs.
