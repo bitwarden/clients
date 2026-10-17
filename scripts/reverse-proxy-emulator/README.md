@@ -4,7 +4,7 @@ A local development tool that emulates AWS ELB authentication without real AWS i
 
 ## How it works
 
-- **Bypass paths** (`/api/config`, `/api/cookie-vendor`) are forwarded to the backend unconditionally, because the client needs them before it can authenticate.
+- **Bypass paths** (`/api/config`, `/api/sso-cookie-vendor`) are forwarded to the backend unconditionally, because the client needs them before it can authenticate.
 - All other requests are checked for the `BitwardenLoadBalancerCookie`. Requests that carry the cookie are proxied to the backend.
 - Requests without the cookie are redirected to `/_elb-auth`, which serves a page with a "Continue" button. Clicking the button sets the cookie in the browser and redirects back to the original URL.
 

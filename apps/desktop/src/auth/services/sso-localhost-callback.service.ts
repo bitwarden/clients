@@ -27,21 +27,25 @@ export class SSOLocalhostCallbackService {
   ) {
     ipcMain.handle(
       "openSsoPrompt",
-      async (event, { codeChallenge, state, email, orgSsoIdentifier }) => {
+      async (event, { codeChallenge, state, email, useSsoLaunchConnector, orgSsoIdentifier }) => {
         // Close any existing server before starting new one
         if (this.currentServer) {
           await this.closeCurrentServer();
         }
 
-        return this.openSsoPrompt(codeChallenge, state, email, orgSsoIdentifier).then(
-          ({ ssoCode, recvState }) => {
-            this.messagingService.send("ssoCallback", {
-              code: ssoCode,
-              state: recvState,
-              redirectUri: this.ssoRedirectUri,
-            });
-          },
-        );
+        return this.openSsoPrompt(
+          codeChallenge,
+          state,
+          email,
+          useSsoLaunchConnector,
+          orgSsoIdentifier,
+        ).then(({ ssoCode, recvState }) => {
+          this.messagingService.send("ssoCallback", {
+            code: ssoCode,
+            state: recvState,
+            redirectUri: this.ssoRedirectUri,
+          });
+        });
       },
     );
   }
@@ -63,6 +67,7 @@ export class SSOLocalhostCallbackService {
     codeChallenge: string,
     state: string,
     email: string,
+    useSsoLaunchConnector: boolean,
     orgSsoIdentifier?: string,
   ): Promise<{ ssoCode: string; recvState: string }> {
     // Use the global environment because the user-scoped environment is not set until authentication is complete.
@@ -121,15 +126,28 @@ export class SSOLocalhostCallbackService {
         }
 
         this.ssoRedirectUri = "http://localhost:" + port;
-        const ssoUrl = this.ssoUrlService.buildSsoUrl(
-          webUrl,
-          ClientType.Desktop,
-          this.ssoRedirectUri,
-          state,
-          codeChallenge,
-          email,
-          orgSsoIdentifier,
-        );
+        // Behind a pre-authenticating reverse proxy, start SSO via the launch connector so the URL
+        // is a real path + query that survives the proxy's sign-in roundtrip (a `/#/sso?...`
+        // fragment would be dropped). Otherwise navigate straight to the SSO hash route.
+        const ssoUrl = useSsoLaunchConnector
+          ? this.ssoUrlService.buildSsoLaunchConnectorUrl(
+              webUrl,
+              ClientType.Desktop,
+              this.ssoRedirectUri,
+              state,
+              codeChallenge,
+              email,
+              orgSsoIdentifier,
+            )
+          : this.ssoUrlService.buildSsoUrl(
+              webUrl,
+              ClientType.Desktop,
+              this.ssoRedirectUri,
+              state,
+              codeChallenge,
+              email,
+              orgSsoIdentifier,
+            );
 
         // Set up error handler before attempting to listen
         callbackServer.once("error", (err: any) => {
