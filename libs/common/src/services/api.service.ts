@@ -98,16 +98,13 @@ import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
-import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
-import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 
@@ -499,51 +496,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentResponse(r);
   }
 
-  async getAttachmentDataAdmin(
-    cipherId: string,
-    attachmentId: string,
-  ): Promise<AttachmentResponse> {
-    const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
-    const r = await this.send("GET", path, null, true, true);
-    return new AttachmentResponse(r);
-  }
-
-  async postCipherAttachment(
-    id: string,
-    request: AttachmentRequest,
-  ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
-    return new AttachmentUploadDataResponse(r);
-  }
-
-  async deleteCipherAttachment(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse> {
-    const r = await this.send(
-      "DELETE",
-      "/ciphers/" + id + "/attachment/" + attachmentId,
-      null,
-      true,
-      true,
-    );
-    return new DeleteAttachmentResponse(r);
-  }
-
-  async deleteCipherAttachmentAdmin(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse> {
-    const r = await this.send(
-      "DELETE",
-      "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
-      null,
-      true,
-      true,
-    );
-    return new DeleteAttachmentResponse(r);
-  }
-
   postShareCipherAttachment(
     id: string,
     attachmentId: string,
@@ -557,20 +509,6 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       false,
     );
-  }
-
-  async renewAttachmentUploadUrl(
-    id: string,
-    attachmentId: string,
-  ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/" + id + "/attachment/" + attachmentId + "/renew",
-      null,
-      true,
-      true,
-    );
-    return new AttachmentUploadDataResponse(r);
   }
 
   async postAttachmentFile(
