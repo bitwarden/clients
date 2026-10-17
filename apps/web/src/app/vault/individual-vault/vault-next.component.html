@@ -15,6 +15,16 @@
       aria-hidden="true"
     />
   }
+  @if (currentCollection(); as collection) {
+    <vault-collection-options-menu
+      slot="title-suffix"
+      [collection]="collection"
+      [organization]="currentOrganization()"
+      triggerIcon="bwi-angle-down"
+      idPrefix="vault-next"
+      (actionResult)="onCollectionActionResult($event)"
+    />
+  }
 </app-header>
 
 @if (showSubscriptionEndedMessaging()) {

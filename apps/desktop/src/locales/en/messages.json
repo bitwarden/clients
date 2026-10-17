@@ -904,6 +904,12 @@
   "edit": {
     "message": "Edit"
   },
+  "editInfo": {
+    "message": "Edit info"
+  },
+  "editAccess": {
+    "message": "Edit access"
+  },
   "authenticatorKeyTotp": {
     "message": "Authenticator key (TOTP)"
   },

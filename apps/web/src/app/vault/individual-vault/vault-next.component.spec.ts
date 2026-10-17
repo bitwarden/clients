@@ -5,7 +5,8 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
 }));
 
 import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject } from "rxjs";
@@ -35,13 +36,22 @@ import {
   AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
+  BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
+  BulkDeleteDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionDialogOutcome,
+  CollectionDialogRef,
+  CollectionDialogTab,
+  CollectionOptionsMenuComponent,
   DecryptionFailureDialogComponent,
   ARCHIVE_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   MY_VAULT_ROUTE,
+  sharedFoldersCommands,
   TRASH_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -93,6 +103,8 @@ describe("VaultNextComponent", () => {
   let webVaultPromptService: MockProxy<WebVaultPromptService>;
   let coachmarkService: MockProxy<CoachmarkService>;
   let collectionService: MockProxy<CollectionService>;
+  let collectionDialog: MockProxy<CollectionDialogRef>;
+  let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let addItemDialogOpen: jest.SpyInstance;
   let addEditFolderDialogOpen: jest.SpyInstance;
 
@@ -264,6 +276,9 @@ describe("VaultNextComponent", () => {
     collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(collections$);
 
+    collectionDialog = mock<CollectionDialogRef>();
+    bulkDeleteDialog = mock<BulkDeleteDialogRef>();
+
     // Needed only by the projected toolbar button's i18n pipe.
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
@@ -360,6 +375,7 @@ describe("VaultNextComponent", () => {
             Vfo1I18nPipe,
             VaultRemountOnDirective,
             CoachmarkComponent,
+            CollectionOptionsMenuComponent,
             PopoverModule,
           ],
           schemas: [NO_ERRORS_SCHEMA],
@@ -367,6 +383,8 @@ describe("VaultNextComponent", () => {
             { provide: WebVaultItemActionsService, useValue: itemActions },
             { provide: WebVaultPromptService, useValue: webVaultPromptService },
             { provide: VaultBatchBarService, useValue: batchBarService },
+            { provide: COLLECTION_DIALOG, useValue: collectionDialog },
+            { provide: BULK_DELETE_DIALOG, useValue: bulkDeleteDialog },
           ],
         },
       })
@@ -813,6 +831,118 @@ describe("VaultNextComponent", () => {
       it("shows breadcrumbs rather than a header tile", () => {
         expect(component().showBreadcrumbs()).toBe(true);
         expect(component().headerTile()).toBeUndefined();
+      });
+
+      describe("the collection options menu", () => {
+        const manageableFolder = () =>
+          Object.assign(buildCollection(engineeringId, organizationId), { manage: true });
+
+        it("resolves the viewed folder and its organization for the menu", () => {
+          collections$.next([manageableFolder()]);
+          fixture.detectChanges();
+
+          expect(component().currentCollection()?.id).toBe(engineeringId);
+          expect(component().currentOrganization()?.id).toBe(organizationId);
+        });
+
+        describe("navigating away after a result", () => {
+          it("goes to the organization's shared folders list on a deleted result", async () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().onCollectionActionResult({
+              deleted: true,
+              organizationId,
+              collectionId: engineeringId,
+            });
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("stays put when the result isn't a delete and the folder is still there", async () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().onCollectionActionResult({
+              deleted: false,
+              organizationId,
+              collectionId: engineeringId,
+            });
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("goes to the organization's shared folders list when a non-delete result left the folder gone (the member's own self-unassignment)", async () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+            collections$.next([]);
+
+            await component().onCollectionActionResult({
+              deleted: false,
+              organizationId,
+              collectionId: engineeringId,
+            });
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("does nothing if the viewer has since moved to a different folder (a stale result from a dialog left open through Back/Forward)", async () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            await component().onCollectionActionResult({
+              deleted: true,
+              organizationId,
+              collectionId: designId,
+            });
+            await component().onCollectionActionResult({
+              deleted: true,
+              organizationId: otherOrganizationId,
+              collectionId: engineeringId,
+            });
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("navigates through the real child component, exercising the dialog-close-vs-collections-update interleaving end to end", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            collectionDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              return CollectionDialogOutcome.Saved;
+            });
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["editCollection"](CollectionDialogTab.Info);
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+
+          it("navigates through the real child component's delete(), not just a synthetic call to the parent's handler", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Deleted);
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["delete"]();
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+        });
       });
     });
 

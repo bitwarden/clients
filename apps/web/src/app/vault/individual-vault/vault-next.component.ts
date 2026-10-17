@@ -52,6 +52,9 @@ import {
   BULK_DELETE_DIALOG,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionActionResult,
+  CollectionOptionsMenuComponent,
   copyPresentation$,
   DecryptionFailureDialogComponent,
   DEFAULT_COPY_PRESENTATION,
@@ -77,6 +80,7 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
+  sharedFoldersCommands,
   vaultScopeHeaderTile,
   vaultScopeTitle,
   scopedSharedFolderId,
@@ -103,6 +107,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { ItemDeepLink, ItemDeepLinkAction, itemDeepLinkFrom } from "../utils/item-deep-link";
 
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CollectionWebDialogAdapter } from "./shared-folders/collection-web-dialog.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -133,6 +138,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBannersComponent,
     VaultBatchActionComponent,
     VaultBreadcrumbsComponent,
+    CollectionOptionsMenuComponent,
     IconTileComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
@@ -152,6 +158,11 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultBatchBarService,
     { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
     { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+    safeProvider({
+      provide: COLLECTION_DIALOG,
+      useClass: CollectionWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class VaultNextComponent implements OnInit {
@@ -393,6 +404,16 @@ export class VaultNextComponent implements OnInit {
     return collectionId != null && isGuid(collectionId)
       ? (collectionId as CollectionId)
       : undefined;
+  });
+
+  protected readonly currentCollection = computed(() => {
+    const id = this.scopedCollectionId();
+    return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
+  });
+
+  protected readonly currentOrganization = computed(() => {
+    const orgId = this.scopedOrganizationId();
+    return orgId == null ? undefined : this.organizations().find((o) => o.id === orgId);
   });
 
   /**
@@ -680,6 +701,21 @@ export class VaultNextComponent implements OnInit {
         new CollectionData(result.collection as CollectionDetailsResponse),
         userId,
       );
+    }
+  }
+
+  /** Navigates away if the shared folder is no longer available. */
+  protected async onCollectionActionResult({
+    deleted,
+    organizationId,
+    collectionId,
+  }: CollectionActionResult): Promise<void> {
+    if (
+      this.scopedOrganizationId() === organizationId &&
+      this.scopedCollectionId() === collectionId &&
+      (deleted || this.currentCollection() == null)
+    ) {
+      await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
     }
   }
 

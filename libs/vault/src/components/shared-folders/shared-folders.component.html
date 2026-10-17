@@ -136,49 +136,14 @@
       <bit-cell *bitCellDef="table.columns.options; let row">
         <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
              anchoring it to the same position on every row. -->
-        @if (row.canEdit || row.canDelete) {
+        @if (showRowMenu(row)) {
           <div slot="end">
-            <button
-              type="button"
-              bitIconButton="bwi-ellipsis-v"
-              size="small"
-              [label]="'optionsForItem' | i18n: row.name"
-              [bitMenuTriggerFor]="rowMenu"
-            ></button>
-            <bit-menu #rowMenu>
-              @if (row.canEdit) {
-                <button
-                  type="button"
-                  bitMenuItem
-                  [attr.id]="'shared-folders_menu-item_edit-' + row.id"
-                  (click)="editSharedFolder(row)"
-                >
-                  <bit-icon slot="start" fixedWidth name="bwi-pencil-square" />
-                  {{ "edit" | i18n }}
-                </button>
-                <button
-                  type="button"
-                  bitMenuItem
-                  [attr.id]="'shared-folders_menu-item_access-' + row.id"
-                  (click)="editSharedFolderAccess(row)"
-                >
-                  <bit-icon slot="start" fixedWidth name="bwi-users" />
-                  {{ "access" | i18n }}
-                </button>
-              }
-              @if (row.canDelete) {
-                <button
-                  type="button"
-                  bitMenuItem
-                  variant="danger"
-                  [attr.id]="'shared-folders_menu-item_delete-' + row.id"
-                  (click)="deleteSharedFolder(row)"
-                >
-                  <bit-icon slot="start" fixedWidth name="bwi-trash" />
-                  {{ "delete" | i18n }}
-                </button>
-              }
-            </bit-menu>
+            <vault-collection-options-menu
+              [collection]="row.collection"
+              [organization]="organization()"
+              triggerIcon="bwi-ellipsis-v"
+              idPrefix="shared-folders"
+            />
           </div>
         }
       </bit-cell>
