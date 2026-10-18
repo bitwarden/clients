@@ -177,6 +177,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   );
   private connected$ = new BehaviorSubject(false);
   private windowClosed$: Observable<number>;
+  private tabClosed$: Observable<number>;
   private destroy$ = new Subject<void>();
 
   private constructor(
@@ -224,6 +225,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     this.windowClosed$ = fromChromeEvent(chrome.windows.onRemoved).pipe(
       map(([windowId]) => windowId),
     );
+    this.tabClosed$ = fromChromeEvent(chrome.tabs.onRemoved).pipe(map(([tabId]) => tabId));
 
     BrowserFido2UserInterfaceSession.sendMessage({
       type: BrowserFido2MessageTypes.NewSessionCreatedRequest,
@@ -366,15 +368,16 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // Defensive measure in case an existing notification appeared before the passkey popout
     await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
 
-    const popoutId = await openFido2Popout(this.tab, {
+    const { id: popoutId, isTab } = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
       fallbackSupported: this.fallbackSupported,
     });
 
-    this.windowClosed$
+    // The popout is a tab, rather than a window, when it was opened from a fullscreen window
+    (isTab ? this.tabClosed$ : this.windowClosed$)
       .pipe(
-        filter((windowId) => {
-          return popoutId === windowId;
+        filter((closedId) => {
+          return popoutId === closedId;
         }),
         takeUntil(this.destroy$),
       )

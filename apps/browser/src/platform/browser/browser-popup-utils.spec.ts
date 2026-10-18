@@ -293,6 +293,60 @@ describe("BrowserPopupUtils", () => {
       });
     });
 
+    describe("when the sender window is fullscreen on macOS", () => {
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "getWindow").mockReset();
+        jest.spyOn(BrowserApi, "getWindow").mockResolvedValue({
+          id: 1,
+          left: 0,
+          top: 0,
+          width: 1440,
+          state: "fullscreen",
+        } as chrome.windows.Window);
+        jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+          os: "mac",
+        } as chrome.runtime.PlatformInfo);
+        jest
+          .spyOn(BrowserApi, "createNewTabInWindow")
+          .mockResolvedValue({ id: 5, windowId: 1 } as any);
+      });
+
+      it("opens the popout as a tab in the sender window instead of a window", async () => {
+        const url = "popup/index.html";
+
+        const result = await BrowserPopupUtils.openPopout(url);
+
+        expect(BrowserApi.createNewTabInWindow).toHaveBeenCalledWith(
+          `chrome-extension://id/${url}?uilocation=popout`,
+          1,
+        );
+        expect(BrowserApi.createWindow).not.toHaveBeenCalled();
+        expect(BrowserPopupUtils.isTab(result)).toBe(true);
+      });
+
+      it("still creates a window when the sender window is not fullscreen", async () => {
+        jest
+          .spyOn(BrowserApi, "getWindow")
+          .mockResolvedValue({ id: 1, left: 0, top: 0, width: 1440, state: "normal" } as any);
+
+        await BrowserPopupUtils.openPopout("popup/index.html");
+
+        expect(BrowserApi.createNewTabInWindow).not.toHaveBeenCalled();
+        expect(BrowserApi.createWindow).toHaveBeenCalled();
+      });
+
+      it("still creates a window on other platforms", async () => {
+        jest
+          .spyOn(BrowserApi, "getPlatformInfo")
+          .mockResolvedValue({ os: "win" } as chrome.runtime.PlatformInfo);
+
+        await BrowserPopupUtils.openPopout("popup/index.html");
+
+        expect(BrowserApi.createNewTabInWindow).not.toHaveBeenCalled();
+        expect(BrowserApi.createWindow).toHaveBeenCalled();
+      });
+    });
+
     it("uses the narrow width when localStorage has the narrow setting", async () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
@@ -444,13 +498,38 @@ describe("BrowserPopupUtils", () => {
         }),
       ]);
       jest.spyOn(BrowserApi, "removeWindow").mockResolvedValueOnce();
+      jest
+        .spyOn(BrowserApi, "getWindowById")
+        .mockResolvedValue({ type: "popup" } as chrome.windows.Window);
 
       await BrowserPopupUtils.closeSingleActionPopout("123");
-      jest.runOnlyPendingTimers();
+      await jest.runOnlyPendingTimersAsync();
 
       expect(BrowserApi.removeWindow).toHaveBeenNthCalledWith(1, 11);
       expect(BrowserApi.removeWindow).toHaveBeenNthCalledWith(2, 21);
       expect(BrowserApi.removeWindow).not.toHaveBeenCalledWith(31);
+    });
+
+    it("only closes the tab when the popout is a tab in a normal window", async () => {
+      jest.useFakeTimers();
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValueOnce([
+        createChromeTabMock({
+          id: 10,
+          url: "chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=123",
+          windowId: 11,
+        }),
+      ]);
+      jest
+        .spyOn(BrowserApi, "getWindowById")
+        .mockResolvedValue({ type: "normal" } as chrome.windows.Window);
+      jest.spyOn(BrowserApi, "removeTab").mockResolvedValue();
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeSingleActionPopout("123");
+      await jest.runOnlyPendingTimersAsync();
+
+      expect(BrowserApi.removeTab).toHaveBeenCalledWith(10);
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
     });
   });
 
@@ -482,6 +561,22 @@ describe("BrowserPopupUtils", () => {
 
       expect(BrowserApi.removeWindow).toHaveBeenCalledWith(42);
       expect(BrowserApi.closePopup).not.toHaveBeenCalled();
+    });
+
+    it("only removes the current tab when the popout is a tab in a normal window", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      jest
+        .spyOn(BrowserApi, "getWindow")
+        .mockResolvedValue({ id: 42, type: "normal" } as chrome.windows.Window);
+      jest.spyOn(BrowserApi, "getCurrentTab").mockResolvedValue({ id: 7 } as chrome.tabs.Tab);
+      jest.spyOn(BrowserApi, "removeTab").mockResolvedValue();
+      jest.spyOn(BrowserApi, "removeWindow");
+
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(win);
+
+      expect(BrowserApi.removeTab).toHaveBeenCalledWith(7);
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalled();
     });
 
     it("does nothing when the view is neither a popup nor a popout", async () => {
@@ -629,6 +724,10 @@ describe("BrowserPopupUtils", () => {
         }),
       ]);
 
+      jest
+        .spyOn(BrowserApi, "getWindowById")
+        .mockResolvedValue({ type: "popup" } as chrome.windows.Window);
+
       await expect(
         BrowserPopupUtils["isSingleActionPopoutOpen"]("123", windowOptions),
       ).resolves.toBe(true);
@@ -640,6 +739,29 @@ describe("BrowserPopupUtils", () => {
         left: 100,
       });
       expect(BrowserApi.removeWindow).toHaveBeenCalledTimes(1);
+    });
+
+    it("only focuses the tab, without resizing, when the popout is a tab in a normal window", async () => {
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValueOnce([
+        createChromeTabMock({
+          id: 10,
+          windowId: 2,
+          url: `chrome-extension://id/popup/index.html?uilocation=popout&singleActionPopout=123`,
+        }),
+      ]);
+      jest
+        .spyOn(BrowserApi, "getWindowById")
+        .mockResolvedValue({ type: "normal" } as chrome.windows.Window);
+      jest.spyOn(BrowserApi, "focusTab").mockResolvedValue();
+      jest.spyOn(BrowserApi, "focusWindow").mockResolvedValue();
+
+      await expect(
+        BrowserPopupUtils["isSingleActionPopoutOpen"]("123", windowOptions),
+      ).resolves.toBe(true);
+
+      expect(BrowserApi.focusTab).toHaveBeenCalledWith(10);
+      expect(BrowserApi.focusWindow).toHaveBeenCalledWith(2);
+      expect(BrowserApi.updateWindowProperties).not.toHaveBeenCalled();
     });
   });
 });
