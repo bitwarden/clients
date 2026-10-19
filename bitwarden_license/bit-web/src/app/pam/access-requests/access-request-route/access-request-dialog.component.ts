@@ -2,11 +2,12 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
+  inject,
+  LOCALE_ID,
   NgZone,
   OnInit,
-  computed,
-  inject,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -106,6 +107,7 @@ export class AccessRequestDialogComponent implements OnInit {
   private readonly logService = inject(LogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly locale = inject(LOCALE_ID);
 
   protected readonly request = toSignal(this.detail.request$, { initialValue: null });
   protected readonly loading = toSignal(this.detail.loading$, { initialValue: true });
@@ -175,7 +177,7 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected readonly exactWindowText = computed(() => {
     const request = this.request();
-    return request == null ? "" : exactWindow(request);
+    return request == null ? "" : exactWindow(request, this.locale);
   });
 
   protected readonly reason = computed(() => {

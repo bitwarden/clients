@@ -45,7 +45,6 @@ describe("classifyRequestAccessError", () => {
       REQUEST_ACCESS_SERVER_ERRORS.WindowInPast,
       REQUEST_ACCESS_SDK_ERRORS.WindowInPast,
       REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
-      REQUEST_ACCESS_SERVER_ERRORS.Unlicensed,
     ])("echoes %s inline with no pinned field", (message) => {
       expect(classifyRequestAccessError(message)).toEqual({
         kind: "inline",

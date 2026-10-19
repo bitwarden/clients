@@ -54,6 +54,7 @@ export function toApprovalRow(
   names: ResolvedNames,
   now: Date,
   canDecide: boolean,
+  locale: string,
 ): ApprovalRow {
   const cipherId = uuidAsString(request.cipherId);
   const collectionId = uuidAsString(request.collectionId);
@@ -77,7 +78,7 @@ export function toApprovalRow(
     reason: reasonText(request),
     duration: durationLabel(request),
     relativeStart: relativeStart(request, now),
-    exactWindow: exactWindow(request),
+    exactWindow: exactWindow(request, locale),
     canDecide,
     searchText: [cipherName, collectionName, request.requesterName, request.requesterEmail]
       .filter((value): value is string => !!value)

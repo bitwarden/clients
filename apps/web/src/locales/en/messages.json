@@ -19206,24 +19206,6 @@
   "requestAccessModalDuration": {
     "message": "Duration"
   },
-  "requestAccessModalDuration15m": {
-    "message": "15 minutes"
-  },
-  "requestAccessModalDuration30m": {
-    "message": "30 minutes"
-  },
-  "requestAccessModalDuration1h": {
-    "message": "1 hour"
-  },
-  "requestAccessModalDuration4h": {
-    "message": "4 hours"
-  },
-  "requestAccessModalDuration8h": {
-    "message": "8 hours"
-  },
-  "requestAccessModalDuration1d": {
-    "message": "1 day"
-  },
   "requestAccessModalStartDate": {
     "message": "Start date"
   },
