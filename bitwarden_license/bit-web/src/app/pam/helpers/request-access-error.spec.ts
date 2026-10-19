@@ -45,7 +45,6 @@ describe("classifyRequestAccessError", () => {
       REQUEST_ACCESS_SERVER_ERRORS.WindowInPast,
       REQUEST_ACCESS_SDK_ERRORS.WindowInPast,
       REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
-      REQUEST_ACCESS_SERVER_ERRORS.Unlicensed,
     ])("echoes %s inline with no pinned field", (message) => {
       expect(classifyRequestAccessError(message)).toEqual({
         kind: "inline",
@@ -65,6 +64,24 @@ describe("classifyRequestAccessError", () => {
     });
   });
 
+  describe("refusal cases", () => {
+    // Literals rather than the catalog constants, which would pass however they're worded.
+    it.each([
+      [
+        "Access to this item is not permitted from your current network.",
+        "pamStartLeaseErrorNetworkNotPermitted",
+      ],
+      ["Access to this item is not permitted at this time.", "pamStartLeaseErrorTimeNotPermitted"],
+      ["Access to this item is not permitted right now.", "pamStartLeaseErrorNotPermitted"],
+      [
+        "A Privileged Controls license is required to access this item. Ask your admin to activate your license.",
+        "pamLeaseErrorUnlicensed",
+      ],
+    ])("shows its own string for %s", (message, messageKey) => {
+      expect(classifyRequestAccessError(message)).toEqual({ kind: "refused", messageKey });
+    });
+  });
+
   describe("interpolated maximum cases", () => {
     it.each([
       [
@@ -79,6 +96,17 @@ describe("classifyRequestAccessError", () => {
         kind: "exceedsMax",
         scope,
         maxSeconds,
+        serverMessage: message,
+      });
+    });
+
+    it("recognises the SDK's local refusal, which has no full stop", () => {
+      const message = "The requested window exceeds the maximum of 31536000 seconds";
+
+      expect(classifyRequestAccessError(message)).toEqual({
+        kind: "exceedsMax",
+        scope: "window",
+        maxSeconds: 31536000,
         serverMessage: message,
       });
     });

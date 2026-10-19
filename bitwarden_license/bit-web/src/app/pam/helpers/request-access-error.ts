@@ -1,3 +1,4 @@
+import { ACTIVATE_ACCESS_SERVER_ERRORS } from "./activate-access-error";
 import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
 
 /**
@@ -18,7 +19,6 @@ export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   StartEndRequired: "A start and end date are required.",
   PositiveDurationRequired: "A positive duration is required.",
   NotLeasingGated: "This item does not require a lease.",
-  /** The banner blocks the form first, so this means the license lapsed after render. */
   Unlicensed: UNLICENSED_SERVER_MESSAGE,
 } as const);
 
@@ -32,11 +32,11 @@ export const REQUEST_ACCESS_SDK_ERRORS = Object.freeze({
 } as const);
 
 /**
- * The refusal the server interpolates its `EffectiveMax` into. Captures the noun too, since a
- * duration refusal must not be worded as a window one.
+ * The refusal the server interpolates its `EffectiveMax` into, and the SDK's local twin, which has
+ * no full stop. Captures the noun too, since a duration refusal must not be worded as a window one.
  */
 const EXCEEDS_MAX_PATTERN =
-  /The requested (duration|window) exceeds the maximum of (\d+) seconds\./;
+  /The requested (duration|window) exceeds the maximum of (\d+) seconds\.?/;
 
 /** How the cipher-view banner should respond to a failed access-request submit. */
 export type RequestAccessErrorOutcome =
@@ -50,6 +50,8 @@ export type RequestAccessErrorOutcome =
    * echoed verbatim.
    */
   | { readonly kind: "inline"; readonly serverMessage: string; readonly field?: "reason" }
+  /** A refusal the requester can't fix in the form, with its own localized string. */
+  | { readonly kind: "refused"; readonly messageKey: string }
   /**
    * `maxSeconds` is the maximum the server applied, which may be narrower than the form was told.
    * `serverMessage` is the fallback for a path with no localized string.
@@ -78,6 +80,17 @@ const RECONCILIATION_TOAST_KEYS: ReadonlyArray<{ serverMessage: string; toastKey
   },
 ];
 
+/**
+ * The automatic path evaluates the rule's conditions on submit, so it refuses in activation's words.
+ * The banner blocks the form while unlicensed, so the license lapsed after render.
+ */
+const REFUSAL_MESSAGE_KEYS: ReadonlyArray<{ serverMessage: string; messageKey: string }> = [
+  ACTIVATE_ACCESS_SERVER_ERRORS.NetworkNotPermitted,
+  ACTIVATE_ACCESS_SERVER_ERRORS.TimeNotPermitted,
+  ACTIVATE_ACCESS_SERVER_ERRORS.NotPermitted,
+  ACTIVATE_ACCESS_SERVER_ERRORS.Unlicensed,
+];
+
 /** Echoed inline from either source, since the requester's fix is the same. */
 const INLINE_MESSAGES: ReadonlyArray<string> = [
   REQUEST_ACCESS_SERVER_ERRORS.PositiveDurationRequired,
@@ -88,7 +101,6 @@ const INLINE_MESSAGES: ReadonlyArray<string> = [
   REQUEST_ACCESS_SERVER_ERRORS.WindowInPast,
   REQUEST_ACCESS_SDK_ERRORS.WindowInPast,
   REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
-  REQUEST_ACCESS_SERVER_ERRORS.Unlicensed,
 ];
 
 /** Matched with `includes`, since an undecoded message keeps the SDK's transport prefix. */
@@ -112,6 +124,11 @@ export function classifyRequestAccessError(
       serverMessage: REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired,
       field: "reason",
     };
+  }
+
+  const refusal = REFUSAL_MESSAGE_KEYS.find((entry) => message.includes(entry.serverMessage));
+  if (refusal != null) {
+    return { kind: "refused", messageKey: refusal.messageKey };
   }
 
   const inline = INLINE_MESSAGES.find((entry) => message.includes(entry));

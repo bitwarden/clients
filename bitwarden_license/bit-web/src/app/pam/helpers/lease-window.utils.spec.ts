@@ -92,8 +92,14 @@ describe("requestDurationOptions", () => {
     expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
   });
 
-  it("offers every preset when the cap is the global ceiling", () => {
+  it("offers every preset when the cap matches the largest one", () => {
     expect(seconds(requestDurationOptions(24 * 60 * 60, 60 * 60))).toEqual(
+      REQUEST_ACCESS_DURATION_PRESETS.map((p) => p.seconds),
+    );
+  });
+
+  it("offers only the presets for a rule with no maximum, which reports the one-year ceiling", () => {
+    expect(seconds(requestDurationOptions(365 * 24 * 60 * 60, 60 * 60))).toEqual(
       REQUEST_ACCESS_DURATION_PRESETS.map((p) => p.seconds),
     );
   });
@@ -101,7 +107,7 @@ describe("requestDurationOptions", () => {
   it("keeps the i18n label of a preset-backed option", () => {
     const [first] = requestDurationOptions(30 * 60, 15 * 60);
 
-    expect(first.labelKey).toBe("requestAccessModalDuration15m");
+    expect(first.labelKey).toBe("pamAccessRuleDuration15m");
   });
 
   it("offers the cap itself when no preset matches it, unlabelled for value formatting", () => {

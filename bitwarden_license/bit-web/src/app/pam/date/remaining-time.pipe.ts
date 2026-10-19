@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { inject, LOCALE_ID, Pipe, PipeTransform } from "@angular/core";
 
 import { formatRemaining } from "..";
 
@@ -7,7 +7,9 @@ import { formatRemaining } from "..";
   name: "remainingTime",
 })
 export class RemainingTimePipe implements PipeTransform {
+  private readonly locale = inject(LOCALE_ID);
+
   transform(notAfter: string, nowMs: number): string {
-    return formatRemaining(Date.parse(notAfter) - nowMs);
+    return formatRemaining(this.locale, Date.parse(notAfter) - nowMs);
   }
 }

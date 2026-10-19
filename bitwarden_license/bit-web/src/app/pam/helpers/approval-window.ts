@@ -14,17 +14,16 @@ export function durationLabel(
   request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
 ): LabelValue {
   const seconds = requestedWindowSeconds(request);
-  if (seconds < 3600) {
-    return { key: "pamInboxDurationMinutes", value: Math.max(1, Math.round(seconds / 60)) };
+  // Rounded before picking the key, so a window just either side of an hour reads "1 hour".
+  const minutes = Math.max(1, Math.round(seconds / 60));
+  if (minutes < 60) {
+    return { key: "pamInboxDurationMinutes", value: minutes };
   }
-  const hours = seconds / 3600;
+  const hours = Math.round(seconds / 360) / 10;
   if (hours === 1) {
     return { key: "pamInboxDuration1Hour", value: null };
   }
-  return {
-    key: "pamInboxDurationHours",
-    value: Number.isInteger(hours) ? hours : Math.round(hours * 10) / 10,
-  };
+  return { key: "pamInboxDurationHours", value: hours };
 }
 
 /**
@@ -51,14 +50,22 @@ export function relativeStart(
   return { key: "pamInboxStartInDays", value: diffDays };
 }
 
-const WINDOW_FORMAT = new Intl.DateTimeFormat(undefined, {
-  dateStyle: "short",
-  timeStyle: "short",
-});
+const windowFormats = new Map<string, Intl.DateTimeFormat>();
 
-/** The exact window, for the tooltip. */
+/** The exact window, for the tooltip, in the user's chosen locale rather than the browser's. */
 export function exactWindow(
   request: Pick<AccessRequestView, "leaseNotBefore" | "leaseNotAfter">,
+  locale: string,
 ): string {
-  return `${WINDOW_FORMAT.format(new Date(request.leaseNotBefore))} – ${WINDOW_FORMAT.format(new Date(request.leaseNotAfter))}`;
+  const format = windowFormatFor(locale);
+  return `${format.format(new Date(request.leaseNotBefore))} – ${format.format(new Date(request.leaseNotAfter))}`;
+}
+
+function windowFormatFor(locale: string): Intl.DateTimeFormat {
+  let format = windowFormats.get(locale);
+  if (!format) {
+    format = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" });
+    windowFormats.set(locale, format);
+  }
+  return format;
 }

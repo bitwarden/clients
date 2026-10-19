@@ -1,4 +1,5 @@
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
@@ -74,9 +75,15 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: AccessEventService,
       // A factory, since the service takes the notification stream rather than the service.
-      useFactory: (notificationsService: ServerNotificationsService) =>
-        new DefaultAccessEventService(notificationsService.notifications$),
-      deps: [ServerNotificationsService],
+      useFactory: (
+        notificationsService: ServerNotificationsService,
+        accountService: AccountService,
+      ) =>
+        new DefaultAccessEventService(
+          notificationsService.notifications$,
+          accountService.activeAccount$.pipe(getOptionalUserId),
+        ),
+      deps: [ServerNotificationsService, AccountService],
     }),
     safeProvider({
       provide: AccessRefreshService,

@@ -17,6 +17,18 @@ describe("formatRemaining", () => {
     [(2 * 60 + 5) * 60_000, "2h 5m"],
     [2 * 60 * 60_000, "2h"],
   ])("formats %dms as %s", (ms, expected) => {
-    expect(formatRemaining(ms)).toBe(expected);
+    expect(formatRemaining("en-US", ms)).toBe(expected);
+  });
+
+  it("localizes the units and the list", () => {
+    // Built from Intl itself, so this doesn't hardcode ICU's German wording.
+    const unit = (value: number, unit: "hour" | "minute") =>
+      new Intl.NumberFormat("de", { style: "unit", unit, unitDisplay: "narrow" }).format(value);
+    const expected = new Intl.ListFormat("de", { type: "unit", style: "narrow" }).format([
+      unit(2, "hour"),
+      unit(5, "minute"),
+    ]);
+
+    expect(formatRemaining("de", (2 * 60 + 5) * 60_000)).toBe(expected);
   });
 });

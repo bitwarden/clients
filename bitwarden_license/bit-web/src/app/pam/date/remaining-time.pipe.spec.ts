@@ -1,7 +1,14 @@
+import { TestBed } from "@angular/core/testing";
+
 import { RemainingTimePipe } from "./remaining-time.pipe";
 
 describe("RemainingTimePipe", () => {
-  const pipe = new RemainingTimePipe();
+  let pipe: RemainingTimePipe;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    pipe = TestBed.runInInjectionContext(() => new RemainingTimePipe());
+  });
 
   // The exhaustive ms-formatting cases live in format-remaining.spec.ts; these cover the
   // notAfter/now wiring the pipe adds.

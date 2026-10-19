@@ -1,4 +1,4 @@
-import { Subject, Subscription } from "rxjs";
+import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
@@ -10,8 +10,8 @@ type Emission = readonly [NotificationResponse, UserId];
 
 const USER_ID = "user-1" as UserId;
 
-function notification(type: NotificationType): Emission {
-  return [{ type } as NotificationResponse, USER_ID];
+function notification(type: NotificationType, userId: UserId = USER_ID): Emission {
+  return [{ type } as NotificationResponse, userId];
 }
 
 describe("DefaultAccessEventService", () => {
@@ -33,12 +33,26 @@ describe("DefaultAccessEventService", () => {
 
   beforeEach(() => {
     notifications$ = new Subject<Emission>();
-    service = new DefaultAccessEventService(notifications$);
+    service = new DefaultAccessEventService(
+      notifications$,
+      new BehaviorSubject<UserId | null>(USER_ID),
+    );
   });
 
   afterEach(() => {
     subscriptions.forEach((s) => s.unsubscribe());
     subscriptions.length = 0;
+  });
+
+  it("ignores a push for another signed-in account", () => {
+    const ticks = watch();
+    const inboxTicks = watchInbox();
+
+    notifications$.next(notification(NotificationType.RefreshAccessRequest, "user-2" as UserId));
+    notifications$.next(notification(NotificationType.RefreshApproverInbox, "user-2" as UserId));
+
+    expect(ticks()).toBe(0);
+    expect(inboxTicks()).toBe(0);
   });
 
   it("ticks on a RefreshAccessRequest push", () => {
@@ -110,6 +124,7 @@ describe("DefaultAccessEventService", () => {
           return Reflect.get(target, prop, target);
         },
       }) as unknown as Subject<Emission>,
+      new BehaviorSubject<UserId | null>(USER_ID),
     );
 
     subscriptions.push(tracked.accessChanged$().subscribe());

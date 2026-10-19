@@ -25,23 +25,26 @@ export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
   seconds: number;
   labelKey: string;
 }> = [
-  { seconds: 15 * 60, labelKey: "requestAccessModalDuration15m" },
-  { seconds: 30 * 60, labelKey: "requestAccessModalDuration30m" },
-  { seconds: 60 * 60, labelKey: "requestAccessModalDuration1h" },
-  { seconds: 4 * 60 * 60, labelKey: "requestAccessModalDuration4h" },
-  { seconds: 8 * 60 * 60, labelKey: "requestAccessModalDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "requestAccessModalDuration1d" },
+  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
+  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
+  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
+  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
+  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
 ];
 
 /** The automatic form's placeholder until the pre-check supplies the rule's own default. */
 export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
+
+/** The server's ceiling, which its pre-check reports as the cap of a rule with no maximum. */
+const GLOBAL_MAX_LEASE_SECONDS = 365 * 24 * 60 * 60;
 
 /** A requester duration option; one without a `labelKey` is formatted from its value. */
 export type RequestDurationOption = { seconds: number; labelKey?: string };
 
 /**
  * The presets under `maxSeconds`, plus the cap and default themselves, so the picker is never empty
- * and the default is always an option.
+ * and the default is always an option. The server's ceiling isn't offered, since it stands for no cap.
  */
 export function requestDurationOptions(
   maxSeconds: number,
@@ -55,7 +58,8 @@ export function requestDurationOptions(
     }
   }
 
-  for (const seconds of [maxSeconds, defaultSeconds]) {
+  const cap = maxSeconds < GLOBAL_MAX_LEASE_SECONDS ? [maxSeconds] : [];
+  for (const seconds of [...cap, defaultSeconds]) {
     if (seconds > 0 && seconds <= maxSeconds && !options.has(seconds)) {
       options.set(seconds, { seconds });
     }

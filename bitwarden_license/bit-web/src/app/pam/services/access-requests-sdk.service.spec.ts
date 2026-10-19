@@ -202,6 +202,19 @@ describe("AccessRequestsSdkService", () => {
       expect(accessRequests.cipher_access_state).toHaveBeenCalledTimes(1);
     });
 
+    it("does not join a read sent in an earlier task, such as one from before a mutation", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      accessRequests.cipher_access_state
+        .mockReturnValueOnce(new Promise<CipherAccessStateView>(() => {}))
+        .mockResolvedValue(stateView);
+
+      void service.getCipherAccessState(cipherId);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await expect(service.getCipherAccessState(cipherId)).resolves.toBe(stateView);
+      expect(accessRequests.cipher_access_state).toHaveBeenCalledTimes(2);
+    });
+
     it("keeps separate ciphers on separate reads", async () => {
       const accessRequests = mockAccessRequestsClient();
       const otherCipherId = "8e3c5d9b-9b1e-4c8a-9b1e-3b1e4c8a9b1e";

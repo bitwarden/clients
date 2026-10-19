@@ -38,6 +38,25 @@ describe("durationLabel", () => {
       }),
     ).toEqual({ key: "pamInboxDurationHours", value: 4 });
   });
+
+  it.each([
+    ["just under an hour", "2024-01-01T00:59:50.000Z"],
+    ["just over an hour", "2024-01-01T01:02:00.000Z"],
+  ])("labels a window %s as 1 hour", (_label, leaseNotAfter) => {
+    expect(durationLabel({ leaseNotBefore: "2024-01-01T00:00:00.000Z", leaseNotAfter })).toEqual({
+      key: "pamInboxDuration1Hour",
+      value: null,
+    });
+  });
+
+  it("keeps one decimal for a fractional number of hours", () => {
+    expect(
+      durationLabel({
+        leaseNotBefore: "2024-01-01T00:00:00.000Z",
+        leaseNotAfter: "2024-01-01T01:30:00.000Z",
+      }),
+    ).toEqual({ key: "pamInboxDurationHours", value: 1.5 });
+  });
 });
 
 describe("relativeStart", () => {
@@ -80,10 +99,13 @@ describe("relativeStart", () => {
 
 describe("exactWindow", () => {
   it("formats both bounds", () => {
-    const text = exactWindow({
-      leaseNotBefore: "2024-01-01T00:00:00.000Z",
-      leaseNotAfter: "2024-01-01T01:00:00.000Z",
-    });
+    const text = exactWindow(
+      {
+        leaseNotBefore: "2024-01-01T00:00:00.000Z",
+        leaseNotAfter: "2024-01-01T01:00:00.000Z",
+      },
+      "en-US",
+    );
     expect(text).toContain("–");
     expect(text.length).toBeGreaterThan(0);
   });

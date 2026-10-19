@@ -17876,24 +17876,6 @@
     "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
     "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
-  "requestAccessModalDuration15m": {
-    "message": "15 minutes"
-  },
-  "requestAccessModalDuration30m": {
-    "message": "30 minutes"
-  },
-  "requestAccessModalDuration1h": {
-    "message": "1 hour"
-  },
-  "requestAccessModalDuration4h": {
-    "message": "4 hours"
-  },
-  "requestAccessModalDuration8h": {
-    "message": "8 hours"
-  },
-  "requestAccessModalDuration1d": {
-    "message": "1 day"
-  },
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
