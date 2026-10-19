@@ -1,9 +1,9 @@
 @if (additionalRisks().showWeak || additionalRisks().showReused) {
-  <bit-section>
+  <bit-section disableMargin>
     <bit-section-header class="tw-flex tw-justify-center">
-      <p bitTypography="body1">
+      <h2 bitTypography="h6">
         {{ "passwordHasAdditionalRisks" | i18n }}
-      </p>
+      </h2>
     </bit-section-header>
     <bit-card class="tw-flex tw-flex-col tw-gap-4 tw-justify-start tw-items-start">
       @if (additionalRisks().showWeak) {
