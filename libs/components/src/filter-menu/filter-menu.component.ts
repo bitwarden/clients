@@ -440,7 +440,7 @@ export class FilterMenuComponent
     return counts;
   });
 
-  /** The count for the "All" row: every row the host holds, since it pins no value. */
+  /** The "All" row's count: rows matching the other active filters, since it pins no value. */
   protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
   /**

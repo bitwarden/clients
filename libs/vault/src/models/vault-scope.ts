@@ -245,6 +245,11 @@ export function isPersonalOnly(nav: VaultsNavViewModel): boolean {
   return nav.vaults.length === 1 && !nav.organizationDataOwnership;
 }
 
+/** Whether the nav lists several vaults under a "Vaults" header; data ownership lists orgs without one. */
+export function showsVaultsSection(nav: VaultsNavViewModel): boolean {
+  return nav.vaults.length > 1 && !nav.organizationDataOwnership;
+}
+
 /**
  * The id of an organization's "My items" collection, as the nav holds it. `undefined` when the
  * account's vaults have yet to load, when the organization is not one of them, or when it has no

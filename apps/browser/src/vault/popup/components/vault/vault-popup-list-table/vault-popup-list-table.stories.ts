@@ -269,6 +269,8 @@ type StoryArgs = {
   vfo1Enabled?: boolean;
   /** The vault the page is narrowed to. Defaults to All items. */
   scope?: VaultScope;
+  /** Shared folder filter options. Defaults to {@link COLLECTION_OPTIONS}. */
+  collectionOptions?: typeof COLLECTION_OPTIONS;
 };
 
 // Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
@@ -316,6 +318,57 @@ const NAV_VIEW_MODEL: VaultsNavViewModel = {
 const COLLECTION_OPTIONS = [
   { value: { id: "col-eng", name: "Engineering" } as CollectionView, label: "Engineering" },
   { value: { id: "col-mkt", name: "Marketing" } as CollectionView, label: "Marketing" },
+];
+
+// A realistically sized set of Acme Co shared folders, for the full vault page.
+const SHARED_FOLDER_OPTIONS = [
+  "Customer Success",
+  "Design",
+  "DevOps",
+  "Engineering",
+  "Executive",
+  "Facilities",
+  "Finance",
+  "Human Resources",
+  "IT",
+  "Legal",
+  "Marketing",
+  "Product",
+  "Sales",
+  "Security",
+  "Support",
+].map((name) => ({
+  value: new CollectionView({
+    id: `col-${name.toLowerCase().replace(/ /g, "-")}` as CollectionId,
+    organizationId: "org-engineering" as OrganizationId,
+    name,
+  }),
+  label: name,
+}));
+
+/** Place a cipher in Acme Co, inside the given shared folders. */
+const inSharedFolders = (
+  cipher: CipherView,
+  folders: typeof SHARED_FOLDER_OPTIONS,
+): PopupCipherViewLike => {
+  const organization = new Organization();
+  organization.id = "org-engineering" as OrganizationId;
+  organization.productTierType = ProductTierType.Enterprise;
+
+  cipher.organizationId = organization.id;
+  cipher.collectionIds = folders.map((folder) => folder.value.id);
+  const collections = folders.map((folder) => folder.value);
+  return Object.assign(cipher, { organization, collections }) as PopupCipherViewLike;
+};
+
+// Two logins per shared folder, plus a couple that sit in several at once.
+const SHARED_FOLDER_CIPHERS: PopupCipherViewLike[] = [
+  ...SHARED_FOLDER_OPTIONS.flatMap((folder) => [
+    inSharedFolders(makeLogin(), [folder]),
+    inSharedFolders(makeLogin(), [folder]),
+  ]),
+  inSharedFolders(makeCard(), SHARED_FOLDER_OPTIONS.slice(0, 3)),
+  inSharedFolders(makeLogin(), SHARED_FOLDER_OPTIONS.slice(5, 7)),
 ];
 
 // Nested to exercise the tree flattening: the child renders as its own option, labeled with only
@@ -397,7 +450,7 @@ const buildProviders = (args: StoryArgs) => {
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         organizationNames$: of(ORGANIZATION_NAMES),
-        collections$: of(COLLECTION_OPTIONS),
+        collections$: of(args.collectionOptions ?? COLLECTION_OPTIONS),
         folders$: of(FOLDER_OPTIONS),
       },
     },
@@ -562,6 +615,9 @@ const buildProviders = (args: StoryArgs) => {
           filters: "Filters",
           filtersSelected: "__$1__ selected",
           removeItem: "Remove __$1__",
+          // The active-filter chip group's "+N" chip and its popover.
+          showMore: "Show more",
+          showMoreCount: "Show __$1__ more",
           clear: "Clear",
           clearAll: "Clear all",
           done: "Done",
@@ -693,9 +749,15 @@ export const VaultPage: Story = {
       providers: buildProviders({
         autoFillCiphers: AUTOFILL_CIPHERS,
         favoriteCiphers: FAVORITE_CIPHERS,
-        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+        filteredCiphers: [
+          ...AUTOFILL_CIPHERS,
+          ...FAVORITE_CIPHERS,
+          ...ALL_ITEM_CIPHERS,
+          ...SHARED_FOLDER_CIPHERS,
+        ],
         loading: false,
         vfo1Enabled: true,
+        collectionOptions: SHARED_FOLDER_OPTIONS,
       }),
     }),
     moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent, CalloutModule] }),

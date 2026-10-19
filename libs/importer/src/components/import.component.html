@@ -6,7 +6,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-medium" bitTypography="h6">{{ "destination" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h5">{{ "destination" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field [hidden]="isFromAC">
@@ -26,20 +26,22 @@
             ? ((vfo1Enabled() ? "sharedFolder" : "collection") | i18n)
             : ((vfo1Enabled() ? "myFolders" : "folder") | i18n)
         }}</bit-label>
-        <bit-select formControlName="targetSelector">
+        <!-- No destination is an option, so it can be picked again, but it reads as a placeholder. -->
+        <bit-select
+          formControlName="targetSelector"
+          [class]="
+            formGroup.controls.targetSelector.value == null
+              ? '[&_.ng-value]:tw-text-fg-body-subtle'
+              : ''
+          "
+        >
+          <bit-option [value]="null" [label]="'selectPlaceholder' | i18n" />
           @if (!organizationId) {
-            <bit-option [value]="null" label="-- {{ 'selectImportFolder' | i18n }} --" />
             @for (f of folders$ | async; track f) {
               <bit-option [value]="f" [label]="f.name" icon="bwi-folder" />
             }
           }
           @if (organizationId) {
-            <bit-option
-              [value]="null"
-              label="-- {{
-                (vfo1Enabled() ? 'selectImportSharedFolder' : 'selectImportCollection') | i18n
-              }} --"
-            />
             @for (c of collections$ | async; track c) {
               <bit-option [value]="c" [label]="c.name" [icon]="collectionIcon(c.type)" />
             }
@@ -58,7 +60,7 @@
 
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-medium" bitTypography="h6">{{ "data" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h5">{{ "data" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field class="@2xl:tw-w-1/2">
@@ -170,12 +172,18 @@
           <bit-label>{{ "method" | i18n }}</bit-label>
           <bit-select formControlName="method" id="import_bit-select_method">
             @for (m of group.methods; track m.format) {
-              <bit-option [value]="m.format" [label]="m.label" />
+              <bit-option [value]="m.format" [label]="m.translate ? (m.label | i18n) : m.label" />
             }
           </bit-select>
+          @if (selectedMethodHint; as hint) {
+            <bit-hint>{{ hint | i18n }}</bit-hint>
+          }
         </bit-form-field>
       }
-      @if (showLastPassOptions) {
+      @if (isOnePasswordDirectFormat) {
+        <!-- 1Password direct import is SDK-driven and has no file fallback, so no file selector. -->
+        <import-onepassword [formGroup]="formGroup"></import-onepassword>
+      } @else if (showLastPassOptions) {
         <import-lastpass
           [formGroup]="formGroup"
           (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
