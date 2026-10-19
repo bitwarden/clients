@@ -39,6 +39,7 @@ import {
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
 import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
+import { LastPassAuthSession } from "./direct/lastpass/lastpass-auth-session";
 import { ImportControlsComponent } from "./import-controls.component";
 
 describe("ImportControlsComponent", () => {
@@ -3435,6 +3436,7 @@ describe("ImportControlsComponent", () => {
       expect(lastPassDirectImportService.handleImport).toHaveBeenCalledWith(
         "user@example.com",
         true,
+        expect.any(LastPassAuthSession),
       );
       expect(importService.getImporter).toHaveBeenCalledWith(
         "lastpasscsv",
@@ -3478,6 +3480,7 @@ describe("ImportControlsComponent", () => {
       component().continue.subscribe(continueSpy);
 
       await component().submit();
+      await component().lastPassLogin();
       expect(continueSpy).not.toHaveBeenCalled();
 
       lastPassDirectImportService.handleImport.mockResolvedValueOnce("url,username,password\n");
@@ -3485,6 +3488,7 @@ describe("ImportControlsComponent", () => {
       importService.import.mockResolvedValue(new ImportResult());
 
       await component().submit();
+      await component().lastPassLogin();
 
       expect(lastPassDirectImportService.handleImport).toHaveBeenCalledTimes(2);
       expect(continueSpy).toHaveBeenCalledTimes(1);

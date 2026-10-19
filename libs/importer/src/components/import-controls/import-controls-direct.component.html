@@ -50,7 +50,7 @@
     </div>
   </div>
 } @else {
-  @if (importType() === "keeper") {
+  @if (importType() === "keeper" || isLastPass()) {
     <div class="tw-flex tw-items-center tw-gap-4 tw-mb-4">
       @if (vendorIcon(); as icon) {
         <bit-svg [content]="icon" class="tw-size-12" />
@@ -58,7 +58,7 @@
       <div>
         <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
         <p bitTypography="body1" noMargin class="tw-text-fg-body-subtle">
-          {{ keeperSubtitleKey() ?? "importDataLoginSubtitle" | i18n }}
+          {{ subtitleKey() ?? "importDataLoginSubtitle" | i18n }}
         </p>
       </div>
     </div>
@@ -85,7 +85,13 @@
       }
     }
     @case ("lastpasscsv") {
-      <importer-controls-lastpass-credentials [form]="form()" />
+      <!-- Hidden, not removed: re-binding its inputs would clear a login error set on the email. -->
+      <div [hidden]="lastPassStage().kind !== 'idle'">
+        <importer-controls-lastpass-credentials [form]="form()" />
+      </div>
+      @if (lastPassStage().kind !== "idle") {
+        <importer-controls-lastpass-login [stage]="lastPassStage()" />
+      }
     }
   }
 }

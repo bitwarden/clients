@@ -2,6 +2,7 @@ import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   input,
@@ -15,9 +16,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { UpgradeImportType } from "../../models";
 
 import { KeeperInlineAuthUi } from "./direct/keeper/keeper-inline-auth-ui";
+import { LastPassInlineAuthUi } from "./direct/lastpass/lastpass-inline-auth-ui";
 import { ImportControlsKeeperCredentialsComponent } from "./import-controls-keeper-credentials.component";
 import { ImportControlsKeeperLoginComponent } from "./import-controls-keeper-login.component";
 import { ImportControlsLastPassCredentialsComponent } from "./import-controls-lastpass-credentials.component";
+import { ImportControlsLastPassLoginComponent } from "./import-controls-lastpass-login.component";
 
 /** The current phase of a direct importer flow */
 export type DirectStep = "intro" | "credentials";
@@ -33,6 +36,7 @@ export type DirectStep = "intro" | "credentials";
     ImportControlsKeeperCredentialsComponent,
     ImportControlsKeeperLoginComponent,
     ImportControlsLastPassCredentialsComponent,
+    ImportControlsLastPassLoginComponent,
     SvgModule,
     TypographyModule,
   ],
@@ -43,13 +47,22 @@ export class ImportControlsDirectComponent {
   readonly form = input.required<FormGroup>();
   readonly step = input.required<DirectStep>();
   readonly importType = input.required<UpgradeImportType>();
+  readonly isLastPass = input.required<boolean>();
   readonly vendorName = input.required<string>();
   readonly vendorIcon = input<BitSvg>();
 
   /** The Keeper login prompt currently showing in place of the credential fields. */
   private readonly keeperUi = inject(KeeperInlineAuthUi);
   protected readonly keeperStage = this.keeperUi.stage;
-  protected readonly keeperSubtitleKey = this.keeperUi.subtitleKey;
+
+  /** The LastPass login prompt currently showing in place of the credential fields. */
+  private readonly lastPassUi = inject(LastPassInlineAuthUi);
+  protected readonly lastPassStage = this.lastPassUi.stage;
+
+  /** The card header's subtitle for the screen showing; null keeps the default one. */
+  protected readonly subtitleKey = computed(() =>
+    this.isLastPass() ? this.lastPassUi.subtitleKey() : this.keeperUi.subtitleKey(),
+  );
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -57,11 +70,13 @@ export class ImportControlsDirectComponent {
     // Back on the form after a login ends (a failure, or leaving): put focus on the Email field.
     let loginWasShowing = false;
     afterRenderEffect(() => {
-      const loginShowing = this.keeperStage().kind !== "idle";
+      const loginShowing =
+        this.keeperStage().kind !== "idle" || this.lastPassStage().kind !== "idle";
       if (loginWasShowing && !loginShowing) {
-        this.host.nativeElement
-          .querySelector<HTMLElement>("#importer-controls_input_keeper-email")
-          ?.focus();
+        const emailId = this.isLastPass()
+          ? "#importer-controls_input_lastpass-email"
+          : "#importer-controls_input_keeper-email";
+        this.host.nativeElement.querySelector<HTMLElement>(emailId)?.focus();
       }
       loginWasShowing = loginShowing;
     });

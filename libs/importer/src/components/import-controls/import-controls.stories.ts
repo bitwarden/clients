@@ -342,6 +342,8 @@ function decoratorsFor(
               keeperLoginServerLabel: "Server",
               keeperLoginEmailRequired: "Email is required.",
               keeperLoginEmailInvalid: "Enter a valid email address.",
+              lastPassLoginEmailRequired: "Email is required.",
+              lastPassLoginEmailInvalid: "Enter a valid email address.",
               lastPassEmail: "Email",
               includeSharedFolders: "Include shared folders",
               importManuallyInstead: "Import manually instead",

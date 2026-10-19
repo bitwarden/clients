@@ -5784,6 +5784,33 @@
   "lastPassEmail": {
     "message": "LastPass Email"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Importing your account..."
   },

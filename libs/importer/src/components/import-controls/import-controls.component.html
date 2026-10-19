@@ -10,6 +10,7 @@
           [form]="formGroup"
           [step]="directStep()"
           [importType]="importType()"
+          [isLastPass]="isLastPass()"
           [vendorName]="vendorName()"
           [vendorIcon]="vendorIcon()"
         />
@@ -62,7 +63,7 @@
               type="button"
               bitButton
               buttonType="subtleGhost"
-              [disabled]="keeperImporting()"
+              [disabled]="directImporting()"
               (mousedown)="$event.preventDefault()"
               (click)="toggleToManual()"
               id="importer-controls_button_import-manually-instead"
@@ -80,7 +81,7 @@
             bitButton
             bitFormButton
             buttonType="secondary"
-            [disabled]="keeperImporting()"
+            [disabled]="directImporting()"
             (mousedown)="$event.preventDefault()"
             (click)="onBack()"
             id="importer-controls_button_back"
