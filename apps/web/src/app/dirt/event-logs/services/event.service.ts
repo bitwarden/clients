@@ -214,6 +214,13 @@ export class EventService {
         msg = this.i18nService.t("autofilledItemId", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t("autofilledItemId", this.getShortId(ev.cipherId));
         break;
+      case EventType.Cipher_ClientHttpAuthReleased:
+        msg = this.i18nService.t("httpAuthReleasedItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "httpAuthReleasedItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       case EventType.Cipher_UpdatedCollections:
         msg = this.i18nService.t("editedCollectionsForItem", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t(
@@ -830,26 +837,28 @@ export class EventService {
         humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
         break;
       case EventType.ServiceAccount_UserAdded:
+        // The granted member's id lives in OrganizationUserId, not UserId: EventLegacyFieldResolver
+        // on the server reclaims it there (from UserId on pre-fix rows) for exactly this reason.
         msg = this.i18nService.t(
           "addedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
+          this.formatOrgUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "addedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
+          this.formatOrgUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         break;
       case EventType.ServiceAccount_UserRemoved:
         msg = this.i18nService.t(
           "removedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
+          this.formatOrgUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "removedUserToServiceAccountWithId",
-          this.formatUserId(ev, options),
+          this.formatOrgUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         break;
@@ -1451,8 +1460,14 @@ export class EventService {
     return a.outerHTML;
   }
 
-  private formatOrgUserId(ev: EventResponse) {
+  // options is optional because most callers render OrganizationUser_* events, which are never
+  // rendered with links disabled. ServiceAccount_UserAdded/Removed pass it through so SM's
+  // disableLink (no Secrets Manager access) is still honored for those two event types.
+  private formatOrgUserId(ev: EventResponse, options?: EventOptions) {
     const shortId = this.getShortId(ev.organizationUserId);
+    if (options?.disableLink) {
+      return shortId;
+    }
     const a = this.makeAnchor(shortId);
     a.setAttribute(
       "href",
@@ -1540,16 +1555,6 @@ export class EventService {
         ev.grantedServiceAccountId +
         "&type=all",
     );
-    return a.outerHTML;
-  }
-
-  formatUserId(ev: EventResponse, options: EventOptions): string {
-    const shortId = this.getShortId(ev.userId);
-    if (options.disableLink) {
-      return shortId;
-    }
-    const a = this.makeAnchor(shortId);
-    a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
     return a.outerHTML;
   }
 

@@ -12,10 +12,7 @@ import {
  */
 export type CidrPredicate = (value: string) => boolean;
 
-/**
- * Angular validator that rejects a control whose value is not a valid CIDR. Attach to individual
- * row controls. `isValid` supplies the CIDR check (see {@link CidrPredicate}).
- */
+/** For individual row controls; a blank row passes. */
 export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value: string = (control.value ?? "").trim();
@@ -26,28 +23,30 @@ export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): V
   };
 }
 
-/**
- * Cross-array validator: rejects with `{ duplicateCidrs: true }` if any two
- * row controls share the same trimmed value. Empty rows are ignored. Attach to
- * the CIDR {@link FormArray}.
- */
+/** Shared by {@link noDuplicateCidrsValidator} and the editor's row marks, so they agree. */
+export function duplicateCidrValues(values: readonly string[]): Set<string> {
+  const seen = new Set<string>();
+  const duplicated = new Set<string>();
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      continue;
+    }
+    if (seen.has(trimmed)) {
+      duplicated.add(trimmed);
+    }
+    seen.add(trimmed);
+  }
+  return duplicated;
+}
+
 export function noDuplicateCidrsValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!(control instanceof FormArray)) {
       return null;
     }
-    const values = (control.controls as FormControl<string>[]).map((c) => c.value.trim());
-    const seen = new Set<string>();
-    for (const v of values) {
-      if (v === "") {
-        continue;
-      }
-      if (seen.has(v)) {
-        return { duplicateCidrs: true };
-      }
-      seen.add(v);
-    }
-    return null;
+    const values = (control.controls as FormControl<string>[]).map((c) => c.value);
+    return duplicateCidrValues(values).size > 0 ? { duplicateCidrs: true } : null;
   };
 }
 

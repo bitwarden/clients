@@ -7,7 +7,12 @@ export {
 } from "./import-options";
 export { ImportResult } from "./import-result";
 export { ImportRecordError, ImportRecordErrorReason } from "./import-record-error";
-export { CredentialKind, SdkImportCredentials, SdkImportSummary } from "../sdk";
+export {
+  CredentialKind,
+  OnePasswordImportSummary,
+  SdkImportCredentials,
+  SdkImportSummary,
+} from "../sdk";
 
 // TODO: remove once pm-35053-import-upgrade is retired
 export { importUpgradeOptions, UpgradeImportType } from "./import-upgrade-options";
