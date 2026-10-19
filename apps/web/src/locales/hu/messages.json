@@ -18211,7 +18211,7 @@
     "message": "Hozzáférési szabály kikapcsolása"
   },
   "pamAccessRuleBulkDeactivateConfirmContent": {
-    "message": "Ez a szabály nem vonatkozik az új hozzáférési kérelmekre.",
+    "message": "$COUNT$ rules will stop applying to new access requests.",
     "placeholders": {
       "count": {
         "content": "$1",
