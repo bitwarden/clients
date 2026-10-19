@@ -8,7 +8,6 @@ export type {
 } from "./abstractions/access-rule";
 export {
   accessRuleErrorMessage,
-  isAccessRuleCollectionConflict,
   isAccessRuleNotFound,
   isHumanApproval,
   isIpAllowlist,
@@ -70,6 +69,9 @@ export { formatRemaining } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
+export { isActionableRequest } from "./helpers/actionable-requests";
+export { canApprove } from "./helpers/can-approve";
+export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
