@@ -16,7 +16,7 @@ export interface HealthExcludeAtRiskItemDialogData {
 /** Confirms excluding a login from the health report. Closes with `true` when confirmed. */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "health-exclude-at-risk-item-dialog",
+  selector: "dirt-health-exclude-at-risk-item-dialog",
   templateUrl: "./health-exclude-at-risk-item-dialog.component.html",
   imports: [
     DialogModule,
