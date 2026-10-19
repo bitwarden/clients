@@ -157,7 +157,7 @@ export class CipherRowMenuService {
         id: "delete",
         label: this.i18nService.t("delete"),
         icon: "bwi-trash",
-        run: (item) => void this.cipherActionService.delete(item, collections),
+        run: (item) => void this.cipherActionService.delete(item),
         show: (item) =>
           this.canDelete(item) &&
           !CipherViewLikeUtils.isDeleted(item) &&
@@ -168,7 +168,7 @@ export class CipherRowMenuService {
         id: "permanentlyDelete",
         label: this.i18nService.t("permanentlyDelete"),
         icon: "bwi-trash",
-        run: (item) => void this.cipherActionService.delete(item, collections),
+        run: (item) => void this.cipherActionService.delete(item),
         show: (item) =>
           this.canDelete(item) &&
           CipherViewLikeUtils.isDeleted(item) &&

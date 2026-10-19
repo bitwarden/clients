@@ -9,7 +9,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
@@ -92,10 +91,6 @@ export function providePam(): SafeProvider[] {
       provide: AccessLeaseSdkService,
       useClass: AccessLeasesSdkService,
       deps: [SdkService, AccountService, LogService],
-    }),
-    safeProvider({
-      provide: CipherLeaseStateService,
-      useExisting: MyLeasesService,
     }),
     safeProvider({
       provide: ApprovalSdkService,

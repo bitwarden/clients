@@ -1561,7 +1561,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(deleteFailureMessageKey(c, this.allCollections)),
+        message: this.i18nService.t(deleteFailureMessageKey(c)),
       });
     }
   }

@@ -7,6 +7,7 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import {
   CipherService,
   EncryptionContext,
+  RestrictedCipherWriteError,
 } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -207,9 +208,8 @@ describe("DefaultCipherFormService", () => {
       expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(cipher, "user-1");
     });
 
-    it("saves a revealed cipher through the gated path", async () => {
+    it("passes the revealed copy as the original of a restricted cipher's save", async () => {
       revealedCipherServiceMock.getOrReveal.mockResolvedValue(revealedView("secret"));
-      revealedCipherServiceMock.isRevealed.mockReturnValue(true);
 
       await service.saveCipher(revealedView("secret"), {
         originalCipher: restrictedCipher(),
@@ -219,10 +219,42 @@ describe("DefaultCipherFormService", () => {
       expect(cipherServiceMock.updateWithServer).toHaveBeenCalledWith(
         expect.anything(),
         "user-1",
-        expect.objectContaining({ id: cipherId }),
+        expect.objectContaining({ id: cipherId, partial: false }),
         false,
-        true,
       );
+    });
+
+    it("returns the saved view without an encrypt and decrypt round trip", async () => {
+      revealedCipherServiceMock.getOrReveal.mockResolvedValue(revealedView("secret"));
+      const saved = new CipherView();
+      cipherServiceMock.updateWithServer.mockResolvedValue(saved);
+
+      const result = await service.saveCipher(revealedView("secret"), {
+        originalCipher: restrictedCipher(),
+        admin: false,
+      } as CipherFormConfig);
+
+      expect(result).toBe(saved);
+      expect(cipherServiceMock.encrypt).not.toHaveBeenCalled();
+      expect(cipherServiceMock.decrypt).not.toHaveBeenCalled();
+    });
+
+    it("refuses a collection change on a restricted cipher before any write", async () => {
+      revealedCipherServiceMock.getOrReveal.mockResolvedValue(revealedView("secret"));
+      const original = restrictedCipher();
+      original.organizationId = "org-1";
+      original.collectionIds = ["collection-1"];
+      const cipher = revealedView("secret");
+      cipher.organizationId = "org-1";
+      cipher.collectionIds = ["collection-2"];
+
+      await expect(
+        service.saveCipher(cipher, { originalCipher: original, admin: false } as CipherFormConfig),
+      ).rejects.toThrow(RestrictedCipherWriteError);
+
+      expect(cipherServiceMock.updateWithServer).not.toHaveBeenCalled();
+      expect(cipherServiceMock.saveCollectionsWithServer).not.toHaveBeenCalled();
+      expect(cipherServiceMock.saveCollectionsWithServerAdmin).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -242,7 +274,6 @@ describe("DefaultCipherFormService", () => {
           ]),
         );
         revealedCipherServiceMock.getOrReveal.mockResolvedValue(revealedView("old-password"));
-        revealedCipherServiceMock.isRevealed.mockReturnValue(true);
 
         await service.saveCipher(revealedView(newPassword), {
           originalCipher: restrictedCipher(),

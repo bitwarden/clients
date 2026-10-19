@@ -11,7 +11,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  CipherService,
+  RestrictedCipherWriteError,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -162,6 +165,27 @@ describe("CipherActionService", () => {
       await service.toggleFavorite(makeCipher());
 
       await expect(successPromise).resolves.toBeUndefined();
+    });
+
+    it("shows the restricted-item toast and does not emit when the save is refused", async () => {
+      cipherService.getFullCipherView.mockResolvedValue(makeCipher() as CipherView);
+      cipherService.updateWithServer.mockRejectedValue(new RestrictedCipherWriteError());
+      const emitted = jest.fn();
+      service.cipherModified$.subscribe(emitted);
+
+      await service.toggleFavorite(makeCipher());
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "restrictedItemChangeRefused" }),
+      );
+      expect(emitted).not.toHaveBeenCalled();
+    });
+
+    it("rethrows other save errors", async () => {
+      cipherService.getFullCipherView.mockResolvedValue(makeCipher() as CipherView);
+      cipherService.updateWithServer.mockRejectedValue(new Error("network"));
+
+      await expect(service.toggleFavorite(makeCipher())).rejects.toThrow("network");
     });
   });
 
@@ -493,42 +517,13 @@ describe("CipherActionService", () => {
       );
     });
 
-    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+    it("names the reason when a restricted cipher's delete is refused", async () => {
       cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
 
       await service.delete(makeCipher({ partial: true }));
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "pamDeleteRequiresAccess" }),
-      );
-    });
-
-    // A lease that lapsed after the last sync leaves the cipher full, so only its collections say
-    // it is gated.
-    it("names the reason for a full cipher whose every collection gates", async () => {
-      cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
-      const cipher = makeCipher({ collectionIds: ["c1"] });
-      const collections = [{ id: "c1", hasEnabledAccessRule: true }] as any;
-
-      await service.delete(cipher, collections);
-
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "pamDeleteRequiresAccess" }),
-      );
-    });
-
-    it("keeps the plain error when one collection is an ungated escape", async () => {
-      cipherService.softDeleteWithServer.mockRejectedValue(new Error("network error"));
-      const cipher = makeCipher({ collectionIds: ["c1", "c2"] });
-      const collections = [
-        { id: "c1", hasEnabledAccessRule: true },
-        { id: "c2", hasEnabledAccessRule: false },
-      ] as any;
-
-      await service.delete(cipher, collections);
-
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "deleteItemError" }),
+        expect.objectContaining({ variant: "error", message: "restrictedItemChangeRefused" }),
       );
     });
 

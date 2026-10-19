@@ -594,13 +594,13 @@ describe("VaultComponent", () => {
       expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
     });
 
-    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+    it("names the reason when a restricted cipher's delete is refused", async () => {
       const cipherService = TestBed.inject(CipherService);
       (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
 
       await component.deleteCipher(cipher({ partial: true }));
 
-      expect(translateSpy).toHaveBeenCalledWith("pamDeleteRequiresAccess");
+      expect(translateSpy).toHaveBeenCalledWith("restrictedItemChangeRefused");
       expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
     });
 

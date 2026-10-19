@@ -1187,8 +1187,8 @@
   "deleteItemError": {
     "message": "Couldn't delete the item."
   },
-  "pamDeleteRequiresAccess": {
-    "message": "You need active access to delete this item. Request access, then try again."
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
   },
   "controlledAccess": {
     "message": "Controlled access"

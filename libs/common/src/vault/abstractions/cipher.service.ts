@@ -33,11 +33,14 @@ export type EncryptionContext = {
   encryptedByKeyId?: string;
 };
 
-/** A write targeted a restricted cipher the user holds no lease on. */
-export class GatedCipherWriteError extends Error {
-  constructor(readonly cipherIds: string[]) {
-    super("Cannot write to a restricted cipher without an active lease.");
-    this.name = "GatedCipherWriteError";
+/**
+ * A write to a restricted cipher was refused, before or by the server.
+ * Server ask: return 403 with an error code for a refused write to a restricted cipher (today a bare 404).
+ */
+export class RestrictedCipherWriteError extends Error {
+  constructor() {
+    super("The change to a restricted item was refused.");
+    this.name = "RestrictedCipherWriteError";
   }
 }
 
@@ -92,12 +95,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
-  /**
-   * Throws {@link GatedCipherWriteError} when any stored copy is restricted and the user
-   * holds no active lease on it. Every write to an existing cipher calls it first. Admin Console
-   * writes pass `admin` and are exempt, as on the server.
-   */
-  abstract assertWritable(ids: string | string[], userId: UserId, admin?: boolean): Promise<void>;
   abstract getAll(userId: UserId): Promise<Cipher[]>;
   abstract getAllDecrypted(userId: UserId): Promise<CipherView[]>;
   abstract getAllDecryptedForGrouping(
@@ -177,17 +174,18 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
+   * @param originalCipherView The original to edit against when local state has no usable copy:
+   *   an admin edit, or a restricted cipher (the revealed view).
    * @param orgAdmin If true, the request is submitted as an organization admin request
-   * @param isNotClone If true, the cipher is not a clone and should be treated as a new cipher
    *
-   * @returns A promise that resolves to the updated cipher
+   * @returns A promise that resolves to the updated cipher. Restricted when the cipher is.
+   * @throws {RestrictedCipherWriteError} When a change to a restricted cipher is refused.
    */
   abstract updateWithServer(
     cipherView: CipherView,
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView>;
 
   /**

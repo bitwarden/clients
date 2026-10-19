@@ -10,7 +10,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { ApiService } from "../../abstractions/api.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { CipherId, UserId } from "../../types/guid";
-import { CipherService, GatedCipherWriteError } from "../abstractions/cipher.service";
+import { CipherService } from "../abstractions/cipher.service";
 import {
   CipherBulkArchiveRequest,
   CipherBulkUnarchiveRequest,
@@ -236,11 +236,9 @@ describe("DefaultCipherArchiveService", () => {
       mockCipherService.ciphers$.mockReturnValue(
         of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
       );
-      mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
 
       await service.archiveWithServer(cipherId, userId);
 
-      expect(mockCipherService.assertWritable).not.toHaveBeenCalled();
       expect(mockApiService.send).toHaveBeenCalledWith(
         "PUT",
         "/ciphers/archive",
@@ -316,11 +314,9 @@ describe("DefaultCipherArchiveService", () => {
       mockCipherService.ciphers$.mockReturnValue(
         of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
       );
-      mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
 
       await service.unarchiveWithServer(cipherId, userId);
 
-      expect(mockCipherService.assertWritable).not.toHaveBeenCalled();
       expect(mockApiService.send).toHaveBeenCalledWith(
         "PUT",
         "/ciphers/unarchive",

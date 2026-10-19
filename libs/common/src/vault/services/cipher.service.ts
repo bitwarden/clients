@@ -38,16 +38,16 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { CipherLeaseStateService } from "../abstractions/cipher-lease-state.service";
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
-  GatedCipherWriteError,
+  RestrictedCipherWriteError,
 } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
+import { CipherUpdateRoute } from "../enums/cipher-update-route";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
@@ -112,7 +112,6 @@ export class CipherService implements CipherServiceAbstraction {
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
     private cipherSdkService: CipherSdkService,
-    private cipherLeaseStateService: CipherLeaseStateService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -347,22 +346,6 @@ export class CipherService implements CipherServiceAbstraction {
     const cipherId = id as CipherId;
 
     return new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null);
-  }
-
-  async assertWritable(ids: string | string[], userId: UserId, admin = false): Promise<void> {
-    if (admin) {
-      return;
-    }
-    const stored = await firstValueFrom(this.ciphers$(userId));
-    const partial = ([ids].flat() as CipherId[]).filter((id) => stored[id]?.partialData != null);
-    if (partial.length === 0) {
-      return;
-    }
-    const leased = await this.cipherLeaseStateService.leasedCipherIds();
-    const gated = partial.filter((id) => !leased.has(id));
-    if (gated.length > 0) {
-      throw new GatedCipherWriteError(gated);
-    }
   }
 
   async getAll(userId: UserId): Promise<Cipher[]> {
@@ -944,21 +927,27 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView> {
-    await this.assertWritable(cipherView.id, userId, orgAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
-    // Only the SDK's `edit_gated` diffs password history against the full original and keeps the
-    // stored copy gated, so a lease-gated save takes the SDK path regardless of the flag.
-    if (useSdk || leaseGated) {
-      return await this.updateWithServerUsingSdk(
-        cipherView,
-        userId,
-        originalCipherView,
-        orgAdmin,
-        leaseGated,
-      );
+    if (useSdk && orgAdmin) {
+      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
+    }
+
+    const stored = await this.get(cipherView.id, userId);
+
+    // Only the SDK routes a change to a restricted cipher: it diffs password history against the
+    // full original and keeps the stored copy restricted. So a restricted save takes the SDK path
+    // regardless of the flag. Admin Console saves stay exempt.
+    const restricted =
+      !orgAdmin && (CipherViewLikeUtils.isRestricted(cipherView) || stored?.isPartial === true);
+
+    if (useSdk || restricted) {
+      // The SDK service maps its own refusals of a restricted cipher to RestrictedCipherWriteError.
+      const route = await this.resolveUpdateRoute(cipherView, stored, userId);
+      return route === CipherUpdateRoute.UserFields
+        ? await this.updateUserFieldsWithServer(cipherView, userId)
+        : await this.updateItemWithServer(cipherView, stored, userId, originalCipherView);
     }
 
     const encrypted = await this.encrypt(cipherView, userId);
@@ -972,7 +961,6 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView> {
     // Clear the cache before updating the cipher. The SDK internally updates the encrypted storage
     // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
@@ -985,9 +973,80 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
       originalCipherView,
       orgAdmin,
-      leaseGated,
     );
     return resultCipherView;
+  }
+
+  /**
+   * The save route for a change to an existing cipher (first match wins). A restricted request
+   * view can only change user fields; anything else is refused with no network call.
+   */
+  private async resolveUpdateRoute(
+    cipherView: CipherView,
+    stored: Cipher | null,
+    userId: UserId,
+  ): Promise<CipherUpdateRoute> {
+    if (CipherViewLikeUtils.isRestricted(cipherView)) {
+      if (stored == null || !(await this.onlyUserFieldsChanged(cipherView, stored, userId))) {
+        throw new RestrictedCipherWriteError();
+      }
+      return CipherUpdateRoute.UserFields;
+    }
+    return cipherView.edit ? CipherUpdateRoute.Item : CipherUpdateRoute.UserFields;
+  }
+
+  /**
+   * True when the request differs from the stored cipher in user fields only. Compares the SDK
+   * edit requests, so every field the SDK would send is covered, new item types included.
+   */
+  private async onlyUserFieldsChanged(
+    cipherView: CipherView,
+    stored: Cipher,
+    userId: UserId,
+  ): Promise<boolean> {
+    const storedView = await this.decrypt(stored, userId);
+    storedView.folderId = cipherView.folderId;
+    storedView.favorite = cipherView.favorite;
+    const comparable = (view: CipherView) =>
+      JSON.stringify({ ...view.toSdkUpdateCipherRequest(), revisionDate: undefined });
+    return comparable(storedView) === comparable(cipherView);
+  }
+
+  private async updateUserFieldsWithServer(
+    cipherView: CipherView,
+    userId: UserId,
+  ): Promise<CipherView> {
+    // Cleared before the write for the same reason as in `updateWithServerUsingSdk`.
+    await this.clearCache(userId);
+    return await this.cipherSdkService.updateUserFieldsWithServer(cipherView, userId);
+  }
+
+  /**
+   * A full edit. The stored original comes first; a restricted stored copy needs the full
+   * `originalCipherView` (the revealed view) of the same cipher, and returns a restricted result.
+   */
+  private async updateItemWithServer(
+    cipherView: CipherView,
+    stored: Cipher | null,
+    userId: UserId,
+    originalCipherView?: CipherView,
+  ): Promise<CipherView> {
+    if (!stored?.isPartial) {
+      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView);
+    }
+    if (
+      originalCipherView == null ||
+      CipherViewLikeUtils.isRestricted(originalCipherView) ||
+      originalCipherView.id !== cipherView.id
+    ) {
+      throw new RestrictedCipherWriteError();
+    }
+    await this.clearCache(userId);
+    return await this.cipherSdkService.updateWithRevealedOriginal(
+      cipherView,
+      originalCipherView,
+      userId,
+    );
   }
 
   async updateWithServerLegacy(context: EncryptionContext, orgAdmin?: boolean): Promise<Cipher> {
@@ -1100,8 +1159,6 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
     options?: UploadOptions,
   ): Promise<Cipher> {
-    await this.assertWritable(cipher.id, userId, admin);
-
     // The organization's symmetric key or the user's user key
     const vaultKey: UserKey | OrgKey =
       cipher.organizationId == null
@@ -1160,7 +1217,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
-    await this.assertWritable(cipher.id, userId);
     await this.clearCache(userId);
     const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
       cipher.id,
@@ -1202,7 +1258,6 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: CollectionId[],
     removeCollections: boolean = false,
   ): Promise<void> {
-    await this.assertWritable(cipherIds, userId);
     await this.clearCache(userId);
     await this.cipherSdkService.bulkUpdateCollectionsWithServer(
       orgId,
@@ -1302,7 +1357,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async moveManyWithServer(ids: string[], folderId: string, userId: UserId): Promise<any> {
-    await this.assertWritable(ids, userId);
     await this.clearCache(userId);
     await this.cipherSdkService.moveManyWithServer(ids, folderId, userId);
   }
@@ -1330,7 +1384,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    await this.assertWritable(id, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1353,7 +1406,6 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
-    await this.assertWritable(ids, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1376,7 +1428,6 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
-    await this.assertWritable(id, userId, admin);
     await this.clearCache(userId);
     const updatedCipher = await this.cipherSdkService.deleteAttachmentWithServer(
       id as CipherId,
@@ -1492,7 +1543,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    await this.assertWritable(id, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1515,7 +1565,6 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
-    await this.assertWritable(ids, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1567,7 +1616,6 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    await this.assertWritable(id, userId, asAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
@@ -1590,7 +1638,6 @@ export class CipherService implements CipherServiceAbstraction {
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
-    await this.assertWritable(ids, userId, orgId != null);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
     if (useSdk) {
       await this.clearCache(userId);
