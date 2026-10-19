@@ -9,6 +9,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -133,6 +135,7 @@ describe("CipherViewBannerComponent", () => {
   let fixture: ComponentFixture<CipherViewBannerComponent>;
   let component: CipherViewBannerComponent;
   let enabled$: BehaviorSubject<boolean>;
+  let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let leasingErrors: MockProxy<LeasingErrorService>;
@@ -199,6 +202,7 @@ describe("CipherViewBannerComponent", () => {
 
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
+    revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     leasingErrors = mock<LeasingErrorService>();
@@ -256,6 +260,7 @@ describe("CipherViewBannerComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
         { provide: MyLeasesService, useValue: myLeases },
+        { provide: RevealedCipherService, useValue: { revealed$: () => revealed$ } },
       ],
     });
   });
@@ -379,9 +384,11 @@ describe("CipherViewBannerComponent", () => {
       expect(query("bit-card")).toBeNull();
     });
 
-    it("reads access state for a leaseGated cipher whose partial data is gone", async () => {
-      // After a reveal the full cipher has no `partial` flag; `leaseGated` keeps the countdown alive.
-      await create(gatedCipher({ partial: false, leaseGated: true }));
+    it("reads access state for a revealed cipher whose partial data is gone", async () => {
+      // After a reveal the full view has no `partial` flag; the revealed map keeps the countdown alive.
+      const revealed = gatedCipher({ partial: false });
+      revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
+      await create(revealed);
 
       expect(requestsApi.getCipherAccessState).toHaveBeenCalledWith("cipher-1");
     });
@@ -394,8 +401,8 @@ describe("CipherViewBannerComponent", () => {
       expect(query("bit-card")).toBeNull();
     });
 
-    // The item gained a rule-less collection after the lease was minted, so neither `partial` nor
-    // `leaseGated` is set while the lease is still live.
+    // The item gained a rule-less collection after the lease was minted, so it is neither `partial`
+    // nor revealed while the lease is still live.
     it("reads access state for an ungated cipher the caller still holds a lease on", async () => {
       myLeases.hasActiveLease$.mockReturnValue(of(true));
 

@@ -5,8 +5,9 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,9 +25,20 @@ export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
   private taskService: TaskService = inject(TaskService);
+  private revealedCipherService: RevealedCipherService = inject(RevealedCipherService);
 
+  /** A restricted cipher resolves to a copy of its revealed view, since the form mutates it. */
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (cipher.isPartial) {
+      const revealed = await this.revealedCipherService.getOrReveal(
+        activeUserId,
+        cipher.id as CipherId,
+      );
+      if (revealed != null) {
+        return CipherView.fromSdkCipherView(revealed.toSdkCipherView());
+      }
+    }
     return await this.cipherService.decrypt(cipher, activeUserId);
   }
 
@@ -44,6 +56,10 @@ export class DefaultCipherFormService implements CipherFormService {
       throw new Error("Original cipher is required for updating an existing cipher");
     }
     const originalCipherView = await this.decryptCipher(config.originalCipher);
+    // A revealed cipher saves through the SDK's gated edit, since local state holds only the restricted copy.
+    const revealed =
+      config.originalCipher.isPartial &&
+      this.revealedCipherService.isRevealed(activeUserId, config.originalCipher.id as CipherId);
 
     // Updating an existing cipher
 
@@ -70,7 +86,7 @@ export class DefaultCipherFormService implements CipherFormService {
         activeUserId,
         originalCipherView,
         config.admin,
-        config.leaseGated,
+        revealed,
       );
       savedCipher = await this.cipherService
         .encrypt(savedCipherView, activeUserId)
@@ -87,7 +103,7 @@ export class DefaultCipherFormService implements CipherFormService {
         activeUserId,
         originalCipherView,
         config.admin || originalCollectionIds.size === 0,
-        config.leaseGated,
+        revealed,
       );
 
       // Then save the new collection changes separately
@@ -126,10 +142,7 @@ export class DefaultCipherFormService implements CipherFormService {
     updatedCipher: CipherView,
     config: CipherFormConfig,
   ) {
-    const decryptedOriginalCipherCipher = await this.cipherService.decrypt(
-      config.originalCipher,
-      userId,
-    );
+    const decryptedOriginalCipherCipher = await this.decryptCipher(config.originalCipher);
 
     const associatedPendingTask = await firstValueFrom(
       this.taskService

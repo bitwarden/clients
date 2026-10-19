@@ -231,6 +231,7 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -251,6 +252,7 @@ import { DefaultCipherLeaseStateService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -451,6 +453,7 @@ export default class MainBackground {
   environmentService: BrowserEnvironmentService;
   cipherSdkService: CipherSdkService;
   cipherLeaseStateService: CipherLeaseStateService;
+  revealedCipherService: RevealedCipherService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -983,6 +986,7 @@ export default class MainBackground {
       this.stateService,
       this.tokenService,
     );
+    this.revealedCipherService = new NoopRevealedCipherService();
 
     this.configApiService = new ConfigApiService(this.apiService);
 
@@ -1787,6 +1791,7 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.revealedCipherService,
     );
 
     this.phishingDataService = new PhishingDataService(

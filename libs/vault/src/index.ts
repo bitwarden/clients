@@ -132,9 +132,7 @@ export {
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
 export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
-export { GATED_CIPHER_RELOADER } from "./tokens/gated-cipher-reloader.token";
 export { ITEM_DETAILS_STATE_BADGE } from "./tokens/item-details-state-badge.token";
-export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";
 export {
   ACTIVE_FILTER_ID,
   MY_REQUESTS_FILTER_ID,

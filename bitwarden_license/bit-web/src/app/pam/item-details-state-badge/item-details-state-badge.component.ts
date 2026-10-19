@@ -13,9 +13,13 @@ import {
   take,
 } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import type { CipherAccessStateView } from "../abstractions/access-lease";
@@ -47,13 +51,24 @@ export class ItemDetailsStateBadgeComponent {
   private readonly accessRefreshService = inject(AccessRefreshService);
   private readonly ticker = inject(AccessBadgeTickerService);
   private readonly logService = inject(LogService);
+  private readonly accountService = inject(AccountService);
+  private readonly revealedCipherService = inject(RevealedCipherService);
 
   private readonly state$: Observable<AccessBadgeState | null> = combineLatest([
     toObservable(this.cipher),
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+    ),
   ]).pipe(
-    switchMap(([cipher, enabled]) => {
-      if (!enabled || cipher == null || cipher.id == null || !isGovernedCipher(cipher)) {
+    switchMap(([cipher, enabled, revealed]) => {
+      if (
+        !enabled ||
+        cipher == null ||
+        cipher.id == null ||
+        !isGovernedCipher(cipher, revealed.has(cipher.id as CipherId))
+      ) {
         return of(null);
       }
       const cipherId = String(cipher.id);

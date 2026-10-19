@@ -1,4 +1,5 @@
 import { Cipher } from "../models/domain/cipher";
+import { CipherView } from "../models/view/cipher.view";
 import { CipherLike } from "../types/cipher-like";
 
 import { CipherViewLikeUtils } from "./cipher-view-like-utils";
@@ -20,9 +21,17 @@ export const RestrictedCipherAction = Object.freeze({
 export type RestrictedCipherAction =
   (typeof RestrictedCipherAction)[keyof typeof RestrictedCipherAction];
 
+/** What a revealed cipher allows. Delete and restore stay blocked while a reveal is live. */
+const REVEALED_ALLOWED_ACTIONS: ReadonlySet<RestrictedCipherAction> = new Set([
+  RestrictedCipherAction.UserFields,
+  RestrictedCipherAction.Edit,
+  RestrictedCipherAction.Attachments,
+]);
+
 /**
  * The single rule for what a user may do with a restricted cipher: it is read-only, except for
- * the user fields (folder, favorite, archive).
+ * the user fields (folder, favorite, archive). While its full view is revealed, edit and
+ * attachments are allowed too.
  *
  * Server asks:
  * - Send `edit: false`, `permissions.delete/restore: false`, and new `permissions.clone/share`
@@ -40,8 +49,22 @@ export class RestrictedCipherPolicy {
   /**
    * False when the restricted-data rule blocks the action.
    * True does not grant the action: callers still apply their normal permission checks.
+   *
+   * @param revealedView The live view that `RevealedCipherService` holds for this cipher, if any.
+   * It applies to that view itself and to the stored copy while it is restricted. A cipher that is
+   * no longer restricted gets the normal rule, even while its old reveal is still held.
    */
-  static allows(cipher: CipherLike, action: RestrictedCipherAction): boolean {
+  static allows(
+    cipher: CipherLike,
+    action: RestrictedCipherAction,
+    revealedView?: CipherView,
+  ): boolean {
+    if (
+      revealedView != null &&
+      (cipher === revealedView || RestrictedCipherPolicy.isRestricted(cipher))
+    ) {
+      return REVEALED_ALLOWED_ACTIONS.has(action);
+    }
     if (!RestrictedCipherPolicy.isRestricted(cipher)) {
       return true;
     }

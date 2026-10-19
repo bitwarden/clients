@@ -342,6 +342,9 @@ export class CipherAttachmentsComponent {
     return null;
   }
 
+  // SDK / Key Management ask: attachment decryption for a revealed view (decrypt from the view, or
+  // a leased_attachment call). Until then this dialog reads the full cipher from the server and
+  // never stores it.
   /**
    * Reads a PAM-gated cipher's full copy from the server, for this dialog only; it is never
    * written to local state. Null when no lease covers the cipher or the read fails.

@@ -26,6 +26,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -34,7 +35,6 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 
 import { CipherFormConfig } from "../cipher-form";
 import { AttachmentDialogResult } from "../cipher-view/attachments/attachments-v2.component";
-import { GATED_CIPHER_RELOADER } from "../tokens/gated-cipher-reloader.token";
 
 import {
   VaultItemDialogComponent,
@@ -98,6 +98,7 @@ describe("VaultItemDialogComponent", () => {
 
   let cipherServiceMock: MockProxy<CipherService>;
   let cipherAuthorizationServiceMock: MockProxy<CipherAuthorizationService>;
+  let revealedCipherServiceMock: MockProxy<RevealedCipherService>;
   const canEditCipherReturnValue$ = new BehaviorSubject(false);
   const canDeleteCipherReturnValue$ = new BehaviorSubject(false);
 
@@ -127,6 +128,9 @@ describe("VaultItemDialogComponent", () => {
       canEditCipher$: jest.fn().mockReturnValue(canEditCipherReturnValue$),
       canDeleteCipher$: jest.fn().mockReturnValue(canDeleteCipherReturnValue$),
     });
+    revealedCipherServiceMock = mock<RevealedCipherService>();
+    revealedCipherServiceMock.getOrReveal.mockResolvedValue(null);
+    revealedCipherServiceMock.displayView$.mockImplementation((_, storedView) => of(storedView));
 
     await TestBed.configureTestingModule({
       imports: [TestVaultItemDialogComponent, NoopAnimationsModule],
@@ -159,6 +163,7 @@ describe("VaultItemDialogComponent", () => {
           provide: ConfigService,
           useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
         },
+        { provide: RevealedCipherService, useValue: revealedCipherServiceMock },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -695,156 +700,145 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
-  describe("gated cipher reveal (GATED_CIPHER_RELOADER)", () => {
-    let fullCipher$: BehaviorSubject<Cipher | null>;
-    /** The reloader's own method, so a test can make a single re-read answer differently. */
-    let reloaderFullCipher$: jest.Mock;
-    let gatedComponent: TestVaultItemDialogComponent;
-    let gatedFixture: ComponentFixture<TestVaultItemDialogComponent>;
+  describe("revealed views (RevealedCipherService)", () => {
+    /** The restricted copy local state holds. */
+    const storedCipher = { id: "gated-1", partialData: '{"name":"gated"}' } as unknown as Cipher;
+    const storedView = { id: "gated-1", partial: true, collectionIds: [] } as unknown as CipherView;
+    const revealedView = {
+      id: "gated-1",
+      partial: false,
+      collectionIds: [],
+    } as unknown as CipherView;
+    let display$: BehaviorSubject<CipherView>;
 
-    /** The partial copy a gated cipher opens as. */
-    const partialCipher = { id: "gated-1", partialData: '{"name":"gated"}' } as unknown as Cipher;
-    /** What the reloader hands back after a lease covers the item. */
-    const leasedCipher = { id: "gated-1", partialData: undefined } as unknown as Cipher;
-
-    /**
-     * Flush the reveal/re-lock promise chain. The reloader's emissions originate outside the
-     * Angular zone, so `fixture.whenStable()` reports stable while `swapInCipher` still awaits.
-     */
+    /** Flush the `displayView$` handler, which awaits the permission reads. */
     const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-    /**
-     * Reconfigures the bed with a partial `originalCipher` and a reloader, since the reveal
-     * subscription is set up in the constructor and returns early without both.
-     */
-    async function setup(reloaderProvided = true): Promise<void> {
-      TestBed.resetTestingModule();
-      fullCipher$ = new BehaviorSubject<Cipher | null>(null);
-      reloaderFullCipher$ = jest.fn(() => fullCipher$);
+    /** Opens the dialog on the restricted cipher, revealed at open or not. */
+    async function open(
+      options: { revealedAtOpen?: boolean; mode?: "view" | "form" } = {},
+    ): Promise<void> {
+      const { revealedAtOpen = false, mode = "view" } = options;
+      jest.spyOn(component as any, "getDecryptedCipherView").mockResolvedValue(storedView);
+      revealedCipherServiceMock.getOrReveal.mockResolvedValue(revealedAtOpen ? revealedView : null);
+      display$ = new BehaviorSubject(revealedAtOpen ? revealedView : storedView);
+      revealedCipherServiceMock.displayView$.mockReturnValue(display$);
+      component.setTestParams({ mode });
+      component.setTestFormConfig({ originalCipher: storedCipher });
+      component["loadForm"] = mode === "form";
 
-      const formConfig = { ...baseFormConfig, originalCipher: partialCipher };
-      const providers: any[] = [
-        { provide: DIALOG_DATA, useValue: { ...baseParams, formConfig } },
-        { provide: DialogRef, useValue: { close } },
-        { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: MessagingService, useValue: { send: jest.fn() } },
-        { provide: LogService, useValue: { error: jest.fn() } },
-        { provide: CipherService, useValue: cipherServiceMock },
-        { provide: Router, useValue: mockRouter },
-        {
-          provide: AccountService,
-          useValue: { activeAccount$: of({ id: "test-user-id" as any }) },
-        },
-        {
-          provide: BillingAccountProfileStateService,
-          useValue: { hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)) },
-        },
-        {
-          provide: PremiumUpgradePromptService,
-          useValue: { upgradeConfirmed$: of(false), promptForPremium: jest.fn() },
-        },
-        { provide: CipherAuthorizationService, useValue: cipherAuthorizationServiceMock },
-        { provide: ApiService, useValue: mock<ApiService>() },
-        { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
-        { provide: CipherArchiveService, useValue: mockArchiveService },
-        {
-          provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
-        },
-      ];
-      if (reloaderProvided) {
-        providers.push({
-          provide: GATED_CIPHER_RELOADER,
-          useValue: { fullCipher$: reloaderFullCipher$ },
-        });
-      }
-
-      await TestBed.configureTestingModule({
-        imports: [TestVaultItemDialogComponent, NoopAnimationsModule],
-        providers,
-      })
-        .overrideProvider(DialogService, { useValue: mockDialogService })
-        .compileComponents();
-
-      gatedFixture = TestBed.createComponent(TestVaultItemDialogComponent);
-      gatedComponent = gatedFixture.componentInstance;
-      // detectChanges runs ngOnInit, which is what puts the partial view in place.
-      gatedFixture.detectChanges();
+      await component.ngOnInit();
       await settle();
     }
 
-    beforeEach(() => {
-      cipherServiceMock.decrypt.mockImplementation(
-        async (cipher) =>
-          ({
-            id: cipher.id,
-            partial: (cipher as any).partialData != null,
-            collectionIds: [],
-          }) as unknown as CipherView,
+    afterEach(() => {
+      canEditCipherReturnValue$.next(false);
+      canDeleteCipherReturnValue$.next(false);
+    });
+
+    it("shows the stored view while nothing is revealed", async () => {
+      await open();
+
+      expect(revealedCipherServiceMock.displayView$).toHaveBeenCalledWith(
+        "test-user-id",
+        storedView,
       );
+      expect(component["cipher"]).toBe(storedView);
+      expect(component["showEdit"]).toBe(false);
+      expect(component["formConfig"].originalCipher).toBe(storedCipher);
     });
 
-    it("leaves the partial view in place while no lease covers the cipher", async () => {
-      await setup();
-
-      // The initial `null` means "no access yet", not "access just ended".
-      expect(gatedComponent["cipher"]?.partial).toBe(true);
-      expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
-    });
-
-    it("swaps in the full cipher and stamps leaseGated when access begins", async () => {
-      await setup();
-
-      fullCipher$.next(leasedCipher);
-      await settle();
-
-      expect(gatedComponent["cipher"]?.partial).toBe(false);
-      expect(gatedComponent["cipher"]?.leaseGated).toBe(true);
-      // originalCipher must move with the view, or a save would blank the server-suppressed fields.
-      expect(gatedComponent["formConfig"].originalCipher).toBe(leasedCipher);
-    });
-
-    it("re-derives the permissions withheld while the cipher was gated", async () => {
-      await setup();
+    it("shows the revealed view and re-reads permissions when a reveal begins", async () => {
+      await open();
       canEditCipherReturnValue$.next(true);
-      canDeleteCipherReturnValue$.next(true);
 
-      fullCipher$.next(leasedCipher);
+      display$.next(revealedView);
       await settle();
 
-      expect(gatedComponent["canEdit"]).toBe(true);
-      expect(gatedComponent["canDelete"]).toBe(true);
+      expect(component["cipher"]).toBe(revealedView);
+      expect(component["canEdit"]).toBe(true);
+      expect(component["showEdit"]).toBe(true);
+      expect(cipherAuthorizationServiceMock.canEditCipher$).toHaveBeenCalledWith(
+        revealedView,
+        false,
+      );
+      // Delete stays blocked for a revealed cipher.
+      expect(component["showDeleteButton"]).toBe(false);
+      // The form reads the revealed view through the form service, never from `originalCipher`.
+      expect(component["formConfig"].originalCipher).toBe(storedCipher);
     });
 
-    it("re-locks to the partial cipher and unmounts the form when access ends", async () => {
-      await setup();
+    it("opens an edit on the revealed view", async () => {
       canEditCipherReturnValue$.next(true);
-      fullCipher$.next(leasedCipher);
-      await settle();
 
-      fullCipher$.next(null);
-      await settle();
+      await open({ revealedAtOpen: true, mode: "form" });
 
-      expect(gatedComponent["cipher"]?.partial).toBe(true);
-      expect(gatedComponent["cipher"]?.leaseGated).toBe(false);
-      expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
-      // The form's own state still holds the full decrypted cipher, so it must not stay mounted.
-      expect(gatedComponent["loadForm"]).toBe(false);
-      expect(gatedComponent["params"].mode).toBe("view");
-      expect(gatedComponent["canEdit"]).toBe(false);
-      expect(gatedComponent["canDelete"]).toBe(false);
+      expect(revealedCipherServiceMock.getOrReveal).toHaveBeenCalledWith("test-user-id", "gated-1");
+      expect(component["cipher"]).toBe(revealedView);
+      expect(component["params"].mode).toBe("form");
     });
 
-    it("does nothing at all when no host provides a reloader", async () => {
-      await setup(false);
+    it("falls back to the stored view and leaves form mode when the reveal ends", async () => {
+      canEditCipherReturnValue$.next(true);
+      await open({ revealedAtOpen: true, mode: "form" });
 
-      expect(gatedComponent["cipher"]?.partial).toBe(true);
-      expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
+      display$.next(storedView);
+      await settle();
+
+      expect(component["cipher"]).toBe(storedView);
+      // The form's own state still holds the full view, so it must not stay mounted.
+      expect(component["loadForm"]).toBe(false);
+      expect(component["params"].mode).toBe("view");
+      expect(component["canEdit"]).toBe(false);
+      expect(component["canDelete"]).toBe(false);
+      expect(component["formConfig"].originalCipher).toBe(storedCipher);
+    });
+
+    describe("returning to view mode after a save", () => {
+      beforeEach(() => {
+        jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
+        cipherServiceMock.get.mockResolvedValue(storedCipher);
+        cipherServiceMock.decrypt.mockResolvedValue(storedView);
+      });
+
+      it("reveals the saved cipher again rather than show the save's blanked echo", async () => {
+        await open({ revealedAtOpen: true });
+        const refreshedView = { ...revealedView } as CipherView;
+        revealedCipherServiceMock.get.mockReturnValue(refreshedView);
+
+        await component["onCipherSaved"]({
+          id: "gated-1",
+          partial: false,
+          collectionIds: [],
+        } as unknown as CipherView);
+
+        expect(revealedCipherServiceMock.refresh).toHaveBeenCalledWith("test-user-id", "gated-1");
+        expect(component["cipher"]).toBe(refreshedView);
+        expect(component["formConfig"].originalCipher).toBe(storedCipher);
+      });
+
+      it("falls back to the stored view when the reveal ended before the refresh", async () => {
+        canEditCipherReturnValue$.next(true);
+        await open({ revealedAtOpen: true });
+        revealedCipherServiceMock.get.mockReturnValue(undefined);
+
+        await expect(
+          component["onCipherSaved"]({
+            id: "gated-1",
+            partial: false,
+            collectionIds: [],
+          } as unknown as CipherView),
+        ).resolves.toBeUndefined();
+
+        expect(component["cipher"]).toBe(storedView);
+        expect(component["loadForm"]).toBe(false);
+        expect(component["canEdit"]).toBe(false);
+        // The save itself landed, so the dialog must still report the item as modified.
+        expect(component["_cipherModified"]).toBe(true);
+      });
     });
 
     describe("refreshing the form after an attachment change", () => {
-      /** What the reloader's re-read carries after the attachment lands. */
       const reloadedView = {
         id: "gated-1",
         attachments: [{ id: "attachment-1" }],
@@ -852,13 +846,8 @@ describe("VaultItemDialogComponent", () => {
       } as unknown as CipherView;
       let patchCipher: jest.Mock;
 
-      /** Reveal the cipher under a lease and stand the attachments dialog up around it. */
-      async function revealThenPrepareUpload(): Promise<void> {
-        cipherServiceMock.decrypt.mockResolvedValue(reloadedView);
-        await setup();
-        fullCipher$.next(leasedCipher);
-        await settle();
-
+      beforeEach(async () => {
+        await open({ revealedAtOpen: true });
         (
           TestBed.inject(BillingAccountProfileStateService)
             .hasPremiumFromAnySource$ as unknown as jest.Mock
@@ -867,17 +856,17 @@ describe("VaultItemDialogComponent", () => {
           closed: of({ action: AttachmentDialogResult.Uploaded }),
         });
         patchCipher = jest.fn();
-        gatedComponent.mockCipherFormComponent(patchCipher);
-      }
+        component.mockCipherFormComponent(patchCipher);
+      });
 
-      it("patches attachments and revision date from a fresh read of the leased cipher", async () => {
-        await revealThenPrepareUpload();
+      it("patches attachments and revision date from the refreshed revealed view", async () => {
+        revealedCipherServiceMock.get.mockReturnValue(reloadedView);
 
-        await gatedComponent["openAttachmentsDialog"]();
+        await component["openAttachmentsDialog"]();
 
-        // Local state excludes gated ciphers and holds only the stripped, pre-upload copy.
+        expect(revealedCipherServiceMock.refresh).toHaveBeenCalledWith("test-user-id", "gated-1");
+        // Local state holds only the restricted, pre-upload copy.
         expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
-
         const currentCipher = {
           attachments: [],
           revisionDate: new Date(0),
@@ -887,70 +876,14 @@ describe("VaultItemDialogComponent", () => {
         expect(currentCipher.revisionDate).toBe(reloadedView.revisionDate);
       });
 
-      it("leaves the form alone, without throwing, when the re-read finds no lease", async () => {
-        await revealThenPrepareUpload();
-        // The lease lapses between the upload and the re-read.
-        reloaderFullCipher$.mockReturnValueOnce(of(null));
+      it("leaves the form alone, without throwing, when the reveal ended", async () => {
+        revealedCipherServiceMock.get.mockReturnValue(undefined);
 
-        await expect(gatedComponent["openAttachmentsDialog"]()).resolves.toBeUndefined();
+        await expect(component["openAttachmentsDialog"]()).resolves.toBeUndefined();
 
         expect(patchCipher).not.toHaveBeenCalled();
         // The attachment was still uploaded, so the dialog must still report the item as modified.
-        expect(gatedComponent["_cipherModified"]).toBe(true);
-      });
-    });
-
-    describe("returning to view mode after a save", () => {
-      beforeEach(() => {
-        jest
-          .spyOn(VaultItemDialogComponent.prototype as any, "changeMode")
-          .mockResolvedValue(undefined);
-      });
-
-      it("keeps the item revealed, from a fresh read rather than the save's stripped echo", async () => {
-        await setup();
-        fullCipher$.next(leasedCipher);
-        await settle();
-
-        // The form echoes the server's write, stripped for a gated cipher; taking it at face
-        // value would re-lock the item mid-lease.
-        await gatedComponent["onCipherSaved"]({
-          id: "gated-1",
-          partial: true,
-          collectionIds: [],
-        } as unknown as CipherView);
-
-        expect(gatedComponent["cipher"]?.partial).toBe(false);
-        expect(gatedComponent["cipher"]?.leaseGated).toBe(true);
-        expect(gatedComponent["formConfig"].originalCipher).toBe(leasedCipher);
-      });
-
-      it("re-locks to the stripped copy when the lease ended before the read", async () => {
-        await setup();
-        canEditCipherReturnValue$.next(true);
-        fullCipher$.next(leasedCipher);
-        await settle();
-        reloaderFullCipher$.mockReturnValueOnce(of(null));
-        cipherServiceMock.get.mockResolvedValue(partialCipher as any);
-
-        // The server's echo of a gated write has its secrets blanked but is not flagged partial,
-        // so leaving it in place would render the item blank with Edit still on.
-        const echoedView = {
-          id: "gated-1",
-          partial: false,
-          collectionIds: [],
-        } as unknown as CipherView;
-        await expect(gatedComponent["onCipherSaved"](echoedView)).resolves.toBeUndefined();
-
-        expect(gatedComponent["cipher"]?.partial).toBe(true);
-        expect(gatedComponent["cipher"]?.leaseGated).toBe(false);
-        expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
-        // Left set, a following save would take the gated path and diff against the blanks.
-        expect(gatedComponent["formConfig"].leaseGated).toBe(false);
-        expect(gatedComponent["loadForm"]).toBe(false);
-        expect(gatedComponent["canEdit"]).toBe(false);
-        // The save itself landed, so the dialog must still report the item as modified.
-        expect(gatedComponent["_cipherModified"]).toBe(true);
+        expect(component["_cipherModified"]).toBe(true);
       });
     });
   });

@@ -8,8 +8,9 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -37,6 +38,7 @@ function makeCipher(
     permissions: { delete: boolean; restore: boolean } | null;
     decryptionFailure: boolean;
     partial: boolean;
+    id: string;
   }> = {},
 ): CipherView {
   return {
@@ -63,6 +65,7 @@ describe("CipherRowMenuService", () => {
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let restrictedTypesSubject: BehaviorSubject<RestrictedCipherType[]>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
+  let revealedSubject: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
 
   beforeEach(() => {
     cipherArchiveService = mock<CipherArchiveService>();
@@ -75,6 +78,9 @@ describe("CipherRowMenuService", () => {
     restrictedTypesSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
     organizationsSubject = new BehaviorSubject<Organization[]>([]);
+    revealedSubject = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    const revealedCipherService = mock<RevealedCipherService>();
+    revealedCipherService.revealed$.mockReturnValue(revealedSubject.asObservable());
     organizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
     cipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject.asObservable());
@@ -91,6 +97,7 @@ describe("CipherRowMenuService", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         { provide: CipherActionService, useValue: mock<CipherActionService>() },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
       ],
     });
 
@@ -577,6 +584,30 @@ describe("CipherRowMenuService", () => {
       expect(show(actionId, makeCipher({ ...overrides, partial: true }), collections())).toBe(
         allowed.has(actionId),
       );
+    });
+
+    it.each(cases)(
+      "%s shows for a row that is no longer restricted while its reveal is held",
+      (actionId, overrides) => {
+        revealedSubject.next(new Map([["revealed-id" as CipherId, new CipherView()]]));
+
+        expect(show(actionId, makeCipher({ ...overrides, id: "revealed-id" }), collections())).toBe(
+          true,
+        );
+      },
+    );
+
+    it.each(cases)("%s follows the revealed-cipher policy", (actionId, overrides) => {
+      const revealedAllowed = new Set([...allowed, "edit", "attachments"]);
+      revealedSubject.next(new Map([["revealed-id" as CipherId, new CipherView()]]));
+
+      expect(
+        show(
+          actionId,
+          makeCipher({ ...overrides, id: "revealed-id", partial: true }),
+          collections(),
+        ),
+      ).toBe(revealedAllowed.has(actionId));
     });
   });
 });

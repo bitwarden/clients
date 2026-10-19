@@ -7,7 +7,10 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
@@ -47,6 +50,7 @@ export class CipherRowMenuService {
   private readonly organizationService = inject(OrganizationService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
+  private readonly revealedCipherService = inject(RevealedCipherService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -58,6 +62,12 @@ export class CipherRowMenuService {
   readonly userCanArchive = toSignal(
     this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     { initialValue: false },
+  );
+
+  /** The active user's revealed ciphers. A revealed row offers edit and attachments. */
+  private readonly revealed = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.revealedCipherService.revealed$(userId))),
+    { initialValue: new Map() as ReadonlyMap<CipherId, CipherView> },
   );
 
   private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restricted$, {
@@ -151,7 +161,7 @@ export class CipherRowMenuService {
         show: (item) =>
           this.canDelete(item) &&
           !CipherViewLikeUtils.isDeleted(item) &&
-          RestrictedCipherPolicy.allows(item, RestrictedCipherAction.Delete),
+          this.allows(item, RestrictedCipherAction.Delete),
         variant: "danger",
       },
       {
@@ -162,7 +172,7 @@ export class CipherRowMenuService {
         show: (item) =>
           this.canDelete(item) &&
           CipherViewLikeUtils.isDeleted(item) &&
-          RestrictedCipherPolicy.allows(item, RestrictedCipherAction.Delete),
+          this.allows(item, RestrictedCipherAction.Delete),
         variant: "danger",
       },
     ];
@@ -174,6 +184,11 @@ export class CipherRowMenuService {
           !CipherViewLikeUtils.decryptionFailure(item)) &&
         (action.show?.(item) ?? true),
     }));
+  }
+
+  private allows(cipher: CipherViewLike, action: RestrictedCipherAction): boolean {
+    const revealedView = cipher.id == null ? undefined : this.revealed().get(cipher.id as CipherId);
+    return RestrictedCipherPolicy.allows(cipher, action, revealedView);
   }
 
   private showFavorite(cipher: CipherViewLike): boolean {
@@ -190,7 +205,7 @@ export class CipherRowMenuService {
     return (
       !CipherViewLikeUtils.isDeleted(cipher) &&
       cipher.edit &&
-      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Edit)
+      this.allows(cipher, RestrictedCipherAction.Edit)
     );
   }
 
@@ -198,7 +213,7 @@ export class CipherRowMenuService {
     if (
       (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) ||
       CipherViewLikeUtils.isDeleted(cipher) ||
-      !RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Attachments)
+      !this.allows(cipher, RestrictedCipherAction.Attachments)
     ) {
       return false;
     }
@@ -208,7 +223,7 @@ export class CipherRowMenuService {
   private showClone(cipher: CipherViewLike, collections: CollectionView[]): boolean {
     if (
       (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) ||
-      !RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Clone)
+      !this.allows(cipher, RestrictedCipherAction.Clone)
     ) {
       return false;
     }
@@ -224,7 +239,7 @@ export class CipherRowMenuService {
     if (
       CipherViewLikeUtils.isDeleted(cipher) ||
       !CipherViewLikeUtils.canAssignToCollections(cipher) ||
-      !RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.AssignCollections)
+      !this.allows(cipher, RestrictedCipherAction.AssignCollections)
     ) {
       return false;
     }
@@ -240,7 +255,7 @@ export class CipherRowMenuService {
     return (
       !CipherViewLikeUtils.isArchived(cipher) &&
       !CipherViewLikeUtils.isDeleted(cipher) &&
-      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.UserFields)
+      this.allows(cipher, RestrictedCipherAction.UserFields)
     );
   }
 
@@ -248,7 +263,7 @@ export class CipherRowMenuService {
     return (
       CipherViewLikeUtils.isArchived(cipher) &&
       !CipherViewLikeUtils.isDeleted(cipher) &&
-      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.UserFields)
+      this.allows(cipher, RestrictedCipherAction.UserFields)
     );
   }
 
@@ -256,7 +271,7 @@ export class CipherRowMenuService {
     return (
       CipherViewLikeUtils.isDeleted(cipher) &&
       this.canRestore(cipher) &&
-      RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Restore)
+      this.allows(cipher, RestrictedCipherAction.Restore)
     );
   }
 

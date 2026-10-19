@@ -338,6 +338,7 @@ import {
   FolderService as FolderServiceAbstraction,
   InternalFolderService,
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -359,6 +360,7 @@ import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/defau
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -786,6 +788,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherLeaseStateService,
     useClass: DefaultCipherLeaseStateService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: RevealedCipherService,
+    useClass: NoopRevealedCipherService,
     deps: [],
   }),
   safeProvider({
@@ -2036,7 +2043,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
-    deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
+    deps: [
+      CollectionService,
+      OrganizationServiceAbstraction,
+      AccountServiceAbstraction,
+      RevealedCipherService,
+    ],
   }),
   safeProvider({
     provide: SendPasswordService,

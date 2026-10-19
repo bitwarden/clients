@@ -2,6 +2,7 @@ import { NgZone } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -9,13 +10,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherLeaseStateService } from "@bitwarden/common/vault/abstractions/cipher-lease-state.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import {
-  CIPHER_VIEW_BANNER,
-  GATED_CIPHER_RELOADER,
-  ITEM_DETAILS_STATE_BADGE,
-} from "@bitwarden/vault";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_STATE_BADGE } from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
@@ -46,8 +44,8 @@ import { DefaultAccessRefreshService } from "./services/default-access-refresh.s
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { MyLeasesService } from "./services/my-leases.service";
-import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
+import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
@@ -203,14 +201,16 @@ export function providePam(): SafeProvider[] {
       useValue: CollectionAccessRuleCalloutComponent,
     }),
     safeProvider({
-      provide: GATED_CIPHER_RELOADER,
-      useClass: PamGatedCipherReloader,
+      provide: RevealedCipherService,
+      useClass: PamRevealedCipherService,
       deps: [
         AccessRequestSdkService,
         AccessRefreshService,
         AccessBadgeTickerService,
+        AccessLeaseSdkService,
+        AccountService,
+        AuthService,
         NgZone,
-        ApiService,
         LogService,
       ],
     }),
