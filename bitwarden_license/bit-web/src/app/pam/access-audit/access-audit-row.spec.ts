@@ -38,7 +38,7 @@ describe("toAuditRow", () => {
       Automated: false,
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.actorId).toBe("user-ada");
     expect(result.actorEmail).toBe("ada@example.com");
@@ -57,7 +57,7 @@ describe("toAuditRow", () => {
       Automated: false,
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.ruleName).toBe("prod-rule");
     expect(result.cipherName).toBeNull();
@@ -76,7 +76,7 @@ describe("toAuditRow", () => {
       Automated: false,
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.targetSystemName).toBe("prod-postgres-01");
     expect(result.accessConnectorName).toBe("eu-west-rotator");
@@ -93,7 +93,7 @@ describe("toAuditRow", () => {
       Automated: false,
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.targetSystemName).toBeNull();
     expect(result.accessConnectorName).toBeNull();
@@ -110,7 +110,7 @@ describe("toAuditRow", () => {
       Automated: false,
     });
 
-    const result = toAuditRow(event, new Map([["cipher-1", "prod db"]]), new Map());
+    const result = toAuditRow(event, new Map([["cipher-1", "prod db"]]), new Map(), "en-US");
 
     expect(result.cipherId).toBe("cipher-1");
     expect(result.cipherName).toBe("prod db");
@@ -127,7 +127,7 @@ describe("toAuditRow", () => {
       Automated: false,
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.cipherId).toBe("cipher-9");
     expect(result.cipherName).toBeNull();
@@ -142,7 +142,7 @@ describe("toAuditRow", () => {
       Incomplete: true,
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.inDoubt).toBe(true);
   });
@@ -157,7 +157,7 @@ describe("toAuditRow", () => {
       LeaseNotAfter: "2026-06-30T13:00:00Z",
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.duration).toEqual({ key: "pamInboxDuration1Hour", value: null });
     expect(result.exactWindow).toContain("–");
@@ -174,7 +174,7 @@ describe("toAuditRow", () => {
       LeaseNotAfter: "2026-06-30T16:00:00Z",
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.duration).toBeNull();
     expect(result.exactWindow).toBeNull();
@@ -190,7 +190,7 @@ describe("toAuditRow", () => {
       LeaseNotAfter: "2026-06-30T16:00:00Z",
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.extendedUntil).toBe("2026-06-30T16:00:00Z");
     expect(result.duration).toBeNull();
@@ -206,7 +206,7 @@ describe("toAuditRow", () => {
       LeaseNotAfter: "2026-06-30T16:00:00Z",
     });
 
-    const result = toAuditRow(event, new Map(), new Map());
+    const result = toAuditRow(event, new Map(), new Map(), "en-US");
 
     expect(result.duration).toBeNull();
     expect(result.exactWindow).toBeNull();

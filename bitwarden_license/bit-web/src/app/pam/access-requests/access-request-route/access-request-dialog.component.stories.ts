@@ -219,7 +219,7 @@ export const LoadError: Story = {
 
 /** Someone else's request as it sits in the viewer's inbox, built through the real row builder. */
 function inboxRow(request: AccessRequestView): ApprovalRow {
-  return toApprovalRow(request, names, STORY_NOW, true);
+  return toApprovalRow(request, names, STORY_NOW, true, "en-US");
 }
 
 /**
