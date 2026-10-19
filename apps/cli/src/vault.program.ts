@@ -322,7 +322,7 @@ export class VaultProgram extends BaseProgram {
   }
 
   private deleteCommand(): Command {
-    const deleteObjects = ["item", "attachment", "folder", "org-collection"];
+    const deleteObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
     return new Command("delete")
       .argument("<object>", "Valid objects are: " + deleteObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")

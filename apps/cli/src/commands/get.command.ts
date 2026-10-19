@@ -625,12 +625,15 @@ export class GetCommand extends DownloadCommand {
         template = FolderExport.template();
         break;
       case "collection":
+      case "shared-folder":
         template = CollectionExport.template();
         break;
       case "item-collections":
+      case "item-shared-folders":
         template = ["collection-id1", "collection-id2"];
         break;
       case "org-collection":
+      case "org-shared-folder":
         template = OrganizationCollectionRequest.template();
         break;
       case "send.file":
