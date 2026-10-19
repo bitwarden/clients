@@ -222,6 +222,48 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["buildAutofillFieldsData"]).not.toHaveBeenCalled();
     });
 
+    it("refreshes the options of cached select fields when returning cached field data", async () => {
+      document.body.innerHTML = `
+        <form>
+          <select id="state" name="state">
+            <option value="">--</option>
+            <option value="ON">Ontario</option>
+          </select>
+        </form>
+      `;
+      const stateSelect = document.getElementById("state") as ElementWithOpId<HTMLSelectElement>;
+      const autofillField = createAutofillFieldMock({
+        opid: "__0",
+        htmlID: "state",
+        type: "select-one",
+        selectInfo: {
+          options: [
+            ["--", ""],
+            ["ontario", "ON"],
+          ],
+        },
+      });
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [stateSelect, autofillField],
+      ]);
+      jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldsData");
+      stateSelect.innerHTML = `
+        <option value="">--</option>
+        <option value="WA">Washington</option>
+      `;
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(collectAutofillContentService["buildAutofillFieldsData"]).not.toHaveBeenCalled();
+      expect(pageDetails.fields[0].selectInfo).toEqual({
+        options: [
+          ["", ""],
+          ["washington", "WA"],
+        ],
+      });
+    });
+
     it("updates the visibility for cached autofill fields", async () => {
       const formId = "validFormId";
       const formAction = "https://example.com/";
@@ -1513,6 +1555,47 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["getPropertyOrAttribute"]).not.toHaveBeenCalled();
       expect(collectAutofillContentService["getElementValue"]).not.toHaveBeenCalled();
       expect(autofillFieldItem).toEqual(existingFieldData);
+    });
+
+    it("refreshes the select options of an existing autofill field item", async () => {
+      document.body.innerHTML = `
+        <form>
+          <label for="state">State</label>
+          <select id="state" name="state">
+            <option value="">--</option>
+            <option value="ON">Ontario</option>
+          </select>
+        </form>
+      `;
+      const stateSelect = document.getElementById("state") as ElementWithOpId<HTMLSelectElement>;
+      const existingFieldData = createAutofillFieldMock({
+        opid: "__0",
+        htmlID: "state",
+        type: "select-one",
+        selectInfo: {
+          options: [
+            ["--", ""],
+            ["ontario", "ON"],
+          ],
+        },
+      });
+      collectAutofillContentService["autofillFieldElements"].set(stateSelect, existingFieldData);
+      stateSelect.innerHTML = `
+        <option value="">--</option>
+        <option value="WA">Washington</option>
+      `;
+
+      const autofillFieldItem = await collectAutofillContentService["buildAutofillFieldItem"](
+        stateSelect,
+        0,
+      );
+
+      expect(autofillFieldItem.selectInfo).toEqual({
+        options: [
+          ["", ""],
+          ["washington", "WA"],
+        ],
+      });
     });
 
     it("returns the AutofillField base data values without the field labels or input values if the passed element is a span element", async () => {
