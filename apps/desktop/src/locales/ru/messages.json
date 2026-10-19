@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "В этом файле используются неподдерживаемые настройки шифрования, поэтому его невозможно импортировать."
+  },
   "importNothingError": {
     "message": "Ничего не было импортировано."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Узнайте о возможностях импорта"
-  },
-  "selectImportFolder": {
-    "message": "Выберите папку"
-  },
-  "selectImportCollection": {
-    "message": "Выберите коллекцию"
-  },
-  "selectImportSharedFolder": {
-    "message": "Выберите общую папку"
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
+  },
+  "onePasswordPartialImport": {
+    "message": "Не удалось импортировать $COUNT$ элементов или хранилищ 1Password",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Произошла ошибка. Проверьте свои учетные данные и попробуйте еще раз."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Поддерживается только вход с использованием пароля."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Поддерживается только вход с использованием пароля. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Введите действительный адрес email или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordImportError": {
+    "message": "Произошла ошибка. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "emailIsRequired": {
+    "message": "Необходимо указать email."
+  },
+  "enterValidEmailAddress": {
+    "message": "Введите действительный адрес email."
+  },
+  "signInAddressIsRequired": {
+    "message": "Введите адрес входа."
+  },
+  "enterValidSignInAddress": {
+    "message": "Введите действительный адрес входа."
+  },
+  "secretKeyIsRequired": {
+    "message": "Требуется секретный ключ."
+  },
+  "enterValidSecretKey": {
+    "message": "Введите действительный секретный ключ."
+  },
+  "passwordIsRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "enterValidVerificationCode": {
+    "message": "Введите правильный код подтверждения."
+  },
+  "signInAddress": {
+    "message": "Адрес входа"
+  },
+  "onePasswordEmail": {
+    "message": "Email 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Введите адрес email, который вы используете для авторизации в 1Password"
   },
   "secretKey": {
     "message": "Секретный ключ"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
   },
-  "tourTheNewVault": {
-    "message": "Экскурсия по новому хранилищу"
+  "whatsNew": {
+    "message": "Что нового"
   },
   "tourTheNewVaultDescription": {
     "message": "Благодаря обновленной навигации и дизайну найти то, что вам нужно, стало проще, чем когда-либо."
   },
-  "takeTheTour": {
-    "message": "Пройти экскурсию"
+  "coachmarkVaultListTitle": {
+    "message": "Все ваши хранилища в одном месте"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Здесь теперь представлены личные, семейные и корпоративные хранилища."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Коллекции и папки получили новые названия"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Те же функции, но с более понятными названиями. Коллекции теперь называются Общими папками». Папки теперь называются Моими папками."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ из $TOTAL$",

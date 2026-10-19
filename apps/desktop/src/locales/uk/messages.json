@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Дані мають некоректне форматування. Перевірте файл імпорту і спробуйте знову."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Нічого не імпортовано."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
-  },
-  "selectImportFolder": {
-    "message": "Вибрати теку"
-  },
-  "selectImportCollection": {
-    "message": "Вибрати збірку"
-  },
-  "selectImportSharedFolder": {
-    "message": "Вибрати спільну теку"
   },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Секретний ключ"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Контролюйте безпеку записів свого сховища, перевіряючи звіти про вразливості."
   },
-  "tourTheNewVault": {
-    "message": "Огляд нового сховища"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "Завдяки оновленню дизайну та засобів навігації стало значно простіше знаходити потрібну інформацію."
   },
-  "takeTheTour": {
-    "message": "Оглянути"
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ з $TOTAL$",

@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "ဒေတာကို မှန်ကန်စွာ ဖော်မတ်မထားပါ။ သင့်တင်သွင်းဖိုင်ကို စစ်ဆေးပြီး ထပ်မံကြိုးစားပါ။"
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "ဘာမှမတင်သွင်းခဲ့ပါ။"
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "သင့်တင်သွင်းမှုရွေးချယ်မှုများအကြောင်း လေ့လာပါ"
-  },
-  "selectImportFolder": {
-    "message": "ဖိုလ်ဒါတစ်ခုရွေးချယ်ပါ"
-  },
-  "selectImportCollection": {
-    "message": "စုစည်းမှုတစ်ခုရွေးချယ်ပါ"
-  },
-  "selectImportSharedFolder": {
-    "message": "Select a shared folder"
   },
   "importTargetHintCollection": {
     "message": "တင်သွင်းထားသောဖိုင်အကြောင်းအရာကို စုစည်းမှုတစ်ခုသို့ ပြောင်းရွှေ့လိုပါက ဤရွေးချယ်မှုကို ရွေးချယ်ပါ"
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "သင့် LastPass အကောင့်နှင့် ဆက်စပ်နေသော YubiKey ကို သင့်ကွန်ပျူတာ၏ USB အပေါက်ထဲသို့ ထည့်သွင်းပြီး ၎င်း၏ခလုတ်ကို နှိပ်ပါ။"
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

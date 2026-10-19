@@ -1,6 +1,6 @@
 {
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "appLogoLabel"
   },
   "bitwarden": {
     "message": "Bitwarden"
@@ -124,7 +124,7 @@
     "message": "Limpar busca"
   },
   "clearSearchTooltip": {
-    "message": "Clear by clicking here or pressing Esc.",
+    "message": "Clique aqui ou pressione Esc. para limpar.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "addItem": {
@@ -168,7 +168,7 @@
     }
   },
   "nestedSharedFolderCount": {
-    "message": "$COUNT$ nested shared folders",
+    "message": "$COUNT$ pastas compartilhadas agrupadas",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
     "placeholders": {
       "count": {
@@ -178,7 +178,7 @@
     }
   },
   "nestedSharedFolderSingular": {
-    "message": "1 nested shared folder",
+    "message": "1 pasta compartilhada agrupada",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
   "myFolder": {
@@ -1390,13 +1390,13 @@
     "message": "Selecione um arquivo"
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file"
+    "message": "Esse tipo de arquivo não é aceito para esta fonte. Escolha um arquivo diferente"
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content"
+    "message": "Cole o conteúdo exportado"
   },
   "fileTypeNotSupported": {
-    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "message": "Esse tipo de arquivo não é suportado. Selecione um arquivo $TYPES$",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -1405,10 +1405,10 @@
     }
   },
   "pasteContentFormatMismatch": {
-    "message": "The pasted content doesn't match the selected format"
+    "message": "O conteúdo colado não corresponde ao formato selecionado"
   },
   "errorReadingFile": {
-    "message": "The selected file could not be read"
+    "message": "O arquivo selecionado não pode ser lido"
   },
   "maxFileSize": {
     "message": "O tamanho máximo do arquivo é de 500 MB."
@@ -2126,22 +2126,22 @@
     "message": "Altere o idioma utilizado pelo aplicativo. É necessário reiniciar."
   },
   "passkeyProvider": {
-    "message": "Passkey provider"
+    "message": "Provedor de chave de acesso"
   },
   "passkeyProviderDesc": {
-    "message": "Use Bitwarden to save and sign in with passkeys in other apps."
+    "message": "Utilize o Bitwarden para salvar e acessar com chaves de acesso em outros apps."
   },
   "turnedOn": {
-    "message": "On"
+    "message": "Ligado"
   },
   "turnedOff": {
-    "message": "Off"
+    "message": "Desligado"
   },
   "manageInSystemSettings": {
-    "message": "Manage in system settings"
+    "message": "Gerenciar configurações do sistema"
   },
   "mayOpenSystemSettings": {
-    "message": "May open the system settings app.",
+    "message": "Pode abrir o aplicativo de configurações do sistema.",
     "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
   },
   "theme": {
@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Os dados não estão formatados corretamente. Verifique o seu arquivo de importação e tente novamente."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nada foi importado."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre suas opções de importação"
-  },
-  "selectImportFolder": {
-    "message": "Selecione uma pasta"
-  },
-  "selectImportCollection": {
-    "message": "Selecione um conjunto"
-  },
-  "selectImportSharedFolder": {
-    "message": "Selecione uma pasta compartilhada"
   },
   "importTargetHintCollection": {
     "message": "Selecione esta opção caso queira importar os conteúdos do arquivo para um conjunto"
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada com a sua conta do LastPass na porta USB do seu computador, e depois toque no botão dela."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Chave secreta"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

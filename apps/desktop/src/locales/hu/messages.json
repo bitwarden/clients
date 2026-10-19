@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Ez a fájl nem támogatott titkosítási beállításokat használ és nem importálható."
+  },
   "importNothingError": {
     "message": "Semmi nem lett importálva."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Információ az importálási opciókról"
-  },
-  "selectImportFolder": {
-    "message": "Mappa kiválasztása"
-  },
-  "selectImportCollection": {
-    "message": "Gyűjtemény kiválasztása"
-  },
-  "selectImportSharedFolder": {
-    "message": "Megosztott mappa kiválasztása"
   },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
@@ -5285,6 +5279,63 @@
   "lastPassYubikeyDesc": {
     "message": "Illesszük be a LastPass fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
   },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elem vagy széf nem importálható.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Hiba történt. Ellenőrizzük a hitelesítő adatokat és próbáljuk újra."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Csak a jelszavas bejelentkezés támogatott."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "onePasswordImportError": {
+    "message": "Hiba történt. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "emailIsRequired": {
+    "message": "Email cím megadása kötelező."
+  },
+  "enterValidEmailAddress": {
+    "message": "Adjunk meg egy érvényes email címet."
+  },
+  "signInAddressIsRequired": {
+    "message": "A bejelentkezési email cím megadása kötelező."
+  },
+  "enterValidSignInAddress": {
+    "message": "Adjunk meg egy érvényes bejelentkezési címet."
+  },
+  "secretKeyIsRequired": {
+    "message": "Titkos kulcs megadása kötelező."
+  },
+  "enterValidSecretKey": {
+    "message": "Adjunk meg egy érvényes titkos kulcsot."
+  },
+  "passwordIsRequired": {
+    "message": "Jelszó megadása szükséges."
+  },
+  "enterValidVerificationCode": {
+    "message": "Érvényes ellenőrző kódot adjunk meg."
+  },
+  "signInAddress": {
+    "message": "Bejelentkezési cím"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email cím"
+  },
+  "onePasswordEmailHint": {
+    "message": "Adjuk meg az 1Password bejelentkezéshez használt email címet."
+  },
   "secretKey": {
     "message": "Titkos kulcs"
   },
@@ -5797,7 +5848,7 @@
     "message": "Az alkalmazáshoz nem található hozzáférési kulcs."
   },
   "passkeyNotAllowedForBitwardenVault": {
-    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "message": "A $DOMAIN$ belépőkulcsai nem menthetők és nem használhatók a Bitwardenben.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -5806,7 +5857,7 @@
     }
   },
   "passkeyNotAllowedForBitwardenVaultDesc": {
-    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+    "message": "Ha a Bitwarden fiókhoz tartozó beépőkulcsot a széfben tároljuk, kizárhatjuk magunkat a fiókból."
   },
   "closeThisWindow": {
     "message": "Ezen ablak bezárása"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Tartsuk meg erősen a széfelemek biztonságát azáltal, hogy ellenőrizzük a jelentéseket a sebezhetőség tekintetében."
   },
-  "tourTheNewVault": {
-    "message": "Fedezzük fel az új széfet."
+  "whatsNew": {
+    "message": "Újdonságok"
   },
   "tourTheNewVaultDescription": {
     "message": "A frissített navigációval és megjelenéssel minden eddiginél könnyebben megtalálhatjuk, amire szükség van."
   },
-  "takeTheTour": {
-    "message": "Induljon a túra"
+  "coachmarkVaultListTitle": {
+    "message": "Az összes széf egy helyen"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "A személyes, családi és üzleti széfek most itt vannak felsorolva."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "A gyűjteményeknek és mappáknak új nevük van"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Ugyanazok a funkciók, tisztább nevek. A gyűjteményeket mostantól megosztott mappáknak nevezzük. A mappák mostantól Saját mappák."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",

@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Die Daten sind nicht richtig formatiert. Kontrolliere bitte deine Import-Datei und versuche es erneut."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Es wurde nichts importiert."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Erfahre mehr über deine Importoptionen"
-  },
-  "selectImportFolder": {
-    "message": "Ordner auswählen"
-  },
-  "selectImportCollection": {
-    "message": "Sammlung auswählen"
-  },
-  "selectImportSharedFolder": {
-    "message": "Wähle einen geteilten Ordner aus"
   },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
@@ -5145,7 +5139,7 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Passwort ist erforderlich."
   },
   "filePasswordRequired": {
     "message": "File password is required"
@@ -5160,7 +5154,7 @@
     "message": "Select profile"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Gib ein gültiges Passwort ein"
   },
   "importAccountMismatchError": {
     "message": "This file can only be imported into the account it was exported from."
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Stecke den YubiKey, der mit deinem LastPass Konto verknüpft ist, in den USB-Port deines Computers und drücke dann den Knopf des YubiKey."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Geheimer Schlüssel"
@@ -5615,7 +5666,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricUnlockOnRestartTurnedOff": {
-    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+    "message": "Biometrisches Entsperren beim Neustart der App wurde deaktiviert. Aktiviere es erneut in den Einstellungen."
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometrisches Entsperren ist nicht verfügbar, da zuerst mit PIN oder Passwort entsperrt werden muss."
@@ -5794,7 +5845,7 @@
     "message": "Diese Anwendung unterstützt keine mehrfachen Instanzen."
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "No passkeys found for this application."
+    "message": "Keine Passkeys für diese Anwendung gefunden."
   },
   "passkeyNotAllowedForBitwardenVault": {
     "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
@@ -7206,10 +7257,10 @@
     "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
   },
   "coachmarkAddItemTitle": {
-    "message": "Add an item"
+    "message": "Eintrag hinzufügen"
   },
   "coachmarkAddItemDescription": {
-    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+    "message": "Füge neue Passwörter, Notizen und andere Informationen zu deinem Tresor hinzu. Alles ist mit Ende-zu-Ende-Verschlüsselung geschützt."
   },
   "coachmarkShareWithCollectionsTitle": {
     "message": "Safely share items with others"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

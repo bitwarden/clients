@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "La datumo estas ne ĝuste aranĝita. Bonvole kontrolu vian enportan dosieron kaj provu denove."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nenio estis enportita."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Lernu pri viaj importaj opcioj"
-  },
-  "selectImportFolder": {
-    "message": "Elekti dosierujon"
-  },
-  "selectImportCollection": {
-    "message": "Elekti kolekton"
-  },
-  "selectImportSharedFolder": {
-    "message": "Elekti komunan dosierujon"
   },
   "importTargetHintCollection": {
     "message": "Elektu ĉi tiun opcion se vi volas, ke la enhavo de la importita dosiero estu movita al kolekto"
@@ -4885,7 +4879,7 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "Viaj akreditiloj ĉifriĝas dum transito kaj neniam konserviĝas."
   },
   "importDataSecureByDesignTitle": {
     "message": "Sekureco pro desegno"
@@ -4900,7 +4894,7 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Ni petos vian ensaluton"
   },
   "importDataLoginInfoBody": {
     "message": "In the next step, log in to your $VENDOR$ account.",
@@ -4915,10 +4909,10 @@
     "message": "Everything transfers"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "Ensalutoj, kartoj, identoj, sekuraj notoj, kaj TOTP, kun la strukturo de ilia dosierujo."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Akceptataj: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -4927,7 +4921,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "Dosiertipo de $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5136,7 +5130,7 @@
     "message": "KeePass-ĉefpasvorto"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "Pasvorto de $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5145,25 +5139,25 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Pasvorto necesas."
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "Dosiera pasvorto necesas"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "Enigu validan dosieran pasvorton."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "La alŝutita dosiero estas ŝlosita de pasvorto. Enigu la pasvorton por daŭrigi."
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "Elekti profilon"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Enigu validan pasvorton"
   },
   "importAccountMismatchError": {
-    "message": "This file can only be imported into the account it was exported from."
+    "message": "Tiu ĉi dosiero povas esti importita nur en la konton kiu eksportis ĝin."
   },
   "addKeyFile": {
     "message": "Aldoni ŝlosildosieron"
@@ -5172,7 +5166,7 @@
     "message": "Ŝlosildosiera alŝuto"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "Ŝlosilo-dosiero"
   },
   "kdbxFileUpload": {
     "message": "KDBX-dosiera alŝuto"
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Enmetu la YubiKey asociitan kun via LastPass-konto en la USB-ingon de via komputilo, poste tuŝu ĝian butonon."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Sekreta ŝlosilo"
@@ -5615,7 +5666,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricUnlockOnRestartTurnedOff": {
-    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+    "message": "Biometria malŝlosado post apo-restarto malŝaltiĝis. Oni reŝaltus ĝin per agordoj."
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometrika malŝloso ne disponeblas ĉar PIN aŭ pasvorta malŝloso estas postulata unue."
@@ -5797,7 +5848,7 @@
     "message": "Neniu pasoŝlosilo trovita por tiu ĉi aplikaĵo."
   },
   "passkeyNotAllowedForBitwardenVault": {
-    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "message": "Pasoŝlosiloj de $DOMAIN$ povas esti nek konservita nek uzata per Bitwarden.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -5806,7 +5857,7 @@
     }
   },
   "passkeyNotAllowedForBitwardenVaultDesc": {
-    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+    "message": "Konservi la pasoŝlosilon de via Bitwarden-konto en via trezorejo povas bari vin malŝlosi vian konton."
   },
   "closeThisWindow": {
     "message": "Fermi ĉi tiun fenestron"
@@ -6470,7 +6521,7 @@
     "message": "Doni aliron"
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "Neniu retumila profilo trovita"
   },
   "upgrade": {
     "message": "Ĝisdatigi"
@@ -7120,11 +7171,11 @@
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
-    "message": "Active links",
+    "message": "Aktivaj ligiloj",
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link copied to clipboard",
+    "message": "Ligilo kopiita tondujen",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "Kio novas"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ de $TOTAL$",

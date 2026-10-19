@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Данните са в неправилен формат. Проверете файла за внасяне и пробвайте отново."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Този файл използва неподдържани настройки за шифроване и не може да бъде внесен."
+  },
   "importNothingError": {
     "message": "Нищо не бе внесено."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Научете повече относно възможностите за внасяне"
-  },
-  "selectImportFolder": {
-    "message": "Изберете папка"
-  },
-  "selectImportCollection": {
-    "message": "Изберете колекция"
-  },
-  "selectImportSharedFolder": {
-    "message": "Изберете споделена папка"
   },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
@@ -5285,6 +5279,63 @@
   "lastPassYubikeyDesc": {
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
   },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ записи или трезори от 1Password не могат да бъдат внесени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Възникна грешка. Проверете въведените данни и опитайте отново."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Поддържа се само вписване с парола."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Поддържа се само вписване с парола. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Въведете правилен адрес на е-поща или използвайте друг начин за внасяне."
+  },
+  "onePasswordImportError": {
+    "message": "Възникна грешка. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "emailIsRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "enterValidEmailAddress": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "signInAddressIsRequired": {
+    "message": "Адресът за вписване е задължителен."
+  },
+  "enterValidSignInAddress": {
+    "message": "Въведете правилен адрес за вписване."
+  },
+  "secretKeyIsRequired": {
+    "message": "Секретният ключ е задължителен."
+  },
+  "enterValidSecretKey": {
+    "message": "Въведете правилен секретен ключ."
+  },
+  "passwordIsRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "enterValidVerificationCode": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "signInAddress": {
+    "message": "Адрес за вписване"
+  },
+  "onePasswordEmail": {
+    "message": "Е-поща за 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Въведете е-пощата, която използвате за вписване в 1Password"
+  },
   "secretKey": {
     "message": "Таен ключ"
   },
@@ -5797,7 +5848,7 @@
     "message": "Няма намерени секретни ключове за това приложение."
   },
   "passkeyNotAllowedForBitwardenVault": {
-    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "message": "Секретните ключове за $DOMAIN$ не могат да бъдат запазени и използвани в Битуорден.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -5806,7 +5857,7 @@
     }
   },
   "passkeyNotAllowedForBitwardenVaultDesc": {
-    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+    "message": "Запазването на секретния ключ за акаунта Ви в Битуорден в самия трезор може да блокира достъпа до акаунта Ви."
   },
   "closeThisWindow": {
     "message": "Затворете този прозорец"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
   },
-  "tourTheNewVault": {
-    "message": "Обиколка на новия трезор"
+  "whatsNew": {
+    "message": "Новите неща"
   },
   "tourTheNewVaultDescription": {
     "message": "С обновена навигация и дизайн, сега е по-лесно от всякога да намерите това, което търсите."
   },
-  "takeTheTour": {
-    "message": "Започнете обиколката"
+  "coachmarkVaultListTitle": {
+    "message": "Всички Ваши трезори на едно място"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Лични, семейни и фирмени трезори вече се показват тук."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Колекциите и папките имат нови имена"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Същите функционалности, с по-ясни имена. Колекциите вече се наричат „споделени папки“. Папките вече са „моите папки“."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ от $TOTAL$",

@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Dáta nie sú správne formátované. Prosím, overte importovaný súbor a skúste to znova."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Tento súbor používa nepodporované nastavenia šifrovania a nie je možné ho importovať."
+  },
   "importNothingError": {
     "message": "Nič sa neimportovalo."
   },
@@ -4655,15 +4658,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Zistiť viac o možnostiach importu"
-  },
-  "selectImportFolder": {
-    "message": "Vyberte priečinok"
-  },
-  "selectImportCollection": {
-    "message": "Vyberte zbierku"
-  },
-  "selectImportSharedFolder": {
-    "message": "Vyberte zdieľaný priečinok"
   },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
@@ -5285,6 +5279,63 @@
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
+  "onePasswordPartialImport": {
+    "message": "Niektoré položky ($COUNT$) alebo trezory 1Password sa nepodarilo načítať",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Vyskytla sa chyba. Skontrolujte svoje prihlasovacie údaje a skúste to znova."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Podporované je iba prihlásenie pomocou hesla."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Podporované je iba prihlásenie pomocou hesla. Skúste to znovu alebo použite iný spôsob importu."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Zadajte platnú e-mailovú adresu alebo použite iný spôsob importu."
+  },
+  "onePasswordImportError": {
+    "message": "Vyskytla sa chyba. Skúste to znova alebo použite iný spôsob importu."
+  },
+  "emailIsRequired": {
+    "message": "E-mailová adresa je povinná."
+  },
+  "enterValidEmailAddress": {
+    "message": "Zadajte platnú e-mailovú adresu."
+  },
+  "signInAddressIsRequired": {
+    "message": "Vyžaduje sa prihlasovacia adresa."
+  },
+  "enterValidSignInAddress": {
+    "message": "Zadajte platnú prihlasovaciu adresu."
+  },
+  "secretKeyIsRequired": {
+    "message": "Vyžaduje sa tajný kľúč."
+  },
+  "enterValidSecretKey": {
+    "message": "Zadajte platný tajný kľúč."
+  },
+  "passwordIsRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "enterValidVerificationCode": {
+    "message": "Zadajte platný overovací kód."
+  },
+  "signInAddress": {
+    "message": "Prihlasovacia adresa"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail do 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Zadajte e-mailovú adresu, ktorú používate na prihlásenie do 1Password"
+  },
   "secretKey": {
     "message": "Tajný kľúč"
   },
@@ -5797,7 +5848,7 @@
     "message": "Pre túto aplikáciu neboli nájdené žiadne prístupové kľúče."
   },
   "passkeyNotAllowedForBitwardenVault": {
-    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "message": "Prístupové kľúče pre $DOMAIN$ nie je možné uložiť ani použiť v Bitwardene.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -5806,7 +5857,7 @@
     }
   },
   "passkeyNotAllowedForBitwardenVaultDesc": {
-    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+    "message": "Uloženie prístupového kľúča pre váš účet Bitwarden vo vašom trezore vám môže zablokovať prístup k vášmu účtu."
   },
   "closeThisWindow": {
     "message": "Zatvoriť toto okno"
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zabezpečte si vysokú úroveň bezpečnosti položiek vo vašom trezore tým, že budete kontrolovať reporty o zraniteľnostiach."
   },
-  "tourTheNewVault": {
-    "message": "Prehliadka nového trezoru"
+  "whatsNew": {
+    "message": "Čo je nové"
   },
   "tourTheNewVaultDescription": {
     "message": "Vďaka vylepšenej navigácii a dizajnu nájdete, čo potrebujete, jednoduchšie ako kedykoľvek predtým."
   },
-  "takeTheTour": {
-    "message": "Vyberte sa na prehliadku"
+  "coachmarkVaultListTitle": {
+    "message": "Všetky vaše trezory na jednom mieste"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Tu sú teraz zobrazené osobné, rodinné a obchodné trezory."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Kolekcie a priečinky majú nové názvy"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Rovnaké funkcie, jasnejšie názvy. Zbierky sa teraz nazývajú zdieľané priečinky. Priečinky sú teraz Moje priečinky."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ z $TOTAL$",

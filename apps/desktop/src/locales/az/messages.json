@@ -124,7 +124,7 @@
     "message": "Axtarışı sıfırla"
   },
   "clearSearchTooltip": {
-    "message": "Clear by clicking here or pressing Esc.",
+    "message": "Bura klikləyərək və ya Esc-ə basaraq təmizlə.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "addItem": {
@@ -1390,13 +1390,13 @@
     "message": "Fayl seçin."
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file"
+    "message": "Bu fayl növü bu mənbə üçün qəbul edilmir. Fərqli bir faylı seçin"
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content"
+    "message": "Xaricə köçürülən məzmunu yapışdır"
   },
   "fileTypeNotSupported": {
-    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "message": "Bu fayl növü dəstəklənmir. $TYPES$ faylını seçin",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -1405,10 +1405,10 @@
     }
   },
   "pasteContentFormatMismatch": {
-    "message": "The pasted content doesn't match the selected format"
+    "message": "Yapışdırılan məzmun seçilmiş formatla uyuşmur"
   },
   "errorReadingFile": {
-    "message": "The selected file could not be read"
+    "message": "Seçilmiş fayl oxuna bilmədi"
   },
   "maxFileSize": {
     "message": "Maksimal fayl həcmi 500 MB-dır."
@@ -2138,10 +2138,10 @@
     "message": "Bağlı"
   },
   "manageInSystemSettings": {
-    "message": "Manage in system settings"
+    "message": "Sistem ayarlarında idarə et"
   },
   "mayOpenSystemSettings": {
-    "message": "May open the system settings app.",
+    "message": "Sistemin ayarlar tətbiqini aça bilər.",
     "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
   },
   "theme": {
@@ -2178,7 +2178,7 @@
     "message": "Güncəlləmək üçün yenidən başlat"
   },
   "restartToUpdateDesc": {
-    "message": "$VERSION_NUM$ versiyası quraşdırılmağa hazırdır. Quraşdırmanı tamamlamaq üçün tətbiqi yenidən başlatmalısınız. Yenidən başladıb indi güncəlləmək istəyirsiniz?",
+    "message": "$VERSION_NUM$ versiyası quraşdırılmağa hazırdır. Quraşdırmanı tamamlamaq üçün tətbiqi yenidən başlatmalısınız. İndi yenidən başladıb güncəlləmək istəyirsiniz?",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -3933,11 +3933,11 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Yararlı bir URL daxil edin",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "Təhlükəli URL aşkarlandı",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -3945,11 +3945,11 @@
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "URL-yə güvən",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
-    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "message": "Bu URL güvənilən olaraq işarələndi. İstənilən vaxt düzəliş edə bilərsiniz.",
     "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
@@ -4572,6 +4572,9 @@
   "importFormatError": {
     "message": "Verilər düzgün format olunmayıb. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Bu fayl dəstəklənməyən şifrləmə ayarlarını istifadə edir və daxilə köçürülə bilməz."
+  },
   "importNothingError": {
     "message": "Heç nə daxilə köçürülmədi."
   },
@@ -4656,15 +4659,6 @@
   "learnAboutImportOptions": {
     "message": "Daxilə köçürmə seçənəklərinizi öyrənin"
   },
-  "selectImportFolder": {
-    "message": "Bir qovluq seçin"
-  },
-  "selectImportCollection": {
-    "message": "Bir kolleksiya seçin"
-  },
-  "selectImportSharedFolder": {
-    "message": "Paylaşılan bir qovluq seç"
-  },
   "importTargetHintCollection": {
     "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu seçənəyi seçin"
   },
@@ -4687,7 +4681,7 @@
     "message": "Mənbə seç"
   },
   "importData": {
-    "message": "Import data"
+    "message": "Veriləri daxilə köçür"
   },
   "importSourceSelectTitle": {
     "message": "Mənbənizi seçin"
@@ -4829,42 +4823,42 @@
     "message": "Kömək Mərkəzi"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "Fayl yüklə"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Düz mətn kimi yapışdır"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Düz mətn"
   },
   "profile": {
-    "message": "Profile"
+    "message": "Profil"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "Əvəzində manual daxilə köçür"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Əvəzində birbaşa daxilə köçür"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "Daha sürətli"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Verilərinizi daxilə köçürün"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Verilərinizi bir neçə dəqiqəyə daxilə köçürün"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "Bütün verilərinizi almaq üçün birbaşa",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "ünvanından elementlərinizi daxilə köçürün.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "message": "$VENDOR$ mənbəsindən daxilə köçürün, ya da xaricə köçürülən məzmunu kopyalayıb yapışdırın.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4873,10 +4867,10 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Select the profile you wish to import passwords from."
+    "message": "Parolları daxilə köçürmək istədiyiniz profili seçin."
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "$VENDOR$ - giriş et",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4885,13 +4879,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "Kimlik məlumatlarınız ötürmə zamanı şifrlənir və heç vaxt saxlanılmır."
   },
   "importDataSecureByDesignTitle": {
-    "message": "Secure by design"
+    "message": "Əvvəldən güvənli şəkildə layihələndirilmişdir"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "Ucdan-uca şifrləmə ilə ötürmə. Bitwarden, $VENDOR$ giriş məlumatlarınızı heç vaxt görmür.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4900,10 +4894,10 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Giriş məlumatlarınızı istəyəcəyik"
   },
   "importDataLoginInfoBody": {
-    "message": "In the next step, log in to your $VENDOR$ account.",
+    "message": "Növbəti addımda, $VENDOR$ hesabınıza giriş edin.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4912,13 +4906,13 @@
     }
   },
   "importDataEverythingTransfersTitle": {
-    "message": "Everything transfers"
+    "message": "Hər şeyi transfer edin"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "Girişlər, kartlar, kimliklər, güvənli notlar və TOTP-lər qovluq strukturunda qorunur."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Qəbul edildi: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -4927,7 +4921,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "$VENDOR$ fayl növü",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5136,7 +5130,7 @@
     "message": "KeePass ana parolu"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "$VENDOR$ parolu",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5145,25 +5139,25 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Parol tələb olunur."
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "File parolu tələb olunur"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "Yararlı bir fayl parolu daxil edin."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "Yüklədiyiniz fayl parolla qorunur. Davam etmək üçün parolu daxil edin."
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "Profili seç"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Yararlı bir parol daxil edin"
   },
   "importAccountMismatchError": {
-    "message": "This file can only be imported into the account it was exported from."
+    "message": "Bu fayl, yalnız xaricə köçürüldüyü hesabın daxilinə köçürülə bilər."
   },
   "addKeyFile": {
     "message": "Açar faylı əlavə et"
@@ -5172,7 +5166,7 @@
     "message": "Açar faylını yüklə"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "Açar fayl"
   },
   "kdbxFileUpload": {
     "message": "KDBX faylını yüklə"
@@ -5284,6 +5278,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass hesabınızla əlaqələndirilmiş \"YubiKey\"i kompüterinizin USB yuvasına taxın, daha sonra düyməsinə basın."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elementi və ya seyfi daxilə köçürülə bilməz",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Bir xəta baş verdi. Kimlik məlumatlarınızı yoxlayıb yenidən sınayın."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Yalnız parol ilə giriş dəstəklənir."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Yalnız parol ilə giriş dəstəklənir. Yenidən sınayın və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Yararlı bir e-poçt ünvanı daxil edin və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "onePasswordImportError": {
+    "message": "Bir xəta baş verdi. Yenidən sınayın və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "emailIsRequired": {
+    "message": "E-poçt tələb olunur."
+  },
+  "enterValidEmailAddress": {
+    "message": "Yararlı e-poçt ünvanı daxil edin."
+  },
+  "signInAddressIsRequired": {
+    "message": "Giriş ünvanı tələb olunur."
+  },
+  "enterValidSignInAddress": {
+    "message": "Yararlı bir giriş ünvanı daxil edin."
+  },
+  "secretKeyIsRequired": {
+    "message": "Gizli açar tələb olunur."
+  },
+  "enterValidSecretKey": {
+    "message": "Yararlı bir gizli açar daxil edin."
+  },
+  "passwordIsRequired": {
+    "message": "Parol tələb olunur."
+  },
+  "enterValidVerificationCode": {
+    "message": "Yararlı bir doğrulama kodu daxil edin."
+  },
+  "signInAddress": {
+    "message": "Giriş ünvanı"
+  },
+  "onePasswordEmail": {
+    "message": "1Password e-poçtu"
+  },
+  "onePasswordEmailHint": {
+    "message": "1Password-a giriş etmək üçün istifadə etdiyiniz e-poçtu daxil edin"
   },
   "secretKey": {
     "message": "Gizli açar"
@@ -5615,7 +5666,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricUnlockOnRestartTurnedOff": {
-    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+    "message": "Tətbiq yenidən başladılanda biometrik kilid açma söndürülmüşdü. Onu ayarlarda yenidən işə salın."
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Əvvəlcə PIN və ya parol ilə kilid açma tələb olunduğu üçün biometrik ilə kilid açma əlçatmazdır."
@@ -5794,10 +5845,10 @@
     "message": "Bu tətbiq, təkrarları dəstəkləmir."
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "No passkeys found for this application."
+    "message": "Bu tətbiq üçün heç bir keçid açarı tapılmadı."
   },
   "passkeyNotAllowedForBitwardenVault": {
-    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "message": "$DOMAIN$ domeninə aid keçid açarları Bitwarden-də saxlanıla və ya istifadə edilə bilməz.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -5806,7 +5857,7 @@
     }
   },
   "passkeyNotAllowedForBitwardenVaultDesc": {
-    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+    "message": "Bitwarden hesabınızın keçid açarını seyfinizdə saxlamaq, hesabınıza girişi itirməyinizə səbəb ola bilər."
   },
   "closeThisWindow": {
     "message": "Bu pəncərəni bağla"
@@ -6470,7 +6521,7 @@
     "message": "Erişimə icazə ver"
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "Heç bir brauzer profili tapılmadı"
   },
   "upgrade": {
     "message": "Yüksəlt"
@@ -6998,7 +7049,7 @@
     }
   },
   "confirmPasskeyRegistrationMfaMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "message": "$USERNAME$ üçün yeni bir $RPID$ keçid açarı yaradın. $RPID$, MFA üçün bu yoxlanışı tələb edir",
     "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7012,7 +7063,7 @@
     }
   },
   "confirmPasskeyOverwriteMfaMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "message": "$USERNAME$ üçün $RPID$ keçid açarını yararsız edin. $RPID$, MFA üçün bu yoxlanışı tələb edir",
     "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7026,7 +7077,7 @@
     }
   },
   "confirmPasskeyAssertionMfaMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "message": "$RPID$ keçid açarınızla $USERNAME$ hesabınıza daxil olun. $RPID$, MFA üçün bu yoxlanışı tələb edir",
     "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7040,7 +7091,7 @@
     }
   },
   "confirmPasskeyRegistrationMfaWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
+    "message": "$USERNAME$ üçün yeni bir $RPID$ keçid açarı yaratmaq məqsədilə kimliyinizi doğrulayın. $RPID$, MFA üçün bu yoxlanışı tələb edir.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -7054,7 +7105,7 @@
     }
   },
   "confirmPasskeyOverwriteMfaWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
+    "message": "$USERNAME$ üçün $RPID$ keçid açarını yararsız etmək məqsədilə kimliyinizi doğrulayın. $RPID$, MFA üçün bu yoxlanışı tələb edir.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7068,7 +7119,7 @@
     }
   },
   "confirmPasskeyAssertionMfaWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
+    "message": "$RPID$ keçid açarınızla $USERNAME$ hesabınıza daxil olmaq üçün kimliyinizi doğrulayın. $RPID$, MFA üçün bu yoxlanışı tələb edir.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7226,14 +7277,23 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zəiflik hesabatları vasitəsilə seyfinizdəki elementlərin təhlükəsizliyini gücləndirin."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "Yeniliklər"
   },
   "tourTheNewVaultDescription": {
-    "message": "With updated navigation and design, it's easier than ever to find what you need."
+    "message": "Yenilənmiş naviqasiya və dizayn ilə ehtiyacınız olanı tapmaq artıq daha asandır."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkVaultListTitle": {
+    "message": "Bütün seyfləriniz vahid məkanda"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Fərdi, ailə və biznes seyfləri artıq burada sadalanır."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Kolleksiyalar və qovluqlar artıq yeni ada sahibdir"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Eyni özəlliklər, daha aydın adlar. Kolleksiyalara artıq paylaşılan qovluq deyilir. Qovluqlar isə \"Qovluqlarım\" oldu."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$/$TOTAL$",
