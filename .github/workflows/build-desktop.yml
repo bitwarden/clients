@@ -2765,9 +2765,22 @@ jobs:
           # mount
           hdiutil attach Bitwarden-${_PACKAGE_VERSION}-universal.dmg
           # install
-          cp -r /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/
+          ditto /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal/Bitwarden.app /Applications/Bitwarden.app
           # unmount
           hdiutil detach /Volumes/Bitwarden\ ${_PACKAGE_VERSION}-universal
+
+      - name: Verify autofill extension is bundled
+        run: |
+          EXTENSION_PATH="/Applications/Bitwarden.app/Contents/PlugIns/autofill-extension.appex"
+          if [ ! -d "$EXTENSION_PATH" ]; then
+            echo "Autofill extension not found at $EXTENSION_PATH."
+            exit 1
+          fi
+
+      - name: Verify code signatures
+        run: |
+          codesign --verify --deep --strict --verbose=2 /Applications/Bitwarden.app
+          codesign --verify --strict --verbose=2 /Applications/Bitwarden.app/Contents/PlugIns/autofill-extension.appex
 
       - name: Run dmg
         run: |
