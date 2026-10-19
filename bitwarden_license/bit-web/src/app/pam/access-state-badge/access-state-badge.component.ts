@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  LOCALE_ID,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { EMPTY, switchMap } from "rxjs";
 
@@ -34,6 +41,7 @@ export class AccessStateBadgeComponent {
   readonly state = input.required<AccessBadgeState | null>();
 
   private readonly i18nService = inject(I18nService);
+  private readonly locale = inject(LOCALE_ID);
   private readonly ticker = inject(AccessBadgeTickerService);
 
   /** Only an active badge subscribes to the ticker, so resting badges let the shared timer stop. */
@@ -56,7 +64,7 @@ export class AccessStateBadgeComponent {
         // The lease lapsed locally before a refetch — show "Session ended".
         return this.staticRecipe("expired");
       }
-      const remaining = formatRemaining(remainingMs);
+      const remaining = formatRemaining(this.locale, remainingMs);
       if (remainingMs <= ENDING_SOON_THRESHOLD_MS) {
         return {
           variant: "danger",

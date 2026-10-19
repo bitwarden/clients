@@ -299,7 +299,9 @@ export class CipherViewBannerComponent implements OnInit {
   });
 
   protected readonly leaseRemainingLabel = computed(() =>
-    this.activeLease() == null ? "" : formatRemaining(this.activeLeaseExpiryMs() - this.nowMs()),
+    this.activeLease() == null
+      ? ""
+      : formatRemaining(this.locale, this.activeLeaseExpiryMs() - this.nowMs()),
   );
 
   /**
@@ -899,6 +901,9 @@ export class CipherViewBannerComponent implements OnInit {
           this.humanForm.controls.reason.setErrors({ required: true });
         }
         this.requestError.set(outcome.serverMessage);
+        return;
+      case "refused":
+        this.requestError.set(this.i18nService.t(outcome.messageKey));
         return;
       case "exceedsMax":
         // The automatic path's refusal needs pre-check/submit skew, so it echoes the server rather

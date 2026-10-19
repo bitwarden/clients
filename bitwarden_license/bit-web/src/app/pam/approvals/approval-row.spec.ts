@@ -36,7 +36,7 @@ function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
 
 describe("toApprovalRow", () => {
   it("resolves the item and collection names from local vault state", () => {
-    const row = toApprovalRow(request(), names(), NOW, true);
+    const row = toApprovalRow(request(), names(), NOW, true, "en-US");
 
     expect(row.cipherName).toBe("Prod database");
     expect(row.collectionName).toBe("Production");
@@ -44,40 +44,46 @@ describe("toApprovalRow", () => {
 
   it("falls back to the raw cipher id when the item isn't in the caller's vault", () => {
     // An approver often cannot see the item they are granting access to.
-    const row = toApprovalRow(request(), emptyResolvedNames(), NOW, true);
+    const row = toApprovalRow(request(), emptyResolvedNames(), NOW, true, "en-US");
 
     expect(row.cipherName).toBe("cipher-1");
     expect(row.collectionName).toBeNull();
   });
 
   it("resolves the owning organization's name", () => {
-    expect(toApprovalRow(request(), names(), NOW, true).organizationName).toBe("Meridian Group");
+    expect(toApprovalRow(request(), names(), NOW, true, "en-US").organizationName).toBe(
+      "Meridian Group",
+    );
   });
 
   it("leaves the organization null rather than exposing its raw id", () => {
-    expect(toApprovalRow(request(), emptyResolvedNames(), NOW, true).organizationName).toBeNull();
     expect(
-      toApprovalRow(request({ organizationId: undefined }), names(), NOW, true).organizationName,
+      toApprovalRow(request(), emptyResolvedNames(), NOW, true, "en-US").organizationName,
+    ).toBeNull();
+    expect(
+      toApprovalRow(request({ organizationId: undefined }), names(), NOW, true, "en-US")
+        .organizationName,
     ).toBeNull();
   });
 
   it("prefers the requester's name, falling back to their email", () => {
-    expect(toApprovalRow(request(), names(), NOW, true).requester).toBe("Grace");
-    expect(toApprovalRow(request({ requesterName: undefined }), names(), NOW, true).requester).toBe(
-      "grace@example.com",
-    );
+    expect(toApprovalRow(request(), names(), NOW, true, "en-US").requester).toBe("Grace");
+    expect(
+      toApprovalRow(request({ requesterName: undefined }), names(), NOW, true, "en-US").requester,
+    ).toBe("grace@example.com");
     expect(
       toApprovalRow(
         request({ requesterName: undefined, requesterEmail: undefined }),
         names(),
         NOW,
         true,
+        "en-US",
       ).requester,
     ).toBe("");
   });
 
   it("precomputes the window, reason and elapsed labels", () => {
-    const row = toApprovalRow(request(), names(), NOW, true);
+    const row = toApprovalRow(request(), names(), NOW, true, "en-US");
 
     expect(row.duration).toEqual({ key: "pamInboxDuration1Hour", value: null });
     expect(row.relativeStart).toEqual({ key: "pamInboxStartAsap", value: null });
@@ -87,11 +93,13 @@ describe("toApprovalRow", () => {
   });
 
   it("reports a blank reason as null rather than whitespace", () => {
-    expect(toApprovalRow(request({ reason: "   " }), names(), NOW, true).reason).toBeNull();
+    expect(
+      toApprovalRow(request({ reason: "   " }), names(), NOW, true, "en-US").reason,
+    ).toBeNull();
   });
 
   it("builds a lowercase search haystack from every name on the row", () => {
-    const row = toApprovalRow(request(), names(), NOW, true);
+    const row = toApprovalRow(request(), names(), NOW, true, "en-US");
 
     expect(row.searchText).toBe("prod database production grace grace@example.com");
   });
@@ -102,20 +110,21 @@ describe("toApprovalRow", () => {
       emptyResolvedNames(),
       NOW,
       true,
+      "en-US",
     );
 
     expect(row.searchText).toBe("cipher-1");
   });
 
   it("carries `canDecide` through from the caller", () => {
-    expect(toApprovalRow(request(), names(), NOW, false).canDecide).toBe(false);
-    expect(toApprovalRow(request(), names(), NOW, true).canDecide).toBe(true);
+    expect(toApprovalRow(request(), names(), NOW, false, "en-US").canDecide).toBe(false);
+    expect(toApprovalRow(request(), names(), NOW, true, "en-US").canDecide).toBe(true);
   });
 
   it("keeps the whole request so the decide dialog needs no second lookup", () => {
     const source = request();
 
-    expect(toApprovalRow(source, names(), NOW, true).request).toBe(source);
+    expect(toApprovalRow(source, names(), NOW, true, "en-US").request).toBe(source);
   });
 });
 
@@ -127,12 +136,14 @@ describe("sortApprovalRows", () => {
         names(),
         NOW,
         true,
+        "en-US",
       ),
       toApprovalRow(
         request({ id: "old", submittedAt: "2026-08-17T09:00:00.000Z" }),
         names(),
         NOW,
         true,
+        "en-US",
       ),
     ];
 
@@ -147,12 +158,14 @@ describe("sortApprovalRows", () => {
         names({ collectionNameById: new Map([["col-b", "Staging"]]) }),
         NOW,
         true,
+        "en-US",
       ),
       toApprovalRow(
         request({ id: "a", submittedAt, collectionId: "col-a" }),
         names({ collectionNameById: new Map([["col-a", "Production"]]) }),
         NOW,
         true,
+        "en-US",
       ),
     ];
 
@@ -166,12 +179,14 @@ describe("sortApprovalRows", () => {
         names(),
         NOW,
         true,
+        "en-US",
       ),
       toApprovalRow(
         request({ id: "old", submittedAt: "2026-08-17T09:00:00.000Z" }),
         names(),
         NOW,
         true,
+        "en-US",
       ),
     ];
 
