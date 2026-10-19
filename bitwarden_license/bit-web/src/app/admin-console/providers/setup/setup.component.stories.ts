@@ -19,7 +19,6 @@ import {
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { BraintreeService, StripeService } from "@bitwarden/web-vault/app/billing/services";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { SetupComponent } from "./setup.component";
 
@@ -60,8 +59,7 @@ export default {
   component: SetupComponent,
   decorators: [
     moduleMetadata({
-      declarations: [SetupComponent],
-      imports: [SharedModule, EnterPaymentMethodComponent, EnterBillingAddressComponent],
+      imports: [SetupComponent, EnterPaymentMethodComponent, EnterBillingAddressComponent],
       providers: [
         { provide: ActivatedRoute, useValue: { queryParams: SETUP_QUERY_PARAMS } },
         {

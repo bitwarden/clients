@@ -1,0 +1,71 @@
+@if (step() === "intro") {
+  <h2 bitTypography="h2" noMargin class="tw-mb-1">
+    {{ "importDataDirectTitle" | i18n }}
+    <span
+      bitBadge
+      variant="success"
+      size="small"
+      [startIcon]="null"
+      class="tw-ml-2 tw-align-middle"
+      >{{ "fastest" | i18n }}</span
+    >
+  </h2>
+  <p bitTypography="body1" class="tw-text-fg-body-subtle">
+    {{ "importDataDirectSubtitlePrefix" | i18n }}{{ " "
+    }}<span class="tw-font-semibold">{{ vendorName() }}</span
+    >{{ " " }}{{ "importDataDirectSubtitleSuffix" | i18n }}
+  </p>
+
+  <div class="tw-flex tw-gap-4 tw-mb-4">
+    <bit-icon name="bwi-lock" aria-hidden="true" class="tw-text-fg-brand" />
+    <div>
+      <h3 bitTypography="h6" noMargin>
+        {{ "importDataSecureByDesignTitle" | i18n }}
+      </h3>
+      <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
+        {{ "importDataSecureByDesignBody" | i18n: vendorName() }}
+      </p>
+    </div>
+  </div>
+  <div class="tw-flex tw-gap-4 tw-mb-4">
+    <bit-icon name="bwi-eye" aria-hidden="true" class="tw-text-fg-brand" />
+    <div>
+      <h3 bitTypography="h6" noMargin>
+        {{ "importDataLoginInfoTitle" | i18n }}
+      </h3>
+      <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
+        {{ "importDataLoginInfoBody" | i18n: vendorName() }}
+      </p>
+    </div>
+  </div>
+  <div class="tw-flex tw-gap-4">
+    <bit-icon name="bwi-download" aria-hidden="true" class="tw-text-fg-brand" />
+    <div>
+      <h3 bitTypography="h6" noMargin>
+        {{ "importDataEverythingTransfersTitle" | i18n }}
+      </h3>
+      <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
+        {{ "importDataEverythingTransfersBody" | i18n }}
+      </p>
+    </div>
+  </div>
+} @else {
+  <div class="tw-flex tw-items-center tw-gap-2">
+    @if (vendorIcon(); as icon) {
+      <bit-svg [content]="icon" class="tw-size-6" />
+    }
+    <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
+  </div>
+  <p bitTypography="body1" class="tw-text-fg-body-subtle tw-mt-1">
+    {{ "importDataLoginSubtitle" | i18n }}
+  </p>
+
+  @switch (importType()) {
+    @case ("keeper") {
+      <importer-controls-keeper-credentials [form]="form()" />
+    }
+    @case ("lastpasscsv") {
+      <importer-controls-lastpass-credentials [form]="form()" />
+    }
+  }
+}

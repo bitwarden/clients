@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -7,12 +7,18 @@ import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { IconButtonModule, NavigationModule, SideNavService } from "@bitwarden/components";
+import {
+  IconButtonModule,
+  NavigationModule,
+  PopoverAnchorForDirective,
+  SideNavService,
+} from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.component";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { CoachmarkService, CoachmarkStepId } from "@bitwarden/vault";
 
 import { UpgradeNavButtonComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component";
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
@@ -55,11 +61,23 @@ describe("NavigationProductSwitcherComponent", () => {
 
   const mockShouldShowPremiumUpgradeButton$ = new BehaviorSubject<boolean>(false);
 
+  const activeStepId = signal<CoachmarkStepId | null>(null);
+  const coachmarkService = {
+    isStepActive: (stepId: CoachmarkStepId) => activeStepId() === stepId,
+    getStepPosition: () => "right-start",
+    getStepTitle: () => "",
+    getStepDescription: () => "",
+    getStepLearnMoreUrl: (): string | undefined => undefined,
+    currentStepNumber: () => 1,
+    totalSteps: () => 1,
+  };
+
   beforeEach(async () => {
     productSwitcherService = mock<ProductSwitcherService>();
     productSwitcherService.products$ = mockProducts$;
     productSwitcherService.shouldShowPremiumUpgradeButton$ = mockShouldShowPremiumUpgradeButton$;
     mockProducts$.next({ bento: [], other: [] });
+    activeStepId.set(null);
 
     const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
@@ -73,6 +91,7 @@ describe("NavigationProductSwitcherComponent", () => {
       ],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
+        { provide: CoachmarkService, useValue: coachmarkService },
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
@@ -310,6 +329,38 @@ describe("NavigationProductSwitcherComponent", () => {
       const upgradeButton = fixture.nativeElement.querySelector("app-upgrade-nav-button");
 
       expect(upgradeButton).toBeTruthy();
+    });
+  });
+
+  describe("switch products coachmark", () => {
+    const openAnchors = () =>
+      fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .filter((el) => el.injector.get(PopoverAnchorForDirective).popoverOpen());
+
+    beforeEach(() => {
+      TestBed.inject(SideNavService).version.set("vfo1");
+      mockProducts$.next({
+        bento: [
+          { isActive: true, name: "Password Manager", icon: "bwi-lock" } as ProductSwitcherItem,
+        ],
+        other: [],
+      });
+      fixture.detectChanges();
+    });
+
+    it("opens on the switcher button when the switch products step is active", () => {
+      activeStepId.set("switchProducts");
+      fixture.detectChanges();
+
+      expect(openAnchors().map((el) => el.name)).toEqual(["button"]);
+    });
+
+    it("stays closed while another step is active", () => {
+      activeStepId.set("vaultList");
+      fixture.detectChanges();
+
+      expect(openAnchors()).toEqual([]);
     });
   });
 });

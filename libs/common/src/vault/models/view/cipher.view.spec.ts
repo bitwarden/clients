@@ -347,6 +347,14 @@ describe("CipherView", () => {
       // FIDO2 credentials are not set when no SDK client is provided
       expect(sdkCipherView.login?.fido2Credentials).toBeUndefined();
     });
+
+    it("maps partial so the SDK can refuse to encrypt a gated view", () => {
+      const cipherView = new CipherView();
+      expect(cipherView.toSdkCipherView().partial).toBe(false);
+
+      cipherView.partial = true;
+      expect(cipherView.toSdkCipherView().partial).toBe(true);
+    });
   });
 
   // Note: These tests use jest.requireActual() because the file has jest.mock() calls

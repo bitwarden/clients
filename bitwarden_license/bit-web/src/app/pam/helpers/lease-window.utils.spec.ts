@@ -1,9 +1,38 @@
 import {
+  ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   pickDurationUnit,
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
 } from "./lease-window.utils";
+
+describe("ACCESS_RULE_DURATION_PRESETS", () => {
+  it("labels the 24-hour preset to match what the list renders for the same value", () => {
+    // `pickDurationUnit` promotes 86400s to "1 day" in the list; the editor's label must match.
+    const preset = ACCESS_RULE_DURATION_PRESETS.find((p) => p.seconds === 24 * 60 * 60);
+
+    expect(preset?.labelKey).toBe("pamAccessRuleDuration1d");
+  });
+
+  it("labels every multi-day preset in the unit the list promotes it to", () => {
+    const dayPresets = ACCESS_RULE_DURATION_PRESETS.filter(
+      (p) => pickDurationUnit(p.seconds).unit === "day",
+    );
+
+    expect(dayPresets.map((p) => [p.seconds, p.labelKey])).toEqual([
+      [24 * 60 * 60, "pamAccessRuleDuration1d"],
+      [2 * 24 * 60 * 60, "pamAccessRuleDuration2d"],
+      [7 * 24 * 60 * 60, "pamAccessRuleDuration7d"],
+      [30 * 24 * 60 * 60, "pamAccessRuleDuration30d"],
+    ]);
+  });
+
+  it("offers the presets in ascending order, so the pickers read low to high", () => {
+    const seconds = ACCESS_RULE_DURATION_PRESETS.map((p) => p.seconds);
+
+    expect(seconds).toEqual([...seconds].sort((a, b) => a - b));
+  });
+});
 
 describe("pickDurationUnit", () => {
   it("picks whole-day durations as days", () => {
@@ -33,9 +62,7 @@ describe("snapToNearestDuration", () => {
   });
 
   it("snaps an off-option value to the nearest option", () => {
-    // 50m is closer to 1h than to 30m.
     expect(snapToNearestDuration(50 * 60, options)).toBe(60 * 60);
-    // 100m is closer to 2h than to 1h.
     expect(snapToNearestDuration(100 * 60, options)).toBe(2 * 60 * 60);
   });
 });
@@ -51,9 +78,7 @@ describe("snapToNearestAccessRuleDuration", () => {
   });
 
   it("snaps an off-preset value to the nearest preset", () => {
-    // 50m is closer to 1h (60m) than to 30m.
     expect(snapToNearestAccessRuleDuration(50 * 60)).toBe(60 * 60);
-    // 20m is closer to 15m than to 30m.
     expect(snapToNearestAccessRuleDuration(20 * 60)).toBe(15 * 60);
   });
 });

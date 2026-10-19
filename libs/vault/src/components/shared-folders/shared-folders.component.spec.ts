@@ -1,4 +1,7 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { PortalModule } from "@angular/cdk/portal";
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -19,10 +22,10 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BitTablePaginatorComponent,
   BitTableV2Component,
   DialogService,
   FilterControl,
+  LayoutFooterService,
   MenuTriggerForDirective,
 } from "@bitwarden/components";
 
@@ -140,8 +143,20 @@ type SetupOptions = {
   };
 };
 
+/** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
+@Component({
+  selector: "test-footer-outlet",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class FooterOutletComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
+
 describe("SharedFoldersComponent", () => {
   let fixture: ComponentFixture<SharedFoldersComponent>;
+  let footerFixture: ComponentFixture<FooterOutletComponent>;
   let component: SharedFoldersComponent;
   let collections$: BehaviorSubject<CollectionView[]>;
   let ciphers$: BehaviorSubject<CipherView[] | null>;
@@ -149,6 +164,21 @@ describe("SharedFoldersComponent", () => {
   let collectionDialog: MockProxy<CollectionDialogRef>;
   let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let bulkEditAccessDialog: MockProxy<BulkEditCollectionAccessDialogRef>;
+
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
 
   async function setup(options: SetupOptions = {}): Promise<void> {
     const {
@@ -205,8 +235,17 @@ describe("SharedFoldersComponent", () => {
       ],
     }).compileComponents();
 
+    footerFixture = TestBed.createComponent(FooterOutletComponent);
     fixture = TestBed.createComponent(SharedFoldersComponent);
     component = fixture.componentInstance;
+  }
+
+  /** The bulk actions bar, as rendered into the layout's footer region. */
+  function bulkBar(): HTMLElement | null {
+    // Runs the `afterNextRender` that hands the bar to the footer, then renders the footer.
+    TestBed.tick();
+    footerFixture.detectChanges();
+    return footerFixture.nativeElement.querySelector("bit-bulk-actions-bar");
   }
 
   afterEach(() => {
@@ -758,6 +797,21 @@ describe("SharedFoldersComponent", () => {
       return model;
     }
 
+    it("holds room below the table for the bar while rows are selected", async () => {
+      await setup({ collections: [collection()] });
+      fixture.detectChanges();
+      const host: HTMLElement = fixture.nativeElement;
+      expect(host.style.marginBottom).toBe("0px");
+
+      selectionModel().select(row("col-1"));
+      fixture.detectChanges();
+      expect(host.style.marginBottom).toBe("53px");
+
+      selectionModel().clear();
+      fixture.detectChanges();
+      expect(host.style.marginBottom).toBe("0px");
+    });
+
     it("leaves selection off for a client with neither bulk dialog", async () => {
       await setup({
         collections: [collection()],
@@ -766,7 +820,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().selectionModel()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("leaves selection off when the member can act on none of the listed folders", async () => {
@@ -774,7 +828,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().selectionModel()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("turns on multi-select and renders the bar once an action applies", async () => {
@@ -784,16 +838,32 @@ describe("SharedFoldersComponent", () => {
       selectionModel().select(...bitTable().filtered());
 
       expect(selectionModel().count()).toBe(2);
-      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      const bar = bulkBar()!;
       expect(bar.textContent).toContain("editAccess");
       expect(bar.textContent).toContain("delete");
+    });
+
+    it("shows the selected count on the bar and clears the selection on dismiss", async () => {
+      await setup({ collections: [collection({ id: "a" }), collection({ id: "b" })] });
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+
+      const bar = bulkBar()!;
+      expect(bar.textContent).toContain("2");
+
+      bar.querySelector<HTMLButtonElement>("button[icon='bwi-clear']")!.click();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
     });
 
     it("drops Delete for a client with no bulk delete dialog", async () => {
       await setup({ collections: [collection()], dialogs: { bulkDelete: false } });
       fixture.detectChanges();
 
-      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      const bar = bulkBar()!;
       expect(bar.textContent).toContain("editAccess");
       expect(bar.textContent).not.toContain("delete");
     });
@@ -857,7 +927,7 @@ describe("SharedFoldersComponent", () => {
 
       // The bar removes itself at a count of zero, so a stale count would leave it announcing a
       // selection that no longer exists — and with no rows left, the bar goes with them.
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("hands Edit access the selected folders' collections", async () => {
@@ -935,165 +1005,20 @@ describe("SharedFoldersComponent", () => {
     });
   });
 
-  describe("pagination", () => {
-    /** The window height the fit divides — `jsdom`'s, restored after a test that changes it. */
-    const windowHeight = window.innerHeight;
-
-    /**
-     * `jsdom` lays nothing out, so every rect is zero. Giving the rows a geometry leaves
-     * `window.innerHeight` (768 in `jsdom`) as the height to fill.
-     */
-    function layOutRows({ top, height }: { top: number; height: number }): void {
-      jest
-        .spyOn(Element.prototype, "getBoundingClientRect")
-        .mockReturnValue({ top, height } as DOMRect);
-    }
-
-    /** `count` folders, named so a search can narrow them. */
-    function folders(count: number): CollectionView[] {
-      return Array.from({ length: count }, (_, i) =>
-        collection({ id: `col-${i}`, name: `Folder ${i}` }),
-      );
-    }
-
-    /**
-     * Settles the fit. The measurement runs in a render effect — which this zone-based fixture
-     * flushes on a tick, not inside `detectChanges` — and feeds back into the page size, so the
-     * rows it settles on need a further pass to reach the DOM.
-     */
-    function settle(): void {
-      fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
-    }
-
-    function renderedRows(): HTMLElement[] {
-      return fixture.debugElement.queryAll(By.css("bit-row")).map((r) => r.nativeElement);
-    }
-
-    function paginator(): HTMLElement {
-      const element = fixture.nativeElement.querySelector(
-        "bit-table-paginator",
-      ) as HTMLElement | null;
-      if (!element) {
-        throw new Error("The paginator is not rendered");
-      }
-      return element;
-    }
-
-    function paginatorComponent(): BitTablePaginatorComponent {
-      return fixture.debugElement.query(By.directive(BitTablePaginatorComponent))
-        .componentInstance as BitTablePaginatorComponent;
-    }
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-      Object.defineProperty(window, "innerHeight", {
-        value: windowHeight,
-        configurable: true,
+  describe("virtual scroll", () => {
+    it("renders only the rows in the scroll window, with no paginator", async () => {
+      await setup({
+        collections: Array.from({ length: 60 }, (_, i) =>
+          collection({ id: `col-${i}`, name: `Folder ${i}` }),
+        ),
       });
+      fixture.detectChanges();
+
+      const rendered = fixture.debugElement.queryAll(By.css("bit-row")).length;
+      expect(rendered).toBeGreaterThan(0);
+      expect(rendered).toBeLessThan(60);
+      expect(fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-table-paginator")).toBeNull();
     });
-
-    // 768 (the window) less 300 (the rows' top) less 84 (the paginator and its gutter) is 384px of
-    // room, which holds six 56px rows with 48px to spare.
-    it("holds as many rows as the window fits", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(6);
-    }));
-
-    // The same 584px of room holds ten 56px rows but only seven 76px ones, so the fit divides by
-    // the measured height rather than the nominal one.
-    it("fits fewer of a taller row", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 100, height: 76 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(7);
-    }));
-
-    it("pages rather than shrinking a page below five rows", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      // Only 68px of room — a page of one row, without the floor.
-      layOutRows({ top: 616, height: 56 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(5);
-    }));
-
-    it("shows the paginator once the window can't fit every folder", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(paginator().classList).not.toContain("tw-hidden");
-    }));
-
-    it("hides the paginator while every folder fits", fakeAsync(async () => {
-      await setup({ collections: folders(6) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(6);
-      expect(paginator().classList).toContain("tw-hidden");
-    }));
-
-    it("re-fits the page as the window is resized", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-      settle();
-
-      Object.defineProperty(window, "innerHeight", { value: 1216, configurable: true });
-      window.dispatchEvent(new Event("resize"));
-      // Past the audit window that collapses a burst of resize events.
-      tick(200);
-      settle();
-
-      // 1216 less the same 384px of chrome leaves 832px of room — fourteen 56px rows.
-      expect(renderedRows()).toHaveLength(14);
-    }));
-
-    it("pages the folders the filters leave, not all of them", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-      settle();
-
-      // "Folder 1" and "Folder 10" through "Folder 19" — eleven of the twenty, six to a page.
-      searchControl().setValue("Folder 1");
-      settle();
-
-      expect(renderedRows()).toHaveLength(6);
-      expect(paginator().classList).not.toContain("tw-hidden");
-    }));
-
-    // The rows-per-page select lives in the paginator, so hiding a one-page paginator would take
-    // away the control that asked for the longer page.
-    it("keeps the paginator while a hand-picked size fits every folder on one page", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-      settle();
-
-      paginatorComponent().pageSize.set(25);
-      settle();
-
-      expect(renderedRows()).toHaveLength(20);
-      expect(paginator().classList).not.toContain("tw-hidden");
-    }));
-
-    it("offers the fitted size alongside the standard ones", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(component["pageSizeOptions"]()).toEqual([6, 10, 25, 50, 100]);
-    }));
   });
 });
