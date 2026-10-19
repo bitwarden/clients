@@ -193,7 +193,10 @@ export class IpcMainService extends IpcService {
    * A browser extension opens two native-messaging connections, one for IPC and one for
    * biometrics, and both announce the same client type, so both are included. The biometrics
    * connection ignores IPC messages, so a broadcast to it fails with a handshake timeout for that
-   * endpoint.
+   * endpoint. The handshake holds the IPC client's crypto lock and a failed handshake is not
+   * cached, so every broadcast to this group stalls all IPC traffic of this process for the
+   * handshake timeout (2s) per connected browser. This is accepted while the biometrics channel
+   * exists, since it is expected to be removed.
    */
   private browserBackgroundEndpoints(): Endpoint[] {
     return this.nativeMessaging

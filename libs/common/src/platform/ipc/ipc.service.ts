@@ -182,8 +182,10 @@ export abstract class IpcService {
    *   endpoints are members.
    * @param payload The payload sent to each member.
    * @param topic The topic of each message.
-   * @returns One result per member. A failed send to one member, e.g. because it disconnected,
-   *   is reported in its result and does not stop delivery to the others.
+   * @returns One result per member, in resolution order. A failed send to one member, e.g.
+   *   because it disconnected, is reported in its result and does not stop delivery to the others.
+   *   A fatal error is the exception: it stops the IPC client, and the members after it are not
+   *   attempted, so the results end at the failed member.
    * @throws If the service is not initialized, or if this platform cannot resolve the group.
    */
   async broadcast(
