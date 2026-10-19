@@ -26,6 +26,7 @@ import {
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   sharedFoldersCommands,
+  showsVaultsSection,
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
@@ -35,6 +36,7 @@ import {
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavOrganizationOptions,
 } from "../../tokens/vault-nav-organization-options.token";
+import { CoachmarkStep } from "../coachmark/coachmark-step";
 import { CoachmarkComponent } from "../coachmark/coachmark.component";
 import { CoachmarkService } from "../coachmark/coachmark.service";
 
@@ -185,6 +187,12 @@ export class VaultNavSectionComponent {
     return nav != null && isPersonalOnly(nav);
   });
 
+  /** Whether to render the Vaults header over the list of vaults. */
+  protected readonly showsVaultsSection = computed(() => {
+    const nav = this.vaultNav();
+    return nav != null && showsVaultsSection(nav);
+  });
+
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);
   }
@@ -201,7 +209,16 @@ export class VaultNavSectionComponent {
   /** Whether the tour's popover anchors to this vault's Shared folders entry. */
   protected coachmarkTargets(vault: VaultNavItemViewModel): boolean {
     return (
-      this.coachmark.isStepActive("shareWithCollections") && vault.id === this.coachmarkVaultId()
+      (this.coachmark.isStepActive("shareWithCollections") ||
+        this.coachmark.isStepActive("sharedFolders")) &&
+      vault.id === this.coachmarkVaultId()
+    );
+  }
+
+  /** Where the popover sits, which depends on which tour's Shared folders step is active. */
+  protected coachmarkPosition(): CoachmarkStep["position"] | undefined {
+    return this.coachmark.getStepPosition(
+      this.coachmark.isStepActive("sharedFolders") ? "sharedFolders" : "shareWithCollections",
     );
   }
 

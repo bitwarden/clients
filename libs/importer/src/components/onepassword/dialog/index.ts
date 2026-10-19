@@ -1,7 +1,8 @@
 export {
   OnePasswordCredentialsPromptComponent,
   OnePasswordCredentialsPromptData,
-  OnePasswordCredentialsPromptResult,
+  OnePasswordCredentialsRejection,
+  OnePasswordSecretKeyAndPassword,
 } from "./onepassword-credentials-prompt.component";
 export {
   OnePasswordTwoFactorPromptComponent,
