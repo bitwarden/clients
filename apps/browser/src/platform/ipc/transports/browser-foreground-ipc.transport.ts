@@ -13,6 +13,12 @@ import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
 
 export const FOREGROUND_IPC_PORT_NAME = "bitwarden-ipc";
 
+/**
+ * Port the background opens once at startup to signal open extension pages to connect a
+ * {@link FOREGROUND_IPC_PORT_NAME} port. It never carries IPC messages.
+ */
+export const FOREGROUND_IPC_WAKE_PORT_NAME = "bitwarden-ipc-wake";
+
 type ReceivedMessage = { message: SerializedOutgoingMessage; source: Source };
 
 /**
@@ -32,8 +38,9 @@ export class BrowserForegroundIpcTransport {
   ) {}
 
   /**
-   * Starts accepting ports. Must run synchronously during service worker startup so a port that
-   * wakes the worker is not missed. Messages are held until {@link start} is called.
+   * Starts accepting ports and asks already open extension pages to connect. Must run
+   * synchronously during service worker startup so a port that wakes the worker is not missed.
+   * Messages are held until {@link start} is called.
    */
   init() {
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
@@ -68,6 +75,8 @@ export class BrowserForegroundIpcTransport {
         void chrome.runtime.lastError;
       });
     });
+
+    this.wakeForegrounds();
   }
 
   /**
@@ -108,6 +117,23 @@ export class BrowserForegroundIpcTransport {
       } satisfies IpcMessage);
     } catch {
       throw new Error(DESTINATION_UNREACHABLE_ERROR);
+    }
+  }
+
+  /**
+   * Pages lose their port when the service worker stops, so a fresh worker would not know about
+   * pages that are already open. Every open page receives this port in `runtime.onConnect`,
+   * connects its own port and disconnects this one.
+   */
+  private wakeForegrounds() {
+    try {
+      const port = chrome.runtime.connect({ name: FOREGROUND_IPC_WAKE_PORT_NAME });
+      port.onDisconnect.addListener(() => {
+        // Suppress the error raised when no page is open to receive the port
+        void chrome.runtime.lastError;
+      });
+    } catch (e) {
+      this.logService.warning("[IPC] Failed to wake extension pages", e);
     }
   }
 

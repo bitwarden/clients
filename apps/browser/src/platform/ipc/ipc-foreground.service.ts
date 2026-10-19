@@ -44,6 +44,10 @@ export class IpcForegroundService extends IpcService {
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),
       });
+
+      // Connect once the client and its handlers are ready, so the background can reach this
+      // page, e.g. through broadcasts, before it sends anything.
+      transport.init();
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
