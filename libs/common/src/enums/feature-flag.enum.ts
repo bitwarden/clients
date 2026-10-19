@@ -26,6 +26,7 @@ export enum FeatureFlag {
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
+  PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -55,8 +56,6 @@ export enum FeatureFlag {
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
-  SdkKeyRotation = "pm-30144-sdk-key-rotation",
   // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
   // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
   // get to use the feature.
@@ -66,7 +65,6 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
-  NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
@@ -94,7 +92,6 @@ export enum FeatureFlag {
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
@@ -105,7 +102,6 @@ export enum FeatureFlag {
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
-  PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
   PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
@@ -176,7 +172,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
@@ -194,6 +189,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
+  [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
@@ -207,11 +203,8 @@ export const DefaultFeatureFlagValue = {
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
-  [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
@@ -222,7 +215,6 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
-  [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
   [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 

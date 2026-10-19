@@ -5,13 +5,19 @@ import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { isGuid } from "@bitwarden/guid";
 
 import {
   VAULT_FILTER_KEYS,
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
 import { All } from "../models/routed-vault-filter.model";
-import { VaultScope, VaultScopeType, vaultScopeCommands } from "../models/vault-scope";
+import {
+  folderCommands,
+  VaultScope,
+  VaultScopeType,
+  vaultScopeCommands,
+} from "../models/vault-scope";
 import { NO_FOLDER, MY_VAULT } from "../utils/vault-filter-predicates";
 
 /** Maps the legacy `?type=` string values to their numeric CipherType equivalents. */
@@ -96,6 +102,23 @@ function buildRedirectPatch(
 }
 
 /**
+ * The folder id a URL names as its only filter, or `undefined` when it names none or filters by
+ * anything else too — another legacy param, or a param already under the vault's namespace. Params
+ * that are not filters, like `cipherId` and `action`, do not count.
+ */
+function soleFolderId(
+  legacy: ReturnType<typeof extractLegacyParams>,
+  params: ParamMap,
+): string | undefined {
+  const { folderId, ...others } = legacy;
+  const filteredByOthers =
+    Object.values(others).some((value) => value != null) ||
+    params.keys.some((key) => key.startsWith(`${VAULT_FILTER_NAMESPACE}.`));
+
+  return folderId != null && isGuid(folderId) && !filteredByOthers ? folderId : undefined;
+}
+
+/**
  * Redirects legacy vault URL params (`?type=`, `?folderId=`, etc.) to their
  * `queryParam="vault"` namespaced equivalents (`?vault.type=`, `?vault.folder=`, etc.)
  * when the VFO1Foundation feature flag is enabled. Non-legacy params (e.g. `cipherId`,
@@ -103,6 +126,8 @@ function buildRedirectPatch(
  *
  * `?type=trash` and `?type=archive` are the exceptions: those are side-nav scopes now, so they
  * redirect to the scope's own route rather than to a filter chip — see {@link LEGACY_SCOPE_MAP}.
+ * A `?folderId=` that is a guid and the only filter redirects to that folder's own route,
+ * `/folders/:folderId`; combined with other filters it stays a chip.
  */
 export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   const configService = inject(ConfigService);
@@ -118,8 +143,17 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   const patch = buildRedirectPatch(legacy);
   const scope = legacy.type == null ? undefined : LEGACY_SCOPE_MAP[legacy.type];
 
-  // No mapped params and no scope — nothing to redirect (e.g. ?type=all).
-  if (Object.keys(patch).length === 0 && scope == null) {
+  // A folder id alone names a folder route rather than a filter chip, so it leaves the patch. With
+  // any other filter alongside — a bookmark of All items narrowed by folder and a type, say — the
+  // page is still the vault, so the folder stays a chip. So does anything that is not a guid, and
+  // the "unassigned" sentinel, since neither names a folder.
+  const folderId = soleFolderId(legacy, route.queryParamMap);
+  if (folderId != null) {
+    delete patch[`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.folder}`];
+  }
+
+  // No mapped params, scope, or folder — nothing to redirect (e.g. ?type=all).
+  if (Object.keys(patch).length === 0 && scope == null && folderId == null) {
     return true;
   }
 
@@ -158,6 +192,10 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   // snapshot-relative tree the param-only redirect uses.
   if (scope != null) {
     return router.createUrlTree(vaultScopeCommands(scope), { queryParams });
+  }
+
+  if (folderId != null) {
+    return router.createUrlTree(folderCommands(folderId), { queryParams });
   }
 
   return createUrlTreeFromSnapshot(route, [], queryParams);

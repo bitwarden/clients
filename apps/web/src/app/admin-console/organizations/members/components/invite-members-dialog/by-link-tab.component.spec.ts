@@ -16,32 +16,30 @@ import { DefaultServerSettingsService } from "@bitwarden/common/platform/service
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
-import { Invite } from "@bitwarden/sdk-internal";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
 
 const ORG_ID = "org-1" as OrganizationId;
 const USER_ID = "user-1" as UserId;
 
-function makeInviteLink(supportsConfirmation: boolean): OrganizationInviteLink {
-  return Object.assign(new OrganizationInviteLink({} as any), {
+function makeInviteLink(supportsConfirmation: boolean): OrganizationInviteLinkView {
+  return Object.assign(new OrganizationInviteLinkView({} as any), {
     id: "link-1",
-    code: "abc123",
     organizationId: ORG_ID,
     allowedDomains: ["example.com"],
-    invite: "sealed-invite" as Invite,
     supportsConfirmation,
     creationDate: "2025-01-15T10:30:00Z",
+    url: "https://vault.bitwarden.com/#/join/org-1",
   });
 }
 
 interface Harness {
   fixture: ComponentFixture<ByLinkTabComponent>;
   component: ByLinkTabComponent;
-  inviteLink$: BehaviorSubject<OrganizationInviteLink | undefined>;
+  inviteLink$: BehaviorSubject<OrganizationInviteLinkView | undefined>;
   inviteLinkService: MockProxy<OrganizationInviteLinkService>;
   validationService: MockProxy<ValidationService>;
   organizationDomainsService: MockProxy<OrganizationDomainsService>;
@@ -49,7 +47,7 @@ interface Harness {
 
 async function createComponent(
   options: {
-    initialLink?: OrganizationInviteLink;
+    initialLink?: OrganizationInviteLinkView;
     autoConfirmEnabled?: boolean;
     domains?: string[];
     domainsError?: unknown;
@@ -57,11 +55,10 @@ async function createComponent(
 ): Promise<Harness> {
   const { initialLink, autoConfirmEnabled = true } = options;
 
-  const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
+  const inviteLink$ = new BehaviorSubject<OrganizationInviteLinkView | undefined>(initialLink);
 
   const inviteLinkService = mock<OrganizationInviteLinkService>();
   inviteLinkService.inviteLink$.mockReturnValue(inviteLink$.asObservable());
-  inviteLinkService.reconstructUrl.mockReturnValue(of("https://vault.bitwarden.com/#/join/org-1"));
 
   const accountService = mock<AccountService>();
   accountService.activeAccount$ = of({ id: USER_ID } as any);
@@ -256,12 +253,7 @@ describe("ByLinkTabComponent", () => {
       component.form.controls.domains.setValue("example.com");
       await component.save();
 
-      expect(inviteLinkService.createInviteLink).toHaveBeenCalledWith(
-        USER_ID,
-        ORG_ID,
-        ["example.com"],
-        true,
-      );
+      expect(inviteLinkService.create).toHaveBeenCalledWith(USER_ID, ORG_ID, ["example.com"], true);
     });
 
     it("creates the first link without confirmation support when the flag is off", async () => {
@@ -272,7 +264,7 @@ describe("ByLinkTabComponent", () => {
       component.form.controls.domains.setValue("example.com");
       await component.save();
 
-      expect(inviteLinkService.createInviteLink).toHaveBeenCalledWith(
+      expect(inviteLinkService.create).toHaveBeenCalledWith(
         USER_ID,
         ORG_ID,
         ["example.com"],
@@ -288,7 +280,7 @@ describe("ByLinkTabComponent", () => {
       component.form.controls.domains.setValue("acme.com");
       await component.save();
 
-      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.create).not.toHaveBeenCalled();
       expect(inviteLinkService.updateAllowedDomains).toHaveBeenCalledWith(USER_ID, ORG_ID, [
         "acme.com",
       ]);
@@ -316,14 +308,14 @@ describe("ByLinkTabComponent", () => {
 
       await component.save();
 
-      expect(inviteLinkService.createInviteLink).not.toHaveBeenCalled();
+      expect(inviteLinkService.create).not.toHaveBeenCalled();
       expect(inviteLinkService.updateAllowedDomains).not.toHaveBeenCalled();
     });
 
     it("rethrows when the server rejects the save", async () => {
       const { component, inviteLinkService } = await createComponent();
       const failure = new Error("At least one allowed domain is required.");
-      inviteLinkService.createInviteLink.mockRejectedValue(failure);
+      inviteLinkService.create.mockRejectedValue(failure);
 
       component.form.controls.domains.setValue("example.com");
 
@@ -339,7 +331,7 @@ describe("ByLinkTabComponent", () => {
 
       await component.refreshLink();
 
-      expect(inviteLinkService.refreshInviteLink).toHaveBeenCalledWith(USER_ID, ORG_ID, true);
+      expect(inviteLinkService.refresh).toHaveBeenCalledWith(USER_ID, ORG_ID, true);
     });
 
     it("keeps admin confirmation in place across a refresh", async () => {
@@ -349,7 +341,7 @@ describe("ByLinkTabComponent", () => {
 
       await component.refreshLink();
 
-      expect(inviteLinkService.refreshInviteLink).toHaveBeenCalledWith(USER_ID, ORG_ID, false);
+      expect(inviteLinkService.refresh).toHaveBeenCalledWith(USER_ID, ORG_ID, false);
     });
 
     it("refreshes without confirmation support when the flag is off", async () => {
@@ -360,7 +352,7 @@ describe("ByLinkTabComponent", () => {
 
       await component.refreshLink();
 
-      expect(inviteLinkService.refreshInviteLink).toHaveBeenCalledWith(USER_ID, ORG_ID, false);
+      expect(inviteLinkService.refresh).toHaveBeenCalledWith(USER_ID, ORG_ID, false);
     });
   });
 });

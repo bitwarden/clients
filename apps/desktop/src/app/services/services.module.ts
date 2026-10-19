@@ -171,6 +171,10 @@ import {
   Vfo1TerminologyService,
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
+  VFO1_FILTERS_STEP,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -231,6 +235,10 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP, VFO1_FILTERS_STEP],
+  }),
   safeProvider({
     provide: CipherFormGenerationService,
     useClass: DesktopCredentialGenerationService,
@@ -464,6 +472,7 @@ const safeProviders: SafeProvider[] = [
       SharedUnlockSettingsService,
       UnlockService,
       ConfigService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -479,7 +488,9 @@ const safeProviders: SafeProvider[] = [
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
       AuthService,
+      EnvironmentService,
       PlatformUtilsService,
+      DesktopFido2UserInterfaceService,
     ],
   }),
   safeProvider({
@@ -671,10 +682,9 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
-      DesktopAutotypeDefaultSettingPolicy,
-      LogService,
     ],
   }),
+  // Autotype MVP only: must only be consumed within the Autotype MVP scope
   safeProvider({
     provide: DesktopAutotypeDefaultSettingPolicy,
     useClass: DesktopAutotypeDefaultSettingPolicy,

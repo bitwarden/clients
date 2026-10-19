@@ -185,6 +185,26 @@ describe("CollectionView SDK mapping", () => {
       expect(result.assigned).toBe(true);
     });
 
+    describe("hasEnabledAccessRule preservation (privileged-access badge)", () => {
+      it("copies hasEnabledAccessRule from the source collection", () => {
+        const result = CollectionView.fromSdkCollectionView(
+          makeSdkCollectionView(),
+          makeCollection({ hasEnabledAccessRule: true }),
+        );
+
+        expect(result.hasEnabledAccessRule).toBe(true);
+      });
+
+      it("leaves hasEnabledAccessRule false for an ungoverned collection", () => {
+        const result = CollectionView.fromSdkCollectionView(
+          makeSdkCollectionView(),
+          makeCollection(),
+        );
+
+        expect(result.hasEnabledAccessRule).toBe(false);
+      });
+    });
+
     describe("defaultUserCollectionEmail preservation (canEditName security invariant)", () => {
       it("copies defaultUserCollectionEmail from the source collection, not the SDK view", () => {
         const email = "offboarded-user@example.com";
@@ -289,6 +309,14 @@ describe("CollectionView SDK mapping", () => {
       expect(result.defaultUserCollectionEmail).toBe(email);
       const mockOrg: any = { id: orgId };
       expect(result.canEditName(mockOrg)).toBe(false);
+    });
+
+    it("keeps hasEnabledAccessRule so a governed collection still reads as governed", () => {
+      const source = makeCollection({ hasEnabledAccessRule: true });
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      expect(result.hasEnabledAccessRule).toBe(true);
     });
   });
 

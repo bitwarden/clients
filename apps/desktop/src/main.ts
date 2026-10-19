@@ -391,6 +391,12 @@ export class Main {
         // https://bugs.kde.org/show_bug.cgi?id=520724. Until it is fixed we must never call show when
         // autostart is enabled.
         const showWindow = !isAutostart;
+
+        // Main-process bitwarden-ipc handlers should be registered after `ipcService.init()` and
+        // before `windowMain.init()`, so the renderer always finds main's IPC client and handlers ready.
+        await this.sdkLoadService.loadAndInit();
+        await this.ipcService.init();
+
         await this.windowMain.init(showWindow);
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
@@ -466,9 +472,6 @@ export class Main {
         this.windowMain.win.on("minimize", () => {
           this.messagingService.send("windowHidden");
         });
-
-        await this.sdkLoadService.loadAndInit();
-        await this.ipcService.init();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
