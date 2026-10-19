@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Ничего не было импортировано."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Узнайте о возможностях импорта"
-  },
-  "selectImportFolder": {
-    "message": "Выберите папку"
-  },
-  "selectImportCollection": {
-    "message": "Выберите коллекцию"
-  },
-  "selectImportSharedFolder": {
-    "message": "Выберите общую папку"
   },
   "importTargetHintCollection": {
     "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
+  },
+  "onePasswordPartialImport": {
+    "message": "Не удалось импортировать $COUNT$ элементов или хранилищ 1Password",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Произошла ошибка. Проверьте свои учетные данные и попробуйте еще раз."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Поддерживается только вход с использованием пароля."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Поддерживается только вход с использованием пароля. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Введите действительный адрес email или воспользуйтесь другим способом импорта."
+  },
+  "onePasswordImportError": {
+    "message": "Произошла ошибка. Попробуйте еще раз или воспользуйтесь другим способом импорта."
+  },
+  "emailIsRequired": {
+    "message": "Необходимо указать email."
+  },
+  "enterValidEmailAddress": {
+    "message": "Введите действительный адрес email."
+  },
+  "signInAddressIsRequired": {
+    "message": "Введите адрес входа."
+  },
+  "enterValidSignInAddress": {
+    "message": "Введите действительный адрес входа."
+  },
+  "secretKeyIsRequired": {
+    "message": "Требуется секретный ключ."
+  },
+  "enterValidSecretKey": {
+    "message": "Введите действительный секретный ключ."
+  },
+  "passwordIsRequired": {
+    "message": "Необходимо ввести пароль."
+  },
+  "enterValidVerificationCode": {
+    "message": "Введите правильный код подтверждения."
+  },
+  "signInAddress": {
+    "message": "Адрес входа"
+  },
+  "onePasswordEmail": {
+    "message": "Email 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Введите адрес email, который вы используете для авторизации в 1Password"
   },
   "secretKey": {
     "message": "Секретный ключ"

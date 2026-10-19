@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "Verilər düzgün format olunmayıb. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Bu fayl dəstəklənməyən şifrləmə ayarlarını istifadə edir və daxilə köçürülə bilməz."
+  },
   "importNothingError": {
     "message": "Heç nə daxilə köçürülmədi."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Daxilə köçürmə seçənəklərinizi öyrənin"
-  },
-  "selectImportFolder": {
-    "message": "Bir qovluq seçin"
-  },
-  "selectImportCollection": {
-    "message": "Bir kolleksiya seçin"
-  },
-  "selectImportSharedFolder": {
-    "message": "Paylaşılan bir qovluq seç"
   },
   "importTargetHintCollection": {
     "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu seçənəyi seçin"
@@ -5328,7 +5322,7 @@
     "message": "Əvəzində birbaşa daxilə köçür"
   },
   "fastest": {
-    "message": "Ən sürətli"
+    "message": "Daha sürətli"
   },
   "importDataTitle": {
     "message": "Verilərinizi daxilə köçürün"
@@ -5647,7 +5641,7 @@
     "message": "Yararlı bir parol daxil edin"
   },
   "importAccountMismatchError": {
-    "message": "This file can only be imported into the account it was exported from."
+    "message": "Bu fayl, yalnız xaricə köçürüldüyü hesabın daxilinə köçürülə bilər."
   },
   "addKeyFile": {
     "message": "Açar faylı əlavə et"
@@ -5656,7 +5650,7 @@
     "message": "Açar faylını yüklə"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "Açar fayl"
   },
   "kdbxFileUpload": {
     "message": "KDBX faylını yüklə"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass hesabınızla əlaqələndirilmiş \"YubiKey\"i kompüterinizin USB yuvasına taxın, daha sonra düyməsinə basın."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elementi və ya seyfi daxilə köçürülə bilməz",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Bir xəta baş verdi. Kimlik məlumatlarınızı yoxlayıb yenidən sınayın."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Yalnız parol ilə giriş dəstəklənir."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Yalnız parol ilə giriş dəstəklənir. Yenidən sınayın və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Yararlı bir e-poçt ünvanı daxil edin və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "onePasswordImportError": {
+    "message": "Bir xəta baş verdi. Yenidən sınayın və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "emailIsRequired": {
+    "message": "E-poçt tələb olunur."
+  },
+  "enterValidEmailAddress": {
+    "message": "Yararlı e-poçt ünvanı daxil edin."
+  },
+  "signInAddressIsRequired": {
+    "message": "Giriş ünvanı tələb olunur."
+  },
+  "enterValidSignInAddress": {
+    "message": "Yararlı bir giriş ünvanı daxil edin."
+  },
+  "secretKeyIsRequired": {
+    "message": "Gizli açar tələb olunur."
+  },
+  "enterValidSecretKey": {
+    "message": "Yararlı bir gizli açar daxil edin."
+  },
+  "passwordIsRequired": {
+    "message": "Parol tələb olunur."
+  },
+  "enterValidVerificationCode": {
+    "message": "Yararlı bir doğrulama kodu daxil edin."
+  },
+  "signInAddress": {
+    "message": "Giriş ünvanı"
+  },
+  "onePasswordEmail": {
+    "message": "1Password e-poçtu"
+  },
+  "onePasswordEmailHint": {
+    "message": "1Password-a giriş etmək üçün istifadə etdiyiniz e-poçtu daxil edin"
   },
   "secretKey": {
     "message": "Gizli açar"

@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "ଡାଟା ସଠିକ୍ ଭାବରେ ଫର୍ମାଟ୍ କରାଯାଇନାହିଁ। ଦୟାକରି ଆପଣଙ୍କର ଆମଦାନି ଫାଇଲ୍ ଯାଞ୍ଚ କରନ୍ତୁ ଏବଂ ପୁନଃ ଚେଷ୍ଟା କରନ୍ତୁ।"
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "କିଛି ଆମଦାନି କରାଯାଇନାହିଁ।"
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "ଆପଣଙ୍କର ଆମଦାନି ବିକଳ୍ପ ବିଷୟରେ ଜାଣନ୍ତୁ"
-  },
-  "selectImportFolder": {
-    "message": "ଏକ ଫୋଲ୍ଡର ଚୟନ କରନ୍ତୁ"
-  },
-  "selectImportCollection": {
-    "message": "ଏକ ସଂଗ୍ରହ ଚୟନ କରନ୍ତୁ"
-  },
-  "selectImportSharedFolder": {
-    "message": "ଏକ ସେୟାର କରାଯାଇଥିବା ଫୋଲ୍ଡର ଚୟନ କରନ୍ତୁ"
   },
   "importTargetHintCollection": {
     "message": "ଯଦି ଆପଣ ଆମଦାନି ଫାଇଲ୍ ବିଷୟବସ୍ତୁକୁ ଏକ ସଂଗ୍ରହକୁ ସ୍ଥାନାନ୍ତର କରିବାକୁ ଚାହାଁନ୍ତି ତେବେ ଏହି ବିକଳ୍ପ ଚୟନ କରନ୍ତୁ"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "ଆପଣଙ୍କର LastPass ଖାତା ସହିତ ସଂଯୁକ୍ତ YubiKey କୁ ଆପଣଙ୍କର କମ୍ପ୍ୟୁଟରର USB ପୋର୍ଟରେ ଭର୍ତ୍ତି କରନ୍ତୁ, ତାପରେ ଏହାର ବଟନ୍ ସ୍ପର୍ଶ କରନ୍ତୁ।"
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"

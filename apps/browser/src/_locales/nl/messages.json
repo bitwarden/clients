@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "De gegevens zijn niet correct opgemaakt. Controleer je importbestand en probeer het opnieuw."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Dit bestand gebruikt niet-ondersteunde versleutelingsinstellingen en kan niet worden geïmporteerd."
+  },
   "importNothingError": {
     "message": "Er is niets geïmporteerd."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Leer meer over je importopties"
-  },
-  "selectImportFolder": {
-    "message": "Map selecteren"
-  },
-  "selectImportCollection": {
-    "message": "Collectie selecteren"
-  },
-  "selectImportSharedFolder": {
-    "message": "Gedeelde map selecteren"
   },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Steek de YubiKey die bij je LastPass account hoort in de USB poort van je computer en druk dan op de knop."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password-items of kluizen konden niet worden geïmporteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Er is een fout opgetreden. Controleer je inloggegevens en probeer het opnieuw."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Alleen inloggen met wachtwoord wordt ondersteund."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Alleen inloggen met wachtwoord wordt ondersteund. Probeer opnieuw of gebruik een andere importmethode."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Voer een geldig e-mailadres in of gebruik een andere importmethode."
+  },
+  "onePasswordImportError": {
+    "message": "Er is een fout opgetreden. Probeer het opnieuw of gebruik een andere importmethode."
+  },
+  "emailIsRequired": {
+    "message": "E-mailadres is vereist."
+  },
+  "enterValidEmailAddress": {
+    "message": "Vul een geldig e-mailadres in."
+  },
+  "signInAddressIsRequired": {
+    "message": "Inlogadres is vereist."
+  },
+  "enterValidSignInAddress": {
+    "message": "Vul een geldig inlogadres in."
+  },
+  "secretKeyIsRequired": {
+    "message": "Geheime sleutel is vereist."
+  },
+  "enterValidSecretKey": {
+    "message": "Voer een geldige geheime sleutel in."
+  },
+  "passwordIsRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "enterValidVerificationCode": {
+    "message": "Voer een geldige verificatiecode in."
+  },
+  "signInAddress": {
+    "message": "Inlogadres"
+  },
+  "onePasswordEmail": {
+    "message": "1Password-e-mail"
+  },
+  "onePasswordEmailHint": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password"
   },
   "secretKey": {
     "message": "Geheime sleutel"

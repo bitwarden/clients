@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Ez a fájl nem támogatott titkosítási beállításokat használ és nem importálható."
+  },
   "importNothingError": {
     "message": "Semmi nem lett importálva."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Információ az importálási opciókról"
-  },
-  "selectImportFolder": {
-    "message": "Mappa kiválasztása"
-  },
-  "selectImportCollection": {
-    "message": "Gyűjtemény kiválasztása"
-  },
-  "selectImportSharedFolder": {
-    "message": "Megosztott mappa kiválasztása"
   },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Illesszük be a LastPass-fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elem vagy széf nem importálható.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Hiba történt. Ellenőrizzük a hitelesítő adatokat és próbáljuk újra."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Csak a jelszavas bejelentkezés támogatott."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "onePasswordImportError": {
+    "message": "Hiba történt. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "emailIsRequired": {
+    "message": "Email cím megadása kötelező."
+  },
+  "enterValidEmailAddress": {
+    "message": "Adjon meg egy érvényes email címet."
+  },
+  "signInAddressIsRequired": {
+    "message": "A bejelentkezési email cím megadása kötelező."
+  },
+  "enterValidSignInAddress": {
+    "message": "Adjon meg egy érvényes bejelentkezési email címet."
+  },
+  "secretKeyIsRequired": {
+    "message": "Titkos kulcs megadása kötelező."
+  },
+  "enterValidSecretKey": {
+    "message": "Adjunk meg egy érvényes titkos kulcsot."
+  },
+  "passwordIsRequired": {
+    "message": "Jelszó megadása szükséges."
+  },
+  "enterValidVerificationCode": {
+    "message": "Érvényes ellenőrző kódot adjunk meg."
+  },
+  "signInAddress": {
+    "message": "Bejelentkezési cím"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email cím"
+  },
+  "onePasswordEmailHint": {
+    "message": "Adjuk meg az 1Password bejelentkezéshez használt email címet."
   },
   "secretKey": {
     "message": "Titkos kulcs"

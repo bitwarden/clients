@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Tento soubor používá nepodporovaná nastavení šifrování a nemůže být importován."
+  },
   "importNothingError": {
     "message": "Nebylo nic importováno."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Více o volbách importu"
-  },
-  "selectImportFolder": {
-    "message": "Zvolte složku"
-  },
-  "selectImportCollection": {
-    "message": "Zvolte sbírku"
-  },
-  "selectImportSharedFolder": {
-    "message": "Vybrat sdílenou složku"
   },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu."
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte YubiKey spojený s Vaším účtem LastPass do USB portu Vašeho počítače a stiskněte jeho tlačítko."
+  },
+  "onePasswordPartialImport": {
+    "message": "Položky nebo trezory $COUNT$ 1Password nelze importovat",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Došlo k chybě. Zkontrolujte Vaše přihlašovací údaje a zkuste to znovu."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Je podporováno jen přihlášení s heslem."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Podporováno je jen přihlášení s heslem. Zkuste to znovu nebo použijte jinou metodu importu."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Zadejte platnou e-mailovou adresu nebo použijte jinou metodu importu."
+  },
+  "onePasswordImportError": {
+    "message": "Došlo k chybě. Zkuste to znovu nebo použijte jinou metodu importu."
+  },
+  "emailIsRequired": {
+    "message": "E-mail je povinný."
+  },
+  "enterValidEmailAddress": {
+    "message": "Zadejte platnou e-mailovou adresu."
+  },
+  "signInAddressIsRequired": {
+    "message": "Přihlašovací adresa je povinná."
+  },
+  "enterValidSignInAddress": {
+    "message": "Zadejte platnou přihlašovací adresu."
+  },
+  "secretKeyIsRequired": {
+    "message": "Tajný klíč je povinný."
+  },
+  "enterValidSecretKey": {
+    "message": "Zadejte platný tajný klíč."
+  },
+  "passwordIsRequired": {
+    "message": "Je vyžadováno heslo."
+  },
+  "enterValidVerificationCode": {
+    "message": "Zadejte platný ověřovací kód."
+  },
+  "signInAddress": {
+    "message": "Přihlašovací adresa"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Zadejte e-mail, který používáte k přihlášení do 1Password"
   },
   "secretKey": {
     "message": "Tajný klíč"

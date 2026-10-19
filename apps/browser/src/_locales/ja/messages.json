@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "データが正しい形式ではありません。インポートするファイルを確認してやり直してください。"
   },
+  "importUnsupportedKdfSettings": {
+    "message": "このファイルは非対応の暗号化設定を使用しているため、インポートできません。"
+  },
   "importNothingError": {
     "message": "何もインポートされませんでした。"
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "インポートオプションの詳細"
-  },
-  "selectImportFolder": {
-    "message": "フォルダーを選択"
-  },
-  "selectImportCollection": {
-    "message": "コレクションを選択"
-  },
-  "selectImportSharedFolder": {
-    "message": "共有フォルダーを選択"
   },
   "importTargetHintCollection": {
     "message": "インポートしたファイルコンテンツをコレクションに移動したい場合は、このオプションを選択してください"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass アカウントに関連付けられた YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 件の 1Password アイテムまたは保管庫をインポートできませんでした",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "エラーが発生しました。資格情報を確認して再度お試しください。"
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "パスワードによるログインのみに対応しています。"
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "パスワードによるログインのみに対応しています。もう一度試すか、別のインポート方法を使用してください。"
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "正しいメールアドレスを入力するか、別のインポート方法を使用してください。"
+  },
+  "onePasswordImportError": {
+    "message": "エラーが発生しました。もう一度試すか、別のインポート方法を使用してください。"
+  },
+  "emailIsRequired": {
+    "message": "メールアドレスが必要です。"
+  },
+  "enterValidEmailAddress": {
+    "message": "正しいメールアドレスを入力してください。"
+  },
+  "signInAddressIsRequired": {
+    "message": "サインインアドレスが必要です。"
+  },
+  "enterValidSignInAddress": {
+    "message": "正しいサインインアドレスを入力してください。"
+  },
+  "secretKeyIsRequired": {
+    "message": "秘密鍵が必要です。"
+  },
+  "enterValidSecretKey": {
+    "message": "正しい秘密鍵を入力してください。"
+  },
+  "passwordIsRequired": {
+    "message": "パスワードが必要です。"
+  },
+  "enterValidVerificationCode": {
+    "message": "正しい認証コードを入力してください。"
+  },
+  "signInAddress": {
+    "message": "サインインアドレス"
+  },
+  "onePasswordEmail": {
+    "message": "1Password メールアドレス"
+  },
+  "onePasswordEmailHint": {
+    "message": "1Password にログインするために使用するメールアドレスを入力してください"
   },
   "secretKey": {
     "message": "秘密鍵"

@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Este ficheiro utiliza definições de encriptação não suportadas e não pode ser importado."
+  },
   "importNothingError": {
     "message": "Nada foi importado."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre as suas opções de importação"
-  },
-  "selectImportFolder": {
-    "message": "Selecionar uma pasta"
-  },
-  "selectImportCollection": {
-    "message": "Selecionar uma coleção"
-  },
-  "selectImportSharedFolder": {
-    "message": "Selecionar uma pasta partilhada"
   },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
+  },
+  "onePasswordPartialImport": {
+    "message": "Não foi possível importar $COUNT$ itens ou cofres do 1Password",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Ocorreu um erro. Verifique as suas credenciais e tente novamente."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Só é possível iniciar sessão com palavra-passe."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Só é possível iniciar sessão com palavra-passe. Tente novamente ou utilize outro método de importação."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Introduza um endereço de e-mail válido ou utilize outro método de importação."
+  },
+  "onePasswordImportError": {
+    "message": "Ocorreu um erro. Tente novamente ou utilize outro método de importação."
+  },
+  "emailIsRequired": {
+    "message": "O e-mail é obrigatório."
+  },
+  "enterValidEmailAddress": {
+    "message": "Introduza um endereço de e-mail válido."
+  },
+  "signInAddressIsRequired": {
+    "message": "O endereço de início de sessão é obrigatório."
+  },
+  "enterValidSignInAddress": {
+    "message": "Introduza um endereço de início de sessão válido."
+  },
+  "secretKeyIsRequired": {
+    "message": "A chave secreta é obrigatória."
+  },
+  "enterValidSecretKey": {
+    "message": "Introduza uma chave secreta válida."
+  },
+  "passwordIsRequired": {
+    "message": "A palavra-passe é obrigatória."
+  },
+  "enterValidVerificationCode": {
+    "message": "Introduza um código de verificação válido."
+  },
+  "signInAddress": {
+    "message": "Endereço de início de sessão"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail do 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Introduza o endereço de e-mail que utiliza para iniciar sessão no 1Password"
   },
   "secretKey": {
     "message": "Chave secreta"

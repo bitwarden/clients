@@ -5093,6 +5093,9 @@
   "importFormatError": {
     "message": "Nid yw'r data wedi'i fformatio'n gywir. Gwiriwch eich ffeil fewngludo a cheisiwch eto."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Chafodd dim ei fewnforio."
   },
@@ -5173,15 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Dysgu am eich dewisiadau mewnforio"
-  },
-  "selectImportFolder": {
-    "message": "Dewiswch ffolder"
-  },
-  "selectImportCollection": {
-    "message": "Dewiswch gasgliad"
-  },
-  "selectImportSharedFolder": {
-    "message": "Dewiswch ffolder a rennir"
   },
   "importTargetHintCollection": {
     "message": "Dewiswch yr opsiwn hwn os ydych am i gynnwys y ffeil fewngludo gael ei symud i gasgliad"
@@ -5825,6 +5819,63 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Mewnosodwch yr YubiKey sy'n gysylltiedig â'ch cyfrif LastPass ym mhorth USB eich cyfrifiadur, yna cyffyrddwch â'i fotwm."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"
