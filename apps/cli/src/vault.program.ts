@@ -72,10 +72,13 @@ export class VaultProgram extends BaseProgram {
       .option("--url <url>", "Filter items of type login with a url-match search.")
       .option("--folderid <folderid>", "Filter items by folder id.")
       .option("--collectionid <collectionid>", "Filter items by collection id.")
-      .option("--sharedfolderid <sharedfolderid>", "Filter items by shared folder id.")
+      .option(
+        "--sharedfolderid <sharedfolderid>",
+        "Filter items by shared folder id. Alias of --collectionid.",
+      )
       .option(
         "--organizationid <organizationid>",
-        "Filter items or collections by organization id.",
+        "Filter items, collections, or shared folders by organization id.",
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
       .on("--help", () => {
@@ -98,9 +101,11 @@ export class VaultProgram extends BaseProgram {
         writeLn(
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
+        writeLn("    bw list items --sharedfolderid 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
         writeLn("    bw list items --trash");
         writeLn("    bw list items --archived");
         writeLn("    bw list folders --search email");
+        writeLn("    bw list shared-folders --search engineering");
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
       })
@@ -181,6 +186,8 @@ export class VaultProgram extends BaseProgram {
         );
         writeLn("    bw get folder email");
         writeLn("    bw get template folder");
+        writeLn("    bw get shared-folder 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
+        writeLn("    bw get template shared-folder");
         writeLn("", true);
       })
       .action(async (object, id, cmd) => {
@@ -229,6 +236,10 @@ export class VaultProgram extends BaseProgram {
         writeLn("");
         writeLn("    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K");
         writeLn("    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create folder");
+        writeLn(
+          "    bw create org-shared-folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K " +
+            "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
+        );
         writeLn(
           "    bw create attachment --file ./myfile.csv " +
             "--itemid 16b15b89-65b3-4639-ad2a-95052a6d8f66",
@@ -339,6 +350,10 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw delete item 7063feab-4b10-472e-b64c-785e2b870b92");
         writeLn("    bw delete item 89c21cd2-fab0-4f69-8c6e-ab8a0168f69a --permanent");
         writeLn("    bw delete folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02");
+        writeLn(
+          "    bw delete org-shared-folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02 " +
+            "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
+        );
         writeLn(
           "    bw delete attachment b857igwl1dzrs2 --itemid 310d5ffd-e9a2-4451-af87-ea054dce0f78",
         );
