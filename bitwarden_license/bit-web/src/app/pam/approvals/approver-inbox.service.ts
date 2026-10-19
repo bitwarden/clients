@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, inject } from "@angular/core";
+import { DestroyRef, inject, Injectable, LOCALE_ID } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
@@ -60,6 +60,7 @@ export class ApproverInboxService {
   private readonly accessEvents = inject(AccessEventService);
   private readonly accessRefresh = inject(AccessRefreshService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly locale = inject(LOCALE_ID);
 
   private readonly _inbox$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _history$ = new BehaviorSubject<AccessRequestView[]>([]);
@@ -87,7 +88,9 @@ export class ApproverInboxService {
       sortApprovalRows(
         requests
           .filter((request) => isActionableInboxRequest(request, now))
-          .map((request) => toApprovalRow(request, names, now, canDecide(request, userId))),
+          .map((request) =>
+            toApprovalRow(request, names, now, canDecide(request, userId), this.locale),
+          ),
       ),
     ),
   );
