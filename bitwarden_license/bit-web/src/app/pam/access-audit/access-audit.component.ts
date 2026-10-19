@@ -2,11 +2,12 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  OnInit,
   computed,
+  DestroyRef,
   effect,
   inject,
+  LOCALE_ID,
+  OnInit,
   signal,
   untracked,
   viewChild,
@@ -183,6 +184,7 @@ export class AccessAuditComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly configService = inject(ConfigService);
+  private readonly locale = inject(LOCALE_ID);
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
@@ -632,7 +634,7 @@ export class AccessAuditComponent implements OnInit {
       .map((event) => ({ cipherId: event.cipherId!, collectionId: event.collectionId! }));
     const names = await this.nameResolver.resolveNames(refs);
     return page.data.map((event) =>
-      toAuditRow(event, names.cipherNameById, names.collectionNameById),
+      toAuditRow(event, names.cipherNameById, names.collectionNameById, this.locale),
     );
   }
 

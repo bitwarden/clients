@@ -138,6 +138,7 @@ export function toAuditRow(
   event: AccessAuditEventResponse,
   cipherNameById: Map<string, string>,
   collectionNameById: Map<string, string>,
+  locale: string,
 ): AuditRow {
   // The server records a holder ending their own lease as LeaseRevoked too, with them as actor.
   const selfEnded =
@@ -183,7 +184,7 @@ export function toAuditRow(
     requestId: event.requestId,
     leaseId: event.leaseId,
     duration: grantedWindow == null ? null : durationLabel(grantedWindow),
-    exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow),
+    exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow, locale),
     extendedUntil,
   };
 }
