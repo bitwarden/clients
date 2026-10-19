@@ -166,11 +166,16 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      // Hold what the file holds, as a re-read would: plain JSON, not the caller's object.
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.db.set(key, obj === undefined ? obj : JSON.parse(JSON.stringify(obj))).write();
-      this.fileVersion = this.currentFileVersion();
+      // Writing rewrites the whole file (megabytes for a large vault); skip it when the stored
+      // JSON would not change.
+      const json = JSON.stringify(obj);
+      if (JSON.stringify(this.db.get(key).value()) !== json) {
+        // Hold what the file holds, as a re-read would: plain JSON, not the caller's object.
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.db.set(key, json === undefined ? obj : JSON.parse(json)).write();
+        this.fileVersion = this.currentFileVersion();
+      }
       this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;

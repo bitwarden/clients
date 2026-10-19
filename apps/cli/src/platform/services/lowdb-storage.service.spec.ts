@@ -5,6 +5,7 @@ import * as path from "path";
 import { mock } from "jest-mock-extended";
 import * as FileSync from "lowdb/adapters/FileSync";
 import * as lock from "proper-lockfile";
+import { firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -195,5 +196,49 @@ describe("LowdbStorageService read cache", () => {
       jest.restoreAllMocks();
       fs.rmSync(racedDir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("LowdbStorageService unchanged writes", () => {
+  let dir: string;
+  let dataFile: string;
+  let service: LowdbStorageService;
+
+  beforeEach(async () => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "lowdb-storage-"));
+    dataFile = path.join(dir, "data.json");
+    service = new LowdbStorageService(mock<LogService>(), null, dir, false, true);
+    await service.init();
+  });
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("does not rewrite data.json when the saved value is unchanged", async () => {
+    await service.save("key", { value: 1 });
+    const write = jest.spyOn((service as any).db, "write");
+
+    await service.save("key", { value: 1 });
+
+    expect(write).not.toHaveBeenCalled();
+    await expect(service.get("key")).resolves.toEqual({ value: 1 });
+  });
+
+  it("still reports an unchanged save as an update", async () => {
+    await service.save("key", { value: 1 });
+    const update = firstValueFrom(service.updates$);
+
+    await service.save("key", { value: 1 });
+
+    await expect(update).resolves.toEqual({ key: "key", updateType: "save" });
+  });
+
+  it("writes a changed value", async () => {
+    await service.save("key", { value: 1 });
+
+    await service.save("key", { value: 2 });
+
+    expect(JSON.parse(fs.readFileSync(dataFile, "utf8")).key).toEqual({ value: 2 });
   });
 });
