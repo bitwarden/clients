@@ -6,7 +6,6 @@ import * as path from "path";
 import * as lowdb from "lowdb";
 import * as FileSync from "lowdb/adapters/FileSync";
 import * as lock from "proper-lockfile";
-import { OperationOptions } from "retry";
 import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -17,7 +16,8 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-const retries: OperationOptions = {
+/** How long to wait for a lock another process holds: 50 attempts, backing off 100 to 250 ms. */
+const retries = {
   retries: 50,
   minTimeout: 100,
   maxTimeout: 250,
@@ -159,19 +159,41 @@ export class LowdbStorageService implements AbstractStorageService {
   }
 
   protected async lockDbFile<T>(action: () => T): Promise<T> {
-    if (this.requireLock && !Utils.isNullOrWhitespace(this.dataFilePath)) {
-      this.logService.info("acquiring db file lock");
-      return await lock.lock(this.dataFilePath, { retries: retries }).then((release) => {
+    if (!this.requireLock || Utils.isNullOrWhitespace(this.dataFilePath)) {
+      return action();
+    }
+
+    this.logService.info("acquiring db file lock");
+    for (let attempt = 0; ; attempt++) {
+      // Lock, act and release in one synchronous step: no other access of this process can run
+      // while the lock is held, so it never waits for itself. Only another process makes it wait.
+      const release = this.tryLockDbFile();
+      if (release != null) {
         try {
           return action();
         } finally {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           release();
         }
-      });
-    } else {
-      return action();
+      }
+
+      if (attempt >= retries.retries) {
+        throw new Error("Could not acquire the db file lock");
+      }
+      await Utils.delay(
+        Math.min(retries.minTimeout * retries.factor ** attempt, retries.maxTimeout),
+      );
+    }
+  }
+
+  /** The lock's release function, or null while another process holds the lock. */
+  private tryLockDbFile(): (() => void) | null {
+    try {
+      return lock.lockSync(this.dataFilePath);
+    } catch (e) {
+      if (e.code === "ELOCKED") {
+        return null;
+      }
+      throw e;
     }
   }
 
