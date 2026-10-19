@@ -39,6 +39,7 @@ function approvalRow(overrides: Record<string, unknown> = {}): ApprovalRow {
     },
     NOW,
     true,
+    "en-US",
   );
 }
 

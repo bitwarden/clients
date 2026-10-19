@@ -174,7 +174,8 @@ they offer Start off a request row with no cipher in hand.
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already
 has what they asked for; those are reconciled (collapse the form, re-read the state) rather
-than surfaced as errors.
+than surfaced as errors. The licensing refusal, and the condition denials the automatic path
+throws, show activation's localized strings (`refused`) rather than the server's English.
 
 That file carries TWO catalogs, and the split is deliberate. `REQUEST_ACCESS_SERVER_ERRORS`
 holds the sentences `SubmitAccessRequestCommand` throws; `REQUEST_ACCESS_SDK_ERRORS` holds the
@@ -189,7 +190,8 @@ so drift fails a test instead of degrading the copy silently.
 
 The two `*ExceedsMax` refusals are NOT catalog entries — the server interpolates its
 `EffectiveMax` into them, so no fixed sentence matches more than one rule. `EXCEEDS_MAX_PATTERN`
-captures the noun and the maximum instead. The window path re-renders through
+captures the noun and the maximum instead, and also matches the SDK's local window refusal, which
+has no full stop. The window path re-renders through
 `requestAccessModalWindowExceedsMax`; the duration path has no such string and echoes the server.
 Keep the noun: the automatic path shows no window, so the two cannot share wording.
 
@@ -227,7 +229,8 @@ which spells out which happened and when; the row builders have no need for it, 
 `cipher_access_state()` and the list reads are one-shot, so nothing re-reads on its own.
 Two services drive every refresh:
 
-- `AccessEventService` — the server's `RefreshAccessRequest` push, filtered to a bare tick.
+- `AccessEventService` — the server's `RefreshAccessRequest` push for the active user, filtered
+  to a bare tick.
 - `AccessRefreshService` — merges that push with this client's own mutations and fans it
   out per cipher, so the cipher-view banner and the gated-cipher reloader react to a local
   change and a remote one through exactly the same path.

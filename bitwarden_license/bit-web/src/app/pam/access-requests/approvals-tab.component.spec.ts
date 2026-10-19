@@ -53,7 +53,7 @@ function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestVi
 }
 
 function row(overrides: Record<string, unknown> = {}, canDecide = true): ApprovalRow {
-  return toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide);
+  return toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide, "en-US");
 }
 
 function leaseRow(
