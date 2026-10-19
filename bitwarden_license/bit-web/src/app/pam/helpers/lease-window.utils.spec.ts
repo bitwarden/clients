@@ -1,7 +1,9 @@
 import {
   ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
+  REQUEST_ACCESS_DURATION_PRESETS,
   pickDurationUnit,
+  requestDurationOptions,
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
 } from "./lease-window.utils";
@@ -80,5 +82,58 @@ describe("snapToNearestAccessRuleDuration", () => {
   it("snaps an off-preset value to the nearest preset", () => {
     expect(snapToNearestAccessRuleDuration(50 * 60)).toBe(60 * 60);
     expect(snapToNearestAccessRuleDuration(20 * 60)).toBe(15 * 60);
+  });
+});
+
+describe("requestDurationOptions", () => {
+  const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
+
+  it("drops presets above the rule's cap", () => {
+    expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
+  });
+
+  it("offers every preset when the cap matches the largest one", () => {
+    expect(seconds(requestDurationOptions(24 * 60 * 60, 60 * 60))).toEqual(
+      REQUEST_ACCESS_DURATION_PRESETS.map((p) => p.seconds),
+    );
+  });
+
+  it("offers only the presets for a rule with no maximum, which reports the one-year ceiling", () => {
+    expect(seconds(requestDurationOptions(365 * 24 * 60 * 60, 60 * 60))).toEqual(
+      REQUEST_ACCESS_DURATION_PRESETS.map((p) => p.seconds),
+    );
+  });
+
+  it("keeps the i18n label of a preset-backed option", () => {
+    const [first] = requestDurationOptions(30 * 60, 15 * 60);
+
+    expect(first.labelKey).toBe("pamAccessRuleDuration15m");
+  });
+
+  it("offers the cap itself when no preset matches it, unlabelled for value formatting", () => {
+    const options = requestDurationOptions(45 * 60, 15 * 60);
+
+    expect(seconds(options)).toEqual([15 * 60, 30 * 60, 45 * 60]);
+    expect(options[2].labelKey).toBeUndefined();
+  });
+
+  it("stays non-empty for a cap below the smallest preset", () => {
+    expect(seconds(requestDurationOptions(5 * 60, 5 * 60))).toEqual([5 * 60]);
+  });
+
+  it("offers the default so the pre-selected value is always a real option", () => {
+    const options = requestDurationOptions(60 * 60, 20 * 60);
+
+    expect(seconds(options)).toContain(20 * 60);
+    expect(seconds(options)).toEqual([15 * 60, 20 * 60, 30 * 60, 60 * 60]);
+  });
+
+  it("does not duplicate a default that already matches a preset", () => {
+    expect(seconds(requestDurationOptions(30 * 60, 30 * 60))).toEqual([15 * 60, 30 * 60]);
+  });
+
+  it("ignores a default above the cap rather than offering an over-cap option", () => {
+    // The server clamps the default, so this only guards a malformed pair.
+    expect(seconds(requestDurationOptions(30 * 60, 4 * 60 * 60))).toEqual([15 * 60, 30 * 60]);
   });
 });
