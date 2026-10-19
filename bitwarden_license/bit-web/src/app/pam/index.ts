@@ -8,7 +8,6 @@ export type {
 } from "./abstractions/access-rule";
 export {
   accessRuleErrorMessage,
-  isAccessRuleCollectionConflict,
   isAccessRuleNotFound,
   isHumanApproval,
   isIpAllowlist,
