@@ -761,9 +761,48 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(
         fixture.nativeElement.querySelector("billing-cart-summary").classList.contains("tw-hidden"),
       ).toBe(true);
-      // A failed preview must not block the upgrade itself.
-      expect(component["isFormValid"]()).toBe(true);
     }));
+
+    describe("submit availability", () => {
+      const submitButton = (): HTMLElement | null =>
+        fixture.nativeElement.querySelector('button[type="submit"]');
+
+      it("should disable submit while the preview has failed", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+
+        completeTheForm();
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+      }));
+
+      it("should enable submit once a later preview succeeds", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverCart);
+
+        completeTheForm();
+        tick(1500);
+        component["formGroup"].patchValue({
+          billingAddress: { country: "US", postalCode: "54321" },
+        });
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(submitButton()?.hasAttribute("aria-disabled")).toBe(false);
+      }));
+
+      it("should not upgrade when submitted while the preview has failed", fakeAsync(async () => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("new-org-id");
+
+        completeTheForm();
+        tick(1500);
+        await component["submit"]();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+      }));
+    });
 
     it("should restore the cart summary once a later preview succeeds", fakeAsync(() => {
       mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));

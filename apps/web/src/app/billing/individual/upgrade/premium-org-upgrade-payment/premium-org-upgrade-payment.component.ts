@@ -309,6 +309,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       return;
     }
 
+    if (this.previewFailed()) {
+      return;
+    }
+
     const paymentMethodComponent = this.paymentMethodComponent();
     const isChangingPayment = paymentMethodComponent?.isChangingPayment();
     const paymentMethod = this.paymentMethod();
