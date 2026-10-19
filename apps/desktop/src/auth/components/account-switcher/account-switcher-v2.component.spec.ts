@@ -148,6 +148,22 @@ describe("AccountSwitcherV2Component", () => {
     expect(menuText()).not.toContain("accountSwitcherLimitReached");
   });
 
+  it("does not show a divider above Add account when there are no inactive accounts", () => {
+    render({ active: entry("a"), inactive: [], canAddAccount: true });
+
+    openMenu();
+
+    expect(document.querySelector("bit-menu-divider")).toBeNull();
+  });
+
+  it("shows a divider above Add account when there are inactive accounts", () => {
+    render({ active: entry("a"), inactive: [entry("b")], canAddAccount: true });
+
+    openMenu();
+
+    expect(document.querySelector("bit-menu-divider")).not.toBeNull();
+  });
+
   it("shows the limit message in place of Add account at the account limit", () => {
     render({ active: entry("a"), inactive: [entry("b")], canAddAccount: false });
 
