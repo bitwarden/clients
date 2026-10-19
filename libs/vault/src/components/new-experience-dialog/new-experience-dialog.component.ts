@@ -44,7 +44,7 @@ export const NEW_EXPERIENCE_LEARN_MORE_URL = "https://bitwarden.com/blog/2026-de
  * Announces the redesigned vault to users who created their account before the redesign shipped.
  *
  * The nudge is dismissed only by an explicit action: exploring, learning more, or the header close
- * button. The dialog is opened with `disableClose` so escape and backdrop clicks can't close it
+ * button. Exploring leaves the dismissal to the opener, which starts the walkthrough first. The dialog is opened with `disableClose` so escape and backdrop clicks can't close it
  * without one of those, which also hides `bit-dialog`'s built-in close button — this component
  * renders its own in its place.
  *
@@ -75,7 +75,7 @@ export class NewExperienceDialogComponent {
   protected readonly learnMoreUrl = NEW_EXPERIENCE_LEARN_MORE_URL;
 
   protected async explore() {
-    await this.dismiss(NewExperienceDialogResult.Explore);
+    await this.dialogRef.close(NewExperienceDialogResult.Explore);
   }
 
   /**

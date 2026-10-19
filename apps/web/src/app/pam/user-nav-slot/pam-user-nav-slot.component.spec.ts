@@ -45,8 +45,7 @@ describe("PamUserNavSlotComponent", () => {
         },
       ],
     })
-      // Stub the nav child components so the test exercises this component's own gating
-      // logic, not their rendering.
+      // Stub the nav components so the test covers this component's gating, not their rendering.
       .overrideComponent(PamUserNavSlotComponent, {
         remove: { imports: [NavigationModule] },
         add: { schemas: [NO_ERRORS_SCHEMA] },

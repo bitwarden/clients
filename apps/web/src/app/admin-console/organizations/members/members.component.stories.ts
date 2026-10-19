@@ -95,7 +95,6 @@ function mockUser(overrides: Partial<OrganizationUserView> = {}): OrganizationUs
     canRestore: false,
     canRevoke: true,
     canRemove: true,
-    canManageMember: true,
     ...overrides,
   } as unknown as OrganizationUserView;
 }
@@ -220,7 +219,6 @@ const mockMemberDialogManagerService = {
   openBulkRestoreRevokeDialog: () => Promise.resolve(undefined),
   openBulkEnableSecretsManagerDialog: () => Promise.resolve(undefined),
   openBulkActivatePrivilegedControlsDialog: () => Promise.resolve(undefined),
-  openBulkStatusDialog: () => Promise.resolve(undefined),
   openEventsDialog: () => {},
   openRemoveUserConfirmationDialog: () => Promise.resolve(false),
   openRevokeUserConfirmationDialog: () => Promise.resolve(false),

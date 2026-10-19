@@ -14,6 +14,36 @@ const paths = {
   macOsProject: "./macos/desktop.xcodeproj",
 };
 
+/// What changes about the extension per release channel. macOS requires an extension's bundle
+/// identifier to be prefixed by its containing app's, and a provisioning profile authorizes one
+/// App ID, so each channel signs with its own profiles. The Xcode project derives the bundle
+/// identifier, App Group and display name from `appId` and `productName`.
+///
+/// Stable signs with the entitlements the Xcode project names for each configuration; beta passes
+/// its own copy, which differs only in naming beta's App Group.
+const channels = {
+  stable: {
+    appId: "com.bitwarden.desktop",
+    productName: "Bitwarden",
+    provisioningProfiles: {
+      "mas-dev": "PM Stable Desktop-ExtAutofill Testing",
+      mas: "PM Stable Desktop-ExtAutofill AppStore",
+      mac: "PM Stable Desktop-ExtAutofill Distrib",
+    },
+  },
+  beta: {
+    appId: "com.bitwarden.beta.desktop",
+    productName: "Bitwarden Beta",
+    provisioningProfiles: {
+      "mas-dev": "PM Beta Desktop-ExtAutofill Testing",
+      mas: "PM Beta Desktop-ExtAutofill AppStore",
+      mac: "PM Beta Desktop-ExtAutofill Distrib",
+    },
+    // Relative to the Xcode project, as the project's own CODE_SIGN_ENTITLEMENTS are.
+    entitlements: "autofill-extension/autofill_extension.beta.entitlements",
+  },
+};
+
 exports.default = buildMacOs;
 
 async function buildMacOs() {
@@ -29,7 +59,6 @@ async function buildMacOs() {
 
   let configuration;
   let codeSignIdentity;
-  let provisioningProfileSpecifier;
   let buildDirectory;
   const configurationArgument = process.argv[2];
   if (configurationArgument !== undefined) {
@@ -37,17 +66,14 @@ async function buildMacOs() {
     if (configurationArgument == "mas-dev") {
       configuration = "Debug";
       codeSignIdentity = "Apple Development";
-      provisioningProfileSpecifier = "PM Stable Desktop-ExtAutofill Testing";
       buildDirectory = paths.extensionBuildDebug;
     } else if (configurationArgument == "mas") {
       configuration = "ReleaseAppStore";
       codeSignIdentity = "3rd Party Mac Developer Application";
-      provisioningProfileSpecifier = "PM Stable Desktop-ExtAutofill AppStore";
       buildDirectory = paths.extensionBuildReleaseAppStore;
     } else if (configurationArgument == "mac") {
       configuration = "ReleaseDeveloper";
       codeSignIdentity = "Developer ID Application";
-      provisioningProfileSpecifier = "PM Stable Desktop-ExtAutofill Distrib";
       buildDirectory = paths.extensionBuildReleaseDeveloper;
     } else {
       console.log("### Unable to determine configuration, skipping Autofill Extension build");
@@ -57,6 +83,14 @@ async function buildMacOs() {
     console.log("### No configuration argument found, skipping Autofill Extension build");
     return;
   }
+
+  const channelArgument = process.argv[3] ?? "stable";
+  const channel = channels[channelArgument];
+  if (channel === undefined) {
+    console.log(`### Unknown channel '${channelArgument}', skipping Autofill Extension build`);
+    return;
+  }
+  console.log(`### Channel '${channelArgument}', hosted by ${channel.appId}`);
 
   const proc = child.spawn("xcodebuild", [
     "-project",
@@ -70,7 +104,13 @@ async function buildMacOs() {
     // While these arguments are defined in the `configuration` file above, xcodebuild has a bug in it currently that requires these arguments
     // be explicitly defined in this call.
     `CODE_SIGN_IDENTITY=${codeSignIdentity}`,
-    `PROVISIONING_PROFILE_SPECIFIER=${provisioningProfileSpecifier}`,
+    `PROVISIONING_PROFILE_SPECIFIER=${channel.provisioningProfiles[configurationArgument]}`,
+
+    // A setting given on the command line outranks the target's own build settings, which is
+    // what retargets the whole extension at the channel's app.
+    `BITWARDEN_APP_ID=${channel.appId}`,
+    `BITWARDEN_PRODUCT_NAME=${channel.productName}`,
+    ...(channel.entitlements ? [`CODE_SIGN_ENTITLEMENTS=${channel.entitlements}`] : []),
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

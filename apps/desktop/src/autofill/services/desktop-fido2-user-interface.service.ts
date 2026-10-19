@@ -91,6 +91,9 @@ export type NativeWindowObject = {
   userHandle?: number[];
 };
 
+/** A ceremony that can be refused because of its RP ID. */
+export type RpIdNotAllowedOperation = "registration" | "assertion";
+
 /**
  * RxJS operator that mirrors the source but errors with the signal's abort
  * `reason` if `signal` fires before the source settles, unsubscribing the
@@ -222,6 +225,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   );
 
   private chosenCipherSubject = new Subject<CipherViewLike | undefined>();
+
+  private credentialNotFoundDismissedSubject = new Subject<void>();
 
   /**
    * Whether this ceremony took over the app window to show UI. Some ceremonies
@@ -740,6 +745,61 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     throw new ExcludedCredentialMatched();
   }
 
+  /**
+   * The operation that was refused because of its RP ID, for the UI to show.
+   * Set by {@link informRpIdNotAllowed}.
+   */
+  rpIdNotAllowedOperation: RpIdNotAllowedOperation | undefined;
+
+  /**
+   * Shows the user that passkeys for this RP ID can't be created or used from
+   * the vault, waits for them to dismiss the message, then rejects.
+   *
+   * The OS has already collected the user's consent before calling us, so
+   * without this message the request would fail with no explanation.
+   *
+   * @throws {DOMException} `NotAllowedError` once the message is dismissed or
+   * times out.
+   */
+  async informRpIdNotAllowed(operation: RpIdNotAllowedOperation): Promise<never> {
+    this.logService.debug("informRpIdNotAllowed", this.windowObject.rpId, operation);
+
+    const abortSignal = this.abortController.signal;
+    abortSignal.throwIfAborted();
+
+    this.rpIdNotAllowedOperation = operation;
+
+    try {
+      await this.showUi("/fido2-rp-id-not-allowed", this.windowObject.windowXy, false);
+
+      // The component reports dismissal through `notifyConfirmCreateCredential`.
+      const dismissTimeout = AbortSignal.timeout(60 * 1000);
+      await firstValueFrom(
+        this.confirmCredentialSubject.pipe(
+          throwOnAbort(AbortSignal.any([abortSignal, dismissTimeout])),
+        ),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        this.logService.warning(
+          "Timeout: User did not dismiss the message within the allowed time",
+        );
+      } else {
+        if (abortSignal.aborted) {
+          this.logService.warning("Request was cancelled before the user dismissed the message");
+        }
+        throw error;
+      }
+    } finally {
+      await this.hideUi();
+    }
+
+    throw new DOMException(
+      `Passkeys for RP ID ${this.windowObject.rpId} are not allowed`,
+      "NotAllowedError",
+    );
+  }
+
   async ensureUnlockedVault(): Promise<void> {
     this.logService.debug("ensureUnlockedVault");
 
@@ -796,12 +856,53 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /**
-   * Rejects so the OS learns the vault holds none of the requested credentials.
+   * Notifies the session that the user dismissed the "no passkeys found" message.
+   */
+  notifyCredentialNotFoundDismissed(): void {
+    this.credentialNotFoundDismissedSubject.next();
+    this.credentialNotFoundDismissedSubject.complete();
+  }
+
+  /**
+   * Shows the user that their vault holds none of the requested credentials,
+   * waits for them to dismiss the message, then rejects so the OS learns the
+   * reason too.
    *
-   * @throws {CredentialNotFound}
+   * A timeout still reports the missing credential. A cancelled request reports
+   * the cancellation instead.
+   *
+   * @throws {CredentialNotFound} once the message is dismissed or times out.
    */
   async informCredentialNotFound(): Promise<void> {
     this.logService.debug("informCredentialNotFound");
+
+    const abortSignal = this.abortController.signal;
+    abortSignal.throwIfAborted();
+
+    try {
+      await this.showUi("/fido2-credential-not-found", this.windowObject.windowXy, false);
+
+      const dismissTimeout = AbortSignal.timeout(60 * 1000);
+      await firstValueFrom(
+        this.credentialNotFoundDismissedSubject.pipe(
+          throwOnAbort(AbortSignal.any([abortSignal, dismissTimeout])),
+        ),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        this.logService.warning(
+          "Timeout: User did not dismiss the message within the allowed time",
+        );
+      } else {
+        if (abortSignal.aborted) {
+          this.logService.warning("Request was cancelled before the user dismissed the message");
+        }
+        throw error;
+      }
+    } finally {
+      await this.hideUi();
+    }
+
     throw new CredentialNotFound();
   }
 

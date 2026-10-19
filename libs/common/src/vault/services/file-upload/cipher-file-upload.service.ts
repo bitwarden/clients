@@ -47,11 +47,6 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
       lastKnownRevisionDate: cipher.revisionDate,
     };
 
-    const progressEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34410AttachmentUploadProgress,
-    );
-    const opts = progressEnabled ? options : undefined;
-
     let response: CipherResponse;
     try {
       const uploadDataResponse = await this.apiService.postCipherAttachment(cipher.id, request);
@@ -60,8 +55,8 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
         uploadDataResponse,
         encFileName,
         encData,
-        this.generateMethods(uploadDataResponse, response, request.adminRequest, userId, opts),
-        opts,
+        this.generateMethods(uploadDataResponse, response, request.adminRequest, userId, options),
+        options,
       );
     } catch (e) {
       if (e instanceof ErrorResponse) {
@@ -84,11 +79,6 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
     isAdmin: boolean,
     options?: UploadOptions,
   ): Promise<void> {
-    const progressEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34410AttachmentUploadProgress,
-    );
-    const opts = progressEnabled ? options : undefined;
-
     try {
       await this.fileUploadService.upload(
         { url: uploadUrl, fileUploadType },
@@ -96,7 +86,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
         encData,
         {
           postDirect: (data: FormData) =>
-            this.apiService.postAttachmentFile(cipherId, attachmentId, data, opts),
+            this.apiService.postAttachmentFile(cipherId, attachmentId, data, options),
           renewFileUploadUrl: async () =>
             await this.cipherSdkService.renewAttachmentUploadUrl(
               cipherId as CipherId,
@@ -112,7 +102,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
             );
           },
         },
-        opts,
+        options,
       );
     } catch (e) {
       if (e instanceof ErrorResponse) {
