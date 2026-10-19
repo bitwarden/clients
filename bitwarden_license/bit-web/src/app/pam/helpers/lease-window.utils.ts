@@ -17,6 +17,57 @@ export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labe
 /** Default lease duration (1h) for a new access rule with no stored value. */
 export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
 
+/**
+ * The requester's duration presets. Topping out at a day is a default, not a limit, since
+ * {@link requestDurationOptions} still offers a rule's higher cap.
+ */
+export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
+  seconds: number;
+  labelKey: string;
+}> = [
+  { seconds: 15 * 60, labelKey: "pamAccessRuleDuration15m" },
+  { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
+  { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
+  { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
+  { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
+  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
+];
+
+/** The automatic form's placeholder until the pre-check supplies the rule's own default. */
+export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
+
+/** The server's ceiling, which its pre-check reports as the cap of a rule with no maximum. */
+const GLOBAL_MAX_LEASE_SECONDS = 365 * 24 * 60 * 60;
+
+/** A requester duration option; one without a `labelKey` is formatted from its value. */
+export type RequestDurationOption = { seconds: number; labelKey?: string };
+
+/**
+ * The presets under `maxSeconds`, plus the cap and default themselves, so the picker is never empty
+ * and the default is always an option. The server's ceiling isn't offered, since it stands for no cap.
+ */
+export function requestDurationOptions(
+  maxSeconds: number,
+  defaultSeconds: number,
+): RequestDurationOption[] {
+  const options = new Map<number, RequestDurationOption>();
+
+  for (const preset of REQUEST_ACCESS_DURATION_PRESETS) {
+    if (preset.seconds <= maxSeconds) {
+      options.set(preset.seconds, preset);
+    }
+  }
+
+  const cap = maxSeconds < GLOBAL_MAX_LEASE_SECONDS ? [maxSeconds] : [];
+  for (const seconds of [...cap, defaultSeconds]) {
+    if (seconds > 0 && seconds <= maxSeconds && !options.has(seconds)) {
+      options.set(seconds, { seconds });
+    }
+  }
+
+  return [...options.values()].sort((a, b) => a.seconds - b.seconds);
+}
+
 /** Admin-selectable maximum extension lengths, in seconds. */
 export const EXTENSION_DURATION_OPTIONS: ReadonlyArray<{ seconds: number; labelKey: string }> = [
   { seconds: 30 * 60, labelKey: "pamAccessRuleDuration30m" },
