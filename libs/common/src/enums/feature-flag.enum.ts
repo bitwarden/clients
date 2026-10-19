@@ -31,6 +31,7 @@ export enum FeatureFlag {
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
   // Note: This flag gates security risks and should not be turned on without
@@ -135,6 +136,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
+  [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
