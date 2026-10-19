@@ -29,7 +29,7 @@ const names = storyNames();
 
 /** `canDecide` is false only for the viewer's own request. */
 function row(overrides: Record<string, unknown>, canDecide = true): ApprovalRow {
-  return toApprovalRow(accessRequest(overrides), names, STORY_NOW, canDecide);
+  return toApprovalRow(accessRequest(overrides), names, STORY_NOW, canDecide, "en-US");
 }
 
 const ROWS: ApprovalRow[] = [
