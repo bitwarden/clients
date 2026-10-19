@@ -137,8 +137,9 @@ export class DefaultLockService implements LockService {
     }
 
     this.logService.mark(`Lock start (${source})`);
-    // Lock the SDK client before the user key is cleared, since clearing it is what makes the
-    // user observably locked. Otherwise the client could still do crypto while reported locked.
+    // Lock the SDK client first. It clears the user key, which is what reports the user as locked,
+    // so consumers that check for Unlocked stop decrypting before the caches below are cleared, and
+    // the client never does crypto while the user is reported locked.
     await this.sdkService.lock(userId);
     await this.wipeDecryptedState(userId);
     await this.waitForLockedStatus(userId);
