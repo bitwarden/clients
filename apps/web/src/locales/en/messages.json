@@ -1183,6 +1183,9 @@
   "collections": {
     "message": "Collections"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "First name"
   },
@@ -1954,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Select a file."
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file."
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content."
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format."
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read."
   },
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
@@ -2929,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "KeePass master password"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Add key file"
   },
   "keyFileUpload": {
     "message": "Key file upload"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX file upload"
@@ -3337,6 +3394,9 @@
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nothing was imported."
   },
@@ -3414,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
-  },
-  "selectImportFolder": {
-    "message": "Select a folder"
-  },
-  "selectImportCollection": {
-    "message": "Select a collection"
-  },
-  "selectImportSharedFolder": {
-    "message": "Select a shared folder"
   },
   "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
@@ -3583,6 +3634,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "Include shared folders"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -6102,6 +6269,15 @@
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
       }
     }
   },
@@ -14343,6 +14519,9 @@
   "organizationOptionsMenu": {
     "message": "Toggle Organization Menu"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Select vault item"
   },
@@ -17014,6 +17193,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
+  "whatsNew": {
+    "message": "What's new"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitor security activity"
   },
@@ -17044,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
@@ -17069,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"
@@ -17537,8 +17803,141 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 hour"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "starting now"
+  },
+  "pamInboxStartToday": {
+    "message": "today"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "tomorrow"
+  },
+  "pamInboxStartInDays": {
+    "message": "in $DAYS$ days",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h ago",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "pamAccessRules": {
     "message": "Access rules"
+  },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
   },
   "pamAccessRuleEnabled": {
     "message": "Enabled"
@@ -17564,6 +17963,9 @@
   "pamAccessRulesSubheading": {
     "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
+  },
   "pamAccessRuleNew": {
     "message": "New rule"
   },
@@ -17582,6 +17984,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "General info"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Access duration"
   },
@@ -17594,6 +17999,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
   },
@@ -17603,17 +18014,17 @@
   "pamAccessRuleDescription": {
     "message": "Description"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Default access duration"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Default duration"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximum access duration"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "No cap"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minutes"
@@ -17633,11 +18044,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hours"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 hours"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Only one user can hold an active lease at a time"
@@ -17669,11 +18101,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
   "pamAccessRuleUpdated": {
     "message": "Access rule updated."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
@@ -17686,6 +18147,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
@@ -17705,6 +18205,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Auto-approved • Expires after 1h • Audit logged"
   },
@@ -17714,6 +18217,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approval required"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Human approval • 1 approver required • Audit logged"
   },
@@ -17722,6 +18228,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-restricted"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Auto-approved • IP Allowlist • Audit logged"
@@ -17735,11 +18244,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Search rules"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Applies to"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Conditions"
@@ -17762,6 +18289,12 @@
   "pamAccessRulesNoResults": {
     "message": "No access rules match your filters."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Enable"
   },
@@ -17779,6 +18312,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
     "placeholders": {
       "count": {
         "content": "$1",

@@ -17,6 +17,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "app-pam-org-nav-slot",
   templateUrl: "./pam-org-nav-slot.component.html",
+  host: { class: "tw-contents" },
   imports: [I18nPipe, NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

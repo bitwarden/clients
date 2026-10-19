@@ -1080,17 +1080,21 @@
   "resetSearch": {
     "message": "Скинути пошук"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Усі записи"
   },
   "allVaultItems": {
-    "message": "All vault items"
+    "message": "Усі записи сховища"
   },
   "favorites": {
     "message": "Обране"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Додайте записи до обраного, щоб фільтрувати їх тут."
   },
   "taskSummary": {
     "message": "Підсумок завдання"
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Збірки"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "Ім'я"
   },
@@ -1225,7 +1232,7 @@
     "message": "Спільні теки"
   },
   "sharedFoldersInParent": {
-    "message": "Shared folders in $NAME$",
+    "message": "Спільні теки в $NAME$",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
     "placeholders": {
       "name": {
@@ -1235,7 +1242,7 @@
     }
   },
   "sharedFolderCount": {
-    "message": "$COUNT$ shared folders",
+    "message": "$COUNT$ спільних тек",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1244,13 +1251,27 @@
     }
   },
   "sharedFolderSingular": {
-    "message": "$COUNT$ shared folder",
+    "message": "$COUNT$ спільна тека",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
     }
+  },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ вкладених спільних тек",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 вкладена спільна тека",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
   "myFolder": {
     "message": "Моя тека"
@@ -1259,25 +1280,22 @@
     "message": "Мої теки"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Додайте теки до записів, щоб фільтрувати їх тут."
   },
   "myItemsFilterTooltip": {
-    "message": "Add items to My items to filter them here."
+    "message": "Додайте елементи до «Моїх елементів», щоб фільтрувати їх тут."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Додайте записи до спільної теки, щоб фільтрувати їх тут."
   },
   "addSharedFolder": {
     "message": "Додати спільну теку"
   },
-  "newSharedFolder": {
-    "message": "Нова спільна тека"
-  },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Пошук спільної теки"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Пошук моїх тек"
   },
   "addToMyFolder": {
     "message": "Додати до моєї теки"
@@ -1449,55 +1467,19 @@
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Додати ключ SSH",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Додати банківський рахунок",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Додати ліцензію",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
-    "description": "Header for new passport item type"
-  },
-  "newItemHeaderLogin": {
-    "message": "Новий запис",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Нова картка",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Нове посвідчення",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Нова нотатка",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "New secure note",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Новий ключ SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Новий банківський рахунок",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Нова ліцензія",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Новий паспорт",
+    "message": "Додати паспорт",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
@@ -1508,24 +1490,8 @@
     "message": "Новий файл",
     "description": "Header for new file send"
   },
-  "editItemHeaderLogin": {
-    "message": "Редагувати запис",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Редагувати картку",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Редагувати посвідчення",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Редагувати нотатку",
-    "description": "Header for edit note item type"
-  },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Редагування захищеної нотатки",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
@@ -1632,7 +1598,7 @@
     "message": "Запис"
   },
   "itemLower": {
-    "message": "item"
+    "message": "запис"
   },
   "itemDetails": {
     "message": "Подробиці запису"
@@ -1690,7 +1656,7 @@
     "description": "Copy username to clipboard"
   },
   "copyExternalId": {
-    "message": "Copy external ID",
+    "message": "Копіювати зовнішній ID",
     "description": "Copy external ID to clipboard"
   },
   "copySsoExternalId": {
@@ -1755,7 +1721,7 @@
     "message": "Копіювати ім'я"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Копіювати по батькові"
   },
   "copyLastName": {
     "message": "Копіювати прізвище"
@@ -1773,23 +1739,23 @@
     "message": "Копіювати відбиток"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "Копіювати установу випуску"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "Копіювати країну випуску"
   },
   "copyName": {
     "message": "Копіювати ім'я"
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "Значення не введено",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Немає даних для копіювання"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Відкрити вебсайт"
   },
   "me": {
     "message": "Я"
@@ -1798,7 +1764,7 @@
     "message": "Мої записи"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Мої записи"
   },
   "myVault": {
     "message": "Моє сховище"
@@ -1854,7 +1820,7 @@
     "message": "Рядків на сторінці"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ рядків на сторінці",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1863,7 +1829,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ записів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1905,7 +1871,7 @@
     "message": "Немає відповідних записів"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Немає фільтрів, що відповідають запиту \"$SEARCH$\"",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -1914,11 +1880,11 @@
     }
   },
   "oneFilterResult": {
-    "message": "1 result",
+    "message": "1 результат",
     "description": "Shown above a filter menu's option list when a search matches exactly one option."
   },
   "filterResults": {
-    "message": "$COUNT$ results",
+    "message": "$COUNT$ результатів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1928,7 +1894,7 @@
     "description": "Shown above a filter menu's option list when a search matches more than one option."
   },
   "noFiltersMatchTerm": {
-    "message": "No filters match “$SEARCH$”",
+    "message": "Немає фільтрів, що відповідають запиту “$SEARCH$”",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -1938,7 +1904,7 @@
     "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Очистити пошук"
   },
   "deselectAll": {
     "message": "Скасувати вибір"
@@ -1950,7 +1916,7 @@
     "message": "Масові дії"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "Вибрані записи: $COUNT$. Панель масових дій тепер доступна в нижній частині екрану. Натисніть $SHORTCUTBINDING$, щоб перемкнути фокус на панель масових дій.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1963,10 +1929,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Вибір очищено"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Додаткові дії"
   },
   "launch": {
     "message": "Перейти"
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Оберіть файл."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Цей тип файлу не підтримується для цього джерела. Оберіть інший файл"
+  },
+  "pasteContentRequired": {
+    "message": "Вставте експортований вміст."
+  },
+  "fileTypeNotSupported": {
+    "message": "Цей тип файлу не підтримується. Виберіть файл типу $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Вставлений вміст не відповідає вибраному формату."
+  },
+  "errorReadingFile": {
+    "message": "Не вдалося прочитати вибраний файл."
   },
   "maxFileSize": {
     "message": "Максимальний розмір файлу 500 МБ."
@@ -2036,7 +2023,7 @@
     "message": "Видалити запис"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "Видалити $COUNT$ записів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2045,16 +2032,16 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "Цей запис буде переміщено до кошика. Через 30 днів його буде остаточно видалено."
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "Ці записи буде переміщено до кошика. Через 30 днів їх буде остаточно видалено."
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "Видалити запис назавжди"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "Видалити $COUNT$ записів назавжди",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2063,16 +2050,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "Ви не зможете відновити цей запис."
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "Ви не зможете відновити ці записи."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "Видалити вибране"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "Вибрані записи та колекції буде остаточно видалено."
   },
   "deleteFolder": {
     "message": "Видалити теку"
@@ -2108,7 +2095,7 @@
     "message": "Записи переміщено до смітника"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Запис переміщено"
   },
   "movedItems": {
     "message": "Записи переміщено"
@@ -2129,13 +2116,13 @@
     "message": "Теку видалено"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Теку відредаговано"
   },
   "foldersDeleted": {
-    "message": "Folders deleted"
+    "message": "Теки видалено"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "Видалити $COUNT$ тек",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2144,7 +2131,7 @@
     }
   },
   "deleteFolderDescription": {
-    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "message": "Коли ви видалите теку $NAME$, її буде вилучено з кожного запису, до якого вона застосована. Самі записи не буде видалено.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2153,10 +2140,10 @@
     }
   },
   "deleteFoldersDescription": {
-    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
+    "message": "Коли ви видалите ці теки, їх буде вилучено з кожного запису, до якого вони застосовані. Самі записи не буде видалено."
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Введіть назву."
   },
   "editInfo": {
     "message": "Редагувати інформацію"
@@ -2237,7 +2224,7 @@
     "message": "Помилка автентифікації ключа доступу. Повторіть спробу."
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "Використати інший спосіб входу"
   },
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
@@ -2249,7 +2236,7 @@
     "message": "Ваша організація вимагає єдиний вхід (SSO)."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "З поверненням"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Недійсний ключ доступу. Повторіть спробу."
@@ -2321,10 +2308,10 @@
     "message": "Вилучити ключ доступу"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Видалити ключ доступу"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Цей ключ доступу буде остаточно видалено з вашого запису входу. Цю дію неможливо скасувати."
   },
   "removePasskeyInfo": {
     "message": "Якщо всі ключі доступу вилучено, ви не зможете увійти на нових пристроях без головного пароля."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Головний пароль KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Додати ключовий файл"
   },
   "keyFileUpload": {
     "message": "Key file upload"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX file upload"
@@ -3374,6 +3394,9 @@
   "importFormatError": {
     "message": "Дані мають некоректне форматування. Перевірте файл імпорту і спробуйте знову."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Нічого не імпортовано."
   },
@@ -3396,34 +3419,34 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Не вдалося прочитати зазначені записи, тому вони не будуть включені до вашого імпорту:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Не вдається імпортувати цей ключ SSH"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Непідтримуваний тип запису"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Не вдається імпортувати цей запис"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Контакт"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Членство"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Водійське посвідчення"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Посвідчення особи"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Свідоцтво про народження"
   },
   "databaseCredentials": {
     "message": "Облікові дані бази даних"
@@ -3452,19 +3475,6 @@
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
   },
-  "selectImportFolder": {
-    "message": "Вибрати теку"
-  },
-  "selectImportCollection": {
-    "message": "Вибрати збірку"
-  },
-  "selectImportSharedFolder": {
-    "message": "Select a shared folder"
-  },
-  "importTargetMyFolder": {
-    "message": "My Folder",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
-  },
   "importTargetHintCollection": {
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
@@ -3472,7 +3482,7 @@
     "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Виберіть цей параметр, якщо ви хочете, щоб вміст імпортованого файлу було переміщено до спільної теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -3484,28 +3494,28 @@
     "message": "Оберіть файл для імпорту"
   },
   "importSourceBreadcrumb": {
-    "message": "Select source"
+    "message": "Вибрати джерело"
   },
   "importSourceSelectTitle": {
-    "message": "Select your source"
+    "message": "Виберіть джерело"
   },
   "importSourceSelectDescription": {
-    "message": "Choose the password manager or browser you are importing from."
+    "message": "Виберіть менеджер паролів або браузер, з якого ви здійснюєте імпорт."
   },
   "importSourceBrowsers": {
-    "message": "Browsers"
+    "message": "Браузери"
   },
   "importSourcePasswordManagers": {
-    "message": "Password managers"
+    "message": "Менеджери паролів"
   },
   "importSourceShowAll": {
-    "message": "Show all"
+    "message": "Показати все"
   },
   "importSourceShowLess": {
-    "message": "Show less"
+    "message": "Згорнути"
   },
   "importSourceStepCount": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "Крок $CURRENT$ із $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -3527,10 +3537,10 @@
     "message": "Файл не вибрано"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "Файл не вибрано"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "Вибрано файл: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -3539,7 +3549,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "Додано файл: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -3548,7 +3558,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "Додано $COUNT$ файлів: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3561,7 +3571,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "Вилучено файл: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -3570,10 +3580,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "Вивантажено 1 файл"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "Вивантажено $COUNT$ файлів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3582,16 +3592,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Вивантажені файли"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "Натисніть, щоб вивантажити, або перетягніть"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Вибрати файли"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "Макс. розмір файлу: $SIZE$ МБ",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3613,7 +3623,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Перегляньте докладні інструкції для $NAME$ у нашому",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3624,6 +3634,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Вивантажити файл"
+  },
+  "pasteAsPlainText": {
+    "message": "Вставити як простий текст"
+  },
+  "plainText": {
+    "message": "Простий текст"
+  },
+  "profile": {
+    "message": "Профіль"
+  },
+  "lastPassEmail": {
+    "message": "Електронна пошта LastPass"
+  },
+  "includeSharedFolders": {
+    "message": "Включити спільні теки"
+  },
+  "importManuallyInstead": {
+    "message": "Замість цього імпортувати вручну"
+  },
+  "directlyImportInstead": {
+    "message": "Натомість імпортувати безпосередньо"
+  },
+  "fastest": {
+    "message": "Найшвидший"
+  },
+  "importDataTitle": {
+    "message": "Імпортуйте ваші дані"
+  },
+  "importDataDirectTitle": {
+    "message": "Імпорт ваших даних за хвилини"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Імпортуйте свої записи безпосередньо з",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "щоб отримати всі ваші дані.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Імпортуйте дані з $VENDOR$ або скопіюйте та вставте експортований вміст.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Виберіть профіль, з якого ви хочете імпортувати паролі."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Профілів браузера не знайдено"
+  },
+  "importDataLoginTitle": {
+    "message": "Увійти в $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Ваші облікові дані шифруються під час передачі та ніколи не зберігаються."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -3757,70 +3883,70 @@
     "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "Відкрийте настільну програму RememBear і перейдіть до \"Settings\" → \"Account\" → \"Export\". Введіть головний пароль і натисніть кнопку \"Export Anyway\", щоб зберегти CSV-файл."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Відкрийте настільну програму PasswordWallet і перейдіть до \"File\" → \"Export\" → \"Visible entries to text file\". Введіть пароль і натисніть кнопку \"Ok\", щоб зберегти TXT-файл."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Відкрийте розширення браузера Myki і перейдіть до \"Advanced\" → \"Export Accounts\", а потім зіскануйте QR-код своїм мобільним пристроєм. Різні CSV-файли буде збережено в теці завантажень вашого комп'ютера."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Експортуйте своє сховище паролів SecureSafe у CSV-файл із роздільником-комою."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Відкрийте розширення браузера LogMeOnce, потім перейдіть до \"Open Menu\" → \"Export To\" і виберіть \"CSV File\", щоб зберегти CSV-файл."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Відкрийте додаток BlackBerry Password Keeper, потім перейдіть до \"Settings\" → \"Import/Export\". Виберіть \"Export Passwords\" і дотримуйтесь інструкцій на екрані, щоб зберегти незашифрований CSV-файл."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Відкрийте настільну програму Buttercup і розблокуйте своє сховище. Клацніть правою кнопкою миші на значку вашого сховища та виберіть \"Export\", щоб зберегти CSV-файл."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Відкрийте настільну програму Codebook і увійдіть. Перейдіть до \"File\" → \"Export all\", потім натисніть \"Yes\" у діалоговому вікні та збережіть CSV-файл."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Відкрийте найновішу версію настільної програми Encryptr і дозвольте синхронізувати всі ваші дані. Після завершення синхронізації значок завантаження у верхньому правому куті стане рожевим. Натисніть значок завантаження та збережіть CSV-файл."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "У розширенні браузера Yoti натисніть \"Settings\", потім \"Export Saved Logins\" і збережіть CSV-файл."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Увійдіть у вебсховище Psono, натисніть на спадний список \"Signed in as\", виберіть \"Others\". Перейдіть на вкладку \"Export\" і виберіть тип експорту json, потім натисніть Export."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Увійдіть на \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" у розділі Passky. (\"Backup\" не підтримується, оскільки він зашифрований)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "У розширенні браузера ProtonPass перейдіть до Settings > Export. Експортуйте без PGP-шифрування та збережіть zip-файл."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Виберіть меню Database → Export to file... → У параметрах експорту переконайтеся, що позначено Folder names та Column titles. → Натисніть кнопку Browse... і виберіть цільовий файл, встановіть його тип як CSV file."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Відкрийте FullClient, перейдіть до Main Menu і виберіть Export. Запустіть майстер експорту паролів і дотримуйтесь інструкцій, щоб експортувати CSV-файл."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Увійдіть у NordPass і відкрийте Settings → Прокрутіть до розділу Import and Export і виберіть Export items → Введіть головний пароль і виберіть Continue. → Збережіть CSV-файл на своєму пристрої."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "У настільній програмі перейдіть до Tools → Export → Введіть головний пароль → Виберіть XML Format (*.xml) як Export format → Натисніть next → Виберіть, які записи включити до експорту → Натисніть next, щоб експортувати в раніше вибране місце."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Увійдіть у Delinea, знайдіть “Import/Export” -> виберіть “Export” -> Виберіть “XML” як Export format -> Виберіть “QuantumLock” як Authenticator type -> введіть пароль і виберіть “Export”, щоб зберегти XML-файл."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Увійдіть у Delinea, знайдіть “Import/Export” -> виберіть “Export” -> Виберіть “CSV” як Export format -> Виберіть “QuantumLock” як Authenticator type -> введіть пароль і виберіть “Export”, щоб зберегти CSV-файл."
   },
   "options": {
     "message": "Додатково"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Інші варіанти"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Параметри для $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3829,7 +3955,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Фільтрувати за $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3856,7 +3982,7 @@
     "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Показати дії швидкого копіювання у сховищі"
   },
   "default": {
     "message": "Типово"
@@ -3881,9 +4007,6 @@
   },
   "customize": {
     "message": "Налаштувати"
-  },
-  "newCustomDomain": {
-    "message": "Новий власний домен"
   },
   "addCustomDomain": {
     "message": "Новий власний домен"
@@ -3935,10 +4058,10 @@
     "message": "Вилучити тип запису \"Картка\""
   },
   "restrictedItemTypePolicyDescV2": {
-    "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
+    "message": "Не дозволяти учасникам створювати та зберігати записи кредитних карток у своїх сховищах. Коли цю політику ввімкнено, наявні картки будуть автоматично приховані."
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "message": "Не дозволяти учасникам створювати та зберігати записи кредитних карток. Коли цю політику ввімкнено, наявні картки будуть автоматично приховані.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictedItemTypePolicyDescListVfo1": {
@@ -4289,16 +4412,16 @@
     "message": "У вашому сховищі не знайдено вебсайтів з неактивною двоетапною перевіркою."
   },
   "passkeyLoginReport": {
-    "message": "Passkey login"
+    "message": "Вхід за ключем доступу"
   },
   "passkeyLoginReportMenuDesc": {
-    "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which of your accounts support them."
+    "message": "Ключі доступу — це стійка до фішингу альтернатива до паролів. Перегляньте, які ваші облікові записи їх підтримують."
   },
   "passkeyLoginReportDesc": {
     "message": "Passkeys are a secure, phishing-resistant alternative to passwords. See which accounts in your vault support passkeys for a simpler, passwordless sign-in experience. Learn"
   },
   "passkeyLoginReportHowTheyWork": {
-    "message": "how passkeys work"
+    "message": "як працюють ключі доступу"
   },
   "passkeyLoginReportAnd": {
     "message": "і "
@@ -5400,9 +5523,6 @@
   "groups": {
     "message": "Групи"
   },
-  "newGroup": {
-    "message": "Нова група"
-  },
   "addGroup": {
     "message": "Додати групу"
   },
@@ -5457,9 +5577,6 @@
   },
   "readOnly": {
     "message": "Лише читання"
-  },
-  "newCollection": {
-    "message": "Нова збірка"
   },
   "addCollection": {
     "message": "Додати збірку"
@@ -6155,6 +6272,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Створено збірку $ID$.",
     "placeholders": {
@@ -6774,11 +6900,26 @@
   "resendInvitation": {
     "message": "Повторно надіслати запрошення"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "Надіслати лист повторно"
   },
   "hasBeenReinvited": {
     "message": "$USER$ повторно запрошено",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7714,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
   "adjustTheLink": {
     "message": "Adjust the link"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Your needs change, and the link can change with you."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
   },
   "shareTheLinkAnywhere": {
     "message": "Share the link anywhere"
@@ -8471,6 +8606,10 @@
     "message": "Не вдається знайти файл, пов'язаний з цим відправленням.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "У списку немає відправлень.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8968,17 +9107,43 @@
     "message": "Activate fill assist",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Enable fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRuleSource": {
+    "message": "Autofill rule set"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Default"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Use the Bitwarden-reviewed autofill rule set."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Custom"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Enter your own custom rule set."
   },
   "fillAssistRulesUrl": {
     "message": "Custom autofill rule set"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  "fillAssistRulesUrlV2": {
+    "message": "Custom rule set"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Learn more about custom rules"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Enter a valid URL for a custom rule set.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11118,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Сталася невідома помилка $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12065,6 @@
   "domainVerification": {
     "message": "Перевірка доменів"
   },
-  "newDomain": {
-    "message": "Новий домен"
-  },
   "addDomain": {
     "message": "Add domain"
   },
@@ -12247,9 +12433,6 @@
   },
   "groupSlashUser": {
     "message": "Група/Користувач"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Продовжуючи, ви вийдете з усіх активних сеансів. Необхідно буде повторно виконати вхід і пройти двоетапну перевірку, якщо вона увімкнена. Перед зміною налаштувань шифрування ми рекомендуємо експортувати ваше сховище, щоб запобігти можливій втраті даних."
   },
   "secretsManager": {
     "message": "Менеджер секретів"
@@ -13867,10 +14050,6 @@
     "message": "Машинні облікові записи",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Новий машинний обліковий запис",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Add machine account",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14519,9 @@
   "organizationOptionsMenu": {
     "message": "Перемкнути меню організації"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Вибрати запис сховища"
   },
@@ -14500,6 +14682,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Під час перегляду рахунку виникла помилка. Повторіть спробу пізніше."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Please check your billing details and try again."
+  },
+  "planChangeTrialIncluded": {
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Не перевірений"
@@ -16811,8 +17027,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Applied subscription credits"
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
   },
   "enterpriseMembership": {
     "message": "Enterprise membership"
@@ -16977,6 +17193,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
+  "whatsNew": {
+    "message": "What's new"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitor security activity"
   },
@@ -17007,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
@@ -17032,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"
@@ -17503,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Access rules"
   },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
+  },
   "pamAccessRuleEnabled": {
     "message": "Enabled"
   },
@@ -17527,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
+  },
   "pamAccessRuleNew": {
     "message": "New rule"
   },
@@ -17545,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "General info"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Access duration"
   },
@@ -17557,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
   },
@@ -17566,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Description"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Default access duration"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Default duration"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximum access duration"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "No cap"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minutes"
@@ -17596,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hours"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 hours"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Only one user can hold an active lease at a time"
@@ -17632,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
   "pamAccessRuleUpdated": {
     "message": "Access rule updated."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
@@ -17649,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
@@ -17668,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Auto-approved • Expires after 1h • Audit logged"
   },
@@ -17677,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approval required"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Human approval • 1 approver required • Audit logged"
   },
@@ -17685,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-restricted"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Auto-approved • IP Allowlist • Audit logged"
@@ -17698,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Search rules"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Applies to"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Conditions"
@@ -17725,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "No access rules match your filters."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Enable"
   },
@@ -17742,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17836,6 +18306,9 @@
   },
   "inviteLinkCalloutBody": {
     "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
   },
   "inviteLinkCalloutImageAlt": {
     "message": "Invite members dialog preview showing the new by-link tab"
@@ -17977,5 +18450,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

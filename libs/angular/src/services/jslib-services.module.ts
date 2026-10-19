@@ -124,6 +124,10 @@ import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstr
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import {
+  AccountSwitcherService,
+  DefaultAccountSwitcherService,
+} from "@bitwarden/common/auth/account-switcher";
+import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
@@ -607,6 +611,16 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: AccountSwitcherService,
+    useClass: DefaultAccountSwitcherService,
+    deps: [
+      AccountServiceAbstraction,
+      AuthServiceAbstraction,
+      AvatarServiceAbstraction,
+      EnvironmentService,
+    ],
+  }),
+  safeProvider({
     provide: EncryptedMigrator,
     useClass: DefaultEncryptedMigrator,
     deps: [
@@ -623,6 +637,7 @@ const safeProviders: SafeProvider[] = [
       CipherServiceAbstraction,
       SdkService,
       StateProvider,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -680,7 +695,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: FileUploadServiceAbstraction,
     useClass: FileUploadService,
-    deps: [LogService, ApiServiceAbstraction, ConfigService],
+    deps: [LogService, ApiServiceAbstraction],
   }),
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
@@ -1512,6 +1527,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       StateProvider,
       AuthServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1953,22 +1969,45 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkService,
-    useClass: DefaultSdkService,
+    useFactory: (
+      sdkClientFactory: SdkClientFactory,
+      environmentService: EnvironmentService,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      accountService: AccountServiceAbstraction,
+      stateProvider: StateProvider,
+      v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+      managedSettingsService: ManagedSettingsService,
+      appIdService: AppIdServiceAbstraction,
+      logService: LogService,
+      injector: Injector,
+    ) =>
+      new DefaultSdkService(
+        sdkClientFactory,
+        environmentService,
+        platformUtilsService,
+        accountService,
+        () => injector.get(KdfConfigService),
+        () => injector.get(KeyService),
+        () => injector.get(AccountCryptographicStateService),
+        () => injector.get(ApiServiceAbstraction),
+        stateProvider,
+        () => injector.get(ConfigService),
+        v2UpgradeTokenStateService,
+        managedSettingsService,
+        appIdService,
+        logService,
+      ),
     deps: [
       SdkClientFactory,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
       AccountServiceAbstraction,
-      KdfConfigService,
-      KeyService,
-      AccountCryptographicStateService,
-      ApiServiceAbstraction,
       StateProvider,
-      ConfigService,
       V2UpgradeTokenStateService,
       ManagedSettingsService,
       AppIdServiceAbstraction,
       LogService,
+      Injector,
     ],
   }),
   safeProvider({

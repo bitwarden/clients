@@ -271,8 +271,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
+  /** Gated cipher: saving it would clobber the fields the server suppressed with blanks. */
+  protected get isPartialData() {
+    return this.cipher?.partial ?? false;
+  }
+
   protected get showEdit() {
-    return this.showCipherView && !this.isTrashFilter && !this.showRestore;
+    return this.showCipherView && !this.isTrashFilter && !this.showRestore && !this.isPartialData;
   }
 
   protected get showCipherView() {
@@ -397,8 +402,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         ),
       );
 
-      // If user cannot edit and dialog opened in form mode, force to view mode
-      if (!this.canEdit && this.formConfig.mode !== "partial-edit" && this.params.mode === "form") {
+      // If the cipher cannot be edited and the dialog opened in form mode, force to view mode
+      if ((this.disableEdit || this.isPartialData) && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();
