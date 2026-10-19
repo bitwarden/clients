@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Este ficheiro utiliza definições de encriptação não suportadas e não pode ser importado."
+  },
   "importNothingError": {
     "message": "Nada foi importado."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre as suas opções de importação"
-  },
-  "selectImportFolder": {
-    "message": "Selecionar uma pasta"
-  },
-  "selectImportCollection": {
-    "message": "Selecionar uma coleção"
-  },
-  "selectImportSharedFolder": {
-    "message": "Selecionar uma pasta partilhada"
   },
   "importTargetHintCollection": {
     "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Mantenha a segurança dos itens do seu cofre elevada ao consultar relatórios para detetar vulnerabilidades."
   },
-  "tourTheNewVault": {
-    "message": "Explore o novo cofre"
+  "whatsNew": {
+    "message": "Novidades"
   },
   "tourTheNewVaultDescription": {
     "message": "Com a navegação e o design atualizados, é mais fácil do que nunca encontrar o que procura."
   },
-  "takeTheTour": {
-    "message": "Fazer o tour"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Alternar entre produtos"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Clique para ver outros produtos Bitwarden a que tem acesso ou descobrir novos produtos e planos."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Todos os seus cofres num só lugar"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Os cofres pessoais, familiares e empresariais estão agora listados aqui."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "As coleções e as pastas têm novos nomes"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "As mesmas funcionalidades, com nomes mais claros. As coleções passam a chamar-se pastas partilhadas. As pastas passam a chamar-se As minhas pastas."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitorize a atividade de segurança"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Atualize regularmente os relatórios e as informações para detetar novos riscos e ver as métricas mais recentes à medida que a sua organização cresce."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Combinar filtros"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Selecione vários filtros em simultâneo para obter exatamente os resultados que procura. Os filtros continuarão aplicados mesmo que saia desta página."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ de $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "Não foi possível importar $COUNT$ itens ou cofres do 1Password",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Ocorreu um erro. Verifique as suas credenciais e tente novamente."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Só é possível iniciar sessão com palavra-passe."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Só é possível iniciar sessão com palavra-passe. Tente novamente ou utilize outro método de importação."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Introduza um endereço de e-mail válido ou utilize outro método de importação."
+  },
+  "onePasswordImportError": {
+    "message": "Ocorreu um erro. Tente novamente ou utilize outro método de importação."
+  },
+  "emailIsRequired": {
+    "message": "O e-mail é obrigatório."
+  },
+  "enterValidEmailAddress": {
+    "message": "Introduza um endereço de e-mail válido."
+  },
+  "signInAddressIsRequired": {
+    "message": "O endereço de início de sessão é obrigatório."
+  },
+  "enterValidSignInAddress": {
+    "message": "Introduza um endereço de início de sessão válido."
+  },
+  "secretKeyIsRequired": {
+    "message": "A chave secreta é obrigatória."
+  },
+  "enterValidSecretKey": {
+    "message": "Introduza uma chave secreta válida."
+  },
+  "passwordIsRequired": {
+    "message": "A palavra-passe é obrigatória."
+  },
+  "enterValidVerificationCode": {
+    "message": "Introduza um código de verificação válido."
+  },
+  "signInAddress": {
+    "message": "Endereço de início de sessão"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail do 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Introduza o endereço de e-mail que utiliza para iniciar sessão no 1Password"
   },
   "secretKey": {
     "message": "Chave secreta"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Regras de acesso"
   },
+  "pamAccessRuleActive": {
+    "message": "Ativa"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inativa"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Quando está inativa, a regra não restringe o acesso."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Ativar regra"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Desativar regra"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Regra de acesso ativada."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Regra de acesso desativada."
+  },
   "pamAccessRuleEnabled": {
     "message": "Ativada"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Definir regras para controlar quem pode solicitar acesso a credenciais confidenciais, em que condições e durante quanto tempo."
   },
+  "pamAccessRuleCreate": {
+    "message": "Criar regra de acesso"
+  },
   "pamAccessRuleNew": {
     "message": "Nova regra"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Informações gerais"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Estado"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Duração do acesso"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Esta regra de acesso será aplicada a todas as coleções selecionadas."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Todos os pedidos e decisões ficam registados."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Ver registo de auditoria"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Não foi possível carregar as coleções. Atualize a página para tentar novamente."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Descrição"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Duração de acesso predefinida"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Duração predefinida"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Duração máxima de acesso"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Duração máxima"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Sem limite"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Qualquer acesso concedido terá, no máximo, esta duração, independentemente da duração solicitada."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "O acesso fica limitado a esta duração, independentemente da duração solicitada."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minutos"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 horas"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 dia"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 dias"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 horas"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 dias"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 dias"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Apenas 1 utilizador pode ter acesso ativo de cada vez"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Outros utilizadores com aprovação podem tentar iniciar o acesso quando o atual terminar ou for revogado."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Permitir prolongar o acesso"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Os membros podem prolongar o acesso ativo uma vez, sem nova aprovação, até à duração máxima definida abaixo."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Apenas um utilizador pode ter um acesso ativo de cada vez"
@@ -17840,10 +17966,10 @@
     "message": "Os novos pedidos ficam em espera até que o acesso atual termine ou seja revogado."
   },
   "pamAccessRuleAllowExtensions": {
-    "message": "Permitir extensões do acesso"
+    "message": "Permitir prolongar a concessão de acesso"
   },
   "pamAccessRuleAllowExtensionsHint": {
-    "message": "Os membros podem prolongar um acesso ativo uma única vez, sem necessidade de uma nova aprovação, até à duração máxima definida abaixo."
+    "message": "Os membros podem prolongar uma concessão de acesso ativa uma vez, sem nova aprovação, até à duração máxima definida abaixo."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Duração máxima da extensão"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Gestores da coleção"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (cópia)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (cópia $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Cópia criada. Escolhe as coleções a que se aplica."
+  },
   "pamAccessRuleCreated": {
     "message": "Regra de acesso criada."
   },
   "pamAccessRuleUpdated": {
     "message": "Regra de acesso atualizada."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Regra de acesso eliminada."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Eliminar regra de acesso?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Desativar regra de acesso"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Esta regra deixará de se aplicar a novos pedidos de acesso."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Ocorreu um erro. A sua regra não foi guardada, mas as suas informações continuam aqui."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Introduza um nome."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Já existe outra regra com este nome. Introduza outro nome."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Outra regra de acesso já abrange uma destas coleções. Selecione outras coleções."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Outra regra de acesso já abrange as coleções $COLLECTIONS$. Selecione outras coleções.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Uma das coleções que selecionou já não existe. Selecione outra coleção."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Uma das coleções que selecionou não pertence a esta organização. Selecione outra coleção."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Defina uma duração máxima para as extensões ou desative as extensões."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Esta regra já não existe. Pode ter sido eliminada por outro administrador."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Ainda não há regras de acesso"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just-in-Time"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Aprovado automaticamente"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Aprovado automaticamente • Expira ao fim de 1h • Registado na auditoria"
   },
@@ -17908,14 +18105,20 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Aprovação necessária"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Aprovação manual • Requer aprovação de 1 responsável"
+  },
   "pamTemplateApprovalRequiredSummary": {
-    "message": "Aprovação manual • 1 aprovador necessário • Registado na auditoria"
+    "message": "Aprovação manual • Requer aprovação de 1 responsável • Registado na auditoria"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Aprovação necessária"
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "Restrito por IP"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Aprovado automaticamente • Lista de IPs permitidos"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Aprovado automaticamente • Lista de permissões de IP • Registado na auditoria"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Não atribuído"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 coleção"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ coleções",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Pesquisar regras"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Aplica-se a"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Método de aprovação"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Duração máxima"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Condições"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Nenhuma regra de acesso corresponde aos seus filtros."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Ativar"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Desativar"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Ativar"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ regras de acesso serão eliminadas permanentemente. Esta ação não pode ser anulada.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Desativar regras de acesso"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ regras deixarão de se aplicar a novos pedidos de acesso.",
     "placeholders": {
       "count": {
         "content": "$1",

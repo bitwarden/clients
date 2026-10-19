@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "資料格式不正確。請檢查您匯入的檔案後再試一次。"
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "沒有匯入任何內容。"
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "瞭解更多匯入選項"
-  },
-  "selectImportFolder": {
-    "message": "選擇一個資料夾"
-  },
-  "selectImportCollection": {
-    "message": "選擇一個集合"
-  },
-  "selectImportSharedFolder": {
-    "message": "選擇共用資料夾"
   },
   "importTargetHintCollection": {
     "message": "若你希望將匯入檔案的內容移至集合，請選擇此選項"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "透過檢查報告中的漏洞來保持您的保管庫項目安全。"
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "監控安全性活動"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "定期重新整理報表與分析，以掌握新風險，並隨著組織成長查看最新指標。"
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "金鑰"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "存取規則"
   },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
+  },
   "pamAccessRuleEnabled": {
     "message": "已啟用"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "設定規則，以控制哪些人可以要求存取敏感憑證、需符合哪些條件，以及可存取多久。"
   },
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
+  },
   "pamAccessRuleNew": {
     "message": "新增規則"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "一般資訊"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "存取時間"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "此存取規則將套用至所有選取的收藏集。"
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "無法載入收藏集。請重新整理頁面後再試一次。"
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "描述"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "預設存取時間"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Default duration"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "最長存取時間"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "無上限"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "無論要求者申請多久，單次租用最長都不會超過此時間。"
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 分鐘"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 小時"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 小時"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 天"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "同一時間只能有一位使用者持有有效租用權限"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "收藏集管理員"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
   "pamAccessRuleCreated": {
     "message": "存取規則已建立。"
   },
   "pamAccessRuleUpdated": {
     "message": "存取規則已更新。"
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "刪除存取規則？"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "尚無存取規則"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "即時存取"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "自動核准 • 1 小時後到期 • 記錄稽核日誌"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "需要核准"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "人工核准 • 需要 1 位核准者 • 記錄稽核日誌"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP 限制"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "自動核准 • IP 允許清單 • 記錄稽核日誌"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "未指派"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "搜尋規則"
   },
   "pamAccessRuleAppliesTo": {
     "message": "套用至"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "條件"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "沒有符合篩選條件的存取規則。"
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "啟用"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ 個存取規則將永久刪除。此操作無法復原。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
     "placeholders": {
       "count": {
         "content": "$1",

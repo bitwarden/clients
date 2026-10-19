@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "தரவு சரியான வடிவமைப்பில் இல்லை. உங்கள் இம்போர்ட் கோப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "எதுவும் இம்போர்ட் செய்யப்படவில்லை."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "உங்கள் இம்போர்ட் விருப்பங்களைப் பற்றி அறிக"
-  },
-  "selectImportFolder": {
-    "message": "ஒரு கோப்புறையைத் தேர்ந்தெடுக்கவும்"
-  },
-  "selectImportCollection": {
-    "message": "ஒரு கலெக்ஷனைத் தேர்ந்தெடுக்கவும்"
-  },
-  "selectImportSharedFolder": {
-    "message": "Select a shared folder"
   },
   "importTargetHintCollection": {
     "message": "இம்போர்ட் செய்யப்பட்ட கோப்பு உள்ளடக்கங்களை ஒரு கலெக்ஷனுக்கு மாற்ற விரும்பினால் இந்த விருப்பத்தைத் தேர்ந்தெடுக்கவும்"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "பாதிப்புகள் குறித்த அறிக்கைகளைச் சரிபார்ப்பதன் மூலம் உங்கள் வால்ட் உருப்படிகளின் பாதுகாப்பைப் பலமாக வைத்திருக்கவும்."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "பாதுகாப்புச் செயல்பாட்டைக் கண்காணிக்கவும்"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "உங்கள் நிறுவனம் வளரும்போது புதிய ஆபத்துகளைக் கண்டறியவும் சமீபத்திய அளவீடுகளைப் பார்க்கவும் அறிக்கைகள் மற்றும் நுண்ணறிவுகளைத் தொடர்ந்து புதுப்பிக்கவும்."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$TOTAL$ இல் $CURRENT$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "அணுகல் விதிகள்"
   },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
+  },
   "pamAccessRuleEnabled": {
     "message": "இயக்கப்பட்டது"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "முக்கியமான நற்சான்றிதழ்களுக்கான அணுகலை யார், என்ன நிபந்தனைகளின் கீழ், எவ்வளவு காலத்திற்கு கோரலாம் என்பதைக் கட்டுப்படுத்த விதிகளை அமைக்கவும்."
   },
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
+  },
   "pamAccessRuleNew": {
     "message": "புதிய விதி"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "பொதுவான தகவல்"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "அணுகல் கால அளவு"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "இந்த அணுகல் விதி தேர்ந்தெடுக்கப்பட்ட அனைத்துத் தொகுப்புகளுக்கும் பொருந்தும்."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "தொகுப்புகளை ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்க பக்கத்தைப் புதுப்பிக்கவும்."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "விளக்கம்"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "இயல்புநிலை அணுகல் கால அளவு"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Default duration"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "அதிகபட்ச அணுகல் கால அளவு"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "வரம்பு இல்லை"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "கோருபவர் என்ன கேட்டாலும், எந்தவொரு தனித்த குத்தகையும் அதிகபட்சம் இவ்வளவு காலத்திற்கு மட்டுமே கட்டுப்படுத்தப்படும்."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 நிமிடங்கள்"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 மணிநேரம்"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 மணிநேரம்"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 நாட்கள்"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "ஒரு நேரத்தில் ஒரு பயனர் மட்டுமே செயலில் உள்ள குத்தகையை வைத்திருக்க முடியும்"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "தொகுப்பு மேலாளர்கள்"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
   "pamAccessRuleCreated": {
     "message": "அணுகல் விதி உருவாக்கப்பட்டது."
   },
   "pamAccessRuleUpdated": {
     "message": "அணுகல் விதி புதுப்பிக்கப்பட்டது."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "அணுகல் விதியை நீக்கவா?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "இன்னும் அணுகல் விதிகள் எதுவும் இல்லை"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "தானாக ஒப்புதலளிக்கப்பட்டது • 1 மணிநேரத்திற்குப் பிறகு காலாவதியாகும் • தணிக்கைப் பதிவு செய்யப்பட்டது"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "ஒப்புதல் தேவை"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "மனித ஒப்புதல் • 1 ஒப்புதலளிப்பவர் தேவை • தணிக்கைப் பதிவு செய்யப்பட்டது"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-கட்டுப்படுத்தப்பட்டது"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "தானாக ஒப்புதலளிக்கப்பட்டது • IP அனுமதிப்பட்டியல் • தணிக்கைப் பதிவு செய்யப்பட்டது"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "ஒதுக்கப்படவில்லை"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "விதிகளைத் தேடு"
   },
   "pamAccessRuleAppliesTo": {
     "message": "பொருந்தும் இடம்"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "நிபந்தனைகள்"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "உங்கள் வடிப்பான்களுக்குப் பொருந்தும் அணுகல் விதிகள் எதுவும் இல்லை."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "செயல்படுத்து"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ அணுகல் விதிகள் நிரந்தரமாக நீக்கப்படும். இந்தச் செயலைச் செயல்தவிர்க்க முடியாது.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
     "placeholders": {
       "count": {
         "content": "$1",

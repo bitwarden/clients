@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "Az adatok formázása nem megfelelő. Ellenőrizzük az import fájlt és próbáljuk újra."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Ez a fájl nem támogatott titkosítási beállításokat használ és nem importálható."
+  },
   "importNothingError": {
     "message": "Semmi nem lett importálva."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Információ az importálási opciókról"
-  },
-  "selectImportFolder": {
-    "message": "Mappa kiválasztása"
-  },
-  "selectImportCollection": {
-    "message": "Gyűjtemény kiválasztása"
-  },
-  "selectImportSharedFolder": {
-    "message": "Megosztott mappa kiválasztása"
   },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Tartsuk meg erősen a széfelemek biztonságát azáltal, hogy ellenőrizzük a jelentéseket a sebezhetőség tekintetében."
   },
-  "tourTheNewVault": {
-    "message": "Fedezzük fel az új széfet."
+  "whatsNew": {
+    "message": "Újdonságok"
   },
   "tourTheNewVaultDescription": {
     "message": "A frissített navigációval és megjelenéssel minden eddiginél könnyebben megtalálhatjuk, amire szükség van."
   },
-  "takeTheTour": {
-    "message": "Induljon a túra"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Váltás a termékek között"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Kattintsunk a többi Bitwarden termék megtekintéséhez, amelyekhez hozzáférünk, vagy fedezzÜNK fel új termékeket és csomagokat."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Az összes széf egy helyen"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "A személyes, családi és üzleti széfek most itt vannak felsorolva."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "A gyűjteményeknek és mappáknak új nevük van"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Ugyanazok a funkciók, tisztább nevek. A gyűjteményeket mostantól megosztott mappáknak nevezzük. A mappák mostantól Saját mappák."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Biztonyági tevékenység monitorozása"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Rendszeresen frissítsük a jelentéseket és a betekintéseket, hogy észleljük az új kockázatokat és tekintsük meg a legújabb mutatókat, ahogy a szervezet növekszik."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Szűrők keverése és összeillesztése"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Válasszunk ki egyszerre több szűrőt, hogy pontosan a kívánt eredményekre szűkítsünk. Ezek akkor is alkalmazva maradnak, ha elnavigálunk."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elem vagy széf nem importálható.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Hiba történt. Ellenőrizzük a hitelesítő adatokat és próbáljuk újra."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Csak a jelszavas bejelentkezés támogatott."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "onePasswordImportError": {
+    "message": "Hiba történt. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "emailIsRequired": {
+    "message": "Email cím megadása kötelező."
+  },
+  "enterValidEmailAddress": {
+    "message": "Adjunk meg egy érvényes email címet."
+  },
+  "signInAddressIsRequired": {
+    "message": "A bejelentkezési email cím megadása kötelező."
+  },
+  "enterValidSignInAddress": {
+    "message": "Adjunk meg egy érvényes bejelentkezési címet."
+  },
+  "secretKeyIsRequired": {
+    "message": "Titkos kulcs megadása kötelező."
+  },
+  "enterValidSecretKey": {
+    "message": "Adjunk meg egy érvényes titkos kulcsot."
+  },
+  "passwordIsRequired": {
+    "message": "Jelszó megadása szükséges."
+  },
+  "enterValidVerificationCode": {
+    "message": "Érvényes ellenőrző kódot adjunk meg."
+  },
+  "signInAddress": {
+    "message": "Bejelentkezési cím"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email cím"
+  },
+  "onePasswordEmailHint": {
+    "message": "Adjuk meg az 1Password bejelentkezéshez használt email címet."
   },
   "secretKey": {
     "message": "Titkos kulcs"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Hozzáférési szabályok"
   },
+  "pamAccessRuleActive": {
+    "message": "Aktív"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inaktív"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Ha inaktív, a szabály nem korlátozza a hozzáférést."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Szabály aktiválása"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Szabály lekapcsolása"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "A hozzáférési szabály aktiválásra került."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "A hozzáférési szabály lekapcsolásra került."
+  },
   "pamAccessRuleEnabled": {
     "message": "Engedélyezve"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Állítsunk be szabályokat annak vezérlésére, hogy ki, milyen feltételek mellett és mennyi ideig kérhet hozzáférést az érzékeny hitelesítő adatokhoz."
   },
+  "pamAccessRuleCreate": {
+    "message": "Hozzáférési szabály létrehozása"
+  },
   "pamAccessRuleNew": {
     "message": "Új szabály"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Általános információ"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Állapot"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Hozzáférési időtartam"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Ez a hozzáférési szabály minden kiválasztott gyűjteményre vonatkozik."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Minden kérés és döntés naplózásra kerül."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Vizsgálati napló megtekintése"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Nem sikerült betölteni a gyűjteményeket. Frissítsük az oldalt az újbóli próbálkozáshoz."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Leírás"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Alapértelmezett hozzáférési időtartam"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Alapértelmezett időtartam"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximális hozzáférési időtartam"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximális időtartam"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Nincs felső határ"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Bármely egyszeri bérlet legfeljebb ennyi ideig kötött, bármit is kér a kérelmező."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "A hozzáférés erre a hosszúságra korlátozódik, bármilyen időtartamot is kérnek."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 perc"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 óra"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 nap"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 nap"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 óra"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 nap"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 nap"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Egyszerre csak egy felhasználó tarthat aktív hozzáférést."
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Mások jóváhagyással megkísérelhetik elindítani a hozzáférést, amint az aktuális hozzáférés véget ér vagy visszavonásra kerül."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Hozzáférés kiterjesztések engedélyezése"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "A tagok új jóváhagyás nélkül egyszer meghosszabbíthatják az aktív hozzáférést, az alábbi maximális hosszig."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Egyszerre csak egy felhasználó tarthat aktív bérletet."
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Gyűjtemény kezelők"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (másolat)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ ($NUMBER$ másolat)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "A másolat létrehozásra került. Válasszuk ki azokat a gyűjteményeket, amelyekre vonatkozik."
+  },
   "pamAccessRuleCreated": {
     "message": "A hozzáférési szabály létrehozásra került."
   },
   "pamAccessRuleUpdated": {
     "message": "A hozzáférési szabály frissítésre került."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "A hozzáférési szabály törlésre került."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Törlésre kerüljön a hozzáférési szabály?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Hozzáférési szabály kikapcsolása"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Ez a szabály nem vonatkozik az új hozzáférési kérelmekre."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Valamilyen hiba történt. A szabály nem lett elmentve, de az információk még mindig itt vannak."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Adjunk meg egy nevet."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Egy másik szabály már ezt a nevet használja. Írjunk be egy másik nevet."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Egy másik hozzáférési szabály már lefedi az egyik ilyen gyűjteményt. Válasszunk más gyűjteményeket."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Egy másik hozzáférési szabály már kiterjed $COLLECTIONS$ gyűjteményekre. Válasszunk más gyűjteményeket.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "A kiválasztott gyűjtemények egyike már nem létezik. Válasszunk másik gyűjteményt."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "A kiválasztott gyűjtemények egyike nem része ennek a szervezetnek. Válasszunk másik gyűjteményt."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Válasszunk egy maximális kiterjesztés hosszt vagy kapcsoljuk ki a kiterjesztéseket."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Ez a szabály már nem létezik. Lehet, hogy egy másik adminisztrátor törölte."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Még nincsenek hozzáférési szabályok."
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Azonnal"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automatikusan elfogadva"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Automatikus jóváhagyás • 1 óra után lejár • Az ellenőrzés naplózásra került."
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Jóváhagyás szükséges"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Emberi jóváhagyás • 1 jóváhagyó szükséges."
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Emberi jóváhagyás • 1 jóváhagyó szükséges • Az ellenőrzés naplózásra került."
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP cím korlátozott"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automatikus jóváhagyás • IP engedélyezési lista"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Automatikus jóváhagyás • IP engedélyezés lista • Az ellenőrzés naplózásra került."
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Nincs hozzárendelve"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 gyűjtemény"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ gyűjtemény",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Szabályok keresése"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Vonatkozás:"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Jóváhagyási mód"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximális időtartam"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Feltételek"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "A szűrőkkel nem egyeznek hozzáférési szabályok."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Aktiválás"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Kikapcsolás"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Engedélyezés"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ hozzáférési szabály véglegesen törlődik. Ezt a műveletet nem lehet visszavonni.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Hozzáférési szabály kikapcsolása"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "Ez a szabály nem vonatkozik az új hozzáférési kérelmekre.",
     "placeholders": {
       "count": {
         "content": "$1",

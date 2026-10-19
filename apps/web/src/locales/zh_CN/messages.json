@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
   },
+  "importUnsupportedKdfSettings": {
+    "message": "此文件使用了不受支持的加密设置，无法导入。"
+  },
   "importNothingError": {
     "message": "没有导入任何内容。"
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "了解您的导入选项"
-  },
-  "selectImportFolder": {
-    "message": "选择一个文件夹"
-  },
-  "selectImportCollection": {
-    "message": "选择一个集合"
-  },
-  "selectImportSharedFolder": {
-    "message": "选择共享文件夹"
   },
   "importTargetHintCollection": {
     "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
@@ -5406,7 +5400,7 @@
     "message": "使用目录同步用户和群组"
   },
   "trackAuditLogs": {
-    "message": "使用审核日志跟踪用户操作"
+    "message": "使用审计日志跟踪用户操作"
   },
   "enforce2faDuo": {
     "message": "强制 Duo 2FA"
@@ -6279,7 +6273,7 @@
     }
   },
   "httpAuthReleasedItemId": {
-    "message": "Answered an HTTP authentication request with item $ID$.",
+    "message": "使用项目 $ID$ 响应了 HTTP 身份验证请求。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10743,7 +10737,7 @@
     "message": "此优惠已失效。请联系组织管理员获取更多信息。"
   },
   "openIdOptionalCustomizations": {
-    "message": "个性化（可选）"
+    "message": "自定义（可选）"
   },
   "openIdAuthorityRequired": {
     "message": "如果权威机构无效，则必填。"
@@ -14559,7 +14553,7 @@
     "message": "输入您的团队组织信息"
   },
   "enterFamiliesOrgInfo": {
-    "message": "输入您的家庭版组织信息"
+    "message": "输入您的家庭组织信息"
   },
   "enterEnterpriseOrgInfo": {
     "message": "输入您的企业组织信息"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
   },
-  "tourTheNewVault": {
-    "message": "导览新版密码库"
+  "whatsNew": {
+    "message": "新增内容"
   },
   "tourTheNewVaultDescription": {
     "message": "凭借更新后的导航和设计，查找所需内容变得前所未有的简单。"
   },
-  "takeTheTour": {
-    "message": "开始导览"
+  "coachmarkSwitchProductsTitle": {
+    "message": "在产品间切换"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "点击即可查看您可访问的其他 Bitwarden 产品，或探索新的产品与方案。"
+  },
+  "coachmarkVaultListTitle": {
+    "message": "所有密码库汇聚一处"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "个人、家庭及企业密码库现已统一列示于此。"
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "集合和文件夹拥有新的名称"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "功能保持不变，名称更加直观。「集合」现更名为「共享文件夹」，「文件夹」则更名为「我的文件夹」。"
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "检测安全活动"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "定期刷新报告和洞察，以及时发现新的风险，并查看组织发展过程中的最新指标。"
   },
+  "coachmarkFiltersTitle": {
+    "message": "组合使用筛选"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "可同时选择多个筛选，精准锁定您所需的结果。即使您跳转至其他页面，筛选依然有效。"
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 个 1Password 项目或密码库无法导入",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "发生错误。请检查您的凭据，然后重试。"
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "仅支持使用密码登录。"
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "仅支持使用密码登录。请重试或使用其他导入方式。"
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
+  },
+  "onePasswordImportError": {
+    "message": "发生错误。请重试或使用其他导入方式。"
+  },
+  "emailIsRequired": {
+    "message": "必须填写电子邮箱。"
+  },
+  "enterValidEmailAddress": {
+    "message": "请输入有效的电子邮箱地址。"
+  },
+  "signInAddressIsRequired": {
+    "message": "必须填写登录地址。"
+  },
+  "enterValidSignInAddress": {
+    "message": "请输入有效的登录地址。"
+  },
+  "secretKeyIsRequired": {
+    "message": "必须填写安全密钥。"
+  },
+  "enterValidSecretKey": {
+    "message": "请输入有效的安全密钥。"
+  },
+  "passwordIsRequired": {
+    "message": "必须填写密码。"
+  },
+  "enterValidVerificationCode": {
+    "message": "请输入有效的验证码。"
+  },
+  "signInAddress": {
+    "message": "登录地址"
+  },
+  "onePasswordEmail": {
+    "message": "1Password 电子邮箱"
+  },
+  "onePasswordEmailHint": {
+    "message": "输入您用于登录1Password 的电子邮箱"
   },
   "secretKey": {
     "message": "安全密钥"
@@ -17734,11 +17806,32 @@
   "pamAccessRules": {
     "message": "访问规则"
   },
+  "pamAccessRuleActive": {
+    "message": "有效"
+  },
+  "pamAccessRuleInactive": {
+    "message": "失效"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "失效后，该规则将不再限制访问。"
+  },
+  "pamAccessRuleActivate": {
+    "message": "激活规则"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "停用规则"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "访问规则已激活。"
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "访问规则已停用。"
+  },
   "pamAccessRuleEnabled": {
     "message": "已启用"
   },
   "pamAccessRuleEnabledHint": {
-    "message": "禁用后，该规则将处于非有效状态，并且不会限制访问。"
+    "message": "禁用后，该规则将失效，并且不再限制访问。"
   },
   "pamAccessRuleEnable": {
     "message": "启用规则"
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "设置规则来控制谁可以在何种条件下以及多长时间内请求访问敏感的凭据。"
   },
+  "pamAccessRuleCreate": {
+    "message": "创建访问规则"
+  },
   "pamAccessRuleNew": {
     "message": "新增规则"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "常规信息"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "状态"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "访问持续时间"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "此访问规则将适用于所有选定的集合。"
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "所有请求和决策均会被记录。"
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "查看审计日志"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "无法加载集合。请刷新页面以重试。"
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "描述"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "默认访问持续时间"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "默认持续时间"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "最大访问持续时间"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "最大持续时间"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "无上限"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "无论请求者申请多长时间，单次租约将被限制在此时长内。"
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "无论请求的持续时间为何，访问均被限制为此长度。"
   },
   "pamAccessRuleDuration15m": {
     "message": "15 分钟"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 小时"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 天"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 天"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 小时"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 天"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 天"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "同一时间只能有一名用户拥有有效访问权限"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "获得批准的其他人员可在当前访问结束或被撤销后，尝试开始访问。"
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "允许访问扩展"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "成员可以在无需重新审批的情况下，将有效访问权限延期一次，最长不超过下方的最大时长。"
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "同一时间只能有一名用户持有有效租约"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "集合管理员"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$（副本）",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$（副本 $NUMBER$）",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "副本已创建。请选择要将其应用到的集合。"
+  },
   "pamAccessRuleCreated": {
     "message": "访问规则已创建。"
   },
   "pamAccessRuleUpdated": {
     "message": "访问规则已更新。"
+  },
+  "pamAccessRuleDeleted": {
+    "message": "访问规则已删除。"
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "删除访问规则吗？"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "停用访问规则"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "此规则将不再适用于新的访问请求。"
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "出错了。您的规则未能保存，但您的信息仍保留在此。"
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "输入名称。"
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "其他规则已使用了此名称。请输入其他名称。"
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "其他访问规则已覆盖其中一个集合。请选择其他集合。"
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "其他访问规则已覆盖 $COLLECTIONS$。请选择其他集合。",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "您所选的其中一个集合已不存在。请选择其他合集。"
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "您所选的其中一个集合不属于此组织。请选择其他合集。"
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "选择最大扩展长度，或停用扩展。"
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "此规则已不存在。它可能已被其他管理员删除。"
   },
   "pamNoAccessRulesYetTitle": {
     "message": "尚无访问规则"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "即时"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "自动批准"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "自动批准 • 1 小时后过期 • 记录审计日志"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "需要批准"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "人工批准 • 需要 1 名审批人"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "人工批准 • 需要 1 名审批人 • 记录审计日志"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP 限制"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "自动批准 • IP 允许列表"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "自动批准 • IP 允许列表 • 记录审计日志"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "未分配"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 个集合"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "搜索规则"
   },
   "pamAccessRuleAppliesTo": {
     "message": "适用于"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "批准方式"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "最大持续时间"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "条件"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "没有匹配您的筛选的访问规则。"
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "激活"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "停用"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "启用"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ 条访问规则将被永久删除。此操作无法撤消。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "停用访问规则"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ 条规则将不再适用于新的访问请求。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17999,7 +18238,7 @@
     "message": "添加至少一个 CIDR 范围。"
   },
   "accessRuleIpAllowlistInvalidCidr": {
-    "message": "请输入一个有效的 CIDR 范围。"
+    "message": "请输入有效的 CIDR 范围。"
   },
   "accessRuleIpAllowlistDuplicateCidr": {
     "message": "此 CIDR 范围已添加。"

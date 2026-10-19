@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "Данните са в неправилен формат. Проверете файла за внасяне и пробвайте отново."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Този файл използва неподдържани настройки за шифроване и не може да бъде внесен."
+  },
   "importNothingError": {
     "message": "Нищо не бе внесено."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Научете повече относно възможностите за внасяне"
-  },
-  "selectImportFolder": {
-    "message": "Изберете папка"
-  },
-  "selectImportCollection": {
-    "message": "Изберете колекция"
-  },
-  "selectImportSharedFolder": {
-    "message": "Изберете споделена папка"
   },
   "importTargetHintCollection": {
     "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
   },
-  "tourTheNewVault": {
-    "message": "Обиколка на новия трезор"
+  "whatsNew": {
+    "message": "Новите неща"
   },
   "tourTheNewVaultDescription": {
     "message": "С обновена навигация и дизайн, сега е по-лесно от всякога да намерите това, което търсите."
   },
-  "takeTheTour": {
-    "message": "Започнете обиколката"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Превключване между продукти"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Щракнете, за да видите други продукти на Битуорден, до които имате достъп, или за да откриете нови продукти и планове."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Всички Ваши трезори на едно място"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Лични, семейни и фирмени трезори вече се показват тук."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Колекциите и папките имат нови имена"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Същите функционалности, с по-ясни имена. Колекциите вече се наричат „споделени папки“. Папките вече са „моите папки“."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Следене на дейността по сигурността"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Периодично опреснявайте докладите и забележките, за да хващате своевременно новите рискове и да виждате най-новите статистически данни, докато организацията Ви се разраства."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Комбинирайте филтри"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Изберете повече филтри, за да ограничите резултатите до това, което искате. Филтрите ще останат приложени дори след като излезете от тук."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ от $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ записи или трезори от 1Password не могат да бъдат внесени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Възникна грешка. Проверете въведените данни и опитайте отново."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Поддържа се само вписване с парола."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Поддържа се само вписване с парола. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Въведете правилен адрес на е-поща или използвайте друг начин за внасяне."
+  },
+  "onePasswordImportError": {
+    "message": "Възникна грешка. Опитайте отново или използвайте друг начин за внасяне."
+  },
+  "emailIsRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "enterValidEmailAddress": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "signInAddressIsRequired": {
+    "message": "Адресът за вписване е задължителен."
+  },
+  "enterValidSignInAddress": {
+    "message": "Въведете правилен адрес за вписване."
+  },
+  "secretKeyIsRequired": {
+    "message": "Секретният ключ е задължителен."
+  },
+  "enterValidSecretKey": {
+    "message": "Въведете правилен секретен ключ."
+  },
+  "passwordIsRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "enterValidVerificationCode": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "signInAddress": {
+    "message": "Адрес за вписване"
+  },
+  "onePasswordEmail": {
+    "message": "Е-поща за 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Въведете е-пощата, която използвате за вписване в 1Password"
   },
   "secretKey": {
     "message": "Таен ключ"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Правила за достъп"
   },
+  "pamAccessRuleActive": {
+    "message": "Активно"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Неактивно"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Когато не е активно, правилото не забранява достъпа."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Активиране на правилото"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Деактивиране на правилото"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Правилото за достъп е активирано."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Правилото за достъп е деактивирано."
+  },
   "pamAccessRuleEnabled": {
     "message": "Включено"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Задайте правила, за да управлявате кой може да иска достъп до чувствителните удостоверителни данни, при какви условия и за каква продължителност."
   },
+  "pamAccessRuleCreate": {
+    "message": "Създаване на правило за достъп"
+  },
   "pamAccessRuleNew": {
     "message": "Ново правило"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Обща информация"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Състояние"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Продължителност на достъпа"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Това правило за достъп ще се прилага към всички избрани колекции."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Всички заявки и решения се записват."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Преглед на журнала"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Колекциите не могат да бъдат заредени. Опреснете страницата, за да опитате отново."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Описание"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Стандартна продължителност на достъпа"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Продължителност по подразбиране"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Максимална продължителност на достъпа"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Максимална продължителност"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Без ограничение"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Всяко одобрение се ограничава най-много до тази продължителност, независимо каква е заявката."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Достъпът е ограничен до тази продължителност, независимо каква е била заявена."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 минути"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 часа"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 ден"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 дни"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 часа"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 дни"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 дни"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Само 1 потребител може да има активен достъп в даден момент"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Останалите, които имат одобрение, могат да опитат да получат достъп след като времето за достъп на текущия потребител изтече или му бъде отнет."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Разрешаване на удължаванията на достъпа"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Членовете могат да удължат активния си достъп веднъж, без ново одобрение, но само до посочената по-долу максимална продължителност."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Само един потребител може да има достъп в даден момент"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Управители на колекции"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (копие)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (копие $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Копието е създадено. Изберете колекциите, за които да се прилага."
+  },
   "pamAccessRuleCreated": {
     "message": "Правилото за достъп е създадено."
   },
   "pamAccessRuleUpdated": {
     "message": "Правилото за достъп е обновено."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Правилото за достъп е изтрито."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Изтриване на правилото за достъп?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Деактивиране на правилото за достъп"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Това правило за достъп ще спре да се прилага към последващите заявки."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Нещо се обърка. Правилото не беше запазено, но информацията Ви все още е тук."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Въведете име."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Вече има правило с това име. Въведете друго."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Друго правило за достъп вече покрива една от тези колекции. Изберете други колекции."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Друго правило за достъп вече покрива $COLLECTIONS$. Изберете други колекции.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Една от избраните колекции вече не съществува. Изберете друга колекция."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Една от избраните колекции не е част от тази организация. Изберете друга колекция."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Изберете максимална дължина на разширенията, или изключете разширенията."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Това правило вече не съществува. Може да е било изтрито от друг администратор."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Все още няма правила за достъп"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Краткотраен достъп"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Автоматично одобрение"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Автоматично одобрение • Важи 1 час • Записва се в журнала"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Изискване на одобрение"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Одобрение от човек • Необходимо е 1 одобрение"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Одобрение от човек • Необходимо е 1 одобрение • Записва се в журнала"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "Ограничение по IP адрес"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Автоматично одобрение • Списък от разрешени IP адреси"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Автоматично одобрение • Има списък от позволени IP адреси • Записва се в журнала"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Няма зададени"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 колекция"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Търсене в правилата"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Прилага се към"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Начин за одобрение"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Максимална продължителност"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Условия"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Няма правила отговарящи на търсенето."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Активиране"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Деактивиране"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Включване"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ правила за достъп ще бъдат изтрити завинаги. Това действие е необратимо.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Деактивиране на правилата за достъп"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ правила за достъп ще спрат да се прилагат към последващите заявки.",
     "placeholders": {
       "count": {
         "content": "$1",

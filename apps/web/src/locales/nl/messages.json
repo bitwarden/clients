@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "De gegevens zijn niet correct opgemaakt. Controleer je importbestand en probeer het opnieuw."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Dit bestand gebruikt niet-ondersteunde versleutelingsinstellingen en kan niet worden geïmporteerd."
+  },
   "importNothingError": {
     "message": "Er is niets geïmporteerd."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Leer meer over je importopties"
-  },
-  "selectImportFolder": {
-    "message": "Map selecteren"
-  },
-  "selectImportCollection": {
-    "message": "Collectie selecteren"
-  },
-  "selectImportSharedFolder": {
-    "message": "Gedeelde map selecteren"
   },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
   },
-  "tourTheNewVault": {
-    "message": "De nieuwe kluis verkennen"
+  "whatsNew": {
+    "message": "Wat is er nieuw"
   },
   "tourTheNewVaultDescription": {
     "message": "Met bijgewerkte navigatie en ontwerp is het makkelijker dan ooit om te vinden wat je nodig hebt."
   },
-  "takeTheTour": {
-    "message": "Start de rondleiding"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Tussen producten schakelen"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Klik om andere Bitwarden-producten te zien waar je toegang toe hebt, of ontdek nieuwe producten en abonnementen."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Al je kluizen op één plaats"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Persoonlijke-, familie- en zakelijke kluizen zijn hieronder opgesomd."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collecties en mappen hebben nieuwe namen"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Dezelfde functionaliteit, duidelijkere namen. Verzamelingen heten nu gedeelde mappen. Mappen zijn nu Mijn mappen."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Beveiligingsactiviteit monitoren"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Vernieuw regelmatig rapporten en inzichten om nieuwe risico's op te vangen en de nieuwste statistieken te zien naarmate je organisatie groeit."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix- en matchfilters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Selecteer meerdere filters tegelijk om te verfijnen tot precies de resultaten die je wilt. Ze blijven ook toegepast wanneer je wegnavigeert."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ van $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password-items of kluizen konden niet worden geïmporteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Er is een fout opgetreden. Controleer je inloggegevens en probeer het opnieuw."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Alleen inloggen met wachtwoord wordt ondersteund."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Alleen inloggen met wachtwoord wordt ondersteund. Probeer opnieuw of gebruik een andere importmethode."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Voer een geldig e-mailadres in of gebruik een andere importmethode."
+  },
+  "onePasswordImportError": {
+    "message": "Er is een fout opgetreden. Probeer het opnieuw of gebruik een andere importmethode."
+  },
+  "emailIsRequired": {
+    "message": "E-mailadres is vereist."
+  },
+  "enterValidEmailAddress": {
+    "message": "Vul een geldig e-mailadres in."
+  },
+  "signInAddressIsRequired": {
+    "message": "Inlogadres is vereist."
+  },
+  "enterValidSignInAddress": {
+    "message": "Vul een geldig inlogadres in."
+  },
+  "secretKeyIsRequired": {
+    "message": "Geheime sleutel is vereist."
+  },
+  "enterValidSecretKey": {
+    "message": "Voer een geldige geheime sleutel in."
+  },
+  "passwordIsRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "enterValidVerificationCode": {
+    "message": "Voer een geldige verificatiecode in."
+  },
+  "signInAddress": {
+    "message": "Inlogadres"
+  },
+  "onePasswordEmail": {
+    "message": "1Password-e-mail"
+  },
+  "onePasswordEmailHint": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password"
   },
   "secretKey": {
     "message": "Geheime sleutel"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Toegangsregels"
   },
+  "pamAccessRuleActive": {
+    "message": "Actief"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactief"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Inactief beperkt de regel de toegang niet."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Regel activeren"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Regel deactiveren"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Toegangsregel geactiveerd."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Toegangsregel gedeactiveerd."
+  },
   "pamAccessRuleEnabled": {
     "message": "Ingeschakeld"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Stel regels in om te bepalen wie toegang kan vragen tot gevoelige gegevens, onder welke voorwaarden en voor hoe lang."
   },
+  "pamAccessRuleCreate": {
+    "message": "Toegangsregel aanmaken"
+  },
   "pamAccessRuleNew": {
     "message": "Nieuwe regel"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Algemene informatie"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Toegangsduur"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Deze toegangsregel is van toepassing op alle geselecteerde verzamelingen."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Alle verzoeken en besluiten worden geregistreerd."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Auditlogboek weergeven"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Kon geen verzamelingen inladen. Vernieuw de pagina om het opnieuw te proberen."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Omschrijving"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Standaard toegangsduur"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Standaard duur"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximale toegangsduur"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximale duur"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Geen limiet"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Maximale duur van een reservering, ongeacht de aangevraagde duur."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Toegang is beperkt tot deze lengte, ongeacht de gevraagde duur van toegang."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minuten"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 uur"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 dag"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 dagen"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 uur"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 dagen"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 dagen"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Slechts 1 gebruiker tegelijk kan actieve toegang hebben"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Anderen met goedkeuring kunnen proberen toegang te krijgen zodra de huidige toegang eindigt of wordt ingetrokken."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Verlenging van toegang toestaan"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Leden kunnen een actieve toegang één keer verlengen zonder nieuwe goedkeuring, tot onderstaande maximale duur."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Slechts één gebruiker kan een actieve reservering hebben"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collectiebeheerders"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (kopiëren)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ ($NUMBER$ kopiëren)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Kopie aangemaakt. Kies de collecties waarpo het van toepassing is."
+  },
   "pamAccessRuleCreated": {
     "message": "Toegangsregel aangemaakt."
   },
   "pamAccessRuleUpdated": {
     "message": "Toegangsregel bijgewerkt."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Toegangsregel verwijderd."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Toegangsregel verwijderen?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Toegangsregel gedeactiveerd"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Deze regel wordt niet toegepast op nieuwe toegangsverzoeken."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Er ging iets mis. Je regel is niet opgeslagen, maar je informatie is nog steeds beschikbaar."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Vul een naam in."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Een andere regel gebruikt deze naam al. Voer een andere naam in."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Een andere toegangsregel heeft al betrekking op één van deze collecties. Selecteer verschillende collecties."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Een andere toegangsregel heeft al betrekking op $COLLECTIONS$. Selecteer verschillende collecties.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Een van de verzamelingen die je hebt geselecteerd bestaat niet meer. Selecteer een andere collectie."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Een van de verzamelingen die je hebt geselecteerd is geen onderdeel van deze organisatie. Selecteer een andere collectie."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Kies een maximale lengte van de extensie of schakel extensies uit."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Deze regel bestaat niet meer. Het kan zijn verwijderd door een andere beheerder."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Nog geen toegangsregels"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Precies op tijd"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automatisch goedgekeurd"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Automatisch goedgekeurd • Verloopt na 1 uur • Ingelogd Audit"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Goedkeuring vereist"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Menselijke goedkeuring • 1 goedkeurder vereist"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Menselijke goedkeuring • 1 goedkeurder vereist • Controle gelogd"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-beperking"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automatisch goedgekeurd • Lijst IP-adressen"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Automatisch goedgekeurd • IP toegestane lijst • Audit gelogd"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Niet toegewezen"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collectie"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collecties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Zoekregels"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Van toepassing op"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Methode van goedkeuring"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximale duur"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Voorwaarden"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Er komen geen toegangsregels overeen met je filters."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activeren"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactiveren"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Inschakelen"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ toegangsregels worden permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Toegangsregel deactiveren"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ regels worden niet toegepast op nieuwe toegangsverzoeken.",
     "placeholders": {
       "count": {
         "content": "$1",

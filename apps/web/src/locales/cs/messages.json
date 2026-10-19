@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Tento soubor používá nepodporovaná nastavení šifrování a nemůže být importován."
+  },
   "importNothingError": {
     "message": "Nebylo nic importováno."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Více o volbách importu"
-  },
-  "selectImportFolder": {
-    "message": "Zvolte složku"
-  },
-  "selectImportCollection": {
-    "message": "Zvolte sbírku"
-  },
-  "selectImportSharedFolder": {
-    "message": "Vybrat sdílenou složku"
   },
   "importTargetHintCollection": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zachovejte bezpečnost Vašich položek v trezoru silnou kontrolou slabých míst."
   },
-  "tourTheNewVault": {
-    "message": "Projít nový trezor"
+  "whatsNew": {
+    "message": "Co je nového"
   },
   "tourTheNewVaultDescription": {
     "message": "Díky aktualizované navigaci a designu je snazší najít to, co potřebujete."
   },
-  "takeTheTour": {
-    "message": "Absolvovat prohlídku"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Přepnout mezi produkty"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Klepněte pro zobrazení dalších produktů Bitwarden, ke kterým máte přístup nebo objevte nové produkty a plány."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Všechny Vaše trezory na jednom místě"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Zde jsou nyní uvedeny osobní, rodinné a trezory pro firmy."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Sbírky a složky mají nové názvy"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Stejné funkce, jasnější jména. Sbírky se nyní nazývají sdílené složky. Složky jsou nyní Moje složky."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Sledovat bezpečnostní aktivity"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Pravidelně aktualizujte přehledy a analýzy, abyste zachytili nová rizika a měli přehled o nejnovějších ukazatelích v souvislosti s růstem Vaší organizace."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Kombinovat filtry"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Vyberte několik filtrů najednou, pro zúžení přesně na výsledky, které chcete. Zůstanou aktivní i po opuštění."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ z $TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "Položky nebo trezory $COUNT$ 1Password nelze importovat",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Došlo k chybě. Zkontrolujte Vaše přihlašovací údaje a zkuste to znovu."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Je podporováno jen přihlášení s heslem."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Podporováno je jen přihlášení s heslem. Zkuste to znovu nebo použijte jinou metodu importu."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Zadejte platnou e-mailovou adresu nebo použijte jinou metodu importu."
+  },
+  "onePasswordImportError": {
+    "message": "Došlo k chybě. Zkuste to znovu nebo použijte jinou metodu importu."
+  },
+  "emailIsRequired": {
+    "message": "E-mail je povinný."
+  },
+  "enterValidEmailAddress": {
+    "message": "Zadejte platnou e-mailovou adresu."
+  },
+  "signInAddressIsRequired": {
+    "message": "Přihlašovací adresa je povinná."
+  },
+  "enterValidSignInAddress": {
+    "message": "Zadejte platnou přihlašovací adresu."
+  },
+  "secretKeyIsRequired": {
+    "message": "Tajný klíč je povinný."
+  },
+  "enterValidSecretKey": {
+    "message": "Zadejte platný tajný klíč."
+  },
+  "passwordIsRequired": {
+    "message": "Je vyžadováno heslo."
+  },
+  "enterValidVerificationCode": {
+    "message": "Zadejte platný ověřovací kód."
+  },
+  "signInAddress": {
+    "message": "Přihlašovací adresa"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Zadejte e-mail, který používáte k přihlášení do 1Password"
   },
   "secretKey": {
     "message": "Tajný klíč"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Pravidla přístupu"
   },
+  "pamAccessRuleActive": {
+    "message": "Aktivní"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Neaktivní"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Pokud je neaktivní, pravidlo neomezuje přístup."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Aktivovat pravidlo"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deaktivovat pravidlo"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Přístupové pravidlo bylo aktivováno."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Přístupové pravidlo bylo deaktivováno."
+  },
   "pamAccessRuleEnabled": {
     "message": "Povoleno"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Nastavte pravidla, která určují, kdo může požádat o přístup k citlivým přihlašovacím údajům, za jakých podmínek a na jak dlouho."
   },
+  "pamAccessRuleCreate": {
+    "message": "Vytvořit přístupové pravidlo"
+  },
   "pamAccessRuleNew": {
     "message": "Nové pravidlo"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Obecné informace"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Stav"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Doba trvání přístupu"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Toto pravidlo pro přístup bude platit pro všechny vybrané sbírky."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Všechny žádosti a rozhodnutí jsou zaznamenány."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Zobrazit log auditu"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Nelze načíst sbírky. Aktualizujte stránku a zkuste to znovu."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Popis"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Výchozí doba trvání přístupu"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Výchozí doba trvání"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximální doba trvání přístupu"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximální doba trvání"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Bez omezení"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Každý jednotlivý pronájem je omezen maximálně na tuto délku, bez ohledu na to, o co žadatel požádá."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Přístup je omezen na tuto délku, bez ohledu na dobu trvání."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minut"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hodin"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 den"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 dny"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 hodin"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 dnů"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 dnů"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "V daném okamžiku může mít aktivní přístup jen jeden uživatel"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Ostatní osoby s oprávněním se mohou pokusit navázat připojení, jakmile skončí platnost stávajícího připojení nebo bude zrušeno."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Povolit prodloužení přístupu"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Členové mohou prodloužit aktivní přístup jednou bez nového schválení až do níže uvedené maximální délky."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "V daném okamžiku může mít aktivní pronájem jen jeden uživatel"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Správci sbírek"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (kopie)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (kopie $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Kopie vytvořena. Vyberte sbírky, na které se vztahuje."
+  },
   "pamAccessRuleCreated": {
     "message": "Přístupové pravidlo bylo vytvořeno."
   },
   "pamAccessRuleUpdated": {
     "message": "Přístupové pravidlo bylo aktualizováno."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Přístupové pravidlo bylo smazáno."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Smazat přístupové pravidlo?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deaktivovat přístupové pravidlo"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Toto pravidlo přestane platit pro nové žádosti o přístup."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Něco se pokazilo. Vaše pravidlo nebylo uloženo, ale Vaše informace jsou stále zde."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Zadejte název."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Tento název již používá jiné pravidlo. Zadejte jiný název."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Jedna z těchto sbírek již podléhá jinému přístupovému pravidlu. Vyberte jiné sbírky."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Na $COLLECTIONS$ se již vztahuje jiné přístupové pravidlo. Vyberte jiné sbírky.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Jedna ze sbírek, které jste vybrali, již neexistuje. Vyberte jinou sbírku."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Jedna z Vámi vybraných sbírek nepatří k této organizaci. Vyberte jinou sbírku."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Vyberte maximální délku rozšíření nebo vypněte rozšíření."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Toto pravidlo již neexistuje. Možná bylo smazáno jiným správcem."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Zatím žádná pravidla přístupu"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Na čas"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automaticky schváleno"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Automaticky schváleno • Vyprší po 1h • Zaznamenáno do auditu"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Vyžadováno schválení"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Schválení člověkem • Vyžadován 1 schvalovatel"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Schválení člověkem • Vyžadován 1 schvalovatel • Zaznamenáno do auditu"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "Omezení IP"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automaticky schváleno • Seznam povolených IP"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Automaticky schváleno • Seznam povolených IP • Zaznamenáno do auditu"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Nepřiřazeno"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 sbírka"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ sbírek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Pravidla vyhledávání"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Platí pro"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Metoda schválení"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximální doba trvání"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Podmínky"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Vašim filtrům neodpovídají žádná přístupová pravidla."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Aktivovat"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deaktivovat"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Povolit"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ přístupových pravidel bude trvale smazáno. Tuto akci nelze vrátit zpět.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deaktivovat přístupová pravidla"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ pravidel přestane platit pro nové žádosti o přístup.",
     "placeholders": {
       "count": {
         "content": "$1",

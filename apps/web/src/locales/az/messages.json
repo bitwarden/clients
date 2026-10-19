@@ -1081,7 +1081,7 @@
     "message": "Axtarışı sıfırla"
   },
   "clearSearchTooltip": {
-    "message": "Clear by clicking here or pressing Esc.",
+    "message": "Bura klikləyərək və ya Esc-ə basaraq təmizlə.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "allItems": {
@@ -1184,7 +1184,7 @@
     "message": "Kolleksiyalar"
   },
   "controlledAccess": {
-    "message": "Controlled access"
+    "message": "Nəzarətli erişim"
   },
   "firstName": {
     "message": "Ad"
@@ -1959,13 +1959,13 @@
     "message": "Fayl seçin."
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file."
+    "message": "Bu fayl növü bu mənbə üçün qəbul edilmir. Fərqli bir faylı seçin."
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content."
+    "message": "Xaricə köçürülən məzmunu yapışdır."
   },
   "fileTypeNotSupported": {
-    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "message": "Bu fayl növü dəstəklənmir. $TYPES$ faylını seçin.",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -1974,10 +1974,10 @@
     }
   },
   "pasteContentFormatMismatch": {
-    "message": "The pasted content doesn't match the selected format."
+    "message": "Yapışdırılan məzmun seçilmiş formatla uyuşmur."
   },
   "errorReadingFile": {
-    "message": "The selected file could not be read."
+    "message": "Seçilmiş fayl oxuna bilmədi."
   },
   "maxFileSize": {
     "message": "Maksimal fayl həcmi 500 MB-dır."
@@ -2954,7 +2954,7 @@
     "message": "KeePass ana parolu"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "$VENDOR$ parolu",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -2963,25 +2963,25 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Parol tələb olunur."
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "File parolu tələb olunur"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "Yararlı bir fayl parolu daxil edin."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "Yüklədiyiniz fayl parolla qorunur. Davam etmək üçün parolu daxil edin."
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "Profili seç"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Yararlı bir parol daxil edin"
   },
   "importAccountMismatchError": {
-    "message": "This file can only be imported into the account it was exported from."
+    "message": "Bu fayl, yalnız xaricə köçürüldüyü hesabın daxilinə köçürülə bilər."
   },
   "addKeyFile": {
     "message": "Açar faylı əlavə et"
@@ -2990,7 +2990,7 @@
     "message": "Açar faylını yüklə"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "Açar fayl"
   },
   "kdbxFileUpload": {
     "message": "KDBX faylını yüklə"
@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "Verilər düzgün format olunmayıb. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Bu fayl dəstəklənməyən şifrləmə ayarlarını istifadə edir və daxilə köçürülə bilməz."
+  },
   "importNothingError": {
     "message": "Heç nə idxal edilmədi."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Daxilə köçürmə seçənəklərinizi öyrənin"
-  },
-  "selectImportFolder": {
-    "message": "Bir qovluq seçin"
-  },
-  "selectImportCollection": {
-    "message": "Bir kolleksiya seçin"
-  },
-  "selectImportSharedFolder": {
-    "message": "Paylaşılan bir qovluq seç"
   },
   "importTargetHintCollection": {
     "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu seçənəyi seçin"
@@ -3642,48 +3636,48 @@
     "message": "Kömək Mərkəzi"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "Fayl yüklə"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Düz mətn kimi yapışdır"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Düz mətn"
   },
   "profile": {
-    "message": "Profile"
+    "message": "Profil"
   },
   "lastPassEmail": {
-    "message": "LastPass Email"
+    "message": "LastPass E-poçtu"
   },
   "includeSharedFolders": {
-    "message": "Include shared folders"
+    "message": "Paylaşılan qovluqları daxil et"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "Əvəzində manual daxilə köçür"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Əvəzində birbaşa daxilə köçür"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "Daha sürətli"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Verilərinizi daxilə köçürün"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Verilərinizi bir neçə dəqiqəyə daxilə köçürün"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "Bütün verilərinizi almaq üçün birbaşa",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "ünvanından elementlərinizi daxilə köçürün.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "message": "$VENDOR$ mənbəsindən daxilə köçürün, ya da xaricə köçürülən məzmunu kopyalayıb yapışdırın.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3692,13 +3686,13 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Select the profile you wish to import passwords from."
+    "message": "Parolları daxilə köçürmək istədiyiniz profili seçin."
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "Heç bir brauzer profili tapılmadı"
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "$VENDOR$ - giriş et",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3707,13 +3701,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "Kimlik məlumatlarınız ötürmə zamanı şifrlənir və heç vaxt saxlanılmır."
   },
   "importDataSecureByDesignTitle": {
-    "message": "Secure by design"
+    "message": "Əvvəldən güvənli şəkildə layihələndirilmişdir"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "Ucdan-uca şifrləmə ilə ötürmə. Bitwarden, $VENDOR$ giriş məlumatlarınızı heç vaxt görmür.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3722,10 +3716,10 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Giriş məlumatlarınızı istəyəcəyik"
   },
   "importDataLoginInfoBody": {
-    "message": "In the next step, log in to your $VENDOR$ account.",
+    "message": "Növbəti addımda, $VENDOR$ hesabınıza giriş edin.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3734,13 +3728,13 @@
     }
   },
   "importDataEverythingTransfersTitle": {
-    "message": "Everything transfers"
+    "message": "Hər şeyi transfer edin"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "Girişlər, kartlar, kimliklər, güvənli notlar və TOTP-lər qovluq strukturunda qorunur."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Qəbul edildi: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -3749,7 +3743,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "$VENDOR$ fayl növü",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -6907,10 +6901,10 @@
     "message": "Dəvəti yenidən göndər"
   },
   "sendInvite": {
-    "message": "Send invite"
+    "message": "Dəvət göndər"
   },
   "sendInvites": {
-    "message": "Send invites"
+    "message": "Dəvətləri göndər"
   },
   "resendEmail": {
     "message": "E-poçtu təkrar göndər"
@@ -6925,7 +6919,7 @@
     }
   },
   "hasBeenInvited": {
-    "message": "$USER$ invited",
+    "message": "$USER$ dəvət edildi",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -8613,7 +8607,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDownloadBlocked": {
-    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "message": "Endirmə keçidi təhlükəsizlik yoxlanışından keçə bilmədiyi üçün bu fayl endirilə bilmədi.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
   },
   "noSendsInList": {
@@ -10106,10 +10100,10 @@
     "message": "Bütün üzvlər üçün brauzer uzantısında \"Səhifə yüklənəndə avto-doldur\" ayarını fəallaşdırın."
   },
   "activateAutofillPolicyDescV2": {
-    "message": "Brauzer uzantısında bütün mövcud ve yeni üzvlər üçün səhifə yüklənərkən avto-doldurma ayarını fəalalşdırın. Təhlükəyə məruz qalmış və ya etibarsız veb saytlar"
+    "message": "Bütün mövcud və yeni üzvlər üçün \"Səhifə yüklənəndə avto-doldurma\" ayarını brauzer uzantısında fəallaşdırın. Təhlükəyə məruz qalmış və ya etibarsız veb saytlar"
   },
   "activateAutofillPolicyDescV3": {
-    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
+    "message": "Bütün mövcud və yeni üzvlər üçün \"Səhifə yüklənəndə avto-doldurma\" ayarını brauzer uzantısında fəallaşdırın. Bu siyasət açıq olduqdan sonra, üzvlər avto-doldurmanı işə salmaq üçün öz fərdi ayarlarını tənzimləməlidirlər. Təhlükəyə məruz qalmış və ya etibarsız veb saytlar"
   },
   "exploitAutofillOnPageLoad": {
     "message": "səhifə yüklənəndə avto-doldurmanı istismar edə bilər"
@@ -10375,10 +10369,10 @@
     "message": "\"Ödənişsiz Bitwarden Ailələri\"ni qəbul et"
   },
   "acceptSponsoredFamiliesPlan": {
-    "message": "Accept Sponsored Families Plan"
+    "message": "Sponsorlu Ailələr planını qəbul et"
   },
   "sponsoredPlanDetails": {
-    "message": "Sponsored plan details"
+    "message": "Sponsorlu plan ayrıntıları"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Ödənişsiz Bitwarden Ailələri təklifi uğurla istifadə edildi"
@@ -10549,7 +10543,7 @@
     "message": "Lütfən təşkilatla əlaqələndirmək üçün bir ödəniş metodu təqdim edin. Narahat olmayın, əlavə özəllikləri seçmədiyiniz və ya sponsorluğunuz bitmədiyi müddətcə sizdən heç bir ödəniş tutulmayacaq. "
   },
   "paymentSponsoredFamilyVault": {
-    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "message": "Lütfən ailə seyfinizlə əlaqələndirmək üçün bir ödəniş metodu təqdim edin. Narahat olmayın, əlavə özəllikləri seçmədiyiniz və ya sponsorluğunuz bitmədiyi müddətcə sizdən heç bir ödəniş tutulmayacaq. ",
     "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
   },
   "orgCreatedSponsorshipInvalid": {
@@ -11129,11 +11123,11 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Yararlı bir URL daxil edin",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "Təhlükəli URL aşkarlandı",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -11141,11 +11135,11 @@
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "URL-yə güvən",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
-    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "message": "Bu URL güvənilən olaraq işarələndi. İstənilən vaxt düzəliş edə bilərsiniz.",
     "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
@@ -14526,7 +14520,7 @@
     "message": "Təşkilat Menyusuna keç"
   },
   "vaultOptions": {
-    "message": "Vault options"
+    "message": "Seyf seçənəkləri"
   },
   "vaultItemSelect": {
     "message": "Seyf elementini seç"
@@ -17199,14 +17193,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zəiflik hesabatları vasitəsilə seyfinizdəki elementlərin təhlükəsizliyini gücləndirin."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "Yeniliklər"
   },
   "tourTheNewVaultDescription": {
-    "message": "With updated navigation and design, it's easier than ever to find what you need."
+    "message": "Yenilənmiş naviqasiya və dizayn ilə ehtiyacınız olanı tapmaq artıq daha asandır."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Məhsullar arasında keçid et"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Erişə biləcəyiniz digər Bitwarden məhsullarını görmək üçün klikləyin və ya yeni məhsulları və planları kəşf edin."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Bütün seyfləriniz vahid məkanda"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Fərdi, ailə və biznes seyfləri artıq burada sadalanır."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Kolleksiyalar və qovluqlar artıq yeni ada sahibdir"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Eyni özəlliklər, daha aydın adlar. Kolleksiyalara artıq paylaşılan qovluq deyilir. Qovluqlar isə \"Qovluqlarım\" oldu."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Təhlükəsizlik fəaliyyətini izlə"
@@ -17238,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Təşkilatınız böyüdükcə yeni riskləri aşkar etmək və ən son metrikaları görmək üçün hesabatları və təhlil nəticələrini müntəzəm olaraq yeniləyin."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Filtrləri qarışdır və uyuşdur"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "İstədiyiniz nəticəyə daha tez çatmaq üçün eyni anda bir neçə filtr istifadə edin. Siz başqa səhifəyə keçsəniz belə filtrlər aktiv qalacaq."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$/$TOTAL$",
     "placeholders": {
@@ -17263,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elementi və ya seyfi daxilə köçürülə bilməz",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Bir xəta baş verdi. Kimlik məlumatlarınızı yoxlayıb yenidən sınayın."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Yalnız parol ilə giriş dəstəklənir."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Yalnız parol ilə giriş dəstəklənir. Yenidən sınayın və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Yararlı bir e-poçt ünvanı daxil edin və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "onePasswordImportError": {
+    "message": "Bir xəta baş verdi. Yenidən sınayın və ya fərqli bir daxilə köçürmə üsulu istifadə edin."
+  },
+  "emailIsRequired": {
+    "message": "E-poçt tələb olunur."
+  },
+  "enterValidEmailAddress": {
+    "message": "Yararlı e-poçt ünvanı daxil edin."
+  },
+  "signInAddressIsRequired": {
+    "message": "Giriş ünvanı tələb olunur."
+  },
+  "enterValidSignInAddress": {
+    "message": "Yararlı bir giriş ünvanı daxil edin."
+  },
+  "secretKeyIsRequired": {
+    "message": "Gizli açar tələb olunur."
+  },
+  "enterValidSecretKey": {
+    "message": "Yararlı bir gizli açar daxil edin."
+  },
+  "passwordIsRequired": {
+    "message": "Parol tələb olunur."
+  },
+  "enterValidVerificationCode": {
+    "message": "Yararlı bir doğrulama kodu daxil edin."
+  },
+  "signInAddress": {
+    "message": "Giriş ünvanı"
+  },
+  "onePasswordEmail": {
+    "message": "1Password e-poçtu"
+  },
+  "onePasswordEmailHint": {
+    "message": "1Password-a giriş etmək üçün istifadə etdiyiniz e-poçtu daxil edin"
   },
   "secretKey": {
     "message": "Gizli açar"
@@ -17734,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Erişim qaydaları"
   },
+  "pamAccessRuleActive": {
+    "message": "Aktiv"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Qeyri-aktiv"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Qeyri-aktiv olduğu zaman, qayda erişimi məhdudlaşdırmır."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Qaydanı aktivləşdir"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Qaydanı deaktiv et"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Erişim qaydası aktivdir."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Erişim qaydası deaktivdir."
+  },
   "pamAccessRuleEnabled": {
     "message": "Fəaldır"
   },
@@ -17758,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Həssas kimlik məlumatlarına kimin, hansı şərtlər altında və nə qədər müddətə erişim tələb edə biləcəyinə nəzarət etmək üçün qaydalar müəyyən edin."
   },
+  "pamAccessRuleCreate": {
+    "message": "Erişim qaydası yarat"
+  },
   "pamAccessRuleNew": {
     "message": "Yeni qayda"
   },
@@ -17776,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Ümumi məlumat"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Erişim müddəti"
   },
@@ -17788,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Bu erişim qaydası bütün seçilmiş kolleksiyalara tətbiq olunacaq."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Bütün sorğular və qərarlar qeydə alınır."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Audit log-una bax"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Kolleksiyalar yüklənə bilmədi. Yenidən sınamaq üçün səhifəni təzələyin."
   },
@@ -17797,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Açıqlama"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "İlkin erişim müddəti"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "İlkin müddət"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maksimum erişim müddəti"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maksimum müddət"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Məhdudiyyət yoxdur"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "İstənilən icarə müqaviləsi, sorğu göndərənin istəyindən asılı olmayaraq, maksimum bu müddətlə məhduddur."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Tələb olunan müddətdən asılı olmayaraq erişim, bu müddətlə məhduddur."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 dəqiqə"
@@ -17827,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 saat"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 gün"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 gün"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 saat"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 gün"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 gün"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Eyni anda yalnız 1 istifadəçi aktiv erişimə sahib ola bilər"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Təsdiq alan digərləri isə hazırkı erişim bitdikdən və ya ləğv edildikdən sonra erişimi başlatmağa cəhd edə bilər."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Uzantılara erişimə icazə ver"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Üzvlər, aktiv erişimlərini yeni bir təsdiqə ehtiyac olmadan, aşağıda qeyd olunan maksimal müddətə qədər uzada bilər."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Bir dəfəyə yalnız bir istifadəçi bir icarə müqaviləsinə sahib ola bilər"
@@ -17863,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Kolleksiya menecerləri"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (kopyala)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ ($NUMBER$ kopyala)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Kopya yaradıldı. Tətbiq ediləcəyi kolleksiyanı seçin."
+  },
   "pamAccessRuleCreated": {
     "message": "Erişim qaydası yaradıldı."
   },
   "pamAccessRuleUpdated": {
     "message": "Erişim qaydası güncəlləndi."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Erişim qaydası silindi."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Erişim qaydası silinsin?"
@@ -17880,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Erişim qaydasını deaktiv et"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Bu qayda, yeni erişim sorğularına tətbiq olunmayacaq."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Nəsə səhv getdi. Qaydanız saxlanılmadı, ancaq məlumatlarınız hələ də buradadır."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Bir ad daxil edin."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Başqa bir qayda artıq bu adı istifadə edir. Fərqli bir ad daxil edin."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Başqa bir erişim qaydası artıq bu kolleksiyalardan birini əhatə edir. Fərqli bir kolleksiya seçin."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Başqa bir erişim qaydası artıq $COLLECTIONS$ kolleksiyasını əhatə edir. Fərqli bir kolleksiya seçin.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Seçdiyiniz kolleksiyalardan biri artıq mövcud deyil. Fərqli bir kolleksiya seçin."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Seçdiyiniz kolleksiyalardan biri artıq bu təşkilatın bir parçası deyil. Fərqli bir kolleksiya seçin."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Maksimum uzantı uzunluğunu seçin və ya uzantıları söndürün."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Bu qayda artıq mövcud deyil. Ola bilsin ki, başqa bir admin onu silib."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Hələ heç bir erişim qaydası yoxdur"
@@ -17899,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Tam vaxtında"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Avto-təsdiqli"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Avto-təsdiqləmə • Müddətin 1 sa sonra bitməsi • Audit qeydiyyatı"
   },
@@ -17908,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Təsdiq tələb olunur"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "İnsan təsdiqi  • 1 təsdiq edən tələb olunur"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "İnsan təsdiqi • 1 təsdiq edən tələb olunur • Audit qeydiyyatı"
   },
@@ -17916,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP məhdudiyyəti"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Avto-təsdiqli  • IP İcazəli siyahısı"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Avto-təsdiq • IP icazəlilər siyahısı • Audit qeydiyyatı"
@@ -17929,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Təyin olunmayan"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 kolleksiya"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ kolleksiya",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Qayda axtar"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Tətbiq olunur:"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Təsdiq üsulu"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maksimum müddət"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Şərtlər"
@@ -17956,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Filtrlərinizlə uyuşan heç bir erişim qaydası yoxdur."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Aktivləşdir"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deaktiv et"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Fəallaşdır"
   },
@@ -17973,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ erişim qaydası həmişəlik silinəcək. Bunun geri dönüşü yoxdur.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Erişim qaydalarını deaktiv et"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ qayda, yeni erişim sorğularına tətbiq olunmayacaq.",
     "placeholders": {
       "count": {
         "content": "$1",
