@@ -1,5 +1,3 @@
-import { Page } from "@playwright/test";
-
 import { lockNow } from "../../src/browser/account-switcher";
 import {
   expect,
@@ -11,12 +9,7 @@ import {
 } from "../../src/browser/fixtures";
 import { account } from "../../src/credentials";
 import { LockScreen } from "../../src/lock-screen";
-import { LoginPage } from "../../src/login";
-import {
-  SETUP_EXTENSION_URL,
-  skipExtensionSetup,
-  skipOnboardingDialogs,
-} from "../../src/web/onboarding";
+import { LoginPage, logInToWebVault } from "../../src/login";
 import { PasskeySettingsPage } from "../../src/web/passkey-settings";
 import { VirtualAuthenticator } from "../../src/web/virtual-authenticator";
 
@@ -32,8 +25,6 @@ import { VirtualAuthenticator } from "../../src/web/virtual-authenticator";
  * asserts for the rpId of its environment's web vault ("localhost"), the one registered for.
  */
 
-const WEB_VAULT_ROUTE = /#\/vault/;
-const POST_LOGIN_URL = new RegExp(`${WEB_VAULT_ROUTE.source}|${SETUP_EXTENSION_URL.source}`);
 const POST_LOGIN_TIMEOUT_MS = 60_000;
 // The popup redirects to a tab route (/tabs/vault or /tabs/current) once unlocked.
 const EXTENSION_VAULT_URL = /#\/tabs\//;
@@ -42,14 +33,6 @@ const LOCK_URL = /#\/lock/;
 const PASSKEY_NAME = "e2e-shared-prf";
 const UNLOCK_WITH_PASSKEY_BUTTON = "unlock-with-passkey-button";
 const PASSKEY_NAME_CELL = "passkey-name";
-
-async function logInToWebVault(page: Page) {
-  await skipOnboardingDialogs(page);
-  await page.goto("/");
-  await new LoginPage(page).logIn();
-  await page.waitForURL(POST_LOGIN_URL, { timeout: POST_LOGIN_TIMEOUT_MS });
-  await skipExtensionSetup(page);
-}
 
 test("unlocks the extension with a passkey registered on the web vault", async ({ context }) => {
   test.setTimeout(300_000);

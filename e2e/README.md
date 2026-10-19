@@ -7,7 +7,7 @@ an ADR at which point other teams may use it.
 ```
 
 Playwright end-to-end suites for the web, browser extension and desktop clients, plus a
-`shared` suite spanning web and extension.
+`shared` suite, which can run tests involving multiple clients at the same time.
 
 Install the browser once:
 
