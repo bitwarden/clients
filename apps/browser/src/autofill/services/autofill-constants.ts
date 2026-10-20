@@ -74,7 +74,13 @@ export class AutoFillConstants {
     "e-mail adresse",
   ];
 
-  static readonly UsernameFieldNames: string[] = [
+  /**
+   * Username keywords that commonly describe the whole login form rather than the username
+   * input (e.g. `login-password`, `login-2fa`), so a match is weak evidence of a username field.
+   */
+  static readonly AmbiguousUsernameFieldNames: string[] = ["login"];
+
+  static readonly UnambiguousUsernameFieldNames: string[] = [
     // English
     "username",
     "user name",
@@ -82,13 +88,17 @@ export class AutoFillConstants {
     "user id",
     "customer id",
     "login id",
-    "login",
     // German
     "benutzername",
     "benutzer name",
     "benutzerid",
     "benutzer id",
     ...AutoFillConstants.EmailFieldNames,
+  ];
+
+  static readonly UsernameFieldNames: string[] = [
+    ...AutoFillConstants.UnambiguousUsernameFieldNames,
+    ...AutoFillConstants.AmbiguousUsernameFieldNames,
   ];
 
   static readonly TotpFieldNames: string[] = [
@@ -115,7 +125,21 @@ export class AutoFillConstants {
 
   static readonly RecoveryCodeFieldNames: string[] = ["backup", "recovery"];
 
-  static readonly AmbiguousTotpFieldNames: string[] = ["code", "pin", "otc", "otp", "2fa", "mfa"];
+  /**
+   * TOTP abbreviations that are ambiguous only because short strings collide with longer
+   * values. Matched as a whole token, they reliably indicate a TOTP field.
+   */
+  static readonly AbbreviatedTotpFieldNames: string[] = ["otc", "otp", "2fa", "mfa"];
+
+  /**
+   * TOTP keywords too weak to classify a field on their own. `code` and `pin` are ambiguous in
+   * meaning (e.g. postal code), not just length, so a whole-token match does not strengthen them.
+   */
+  static readonly AmbiguousTotpFieldNames: string[] = [
+    "code",
+    "pin",
+    ...AutoFillConstants.AbbreviatedTotpFieldNames,
+  ];
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];
 

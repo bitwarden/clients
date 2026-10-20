@@ -89,9 +89,13 @@
             [text]="'sharedFolders' | i18n"
             [route]="sharedFoldersRoute(vault)"
             [queryParamsHandling]="queryParamsHandling(sharedFoldersRoute(vault))"
-            [bitPopoverAnchorFor]="sharedFoldersCoachmark.popover()"
+            [bitPopoverAnchorFor]="
+              coachmark.isStepActive('sharedFolders')
+                ? walkthroughSharedFoldersCoachmark.popover()
+                : sharedFoldersCoachmark.popover()
+            "
             [popoverOpen]="coachmarkTargets(vault)"
-            [position]="coachmark.getStepPosition('shareWithCollections')"
+            [position]="coachmarkPosition()"
             [closeOnBackdropClick]="false"
             [spotlight]="coachmarkTargets(vault)"
           ></bit-nav-item>
@@ -118,13 +122,23 @@
         size="sm"
       />
     </bit-nav-item>
+  } @else if (showsVaultsSection()) {
+    <div
+      [bitPopoverAnchorFor]="vaultListCoachmark.popover()"
+      [popoverOpen]="coachmark.isStepActive('vaultList')"
+      [position]="coachmark.getStepPosition('vaultList')"
+      [closeOnBackdropClick]="false"
+      [spotlight]="coachmark.isStepActive('vaultList')"
+    >
+      <bit-nav-section [label]="'vaults' | i18n">
+        <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
+      </bit-nav-section>
+    </div>
   } @else if (nav.organizationDataOwnership) {
     <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
-  } @else if (nav.vaults.length > 1) {
-    <bit-nav-section [label]="'vaults' | i18n">
-      <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
-    </bit-nav-section>
   }
 }
 
 <vault-coachmark #sharedFoldersCoachmark stepId="shareWithCollections" />
+<vault-coachmark #walkthroughSharedFoldersCoachmark stepId="sharedFolders" />
+<vault-coachmark #vaultListCoachmark stepId="vaultList" />

@@ -3394,6 +3394,9 @@
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nothing was imported."
   },
@@ -3471,15 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
-  },
-  "selectImportFolder": {
-    "message": "Select a folder"
-  },
-  "selectImportCollection": {
-    "message": "Select a collection"
-  },
-  "selectImportSharedFolder": {
-    "message": "Select a shared folder"
   },
   "importTargetHintCollection": {
     "message": "Select this option if you want the imported file contents moved to a collection"
@@ -17226,14 +17220,29 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "tourTheNewVault": {
-    "message": "Tour the new vault"
+  "whatsNew": {
+    "message": "What's new"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
   },
-  "takeTheTour": {
-    "message": "Take the tour"
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Monitor security activity"
@@ -17265,6 +17274,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
@@ -17290,6 +17305,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
   },
   "secretKey": {
     "message": "Secret key"
@@ -17811,6 +17883,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Access requests"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 hour"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "starting now"
+  },
+  "pamInboxStartToday": {
+    "message": "today"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "tomorrow"
+  },
+  "pamInboxStartInDays": {
+    "message": "in $DAYS$ days",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h ago",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Access rules"

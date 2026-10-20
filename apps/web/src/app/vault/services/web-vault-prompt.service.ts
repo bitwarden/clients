@@ -1,5 +1,6 @@
-import { inject, Injectable } from "@angular/core";
-import { map, switchMap, combineLatest, zip, first, firstValueFrom } from "rxjs";
+import { inject, Injectable, Injector } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { map, switchMap, combineLatest, zip, filter, firstValueFrom } from "rxjs";
 
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -49,6 +50,7 @@ export class WebVaultPromptService {
   private newExperienceDialogService = inject(NewExperienceDialogService);
   private sideNavService = inject(SideNavService);
   private coachmarkService = inject(CoachmarkService);
+  private injector = inject(Injector);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -66,20 +68,15 @@ export class WebVaultPromptService {
 
     await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
 
-    this.checkForAutoConfirm();
-
     const serverSettings = await firstValueFrom(this.configService.serverSettings$);
     if (serverSettings?.suppressOnboardingInterstitials) {
+      await this.conditionallyOpenAutoConfirmDialog();
       return;
     }
 
     // Tour steps navigate between pages, which re-runs this on every return to the vault. Opening
     // a prompt then would stack it behind the tour.
     if (this.coachmarkService.isRunning()) {
-      return;
-    }
-
-    if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
       return;
     }
 
@@ -95,10 +92,31 @@ export class WebVaultPromptService {
       })
     ) {
       this.sideNavService.open.set(true);
+      if (await this.waitForTourToEnd()) {
+        await this.conditionallyOpenAutoConfirmDialog();
+      }
+      return;
+    }
+
+    if (await this.conditionallyOpenAutoConfirmDialog()) {
+      return;
+    }
+
+    if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
       return;
     }
 
     await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
+  }
+
+  private waitForTourToEnd(): Promise<boolean> {
+    return firstValueFrom(
+      toObservable(this.coachmarkService.isRunning, { injector: this.injector }).pipe(
+        filter((running) => !running),
+        map(() => true),
+      ),
+      { defaultValue: false },
+    );
   }
 
   private openAutoConfirmFeatureDialog(organization: Organization) {
@@ -113,7 +131,7 @@ export class WebVaultPromptService {
     });
   }
 
-  private checkForAutoConfirm() {
+  private async conditionallyOpenAutoConfirmDialog(): Promise<boolean> {
     // if the policy is enabled, then the user may only belong to one organization at most.
     const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
 
@@ -135,28 +153,31 @@ export class WebVaultPromptService {
       ),
     );
 
-    zip([organization$, autoConfirmState$, policyEnabled$, this.userId$])
-      .pipe(
-        first(),
-        switchMap(async ([organization, autoConfirmState, policyEnabled, userId]) => {
-          const showDialog =
-            !policyEnabled &&
-            autoConfirmState.showSetupDialog &&
-            !!organization &&
-            organization.canEnableAutoConfirmPolicy;
+    try {
+      const [organization, autoConfirmState, policyEnabled, userId] = await firstValueFrom(
+        zip([organization$, autoConfirmState$, policyEnabled$, this.userId$]),
+      );
 
-          if (showDialog) {
-            this.openAutoConfirmFeatureDialog(organization);
+      const showDialog =
+        !policyEnabled &&
+        autoConfirmState.showSetupDialog &&
+        !!organization &&
+        organization.canEnableAutoConfirmPolicy;
 
-            await this.autoConfirmService.upsert(userId, {
-              ...autoConfirmState,
-              showSetupDialog: false,
-            });
-          }
-        }),
-      )
-      .subscribe({
-        error: (err: unknown) => this.logService.error("Failed to update auto-confirm state", err),
+      if (!showDialog) {
+        return false;
+      }
+
+      this.openAutoConfirmFeatureDialog(organization);
+
+      await this.autoConfirmService.upsert(userId, {
+        ...autoConfirmState,
+        showSetupDialog: false,
       });
+      return true;
+    } catch (err: unknown) {
+      this.logService.error("Failed to update auto-confirm state", err);
+      return false;
+    }
   }
 }
