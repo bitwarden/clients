@@ -116,6 +116,19 @@ describe("ItemDetailsStateBadgeComponent", () => {
     expect(accessRequestSdkService.getCipherAccessState).not.toHaveBeenCalled();
   });
 
+  it("accepts isAdminConsole without changing what it reads", async () => {
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(activeLeaseState(Date.now()));
+    fixture = TestBed.createComponent(ItemDetailsStateBadgeComponent);
+    fixture.componentRef.setInput("cipher", gatedCipher());
+    fixture.componentRef.setInput("isAdminConsole", true);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await settle();
+
+    expect(component.isAdminConsole()).toBe(true);
+    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledWith("cipher-1");
+  });
+
   it("renders nothing when the PAM flag is off, even for a gated cipher", async () => {
     enabled$.next(false);
 

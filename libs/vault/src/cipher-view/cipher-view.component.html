@@ -19,6 +19,7 @@
     [collections]="resolvedCollections()"
     [folder]="folder()"
     [hideOwner]="isAdminConsole()"
+    [isAdminConsole]="isAdminConsole()"
   >
     <ng-content select="[slot=button]"></ng-content>
   </app-item-details-v2>
@@ -29,6 +30,7 @@
         bannerComponent;
         inputs: {
           cipher: cipher(),
+          isAdminConsole: isAdminConsole(),
         }
       "
     />

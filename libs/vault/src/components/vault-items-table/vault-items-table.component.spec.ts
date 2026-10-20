@@ -7,7 +7,6 @@ import {
   input,
   Signal,
   signal,
-  Type,
   WritableSignal,
 } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
@@ -27,6 +26,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -57,7 +57,7 @@ import {
 import { Measurement } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
-import { VaultScopeType } from "../../models/vault-scope";
+import { ALL_ITEMS_SCOPE, VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
 import {
@@ -65,6 +65,7 @@ import {
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "../../tokens/vault-controlled-access-filter.token";
+import { VAULT_ITEM_COLUMN, VaultItemColumn } from "../../tokens/vault-item-column.token";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 import { CoachmarkStepId } from "../coachmark/coachmark-step";
 import { CoachmarkService } from "../coachmark/coachmark.service";
@@ -150,16 +151,51 @@ class BareToolbarHostComponent {
 }
 
 /**
- * Stub for a host's Controlled access badge, rendering its row's name so a test can tell which
- * row each instance received.
+ * Stub for a host-provided column's cell, rendering its row's name so a test can tell which row
+ * each instance received.
  */
 @Component({
-  selector: "test-controlled-access-badge",
-  template: `<span>{{ cipher()?.name }}</span>`,
+  selector: "test-item-column-cell",
+  template: `<span>{{ cipher().name }}</span>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class ControlledAccessBadgeStubComponent {
-  readonly cipher = input<CipherViewLike | null>(null);
+class ItemColumnCellStubComponent {
+  readonly cipher = input.required<CipherViewLike>();
+}
+
+/**
+ * The column the host under test provides. Read lazily by {@link ItemColumnHostComponent}'s
+ * factory, so a test can set it before creating the host.
+ */
+let itemColumn: VaultItemColumn | undefined;
+
+/** A visible column keyed `status`, with `overrides` applied. */
+function itemColumnDouble(overrides: Partial<VaultItemColumn> = {}): VaultItemColumn {
+  return {
+    key: "status",
+    label: "Status",
+    component: ItemColumnCellStubComponent,
+    visible$: () => of(true),
+    ...overrides,
+  };
+}
+
+/** Hosts the table beneath a node injector carrying the optional extra column. */
+@Component({
+  selector: "test-item-column-host",
+  template: `<vault-items-table
+    [ciphers]="ciphers()"
+    [scope]="scope()"
+    [organizations]="organizations()"
+  ></vault-items-table>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent],
+  providers: [{ provide: VAULT_ITEM_COLUMN, useFactory: () => itemColumn }],
+})
+class ItemColumnHostComponent {
+  readonly ciphers = signal<CipherViewLike[]>([]);
+  readonly scope = signal<VaultScope | undefined>(undefined);
+  readonly organizations = signal<Organization[]>([]);
 }
 
 /**
@@ -168,19 +204,13 @@ class ControlledAccessBadgeStubComponent {
  */
 let controlledAccessFilter: VaultControlledAccessFilter | undefined;
 
-/**
- * A contribution offering `options`, admitting the cipher ids listed against each option id, and
- * ranking rows for the column's sort by `ranks` when given.
- */
+/** A contribution offering `options` and admitting the cipher ids listed against each option id. */
 function controlledAccessDouble(
   options: ControlledAccessFilterOption[],
   admits: Record<string, string[]>,
-  ranks?: Record<string, number>,
 ): VaultControlledAccessFilter {
   return {
     options$: of(options),
-    sortRanks$:
-      ranks == null ? undefined : () => of(new Map<string, number>(Object.entries(ranks))),
     narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]) {
       const admitted = admits[optionId];
       // An id no longer offered yields the input unchanged, as the token's contract requires.
@@ -194,10 +224,7 @@ function controlledAccessDouble(
 /** Hosts the table beneath a node injector carrying the optional Controlled access contribution. */
 @Component({
   selector: "test-controlled-access-host",
-  template: `<vault-items-table
-    [ciphers]="ciphers()"
-    [controlledAccessBadge]="badge()"
-  ></vault-items-table>`,
+  template: `<vault-items-table [ciphers]="ciphers()"></vault-items-table>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [VaultItemsTableComponent],
   providers: [
@@ -206,7 +233,6 @@ function controlledAccessDouble(
 })
 class ControlledAccessHostComponent {
   readonly ciphers = signal<CipherViewLike[]>([]);
-  readonly badge = signal<Type<unknown> | null>(null);
 }
 
 function batchBarDouble() {
@@ -1233,7 +1259,6 @@ describe("VaultItemsTableComponent", () => {
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-1" as never }),
         ]);
-        fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
 
         expect(component["visibleColumns"]()).toEqual(component["displayedColumns"]());
       });
@@ -1286,69 +1311,261 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
-  describe("controlled access column", () => {
-    /** Two rows, so a per-row badge can be told apart from a single table-wide one. */
-    function renderRows() {
-      fixture.componentRef.setInput("ciphers", [
-        cipherView({ id: "a", name: "Amazon" }),
-        cipherView({ id: "b", name: "Bank" }),
-      ]);
-      fixture.detectChanges();
+  describe("host-provided column (VAULT_ITEM_COLUMN)", () => {
+    const ROWS = () => [
+      cipherView({ id: "a", name: "Amazon" }),
+      cipherView({ id: "b", name: "Bank" }),
+      cipherView({ id: "c", name: "Cloud" }),
+    ];
+
+    let hostFixture: ComponentFixture<ItemColumnHostComponent>;
+
+    afterEach(() => {
+      itemColumn = undefined;
+    });
+
+    /** Renders the host with `column` provided and the rows loaded. */
+    function renderHost(column: VaultItemColumn): void {
+      itemColumn = column;
+      hostFixture = TestBed.createComponent(ItemColumnHostComponent);
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      hostFixture.detectChanges();
     }
 
-    /** The badge instances the column stamped, in row order. */
-    function badges(): HTMLElement[] {
-      return Array.from(fixture.nativeElement.querySelectorAll("test-controlled-access-badge"));
+    function hostComponent(): VaultItemsTableComponent<CipherViewLike> {
+      return hostFixture.debugElement.query(By.directive(VaultItemsTableComponent))
+        .componentInstance;
+    }
+
+    function hostTable(): BitTableV2Component<
+      CipherViewLike,
+      VaultItemsTableColumn,
+      VaultItemsTableFilters
+    > {
+      return hostFixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
+    }
+
+    /** The cell instances the column stamped, in row order. */
+    function cells(): HTMLElement[] {
+      return Array.from(hostFixture.nativeElement.querySelectorAll("test-item-column-cell"));
     }
 
     /** Every column header's text, in display order. The i18n double echoes the key. */
     function headers(): string[] {
-      return Array.from(fixture.nativeElement.querySelectorAll('[role="columnheader"]')).map(
+      return Array.from(hostFixture.nativeElement.querySelectorAll('[role="columnheader"]')).map(
         (header) => (header as HTMLElement).textContent?.trim() ?? "",
       );
     }
 
-    it("leaves the column out when no badge is provided", () => {
-      renderRows();
+    function hostSortedNames(): string[] {
+      return hostTable()
+        .sorted()
+        .map((cipher) => cipher.name);
+    }
 
-      expect(component["visibleColumns"]()).not.toContain("controlledAccess");
-      expect(headers()).not.toContain("controlledAccess");
-      expect(badges()).toHaveLength(0);
-    });
+    /**
+     * Lets a pending resolution land: the request is delivered on a microtask, and the ranks
+     * resolve through `toObservable`, which flushes on the pass after.
+     */
+    async function settle(): Promise<void> {
+      hostFixture.detectChanges();
+      await Promise.resolve();
+      hostFixture.detectChanges();
+      hostFixture.detectChanges();
+    }
 
-    it("adds the column when a badge is provided", () => {
-      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
-      renderRows();
-
-      expect(component["visibleColumns"]()).toContain("controlledAccess");
-      expect(headers()).toContain("controlledAccess");
-    });
-
-    it("renders the badge once per row, bound to that row", () => {
-      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
-      renderRows();
-
-      expect(badges().map((badge) => badge.textContent?.trim())).toEqual(["Amazon", "Bank"]);
-    });
-
-    it("sits last among the data columns, ahead of the actions column", () => {
-      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
-      renderRows();
-
-      const columns = component["visibleColumns"]();
-      expect(columns.indexOf("controlledAccess")).toBe(columns.indexOf("actions") - 1);
-    });
-
-    it("drops the column again when the badge is withdrawn", () => {
-      fixture.componentRef.setInput("controlledAccessBadge", ControlledAccessBadgeStubComponent);
-      renderRows();
-      expect(badges()).toHaveLength(2);
-
-      fixture.componentRef.setInput("controlledAccessBadge", null);
+    it("has only the built-in columns when nothing provides one", () => {
+      fixture.componentRef.setInput("ciphers", ROWS());
       fixture.detectChanges();
 
-      expect(component["visibleColumns"]()).not.toContain("controlledAccess");
-      expect(badges()).toHaveLength(0);
+      expect(component["visibleColumns"]()).toEqual(
+        component["displayedColumns"]().filter((c) => c !== "vault" && c !== "sharedFolders"),
+      );
+      expect(fixture.nativeElement.querySelectorAll("test-item-column-cell")).toHaveLength(0);
+    });
+
+    it("leaves the column out while visible$ is false", () => {
+      renderHost(itemColumnDouble({ visible$: () => of(false) }));
+
+      expect(hostComponent()["visibleColumns"]()).not.toContain("status");
+      expect(headers()).not.toContain("Status");
+      expect(cells()).toHaveLength(0);
+    });
+
+    it("leaves the column out when visible$ fails", () => {
+      renderHost(itemColumnDouble({ visible$: () => throwError(() => new Error("boom")) }));
+
+      expect(hostComponent()["visibleColumns"]()).not.toContain("status");
+    });
+
+    it("asks visible$ again after a failure when the scope changes", () => {
+      const visible$ = jest
+        .fn()
+        .mockReturnValueOnce(throwError(() => new Error("boom")))
+        .mockReturnValue(of(true));
+      itemColumn = itemColumnDouble({ visible$ });
+      hostFixture = TestBed.createComponent(ItemColumnHostComponent);
+      hostFixture.componentInstance.scope.set(ALL_ITEMS_SCOPE);
+      hostFixture.detectChanges();
+      expect(hostComponent()["visibleColumns"]()).not.toContain("status");
+
+      hostFixture.componentInstance.organizations.set([{ id: "org-1" } as Organization]);
+      hostFixture.detectChanges();
+
+      expect(hostComponent()["visibleColumns"]()).toContain("status");
+    });
+
+    it("shows the provider's label as the header and renders the cell once per row", () => {
+      renderHost(itemColumnDouble());
+
+      expect(headers()).toContain("Status");
+      expect(cells().map((cell) => cell.textContent?.trim())).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("uses the provider's key, ahead of the actions column", () => {
+      renderHost(itemColumnDouble());
+
+      const columns = hostComponent()["visibleColumns"]();
+      expect(columns).toContain("status");
+      expect(columns.indexOf("status" as VaultItemsTableColumn)).toBe(
+        columns.indexOf("actions") - 1,
+      );
+    });
+
+    it("hands visible$ the scope and organizations, and asks again when either changes", () => {
+      const visible$ = jest.fn(() => of(true));
+      const organization = { id: "org-1", name: "Acme corporation" } as Organization;
+      const orgScope: VaultScope = {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1" as never,
+      };
+      itemColumn = itemColumnDouble({ visible$ });
+      hostFixture = TestBed.createComponent(ItemColumnHostComponent);
+      hostFixture.componentInstance.scope.set(ALL_ITEMS_SCOPE);
+      hostFixture.detectChanges();
+
+      expect(visible$).toHaveBeenLastCalledWith({ vault: ALL_ITEMS_SCOPE, organizations: [] });
+
+      hostFixture.componentInstance.organizations.set([organization]);
+      hostFixture.detectChanges();
+      expect(visible$).toHaveBeenLastCalledWith({
+        vault: ALL_ITEMS_SCOPE,
+        organizations: [organization],
+      });
+
+      hostFixture.componentInstance.scope.set(orgScope);
+      hostFixture.detectChanges();
+      expect(visible$).toHaveBeenLastCalledWith({
+        vault: orgScope,
+        organizations: [organization],
+      });
+    });
+
+    it("throws in dev mode when the key matches a built-in column", () => {
+      itemColumn = itemColumnDouble({ key: "name" });
+
+      expect(() => TestBed.createComponent(ItemColumnHostComponent).detectChanges()).toThrow(
+        /matches a built-in vault table column/,
+      );
+    });
+
+    describe("sorting", () => {
+      /** Cloud leads, Amazon follows, and Bank has no rank. */
+      const RANKS = (): ReadonlyMap<CipherId, number> =>
+        new Map([
+          ["c" as CipherId, 0],
+          ["a" as CipherId, 1],
+        ]);
+
+      /** The column's header, by its label. */
+      function statusHeader(): HTMLElement {
+        return Array.from<HTMLElement>(
+          hostFixture.nativeElement.querySelectorAll('[role="columnheader"]'),
+        ).find((header) => header.textContent?.trim() === "Status")!;
+      }
+
+      it("is not sortable without sortRanks$", () => {
+        renderHost(itemColumnDouble());
+
+        expect(statusHeader().querySelector("button")).toBeNull();
+      });
+
+      it("is sortable with sortRanks$", () => {
+        renderHost(itemColumnDouble({ sortRanks$: () => of(RANKS()) }));
+
+        expect(statusHeader().querySelector("button")).not.toBeNull();
+      });
+
+      it("asks the provider nothing until the column is sorted", async () => {
+        const sortRanks$ = jest.fn(() => of(RANKS()));
+        renderHost(itemColumnDouble({ sortRanks$ }));
+        await settle();
+
+        expect(sortRanks$).not.toHaveBeenCalled();
+      });
+
+      it("orders rows by the provider's rank, unranked rows last", async () => {
+        renderHost(itemColumnDouble({ sortRanks$: () => of(RANKS()) }));
+
+        hostTable().sort.set({ column: "status" as VaultItemsTableColumn, direction: "asc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
+      });
+
+      it("moves unranked rows to the top when sorted descending", async () => {
+        renderHost(itemColumnDouble({ sortRanks$: () => of(RANKS()) }));
+
+        hostTable().sort.set({ column: "status" as VaultItemsTableColumn, direction: "desc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Bank", "Amazon", "Cloud"]);
+      });
+
+      it("re-sorts when the provider emits new ranks", async () => {
+        const ranks$ = new Subject<ReadonlyMap<CipherId, number>>();
+        renderHost(itemColumnDouble({ sortRanks$: () => ranks$ }));
+
+        hostTable().sort.set({ column: "status" as VaultItemsTableColumn, direction: "asc" });
+        await settle();
+        ranks$.next(RANKS());
+        await settle();
+        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
+
+        ranks$.next(new Map([["b" as CipherId, 0]]));
+        await settle();
+        expect(hostSortedNames()).toEqual(["Bank", "Amazon", "Cloud"]);
+      });
+
+      it("calls sortRanks$ as a method, so an implementation can read `this`", async () => {
+        class ClassBasedColumn implements VaultItemColumn {
+          private readonly ranks = RANKS();
+          readonly key = "status";
+          readonly label = "Status";
+          readonly component = ItemColumnCellStubComponent;
+          visible$() {
+            return of(true);
+          }
+          sortRanks$() {
+            return of(this.ranks);
+          }
+        }
+        renderHost(new ClassBasedColumn());
+
+        hostTable().sort.set({ column: "status" as VaultItemsTableColumn, direction: "asc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
+      });
+
+      it("keeps every row, in name order, when the provider's ranks fail", async () => {
+        renderHost(itemColumnDouble({ sortRanks$: () => throwError(() => new Error("boom")) }));
+
+        hostTable().sort.set({ column: "status" as VaultItemsTableColumn, direction: "asc" });
+        await settle();
+
+        expect(hostSortedNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+      });
     });
   });
 
@@ -2784,105 +3001,6 @@ describe("VaultItemsTableComponent", () => {
       await settle();
 
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
-    });
-
-    describe("sorting the column", () => {
-      /** Cloud leads, Amazon follows, and Bank has no state, so it is unranked. */
-      const RANKS = { c: 0, a: 1 };
-
-      let sortRanks: jest.SpyInstance;
-
-      function renderSortableHost(): void {
-        controlledAccessFilter = controlledAccessDouble(OPTIONS, {}, RANKS);
-        sortRanks = jest.spyOn(controlledAccessFilter, "sortRanks$" as never);
-        hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
-        hostFixture.componentInstance.badge.set(ControlledAccessBadgeStubComponent);
-        hostFixture.componentInstance.ciphers.set(ROWS());
-        hostFixture.detectChanges();
-      }
-
-      function hostSortedNames(): string[] {
-        return hostTable()
-          .sorted()
-          .map((cipher) => cipher.name);
-      }
-
-      it("asks the host nothing until the column is sorted", async () => {
-        renderSortableHost();
-        await settle();
-
-        expect(sortRanks).not.toHaveBeenCalled();
-      });
-
-      it("orders rows by the host's rank, unranked rows last", async () => {
-        renderSortableHost();
-
-        hostTable().sort.set({ column: "controlledAccess", direction: "asc" });
-        await settle();
-
-        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
-      });
-
-      it("moves unranked rows to the top when sorted descending", async () => {
-        renderSortableHost();
-
-        hostTable().sort.set({ column: "controlledAccess", direction: "desc" });
-        await settle();
-
-        expect(hostSortedNames()).toEqual(["Bank", "Amazon", "Cloud"]);
-      });
-
-      /** Renders the host with `filter` provided and the column sorted ascending. */
-      async function sortWith(filter: VaultControlledAccessFilter): Promise<void> {
-        controlledAccessFilter = filter;
-        hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
-        hostFixture.componentInstance.badge.set(ControlledAccessBadgeStubComponent);
-        hostFixture.componentInstance.ciphers.set(ROWS());
-        hostFixture.detectChanges();
-
-        hostTable().sort.set({ column: "controlledAccess", direction: "asc" });
-        await settle();
-      }
-
-      it("calls the host's sortRanks$ as a method, so an implementation can read `this`", async () => {
-        class ClassBasedFilter implements VaultControlledAccessFilter {
-          private readonly ranks = new Map<string, number>(Object.entries(RANKS));
-          readonly options$ = of(OPTIONS);
-          narrow$<C extends CipherViewLike>(_optionId: string, ciphers: C[]) {
-            return of(ciphers);
-          }
-          sortRanks$() {
-            return of(this.ranks);
-          }
-        }
-
-        await sortWith(new ClassBasedFilter());
-
-        expect(hostSortedNames()).toEqual(["Cloud", "Amazon", "Bank"]);
-      });
-
-      it("keeps every row, in name order, when the host's ranks fail", async () => {
-        await sortWith(
-          Object.assign(controlledAccessDouble(OPTIONS, {}), {
-            sortRanks$: () => throwError(() => new Error("boom")),
-          }),
-        );
-
-        expect(hostSortedNames()).toEqual(["Amazon", "Bank", "Cloud"]);
-      });
-
-      it("keeps name order when the host offers no ranks", async () => {
-        controlledAccessFilter = controlledAccessDouble(OPTIONS, {});
-        hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
-        hostFixture.componentInstance.badge.set(ControlledAccessBadgeStubComponent);
-        hostFixture.componentInstance.ciphers.set(ROWS());
-        hostFixture.detectChanges();
-
-        hostTable().sort.set({ column: "controlledAccess", direction: "asc" });
-        await settle();
-
-        expect(hostSortedNames()).toEqual(["Amazon", "Bank", "Cloud"]);
-      });
     });
 
     it("resets when Clear all is clicked", async () => {

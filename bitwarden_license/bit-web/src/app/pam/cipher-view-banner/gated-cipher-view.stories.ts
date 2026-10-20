@@ -26,11 +26,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  CipherViewComponent,
-  CIPHER_VIEW_BANNER,
-  ITEM_DETAILS_STATE_BADGE,
-} from "@bitwarden/vault";
+import { CipherViewComponent, CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
@@ -146,7 +142,7 @@ function gated(state: () => Record<string, unknown>) {
     imports: [CipherViewBannerComponent, ItemDetailsStateBadgeComponent],
     providers: [
       { provide: CIPHER_VIEW_BANNER, useValue: CipherViewBannerComponent },
-      { provide: ITEM_DETAILS_STATE_BADGE, useValue: ItemDetailsStateBadgeComponent },
+      { provide: ITEM_DETAILS_BADGE, useValue: ItemDetailsStateBadgeComponent },
       {
         provide: AccessRequestSdkService,
         useValue: {

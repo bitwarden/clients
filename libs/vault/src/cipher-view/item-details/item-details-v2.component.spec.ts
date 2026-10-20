@@ -21,17 +21,18 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
-import { ITEM_DETAILS_STATE_BADGE } from "../../tokens/item-details-state-badge.token";
+import { ITEM_DETAILS_BADGE } from "../../tokens/item-details-badge.token";
 
 import { ItemDetailsV2Component } from "./item-details-v2.component";
 
 @Component({
   selector: "app-stub-state-badge",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span data-testid="stub-state-badge">{{ cipher()?.name }}</span>`,
+  template: `<span data-testid="stub-state-badge">{{ cipher().name }}</span>`,
 })
 class StubStateBadgeComponent {
-  readonly cipher = input<CipherView | null>(null);
+  readonly cipher = input.required<CipherView>();
+  readonly isAdminConsole = input(false);
 }
 
 describe("ItemDetailsV2Component", () => {
@@ -203,10 +204,10 @@ describe("ItemDetailsV2Component", () => {
   });
 });
 
-describe("ItemDetailsV2Component state badge seam", () => {
+describe("ItemDetailsV2Component badge seam (ITEM_DETAILS_BADGE)", () => {
   const cipher = { id: "cipher1", name: "cipher name", collectionIds: [] } as unknown as CipherView;
 
-  async function render(badge: typeof StubStateBadgeComponent | null) {
+  async function render(badge: typeof StubStateBadgeComponent | null, isAdminConsole = false) {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
@@ -221,12 +222,13 @@ describe("ItemDetailsV2Component state badge seam", () => {
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
         { provide: Vfo1TerminologyService, useFactory: () => ({ enabled: signal(false) }) },
-        ...(badge == null ? [] : [{ provide: ITEM_DETAILS_STATE_BADGE, useValue: badge }]),
+        ...(badge == null ? [] : [{ provide: ITEM_DETAILS_BADGE, useValue: badge }]),
       ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(ItemDetailsV2Component);
     fixture.componentRef.setInput("cipher", cipher);
+    fixture.componentRef.setInput("isAdminConsole", isAdminConsole);
     fixture.detectChanges();
     return fixture;
   }
@@ -255,5 +257,14 @@ describe("ItemDetailsV2Component state badge seam", () => {
 
     const row = nameRow(fixture);
     expect(row.lastElementChild?.contains(badge.nativeElement)).toBe(true);
+  });
+
+  it("hands the badge the cipher and isAdminConsole", async () => {
+    const fixture = await render(StubStateBadgeComponent, true);
+
+    const badge = fixture.debugElement.query(By.directive(StubStateBadgeComponent))
+      .componentInstance as StubStateBadgeComponent;
+    expect(badge.cipher()).toBe(cipher);
+    expect(badge.isAdminConsole()).toBe(true);
   });
 });

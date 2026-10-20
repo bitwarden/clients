@@ -7,11 +7,11 @@ import {
   effect,
   inject,
   input,
+  isDevMode,
   output,
   signal,
   Signal,
   TrackByFunction,
-  Type,
   untracked,
   viewChild,
 } from "@angular/core";
@@ -38,7 +38,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -96,6 +96,11 @@ import {
   VAULT_CONTROLLED_ACCESS_FILTER,
   VaultControlledAccessFilter,
 } from "../../tokens/vault-controlled-access-filter.token";
+import {
+  VAULT_ITEM_COLUMN,
+  VaultItemColumn,
+  VaultItemColumnScope,
+} from "../../tokens/vault-item-column.token";
 import { sharedFolderName } from "../../utils/shared-folder-name";
 import {
   idString,
@@ -139,21 +144,37 @@ export const MAX_SELECTION_COUNT = 500;
 export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 
 /**
- * Every column the table declares, in display order. Doubles as the default column set — which of
- * them actually render is narrowed from here per the rows on hand, see {@link
- * VaultItemsTableComponent.visibleColumns}.
+ * Every built-in column, in display order. Doubles as the default column set — which of them
+ * actually render is narrowed from here per the rows on hand, see {@link
+ * VaultItemsTableComponent.visibleColumns}. A host-provided column (`VAULT_ITEM_COLUMN`) is not
+ * listed; it renders before `actions`.
  */
 export const VAULT_COLUMNS = Object.freeze([
   "name",
   "vault",
   "sharedFolders",
   "myFolders",
-  "controlledAccess",
   "actions",
 ] as const);
 
 /** Passed as `defineTable`'s second type parameter. */
 export type VaultItemsTableColumn = (typeof VAULT_COLUMNS)[number];
+
+/**
+ * The host-provided column's ID, or `undefined` when no host provides one. Throws in dev mode when
+ * the ID matches a built-in column.
+ */
+function itemColumnKey(column: VaultItemColumn | null): VaultItemsTableColumn | undefined {
+  if (column == null) {
+    return undefined;
+  }
+  if (isDevMode() && (VAULT_COLUMNS as readonly string[]).includes(column.key)) {
+    throw new Error(`VAULT_ITEM_COLUMN key "${column.key}" matches a built-in vault table column.`);
+  }
+  // The one cast that admits the provider's ID: `VaultItemsTableColumn` stays a closed union of
+  // the built-in IDs, so a typo in one of them still fails to compile.
+  return column.key as VaultItemsTableColumn;
+}
 
 /**
  * The `filterValues` key `bit-table-v2` reserves for a projected `bit-search` (its module-private
@@ -317,12 +338,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** How the built-in Copy quick action presents itself. */
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
 
-  /**
-   * Optional per-row badge for the Controlled access column, rendered with the row as its
-   * `cipher` input. Unset, the column is absent; the host alone decides when the column applies.
-   */
-  readonly controlledAccessBadge = input<Type<unknown> | null>(null);
-
   /** Folders used to resolve the My folders column and chip. */
   readonly folders = input<FolderView[]>([]);
 
@@ -366,8 +381,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly orgRequiresDataOwnership = input<boolean>(false);
 
   /**
-   * The vault scope — relayed to the empty state untouched; see {@link EmptyVaultComponent}.
-   * The table has no notion of vault scope itself.
+   * The vault scope — relayed to the empty state untouched; see {@link EmptyVaultComponent}. Also
+   * handed, with {@link organizations}, to the host-provided column's `visible$` as
+   * {@link VaultItemColumnScope}. The table has no notion of vault scope itself.
    */
   readonly scope = input<VaultScope>();
 
@@ -467,14 +483,42 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly trackByCipherId: TrackByFunction<C> = (_, row) => String(row.id);
 
-  /** The configured column set to display */
-  protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);
+  /** Host contribution of one extra column. Unprovided, the table has only its built-in columns. */
+  protected readonly itemColumn: VaultItemColumn | null = inject(VAULT_ITEM_COLUMN, {
+    optional: true,
+  });
+
+  /** The host-provided column's ID, checked against the built-in IDs. */
+  protected readonly itemColumnKey = itemColumnKey(this.itemColumn);
+
+  /** The configured column set to display. A host-provided column sits before `actions`. */
+  protected readonly displayedColumns = signal<VaultItemsTableColumn[]>(
+    this.itemColumnKey == null
+      ? [...VAULT_COLUMNS]
+      : [...VAULT_COLUMNS.slice(0, -1), this.itemColumnKey, "actions"],
+  );
+
+  /** What the host-provided column's `visible$` decides from. */
+  private readonly itemColumnScope = computed<VaultItemColumnScope>(() => ({
+    vault: this.scope(),
+    organizations: this.organizations(),
+  }));
+
+  /** Whether the host-provided column shows. A failed read hides it until the scope changes. */
+  private readonly itemColumnVisible = toSignal(
+    toObservable(this.itemColumnScope).pipe(
+      switchMap((scope) =>
+        (this.itemColumn?.visible$(scope) ?? of(false)).pipe(catchError(() => of(false))),
+      ),
+    ),
+    { initialValue: false },
+  );
 
   /**
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
-   *  - Controlled access is omitted unless a host supplies {@link controlledAccessBadge}
+   *  - The host-provided column is omitted while its `visible$` is false
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -484,8 +528,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
     }
-    if (this.controlledAccessBadge() == null) {
-      hidden.add("controlledAccess");
+    if (this.itemColumnKey != null && !this.itemColumnVisible()) {
+      hidden.add(this.itemColumnKey);
     }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
@@ -1123,12 +1167,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * Turns true the first time the Controlled access column is sorted, so a vault that never sorts
-   * it makes no `sortRanks$` calls. Delivered on a microtask, as {@link controlledAccessRequested}.
+   * Turns true the first time the host-provided column is sorted, so a vault that never sorts it
+   * makes no `sortRanks$` calls. Delivered on a microtask, as {@link controlledAccessRequested}.
    */
-  private readonly controlledAccessSortRequests = new Subject<void>();
-  private readonly controlledAccessSortRequested = toSignal(
-    this.controlledAccessSortRequests.pipe(
+  private readonly contributedSortRequests = new Subject<void>();
+  private readonly contributedSortRequested = toSignal(
+    this.contributedSortRequests.pipe(
       take(1),
       observeOn(asapScheduler),
       map(() => true),
@@ -1137,42 +1181,43 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   );
 
   /**
-   * Each row's Controlled access sort rank, by cipher id. A change keeps the old map until the new
-   * one lands, so the order holds steady meanwhile. A failed read falls back to name order: an
-   * error reaching the signal would rethrow inside `bit-table-v2`'s sort and blank the table.
+   * Each row's sort rank in the host-provided column, by cipher id. A change keeps the old map
+   * until the new one lands, so the order holds steady meanwhile. A failed read falls back to name
+   * order: an error reaching the signal would rethrow inside `bit-table-v2`'s sort and blank the
+   * table.
    */
-  private readonly controlledAccessRanks: Signal<Map<string, number> | undefined> = toSignal(
+  private readonly contributedRanks: Signal<ReadonlyMap<CipherId, number> | undefined> = toSignal(
     toObservable(
       computed(() => ({
-        requested: this.controlledAccessSortRequested(),
+        requested: this.contributedSortRequested(),
         ciphers: this.ciphers(),
       })),
     ).pipe(
       switchMap(({ requested, ciphers }) => {
-        const provider = this.controlledAccessFilter;
+        const provider = this.itemColumn;
         if (!requested || provider?.sortRanks$ == null) {
-          return of<Map<string, number> | undefined>(undefined);
+          return of<ReadonlyMap<CipherId, number> | undefined>(undefined);
         }
         // Called on the provider, not detached: an implementation may read `this`.
         return provider
           .sortRanks$(ciphers)
-          .pipe(catchError(() => of<Map<string, number> | undefined>(undefined)));
+          .pipe(catchError(() => of<ReadonlyMap<CipherId, number> | undefined>(undefined)));
       }),
     ),
     { initialValue: undefined },
   );
 
   /**
-   * Orders the Controlled access column by the host's {@link controlledAccessRanks}, unranked rows
-   * last ascending. Until the ranks resolve every row ties, leaving them in name order.
+   * Orders the host-provided column by its {@link contributedRanks}, unranked rows last ascending.
+   * Until the ranks resolve every row ties, leaving them in name order.
    */
-  protected readonly sortByControlledAccess: SortFn = (a: C, b: C) => {
-    this.controlledAccessSortRequests.next();
-    const ranks = this.controlledAccessRanks();
+  protected readonly sortByContributed: SortFn = (a: C, b: C) => {
+    this.contributedSortRequests.next();
+    const ranks = this.contributedRanks();
     if (ranks === undefined) {
       return 0;
     }
-    return this.compareRanks(ranks.get(String(a.id)), ranks.get(String(b.id)));
+    return this.compareRanks(ranks.get(a.id as CipherId), ranks.get(b.id as CipherId));
   };
 
   /** Like {@link compareChips}: a missing rank sorts after a present one, and ties return `0`. */

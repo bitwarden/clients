@@ -32,7 +32,7 @@ import { isGovernedCipher } from "../helpers/governed-cipher";
 import { liveActiveLease } from "../helpers/lease-liveness";
 
 /**
- * Binds `ITEM_DETAILS_STATE_BADGE`, the access-state pill on the open item's name row. A live
+ * Binds `ITEM_DETAILS_BADGE`, the access-state pill on the open item's name row. A live
  * lease shows no pill, since the banner heading below runs its own countdown and two timers would
  * drift visibly.
  */
@@ -44,7 +44,9 @@ import { liveActiveLease } from "../helpers/lease-liveness";
   templateUrl: "./item-details-state-badge.component.html",
 })
 export class ItemDetailsStateBadgeComponent {
-  readonly cipher = input<CipherView | null>(null);
+  readonly cipher = input.required<CipherView>();
+  /** Set by the item details when the item is open in the Admin Console. Not read yet. */
+  readonly isAdminConsole = input(false);
 
   private readonly configService = inject(ConfigService);
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
@@ -65,7 +67,6 @@ export class ItemDetailsStateBadgeComponent {
     switchMap(([cipher, enabled, revealed]) => {
       if (
         !enabled ||
-        cipher == null ||
         cipher.id == null ||
         !isGovernedCipher(cipher, revealed.has(cipher.id as CipherId))
       ) {

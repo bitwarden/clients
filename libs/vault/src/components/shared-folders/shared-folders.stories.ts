@@ -298,7 +298,6 @@ export default {
               optionsForItem: (name) => `Options for ${name}`,
               selectAllRows: "Select all rows",
               selectRow: "Select row",
-              pamSharedFolderPrivilegedControls: "Privileged controls: access requires a request",
               // Row actions
               edit: "Edit",
               access: "Access",

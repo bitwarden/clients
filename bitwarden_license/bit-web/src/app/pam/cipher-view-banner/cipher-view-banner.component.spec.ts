@@ -375,6 +375,18 @@ describe("CipherViewBannerComponent", () => {
       expect(query("bit-card")).toBeNull();
     });
 
+    it("accepts isAdminConsole without changing what it reads", async () => {
+      fixture = TestBed.createComponent(CipherViewBannerComponent);
+      fixture.componentRef.setInput("cipher", gatedCipher());
+      fixture.componentRef.setInput("isAdminConsole", true);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.isAdminConsole()).toBe(true);
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledWith("cipher-1");
+    });
+
     it("renders nothing when the PAM feature flag is off", async () => {
       enabled$.next(false);
 

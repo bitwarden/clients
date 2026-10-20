@@ -277,18 +277,24 @@
     </bit-cell>
   </bit-column>
 
-  <!-- Controlled access -->
-  @if (controlledAccessBadge(); as badge) {
-    <bit-column sortable [sortFn]="sortByControlledAccess" width="minmax(140px, 200px)">
-      <bit-header-cell>{{ "controlledAccess" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.controlledAccess; let row"
-        [class.tw-cursor-pointer]="itemAction() != null"
-        (click)="onCellActivate(row, $event)"
+  <!-- Host-provided column -->
+  @if (itemColumn; as column) {
+    @if (itemColumnKey; as key) {
+      <bit-column
+        [sortable]="column.sortRanks$ != null"
+        [sortFn]="sortByContributed"
+        width="minmax(140px, 200px)"
       >
-        <ng-container *ngComponentOutlet="badge; inputs: { cipher: row }" />
-      </bit-cell>
-    </bit-column>
+        <bit-header-cell>{{ column.label }}</bit-header-cell>
+        <bit-cell
+          *bitCellDef="table.columns[key]; let row"
+          [class.tw-cursor-pointer]="itemAction() != null"
+          (click)="onCellActivate(row, $event)"
+        >
+          <ng-container *ngComponentOutlet="column.component; inputs: { cipher: row }" />
+        </bit-cell>
+      </bit-column>
+    }
   }
 
   <!-- Options -->

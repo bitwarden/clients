@@ -25,10 +25,7 @@ import {
 import { OrgIconDirective } from "../../components/org-icon.directive";
 import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
-import {
-  ITEM_DETAILS_STATE_BADGE,
-  ItemDetailsStateBadge,
-} from "../../tokens/item-details-state-badge.token";
+import { ITEM_DETAILS_BADGE, ItemDetailsBadge } from "../../tokens/item-details-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -50,16 +47,14 @@ export class ItemDetailsV2Component {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
 
-  /**
-   * Optional host-provided badge on the item name row, used by the web vault for
-   * privileged-access state.
-   */
-  protected readonly stateBadgeComponent: ItemDetailsStateBadge | null = inject(
-    ITEM_DETAILS_STATE_BADGE,
-    { optional: true },
-  );
+  /** Optional host-provided badge on the item name row; null when unprovided. */
+  protected readonly badgeComponent: ItemDetailsBadge | null = inject(ITEM_DETAILS_BADGE, {
+    optional: true,
+  });
 
   readonly hideOwner = input<boolean>(false);
+  /** Whether the item is open in the Admin Console. Relayed to the badge. */
+  readonly isAdminConsole = input(false);
   readonly cipher = input.required<CipherView>();
   readonly organization = input<Organization | undefined>();
   readonly folder = input<FolderView | undefined>();

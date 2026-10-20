@@ -38,13 +38,6 @@ export abstract class VaultControlledAccessFilter {
    * (such as from a bookmarked link) must yield the input unchanged, not an empty list.
    */
   abstract narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]): Observable<C[]>;
-
-  /**
-   * Each row's place in the vault table's Controlled access sort, keyed by cipher id: lower sorts
-   * first ascending. A row the map leaves out sorts after every ranked one. Unset, the column's
-   * sort leaves rows in name order.
-   */
-  readonly sortRanks$?: <C extends CipherViewLike>(ciphers: C[]) => Observable<Map<string, number>>;
 }
 
 export const VAULT_CONTROLLED_ACCESS_FILTER = new SafeInjectionToken<VaultControlledAccessFilter>(

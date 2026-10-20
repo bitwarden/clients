@@ -12,7 +12,12 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { CIPHER_VIEW_BANNER, ITEM_DETAILS_STATE_BADGE } from "@bitwarden/vault";
+import {
+  CIPHER_VIEW_BANNER,
+  ITEM_DETAILS_BADGE,
+  SHARED_FOLDER_DECORATION,
+  VAULT_ITEM_COLUMN,
+} from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
@@ -46,8 +51,10 @@ import { MyLeasesService } from "./services/my-leases.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
+import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
 import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
+import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 
 import {
@@ -130,10 +137,20 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
     }),
+    // One instance behind both the filter and the column, so they share one per-row state cache.
     safeProvider({
-      provide: VAULT_CONTROLLED_ACCESS_FILTER,
+      provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,
       deps: [],
+    }),
+    safeProvider({
+      provide: VAULT_CONTROLLED_ACCESS_FILTER,
+      useExisting: ControlledAccessVaultFilterService,
+    }),
+    safeProvider({
+      provide: VAULT_ITEM_COLUMN,
+      useFactory: controlledAccessColumn,
+      deps: [I18nService, ConfigService, ControlledAccessVaultFilterService],
     }),
     // Root-level because the route guard resolves it before any route-provided service exists.
     safeProvider({
@@ -158,8 +175,12 @@ export function providePam(): SafeProvider[] {
       useValue: CipherViewBannerComponent,
     }),
     safeProvider({
-      provide: ITEM_DETAILS_STATE_BADGE,
+      provide: ITEM_DETAILS_BADGE,
       useValue: ItemDetailsStateBadgeComponent,
+    }),
+    safeProvider({
+      provide: SHARED_FOLDER_DECORATION,
+      useValue: GovernedSharedFolderIconComponent,
     }),
     safeProvider({
       provide: AccessEventService,

@@ -37,6 +37,7 @@ import { CipherViewComponent } from "./cipher-view.component";
 })
 class TestBannerComponent {
   readonly cipher = input<CipherView>();
+  readonly isAdminConsole = input(false);
 }
 
 describe("CipherViewComponent", () => {
@@ -146,6 +147,7 @@ describe("CipherViewComponent", () => {
             bannerComponent;
             inputs: {
               cipher: cipher(),
+              isAdminConsole: isAdminConsole(),
             }
           "
       />
@@ -308,6 +310,19 @@ describe("CipherViewComponent", () => {
         "app-autofill-options-view",
         "app-item-history-v2",
       ]);
+    });
+
+    it("hands the banner the cipher and isAdminConsole", async () => {
+      await setupRealTemplate(true);
+      const cipher = loginCipher();
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.componentRef.setInput("isAdminConsole", true);
+      fixture.detectChanges();
+
+      const banner = fixture.debugElement.query(By.directive(TestBannerComponent))
+        .componentInstance as TestBannerComponent;
+      expect(banner.cipher()).toBe(cipher);
+      expect(banner.isAdminConsole()).toBe(true);
     });
 
     it("keeps the general vault callouts above the item details", async () => {

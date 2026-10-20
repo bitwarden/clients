@@ -285,7 +285,7 @@ shared ticker.
 
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
-binds them all: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_STATE_BADGE`
+binds them all: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`
 (all `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill straight off the collection's server-derived

@@ -129,6 +129,8 @@ const CUSTOM_OPTION = "custom";
 export class CipherViewBannerComponent implements OnInit {
   /** The cipher the view is showing, partial when the server gated it. */
   readonly cipher = input.required<CipherView>();
+  /** Set by the cipher view when the item is open in the Admin Console. Not read yet. */
+  readonly isAdminConsole = input(false);
 
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly accessRequestCancelService = inject(AccessRequestCancelService);
