@@ -159,6 +159,11 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import {
+  DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+  DEV_TOOLS_RELOAD_APP,
+  FeatureFlagOverrideProviders,
+} from "@bitwarden/dev-tools";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -928,6 +933,15 @@ const safeProviders: SafeProvider[] = [
     provide: SHARE_ITEM_PRESENTER,
     useExisting: BrowserShareItemPresenter,
     deps: [],
+  }),
+  ...FeatureFlagOverrideProviders,
+  safeProvider({
+    provide: DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+    useValue: process.env.ENV === "development",
+  }),
+  safeProvider({
+    provide: DEV_TOOLS_RELOAD_APP,
+    useValue: () => BrowserApi.reloadExtension(),
   }),
 ];
 

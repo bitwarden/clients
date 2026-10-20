@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
-import { TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
@@ -17,6 +17,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
+import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
 
@@ -50,6 +51,8 @@ describe("SettingsV2Component", () => {
   let mockAutofillSettingsService: Partial<AutofillSettingsServiceAbstraction>;
   let dialogService: MockProxy<DialogService>;
   let openSpy: jest.SpyInstance;
+  let overrideMenuEnabled$: BehaviorSubject<boolean>;
+  let overrideMenuService: { enabled$: BehaviorSubject<boolean>; openDialog: jest.Mock };
 
   beforeEach(waitForAsync(async () => {
     dialogService = mock<DialogService>();
@@ -57,6 +60,9 @@ describe("SettingsV2Component", () => {
     mockAccountService = {
       activeAccount$: account$ as unknown as AccountService["activeAccount$"],
     };
+
+    overrideMenuEnabled$ = new BehaviorSubject<boolean>(false);
+    overrideMenuService = { enabled$: overrideMenuEnabled$, openDialog: jest.fn() };
 
     mockBillingState = {
       hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)),
@@ -97,6 +103,7 @@ describe("SettingsV2Component", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
         { provide: AuthService, useValue: mock<AuthService>() },
+        { provide: FeatureFlagOverrideMenuService, useValue: overrideMenuService },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     });
@@ -147,6 +154,33 @@ describe("SettingsV2Component", () => {
 
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector("bit-callout")).toBeFalsy();
+  });
+
+  describe("feature flag overrides entry", () => {
+    const entry = (fixture: ComponentFixture<SettingsV2Component>) =>
+      fixture.nativeElement.querySelector("#settings_button_feature-flag-overrides");
+
+    it("is hidden when the override menu is disabled", async () => {
+      pushActiveAccount();
+
+      const fixture = TestBed.createComponent(SettingsV2Component);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(entry(fixture)).toBeFalsy();
+    });
+
+    it("opens the overrides dialog when the override menu is enabled", async () => {
+      overrideMenuEnabled$.next(true);
+      pushActiveAccount();
+
+      const fixture = TestBed.createComponent(SettingsV2Component);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      entry(fixture).click();
+
+      expect(overrideMenuService.openDialog).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("openUpgradeDialog calls PremiumUpgradeDialogComponent.open with the DialogService", async () => {
