@@ -8,8 +8,6 @@ import Domain from "../../../platform/models/domain/domain-base";
 import { PasswordHistoryData } from "../data/password-history.data";
 import { PasswordHistoryView } from "../view/password-history.view";
 
-// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/password_history.rs).
-// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class Password extends Domain {
   password!: EncString;
   lastUsedDate!: Date;

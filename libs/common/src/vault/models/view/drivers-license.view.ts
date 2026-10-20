@@ -4,8 +4,6 @@ import { DriversLicenseView as SdkDriversLicenseView } from "@bitwarden/sdk-inte
 
 import { ItemView } from "./item.view";
 
-// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/drivers_license.rs).
-// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class DriversLicenseView extends ItemView implements SdkDriversLicenseView {
   firstName: string | undefined;
   middleName: string | undefined;

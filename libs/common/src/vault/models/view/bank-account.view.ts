@@ -4,8 +4,6 @@ import { BankAccountView as SdkBankAccountView } from "@bitwarden/sdk-internal";
 
 import { ItemView } from "./item.view";
 
-// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/bank_account.rs).
-// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class BankAccountView extends ItemView implements SdkBankAccountView {
   bankName: string | undefined;
   nameOnAccount: string | undefined;

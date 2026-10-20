@@ -7,8 +7,6 @@ import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 import { View } from "../../../models/view/view";
 import { Attachment } from "../domain/attachment";
 
-// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/attachment.rs).
-// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class AttachmentView implements View {
   id?: string;
   url?: string;

@@ -8,8 +8,6 @@ import { linkedFieldOption } from "../../linked-field-option.decorator";
 
 import { ItemView } from "./item.view";
 
-// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/card.rs).
-// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class CardView extends ItemView implements SdkCardView {
   @linkedFieldOption(LinkedId.CardholderName, { sortPosition: 0 })
   cardholderName: string | undefined;

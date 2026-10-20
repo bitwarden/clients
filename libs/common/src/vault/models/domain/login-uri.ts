@@ -14,8 +14,6 @@ import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginUriData } from "../data/login-uri.data";
 import { LoginUriView } from "../view/login-uri.view";
 
-// Mirrored in the SDK (bitwarden/sdk-internal: crates/bitwarden-vault/src/cipher/login.rs).
-// Field changes here must also be made there, along with the toSdk/fromSdk mappings.
 export class LoginUri extends Domain {
   uri?: EncString;
   uriChecksum?: EncString;
