@@ -22,6 +22,7 @@ import { EmailAccountData } from "../spec-data/onepassword-1pux/email-account";
 import { EmailFieldData } from "../spec-data/onepassword-1pux/email-field";
 import { EmailFieldOnIdentityData } from "../spec-data/onepassword-1pux/email-field-on-identity";
 import { EmailFieldOnIdentityPrefilledData } from "../spec-data/onepassword-1pux/email-field-on-identity_prefilled";
+import { FastmailAliasSectionData } from "../spec-data/onepassword-1pux/fastmail-alias-section";
 import { IdentityData } from "../spec-data/onepassword-1pux/identity-data";
 import { LoginData } from "../spec-data/onepassword-1pux/login-data";
 import { MedicalRecordData } from "../spec-data/onepassword-1pux/medical-record";
@@ -974,6 +975,23 @@ describe("1Password 1Pux Importer", () => {
     expect(result.ciphers[0].login.password).toEqual("s3cret!");
   });
 
+  it("should import Fastmail alias objects from section fields", async () => {
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(FastmailAliasSectionData));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers).toHaveLength(1);
+    expect(result.ciphers[0].type).toEqual(CipherType.Login);
+    expect(result.ciphers[0].login.username).toEqual("alias@fastmail.com");
+    expect(result.ciphers[0].fields).toContainEqual(
+      expect.objectContaining({ name: "Recovery alias", value: "recovery@fastmail.com" }),
+    );
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ value: "[object Object]" }),
+    );
+  });
+
   it("should ignore an unrepresentable structured login field value", async () => {
     const data = {
       accounts: [
@@ -997,7 +1015,26 @@ describe("1Password 1Pux Importer", () => {
                       },
                     ],
                     passwordHistory: [] as unknown[],
-                    sections: [] as unknown[],
+                    sections: [
+                      {
+                        title: "Other",
+                        fields: [
+                          {
+                            title: "unknown",
+                            id: "unknown",
+                            value: { string: { unknownShape: { nested: true } } },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "text",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                    ] as unknown[],
                   },
                 },
               ],
@@ -1013,6 +1050,9 @@ describe("1Password 1Pux Importer", () => {
     expect(result.success).toBe(true);
     expect(result.errors.length).toBe(0);
     expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ value: "[object Object]" }),
+    );
   });
 
   it("does not misattribute a skipped SSH key's folder to another item", async () => {

@@ -98,7 +98,7 @@ export type LoginFieldType = (typeof LoginFieldType)[keyof typeof LoginFieldType
 export interface LoginFieldsEntity {
   // Usually a plain string, but linked-account values (e.g. a Fastmail alias)
   // arrive as a structured object. See #22838.
-  value: string | { email_address?: unknown; string?: unknown };
+  value: string | { email_address?: unknown; string?: unknown; [key: string]: unknown };
   id: string;
   name: string;
   fieldType: LoginFieldType | string;
@@ -122,6 +122,7 @@ export interface FieldsEntity {
   clipboardFilter?: string | null;
 }
 export interface Value {
+  [key: string]: unknown;
   totp?: string | null;
   date?: number | null;
   string?: string | null;
@@ -141,7 +142,7 @@ export interface Value {
 
 export interface Email {
   email_address: string;
-  provider: string | null;
+  provider: string | Record<string, unknown> | null;
 }
 
 export interface Address {
