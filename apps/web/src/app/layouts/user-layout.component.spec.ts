@@ -14,7 +14,13 @@ import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
+import {
+  DialogService,
+  NavigationModule,
+  PopoverAnchorForDirective,
+  SideNavService,
+} from "@bitwarden/components";
+import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import {
@@ -196,6 +202,8 @@ describe("UserLayoutComponent", () => {
           useValue: { getSubscriptionRoute$: () => of(null) },
         },
         { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: FeatureFlagOverrideMenuService, useValue: { enabled$: of(false) } },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
       ],
