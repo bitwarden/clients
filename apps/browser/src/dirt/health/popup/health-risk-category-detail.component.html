@@ -98,17 +98,21 @@
       ></health-excluded-items-list>
     </bit-section>
   } @else {
-    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+    <!-- shares the height with the excluded items list when there is one to show -->
+    <div
+      class="tw-flex tw-flex-col tw-justify-center tw-items-center"
+      [class.tw-h-full]="!hasExcludedItems()"
+      [class.tw-h-1/2]="hasExcludedItems()"
+    >
       <bit-status-lockup class="tw-text-main">
         <bit-svg slot="graphic" [content]="contentKeys?.emptyIcon"></bit-svg>
         <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
         <ng-container slot="description">{{ contentKeys?.emptyKey | i18n }}</ng-container>
       </bit-status-lockup>
-
-      <health-excluded-items-list
-        [items]="excludedItems()"
-        (onRestoreItem)="onRestoreItem($event)"
-      ></health-excluded-items-list>
     </div>
+    <health-excluded-items-list
+      [items]="excludedItems()"
+      (onRestoreItem)="onRestoreItem($event)"
+    ></health-excluded-items-list>
   }
 </popup-page>
