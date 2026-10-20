@@ -1,5 +1,34 @@
 @import "./toast.tokens.css";
-@import "ngx-toastr/toastr";
+
+/*
+ * The parts of ngx-toastr's stylesheet our toasts rely on, instead of importing all of it. Its
+ * width-range media queries flip each time Chrome 152+ remeasures an auto-sized extension popup,
+ * which forces a full style and layout recalc on every scroll frame.
+ */
+.toast-container {
+  pointer-events: none;
+  position: fixed;
+  z-index: 999999;
+}
+
+.toast-container * {
+  box-sizing: border-box;
+}
+
+.toast-container.toast-top-right {
+  top: 12px;
+  right: 12px;
+}
+
+.toast-container.toast-top-full-width,
+.toast-container.toast-bottom-full-width {
+  right: 0;
+  width: 100%;
+}
+
+.toast-container.toast-bottom-full-width {
+  bottom: 0;
+}
 
 /* Override all default styles from `ngx-toaster` */
 .toast-container .ngx-toastr {
@@ -11,9 +40,10 @@
   -webkit-app-region: no-drag;
 }
 
-/* Disable hover styles */
-.toast-container .ngx-toastr:hover {
-  box-shadow: none;
+.toast-container.toast-top-full-width .ngx-toastr {
+  width: 96%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .toast-container.toast-bottom-full-width .ngx-toastr {
