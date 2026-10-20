@@ -442,10 +442,10 @@ config {
     -- year.
     global_max_lease_duration: Duration = 365.days
 
-    -- How far back resolved requests are surfaced in history views: the
-    -- approver inbox history and the member's own requests page share this
-    -- one time-based window. Enforced server-side (listInboxHistory /
-    -- listMyRequests).
+    -- How far back requests are surfaced in history views, counted from when
+    -- they were submitted: the approver inbox history and the member's own
+    -- requests page share this one time-based window. Enforced server-side
+    -- (listInboxHistory / listMyRequests).
     history_window: Duration = 90.days
 }
 
@@ -775,6 +775,9 @@ rule MemberSubmitsAccessRequest {
     -- versa) is rejected rather than half-defaulted.
     requires: window_start != null implies window_end != null
     requires: window_end != null implies window_start != null
+    -- It must also start before it ends, and end in the future.
+    requires: window_start = null or window_start < window_end
+    requires: window_end = null or now < window_end
     let memberships = CollectionMembership where collection in target_cipher.collections
                                               and member = caller
     requires: memberships.count > 0
@@ -800,6 +803,9 @@ rule MemberSubmitsAccessRequest {
     let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
     requires: governing_candidates.all(r => gating_rule.creation_date <= r.creation_date)
+    -- A rule with human approval needs a reason.
+    requires: not gating_rule.has_human_approval
+              or (reason != null and trim(reason) != "")
     -- The member's collections the winning rule governs. The request is filed
     -- against one of them, and that collection's managers are its approvers.
     let paired_memberships = memberships where collection.access_rule = gating_rule
@@ -1240,6 +1246,8 @@ rule LeaseActivationRejected {
         or not RuleAllowsLease(request.requester, request.cipher)
         -- Planned, vacuous today; see ActivateLease.
         or exists LeasingFreeze{organization: request.collection.organization}
+        -- Not audited today: the server refuses these two before it records the
+        -- attempt (PAM-224).
         or now >= request.actionable_until
         or now < request.lease_not_before
     requires: cannot_start
@@ -1561,9 +1569,10 @@ deferred CanManageAccessRules    -- see: server ManageAccessRulesRequirement
 -- `EligibleRevokers(lease)`: the operators who may revoke someone's active lease:
 -- EligibleApprovers for the lease's request, plus the lease's org admins. Org
 -- admins may revoke any single lease directly (from the governance dashboard) —
--- they are not limited to the org-wide kill switch. The holder is not in this set;
--- they end their own lease through MemberEndsOwnLease, which settles to canceled,
--- and so does a revoke whose actor turns out to be the holder.
+-- they are not limited to the org-wide kill switch. Holding the lease does not put
+-- the holder in this set; they end it through MemberEndsOwnLease, which settles to
+-- canceled. A holder who is in the set anyway, because they can Manage the
+-- collection, may revoke their own lease, and that settles to canceled too.
 --
 -- Implemented in RevokeAccessLeaseCommand, which serves both: it authorizes the
 -- lease's own holder OR anyone who can Manage the lease's collection
@@ -1964,8 +1973,9 @@ surface MyAccessRequestsPage {
 
     exposes:
         for r in AccessRequest where requester = viewer
-                                  and (status = pending
-                                       or resolved_at >= now - config.history_window):
+                                  and (submitted_at >= now - config.history_window
+                                       or (status in {pending, approved}
+                                           and now < lease_not_after)):
             r.id
             r.cipher
             r.status
@@ -2032,7 +2042,7 @@ surface ActiveLeasesPage {
             when lease.requester = viewer and lease.status = active
         -- Offered only on a live lease that has not been extended yet, under a rule
         -- that allows it. Only the API reaches a lease that has already ended (see
-        -- ExtensionDeniedParentGone). The dialog should offer only durations within
+        -- MemberRequestsLeaseExtension). The dialog should offer only durations within
         -- the rule's cap; today it offers presets above it, which the server refuses
         -- (PAM-228).
         MemberRequestsExtension(viewer, lease, duration, reason)
@@ -2059,8 +2069,8 @@ surface ApproverInbox {
     exposes:
         -- Pending bucket: requests the approver may decide. Extensions never appear
         -- here — since PM-42500 they are approved at creation and never rest at
-        -- `pending` (see AutoApproveExtension). An approver sees a member's first
-        -- grant and nothing after it.
+        -- `pending` (see MemberRequestsLeaseExtension). An approver sees a member's
+        -- first grant and nothing after it.
         for r in AccessRequest where status = pending
                                   and viewer in EligibleApprovers(r):
             r.id
@@ -2076,7 +2086,7 @@ surface ApproverInbox {
         -- against this approver's scope, bounded by the shared history window.
         for r in AccessRequest where status != pending
                                   and viewer in EligibleApprovers(r)
-                                  and resolved_at >= now - config.history_window:
+                                  and submitted_at >= now - config.history_window:
             r.id
             r.cipher
             r.collection
@@ -2358,10 +2368,11 @@ invariant OrgUniqueRuleNames {
 -- PAM-17 kill switch with an optional freeze, PAM-18 freeze indicator and lift), and
 -- the member-side stories PAM-46 and PAM-49. Their audit kinds are reserved but never
 -- written (pam-audit.allium). When the design spike PAM-140 is groomed, reconcile
--- three points: whether a freeze also blocks submitting a request (PAM-15's criteria)
+-- four points: whether a freeze also blocks submitting a request (PAM-15's criteria)
 -- or only starting one (this spec); the audit and notification outcomes the kill
--- switch and the unblock should emit; and the user-facing name ("Turn off all
--- access", PAM-141).
+-- switch and the unblock should emit; the user-facing name ("Turn off all access",
+-- PAM-141); and whether a freeze also withholds gated ciphers from the whole-vault
+-- export, which mints no lease and so keeps working under a freeze.
 --
 -- Governance dashboard: epic PAM-115, story PAM-85, design in PAM-140. The server
 -- already serves the scope-wide lease lists (GET /leases/active and
