@@ -211,7 +211,9 @@ export class HealthRiskCategoryDetailComponent {
 
   // TODO: update implementation to use actual excluded items from VaultHealthReportService when available instead of all rows
   protected readonly excludedItems = computed(() => this.rows().map((row) => row.cipher));
-  protected readonly hasExcludedItems = computed(() => this.excludedItems().length > 0);
+  protected readonly hasExcludedItems = computed(
+    () => this.exclusionsEnabled() && this.excludedItems().length > 0,
+  );
 
   protected readonly trackByCipherId = (
     _: number,

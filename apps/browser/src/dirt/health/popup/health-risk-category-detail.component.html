@@ -92,10 +92,12 @@
         </bit-item>
       </cdk-virtual-scroll-viewport>
 
-      <health-excluded-items-list
-        [items]="excludedItems()"
-        (onRestoreItem)="onRestoreItem($event)"
-      ></health-excluded-items-list>
+      @if (exclusionsEnabled()) {
+        <health-excluded-items-list
+          [items]="excludedItems()"
+          (onRestoreItem)="onRestoreItem($event)"
+        ></health-excluded-items-list>
+      }
     </bit-section>
   } @else {
     <!-- shares the height with the excluded items list when there is one to show -->
@@ -110,9 +112,11 @@
         <ng-container slot="description">{{ contentKeys?.emptyKey | i18n }}</ng-container>
       </bit-status-lockup>
     </div>
-    <health-excluded-items-list
-      [items]="excludedItems()"
-      (onRestoreItem)="onRestoreItem($event)"
-    ></health-excluded-items-list>
+    @if (exclusionsEnabled()) {
+      <health-excluded-items-list
+        [items]="excludedItems()"
+        (onRestoreItem)="onRestoreItem($event)"
+      ></health-excluded-items-list>
+    }
   }
 </popup-page>
