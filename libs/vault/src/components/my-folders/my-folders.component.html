@@ -7,6 +7,8 @@
   [selection]="selection"
   [loading]="loading()"
   [trackBy]="trackById"
+  [virtualRowHeight]="rowHeight"
+  height="fill"
 >
   <bit-table-toolbar>
     <bit-search
@@ -46,14 +48,6 @@
       {{ "addFolder" | i18n }}
     </button>
   </vault-empty-folders>
-
-  <bit-bulk-actions-bar>
-    <bit-bulk-action
-      [action]="deleteSelected"
-      icon="bwi-trash"
-      [label]="'delete' | i18n"
-    ></bit-bulk-action>
-  </bit-bulk-actions-bar>
 
   <bit-column sortable defaultSort="asc" width="minmax(12rem, 20rem)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
@@ -117,3 +111,15 @@
     </bit-cell>
   </bit-column>
 </bit-table-v2>
+
+<!-- Rendered into the layout's footer region rather than inline — see the constructor. Outside the
+     table, so the bar can't find it by injection; the count and dismiss are wired explicitly. -->
+<ng-template #bulkBar>
+  <bit-bulk-actions-bar [selectedCount]="selected().length" (clear)="clearSelection()">
+    <bit-bulk-action
+      [action]="deleteSelected"
+      icon="bwi-trash"
+      [label]="'delete' | i18n"
+    ></bit-bulk-action>
+  </bit-bulk-actions-bar>
+</ng-template>

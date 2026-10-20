@@ -1,3 +1,6 @@
+import { PortalModule } from "@angular/cdk/portal";
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -15,7 +18,7 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, LayoutFooterService, ToastService } from "@bitwarden/components";
 
 import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
@@ -40,6 +43,17 @@ let nextCipherId = 0;
 const cipher = (folderId: string | undefined, overrides: Partial<CipherView> = {}): CipherView =>
   Object.assign(new CipherView(), { id: `cipher-${nextCipherId++}`, folderId }, overrides);
 
+/** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
+@Component({
+  selector: "test-footer-outlet",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class FooterOutletComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
+
 describe("MyFoldersComponent", () => {
   const userId = "user-id" as UserId;
   const folderViews$ = new BehaviorSubject<FolderView[]>([]);
@@ -51,8 +65,32 @@ describe("MyFoldersComponent", () => {
   const toastService = mock<ToastService>();
 
   let fixture: ComponentFixture<MyFoldersComponent>;
+  let footerFixture: ComponentFixture<FooterOutletComponent>;
   let component: MyFoldersComponent;
   let openDeleteDialog: jest.Mock;
+
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
+
+  /** The bulk actions bar, as rendered into the layout's footer region. */
+  const bulkBar = (): HTMLElement | null => {
+    // Runs the `afterNextRender` that hands the bar to the footer, then renders the footer.
+    TestBed.tick();
+    footerFixture.detectChanges();
+    return footerFixture.nativeElement.querySelector("bit-bulk-actions-bar");
+  };
 
   /** Selects by folder name — the table owns the checkboxes, so they carry no per-row id. */
   const selectRow = (name: string) => {
@@ -117,6 +155,7 @@ describe("MyFoldersComponent", () => {
       ],
     }).compileComponents();
 
+    footerFixture = TestBed.createComponent(FooterOutletComponent);
     fixture = TestBed.createComponent(MyFoldersComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -189,6 +228,31 @@ describe("MyFoldersComponent", () => {
   });
 
   describe("bulk delete", () => {
+    it("holds room below the table for the bar while rows are selected", () => {
+      const host: HTMLElement = fixture.nativeElement;
+      expect(host.style.marginBottom).toBe("0px");
+
+      selectRow("Banking");
+      expect(host.style.marginBottom).toBe("53px");
+
+      selectRow("Banking");
+      expect(host.style.marginBottom).toBe("0px");
+    });
+
+    it("shows the selected count on the bar and clears the selection on dismiss", () => {
+      selectAll();
+
+      const bar = bulkBar()!;
+      expect(bar.textContent).toContain("3");
+      expect(bar.textContent).toContain("delete");
+
+      bar.querySelector<HTMLButtonElement>("button[icon='bwi-clear']")!.click();
+      fixture.detectChanges();
+
+      expect(component["selected"]()).toEqual([]);
+      expect(checkedRows()).toEqual([false, false, false]);
+    });
+
     it("confirms with the pluralised copy, deletes each folder and shows the plural toast", async () => {
       selectAll();
 
@@ -257,6 +321,20 @@ describe("MyFoldersComponent", () => {
       expect(component["selected"]()).toEqual([]);
     });
   });
+
+  describe("virtual scroll", () => {
+    it("renders only the rows in the scroll window, with no paginator", () => {
+      folderViews$.next(Array.from({ length: 60 }, (_, i) => folder(`${i}`, `Folder ${i}`)));
+      fixture.detectChanges();
+
+      const rendered = fixture.debugElement.queryAll(By.css("bit-row")).length;
+      expect(rendered).toBeGreaterThan(0);
+      expect(rendered).toBeLessThan(60);
+      expect(fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-table-paginator")).toBeNull();
+    });
+  });
+
   describe("nested folders", () => {
     const names = () =>
       fixture.debugElement
