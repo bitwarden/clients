@@ -1,6 +1,6 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
-# If additional artifacts are needed, the failed "build-browser-target.yml" workflow held up by the check-run should be re-run.
+# If additional artifacts are needed for a fork PR, review it and add the "ci:signed-build" label to run "build-browser-target.yml".
 
 name: Build Browser
 
@@ -167,7 +167,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -284,7 +284,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -439,7 +439,7 @@ jobs:
           allow-unsafe-pr-checkout: true
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -597,9 +597,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{  github.event.pull_request.head.sha }}
           persist-credentials: false
-          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main

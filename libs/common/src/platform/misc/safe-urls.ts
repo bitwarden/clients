@@ -28,8 +28,9 @@ export class SafeUrls {
       return false;
     }
 
+    const normalizedUri = uri!.toLowerCase();
     for (let i = 0; i < type.length; i++) {
-      if (uri!.indexOf(type[i]) === 0) {
+      if (normalizedUri.indexOf(type[i]) === 0) {
         return true;
       }
     }

@@ -1,35 +1,19 @@
 @if (!!cipher()) {
+  @if (bannerComponent) {
+    <ng-container
+      *ngComponentOutlet="
+        bannerComponent;
+        inputs: {
+          cipher: cipher(),
+        }
+      "
+    />
+  }
+
   @if (cardIsExpired()) {
     <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
       {{ "cardExpiredMessage" | i18n }}
     </bit-callout>
-  }
-
-  @if (!removeAtRiskCallout()) {
-    @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
-      <bit-callout type="warning" [title]="'missingWebsite' | i18n">
-        {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
-      </bit-callout>
-    }
-
-    @if (showChangePasswordLink()) {
-      <bit-callout type="warning" [title]="''">
-        @if (changePasswordLink()) {
-          <a
-            bitLink
-            [href]="changePasswordLink()"
-            appStopClick
-            (click)="launchChangePassword()"
-            linkType="secondary"
-            endIcon="bwi-external-link"
-          >
-            {{ "changeAtRiskPassword" | i18n }}
-          </a>
-        } @else {
-          {{ "changeAtRiskPassword" | i18n }}
-        }
-      </bit-callout>
-    }
   }
 
   <!-- HELPER TEXT -->
@@ -58,6 +42,7 @@
       [showChangePasswordLink]="showChangePasswordLink()"
       [changePasswordLink]="changePasswordLink()"
       (handleChangePassword)="launchChangePassword()"
+      [hasAnonymousPremium]="hasAnonymousPremium()"
     ></app-login-credentials-view>
   }
 
@@ -124,5 +109,7 @@
   }
 
   <!-- ITEM HISTORY SECTION -->
-  <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
+  @if (!hideItemHistory()) {
+    <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
+  }
 }

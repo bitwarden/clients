@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, HostListener, viewChildren } from "@angular/core";
+import { Component, OnDestroy, HostListener, viewChildren, computed, Signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom } from "rxjs";
+import { lastValueFrom, switchMap, combineLatest, map, firstValueFrom, of } from "rxjs";
 
 import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -14,7 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -147,15 +147,44 @@ export class SendComponent implements OnDestroy {
     initialValue: "",
   });
 
-  // Legacy variables. TODO: Remove once the SendUI refresh is permanently enabled
   SendFilterType = SendFilterType;
-  SendType = SendType;
 
   private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
 
-  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
-    initialValue: [SendType.Text, SendType.File],
-  });
+  protected readonly hasPremium$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (!account) {
+        return of(false);
+      }
+      return this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id);
+    }),
+  );
+
+  protected readonly allowedSendTypes = toSignal(
+    combineLatest([this.sendPolicyService.allowedSendTypes$, this.hasPremium$]).pipe(
+      takeUntilDestroyed(),
+      map(([allowedSendTypes, hasPremium]) => {
+        if (!hasPremium) {
+          return allowedSendTypes.filter((st) => st !== SendType.File && st !== SendType.Item);
+        }
+        return allowedSendTypes;
+      }),
+    ),
+    { initialValue: [] },
+  );
+
+  protected readonly sendTypeFilters: Signal<{ filter: SendFilterType; translationKey: string }[]> =
+    computed(() =>
+      this.allowedSendTypes().flatMap<{ filter: SendFilterType; translationKey: string }>((st) => {
+        if (st === SendType.Text) {
+          return { filter: SendFilterType.Text, translationKey: "sendTypeText" };
+        }
+        if (st === SendType.File) {
+          return { filter: SendFilterType.File, translationKey: "sendTypeFile" };
+        }
+        return [];
+      }),
+    );
 
   constructor(
     private i18nService: I18nService,
@@ -170,7 +199,7 @@ export class SendComponent implements OnDestroy {
     private accountService: AccountService,
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private sendFormService: SendFormService,
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
@@ -192,21 +221,23 @@ export class SendComponent implements OnDestroy {
       }
     });
 
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const typeParam = params.get("type");
-      let toggleValue: SendFilterType = SendFilterType.All;
-      let sendType: SendType | null = null;
-      if (typeParam === SendFilterType.Text) {
-        toggleValue = SendFilterType.Text;
-        sendType = SendType.Text;
-      }
-      if (typeParam === SendFilterType.File) {
-        toggleValue = SendFilterType.File;
-        sendType = SendType.File;
-      }
-      this.selectedToggleValue = toggleValue;
-      this.sendItemsFiltersService.filterForm.patchValue({ sendType });
-    });
+    combineLatest([this.route.queryParamMap, this.hasPremium$])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([params, hasPremium]) => {
+        const typeParam = params.get("type");
+        let toggleValue: SendFilterType = SendFilterType.All;
+        let sendType: SendType | null = null;
+        if (typeParam === SendFilterType.Text) {
+          toggleValue = SendFilterType.Text;
+          sendType = SendType.Text;
+        }
+        if (typeParam === SendFilterType.File && hasPremium) {
+          toggleValue = SendFilterType.File;
+          sendType = SendType.File;
+        }
+        this.selectedToggleValue = toggleValue;
+        this.sendItemsFiltersService.filterForm.patchValue({ sendType });
+      });
   }
 
   ngOnDestroy() {

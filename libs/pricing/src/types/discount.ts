@@ -27,6 +27,8 @@ export type CartDiscount = {
   value: number;
   amount?: number;
   label?: string;
+  /** Number of months the coupon repeats for; absent for perpetual or once-only coupons. */
+  durationInMonths?: number;
 };
 
 /**
@@ -54,26 +56,39 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
 /**
  * Resolves the display label for a discount, preferring the server-supplied
  * {@link CartDiscount.label} (the coupon name) when present and otherwise deriving
- * one from the discount's type and value.
+ * one from the discount's type and value. A repeating coupon's `durationInMonths` is
+ * appended as a qualifier, mirroring the legacy subscription page.
  */
 export const getLabel = (i18nService: I18nService, discount: CartDiscount): string => {
+  let label: string;
   if (discount.label) {
-    return discount.label;
+    label = discount.label;
+  } else {
+    switch (discount.type) {
+      case DiscountTypes.AmountOff: {
+        const formattedAmount = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(discount.value);
+        label = `${formattedAmount} ${i18nService.t("discount")}`;
+        break;
+      }
+      case DiscountTypes.PercentOff: {
+        const percentValue = discount.value < 1 ? discount.value * 100 : discount.value;
+        label = `${Math.round(percentValue)}% ${i18nService.t("discount")}`;
+        break;
+      }
+    }
   }
 
-  switch (discount.type) {
-    case DiscountTypes.AmountOff: {
-      const formattedAmount = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(discount.value);
-      return `${formattedAmount} ${i18nService.t("discount")}`;
-    }
-    case DiscountTypes.PercentOff: {
-      const percentValue = discount.value < 1 ? discount.value * 100 : discount.value;
-      return `${Math.round(percentValue)}% ${i18nService.t("discount")}`;
-    }
+  if (discount.durationInMonths == null) {
+    return label;
   }
+  const duration =
+    discount.durationInMonths === 12
+      ? i18nService.t("discountForOneYear")
+      : i18nService.t("discountForMonths", discount.durationInMonths.toString());
+  return `${label} ${duration}`;
 };

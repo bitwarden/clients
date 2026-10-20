@@ -27,15 +27,16 @@ export abstract class LegacyCompatKeyService {
   abstract makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]>;
 
   /**
-   * Retrieves the user's master key if it is in state, or derives it from the provided password
-   * @param password The user's master password that will be used to derive a master key if one isn't found
+   * Derives the user's master key from the provided password, using the user's stored email and
+   * Kdf configuration.
+   * @param password The user's master password
    * @param userId The desired user
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @throws Error when userId is null/undefined.
    * @throws Error when email or Kdf configuration cannot be found for the user.
-   * @returns The user's master key if it exists, or a newly derived master key.
+   * @returns A master key derived from the provided password.
    */
-  abstract getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey>;
+  abstract deriveMasterKeyForUser(password: string, userId: UserId): Promise<MasterKey>;
 
   /**
    * Generates a master key from the provided password

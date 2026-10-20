@@ -1,36 +1,44 @@
+import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
+  Signal,
   computed,
   contentChildren,
   effect,
   inject,
+  model,
+  signal,
+  untracked,
   viewChild,
   viewChildren,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
 import { ButtonModule } from "../../button";
-import { ChipComponent } from "../../chips";
-import { DialogService } from "../../dialog";
+import { ChipGroupComponent, ChipGroupItem } from "../../chips";
+import { DialogRef, DialogService } from "../../dialog";
 import {
   FilterDialogComponent,
   FilterDialogParams,
 } from "../../filter-menu/filter-dialog.component";
-import { FILTER_PRESENTER, FilterPresenter } from "../../filter-menu/filter-tokens";
+import { FILTER_PRESENTER, selectionCount } from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
+import { CollapseOnScrollDirective } from "../../layout/collapse-on-scroll.directive";
 import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
+  observedWidth,
 } from "../../overflow-list";
-import { TooltipDirective } from "../../tooltip";
 import { focusAfterRender } from "../../utils/focus-after-render";
-import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
+import { BREAKPOINTS } from "../../utils/responsive-utils";
 
 import { BitTableV2Component } from "./table-v2.component";
 
@@ -46,12 +54,11 @@ import { BitTableV2Component } from "./table-v2.component";
     I18nPipe,
     IconButtonModule,
     BerryComponent,
-    ChipComponent,
+    ChipGroupComponent,
     ButtonModule,
     OverflowListDirective,
     OverflowItemDirective,
     OverflowTriggerDirective,
-    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -61,12 +68,35 @@ import { BitTableV2Component } from "./table-v2.component";
 })
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
+  readonly filterDialogOpen = model(false);
+
+  private readonly dialogRef = signal<DialogRef<unknown, FilterDialogComponent> | undefined>(
+    undefined,
+  );
+
+  private readonly filterRows = new Map<string, Signal<ElementRef<HTMLElement> | undefined>>();
+
+  /** The collapsed filter button, for anchoring a popover. `undefined` while chips show inline. */
+  readonly filterButton = viewChild("filterButton", { read: ElementRef<HTMLElement> });
+
+  /** The filter dialog's list-page row for `key`. `undefined` while closed or drilled in. */
+  filterRow(key: string): Signal<ElementRef<HTMLElement> | undefined> {
+    let row = this.filterRows.get(key);
+    if (!row) {
+      row = computed(() => this.dialogRef()?.componentInstance?.row(key));
+      this.filterRows.set(key, row);
+    }
+    return row;
+  }
+
+  /** The filter chips and "Clear all", for anchoring a popover. `undefined` while collapsed. */
+  readonly filterChips = computed(() => (this.collapsed() ? undefined : this.filterChipsEl()));
 
   /** The table this toolbar is projected into; the source of the item count. */
   protected readonly table = inject(BitTableV2Component, { optional: true });
-
-  /** Whether the viewport is wide enough for the inline chip row (vs. the dialog). */
-  protected readonly isLargeScreen = isAtOrLargerThanBreakpointSignal("md");
 
   /** The projected filters, matched by their shared `FILTER_PRESENTER` contract. */
   private readonly filters = contentChildren(FILTER_PRESENTER, { descendants: true });
@@ -74,11 +104,41 @@ export class BitTableToolbarComponent {
   /** Whether any filter chips are projected — false for a search-only toolbar. */
   protected readonly hasFilters = computed(() => this.filters().length > 0);
 
-  /** How many projected filters currently have a selection — the trigger's berry count. */
-  readonly appliedCount = computed(() => this.filters().filter((f) => f.active()).length);
+  /** How many options are selected across the projected filters — the trigger's berry count. */
+  readonly appliedCount = computed(() =>
+    this.filters().reduce((total, filter) => total + selectionCount(filter), 0),
+  );
 
-  /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
+  /** The filters with a selection — shown as dismissible chips on the collapsed filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
+
+  /** One chip per active filter, or per selected option of a multi-select, each with its clear call. */
+  private readonly activeChips = computed(() =>
+    this.activeFilters().flatMap((filter): { chip: ChipGroupItem; clear: () => void }[] => {
+      if (filter.multiple() && filter.selections().length) {
+        // Keyed on label so ids survive removals; repeated labels get a suffix.
+        const seen = new Map<string, number>();
+        return filter.selections().map((selection) => {
+          const n = seen.get(selection.label) ?? 0;
+          seen.set(selection.label, n + 1);
+          return {
+            chip: {
+              id: `${filter.key()}:${selection.label}${n ? `#${n}` : ""}`,
+              label: selection.label,
+              accessibleName: `${filter.label()}: ${selection.label}`,
+              startIcon: filter.icon(),
+            },
+            clear: () => filter.deselect(selection.value),
+          };
+        });
+      }
+      const summary = filter.summary();
+      const label = summary ? `${filter.label()}: ${summary}` : filter.label();
+      return [{ chip: { id: filter.key(), label }, clear: () => filter.clear() }];
+    }),
+  );
+
+  protected readonly activeChipItems = computed(() => this.activeChips().map((c) => c.chip));
 
   /** The projected chips, as overflow items — the toolbar feeds these to the list. */
   private readonly projectedItems = contentChildren(OverflowItemDirective, { descendants: true });
@@ -97,28 +157,59 @@ export class BitTableToolbarComponent {
 
   private readonly overflowList = viewChild(OverflowListDirective);
   private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
+  private readonly filterChipsEl = viewChild("filterChips", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly activeChipRow = viewChild<ElementRef<HTMLElement>>("activeChipRow");
+
+  /** The host, not the filter row: a search-only toolbar hides that row. */
+  private readonly toolbarWidth = observedWidth(inject(ElementRef<HTMLElement>));
+
+  /** Unmeasured (0) counts as wide. */
+  private readonly wide = computed(() => {
+    const width = this.toolbarWidth();
+    return width === 0 || width > BREAKPOINTS.sm;
+  });
 
   /**
-   * Whether the filter row is collapsed to the single trigger + dialog. Always below
-   * `md`; above it, once the row stops fitting on one line. Gated on `ready()` so the
+   * Whether the filter row is collapsed to the single trigger + dialog. Always on a narrow
+   * toolbar; on a wide one, once the row stops fitting on one line. Gated on `ready()` so the
    * first paint doesn't flash the collapsed view.
    */
   protected readonly collapsed = computed(() => {
-    if (!this.isLargeScreen()) {
+    if (!this.wide()) {
       return true;
     }
     const list = this.overflowList();
     return (list?.ready() && list.overflow().length > 0) ?? false;
   });
 
+  /** Whether the collapsed trigger renders: the single button that stands in for the chip row. */
+  protected readonly showFilterTrigger = computed(() => this.collapsed() && this.hasFilters());
+
+  /** On a wide toolbar the collapse decision isn't known until the chip row has been measured. */
+  private readonly collapseSettled = computed(
+    () => !this.wide() || (this.overflowList()?.ready() ?? false),
+  );
+
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
     this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
   );
 
-  protected readonly hostClasses = computed(() =>
-    [
+  /**
+   * An enabled `bitCollapseOnScroll` on this element draws the page's seam, so the toolbar leaves
+   * the border to it — two `border-color` utilities on one host resolve by stylesheet order. Opted
+   * out, the directive draws nothing and the toolbar keeps its own divider.
+   */
+  private readonly collapse = inject(CollapseOnScrollDirective, { optional: true, self: true });
+
+  protected readonly hostClasses = computed(() => {
+    if (this.collapse?.bitCollapseOnScroll()) {
+      return "";
+    }
+
+    return [
       "tw-border-0",
       "tw-border-b",
       "tw-border-solid",
@@ -127,8 +218,8 @@ export class BitTableToolbarComponent {
       this.isList() && !this.table?.isScrolled()
         ? "tw-border-transparent"
         : "tw-border-border-base",
-    ].join(" "),
-  );
+    ].join(" ");
+  });
 
   private readonly isList = computed(() => this.table?.presentation() === "list");
 
@@ -144,7 +235,7 @@ export class BitTableToolbarComponent {
     "tw-items-center",
     "tw-gap-2",
     this.insetX(),
-    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5"]),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5", "tw-min-h-[60px]"]),
     "empty:tw-hidden",
     ...(this.collapsed()
       ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]
@@ -152,10 +243,6 @@ export class BitTableToolbarComponent {
   ]);
 
   protected readonly activeFilterRowClasses = computed(() => [
-    "tw-flex",
-    "tw-flex-wrap",
-    "tw-items-center",
-    "tw-gap-2",
     this.insetX(),
     ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
   ]);
@@ -164,8 +251,8 @@ export class BitTableToolbarComponent {
     "tw-flex",
     "tw-flex-wrap",
     "tw-items-center",
-    "tw-gap-3",
-    // Row gap for when the `slot=end` controls wrap to their own line below `md`.
+    "tw-gap-x-3",
+    // Row gap for when the `slot=end` controls wrap to their own line on a narrow toolbar.
     "tw-gap-y-4",
     ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),
     this.insetX(),
@@ -174,21 +261,19 @@ export class BitTableToolbarComponent {
       : []),
   ]);
 
-  /** The projected search. Capped on wide viewports; below `md` it fills its row. */
   protected readonly searchClasses = computed(() => [
     "tw-flex",
     "tw-min-w-0",
     "tw-flex-1",
-    ...(this.isLargeScreen() ? ["tw-max-w-[25rem]"] : []),
+    ...(this.wide() ? ["tw-max-w-[25rem]"] : []),
   ]);
 
-  /** The projected `slot=end` controls. Below `md` they wrap to a full-width line. */
   protected readonly endSlotClasses = computed(() => [
     "tw-flex",
     "tw-items-center",
     "tw-gap-3",
     "empty:tw-hidden",
-    ...(this.isLargeScreen() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
+    ...(this.wide() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
   ]);
 
   constructor() {
@@ -204,12 +289,48 @@ export class BitTableToolbarComponent {
       this.countDigits();
       this.overflowList()?.remeasure();
     });
+
+    // Reconcile the model against the dialog. The trigger gates opening only: a dialog already up
+    // stays up when the chip row goes inline, so a resize can't drop a drill-in page or its focus.
+    effect(() => {
+      const open = this.filterDialogOpen();
+      const canOpen = this.showFilterTrigger();
+      const settled = this.collapseSettled();
+      untracked(() => {
+        const ref = this.dialogRef();
+        if (open && !ref) {
+          if (canOpen) {
+            this.showFilterDialog();
+          } else if (settled) {
+            // No trigger could have opened it, so drop the state rather than let it open later.
+            this.filterDialogOpen.set(false);
+          }
+        } else if (!open && ref) {
+          void ref.close();
+        }
+      });
+    });
   }
 
-  /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
-  protected appliedLabel(filter: FilterPresenter): string {
-    const summary = filter.summary();
-    return summary ? `${filter.label()}: ${summary}` : filter.label();
+  protected clearChip(chip: ChipGroupItem): void {
+    const focused = this.document.activeElement;
+    const inRow =
+      focused instanceof HTMLElement && this.activeChipRow()?.nativeElement.contains(focused);
+    this.activeChips()
+      .find((c) => c.chip.id === chip.id)
+      ?.clear();
+    // Removing the last chip drops its element (or the row); popover dismissals restore their own focus.
+    if (inRow) {
+      focusAfterRender(this.injector, () => {
+        if (focused?.isConnected) {
+          return null;
+        }
+        const buttons = this.activeChipRow()?.nativeElement.querySelectorAll<HTMLElement>(
+          "bit-chip:not([hidden]) [bit-chip-dismiss-button]",
+        );
+        return buttons?.[buttons.length - 1] ?? this.filterButton()?.nativeElement;
+      });
+    }
   }
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
@@ -218,11 +339,33 @@ export class BitTableToolbarComponent {
   /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
-  /** Opens the projected filters in a dialog (a bottom sheet on small screens). */
+  /** The collapsed trigger's click. */
   protected openFilterDialog(): void {
-    this.dialogService.open<unknown, FilterDialogParams>(FilterDialogComponent, {
-      data: { filters: this.filters() },
+    this.filterDialogOpen.set(true);
+  }
+
+  private showFilterDialog(): void {
+    const ref = this.dialogService.open<unknown, FilterDialogParams, FilterDialogComponent>(
+      FilterDialogComponent,
+      { data: { filters: this.filters } },
+    );
+    this.dialogRef.set(ref);
+
+    // `takeUntilDestroyed` matters for the persisting consumer: views are destroyed before root
+    // providers, so `CdkDialog`'s own teardown can't write a spurious `false` back out.
+    ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.dialogRef.set(undefined);
+      this.filterDialogOpen.set(false);
     });
+  }
+
+  /** Whether to offer column customization. */
+  protected readonly canCustomizeColumns = computed(
+    () => this.table?.canCustomizeColumns() ?? false,
+  );
+
+  protected openCustomizeColumns(): void {
+    this.table?.openCustomizeColumns();
   }
 
   /** Reset every projected filter's selection. Excludes search. */

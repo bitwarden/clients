@@ -21,6 +21,7 @@ import {
 import { combineLatest, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -86,6 +87,7 @@ export class ShareItemFormComponent implements OnDestroy {
   private readonly shareLinkService = inject(ShareLinkService);
   private readonly sendPolicyService = inject(SendPolicyService);
   private readonly logService = inject(LogService);
+  private readonly orgService = inject(OrganizationService);
 
   /** The cipher to share. Provided by the shell component. */
   readonly cipher = input.required<CipherView>();
@@ -196,14 +198,28 @@ export class ShareItemFormComponent implements OnDestroy {
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   private readonly policyAllowedDomains = signal<string[] | undefined>(undefined);
 
+  protected readonly policyDeletionHoursOrgName = signal<string | undefined>(undefined);
+
   constructor() {
-    this.sendPolicyService.deletionDatePolicyInfo$.pipe(takeUntilDestroyed()).subscribe((dh) => {
-      if (dh?.deletionHours) {
+    combineLatest([
+      this.sendPolicyService.deletionDatePolicyInfo$,
+      this.activeUserId$.pipe(switchMap((userId) => this.orgService.organizations$(userId))),
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([dh, organizations]) => {
         const expiryHoursFormControl = this.form.get("expiryHours");
-        expiryHoursFormControl?.setValue(dh.deletionHours);
-        expiryHoursFormControl?.disable();
-      }
-    });
+        if (dh?.deletionHours) {
+          expiryHoursFormControl?.setValue(dh.deletionHours);
+          expiryHoursFormControl?.disable();
+          const policyOrg = organizations.find((o) => o.id === dh.orgId);
+          if (policyOrg) {
+            this.policyDeletionHoursOrgName.set(policyOrg.name);
+          }
+        } else {
+          expiryHoursFormControl?.enable();
+          this.policyDeletionHoursOrgName.set(undefined);
+        }
+      });
 
     this.sendPolicyService.allowedDomains$
       .pipe(takeUntilDestroyed())

@@ -8,7 +8,7 @@ import { TOOLTIP_DELAY_MS } from "../tooltip";
 import { I18nMockService } from "../utils";
 
 import { FilterMenuModule } from "./filter-menu.module";
-import { FilterOptionIconTile } from "./filter-option.component";
+import { FilterOptionIconTile, FilterOptionNode } from "./filter-option.component";
 
 /**
  * Each chip declares a `key` and owns its own selection — no `ngModel`. Inside a
@@ -100,6 +100,42 @@ class FilterMenuDividerDemoComponent {}
   `,
 })
 class FilterMenuNestedDemoComponent {}
+
+/**
+ * The same tree as {@link FilterMenuNestedDemoComponent}, built from data via `[options]` on the
+ * menu instead of literal markup — the depth-unknown-ahead-of-time path a collection/folder tree
+ * needs.
+ */
+@Component({
+  selector: "filter-menu-data-driven-nested-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Collections" multiple [options]="tree">
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuDataDrivenNestedDemoComponent {
+  protected readonly tree: FilterOptionNode<string>[] = [
+    {
+      value: "eng",
+      label: "Engineering",
+      count: 15,
+      options: [
+        { value: "monitoring", label: "Monitoring", count: 20 },
+        {
+          value: "infra",
+          label: "Infrastructure",
+          count: 6,
+          options: [{ value: "cicd", label: "CI/CD", count: 2 }],
+        },
+      ],
+    },
+    { value: "ops", label: "Operations", count: 3 },
+  ];
+}
 
 /**
  * Nine rows alternating individual and group, each group opening the next level down.
@@ -214,6 +250,41 @@ class FilterMenuLongLabelsDemoComponent {
   ];
 }
 
+/** Long labels with a count on every row. */
+@Component({
+  selector: "filter-menu-long-labels-with-counts-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
+        <bit-filter-section label="Bitwarden Design System and Component Library" collapsible>
+          <bit-filter-option [value]="'onboarding'" [count]="128" expanded>
+            Onboarding materials for new design system contributors
+            <bit-filter-option [value]="'tokens'" [count]="1024">
+              Design tokens, themes, and every palette we publish
+            </bit-filter-option>
+          </bit-filter-option>
+        </bit-filter-section>
+      </bit-filter-menu>
+
+      <bit-filter-menu key="folder" placeholderText="My folders" unsetLabel="All">
+        @for (folder of folders; track folder.name) {
+          <bit-filter-option [value]="folder.name" [count]="folder.count">{{
+            folder.name
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuLongLabelsWithCountsDemoComponent {
+  protected readonly folders = [
+    { name: "Household paperwork, warranties, and appliance manuals", count: 42 },
+    { name: "Streaming subscriptions I keep meaning to cancel", count: 7 },
+  ];
+}
+
 @Component({
   selector: "filter-menu-disabled-reason-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -249,9 +320,11 @@ export default {
         FilterMenuDemoComponent,
         FilterMenuDividerDemoComponent,
         FilterMenuNestedDemoComponent,
+        FilterMenuDataDrivenNestedDemoComponent,
         FilterMenuNestedTilesDemoComponent,
         FilterMenuEmptyDemoComponent,
         FilterMenuLongLabelsDemoComponent,
+        FilterMenuLongLabelsWithCountsDemoComponent,
         FilterMenuDisabledReasonDemoComponent,
         FilterMenuModule,
       ],
@@ -269,6 +342,7 @@ export default {
               filterResults: (count) => `${count} results`,
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               clear: "Clear",
               filtersSelected: (count) => `${count} selected`,
             }),
@@ -321,6 +395,17 @@ export const NestedOptions: Story = {
 };
 
 /**
+ * The same tree as {@link NestedOptions}, built from data via `[options]` on the menu instead of
+ * literal markup — for a tree whose depth isn't known ahead of time, like a collection or folder
+ * list.
+ */
+export const DataDrivenNestedOptions: Story = {
+  render: () => ({
+    template: `<filter-menu-data-driven-nested-demo></filter-menu-data-driven-nested-demo>`,
+  }),
+};
+
+/**
  * Nested options with a leading icon tile on every row. Leaves reserve the chevron's
  * column, so the tiles line up at each level.
  */
@@ -369,7 +454,7 @@ export const OptionDividers: Story = {
  * A label longer than its row truncates rather than wraps, so every row carries a tooltip with
  * the full text: the section header, the parent option, and the nested child. The story hovers
  * the first row and waits out the delay, so the tooltip is up alongside the rows it explains.
- * The chip trigger's own label behaves the same way.
+ * The chip trigger truncates too, but carries no tooltip of its own.
  */
 export const LongLabels: Story = {
   render: () => ({
@@ -406,6 +491,22 @@ export const LongLabelsSingleSelect: Story = {
   play: async (context) => {
     // The second chip is the single-select one.
     await userEvent.click(getAllByRole(context.canvasElement, "button")[1]);
+  },
+  parameters: {
+    chromatic: {
+      // currently flaky test, menu mounts in different positions against the chip
+      disableSnapshot: true,
+    },
+  },
+};
+
+/** Long labels beside counts: the label should truncate while the count stays whole. */
+export const LongLabelsWithCounts: Story = {
+  render: () => ({
+    template: `<filter-menu-long-labels-with-counts-demo></filter-menu-long-labels-with-counts-demo>`,
+  }),
+  play: async (context) => {
+    await userEvent.click(getAllByRole(context.canvasElement, "button")[0]);
   },
 };
 

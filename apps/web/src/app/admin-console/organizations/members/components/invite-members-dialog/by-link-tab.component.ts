@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -14,15 +14,17 @@ import {
   switchMap,
 } from "rxjs";
 
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainsService } from "@bitwarden/common/admin-console/abstractions/organization-domain/organization-domains.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -32,16 +34,22 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkComponent,
-  PopoverModule,
   SwitchComponent,
   ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+function parseDomains(rawDomains: string | null | undefined): string[] {
+  return (rawDomains ?? "")
+    .split(",")
+    .map((domain) => domain.trim())
+    .filter((domain) => domain.length > 0);
+}
 
 @Component({
   standalone: true,
@@ -57,7 +65,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
     FormFieldModule,
     I18nPipe,
     IconButtonModule,
-    PopoverModule,
     ReactiveFormsModule,
     LinkComponent,
     SwitchComponent,
@@ -69,18 +76,25 @@ export class ByLinkTabComponent {
     transform: (value: string) => value as OrganizationId,
   });
 
-  readonly showCoachMarks = input<boolean>(false);
-
-  readonly tourStep = signal<number>(0);
-
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
-  private readonly orgDomainApiService = inject(OrgDomainApiServiceAbstraction);
+  private readonly organizationDomainsService = inject(OrganizationDomainsService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly logService = inject(LogService);
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly serverSettingsService = inject(DefaultServerSettingsService);
+
+  private readonly isSelfHost = this.platformUtilsService.isSelfHost();
+  private readonly emailVerificationDisabled = toSignal(
+    this.serverSettingsService.isEmailVerificationDisabled$,
+    { initialValue: false },
+  );
+  protected readonly showSelfHostWarning = computed(
+    () => this.isSelfHost && this.emailVerificationDisabled(),
+  );
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
 
@@ -95,22 +109,15 @@ export class ByLinkTabComponent {
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
-    this.userId$,
-    toObservable(this.organizationId),
-  ]).pipe(
-    switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  protected readonly inviteLink$: Observable<OrganizationInviteLinkView | undefined> =
+    combineLatest([this.userId$, toObservable(this.organizationId)]).pipe(
+      switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected readonly inviteLinkUrl$: Observable<string> = combineLatest([
-    this.userId$,
-    toObservable(this.organizationId),
-    this.inviteLink$.pipe(filter((link) => link != null)),
-  ]).pipe(
-    switchMap(([userId, orgId, inviteLink]) =>
-      this.inviteLinkService.reconstructUrl(userId, orgId, inviteLink),
-    ),
+  protected readonly inviteLinkUrl$: Observable<string> = this.inviteLink$.pipe(
+    filter((link) => link != null),
+    map((link) => link.url),
   );
 
   readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLink$.pipe(
@@ -133,14 +140,13 @@ export class ByLinkTabComponent {
 
   readonly domainsEmpty = toSignal(
     this.form.controls.domains.valueChanges.pipe(
-      map((v) => !v || v.trim().length === 0),
+      map((v) => parseDomains(v).length === 0),
       startWith(true),
     ),
     { initialValue: true },
   );
 
   private readonly prefillAttempted = signal(false);
-  private readonly tourStarted = signal(false);
 
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
@@ -158,11 +164,6 @@ export class ByLinkTabComponent {
         this.requireAdminConfirmation.setValue(!inviteLink.supportsConfirmation, {
           emitEvent: false,
         });
-      }
-
-      if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
-        this.tourStarted.set(true);
-        this.tourStep.set(1);
       }
     });
 
@@ -204,10 +205,24 @@ export class ByLinkTabComponent {
   }
 
   private async prefillFromVerifiedDomains(): Promise<void> {
-    const allDomains = await this.orgDomainApiService.getAllByOrgId(this.organizationId());
-    const verifiedDomainNames = allDomains
-      .filter((d) => d.verifiedDate != null)
-      .map((d) => d.domainName);
+    let verifiedDomainNames: string[];
+    try {
+      // Goes through the SDK rather than the full domains endpoint, which requires Manage SSO:
+      // calling that without the permission returns a 401 that the api service treats as an
+      // invalid access token, logging the user out of the vault entirely.
+      verifiedDomainNames = await firstValueFrom(
+        this.userId$.pipe(
+          switchMap((userId) =>
+            this.organizationDomainsService.verifiedDomains$(userId, this.organizationId()),
+          ),
+        ),
+      );
+    } catch (e) {
+      // Prefilling is a convenience, so a failure here should leave the field empty rather than
+      // surface an error. Servers older than this endpoint answer with a 404.
+      this.logService.error("Failed to prefill invite link domains from org domains.", e);
+      return;
+    }
 
     if (verifiedDomainNames.length > 0) {
       this.form.controls.domains.setValue(verifiedDomainNames.join(", "));
@@ -217,30 +232,24 @@ export class ByLinkTabComponent {
 
   readonly save = async () => {
     this.form.markAllAsTouched();
-    if (this.form.invalid) {
+    // NOTE: this parses domains (not just `Validators.required` on the raw string) so that
+    // comma/whitespace-only input (e.g. ",  ,") is treated as empty here, rather than reaching
+    // the service layer and throwing "At least one allowed domain is required."
+    const domains = parseDomains(this.form.value.domains);
+    if (this.form.invalid || domains.length === 0) {
       return;
     }
 
     const userId = await firstValueFrom(this.userId$);
-    const rawDomains = this.form.value.domains;
-    if (rawDomains == null) {
-      throw new Error("Must provide at least one valid domain.");
-    }
-
-    const domains = rawDomains
-      .split(",")
-      .map((domain) => domain.trim())
-      .filter((domain) => domain.length > 0);
-
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
     if (inviteLink) {
       // Save only ever edits the domains once a link exists; the switch saves itself.
       await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
     } else {
-      // The switch is hidden until a link exists, so a new link always starts on the link-confirm
-      // flow — that is the behaviour we want admins defaulted into.
-      await this.inviteLinkService.createInviteLink(
+      // The switch is hidden until a link exists, so a new link always starts on the
+      // link-confirm flow — that is the behaviour we want admins defaulted into.
+      await this.inviteLinkService.create(
         userId,
         this.organizationId(),
         domains,
@@ -254,16 +263,6 @@ export class ByLinkTabComponent {
       variant: "success",
       message: this.i18nService.t("domainsEdited"),
     });
-  };
-
-  readonly saveAndAdvanceToStep2 = async () => {
-    if (this.form.dirty || (await firstValueFrom(this.inviteLink$)) == null) {
-      await this.save();
-      if (this.form.invalid) {
-        return;
-      }
-    }
-    this.tourStep.set(2);
   };
 
   readonly copyLink = async () => {
@@ -290,7 +289,7 @@ export class ByLinkTabComponent {
   readonly refreshLink = async () => {
     const userId = await firstValueFrom(this.userId$);
     // Regenerating replaces the code and secret but carries the confirmation setting over.
-    await this.inviteLinkService.refreshInviteLink(
+    await this.inviteLinkService.refresh(
       userId,
       this.organizationId(),
       this.autoConfirmEnabled() && !this.requireAdminConfirmation.value,

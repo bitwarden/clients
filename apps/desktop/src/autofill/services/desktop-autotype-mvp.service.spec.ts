@@ -232,6 +232,36 @@ describe("DesktopAutotypeMvpService", () => {
       expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(true);
     });
 
+    it("should toggle autotype on when only the MVP feature flag is enabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(true);
+      gaFeatureFlagSubject.next(false);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // MVP-only resolves to `Mvp` — the MVP hotkey must be armed
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(true);
+      expect(global.ipc.autofill.autotypeMvp.toggle).not.toHaveBeenCalledWith(false);
+    });
+
+    it("should not toggle autotype on when both feature flags are disabled", async () => {
+      autotypeEnabledSubject.next(true);
+      mvpFeatureFlagSubject.next(false);
+      gaFeatureFlagSubject.next(false);
+
+      await service.init();
+
+      // Allow observables to emit
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Off/Off resolves to `Off`, so the MVP hotkey must not be armed
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(false);
+      expect(global.ipc.autofill.autotypeMvp.toggle).not.toHaveBeenCalledWith(true);
+    });
+
     it("should not toggle autotype on when both the MVP and GA feature flags are enabled", async () => {
       autotypeEnabledSubject.next(true);
       mvpFeatureFlagSubject.next(true);

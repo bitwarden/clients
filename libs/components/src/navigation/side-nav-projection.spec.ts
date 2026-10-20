@@ -14,6 +14,7 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
+import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
@@ -45,6 +46,22 @@ class HostComponent {
   logo = { type: "image/svg+xml" as const, content: "<svg data-testid='logo-svg'></svg>" };
   endActionClicked = false;
 }
+
+// SideNavComponent uses window.matchMedia to detect touch devices. JSDOM does not implement it,
+// so we provide a minimal stub for all tests in this file.
+beforeEach(() => {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+});
 
 // Regression: duplicating `<ng-content>` across the side-nav version `@if`/`@else` branches broke
 // projection in v1 — nav-group children rendered into an empty slot and `bit-nav-logo` (a selector
@@ -317,6 +334,26 @@ describe("side-nav v1 content projection", () => {
     expect(fixture.componentInstance.endActionClicked).toBe(true);
     expect(toolsGroup.componentInstance.open()).toBe(true);
   });
+
+  // A `bitHoverRevealContainer` on the group host must not treat hovering a child as hovering the row.
+  it.each([false, true])(
+    "wraps expanded children, but not the row, in a hover-reveal boundary (vfo1: %s)",
+    (vfo1) => {
+      vfo1Enabled.next(vfo1);
+      sideNavService.open.set(true);
+      fixture.detectChanges();
+
+      const toolsGroup = fixture.debugElement
+        .queryAll(By.directive(NavGroupComponent))
+        .find((de) => de.componentInstance.text() === "Tools")!;
+      const boundary = toolsGroup.nativeElement.querySelector(
+        "[bitHoverRevealBoundary]",
+      ) as HTMLElement;
+
+      expect(boundary.textContent).toContain("Child A");
+      expect(boundary.querySelector("[data-testid='end-action']")).toBeNull();
+    },
+  );
 });
 
 // Mirrors the app-level wrappers (`apps/web/src/app/layouts/web-side-nav.component.html`,
@@ -430,5 +467,83 @@ describe("side-nav content projection through a wrapper component", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelectorAll("bit-nav-logo").length).toBe(1);
+  });
+});
+
+// Each side-nav version renders its own copy of the resize handle, so the announced value is
+// asserted against both branches — duplicated markup in this template has drifted before.
+describe.each([
+  ["v1", false],
+  ["vfo1", true],
+])("side-nav resize handle announcement (%s)", (_version, vfo1) => {
+  let fixture: ComponentFixture<HostComponent>;
+  let sideNavService: SideNavService;
+  let widthService: SideNavWidthService;
+
+  const handle = (): HTMLElement => fixture.nativeElement.querySelector("[role='separator']");
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HostComponent, RouterModule.forRoot([])],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              sideNavigation: "Side navigation",
+              toggleSideNavigation: "Toggle side navigation",
+              resizeSideNavigation: "Resize side navigation",
+              toggleCollapse: "Toggle collapse",
+              submenu: "submenu",
+            }),
+        },
+        { provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => new BehaviorSubject<boolean>(vfo1).asObservable() },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    sideNavService = TestBed.inject(SideNavService);
+    widthService = TestBed.inject(SideNavWidthService);
+  });
+
+  it("reports the floor of the range when collapsed", () => {
+    sideNavService.open.set(false);
+    fixture.detectChanges();
+
+    expect(handle().getAttribute("aria-valuenow")).toBe("0");
+  });
+
+  it("reports the ceiling of the range at the maximum width", () => {
+    sideNavService.open.set(true);
+    widthService.commit(SIDE_NAV_WIDTH_BOUNDS.max);
+    fixture.detectChanges();
+
+    expect(handle().getAttribute("aria-valuenow")).toBe("100");
+  });
+
+  // A pointer drag commits an unrounded rem value, which used to be announced verbatim
+  // ("21.9375 rem wide"). The percentage must stay a whole number regardless.
+  it("announces a whole number after a fractional width is committed", () => {
+    sideNavService.open.set(true);
+    widthService.commit(21.9375);
+    fixture.detectChanges();
+
+    expect(handle().getAttribute("aria-valuenow")).toBe("54");
+  });
+
+  // The toggle button's aria-expanded already conveys the collapsed state, so the handle speaks
+  // only its position on the range.
+  it("never sets aria-valuetext", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+    expect(handle().hasAttribute("aria-valuetext")).toBe(false);
+
+    sideNavService.open.set(false);
+    fixture.detectChanges();
+    expect(handle().hasAttribute("aria-valuetext")).toBe(false);
   });
 });

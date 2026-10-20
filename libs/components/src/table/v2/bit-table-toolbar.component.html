@@ -1,19 +1,21 @@
 <!--
   Two rows: the search and any `slot=end` dev controls share the top row; the
   filter chips get their own row beneath. The filter row is the unit that collapses
-  into a single trigger + dialog on small screens (responsive view).
+  into a single trigger + dialog.
+  `tw-min-w-0` keeps it from growing past a `bitCollapseOnScroll` grid to fit the chip group.
 -->
-<div class="tw-relative tw-flex tw-flex-col">
+<div class="tw-relative tw-flex tw-flex-col tw-min-w-0">
   <div [class]="searchRowClasses()">
     <div [class]="searchClasses()">
       <ng-content select="bit-search"></ng-content>
     </div>
-    <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
-    @if (collapsed() && hasFilters()) {
+    <!-- Collapsed, the chip row is replaced by this single trigger + applied-count berry. -->
+    @if (showFilterTrigger()) {
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
           bitIconButton="bwi-sliders"
+          #filterButton
           [label]="'filters' | i18n"
           (click)="openFilterDialog()"
         ></button>
@@ -26,38 +28,51 @@
       </div>
     }
     <div [class]="endSlotClasses()">
+      @if (canCustomizeColumns()) {
+        <button
+          type="button"
+          data-testid="customize-columns"
+          bitButton
+          buttonType="secondary"
+          startIcon="bwi-grid"
+          (click)="openCustomizeColumns()"
+        >
+          {{ "customize" | i18n }}
+        </button>
+      }
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
   <!--
-    Wide-viewport filter row: the projected chips and the item count. Hidden (not
-    removed) below md so the chips stay instantiated to back the dialog and the
-    small-screen active-filter chips below.
+    The filter row: the projected chips and the item count. Hidden (not removed) while
+    collapsed so the chips stay instantiated to back the dialog and the active-filter chips below.
   -->
   <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
-    <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
     <!--
-      Gated on `hasFilters`, then hidden by class rather than `@if`: entering the DOM on
-      selection would change the overflow list's item set, which drops its cached widths
-      and flashes the row fully expanded before the next measurement lands. `tw-hidden`
-      survives the directive's measurement reveal (it only clears inline `display`), so
-      this measures 0px and the item set holds. The outer `@if` keeps a search-only
-      toolbar's row free of element children, so `empty:tw-hidden` still collapses it.
+      Its own box so a popover can anchor to the chips alone. The `@if` keeps a search-only
+      toolbar's row childless, so `empty:tw-hidden` collapses it.
     -->
     @if (hasFilters()) {
-      <button
-        bitOverflowItem
-        [class.tw-hidden]="!appliedCount()"
-        id="bit-table-toolbar_button_clear-all"
-        bitButton
-        buttonType="subtleGhost"
-        size="small"
-        type="button"
-        startIcon="bwi-clear"
-        (click)="clearAll()"
-      >
-        {{ "clearAll" | i18n }}
-      </button>
+      <div #filterChips class="tw-flex tw-items-center tw-gap-2">
+        <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
+        <!--
+          Hidden by class, not `@if`: a changed item set drops the overflow list's cached widths
+          and flashes the row expanded. `tw-hidden` survives its measurement reveal.
+        -->
+        <button
+          bitOverflowItem
+          [class.tw-hidden]="!appliedCount()"
+          id="bit-table-toolbar_button_clear-all"
+          bitButton
+          buttonType="subtleGhost"
+          size="small"
+          type="button"
+          startIcon="bwi-clear"
+          (click)="clearAll()"
+        >
+          {{ "clearAll" | i18n }}
+        </button>
+      </div>
     }
     @if (table && hasFilters()) {
       <!-- Not an overflow item: its width is reserved, so the row collapses before it is crowded out. -->
@@ -70,20 +85,15 @@
       </span>
     }
   </div>
-  <!--
-    Below md, a second row of just the active filters — dismissible chips that clear
-    on click. Rendered only when there's at least one (no empty row, no item count).
-  -->
+  <!-- Collapsed, a single row of just the active filters, overflowing behind a "+N" chip. -->
   @if (collapsed() && activeFilters().length) {
-    <div [class]="activeFilterRowClasses()">
-      @for (filter of activeFilters(); track filter.key()) {
-        <bit-chip
-          [label]="appliedLabel(filter)"
-          [bitTooltip]="appliedLabel(filter)"
-          (click)="filter.clear()"
-          (dismissed)="filter.clear()"
-        ></bit-chip>
-      }
+    <div #activeChipRow [class]="activeFilterRowClasses()">
+      <bit-chip-group
+        class="tw-block"
+        dismissible
+        [chips]="activeChipItems()"
+        (chipDismiss)="clearChip($event)"
+      ></bit-chip-group>
     </div>
   }
 </div>

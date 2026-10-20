@@ -198,7 +198,7 @@ decryption. After SSO they land in a "set initial password" flow.
 6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
-7. Client-side cleanup, in `WebSetInitialPasswordService`:
+7. Client-side cleanup, in `WebSetInitialPasswordService`, when an invite is stashed (see [Why three cleanup points](#why-three-cleanup-points)):
    - `routerService.getAndClearLoginRedirectUrl()` — drops the `/accept-organization` redirect
    - `organizationInviteService.clearOrganizationInvite()` — drops both invite stashes
 8. User lands in `/vault`
@@ -227,7 +227,7 @@ The flow below covers the net-new TDE case:
 3. Server JIT-provisions the user
 4. Client routes through [`LoginDecryptionOptionsComponent`](../../../../../../libs/auth/src/angular/login-decryption-options/login-decryption-options.component.ts) for TDE setup
 5. Server accepts the user into the org during admin-recovery enrollment (see the admin-recovery gloss under "The two acceptance mechanisms")
-6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`:
+6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`, when an invite is stashed:
    - `routerService.getAndClearLoginRedirectUrl()`
    - `organizationInviteService.clearOrganizationInvite()`
 7. User completes device-trust setup and lands in `/vault`
@@ -244,9 +244,9 @@ the org's self-hosted Key Connector service; the client never derives an MP.
 4. Client routes to [`ConfirmKeyConnectorDomainComponent`](../../../../../../libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.ts). The JIT-vs-returning branch is driven by `NEW_SSO_USER_KEY_CONNECTOR_CONVERSION` state stashed by `SsoLoginStrategy` when the identity token's wrapped user key is null.
 5. User confirms hostname → `keyConnectorService.convertNewSsoUserToKeyConnector(userId)` POSTs the master-key encryption key to Key Connector, then POSTs the wrapped user key + account keys to Bitwarden via `POST /accounts/set-key-connector-key`.
 6. Server's `SetKeyConnectorKeyCommand` writes the crypto and accepts the user into the org as a side effect (via `AcceptOrgUserByOrgSsoIdAsync`).
-7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override:
+7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override (`onBeforeNavigation`), when an invite is stashed:
    - `routerService.getAndClearLoginRedirectUrl()`
-   - **No `organizationInviteService.clearOrganizationInvite()` anywhere in the KC path — base or override.** `fullSync` doesn't touch the invite state, and no other post-accept code clears it either, so the stashed invite persists on disk after acceptance. Nothing immediately breaks because the override _does_ clear the login-redirect URL — `deepLinkGuard` never replays `/accept-organization`, so `authedHandler` doesn't re-consume the stale stash. It self-heals via the next invite-slot overwrite or the email-mismatch guard in `WebLoginComponentService`. Latent divergence from MP-SSO / TDE-SSO — arguably a bug. Applies equally to a stale open-invite stash on the same flow.
+   - `organizationInviteService.clearOrganizationInvite()`
 8. User lands in `/vault`
 
 #### Why three cleanup points
@@ -256,11 +256,13 @@ MP-SSO cleans up in `WebSetInitialPasswordService`, TDE-SSO in
 override of `ConfirmKeyConnectorDomainComponent` — different services own
 the three account-setup paths.
 
-MP and TDE both explicitly `clearOrganizationInvite()`. Key Connector never
-clears the stash; the invite sits on disk until an overwrite or the
-email-mismatch guard drops it. Consolidation of the MP + TDE pair is tracked
-in [PM-22615](https://bitwarden.atlassian.net/browse/PM-22615); a KC fix
-would either extend that scope or land as its own follow-up.
+All three run the same cleanup — `getAndClearLoginRedirectUrl()` plus
+`clearOrganizationInvite()` — and only when an invite is stashed. Every stash
+of an invite also persists that invite's accept URL as the login redirect, so
+a stashed invite marks the redirect as the invite's. Without a stashed invite,
+the redirect is an unrelated deep link (e.g. `/settings/account`) that
+`deepLinkGuard` should replay after account setup. Consolidation of the MP +
+TDE pair is tracked in [PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
 
 ### Edge / historical cases
 
@@ -484,15 +486,10 @@ downstream outcomes:
    cleanup services, invite-kind-agnostic.
 4. Client-side cleanup (MP: `WebSetInitialPasswordService`; TDE:
    `WebLoginDecryptionOptionsService`; KC: `ConfirmKeyConnectorDomainComponent`
-   override) drops both the persisted `/join` deep-link URL and the
-   stashed open invite via `clearOrganizationInvite`, which clears both
-   state keys. `deepLinkGuard` therefore does not replay `/join` and
-   `authedHandler` does not re-fire `acceptOpenOrgInvite`.
-
-The Key Connector latent-bug called out in Part A applies here too — KC's
-cleanup override skips `clearOrganizationInvite`, so an open-invite stash
-persists on disk after KC-SSO acceptance. Same self-healing story via the
-next invite-slot overwrite; same "arguably a bug" caveat.
+   override) sees the stashed open invite and drops both the persisted
+   `/join` deep-link URL and the stash via `clearOrganizationInvite`, which
+   clears both state keys. `deepLinkGuard` therefore does not replay `/join`
+   and `authedHandler` does not re-fire `acceptOpenOrgInvite`.
 
 #### SSO-required org, existing user (MP detour to /login)
 

@@ -816,8 +816,7 @@ describe("DefaultDomainSettingsService", () => {
   });
 
   describe("effectiveFillAssistRulesUrl$", () => {
-    const DEFAULT_URL_TRAILING =
-      "https://github.com/bitwarden/map-the-web/releases/latest/download/";
+    const DEFAULT_URL_TRAILING = "https://fillassist.bitwarden.com/";
 
     beforeEach(() => {
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
@@ -861,7 +860,7 @@ describe("DefaultDomainSettingsService", () => {
       // the server config — otherwise self-hosted admins couldn't override.
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({
-          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download",
+          rulesUrl: "https://fillassist.bitwarden.com",
         }),
       ]);
       serverConfigMock$.next({
@@ -878,7 +877,24 @@ describe("DefaultDomainSettingsService", () => {
       // URL with a slash must not shadow server config.
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({
-          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download/",
+          rulesUrl: "https://fillassist.bitwarden.com/",
+        }),
+      ]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://server.example.com/rules/");
+    });
+
+    it("falls back to server config when the policy URL is a legacy default value", async () => {
+      // Legacy default values must be recognized here so legacy policies fetch
+      // current server config, matching how the edit UI treats them.
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({
+          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download",
         }),
       ]);
       serverConfigMock$.next({

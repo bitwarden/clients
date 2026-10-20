@@ -26,6 +26,7 @@ import { filter } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HoverRevealBoundaryDirective } from "../hover-reveal";
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile";
@@ -41,7 +42,14 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
-  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, IconComponent, I18nPipe],
+  imports: [
+    NgTemplateOutlet,
+    NavItemComponent,
+    IconButtonModule,
+    IconComponent,
+    I18nPipe,
+    HoverRevealBoundaryDirective,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {

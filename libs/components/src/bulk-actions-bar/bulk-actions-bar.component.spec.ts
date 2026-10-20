@@ -336,8 +336,8 @@ describe("BulkActionsBarComponent", () => {
       expect(liveRegion().textContent).toContain("Ctrl+B");
     });
 
-    it("self-corrects to Command after observing a metaKey-only keydown", () => {
-      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Meta", metaKey: true }));
+    it("self-corrects to Command after observing a metaKey chord keydown", () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "b", metaKey: true }));
       fixture.detectChanges();
       expect(liveRegion().textContent).toContain("Command+B");
     });

@@ -39,13 +39,13 @@ const routes: Routes = [
       {
         path: "settings",
         loadChildren: () =>
-          import("./settings/organization-settings.module").then(
-            (m) => m.OrganizationSettingsModule,
+          import("./settings/organization-settings.routes").then(
+            (m) => m.organizationSettingsRoutes,
           ),
       },
       {
         path: "members",
-        loadChildren: () => import("./members").then((m) => m.MembersModule),
+        loadChildren: () => import("./members").then((m) => m.membersRoutes),
       },
       {
         component: GroupsComponent,
@@ -58,8 +58,8 @@ const routes: Routes = [
       {
         path: "reporting",
         loadChildren: () =>
-          import("../organizations/reporting/organization-reporting.module").then(
-            (m) => m.OrganizationReportingModule,
+          import("../organizations/reporting/organization-reporting.routes").then(
+            (m) => m.organizationReportingRoutes,
           ),
       },
       {

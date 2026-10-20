@@ -7,18 +7,20 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
+use anyhow::{anyhow, Result};
 use tracing::{debug, error, warn};
 use windows::{
     core::GUID,
     Win32::{
-        Foundation::{PROPERTYKEY, RPC_E_CHANGED_MODE},
+        Foundation::{HWND, PROPERTYKEY, RPC_E_CHANGED_MODE},
         System::Com::{CoInitializeEx, CoUninitialize, COINIT_APARTMENTTHREADED},
+        UI::WindowsAndMessaging::GetForegroundWindow,
     },
 };
 
 use crate::app_data::{
     path::{build_normalizer, PathNormalizer},
-    AppData,
+    AppData, AppMetadata, VerifiableAppData,
 };
 
 mod appsfolder;
@@ -94,18 +96,87 @@ impl RunningApp {
     }
 }
 
-/// Windows implementation of [`super::get_running_apps`]. Infallible — collection and
-/// filtering degrade to empty/skip on any OS-query failure.
-///
-/// Reading window property stores / AppsFolder / AppDiagnosticInfo needs COM, so this
-/// initializes a single-threaded apartment (STA) for the duration of the call and balances it
-/// with a matching `CoUninitialize`.
-///
-/// If the calling thread was already initialized in a
-/// different apartment (`RPC_E_CHANGED_MODE`) COM stays usable in that apartment and no
-/// reference is released; any other initialization failure leaves the shell/WinRT calls to
-/// fail their `Result`s, degrading to an empty list.
+/// Windows implementation of [`super::get_running_apps`]
 pub(super) fn get_running_apps() -> Vec<AppData> {
+    with_com(|| {
+        // The authoritative set of registered launchable apps, keyed by AUMID — the input that
+        // lets collection resolve real identities and tag user-launchable apps.
+        let registry = appsfolder::load();
+
+        // 1. Collection: the raw, full list of running apps.
+        // This contains many processes that are not actually apps that can be paired.
+        let raw = collect::collect(&registry);
+        let n_collected = raw.len();
+
+        debug!(n = n_collected, "Collected raw running apps.");
+
+        // 2. Filtering: apply the exclusion policy (dropped candidates are logged, not returned).
+        let mut kept = filter::apply(raw);
+
+        // 3. Sort: alphabetically by name ensure deterministic output
+        kept.sort_by(|a, b| {
+            a.name()
+                .to_ascii_lowercase()
+                .cmp(&b.name().to_ascii_lowercase())
+        });
+
+        debug!(
+            n_filtered = n_collected - kept.len(),
+            n_kept = kept.len(),
+            "Filtered running apps."
+        );
+
+        // 4. Convert: the raw type to the public API
+        let normalizer = build_normalizer();
+        kept.into_iter()
+            .filter_map(|app| app.into_app_data(&normalizer))
+            .collect()
+    })
+}
+
+/// Resolves the current foreground window to an [`VerifiableAppData`] — its [`AppData`] (via the
+/// same identity resolution, exclusion policy, and path normalization as [`get_running_apps`]) plus
+/// live [`AppMetadata`] (window handle + pid) so a later call can confirm the same app is still
+/// active.
+pub(super) fn get_active_app() -> Result<VerifiableAppData> {
+    with_com(|| {
+        let hwnd = foreground_window()?;
+        let registry = appsfolder::load();
+
+        let raw = collect::resolve_window(hwnd, true)
+            .ok_or_else(|| anyhow!("could not resolve the foreground window's process"))?;
+        let (_key, running) = collect::window_to_running_app(&raw, &registry);
+
+        let kept = filter::apply(vec![running])
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow!("active window is not a pairable app"))?;
+        let pid = kept.pid;
+
+        let normalizer = build_normalizer();
+        let app_data = kept
+            .into_app_data(&normalizer)
+            .ok_or_else(|| anyhow!("active app is missing a display name or path"))?;
+
+        // The active window's handle (`HWND`) as a `u32`. On 64-bit Windows an `HWND` is
+        // 32-bit-significant, so the low 32 bits are lossless.
+        let id = hwnd.0 as u32;
+
+        Ok(VerifiableAppData {
+            app_data,
+            app_metadata: AppMetadata { id, pid },
+        })
+    })
+}
+
+/// Run function `f` inside a COM single-threaded apartment (STA). Reading window property stores /
+/// AppsFolder / AppDiagnosticInfo needs COM, so this initializes an STA for the duration of the
+/// call and balances it with a matching `CoUninitialize`.
+///
+/// If the calling thread was already initialized in a different apartment (`RPC_E_CHANGED_MODE`)
+/// COM stays usable in that apartment and no reference is released; any other initialization
+/// failure leaves the shell/WinRT calls to fail their `Result`s, degrading gracefully.
+fn with_com<T>(f: impl FnOnce() -> T) -> T {
     // S_OK / S_FALSE add an initialization reference on this thread that we own and must
     // release; RPC_E_CHANGED_MODE does not (the thread keeps its existing apartment).
     // <https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex>
@@ -115,56 +186,33 @@ pub(super) fn get_running_apps() -> Vec<AppData> {
     if !owns_com && hr_result != RPC_E_CHANGED_MODE {
         warn!(
             ?hr_result,
-            "CoInitializeEx failed; running-app enumeration may be empty"
+            "CoInitializeEx failed; COM-dependent enumeration may be empty"
         );
     }
 
-    let apps = enumerate();
+    let out = f();
 
     if owns_com {
         // SAFETY: only run on successful CoInitializeEx result.
         unsafe { CoUninitialize() };
     }
 
-    apps
+    out
 }
 
-/// Collect → filter → sort → reduce to the public [`AppData`] shape.
-///
-/// # Safety COM must first be initialized by the caller.
-fn enumerate() -> Vec<AppData> {
-    // The authoritative set of registered launchable apps, keyed by AUMID — the input that
-    // lets collection resolve real identities and tag user-launchable apps.
-    let registry = appsfolder::load();
+/// Retreive the current foreground window handle, or an error when there is none (or it is
+/// invalid).
+fn foreground_window() -> Result<HWND> {
+    // SAFETY: GetForegroundWindow only reads global UI state and returns a null handle when there
+    // is no foreground window (e.g. during a focus transition).
+    // <https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getforegroundwindow>
+    let hwnd = unsafe { GetForegroundWindow() };
+    debug!("GetForegroundWindow() called.");
 
-    // 1. Collection: the raw, full list of running apps.
-    // This contains many processes that are not actually apps that can be paired.
-    let raw = collect::collect(&registry);
-    let n_collected = raw.len();
-
-    debug!(n = n_collected, "Collected raw running apps.");
-
-    // 2. Filtering: apply the exclusion policy (dropped candidates are logged, not returned).
-    let mut kept = filter::apply(raw);
-
-    // 3. Sort: alphabetically by name ensure deterministic output
-    kept.sort_by(|a, b| {
-        a.name()
-            .to_ascii_lowercase()
-            .cmp(&b.name().to_ascii_lowercase())
-    });
-
-    debug!(
-        n_filtered = n_collected - kept.len(),
-        n_kept = kept.len(),
-        "Filtered running apps."
-    );
-
-    // 4. Convert: the raw type to the public API
-    let normalizer = build_normalizer();
-    kept.into_iter()
-        .filter_map(|app| app.into_app_data(&normalizer))
-        .collect()
+    if hwnd.is_invalid() {
+        return Err(anyhow!("no foreground window"));
+    }
+    Ok(hwnd)
 }
 
 #[cfg(test)]

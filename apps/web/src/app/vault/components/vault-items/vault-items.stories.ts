@@ -48,7 +48,8 @@ import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bi
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { RoutedVaultFilterService, PasswordRepromptService } from "@bitwarden/vault";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { PasswordRepromptService, VaultBatchBarService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -154,17 +155,6 @@ export default {
           },
         },
         {
-          provide: RoutedVaultFilterService,
-          useValue: {
-            filter$: of({
-              organizationId: null,
-              collectionId: null,
-              folderId: null,
-              type: null,
-            }),
-          },
-        },
-        {
           provide: AccountService,
           useValue: {
             async getAccount() {
@@ -201,6 +191,21 @@ export default {
         {
           provide: CipherService,
           useValue: () => {},
+        },
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
+        {
+          provide: VaultBatchBarService,
+          useValue: {
+            barVisible: () => false,
+            selection: {
+              hasValue: () => false,
+              isSelected: () => false,
+              toggle: () => {},
+              clear: () => {},
+              select: () => {},
+              selected: [],
+            },
+          },
         },
       ],
     }),
@@ -265,9 +270,6 @@ export const Individual: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -280,9 +282,6 @@ export const IndividualDisabled: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -294,9 +293,6 @@ export const IndividualTrash: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: false,
   },
 };
@@ -308,9 +304,6 @@ export const IndividualTopLevelCollection: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -322,9 +315,6 @@ export const IndividualSecondLevelCollection: Story = {
     showOwner: true,
     showCollections: false,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: true,
-    showBulkTrashOptions: false,
     useEvents: false,
   },
 };
@@ -336,9 +326,6 @@ export const OrganizationVault: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -350,9 +337,6 @@ export const OrganizationTrash: Story = {
     showOwner: false,
     showCollections: true,
     showGroups: false,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: true,
     useEvents: true,
   },
 };
@@ -369,9 +353,6 @@ export const OrganizationTopLevelCollection: Story = {
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };
@@ -383,9 +364,6 @@ export const OrganizationSecondLevelCollection: Story = {
     showOwner: false,
     showCollections: false,
     showGroups: true,
-    showPremiumFeatures: true,
-    showBulkMove: false,
-    showBulkTrashOptions: false,
     useEvents: true,
   },
 };

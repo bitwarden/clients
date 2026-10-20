@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Réinitialiser la recherche"
   },
+  "clearSearchTooltip": {
+    "message": "Effacez en cliquant ici ou en appuyant sur Échap.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Tous les éléments"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Collections"
   },
+  "controlledAccess": {
+    "message": "Accès contrôlé"
+  },
   "firstName": {
     "message": "Prénom"
   },
@@ -1252,19 +1259,19 @@
       }
     }
   },
-  "moreSharedFoldersShownAbove": {
-    "message": "$COUNT$ autres dossiers partagés affichés au-dessus de ce bouton",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ dossiers partagés imbriqués",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "3"
+        "example": "4"
       }
     }
   },
-  "moreSharedFoldersShownAboveSingular": {
-    "message": "1 dossier partagé supplémentaire affiché au-dessus de ce bouton",
-    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  "nestedSharedFolderSingular": {
+    "message": "1 dossier partagé imbriqué",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
   },
   "myFolder": {
     "message": "Mon dossier"
@@ -1275,14 +1282,14 @@
   "foldersFilterTooltip": {
     "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
   },
+  "myItemsFilterTooltip": {
+    "message": "Ajoutez des éléments à Mes éléments pour les filtrer ici."
+  },
   "sharedFolderFilterTooltip": {
     "message": "Ajouter des éléments à un dossier partagé pour filtrer ici."
   },
   "addSharedFolder": {
     "message": "Ajouter un dossier partagé"
-  },
-  "newSharedFolder": {
-    "message": "Nouveau dossier partagé"
   },
   "searchSharedFolder": {
     "message": "Rechercher dans le dossier partagé"
@@ -1475,42 +1482,6 @@
     "message": "Ajouter un passeport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nouvel Identifiant",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nouvelle Carte de paiement",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nouvelle Identité",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nouvelle Note",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nouvelle note sécurisée",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nouvelle clé SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nouveau compte bancaire",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nouveau permis",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nouveau passeport",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nouveau texte",
     "description": "Header for new text send"
@@ -1518,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nouveau fichier",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Modifier l'Identifiant",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Modifier la Carte de paiement",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Modifier l'Identité",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Modifier la note",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Modifier la note sécurisée",
@@ -1699,6 +1654,14 @@
   "copyUsername": {
     "message": "Copier le nom d'utilisateur",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Copier l'ID externe",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copier l'ID SSO externe",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Copier le numéro",
@@ -1994,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Sélectionnez un fichier."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Ce type de fichier n'est pas accepté pour cette source. Choisissez un autre fichier."
+  },
+  "pasteContentRequired": {
+    "message": "Coller le contenu exporté."
+  },
+  "fileTypeNotSupported": {
+    "message": "Ce type de fichier n'est pas supporté. Sélectionnez un fichier $TYPES$.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Le contenu collé ne correspond pas au format sélectionné."
+  },
+  "errorReadingFile": {
+    "message": "Le fichier sélectionné n'a pas pu être lu."
   },
   "maxFileSize": {
     "message": "La taille maximale du fichier est de 500 Mo."
@@ -2629,11 +2613,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Vous n'avez pas de dossier."
+  "youHaveNoFoldersV2": {
+    "message": "Vous n'avez aucun dossier"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous, personne d'autre ne les verra ou ne les utilisera."
+  "emptyFoldersDescriptionV2": {
+    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous. Personne d'autre ne les verra ou les utilisera."
   },
   "emptyVaultsDescription": {
     "message": "Ajoutez des identifiants, des ID, des cartes et d'autres éléments pour commencer."
@@ -2969,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Mot de passe principal de KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Mot de passe $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Le mot de passe est requis."
+  },
+  "filePasswordRequired": {
+    "message": "Le mot de passe du fichier est requis"
+  },
+  "filePasswordInvalid": {
+    "message": "Entrez un mot de passe de fichier valide."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Le fichier téléchargé est protégé par mot de passe. Entrez le mot de passe pour continuer."
+  },
+  "selectProfile": {
+    "message": "Sélectionner un profil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Entrer un mot de passe valide"
+  },
+  "importAccountMismatchError": {
+    "message": "Ce fichier peut être seulement importé dans le compte depuis lequel il a été exporté."
+  },
   "addKeyFile": {
     "message": "Ajouter un fichier de clé"
   },
   "keyFileUpload": {
     "message": "Téléchargement du fichier de clé"
+  },
+  "keyFileUploadV2": {
+    "message": "Fichier clé"
   },
   "kdbxFileUpload": {
     "message": "Téléversement du fichier KDBX"
@@ -3377,6 +3394,9 @@
   "importFormatError": {
     "message": "Les données ne sont pas correctement mises en forme. Veuillez vérifier le fichier importé et réessayer."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Ce fichier utilise des paramètres de chiffrement non pris en charge et ne peut pas être importé."
+  },
   "importNothingError": {
     "message": "Rien à importer."
   },
@@ -3455,17 +3475,14 @@
   "learnAboutImportOptions": {
     "message": "En savoir plus sur vos options d'importation"
   },
-  "selectImportFolder": {
-    "message": "Choisir un dossier"
-  },
-  "selectImportCollection": {
-    "message": "Sélectionnez une collection"
-  },
   "importTargetHintCollection": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
   },
   "importTargetHintFolder": {
     "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier partagé"
   },
   "importUnassignedItemsError": {
     "message": "Le fichier contient des éléments non assignés."
@@ -3475,6 +3492,40 @@
   },
   "selectImportFile": {
     "message": "Sélectionnez le fichier à importer"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Sélectionner la source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Sélectionnez votre source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choisissez le gestionnaire de mots de passe ou le navigateur à partir duquel vous importez."
+  },
+  "importSourceBrowsers": {
+    "message": "Navigateurs"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestionnaires de mots de passe"
+  },
+  "importSourceShowAll": {
+    "message": "Tout afficher"
+  },
+  "importSourceShowLess": {
+    "message": "Afficher moins"
+  },
+  "importSourceStepCount": {
+    "message": "Étape $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Choisir un fichier"
@@ -3583,6 +3634,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Centre d'aide"
+  },
+  "uploadFile": {
+    "message": "Téléverser un fichier"
+  },
+  "pasteAsPlainText": {
+    "message": "Coller en texte brut"
+  },
+  "plainText": {
+    "message": "Texte brut"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "lastPassEmail": {
+    "message": "Courriel LastPass"
+  },
+  "includeSharedFolders": {
+    "message": "Inclure les dossiers partagés"
+  },
+  "importManuallyInstead": {
+    "message": "Importer manuellement à la place"
+  },
+  "directlyImportInstead": {
+    "message": "Importater directement à la place"
+  },
+  "fastest": {
+    "message": "Le plus rapide"
+  },
+  "importDataTitle": {
+    "message": "Importez vos données"
+  },
+  "importDataDirectTitle": {
+    "message": "Importez vos données en quelques minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importez vos articles directement de",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "pour obtenir toutes vos données.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importer de $VENDOR$ ou copier et coller le contenu de l'exportation.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Sélectionnez le profil depuis lequel vous souhaitez importer des mots de passe."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Aucun profil de navigateur n'a été trouvé"
+  },
+  "importDataLoginTitle": {
+    "message": "Connectez-vous à $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Vos identifiants sont chiffrés en transit et ne sont jamais conservés."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Sécurisé dès la conception"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Transfert chiffré de bout en bout. Bitwarden ne voit jamais vos identifiants de connexion $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Nous vous demanderons vos informations de connexion"
+  },
+  "importDataLoginInfoBody": {
+    "message": "À l'étape suivante, connectez-vous à votre compte $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Tout est en train d'être transféré"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Les identifiants, les cartes, les identités, les notes sécurisées et les TOTPs avec leur structure de dossier préservée."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepté : $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Type de fichier $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Le processus est exactement le même que l'importation depuis Google Chrome.",
@@ -3840,9 +4007,6 @@
   },
   "customize": {
     "message": "Personnaliser"
-  },
-  "newCustomDomain": {
-    "message": "Nouveau domaine personnalisé"
   },
   "addCustomDomain": {
     "message": "Ajouter un domaine personnalisé"
@@ -4469,6 +4633,14 @@
     "message": "Compte créditeur",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "Solde appliqué",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Montant dû",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
+  },
   "accountBalance": {
     "message": "Solde du compte",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
@@ -4684,6 +4856,15 @@
   },
   "reinstateSubscription": {
     "message": "Rétablir l'abonnement"
+  },
+  "keepSubscription": {
+    "message": "Conserver l’abonnement"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Votre abonnement est expiré et sera bientôt mis en pause."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Votre abonnement est expiré et a été mis en pause."
   },
   "reinstateConfirmation": {
     "message": "Êtes-vous sûr de vouloir supprimer la demande d'annulation en attente et rétablir votre abonnement ?"
@@ -5342,9 +5523,6 @@
   "groups": {
     "message": "Groupes"
   },
-  "newGroup": {
-    "message": "Nouveau groupe"
-  },
   "addGroup": {
     "message": "Ajouter un groupe"
   },
@@ -5400,9 +5578,6 @@
   "readOnly": {
     "message": "Lecture seule"
   },
-  "newCollection": {
-    "message": "Nouvelle collection"
-  },
   "addCollection": {
     "message": "Ajouter une collection"
   },
@@ -5418,10 +5593,6 @@
   },
   "collectionInfo": {
     "message": "Informations de la collection"
-  },
-  "sharedFolderInfo": {
-    "message": "Informations sur le dossier partagé",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Êtes-vous sûr de vouloir supprimer cette collection?"
@@ -6101,6 +6272,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "A répondu à une requête d'authentification HTTP avec l'élément $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Collection $ID$ créée.",
     "placeholders": {
@@ -6720,11 +6900,26 @@
   "resendInvitation": {
     "message": "Renvoyer l'invitation"
   },
+  "sendInvite": {
+    "message": "Envoyer l'invitation"
+  },
+  "sendInvites": {
+    "message": "Envoyer des invitations"
+  },
   "resendEmail": {
     "message": "Renvoyer l'email"
   },
   "hasBeenReinvited": {
     "message": "$USER$ a été réinvité.",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invitations",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6885,6 +7080,9 @@
   },
   "clickHereToAddPaymentMethod": {
     "message": "Cliquer ici pour ajouter une méthode de paiement."
+  },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contactez votre représentant commercial Bitwarden pour configurer la facturation."
   },
   "joinOrganization": {
     "message": "Rejoindre l'organisation"
@@ -7480,6 +7678,9 @@
   "inviteLinkRegenerated": {
     "message": "Lien d'invitation régénéré"
   },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Lien d'invitation mis à jour"
+  },
   "regenerateInviteLink": {
     "message": "Regénérer le lien d'invitation"
   },
@@ -7513,20 +7714,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Ajouter des domaines de messagerie autorisés (par exemple acme.com) afin que seuls les utilisateurs ayant des courriels correspondants puissent utiliser ce lien d'invitation. Vous pouvez le mettre à jour à tout moment."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Vous êtes dans l'aperçu de la visite, donc ces domaines ne sont que des exemples."
+  },
   "adjustTheLink": {
     "message": "Ajuster le lien"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Vos besoins changent et le lien peut changer avec vous. <strong>Régénérer</strong> le lien pour invalider l'ancien lien et en créer un nouveau."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Vos besoins changent et le lien peut changer avec vous."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Régénérer</strong> le lien pour invalider l'ancien lien et en créer un nouveau."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Nécessite la confirmation de l'administrateur</strong> pour approuver les nouveaux membres avant de pouvoir rejoindre l'organisation."
   },
   "shareTheLinkAnywhere": {
     "message": "Partager le lien n'importe où"
@@ -7554,6 +7749,9 @@
   },
   "inviteByLinkDesc": {
     "message": "Invitez des membres à rejoindre votre organisation avec un lien. Si aucun rôle n'a encore été spécifié, ils seront ajoutés en tant qu'utilisateur par défaut."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "L'utilisation d'un lien d'invitation pourrait représenter un risque de sécurité dans votre environnement auto-hébergé, car un les utilisateurs n'ont pas à vérifier leur courriel."
   },
   "byContinuingYouAgreeToThe": {
     "message": "En continuant, vous acceptez les"
@@ -8408,6 +8606,10 @@
     "message": "Le fichier associé à ce Send est introuvable.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Ce fichier n'a pas pu être téléchargé car le lien de téléchargement a échoué une vérification de sécurité.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Il n'y a aucun Send à afficher.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8853,16 +9055,16 @@
   "sendControls": {
     "message": "Contrôles du Send"
   },
-  "manageSend": {
-    "message": "Gérer le Send",
+  "manageSendV2": {
+    "message": "Gérer Send et partage",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Définir les options pour créer et éditer les Sends, y compris la possibilité de supprimer les Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Gérer comment les membres utilisent Send. Cette politique s'appliquera aux Sends créés après avoir activé cette politique de sécurité. Les administrateurs et les propriétaires sont exemptés.",
+  "sendControlsPolicyDescV5": {
+    "message": "Gérer comment les membres utilisent Send et partagent des éléments du Coffre. Cette politique ne sera pas appliquée pour les propriétaires et les administrateurs.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescListVfo1": {
@@ -8905,17 +9107,43 @@
     "message": "Activer \"fill assist\"",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Activer l'aide de remplissage",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Activer \"fill assist\" par défaut pour tous les membres. Cette fonctionnalité utilise des instructions révisées spécifiques au site pour améliorer la précision de la saisie automatique sur les sites Web connus pour être difficiles à remplir."
+  },
+  "fillAssistRuleSource": {
+    "message": "Règle de saisie automatique"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Par défaut"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Utilisez la règle de remplissage automatique revue par Bitwarden."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Personnalisé"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Entrez votre propre jeu de règles personnalisées."
   },
   "fillAssistRulesUrl": {
     "message": "Règles de saisie automatique personnalisées"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Par défaut, \"fill assist\" utilise le jeu de règles mises en place par Bitwarden. Entrez une URL ici pour le remplacer par le vôtre."
+  "fillAssistRulesUrlV2": {
+    "message": "Règles personnalisées"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "En savoir plus sur les règles personnalisées"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Entrez une URL valide",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Entrez une URL valide pour un ensemble de règles personnalisées.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -9533,16 +9761,25 @@
   "decryptionError": {
     "message": "Erreur de déchiffrement"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden n'a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden n'a pas pu déchiffrer l'élément du coffre listé ci-dessous. Contactez l'assistance à la clientèle de Bitwarden et fournissez l'ID de l'élément ci-dessous pour voir s'il peut être récupéré."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contacter Succès Client",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden n'a pas pu déchiffrer les éléments du coffre listés ci-dessous. Contactez l'assistance à la clientèle de Bitwarden et fournissez les IDs des éléments ci-dessous pour voir s'ils peuvent être récupérés."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "pour éviter des pertes de données supplémentaires.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID de l'élément",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID des éléments",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copier l'ID"
+  },
+  "copyAllIds": {
+    "message": "Copier les IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "Gérer les utilisateurs exige également d'avoir l'autorisation de gérer la restauration de compte"
@@ -9865,6 +10102,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Activer le paramètre de saisie automatique au chargement de la page dans l'extension de navigateur pour tous les membres existants et nouveaux. Sachez que les sites web compromis ou peu fiables peuvent"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Activer le remplissage automatique lors du chargement de la page dans l'extension du navigateur pour tous les membres existants et nouveaux. Une fois cette politique activée, les membres doivent ajuster leurs paramètres personnels pour activer le remplissage automatique. Sachez que les sites Web compromis ou peu fiables peuvent"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "exploiter la saisie automatique lors du chargement de la page"
   },
@@ -10081,6 +10321,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Sélectionnez l'organisation que vous souhaiteriez voir parrainée"
   },
+  "selectAFamilyVault": {
+    "message": "Sélectionnez un coffre de la famille"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Quelle offre Familles gratuite aimeriez-vous obtenir ?"
   },
@@ -10092,6 +10335,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Acceptez l'offre pour une organisation existante ou créer une nouvelle organisation Familles."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ a parrainé un abonnement gratuit de Bitwarden Familles pour vous! Vous pouvez appliquer votre abonnement gratuit à un coffre familial existant ou en créer un nouveau.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Vous avez été parrainé un abonnement gratuit pour Bitwarden Familles! Vous pouvez appliquer votre gratuit à un coffre Familles existant ou en créer un nouveau.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Il vous a été offert un plan organisation Bitwarden \"Families\" gratuit. Pour continuer, vous devez vous connecter au compte qui a reçu l'offre."
@@ -10110,6 +10367,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Accepter l'offre Bitwarden Familles gratuite"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accepter l'abonnement parraîné à Familles"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Détails de l'abonnement parraîné"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "L'offre gratuite de Bitwarden Familles a été récupérée avec succès"
@@ -10279,14 +10542,24 @@
   "paymentSponsored": {
     "message": "Veuillez fournir un moyen de paiement à associer à l'organisation. Ne vous inquiétez pas, nous ne vous facturerons rien à moins que vous ne sélectionniez des fonctionnalités supplémentaires ou que votre parrainage expire. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Veuillez fournir un moyen de paiement à associer à votre coffre familial. Ne vous inquiétez pas, nous ne vous facturerons rien à moins que vous ne sélectionnez des fonctionnalités supplémentaires ou que votre parrainage expire.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "L'offre de parrainage a expiré, vous pouvez supprimer l'organisation que vous avez créée pour éviter d'être facturé à la fin de votre essai de 7 jours. Dans le cas contraire, vous pouvez fermer ce message pour conserver l'organisation et assumer la responsabilité de la facturation."
   },
   "newFamiliesOrganization": {
     "message": "Nouvelle organisation Familles"
   },
+  "createVault": {
+    "message": "Créer un coffre"
+  },
   "acceptOffer": {
     "message": "Accepter l'offre"
+  },
+  "applySponsorship": {
+    "message": "Appliqué à un parrainage"
   },
   "sponsoringOrg": {
     "message": "Organisation marraine"
@@ -10845,6 +11118,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Cette URL n'est pas autorisée. Elle doit utiliser https et ne peut pas pointer vers une adresse de réseau local ou privé.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Entrez une URL valide",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "URL à risque détectée",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Cette URL peut être non sécurisée ou pointer vers un réseau privé. L'utiliser peut entraîner une exposition de données privées. Ne continuez que si vous faites confiance à ce serveur.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Faire confiance à l'URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Cette URL a été marquée fiable et approuvée. Vous pouvez modifier à tout moment.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Une erreur $SERVICENAME$ inconnue s'est produite.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -10918,18 +11215,6 @@
   },
   "scimLearnMore": {
     "message": "En savoir plus sur SCIM"
-  },
-  "scimIntegrationDescription": {
-    "message": "Fournissez automatiquement aux utilisateurs et aux groupes avec votre fournisseur d'identité préféré via l'approvisionnement SCIM. Trouvez les intégrations supportées",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Activer SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Configurez votre fournisseur d'identité préféré en configurant l'URL et la clé API SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
     "message": "Cette clé API possède l'accès pour gérer les utilisateurs au sein de votre organisation. Elle devrait être tenue secrète."
@@ -11277,6 +11562,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Supprimer définitivement les secrets"
+  },
+  "currentVersion": {
+    "message": "Version actuelle",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modifié par: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "La valeur secrète a été copiée",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Secret restauré à la version sélectionnée",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restaurer la version secrète",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Êtes-vous sûr de vouloir restaurer ce secret dans la version sélectionnée ? La valeur actuelle sera remplacée.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Versions précédentes",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Historique de version",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Aucun historique de version",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Sélectionnez les projets auxquels le secret sera associé. Seuls les utilisateurs de l'organisation ayant accès à ces projets pourront voir le secret.",
@@ -11738,9 +12065,6 @@
   "domainVerification": {
     "message": "Vérification du domaine"
   },
-  "newDomain": {
-    "message": "Nouveau domaine"
-  },
   "addDomain": {
     "message": "Ajouter un domaine"
   },
@@ -12110,9 +12434,6 @@
   "groupSlashUser": {
     "message": "Groupe/Utilisateur"
   },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Effectuer cette action vous déconnectera de toutes les sessions actives. Vous devrez vous connecter à nouveau et compléter votre authentification à 2 facteurs, s'il y a lieu. Nous vous recommandons d'exporter votre coffre avant de modifier vos paramètres de chiffrement pour prévenir la perte de vos données."
-  },
   "secretsManager": {
     "message": "Secrets Manager"
   },
@@ -12457,6 +12778,9 @@
   },
   "restoreSecretsPrompt": {
     "message": "Êtes-vous sûr de vouloir restaurer ces secrets ?"
+  },
+  "restoreThisVersion": {
+    "message": "Restaurer cette version"
   },
   "secretRestoredSuccessToast": {
     "message": "Secret restauré"
@@ -13726,10 +14050,6 @@
     "message": "Comptes de machine",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Nouveau compte machine",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Ajouter un compte d'appareil",
     "description": "Title for creating a new machine account."
@@ -14199,6 +14519,9 @@
   "organizationOptionsMenu": {
     "message": "Afficher/masquer le Menu de l'Organisation"
   },
+  "vaultOptions": {
+    "message": "Options du coffre"
+  },
   "vaultItemSelect": {
     "message": "Sélectionner un élément du coffre"
   },
@@ -14359,6 +14682,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Une erreur s'est produite lors de la prévisualisation de la facture. Veuillez réessayer plus tard."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Veuillez vérifier vos informations de facturation et réessayer."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Cette offre inclut une période d'essai de $DAYS$ jours. Le montant total indiqué ci-dessus vous sera facturé à l'issue de la période d'essai.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Il vous reste 1 jour dans votre période d'essai. Le total ci-dessus vous sera facturé le $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Il vous reste $DAYS$ jour d'essai. Le montant total indiqué ci-dessus vous sera facturé le $DATE$ .",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Non vérifié"
@@ -15459,20 +15816,11 @@
   "atRiskPassword": {
     "message": "Mot de passe à risque"
   },
-  "changeAtRiskPassword": {
-    "message": "Changer le mot de passe à risque"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Cet identifiant est à risques et manque un site web. Ajoutez un site web et changez le mot de passe pour une meilleure sécurité."
-  },
   "vulnerablePassword": {
     "message": "Mot de passe vulnérable."
   },
   "changeNow": {
     "message": "Changer maintenant"
-  },
-  "missingWebsite": {
-    "message": "Site Web manquant"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Supprimer Déverrouiller avec un NIP"
@@ -16679,8 +17027,8 @@
   "premiumSubscriptionCredit": {
     "message": "Crédit d'abonnement Premium"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Crédits d'abonnement appliqués"
+  "appliedProrationCredits": {
+    "message": "Crédit de prorogation appliqué"
   },
   "enterpriseMembership": {
     "message": "Adhésion à Entreprise"
@@ -16845,6 +17193,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Conservez une forte sécurité des éléments de votre coffre-fort en vérifiant les rapports de vulnérabilités."
   },
+  "whatsNew": {
+    "message": "What's new"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Avec la mise à jour de la navigation et du design, il est plus facile que jamais de trouver ce dont vous avez besoin."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Surveiller l'activité de sécurité"
   },
@@ -16875,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Rafraîchissez régulièrement les rapports et les observations pour attraper de nouveaux risques et voir les dernières mesures au rythme de la croissance de votre organisation."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mélanger et faire correspondre les filtres"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Sélectionnez plusieurs filtres à la fois pour affiner exactement les résultats que vous voulez. Ils resteront appliqués même lorsque vous naviguerez ailleurs."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ de $TOTAL$",
     "placeholders": {
@@ -16900,6 +17278,72 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ éléments ou coffres 1Password n'ont pas pu être importés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Une erreur est survenue. Vérifiez vos identifiants et réessayez."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Seule la connexion avec mot de passe est prise en charge."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Seule la connexion avec mot de passe est prise en charge. Réessayez ou utilisez une méthode d'importation différente."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Entrez une adresse courriel valide ou utilisez une méthode d'importation différente."
+  },
+  "onePasswordImportError": {
+    "message": "Une erreur est survenue. Réessayez ou utilisez une méthode d'importation différente."
+  },
+  "emailIsRequired": {
+    "message": "L'adresse courriel est requise."
+  },
+  "enterValidEmailAddress": {
+    "message": "Saisissez une adresse courriel valide."
+  },
+  "signInAddressIsRequired": {
+    "message": "L'adresse de connexion est requise."
+  },
+  "enterValidSignInAddress": {
+    "message": "Entrez une adresse de connexion valide."
+  },
+  "secretKeyIsRequired": {
+    "message": "La clé secrète est requise."
+  },
+  "enterValidSecretKey": {
+    "message": "Entrez une clé secrète valide."
+  },
+  "passwordIsRequired": {
+    "message": "Le mot de passe est requis."
+  },
+  "enterValidVerificationCode": {
+    "message": "Entrez un code de vérification valide."
+  },
+  "signInAddress": {
+    "message": "Adresse de connexion"
+  },
+  "onePasswordEmail": {
+    "message": "Courriel 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Entrez l'adresse courriel que vous utilisez pour vous connecter à 1Password"
+  },
+  "secretKey": {
+    "message": "Clé secrète"
+  },
+  "secretKeyAndPassword": {
+    "message": "Clé secrète et mot de passe"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Votre compte est sécurisé avec une clé secrète et un mot de passe. Vous devrez entrer les deux pour continuer."
   },
   "keeperEmail": {
     "message": "Courriel de Keeper"
@@ -17356,8 +17800,32 @@
   "pam": {
     "message": "PAM"
   },
+  "pamAccessRequestsTitle": {
+    "message": "Demandes d'accès"
+  },
   "pamAccessRules": {
     "message": "Règles d'accès"
+  },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Lorsqu'elle est inactive, la règle ne restreint pas l'accès."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activer la règle"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Désactiver la règle"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Règle d'accès activée."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Règle d'accès désactivée."
   },
   "pamAccessRuleEnabled": {
     "message": "Activé"
@@ -17383,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Définissez des règles pour contrôler qui peut demander accès aux identifiants sensibles, sous quelles conditions et pour combien de temps."
   },
+  "pamAccessRuleCreate": {
+    "message": "Créer une règle d'accès"
+  },
   "pamAccessRuleNew": {
     "message": "Nouvelle règle"
   },
@@ -17401,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Informations générales"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Statut"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Durée d'accès"
   },
@@ -17413,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Cette règle d'accès s'appliquera à toutes les collections sélectionnées."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Toutes les demandes et décisions sont jounalisées."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Voir le journal d'audit"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Impossible de charger les collections. Veuillez rafraîchir la page pour essayer à nouveau."
   },
@@ -17422,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Description"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Durée d'accès par défaut"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Durée par défaut"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Durée d'accès maximale"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Durée maximale"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Aucune limite"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "La durée maximale de tout bail est limitée à cette durée, quelle que soit la demande."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "L'accès est limité à cette durée, quelle que soit la durée demandée."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minutes"
@@ -17452,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 heures"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 jour"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 jours"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 heures"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 jours"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 jours"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Un seul utilisateur peut avoir un accès actif à la fois"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "D'autres personnes ayant une approbation peuvent essayer d'accéder une fois que l'accès en cours se termine ou est révoqué."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Autoriser les extensions d'accès"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Les membres peuvent prolonger leur accès actif une fois sans nouvelle approbation, jusqu'à la longueur maximale ci-dessous."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Un seul utilisateur à la fois peut détenir un bail actif"
@@ -17488,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Gestionnaire de collection"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copier)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copie $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copie créée. Choisissez les collections auxquelles elles s'appliquent."
+  },
   "pamAccessRuleCreated": {
     "message": "Règle d'accès créée."
   },
   "pamAccessRuleUpdated": {
     "message": "Règle d'accès mise à jour."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Règles d'accès supprimées."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Supprimer la règle d'accès ?"
@@ -17505,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Désactiver la règle d'accès"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Cette règle cessera de s'appliquer aux nouvelles demandes d'accès."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Une erreur s'est produite. Votre règle n'a pas été enregistrée, mais vos informations sont toujours là."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Saisissez un nom."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Une autre règle utilise déjà ce nom. Entrez un nom différent."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Une autre règle d'accès couvre déjà une de ces collections. Sélectionnez différentes collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Une autre règle d'accès couvre déjà $COLLECTIONS$. Sélectionnez différentes collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Une des collections que vous avez sélectionnées n'existe plus. Sélectionnez une collection différente."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Une des collections que vous avez sélectionnées ne fait pas partie de cette organisation. Sélectionnez une autre collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choisissez une longueur maximale d'extension ou désactivez les extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Cette règle n'existe plus. Elle peut avoir été supprimée par un autre administrateur."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Aucune règle d'accès pour l'instant"
@@ -17524,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Juste à temps"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approuvée"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Auto-approuvé • Expire après 1h • Audit enregistré"
   },
@@ -17533,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approbation requise"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Approbation humaine • 1 approbateur requis"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Approbation humaine • 1 approbateur requis • Audit enregistré"
   },
@@ -17541,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "Restriction par IP"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approuvée • Liste d'IP approuvées"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Auto-approuvé • Liste d'approbation IP • Audit enregistré"
@@ -17554,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Non attribué"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Rechercher dans les règles"
   },
   "pamAccessRuleAppliesTo": {
     "message": "S'applique à"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Méthode d'approbation"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Durée maximale"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Conditions"
@@ -17581,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Aucune règle d'accès ne correspond à vos filtres."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activer"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Désactiver"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Activer"
   },
@@ -17598,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ règles d'accès seront supprimées définitivement. Cette action est irréversible.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Désactiver la règle d'accès"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ règles cesseront de s'appliquer aux nouvelles demandes d'accès.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17686,5 +18300,180 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Invitez toute votre équipe avec un seul lien"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "N'importe qui avec un courriel d'entreprise peut utiliser le lien d'invitation pour rejoindre votre organisation. Déposez le dans les ressources d'intégration pour que les nouveaux employés puissent se joindre lorsqu'ils sont prêts."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "La visite utilise des données de démonstration. Rien dans votre organisation ne changera."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Aperçu de la boîte de dialogue d'invitation des membres montrant le nouvel onglet par lien"
+  },
+  "showMeHow": {
+    "message": "Montrez-moi comment"
+  },
+  "shareVerb": {
+    "message": "Partager"
+  },
+  "peopleWhoCanView": {
+    "message": "Personnes qui peuvent afficher",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Après avoir partagé ce lien, les destinataires devront vérifier leur courriel avec un code pour afficher l'élément.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Ce lien expire après cette date, mais les destinataires peuvent conserver des informations partagées précédemment. Régénérez les identifiants pour révoquer l'accès.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Le lien expire après",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Partage unique",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Liens actifs",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Lien copié dans le presse-papiers",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Incapable de créer le lien de partage",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Lien enregistré et copié dans le presse-papiers",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "A échoué la copie du lien de partage dans le presse-papiers",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Lien de partage supprimé",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Incapable de supprimer le lien de partage",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Partager via le lien",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Partage pour l'élément du coffre $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expire",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ a partagé les éléments suivants avec vous.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "comptes de service supplémentaires"
+  },
+  "additionalStorageGbLower": {
+    "message": "Go de stockage supplémentaire"
+  },
+  "membersLower": {
+    "message": "membres"
+  },
+  "memberLower": {
+    "message": "membre"
+  },
+  "annualLower": {
+    "message": "annuel"
+  },
+  "monthlyLower": {
+    "message": "mensuelle"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "Abonnement de $PLAN$ $CADENCE$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Garder et réactiver"
+  },
+  "subscriptionIsNowActive": {
+    "message": "L'abonnement est maintenant actif"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Cela annulera votre demande d'annulation et réactivera votre abonnement."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Les détails de l'abonnement ne se chrgent pas"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Notre service de facturation est indisponible, nous ne pouvons donc pas afficher votre abonnement et votre prix pour le moment. Votre abonnement lui-même n'a pas été affecté."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Charge du Gestionnaire de mots de passe au prorata"
+  },
+  "storageProratedCharge": {
+    "message": "Charge du stockage au prorata"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Charge du Secrets Manager au prorata"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Charge des comptes de service au prorata"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden a un nouveau look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Meilleure expérience, même sécurité digne de confiance. Le coffre de Bitwarden a été redessiné en fonction de vos commentaires, donc les choses sont plus faciles à trouver et à travailler comme vous vous y attendiez.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Un aperçu du coffre de Bitwarden redessiné.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explorer le nouveau coffre",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Personnaliser votre affichage"
+  },
+  "showColumns": {
+    "message": "Afficher les colonnes"
+  },
+  "resetToDefault": {
+    "message": "Revenir aux valeurs par défaut"
   }
 }

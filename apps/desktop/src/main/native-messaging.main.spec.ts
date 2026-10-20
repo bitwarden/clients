@@ -1,176 +1,435 @@
-import { existsSync, promises as fs } from "fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import * as path from "path";
 
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DesktopIpcPeerClientType } from "@bitwarden/common/platform/ipc";
+import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { NativeMessagingMain } from "./native-messaging.main";
+import { isWindowsStore } from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 jest.mock("electron", () => ({
   ipcMain: { handle: jest.fn(), on: jest.fn() },
 }));
 
+// native-messaging.main.ts loads a native .node module at import time.
 jest.mock("@bitwarden/desktop-napi", () => ({
-  ipc: { NativeIpcServer: { listen: jest.fn() } },
-  windows_registry: { createKey: jest.fn(), deleteKey: jest.fn() },
-}));
-
-jest.mock("fs", () => ({
-  ...jest.requireActual("fs"),
-  existsSync: jest.fn(),
-  promises: {
-    ...jest.requireActual("fs").promises,
-    mkdir: jest.fn(),
-    writeFile: jest.fn(),
-    unlink: jest.fn(),
+  ipc: {
+    NativeIpcServer: { listen: jest.fn() },
+    IpcMessageType: { Connected: 0, Disconnected: 1, Message: 2 },
   },
+  windows_registry: { createKey: jest.fn() },
 }));
 
-jest.mock("os", () => ({
-  ...jest.requireActual("os"),
-  homedir: jest.fn(() => "/Users/test"),
-  userInfo: jest.fn(() => ({ homedir: "/Users/test", username: "test" })),
-}));
+// Dev mode would scan browser profiles for extension ids.
+jest.mock("../utils", () => ({ ...jest.requireActual("../utils"), isDev: () => false }));
 
-jest.mock("../utils", () => ({ isDev: () => false }));
+jest.mock("./platform-utils.main", () => ({ isWindowsStore: jest.fn() }));
 
 describe("NativeMessagingMain", () => {
-  const APP_SUPPORT = "/Users/test/Library/Application Support";
-  const EXE_PATH = "/Applications/Bitwarden.app/Contents/MacOS/Bitwarden";
-  const BINARY_PATH = "/Applications/Bitwarden.app/Contents/MacOS/desktop_proxy";
+  const clientId = 7;
 
-  const FIREFOX_PROFILES = `${APP_SUPPORT}/Firefox/`;
-  const MOZILLA = `${APP_SUPPORT}/Mozilla/`;
-  const CHROME = `${APP_SUPPORT}/Google/Chrome/`;
-
-  const FIREFOX_MANIFEST = `${APP_SUPPORT}/Mozilla/NativeMessagingHosts/com.8bit.bitwarden.json`;
-  const CHROME_MANIFEST = `${APP_SUPPORT}/Google/Chrome/NativeMessagingHosts/com.8bit.bitwarden.json`;
-
-  let logService: MockProxy<LogService>;
   let sut: NativeMessagingMain;
-  let originalPlatform: PropertyDescriptor;
+  let logService: MockProxy<LogService>;
+  let emit: (error: unknown, message: ipc.IpcMessage) => void;
 
-  const givenOnDisk = (paths: string[]) => {
-    const present = new Set([BINARY_PATH, ...paths]);
-    (existsSync as jest.Mock).mockImplementation((candidate: string) => present.has(candidate));
-  };
+  /** Delivers a native message from `clientId`, as the napi server would. */
+  function receive(message: object): void {
+    emit(null, {
+      kind: ipc.IpcMessageType.Message,
+      clientId,
+      message: JSON.stringify(message),
+    } as ipc.IpcMessage);
+  }
 
-  const manifestWrittenTo = (destination: string) => {
-    const call = (fs.writeFile as jest.Mock).mock.calls.find(([target]) => target === destination);
-    return call == null ? undefined : JSON.parse(call[1]);
-  };
+  /** Connects `clientId`, carrying `announcement` as the napi server would. */
+  function connect(announcement?: object): void {
+    emit(null, {
+      kind: ipc.IpcMessageType.Connected,
+      clientId,
+      message: announcement == null ? undefined : JSON.stringify(announcement),
+    } as ipc.IpcMessage);
+  }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
 
-    originalPlatform = Object.getOwnPropertyDescriptor(process, "platform");
-    Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
-
-    (fs.mkdir as jest.Mock).mockResolvedValue(undefined);
-    (fs.writeFile as jest.Mock).mockResolvedValue(undefined);
-    (fs.unlink as jest.Mock).mockResolvedValue(undefined);
+    jest.mocked(ipc.NativeIpcServer.listen).mockImplementation((_name, callback) => {
+      emit = callback as typeof emit;
+      return Promise.resolve(mock<ipc.NativeIpcServer>({ getPaths: () => [] }));
+    });
 
     logService = mock<LogService>();
-    sut = new NativeMessagingMain(
-      logService,
-      mock<WindowMain>(),
-      "/user/path",
-      EXE_PATH,
-      "/app/path",
+    sut = new NativeMessagingMain(logService, mock<WindowMain>(), "userPath", "exe", "app");
+    await sut.listen();
+  });
+
+  it("reports no client type for a client that is not connected", () => {
+    expect(sut.clientTypeFor(clientId)).toBeUndefined();
+  });
+
+  it("reports an unknown client type for a client that never announced one", () => {
+    connect();
+
+    expect(sut.clientTypeFor(clientId)).toBe(DesktopIpcPeerClientType.Unknown);
+  });
+
+  it("records an announced client type", () => {
+    connect({ clientType: DesktopIpcPeerClientType.Cli });
+
+    expect(sut.clientTypeFor(clientId)).toBe(DesktopIpcPeerClientType.Cli);
+  });
+
+  it("reports an unknown client type for a malformed announcement", () => {
+    emit(null, {
+      kind: ipc.IpcMessageType.Connected,
+      clientId,
+      message: "not json",
+    } as ipc.IpcMessage);
+
+    expect(sut.clientTypeFor(clientId)).toBe(DesktopIpcPeerClientType.Unknown);
+  });
+
+  it("logs the announced client details", () => {
+    connect({
+      clientType: DesktopIpcPeerClientType.Firefox,
+      extensionId: "{id}",
+      unexpected: "not logged",
+    });
+
+    expect(logService.info).toHaveBeenCalledWith(
+      `Native messaging client ${clientId} has connected as firefox`,
+      { extensionId: "{id}" },
     );
   });
 
-  afterEach(() => {
-    Object.defineProperty(process, "platform", originalPlatform);
+  it("relays other messages", () => {
+    const relayed = jest.fn();
+    sut.messages$.subscribe(relayed);
+
+    receive({ type: "bitwarden-ipc-message" });
+
+    expect(relayed).toHaveBeenCalled();
   });
 
-  describe("generateManifests on macOS", () => {
-    it("installs the Firefox manifest when only the Firefox profile directory exists", async () => {
-      givenOnDisk([FIREFOX_PROFILES]);
+  it("forgets the client type once the client disconnects, so a reused id is not stale", () => {
+    connect({ clientType: DesktopIpcPeerClientType.Cli });
+
+    emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
+
+    expect(sut.clientTypeFor(clientId)).toBeUndefined();
+  });
+
+  describe("generateManifests on linux", () => {
+    const manifestName = "com.8bit.bitwarden.json";
+    const platform = process.platform;
+
+    let home: string;
+
+    beforeEach(() => {
+      home = mkdtempSync(path.join(tmpdir(), "nmh-"));
+      Object.defineProperty(process, "platform", { value: "linux" });
+      jest.spyOn(sut as any, "homedir").mockReturnValue(home);
+
+      // Stand-in for the desktop_proxy binary the manifests point to.
+      const binary = path.join(home, "desktop_proxy");
+      writeFileSync(binary, "");
+      jest.spyOn(sut as any, "binaryPath").mockReturnValue(binary);
+    });
+
+    afterEach(() => {
+      Object.defineProperty(process, "platform", { value: platform });
+      rmSync(home, { recursive: true, force: true });
+    });
+
+    it("writes the firefox manifest when only the XDG profile dir exists", async () => {
+      mkdirSync(path.join(home, ".config", "mozilla"), { recursive: true });
 
       await sut.generateManifests();
 
-      expect(fs.mkdir).toHaveBeenCalledWith(`${APP_SUPPORT}/Mozilla/NativeMessagingHosts`, {
-        recursive: true,
+      const nmhs = path.join(home, ".mozilla", "native-messaging-hosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    it("writes the flatpak firefox manifest when only the app dir exists", async () => {
+      const app = path.join(home, ".var", "app", "org.mozilla.firefox");
+      mkdirSync(app, { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(app, ".mozilla", "native-messaging-hosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    // Chromium-based browsers don't always ship a NativeMessagingHosts dir.
+    it("writes the chromium manifest when the NativeMessagingHosts dir is missing", async () => {
+      mkdirSync(path.join(home, ".config", "chromium"), { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(home, ".config", "chromium", "NativeMessagingHosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    it("skips firefox when no profile dir exists", async () => {
+      await sut.generateManifests();
+
+      expect(existsSync(path.join(home, ".mozilla"))).toBe(false);
+      expect(existsSync(path.join(home, ".var"))).toBe(false);
+    });
+  });
+
+  describe("on macOS", () => {
+    const manifestName = "com.8bit.bitwarden.json";
+    const platform = process.platform;
+
+    let home: string;
+    let binary: string;
+    let firefoxProfiles: string;
+    let mozilla: string;
+    let chrome: string;
+
+    /** The manifest written to `browserDir`, or `undefined` if none was. */
+    function manifestIn(browserDir: string): Record<string, unknown> | undefined {
+      const manifestPath = path.join(browserDir, "NativeMessagingHosts", manifestName);
+      return existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : undefined;
+    }
+
+    beforeEach(() => {
+      home = mkdtempSync(path.join(tmpdir(), "nmh-"));
+      Object.defineProperty(process, "platform", { value: "darwin" });
+      jest.spyOn(sut as any, "homedir").mockReturnValue(home);
+
+      const appSupport = path.join(home, "Library", "Application Support");
+      firefoxProfiles = path.join(appSupport, "Firefox");
+      mozilla = path.join(appSupport, "Mozilla");
+      chrome = path.join(appSupport, "Google", "Chrome");
+
+      binary = path.join(home, "desktop_proxy");
+      writeFileSync(binary, "");
+      jest.spyOn(sut as any, "binaryPath").mockReturnValue(binary);
+    });
+
+    afterEach(() => {
+      Object.defineProperty(process, "platform", { value: platform });
+      rmSync(home, { recursive: true, force: true });
+    });
+
+    describe("generateManifests", () => {
+      it("installs the Firefox manifest when only the Firefox profile directory exists", async () => {
+        mkdirSync(firefoxProfiles, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(mozilla)).toEqual(
+          expect.objectContaining({
+            name: "com.8bit.bitwarden",
+            path: binary,
+            allowed_extensions: ["{446900e4-71c2-419f-a6a7-df9c091e268b}"],
+          }),
+        );
       });
-      expect(manifestWrittenTo(FIREFOX_MANIFEST)).toEqual(
-        expect.objectContaining({
-          name: "com.8bit.bitwarden",
-          path: BINARY_PATH,
-          allowed_extensions: ["{446900e4-71c2-419f-a6a7-df9c091e268b}"],
-        }),
-      );
+
+      it("still installs the Firefox manifest when only Mozilla/ exists", async () => {
+        mkdirSync(mozilla, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(mozilla)).toBeDefined();
+      });
+
+      it("skips Firefox when neither the profile directory nor Mozilla/ exists", async () => {
+        mkdirSync(chrome, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(mozilla)).toBeUndefined();
+        expect(logService.warning).toHaveBeenCalledWith("Firefox not found, skipping.");
+      });
+
+      it("installs a Chrome-flavoured manifest for chromium browsers", async () => {
+        mkdirSync(chrome, { recursive: true });
+
+        await sut.generateManifests();
+
+        expect(manifestIn(chrome)).toEqual(
+          expect.objectContaining({
+            allowed_origins: expect.arrayContaining([
+              "chrome-extension://nngceckbapebfimnlniiiahkandclblb/",
+            ]),
+          }),
+        );
+      });
+
+      it("still installs the other browsers when the Mozilla directory cannot be created", async () => {
+        mkdirSync(firefoxProfiles, { recursive: true });
+        mkdirSync(chrome, { recursive: true });
+        writeFileSync(mozilla, "");
+
+        await expect(sut.generateManifests()).resolves.toBeUndefined();
+
+        expect(manifestIn(mozilla)).toBeUndefined();
+        expect(manifestIn(chrome)).toBeDefined();
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
+      });
+
+      it("still installs the other browsers when the Firefox manifest cannot be written", async () => {
+        mkdirSync(firefoxProfiles, { recursive: true });
+        mkdirSync(chrome, { recursive: true });
+        jest
+          .spyOn(sut as any, "writeManifest")
+          .mockRejectedValueOnce(new Error("EACCES: permission denied"));
+
+        await expect(sut.generateManifests()).resolves.toBeUndefined();
+
+        expect(manifestIn(chrome)).toBeDefined();
+        expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
+      });
     });
 
-    it("still installs the Firefox manifest when only Mozilla/ exists", async () => {
-      givenOnDisk([MOZILLA]);
+    describe("removeManifests", () => {
+      it("removes the Firefox manifest from Mozilla/NativeMessagingHosts", async () => {
+        const manifestPath = path.join(mozilla, "NativeMessagingHosts", manifestName);
+        mkdirSync(path.dirname(manifestPath), { recursive: true });
+        writeFileSync(manifestPath, "{}");
 
-      await sut.generateManifests();
+        await sut.removeManifests();
 
-      expect(manifestWrittenTo(FIREFOX_MANIFEST)).toBeDefined();
-    });
-
-    it("skips Firefox when neither the profile directory nor Mozilla/ exists", async () => {
-      givenOnDisk([CHROME]);
-
-      await sut.generateManifests();
-
-      expect(manifestWrittenTo(FIREFOX_MANIFEST)).toBeUndefined();
-      expect(logService.warning).toHaveBeenCalledWith("Firefox not found, skipping.");
-    });
-
-    it("installs a Chrome-flavoured manifest for chromium browsers", async () => {
-      givenOnDisk([CHROME]);
-
-      await sut.generateManifests();
-
-      expect(manifestWrittenTo(CHROME_MANIFEST)).toEqual(
-        expect.objectContaining({
-          allowed_origins: expect.arrayContaining([
-            "chrome-extension://nngceckbapebfimnlniiiahkandclblb/",
-          ]),
-        }),
-      );
-    });
-
-    it("still installs the other browsers when the Mozilla directory cannot be created", async () => {
-      givenOnDisk([FIREFOX_PROFILES, CHROME]);
-      (fs.mkdir as jest.Mock).mockImplementation((directory: string) =>
-        directory.includes("Mozilla")
-          ? Promise.reject(new Error("EPERM: operation not permitted"))
-          : Promise.resolve(undefined),
-      );
-
-      await expect(sut.generateManifests()).resolves.toBeUndefined();
-
-      expect(manifestWrittenTo(FIREFOX_MANIFEST)).toBeUndefined();
-      expect(manifestWrittenTo(CHROME_MANIFEST)).toBeDefined();
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
-    });
-
-    it("still installs the other browsers when the Firefox manifest cannot be written", async () => {
-      givenOnDisk([FIREFOX_PROFILES, CHROME]);
-      (fs.writeFile as jest.Mock).mockImplementation((target: string) =>
-        target === FIREFOX_MANIFEST
-          ? Promise.reject(new Error("EACCES: permission denied"))
-          : Promise.resolve(undefined),
-      );
-
-      await expect(sut.generateManifests()).resolves.toBeUndefined();
-
-      expect(manifestWrittenTo(CHROME_MANIFEST)).toBeDefined();
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Firefox"));
+        expect(existsSync(manifestPath)).toBe(false);
+      });
     });
   });
+});
 
-  describe("removeManifests on macOS", () => {
-    it("removes the Firefox manifest from Mozilla/NativeMessagingHosts", async () => {
-      givenOnDisk([FIREFOX_MANIFEST]);
+describe("NativeMessagingMain.generateManifests on Windows", () => {
+  const chromeKey = "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden";
+  const originalPlatform = process.platform;
+  const originalResourcesPath = process.resourcesPath;
+  const originalLocalAppData = process.env.LOCALAPPDATA;
 
-      await sut.removeManifests();
+  let root: string;
+  let userPath: string;
+  let localAppData: string;
+  let installPath: string;
+  let sut: NativeMessagingMain;
 
-      expect(fs.unlink).toHaveBeenCalledWith(FIREFOX_MANIFEST);
+  /** Reads the Chrome manifest that `generateManifests` registered for browsers to discover. */
+  function readRegisteredChromeManifest(): { path: string } {
+    const [, , manifestPath] = jest
+      .mocked(windows_registry.createKey)
+      .mock.calls.find(([, subkey]) => subkey === chromeKey);
+    return JSON.parse(readFileSync(manifestPath, "utf8"));
+  }
+
+  /** Runs as if from the Appx with this package full name, whose package folder exists. */
+  async function runFromAppx(packageFullName: string, packageFamilyName: string) {
+    jest.mocked(isWindowsStore).mockReturnValue(true);
+    Object.defineProperty(process, "resourcesPath", {
+      value: `C:\\Program Files\\WindowsApps\\${packageFullName}\\app\\resources`,
+      configurable: true,
     });
+    mkdirSync(path.join(localAppData, "Packages", packageFamilyName, "LocalState"), {
+      recursive: true,
+    });
+  }
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    Object.defineProperty(process, "platform", { value: "win32" });
+
+    // %APPDATA%\Bitwarden is left uncreated: the Appx may be installed without it.
+    root = mkdtempSync(path.join(tmpdir(), "bitwarden-"));
+    userPath = path.join(root, "Roaming", "Bitwarden");
+    localAppData = path.join(root, "Local");
+    installPath = path.join(root, "install");
+    process.env.LOCALAPPDATA = localAppData;
+    mkdirSync(installPath);
+    writeFileSync(path.join(installPath, "desktop_proxy.exe"), "");
+
+    sut = new NativeMessagingMain(
+      mock<LogService>(),
+      mock<WindowMain>(),
+      userPath,
+      path.join(installPath, "Bitwarden.exe"),
+      "app",
+    );
+  });
+
+  afterEach(async () => {
+    Object.defineProperty(process, "platform", { value: originalPlatform });
+    Object.defineProperty(process, "resourcesPath", {
+      value: originalResourcesPath,
+      configurable: true,
+    });
+    process.env.LOCALAPPDATA = originalLocalAppData;
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it("registers a manifest in the user data directory pointing at the proxy beside the app outside an Appx", async () => {
+    jest.mocked(isWindowsStore).mockReturnValue(false);
+    mkdirSync(userPath, { recursive: true });
+
+    await sut.generateManifests();
+
+    expect(windows_registry.createKey).toHaveBeenCalledWith(
+      "HKCU",
+      chromeKey,
+      path.join(userPath, "browsers", "chrome.json"),
+    );
+    expect(readRegisteredChromeManifest().path).toBe(path.join(installPath, "desktop_proxy.exe"));
+  });
+
+  it("registers a manifest in the package folder pointing at the proxy's execution alias in the Appx", async () => {
+    await runFromAppx(
+      "8bitSolutionsLLC.bitwardendesktop_1.0.0.0_x64__h4e712dmw3xyy",
+      "8bitSolutionsLLC.bitwardendesktop_h4e712dmw3xyy",
+    );
+
+    await sut.generateManifests();
+
+    expect(windows_registry.createKey).toHaveBeenCalledWith(
+      "HKCU",
+      chromeKey,
+      path.join(
+        localAppData,
+        "Packages",
+        "8bitSolutionsLLC.bitwardendesktop_h4e712dmw3xyy",
+        "LocalState",
+        "browsers",
+        "chrome.json",
+      ),
+    );
+    expect(readRegisteredChromeManifest().path).toBe(
+      path.join(localAppData, "Microsoft", "WindowsApps", "bitwarden_desktop_proxy.exe"),
+    );
+  });
+
+  it("registers a manifest in the package folder pointing at the Beta proxy's execution alias in the Beta Appx", async () => {
+    await runFromAppx(
+      "8bitSolutionsLLC.BitwardenBeta_1.0.0.0_x64__h4e712dmw3xyy",
+      "8bitSolutionsLLC.BitwardenBeta_h4e712dmw3xyy",
+    );
+
+    await sut.generateManifests();
+
+    expect(windows_registry.createKey).toHaveBeenCalledWith(
+      "HKCU",
+      chromeKey,
+      path.join(
+        localAppData,
+        "Packages",
+        "8bitSolutionsLLC.BitwardenBeta_h4e712dmw3xyy",
+        "LocalState",
+        "browsers",
+        "chrome.json",
+      ),
+    );
+    expect(readRegisteredChromeManifest().path).toBe(
+      path.join(localAppData, "Microsoft", "WindowsApps", "bitwarden_beta_desktop_proxy.exe"),
+    );
   });
 });

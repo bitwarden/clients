@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -162,6 +162,72 @@ class TestAppComponent {}
   imports: [MenuModule],
 })
 class TestAppWithPositionComponent {}
+
+describe("Menu — open state in an OnPush host", () => {
+  let fixture: ComponentFixture<TestAppOnPushParentComponent>;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({ imports: [TestAppOnPushParentComponent] });
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestAppOnPushParentComponent);
+    fixture.detectChanges();
+  });
+
+  const getTriggerEl = () =>
+    fixture.debugElement.query(By.directive(MenuTriggerForDirective))
+      .nativeElement as HTMLButtonElement;
+
+  it("clears open state bindings when the menu is closed from outside the host's view", async () => {
+    const trigger = getTriggerEl();
+
+    trigger.click();
+    fixture.detectChanges();
+    expect(trigger.classList).toContain("is-open");
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+
+    // The backdrop click happens outside the OnPush component's view, so nothing marks that
+    // view dirty on its own — the open state has to be reactive for the bindings to update.
+    (document.querySelector(".cdk-overlay-backdrop") as HTMLElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(trigger.classList).not.toContain("is-open");
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+  });
+});
+
+@Component({
+  selector: "test-app-on-push",
+  template: `
+    <button
+      type="button"
+      #menuTrigger="menuTrigger"
+      [bitMenuTriggerFor]="testMenu"
+      [class.is-open]="menuTrigger.isOpen()"
+    >
+      Open menu
+    </button>
+    <bit-menu #testMenu>
+      <a id="item1" bitMenuItem>Item 1</a>
+    </bit-menu>
+  `,
+  imports: [MenuModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestAppOnPushComponent {}
+
+/**
+ * The trigger lives in a child component so that `fixture.detectChanges()` can't force-refresh
+ * the OnPush view the way it would if the trigger sat on the fixture's own component.
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "test-app-on-push-parent",
+  template: `<test-app-on-push></test-app-on-push>`,
+  imports: [TestAppOnPushComponent],
+})
+class TestAppOnPushParentComponent {}
 
 describe("Menu — host tooltip suppression", () => {
   let fixture: ComponentFixture<TestAppWithTooltipComponent>;

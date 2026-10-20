@@ -3,11 +3,13 @@ import { signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -16,7 +18,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,7 +26,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -36,11 +36,12 @@ import {
   CompactModeService,
   DialogService,
   FilterMenuComponent,
-  FilterOptionComponent,
+  FilterOptionRow,
   FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   NO_FOLDER,
   PasswordRepromptService,
@@ -51,6 +52,7 @@ import {
   VaultsNavViewModel,
 } from "@bitwarden/vault";
 
+import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -87,8 +89,8 @@ const makeRow = (
 describe("VaultPopupListTableComponent", () => {
   let fixture: ComponentFixture<VaultPopupListTableComponent>;
   let component: VaultPopupListTableComponent;
+  let router: Router;
 
-  const featureFlag$ = new BehaviorSubject<boolean>(false);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   const autoFillCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const favoriteCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
@@ -101,16 +103,13 @@ describe("VaultPopupListTableComponent", () => {
   const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const liveAnnouncer = mock<LiveAnnouncer>();
-  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
   const configService = {
-    getFeatureFlag$: jest.fn().mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-        return featureFlag$.asObservable();
-      }
-      return of(false);
-    }),
+    getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+    getFeatureFlag: jest.fn().mockResolvedValue(false),
   };
+
+  const importUpgradeNavigationService = mock<ImportUpgradeNavigationService>();
 
   const vaultPopupAutofillService = {
     currentTabIsOnBlocklist$: currentTabIsOnBlocklist$.asObservable(),
@@ -160,6 +159,7 @@ describe("VaultPopupListTableComponent", () => {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
     clearVaultScopedFilters: jest.fn(),
+    filterDialogOpen: signal(false),
     vaultScopedFiltersCleared$: vaultScopedFiltersCleared$.asObservable(),
     selectedFilters$: of({
       cipherType: null,
@@ -167,13 +167,15 @@ describe("VaultPopupListTableComponent", () => {
       collection: [] as string[],
       folder: [] as string[],
     }),
-    selectedOrganizations: signal<Organization[]>([]),
     cipherTypes$: cipherTypes$.asObservable(),
     organizations$: organizations$.asObservable(),
     organizationNames$: organizationNames$.asObservable(),
     collections$: collections$.asObservable(),
     folders$: folders$.asObservable(),
   };
+
+  /** Like the popup's view cache, every `signal()` call seeds from the snapshot taken at popup open. */
+  let viewCacheSnapshot: Record<string, unknown>;
 
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);
   const compactModeService = {
@@ -214,7 +216,7 @@ describe("VaultPopupListTableComponent", () => {
     jest.clearAllMocks();
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
-    featureFlag$.next(false);
+    configService.getFeatureFlag.mockResolvedValue(false);
     currentTabIsOnBlocklist$.next(false);
     autoFillCiphers$.next([]);
     favoriteCiphers$.next([]);
@@ -232,7 +234,8 @@ describe("VaultPopupListTableComponent", () => {
     organizationNames$.next(new Map());
     collections$.next([]);
     folders$.next([]);
-    clickItemsToAutofillVaultView$.next(true);
+    vaultPopupListTableFiltersService.filterDialogOpen.set(false);
+    viewCacheSnapshot = {};
     nav$.next({ vaults: [], organizationDataOwnership: false });
     vaultNavService.viewModel$.mockReturnValue(nav$.asObservable());
     liveAnnouncer.announce.mockClear();
@@ -241,7 +244,15 @@ describe("VaultPopupListTableComponent", () => {
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: WINDOW, useValue: window },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: ({ key, initialValue }: { key: string; initialValue: unknown }) =>
+              signal(key in viewCacheSnapshot ? viewCacheSnapshot[key] : initialValue),
+          },
+        },
         { provide: ConfigService, useValue: configService },
+        { provide: ImportUpgradeNavigationService, useValue: importUpgradeNavigationService },
         { provide: VaultPopupAutofillService, useValue: vaultPopupAutofillService },
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
         { provide: VaultPopupLoadingService, useValue: vaultPopupLoadingService },
@@ -274,16 +285,7 @@ describe("VaultPopupListTableComponent", () => {
           },
         },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
-        {
-          provide: VaultSettingsService,
-          useValue: {
-            clickItemsToAutofillVaultView$: clickItemsToAutofillVaultView$.asObservable(),
-          },
-        },
-        {
-          provide: PlatformUtilsService,
-          useValue: { getAutofillKeyboardShortcut: async () => "" },
-        },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ToastService, useValue: {} },
         { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
         {
@@ -298,6 +300,9 @@ describe("VaultPopupListTableComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: { hasPremiumFromAnySource$: () => of(true) },
         },
+        // The rows' more-options menu hosts the share entry point, which asks whether the
+        // item can be shared. Stubbed so the real service is not constructed.
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(false) } },
       ],
     }).compileComponents();
 
@@ -307,6 +312,8 @@ describe("VaultPopupListTableComponent", () => {
     listTableSvc.setScope(null);
     fixture = TestBed.createComponent(VaultPopupListTableComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
   });
 
   describe("collapsible sections", () => {
@@ -622,14 +629,13 @@ describe("VaultPopupListTableComponent", () => {
       fixture.nativeElement.style.height = "600px";
       fixture.detectChanges();
 
-      const folderMenu = fixture.debugElement
-        .queryAll(By.directive(FilterMenuComponent))
-        .find((de) => de.componentInstance.key() === "folder");
-      const noFolderOption = folderMenu!.query(By.directive(FilterOptionComponent))
-        .componentInstance as FilterOptionComponent;
+      const folderMenu = chipFor("folder") as FilterMenuComponent;
+      const noFolderOption = (folderMenu["allOptions"]() as FilterOptionRow[]).find(
+        (o) => o.value() === NO_FOLDER,
+      );
 
-      expect(noFolderOption.value()).toBe(NO_FOLDER);
-      expect(noFolderOption.count()).toBe(1);
+      expect(noFolderOption?.value()).toBe(NO_FOLDER);
+      expect(noFolderOption?.count()).toBe(1);
     });
 
     it("flattens nested folder options into one option per node", () => {
@@ -940,6 +946,182 @@ describe("VaultPopupListTableComponent", () => {
         expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(2);
       });
     });
+
+    describe("nesting collections and folders", () => {
+      /** An option by value, read from any chip's own option tree — plain rows, never stamped
+       * as `bit-filter-option` components. */
+      function findOption(value: unknown): FilterOptionRow {
+        const menus = fixture.debugElement
+          .queryAll(By.directive(FilterMenuComponent))
+          .map((el) => el.componentInstance as FilterMenuComponent);
+        for (const menu of menus) {
+          const option = (menu["allOptions"]() as FilterOptionRow[]).find(
+            (o) => o.value() === value,
+          );
+          if (option) {
+            return option;
+          }
+        }
+        throw new Error(`No option found for value ${JSON.stringify(value)}`);
+      }
+
+      // The service builds `children` itself (`getAllNested`/`getAllFoldersNested`), truncating
+      // each nested node's own name/label down to its own path segment along the way — these
+      // fixtures mirror that shape rather than a flat, still-fully-pathed list.
+
+      it("nests a rendered collection option under its parent, ungrouped", () => {
+        collections$.next([
+          {
+            value: { id: "col-1", name: "Engineering" } as CollectionView,
+            label: "Engineering",
+            children: [
+              {
+                value: { id: "col-2", name: "Backend" } as CollectionView,
+                label: "Backend",
+              },
+            ],
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(false);
+        expect(
+          findOption("col-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["col-2"]);
+      });
+
+      it("nests a rendered collection option under its bit-filter-section, grouped by organization", () => {
+        collections$.next([
+          {
+            value: { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+            label: "Engineering",
+            children: [
+              {
+                value: {
+                  id: "col-2",
+                  name: "Backend",
+                  organizationId: "org-1",
+                } as CollectionView,
+                label: "Backend",
+              },
+            ],
+          },
+          {
+            value: { id: "col-3", name: "Gamma", organizationId: "org-2" } as CollectionView,
+            label: "Gamma",
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(true);
+        expect(
+          findOption("col-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["col-2"]);
+      });
+
+      it("nests a rendered folder option under its parent, leaving 'no folder' unnested", () => {
+        folders$.next([
+          {
+            value: { id: "", name: "itemsWithNoFolder" } as FolderView,
+            label: "itemsWithNoFolder",
+          },
+          {
+            value: { id: "f-1", name: "Travel" } as FolderView,
+            label: "Travel",
+            children: [
+              {
+                value: { id: "f-2", name: "Flights" } as FolderView,
+                label: "Flights",
+              },
+            ],
+          },
+        ]);
+        fixture.detectChanges();
+
+        expect(findOption(NO_FOLDER).expandable()).toBe(false);
+        expect(
+          findOption("f-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["f-2"]);
+      });
+
+      it("keeps a folder nested even when it has no directly-scoped items of its own", () => {
+        // "Travel" itself has no in-scope cipher, only its child "Flights" does — it must still
+        // render (as a pass-through) so "Flights" has somewhere to nest under.
+        activeCiphers$.next([
+          makeCipher({ id: "flight-1", organizationId: null, folderId: "f-2" }),
+        ]);
+        folders$.next([
+          {
+            value: { id: "f-1", name: "Travel" } as FolderView,
+            label: "Travel",
+            children: [
+              {
+                value: { id: "f-2", name: "Flights" } as FolderView,
+                label: "Flights",
+              },
+            ],
+          },
+        ]);
+        listTableSvc.setScope({ type: VaultScopeType.MyVault });
+        fixture.detectChanges();
+
+        expect(
+          findOption("f-1")
+            .children()
+            .map((c) => c.value()),
+        ).toEqual(["f-2"]);
+      });
+    });
+  });
+
+  describe("filter dialog state", () => {
+    // `DialogModule` provides its own instance, so spy on the class rather than the TestBed mock.
+    let open: jest.SpyInstance;
+    const originalResizeObserver = globalThis.ResizeObserver;
+
+    beforeEach(() => {
+      open = jest.spyOn(DialogService.prototype, "open");
+      // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
+      globalThis.ResizeObserver = class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe(target: Element) {
+          const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
+          this.callback([entry], this as unknown as ResizeObserver);
+        }
+        unobserve() {}
+        disconnect() {}
+      } as unknown as typeof ResizeObserver;
+    });
+    afterEach(() => {
+      open.mockRestore();
+      globalThis.ResizeObserver = originalResizeObserver;
+    });
+
+    it("doesn't reopen a closed dialog when the vault page is recreated", async () => {
+      // The popup opened with the dialog left open, and the snapshot keeps saying so.
+      viewCacheSnapshot["vault-filter-dialog-open"] = true;
+      vaultPopupListTableFiltersService.filterDialogOpen.set(true);
+
+      const first = TestBed.createComponent(VaultPopupListTableComponent);
+      first.autoDetectChanges();
+      await first.whenStable();
+      expect(open).toHaveBeenCalledTimes(1);
+
+      open.mock.results[0].value.close();
+      first.destroy();
+
+      // Navigating back rebuilds the page: `NoRouteReuseStrategy` never reuses it.
+      const second = TestBed.createComponent(VaultPopupListTableComponent);
+      second.autoDetectChanges();
+      await second.whenStable();
+      expect(open).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("clearFilters", () => {
@@ -1047,6 +1229,26 @@ describe("VaultPopupListTableComponent", () => {
 
       expect(viewCipher).toHaveBeenCalledWith(row.cipher);
       expect(doAutofill).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("navigateToImport", () => {
+    it("navigates to the internal import route when the import upgrade flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await component.navigateToImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(importUpgradeNavigationService.openImportSourceSelectTab).not.toHaveBeenCalled();
+    });
+
+    it("opens the import picker's own extension tab immediately, with no confirmation, when the import upgrade flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await component.navigateToImport();
+
+      expect(importUpgradeNavigationService.openImportSourceSelectTab).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalledWith(["/import"]);
     });
   });
 });

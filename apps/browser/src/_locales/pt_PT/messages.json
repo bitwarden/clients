@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "Não existem pastas para apresentar."
   },
+  "noFoldersFilter": {
+    "message": "Sem pastas"
+  },
   "helpFeedback": {
     "message": "Ajuda e feedback"
   },
@@ -660,6 +663,10 @@
   },
   "resetSearch": {
     "message": "Repor pesquisa"
+  },
+  "clearSearchTooltip": {
+    "message": "Clique aqui ou prima Esc para limpar.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "Arquivo",
@@ -1288,9 +1295,6 @@
   "clickToAutofillOnVault": {
     "message": "Clique nos itens para preencher automaticamente na vista do cofre"
   },
-  "clickToAutofill": {
-    "message": "Clique nos itens da sugestão de preenchimento automático para preencher"
-  },
   "clearClipboard": {
     "message": "Limpar área de transferência",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Utilizar quaisquer elementos span que um site marque com o atributo `data-bwautofill`."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Responder a pedidos de autenticação HTTP básica quando uma credencial no seu cofre corresponder ao site."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
   },
@@ -1536,6 +1551,43 @@
   "importVerb": {
     "message": "Importação",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Selecionar origem"
+  },
+  "importData": {
+    "message": "Importar dados"
+  },
+  "importSourceSelectTitle": {
+    "message": "Selecionar a origem"
+  },
+  "importSourceSelectDescription": {
+    "message": "Escolha o gestor de palavras-passe ou navegador do qual está a importar."
+  },
+  "importSourceBrowsers": {
+    "message": "Navegadores"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Gestores de palavras-passe"
+  },
+  "importSourceShowAll": {
+    "message": "Mostrar tudo"
+  },
+  "importSourceShowLess": {
+    "message": "Mostrar menos"
+  },
+  "importSourceStepCount": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Importar itens"
@@ -1607,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
-  },
-  "newSharedFolder": {
-    "message": "Nova pasta partilhada"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "O Bitwarden para Empresas permite-lhe partilhar os seus itens do cofre com outras pessoas através da utilização de uma organização. Saiba mais no site bitwarden.com."
@@ -1725,6 +1774,27 @@
   },
   "selectFile": {
     "message": "Selecionar um ficheiro"
+  },
+  "selectFileUnsupportedType": {
+    "message": "Este tipo de ficheiro não é aceite para esta origem. Escolha outro ficheiro"
+  },
+  "pasteContentRequired": {
+    "message": "Cole o conteúdo exportado"
+  },
+  "fileTypeNotSupported": {
+    "message": "Este tipo de ficheiro não é suportado. Selecione um ficheiro $TYPES$",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "O conteúdo colado não corresponde ao formato selecionado"
+  },
+  "errorReadingFile": {
+    "message": "Não foi possível ler o ficheiro selecionado"
   },
   "itemsTransferred": {
     "message": "Itens transferidos"
@@ -2514,42 +2584,6 @@
     "message": "Adicionar passaporte",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nova credencial",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Novo cartão",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nova identidade",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nova nota",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nova nota segura",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nova chave SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nova conta bancária",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nova licença",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Novo passaporte",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Novo texto",
     "description": "Header for new text send"
@@ -2557,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Novo ficheiro",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Editar credencial",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Editar cartão",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Editar identidade",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Editar nota",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Editar nota segura",
@@ -4059,16 +4077,25 @@
   "errorGettingAutoFillData": {
     "message": "Erro ao obter dados de preenchimento automático"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  "couldNotDecryptVaultItem": {
+    "message": "O Bitwarden não conseguiu desencriptar o item do cofre apresentado abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça o ID do item abaixo para verificar se é possível recuperá-lo."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Contacte o serviço de apoio ao cliente",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "O Bitwarden não conseguiu desencriptar os itens do cofre apresentados abaixo. Contacte o Apoio ao cliente do Bitwarden e forneça os IDs dos itens abaixo para verificar se é possível recuperá-los."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "para evitar perdas adicionais de dados.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID do item",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "IDs dos itens",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copiar ID"
+  },
+  "copyAllIds": {
+    "message": "Copiar todos os IDs"
   },
   "generateUsername": {
     "message": "Gerar nome de utilizador"
@@ -4254,6 +4281,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "Este URL não é permitido. Tem de utilizar HTTPS e não pode apontar para um endereço de uma rede local ou privada.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Introduza um URL válido",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "URL não seguro detetado",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Este URL pode não ser seguro ou apontar para uma rede privada. A sua utilização pode resultar na exposição de dados privados. Continue apenas se confiar neste servidor.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Confiar no URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Este URL foi marcado como fidedigno. Pode editá-lo a qualquer momento.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "Ocorreu um erro desconhecido de $SERVICENAME$.",
@@ -5042,6 +5093,9 @@
   "importFormatError": {
     "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Este ficheiro utiliza definições de encriptação não suportadas e não pode ser importado."
+  },
   "importNothingError": {
     "message": "Nada foi importado."
   },
@@ -5123,17 +5177,14 @@
   "learnAboutImportOptions": {
     "message": "Saiba mais sobre as suas opções de importação"
   },
-  "selectImportFolder": {
-    "message": "Selecionar uma pasta"
-  },
-  "selectImportCollection": {
-    "message": "Selecionar uma coleção"
-  },
   "importTargetHintCollection": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma coleção"
   },
   "importTargetHintFolder": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Selecione esta opção se quiser mover o conteúdo do ficheiro importado para uma pasta partilhada"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -5251,6 +5302,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "Centro de ajuda"
+  },
+  "uploadFile": {
+    "message": "Carregar ficheiro"
+  },
+  "pasteAsPlainText": {
+    "message": "Colar como texto simples"
+  },
+  "plainText": {
+    "message": "Texto simples"
+  },
+  "profile": {
+    "message": "Perfil"
+  },
+  "importManuallyInstead": {
+    "message": "Importar manualmente em alternativa"
+  },
+  "directlyImportInstead": {
+    "message": "Importar diretamente em alternativa"
+  },
+  "fastest": {
+    "message": "Mais rápido"
+  },
+  "importDataTitle": {
+    "message": "Importar os seus dados"
+  },
+  "importDataDirectTitle": {
+    "message": "Importe os seus dados em minutos"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importe os seus itens diretamente do",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "para obter todos os seus dados.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importe a partir do $VENDOR$ ou copie e cole o conteúdo exportado.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Selecione o perfil de onde pretende importar as palavras-passe."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Não foram encontrados perfis do navegador"
+  },
+  "importDataLoginTitle": {
+    "message": "Iniciar sessão no $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "As suas credenciais são encriptadas durante a transmissão e nunca são armazenadas."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Segurança desde a conceção"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Transferência com encriptação ponto a ponto. O Bitwarden nunca tem acesso às suas credenciais do $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Serão solicitadas as suas credenciais"
+  },
+  "importDataLoginInfoBody": {
+    "message": "No passo seguinte, inicie sessão na sua conta do $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Tudo é transferido"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Credenciais, cartões, identidades, notas seguras e códigos TOTP, mantendo a estrutura das pastas."
+  },
+  "importAcceptedFormats": {
+    "message": "Formatos aceites: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Tipo de ficheiro do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "O processo é exatamente igual ao da importação a partir do Google Chrome.",
@@ -5452,11 +5613,44 @@
   "keePassMasterPassword": {
     "message": "Palavra-passe mestra do KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Palavra-passe do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "A palavra-passe é obrigatória."
+  },
+  "filePasswordRequired": {
+    "message": "A palavra-passe do ficheiro é obrigatória"
+  },
+  "filePasswordInvalid": {
+    "message": "Introduza uma palavra-passe de ficheiro válida."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "O ficheiro carregado está protegido por palavra-passe. Introduza a palavra-passe para continuar."
+  },
+  "selectProfile": {
+    "message": "Selecionar perfil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Introduza uma palavra-passe válida"
+  },
+  "importAccountMismatchError": {
+    "message": "Este ficheiro só pode ser importado para a conta a partir da qual foi exportado."
+  },
   "addKeyFile": {
     "message": "Adicionar ficheiro de chave"
   },
   "keyFileUpload": {
     "message": "Carregar ficheiro de chave"
+  },
+  "keyFileUploadV2": {
+    "message": "Ficheiro de chave"
   },
   "kdbxFileUpload": {
     "message": "Carregar ficheiro KDBX"
@@ -5625,6 +5819,72 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
+  },
+  "onePasswordPartialImport": {
+    "message": "Não foi possível importar $COUNT$ itens ou cofres do 1Password",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Ocorreu um erro. Verifique as suas credenciais e tente novamente."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Só é possível iniciar sessão com palavra-passe."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Só é possível iniciar sessão com palavra-passe. Tente novamente ou utilize outro método de importação."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Introduza um endereço de e-mail válido ou utilize outro método de importação."
+  },
+  "onePasswordImportError": {
+    "message": "Ocorreu um erro. Tente novamente ou utilize outro método de importação."
+  },
+  "emailIsRequired": {
+    "message": "O e-mail é obrigatório."
+  },
+  "enterValidEmailAddress": {
+    "message": "Introduza um endereço de e-mail válido."
+  },
+  "signInAddressIsRequired": {
+    "message": "O endereço de início de sessão é obrigatório."
+  },
+  "enterValidSignInAddress": {
+    "message": "Introduza um endereço de início de sessão válido."
+  },
+  "secretKeyIsRequired": {
+    "message": "A chave secreta é obrigatória."
+  },
+  "enterValidSecretKey": {
+    "message": "Introduza uma chave secreta válida."
+  },
+  "passwordIsRequired": {
+    "message": "A palavra-passe é obrigatória."
+  },
+  "enterValidVerificationCode": {
+    "message": "Introduza um código de verificação válido."
+  },
+  "signInAddress": {
+    "message": "Endereço de início de sessão"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail do 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Introduza o endereço de e-mail que utiliza para iniciar sessão no 1Password"
+  },
+  "secretKey": {
+    "message": "Chave secreta"
+  },
+  "secretKeyAndPassword": {
+    "message": "Chave secreta e palavra-passe"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "A sua conta está protegida por uma chave secreta e uma palavra-passe. Terá de introduzir ambas para continuar."
   },
   "keeperEmail": {
     "message": "E-mail do Keeper"
@@ -5820,6 +6080,9 @@
   },
   "switchAccounts": {
     "message": "Mudar de conta"
+  },
+  "switchVault": {
+    "message": "Mudar de cofre"
   },
   "switchToAccount": {
     "message": "Mudar para conta"
@@ -7186,20 +7449,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "Alterar palavra-passe em risco"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Esta credencial está em risco e não tem um site. Adicione um site e altere a palavra-passe para uma segurança mais forte."
-  },
   "vulnerablePassword": {
     "message": "Palavra-passe vulnerável."
   },
   "changeNow": {
     "message": "Alterar agora"
-  },
-  "missingWebsite": {
-    "message": "Site em falta"
   },
   "settingsVaultOptions": {
     "message": "Opções do cofre"
@@ -7228,11 +7482,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "Não tem pastas."
+  "youHaveNoFoldersV2": {
+    "message": "Não tem pastas"
   },
-  "emptyFoldersDescription": {
-    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si — mais ninguém as verá ou utilizará."
+  "emptyFoldersDescriptionV2": {
+    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si. Mais ninguém as verá ou utilizará."
   },
   "introCarouselLabel": {
     "message": "Bem-vindo ao Bitwarden"
@@ -7678,7 +7932,7 @@
     "message": "E-mail protegido"
   },
   "sendPasswordHelperText": {
-    "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
+    "message": "Os destinatários terão de introduzir a palavra-passe para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
@@ -7687,17 +7941,17 @@
   "sharedUnlock": {
     "message": "Desbloqueio partilhado"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Partilhar desbloqueio com a aplicação para computador"
+  "syncUnlockWithDesktop": {
+    "message": "Sincronizar o desbloqueio com a aplicação para computador"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "Quando ativado, o estado de desbloqueio será partilhado com a aplicação Bitwarden para computador."
+  "syncUnlockWithDesktopDescription": {
+    "message": "A extensão do navegador e a aplicação para computador do Bitwarden bloqueiam e desbloqueiam em simultâneo."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Partilhar desbloqueio com o cofre web"
+  "syncUnlockWithWeb": {
+    "message": "Sincronizar o desbloqueio com a aplicação web"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "Quando ativado, o estado de desbloqueio será partilhado com os cofres web do Bitwarden."
+  "syncUnlockWithWebDescription": {
+    "message": "A extensão do navegador e a aplicação web do Bitwarden bloqueiam e desbloqueiam em simultâneo."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "O desbloqueio partilhado não está disponível porque optou por não memorizar este dispositivo. Para ativar esta definição, tente iniciar sessão novamente."
@@ -8116,5 +8370,112 @@
   },
   "editItemsHidePass": {
     "message": "Editar itens, palavras-passe ocultas"
+  },
+  "shareVerb": {
+    "message": "Partilhar"
+  },
+  "peopleWhoCanView": {
+    "message": "Pessoas com acesso de visualização",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Depois de partilhar este link, os destinatários terão de verificar o seu e-mail com um código para ver o item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Este link expira após esta data, mas os destinatários podem conservar as informações partilhadas anteriormente. Gere novamente a credencial para revogar o acesso.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "O link expira após",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Partilha única",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Links ativos",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copiado para a área de transferência",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Não foi possível criar o link de partilha",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link guardado e copiado para a área de transferência",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Não foi possível copiar o link de partilha para a área de transferência",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Link de partilha eliminado",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Não foi possível eliminar o link de partilha",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Partilhar através de um link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Partilha do item $ITEM$ do cofre",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Partilhar",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expira a",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expira a",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
+  },
+  "newExperienceDialogTitle": {
+    "message": "O Bitwarden tem um novo visual",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Uma experiência melhor, a mesma segurança em que confia. O cofre do Bitwarden foi redesenhado com base no seu feedback, para que seja mais fácil encontrar o que procura e tudo funcione como espera.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Uma pré-visualização do cofre do Bitwarden redesenhado.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explorar o novo cofre",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Personalizar"
+  },
+  "customizeYourView": {
+    "message": "Personalizar a sua vista"
+  },
+  "showColumns": {
+    "message": "Mostrar colunas"
+  },
+  "resetToDefault": {
+    "message": "Repor predefinições"
   }
 }

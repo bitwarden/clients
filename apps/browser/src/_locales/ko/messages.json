@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "폴더가 없습니다."
   },
+  "noFoldersFilter": {
+    "message": "폴더 없음"
+  },
   "helpFeedback": {
     "message": "도움말 및 의견"
   },
@@ -555,7 +558,7 @@
     "message": "보관함에 항목 없음"
   },
   "noItemsInMyVault": {
-    "message": "No items in My vault"
+    "message": "보관함에 항목 없음"
   },
   "emptyMyItems": {
     "message": "No items in My items"
@@ -660,6 +663,10 @@
   },
   "resetSearch": {
     "message": "검색 초기화"
+  },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "보관",
@@ -1288,9 +1295,6 @@
   "clickToAutofillOnVault": {
     "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
-  "clickToAutofill": {
-    "message": "자동 완성 제안에서 항목 클릭으로 채우기"
-  },
   "clearClipboard": {
     "message": "클립보드 비우기",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1485,6 +1489,17 @@
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
   },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
+  },
   "enableContextMenuItem": {
     "message": "컨텍스트 메뉴 옵션 표시"
   },
@@ -1536,6 +1551,43 @@
   "importVerb": {
     "message": "가져오기",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importData": {
+    "message": "Import data"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "importItems": {
     "message": "Import items"
@@ -1607,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "공유 폴더 추가"
-  },
-  "newSharedFolder": {
-    "message": "새 공유 폴더"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "비지니스용 Bitwarden은 조직을 사용하여 보관함 항목들을 다른 사람과 공유할 수 있게 해줍니다. 자세한 내용은 bitwarden.com 사이트에서 확인해주세요"
@@ -1725,6 +1774,27 @@
   },
   "selectFile": {
     "message": "파일을 선택하세요."
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
   },
   "itemsTransferred": {
     "message": "항목을 전송함"
@@ -2514,42 +2584,6 @@
     "message": "여권 추가",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "새 로그인",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "새 카드",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "새 신원",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "새 메모",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "보안 메모 추가",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "새 SSH 키",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "새 은행 계좌",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "새 면허",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "새 여권",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "새 텍스트",
     "description": "Header for new text send"
@@ -2557,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "새 파일",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "로그인 편집",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "카드 편집",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "신원 편집",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "메모 편집",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "보안 메모 편집",
@@ -4059,16 +4077,25 @@
   "errorGettingAutoFillData": {
     "message": "자동 완성 데이터 획득 실패"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden이 아래의 보관함 항목을 복호화할 수 없었습니다."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "고객 지원 서비스에 문의하여",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "추가 데이터 손실을 방지하세요.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "generateUsername": {
     "message": "아이디 생성"
@@ -4254,6 +4281,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "알 수 없는 $SERVICENAME$ 오류가 발생했습니다.",
@@ -5042,6 +5093,9 @@
   "importFormatError": {
     "message": "데이터의 포맷이 올바르지 않습니다. 불러올 파일을 확인하고 다시 시도해 주십시오."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "아무것도 가져오지 못했습니다."
   },
@@ -5123,17 +5177,14 @@
   "learnAboutImportOptions": {
     "message": "가져오기 옵션 알아보기"
   },
-  "selectImportFolder": {
-    "message": "폴더 선택"
-  },
-  "selectImportCollection": {
-    "message": "컬렉션 선택"
-  },
   "importTargetHintCollection": {
     "message": "가져온 파일의 내용을 컬렉션으로 이동하려면 이 옵션을 선택하세요"
   },
   "importTargetHintFolder": {
     "message": "가져온 파일의 내용을 폴더로 이동하려면 이 옵션을 선택하세요"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "파일에 할당되지 않은 항목이 포함되어 있습니다."
@@ -5251,6 +5302,116 @@
   },
   "importHelpCenterLinkText": {
     "message": "도움말 센터"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "절차는 Google Chrome에서 가져올 때와 완전히 동일합니다.",
@@ -5452,11 +5613,44 @@
   "keePassMasterPassword": {
     "message": "KeePass 마스터 비밀번호"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "키 파일 추가"
   },
   "keyFileUpload": {
     "message": "키 파일 업로드"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX 파일 업로드"
@@ -5625,6 +5819,72 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass 계정과 연결된 YubiKey를 컴퓨터의 USB 포트에 삽입한 다음 버튼을 누릅니다."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Keeper 이메일"
@@ -5820,6 +6080,9 @@
   },
   "switchAccounts": {
     "message": "계정 전환"
+  },
+  "switchVault": {
+    "message": "Switch vault"
   },
   "switchToAccount": {
     "message": "계정 전환"
@@ -7186,20 +7449,11 @@
       }
     }
   },
-  "changeAtRiskPassword": {
-    "message": "위험한 비밀번호 변경"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "이 로그인 정보는 위험에 노출되어 있고 웹사이트가 누락되어 있습니다. 웹사이트를 추가하고 비밀번호를 변경하여 보안을 강화하세요."
-  },
   "vulnerablePassword": {
     "message": "취약한 비밀번호입니다."
   },
   "changeNow": {
     "message": "지금 변경"
-  },
-  "missingWebsite": {
-    "message": "누락된 웹사이트"
   },
   "settingsVaultOptions": {
     "message": "보관함 설정"
@@ -7228,11 +7482,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
-    "message": "You have no folders."
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
   },
-  "emptyFoldersDescription": {
-    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden 사용을 환영합니다"
@@ -7687,17 +7941,17 @@
   "sharedUnlock": {
     "message": "잠금 해제 상태 공유"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "데스크톱과 잠금 해제 상태 공유"
+  "syncUnlockWithDesktop": {
+    "message": "Sync unlock with desktop app"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "켜면 Bitwarden 데스크톱 앱과 잠금 해제 상태를 공유합니다."
+  "syncUnlockWithDesktopDescription": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
   },
-  "sharedUnlockWithWeb": {
-    "message": "웹 보관함과 잠금 해제 상태 공유"
+  "syncUnlockWithWeb": {
+    "message": "Sync unlock with web app"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "켜면 Bitwarden 웹 보관함과 잠금 해제 상태를 공유합니다."
+  "syncUnlockWithWebDescription": {
+    "message": "The Bitwarden browser extension and web app lock and unlock together."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "이 기기를 기억하지 않기로 선택했기 때문에 잠금 해제 상태 공유를 이용할 수 없습니다. 기억 설정을 켜려면 다시 로그인하세요."
@@ -8116,5 +8370,112 @@
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Share",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Unknown item, you may need to request permission to access this item."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

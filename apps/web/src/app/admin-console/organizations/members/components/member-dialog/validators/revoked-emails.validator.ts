@@ -4,6 +4,8 @@ import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enum
 
 import { OrganizationUserView } from "../../../../core/views/organization-user.view";
 
+import { parseCommaSeparatedEmails } from "./parse-comma-separated-emails";
+
 /**
  * Checks if any of the entered emails belong to members in a revoked status
  * @param allOrganizationUsers An array of existing organization users
@@ -19,10 +21,7 @@ export function revokedEmailsValidator(
       return null;
     }
 
-    const inputEmails: string[] = control.value
-      .split(",")
-      .map((e: string) => e.trim())
-      .filter(Boolean);
+    const inputEmails = parseCommaSeparatedEmails(control.value);
 
     const revokedEmails = allOrganizationUsers
       .filter((u) => u.status === OrganizationUserStatusType.Revoked)

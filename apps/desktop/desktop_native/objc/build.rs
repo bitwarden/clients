@@ -17,11 +17,15 @@ fn main() {
     // Compile Objective-C files
     let mut builder = cc::Build::new();
 
+    // Watch the whole directory (Cargo scans it recursively) rather than each globbed
+    // file, so that adding a new .m file re-runs this script instead of reusing a stale
+    // archive that's missing the new object.
+    println!("cargo::rerun-if-changed=src/native");
+
     // Compile all .m files in the src/native directory
     for entry in glob("src/native/**/*.m").expect("Failed to read glob pattern") {
         let path = entry.expect("Failed to read glob entry");
-        builder.file(path.clone());
-        println!("cargo::rerun-if-changed={}", path.display());
+        builder.file(path);
     }
 
     builder
