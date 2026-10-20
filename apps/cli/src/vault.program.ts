@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { program, Command } from "commander";
+import { program, Command, Option } from "commander";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
@@ -22,11 +24,11 @@ const writeLn = CliUtils.writeLn;
 export class VaultProgram extends BaseProgram {
   async register() {
     program
-      .addCommand(this.listCommand())
-      .addCommand(this.getCommand())
-      .addCommand(this.createCommand())
-      .addCommand(this.editCommand())
-      .addCommand(this.deleteCommand())
+      .addCommand(await this.listCommand())
+      .addCommand(await this.getCommand())
+      .addCommand(await this.createCommand())
+      .addCommand(await this.editCommand())
+      .addCommand(await this.deleteCommand())
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
@@ -34,6 +36,16 @@ export class VaultProgram extends BaseProgram {
       .addCommand(this.exportCommand())
       .addCommand(this.shareCommand("share", true))
       .addCommand(this.archiveCommand());
+  }
+
+  private async sharedFoldersEnabled(): Promise<boolean> {
+    return await this.serviceContainer.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+  }
+
+  /** Hides the object names that use the terminology the feature flag has turned off. */
+  private visibleObjects(objects: string[], sharedFolders: boolean): string[] {
+    const hidden = sharedFolders ? "collection" : "shared-folder";
+    return objects.filter((object) => !object.includes(hidden));
   }
 
   private validateObject(requestedObject: string, validObjects: string[]): boolean {
@@ -53,7 +65,9 @@ export class VaultProgram extends BaseProgram {
     return success;
   }
 
-  private listCommand(): Command {
+  private async listCommand(): Promise<Command> {
+    const sharedFolders = await this.sharedFoldersEnabled();
+
     const listObjects = [
       "items",
       "folders",
@@ -66,19 +80,28 @@ export class VaultProgram extends BaseProgram {
     ];
 
     const command = new Command("list")
-      .argument("<object>", "Valid objects are: " + listObjects.join(", "))
+      .argument(
+        "<object>",
+        "Valid objects are: " + this.visibleObjects(listObjects, sharedFolders).join(", "),
+      )
       .description("List an array of objects from the vault.")
       .option("--search <search>", "Perform a search on the listed objects.")
       .option("--url <url>", "Filter items of type login with a url-match search.")
       .option("--folderid <folderid>", "Filter items by folder id.")
-      .option("--collectionid <collectionid>", "Filter items by collection id.")
-      .option(
-        "--sharedfolderid <sharedfolderid>",
-        "Filter items by shared folder id. Alias of --collectionid.",
+      .addOption(
+        new Option("--collectionid <collectionid>", "Filter items by collection id.").hideHelp(
+          sharedFolders,
+        ),
+      )
+      .addOption(
+        new Option(
+          "--sharedfolderid <sharedfolderid>",
+          "Filter items by shared folder id.",
+        ).hideHelp(!sharedFolders),
       )
       .option(
         "--organizationid <organizationid>",
-        "Filter items, collections, or shared folders by organization id.",
+        `Filter items or ${sharedFolders ? "shared folders" : "collections"} by organization id.`,
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
       .on("--help", () => {
@@ -101,11 +124,17 @@ export class VaultProgram extends BaseProgram {
         writeLn(
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
-        writeLn("    bw list items --sharedfolderid 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
+        if (sharedFolders) {
+          writeLn("    bw list items --sharedfolderid 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
+        }
         writeLn("    bw list items --trash");
         writeLn("    bw list items --archived");
         writeLn("    bw list folders --search email");
-        writeLn("    bw list shared-folders --search engineering");
+        if (sharedFolders) {
+          writeLn("    bw list shared-folders --search engineering");
+        } else {
+          writeLn("    bw list collections --search engineering");
+        }
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
       })
@@ -139,7 +168,8 @@ export class VaultProgram extends BaseProgram {
     return command;
   }
 
-  private getCommand(): Command {
+  private async getCommand(): Promise<Command> {
+    const sharedFolders = await this.sharedFoldersEnabled();
     const getObjects = [
       "item",
       "username",
@@ -160,7 +190,10 @@ export class VaultProgram extends BaseProgram {
       "send",
     ];
     return new Command("get")
-      .argument("<object>", "Valid objects are: " + getObjects.join(", "))
+      .argument(
+        "<object>",
+        "Valid objects are: " + this.visibleObjects(getObjects, sharedFolders).join(", "),
+      )
       .argument("<id>", "Search term or object's globally unique `id`.")
       .description("Get an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
@@ -186,8 +219,9 @@ export class VaultProgram extends BaseProgram {
         );
         writeLn("    bw get folder email");
         writeLn("    bw get template folder");
-        writeLn("    bw get shared-folder 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
-        writeLn("    bw get template shared-folder");
+        const folderObject = sharedFolders ? "shared-folder" : "collection";
+        writeLn(`    bw get ${folderObject} 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38`);
+        writeLn(`    bw get template ${folderObject}`);
         writeLn("", true);
       })
       .action(async (object, id, cmd) => {
@@ -219,10 +253,14 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private createCommand() {
+  private async createCommand(): Promise<Command> {
+    const sharedFolders = await this.sharedFoldersEnabled();
     const createObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
     return new Command("create")
-      .argument("<object>", "Valid objects are: " + createObjects.join(", "))
+      .argument(
+        "<object>",
+        "Valid objects are: " + this.visibleObjects(createObjects, sharedFolders).join(", "),
+      )
       .argument(
         "[encodedJson]",
         "Encoded json of the object to create. Can also be piped into stdin.",
@@ -237,7 +275,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K");
         writeLn("    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create folder");
         writeLn(
-          "    bw create org-shared-folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K " +
+          `    bw create ${sharedFolders ? "org-shared-folder" : "org-collection"} eyJuYW1lIjoiTXkgRm9sZGVyIn0K ` +
             "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
         );
         writeLn(
@@ -270,7 +308,8 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private editCommand(): Command {
+  private async editCommand(): Promise<Command> {
+    const sharedFolders = await this.sharedFoldersEnabled();
     const editObjects = [
       "item",
       "item-collections",
@@ -280,7 +319,10 @@ export class VaultProgram extends BaseProgram {
       "org-shared-folder",
     ];
     return new Command("edit")
-      .argument("<object>", "Valid objects are: " + editObjects.join(", "))
+      .argument(
+        "<object>",
+        "Valid objects are: " + this.visibleObjects(editObjects, sharedFolders).join(", "),
+      )
       .argument("<id>", "Object's globally unique `id`.")
       .argument(
         "[encodedJson]",
@@ -299,11 +341,8 @@ export class VaultProgram extends BaseProgram {
             "bw edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02",
         );
         writeLn(
-          "    bw edit item-collections 78307355-fd25-416b-88b8-b33fd0e88c82 " +
-            "WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==",
-        );
-        writeLn(
-          "    bw edit item-shared-folders 78307355-fd25-416b-88b8-b33fd0e88c82 " +
+          `    bw edit ${sharedFolders ? "item-shared-folders" : "item-collections"} ` +
+            "78307355-fd25-416b-88b8-b33fd0e88c82 " +
             "WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==",
         );
         writeLn("", true);
@@ -332,10 +371,14 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private deleteCommand(): Command {
+  private async deleteCommand(): Promise<Command> {
+    const sharedFolders = await this.sharedFoldersEnabled();
     const deleteObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
     return new Command("delete")
-      .argument("<object>", "Valid objects are: " + deleteObjects.join(", "))
+      .argument(
+        "<object>",
+        "Valid objects are: " + this.visibleObjects(deleteObjects, sharedFolders).join(", "),
+      )
       .argument("<id>", "Object's globally unique `id`.")
       .description("Delete an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
@@ -351,7 +394,8 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw delete item 89c21cd2-fab0-4f69-8c6e-ab8a0168f69a --permanent");
         writeLn("    bw delete folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02");
         writeLn(
-          "    bw delete org-shared-folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02 " +
+          `    bw delete ${sharedFolders ? "org-shared-folder" : "org-collection"} ` +
+            "5cdfbd80-d99f-409b-915b-f4c5d0241b02 " +
             "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
         );
         writeLn(
