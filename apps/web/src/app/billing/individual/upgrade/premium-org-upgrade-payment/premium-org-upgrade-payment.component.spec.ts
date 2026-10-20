@@ -741,6 +741,18 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(component["cart"]().passwordManager.seats.cost).toBe(48);
     }));
 
+    it("should preview once the billing address is complete, before the organization name is entered", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+
+      component["formGroup"].patchValue({
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
+      tick(1500);
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledTimes(1);
+      expect(component["cart"]().estimatedTax).toBe(2);
+    }));
+
     it("should show an error toast and withhold the cart summary when the preview fails", fakeAsync(() => {
       mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
 
