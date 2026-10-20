@@ -19,7 +19,7 @@ describe("exitAfterCommand", () => {
   const drain = (write: jest.SpyInstance) => write.mock.calls.at(-1)[1]();
 
   it("exits once stdout and stderr have flushed", () => {
-    exitAfterCommand("get");
+    exitAfterCommand();
 
     expect(exit).not.toHaveBeenCalled();
     drain(stdoutWrite);
@@ -29,18 +29,11 @@ describe("exitAfterCommand", () => {
   });
 
   it("exits with the exit code the command set", () => {
-    exitAfterCommand("get");
+    exitAfterCommand();
     drain(stdoutWrite);
     drain(stderrWrite);
 
     // process.exit() without an argument uses process.exitCode, which processResponse sets.
     expect(exit).toHaveBeenCalledWith();
-  });
-
-  it("keeps serve running", () => {
-    exitAfterCommand("serve");
-
-    expect(stdoutWrite).not.toHaveBeenCalled();
-    expect(exit).not.toHaveBeenCalled();
   });
 });

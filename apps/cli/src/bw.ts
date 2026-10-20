@@ -39,7 +39,7 @@ async function main() {
     dispose();
   }
 
-  exitAfterCommand(program.args[0]);
+  exitAfterCommand();
 }
 
 // Node does not support top-level await statements until ES2022, esnext, etc which we don't use yet
