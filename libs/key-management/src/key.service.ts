@@ -539,9 +539,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     const result: Record<OrganizationId, EncString> = {};
     for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
-      if (result[orgId] != null) {
-        continue;
-      }
       const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
       if (encrypted == null) {
         continue;
