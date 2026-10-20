@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Zoekopdracht resetten"
   },
+  "clearSearchTooltip": {
+    "message": "Klik hier om te wissen of druk op Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Alle Items"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Verzamelingen"
   },
+  "controlledAccess": {
+    "message": "Gecontroleerde toegang"
+  },
   "firstName": {
     "message": "Voornaam"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ geneste gedeelde mappen",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 geneste gedeelde map",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Mijn map"
   },
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
-  },
-  "newSharedFolder": {
-    "message": "Nieuwe gedeelde map"
   },
   "searchSharedFolder": {
     "message": "Gedeelde map doorzoeken"
@@ -1464,42 +1482,6 @@
     "message": "Paspoort toevoegen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nieuwe login",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nieuwe kaart",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nieuwe identiteit",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nieuwe notitie",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nieuwe veilige notitie",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nieuwe SSH-sleutel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nieuwe bankrekening",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nieuw rijbewijs",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nieuw paspoort",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nieuwe tekst",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nieuw bestand",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Login bewerken",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kaart bewerken",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identiteit bewerken",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notitie bewerken",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Veilige notitie bewerken",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Selecteer een bestand."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Dat bestandstype is niet geaccepteerd voor deze bron. Kies een ander bestand."
+  },
+  "pasteContentRequired": {
+    "message": "Plak de geëxporteerde inhoud."
+  },
+  "fileTypeNotSupported": {
+    "message": "Dit bestandstype wordt niet ondersteund. Selecteer een $TYPES$-bestand.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "De geplakte inhoud komt niet overeen met het geselecteerde formaat."
+  },
+  "errorReadingFile": {
+    "message": "Het geselecteerde bestand kon niet worden gelezen."
   },
   "maxFileSize": {
     "message": "Maximale bestandsgrootte is 500 MB."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "KeePass master password"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$-wachtwoord",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "filePasswordRequired": {
+    "message": "Bestandswachtwoord vereist"
+  },
+  "filePasswordInvalid": {
+    "message": "Voer een geldig bestandswachtwoord in."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Het geüploade bestand is met een wachtwoord beveiligd. Voer het wachtwoord in om door te gaan."
+  },
+  "selectProfile": {
+    "message": "Profiel kiezen"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Vul een geldig wachtwoord in"
+  },
+  "importAccountMismatchError": {
+    "message": "Dit bestand kan alleen worden geïmporteerd op het account waarvan het is geëxporteerd."
+  },
   "addKeyFile": {
     "message": "Add key file"
   },
   "keyFileUpload": {
     "message": "Key file upload"
+  },
+  "keyFileUploadV2": {
+    "message": "Sleutelbestand"
   },
   "kdbxFileUpload": {
     "message": "KDBX file upload"
@@ -3374,6 +3394,9 @@
   "importFormatError": {
     "message": "De gegevens zijn niet correct opgemaakt. Controleer je importbestand en probeer het opnieuw."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Dit bestand gebruikt niet-ondersteunde versleutelingsinstellingen en kan niet worden geïmporteerd."
+  },
   "importNothingError": {
     "message": "Er is niets geïmporteerd."
   },
@@ -3451,19 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Leer meer over je importopties"
-  },
-  "selectImportFolder": {
-    "message": "Map selecteren"
-  },
-  "selectImportCollection": {
-    "message": "Collectie selecteren"
-  },
-  "selectImportSharedFolder": {
-    "message": "Gedeelde map selecteren"
-  },
-  "importTargetMyFolder": {
-    "message": "Mijn map",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
@@ -3624,6 +3634,122 @@
   },
   "importHelpCenterLinkText": {
     "message": "Help Center"
+  },
+  "uploadFile": {
+    "message": "Bestand uploaden"
+  },
+  "pasteAsPlainText": {
+    "message": "Plakken als platte tekst"
+  },
+  "plainText": {
+    "message": "Platte tekst"
+  },
+  "profile": {
+    "message": "Profiel"
+  },
+  "lastPassEmail": {
+    "message": "LastPass-e-mail"
+  },
+  "includeSharedFolders": {
+    "message": "Gedeelde mappen insluiten"
+  },
+  "importManuallyInstead": {
+    "message": "Handmatig importeren"
+  },
+  "directlyImportInstead": {
+    "message": "Rechtstreeks importeren"
+  },
+  "fastest": {
+    "message": "Snelste"
+  },
+  "importDataTitle": {
+    "message": "Je gegevens importeren"
+  },
+  "importDataDirectTitle": {
+    "message": "Importeer je gegevens in minuten"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importeer je items rechtstreeks van",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "om al je gegevens te krijgen.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importeer van $VENDOR$ of kopieer en plak de inhoud van de export.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Selecteer het profiel waarvan je wachtwoorden wilt importeren."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Geen browserprofielen gevonden"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in bij $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Je inloggegevens zijn versleuteld tijdens het verzenden en worden nooit opgeslagen."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Veilig ontworpen"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end versleutelde overdracht. Bitwarden ziet je $VENDOR$-aanmeldgegevens niet.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We vragen om je logininformatie"
+  },
+  "importDataLoginInfoBody": {
+    "message": "Lon in de volgende in op je $VENDOR$-account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Alles wordt overgezet"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, kaarten, identiteiten, beveiligde notities en TOTPs, met behoud van mapstructuur."
+  },
+  "importAcceptedFormats": {
+    "message": "Geaccepteerd: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$-bestandstype",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -3881,9 +4007,6 @@
   },
   "customize": {
     "message": "Personaliseren"
-  },
-  "newCustomDomain": {
-    "message": "Nieuw aangepast domein"
   },
   "addCustomDomain": {
     "message": "Eigen domeinnaam toevoegen"
@@ -5400,9 +5523,6 @@
   "groups": {
     "message": "Groepen"
   },
-  "newGroup": {
-    "message": "Nieuwe groep"
-  },
   "addGroup": {
     "message": "Groep toevoegen"
   },
@@ -5457,9 +5577,6 @@
   },
   "readOnly": {
     "message": "Alleen-lezen"
-  },
-  "newCollection": {
-    "message": "Nieuwe verzameling"
   },
   "addCollection": {
     "message": "Verzameling toevoegen"
@@ -6155,6 +6272,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "HTTP-verificatieverzoek met item $ID$ beantwoordt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Verzameling aangemaakt $ID$.",
     "placeholders": {
@@ -6774,11 +6900,26 @@
   "resendInvitation": {
     "message": "Uitnodiging opnieuw versturen"
   },
+  "sendInvite": {
+    "message": "Uitnodiging versturen"
+  },
+  "sendInvites": {
+    "message": "Uitnodigingen versturen"
+  },
   "resendEmail": {
     "message": "E-mail opnieuw versturen"
   },
   "hasBeenReinvited": {
     "message": "$USER$ opnieuw uitgenodigd",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ uitgenodigd",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7714,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Toegestane e-maildomeinen toevoegen (bijv. acme.com) zodat alleen gebruikers met bijbehorende e-mailadressen deze uitnodigingslink kunnen gebruiken. Je kunt dit op elk gewenst moment bijwerken."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Je zit in de rondleiding, dus deze domeinen zijn slechts voorbeelden."
+  },
   "adjustTheLink": {
     "message": "Koppeling aanpassen"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Je wensen veranderen, en de link kan met jou veranderen. <strong>Regenereer</strong> de link om de oude link te ongeldig te maken en een nieuwe te maken."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Je wensen veranderen, en de link kan met jou veranderen."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regenereer</strong> de link om de oude link ongeldig te maken en een nieuwe aan te maken."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Vereis admin bevestiging</strong> om nieuwe leden goed te keuren voordat ze lid kunnen worden van de organisatie."
   },
   "shareTheLinkAnywhere": {
     "message": "De link overal delen"
@@ -8471,6 +8606,10 @@
     "message": "Het aan deze Send gekoppelde bestand kon niet gevonden worden.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Dit bestand kon niet worden gedownload omdat de downloadlink niet door een beveiligingscontrole komt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Er zijn geen Sends beschikbaar.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8968,17 +9107,43 @@
     "message": "Invulassistent activeren",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Invulassistent inschakelen",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Invulassistentie standaard voor alle leden inschakelen. Deze functionaliteit maakt gebruik van geverifieerde, site-specifieke instructies om de nauwkeurigheid van het automatisch invullen op websites waarvan bekend is dat ze moeilijk in te vullen zijn te verbeteren."
+  },
+  "fillAssistRuleSource": {
+    "message": "Automatisch aanvullen regelset"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Standaard"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "De door Bitwarden beoordeelde regelset voor automatisch invullen gebruiken."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Aangepast"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Je eigen aangepaste regelset invoeren."
   },
   "fillAssistRulesUrl": {
     "message": "Maatwerk set aan regels"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Standaard gebruikt de invulassistent Bitwarden's set aan regels. Voer hier een URL in om deze te overschrijven met je eigen."
+  "fillAssistRulesUrlV2": {
+    "message": "Aangepaste regelset"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Lees meer over aangepaste regels"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Vul een geldige URL in",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Voer een geldige URL in voor een aangepaste regelset",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -10953,6 +11118,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Deze URL is niet toegestaan. Het moet https gebruiken en kan niet naar een lokaal- of privénetwerkadres wijzen.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Vul een geldige URL in",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Onveilige URL gedetecteerd",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Deze URL kan onveilig zijn of naar een privénetwerk verwijzen. Het gebruik ervan kan leiden tot het blootstellen van privégegevens. Ga alleen verder als je deze server vertrouwt.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "URL vertrouwen",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Deze URL is als vertrouwd gemarkeerd. Je kunt op elk gewenst moment bewerken.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Onbekende $SERVICENAME$ fout opgetreden.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11876,9 +12065,6 @@
   "domainVerification": {
     "message": "Domeinverificatie"
   },
-  "newDomain": {
-    "message": "Nieuw domein"
-  },
   "addDomain": {
     "message": "Domein toevoegen"
   },
@@ -12247,9 +12433,6 @@
   },
   "groupSlashUser": {
     "message": "Groep/Gebruiker"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Als je doorgaat, log je uit van alle actieve sessies. Je zult opnieuw moeten inloggen en, indien van toepassing, tweestapsverificatie moeten voltooien. We raden aan om je kluis te exporteren voordat je je versleutelingsinstellingen wijzigt om gegevensverlies te voorkomen."
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -13867,10 +14050,6 @@
     "message": "Machine-accounts",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Nieuw machine-account",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Machine-account toevoegen",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14519,9 @@
   "organizationOptionsMenu": {
     "message": "Organisatiemenu togglen"
   },
+  "vaultOptions": {
+    "message": "Kluis-instellingen"
+  },
   "vaultItemSelect": {
     "message": "Kluisitem selecteren"
   },
@@ -14500,6 +14682,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Er is een fout opgetreden met het weergeven van de factuur. Probeer het later nog eens."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Controleer je factuurgegevens en probeer het opnieuw."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Deze upgrade omvat een proefperiode van $DAYS$ dagen. Het totaal hierboven is wat je aan het einde van de proefperiode in rekening zal worden gebracht.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Je heeft nog 1 dag over in je proefperiode. Het bedrag hierboven wordt in rekening gebracht op $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Je hebt $DAYS$ dagen over in je proefperiode. Het bovenstaande totale bedrag wordt op $DATE$ in rekening gebracht.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Niet-geverifieerd"
@@ -16811,8 +17027,8 @@
   "premiumSubscriptionCredit": {
     "message": "Krediet Premium-abonnement"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Abonnementscredits toegepast"
+  "appliedProrationCredits": {
+    "message": "Pro-rato krediet toegepast"
   },
   "enterpriseMembership": {
     "message": "Enterprise-lidmaatschap"
@@ -16977,6 +17193,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
   },
+  "whatsNew": {
+    "message": "Wat is er nieuw"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Met bijgewerkte navigatie en ontwerp is het makkelijker dan ooit om te vinden wat je nodig hebt."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Tussen producten schakelen"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Klik om andere Bitwarden-producten te zien waar je toegang toe hebt, of ontdek nieuwe producten en abonnementen."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Al je kluizen op één plaats"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Persoonlijke-, familie- en zakelijke kluizen zijn hieronder opgesomd."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collecties en mappen hebben nieuwe namen"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Dezelfde functionaliteit, duidelijkere namen. Verzamelingen heten nu gedeelde mappen. Mappen zijn nu Mijn mappen."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Beveiligingsactiviteit monitoren"
   },
@@ -17007,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Vernieuw regelmatig rapporten en inzichten om nieuwe risico's op te vangen en de nieuwste statistieken te zien naarmate je organisatie groeit."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix- en matchfilters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Selecteer meerdere filters tegelijk om te verfijnen tot precies de resultaten die je wilt. Ze blijven ook toegepast wanneer je wegnavigeert."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ van $TOTAL$",
     "placeholders": {
@@ -17032,6 +17278,63 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password-items of kluizen konden niet worden geïmporteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Er is een fout opgetreden. Controleer je inloggegevens en probeer het opnieuw."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Alleen inloggen met wachtwoord wordt ondersteund."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Alleen inloggen met wachtwoord wordt ondersteund. Probeer opnieuw of gebruik een andere importmethode."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Voer een geldig e-mailadres in of gebruik een andere importmethode."
+  },
+  "onePasswordImportError": {
+    "message": "Er is een fout opgetreden. Probeer het opnieuw of gebruik een andere importmethode."
+  },
+  "emailIsRequired": {
+    "message": "E-mailadres is vereist."
+  },
+  "enterValidEmailAddress": {
+    "message": "Vul een geldig e-mailadres in."
+  },
+  "signInAddressIsRequired": {
+    "message": "Inlogadres is vereist."
+  },
+  "enterValidSignInAddress": {
+    "message": "Vul een geldig inlogadres in."
+  },
+  "secretKeyIsRequired": {
+    "message": "Geheime sleutel is vereist."
+  },
+  "enterValidSecretKey": {
+    "message": "Voer een geldige geheime sleutel in."
+  },
+  "passwordIsRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "enterValidVerificationCode": {
+    "message": "Voer een geldige verificatiecode in."
+  },
+  "signInAddress": {
+    "message": "Inlogadres"
+  },
+  "onePasswordEmail": {
+    "message": "1Password-e-mail"
+  },
+  "onePasswordEmailHint": {
+    "message": "Voer het e-mailadres in dat je gebruikt om in te loggen op 1Password"
   },
   "secretKey": {
     "message": "Geheime sleutel"
@@ -17503,6 +17806,27 @@
   "pamAccessRules": {
     "message": "Toegangsregels"
   },
+  "pamAccessRuleActive": {
+    "message": "Actief"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactief"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Inactief beperkt de regel de toegang niet."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Regel activeren"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Regel deactiveren"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Toegangsregel geactiveerd."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Toegangsregel gedeactiveerd."
+  },
   "pamAccessRuleEnabled": {
     "message": "Ingeschakeld"
   },
@@ -17527,6 +17851,9 @@
   "pamAccessRulesSubheading": {
     "message": "Stel regels in om te bepalen wie toegang kan vragen tot gevoelige gegevens, onder welke voorwaarden en voor hoe lang."
   },
+  "pamAccessRuleCreate": {
+    "message": "Toegangsregel aanmaken"
+  },
   "pamAccessRuleNew": {
     "message": "Nieuwe regel"
   },
@@ -17545,6 +17872,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Algemene informatie"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Toegangsduur"
   },
@@ -17557,6 +17887,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Deze toegangsregel is van toepassing op alle geselecteerde verzamelingen."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Alle verzoeken en besluiten worden geregistreerd."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Auditlogboek weergeven"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Kon geen verzamelingen inladen. Vernieuw de pagina om het opnieuw te proberen."
   },
@@ -17566,17 +17902,17 @@
   "pamAccessRuleDescription": {
     "message": "Omschrijving"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Standaard toegangsduur"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Standaard duur"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximale toegangsduur"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximale duur"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Geen limiet"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Maximale duur van een reservering, ongeacht de aangevraagde duur."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Toegang is beperkt tot deze lengte, ongeacht de gevraagde duur van toegang."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minuten"
@@ -17596,11 +17932,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 uur"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 dag"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 dagen"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 uur"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 dagen"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 dagen"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Slechts 1 gebruiker tegelijk kan actieve toegang hebben"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Anderen met goedkeuring kunnen proberen toegang te krijgen zodra de huidige toegang eindigt of wordt ingetrokken."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Verlenging van toegang toestaan"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Leden kunnen een actieve toegang één keer verlengen zonder nieuwe goedkeuring, tot onderstaande maximale duur."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Slechts één gebruiker kan een actieve reservering hebben"
@@ -17632,11 +17989,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collectiebeheerders"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (kopiëren)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ ($NUMBER$ kopiëren)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Kopie aangemaakt. Kies de collecties waarpo het van toepassing is."
+  },
   "pamAccessRuleCreated": {
     "message": "Toegangsregel aangemaakt."
   },
   "pamAccessRuleUpdated": {
     "message": "Toegangsregel bijgewerkt."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Toegangsregel verwijderd."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Toegangsregel verwijderen?"
@@ -17649,6 +18035,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Toegangsregel gedeactiveerd"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Deze regel wordt niet toegepast op nieuwe toegangsverzoeken."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Er ging iets mis. Je regel is niet opgeslagen, maar je informatie is nog steeds beschikbaar."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Vul een naam in."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Een andere regel gebruikt deze naam al. Voer een andere naam in."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Een andere toegangsregel heeft al betrekking op één van deze collecties. Selecteer verschillende collecties."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Een andere toegangsregel heeft al betrekking op $COLLECTIONS$. Selecteer verschillende collecties.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Een van de verzamelingen die je hebt geselecteerd bestaat niet meer. Selecteer een andere collectie."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Een van de verzamelingen die je hebt geselecteerd is geen onderdeel van deze organisatie. Selecteer een andere collectie."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Kies een maximale lengte van de extensie of schakel extensies uit."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Deze regel bestaat niet meer. Het kan zijn verwijderd door een andere beheerder."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Nog geen toegangsregels"
@@ -17668,6 +18093,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Precies op tijd"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automatisch goedgekeurd"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Automatisch goedgekeurd • Verloopt na 1 uur • Ingelogd Audit"
   },
@@ -17677,6 +18105,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Goedkeuring vereist"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Menselijke goedkeuring • 1 goedkeurder vereist"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Menselijke goedkeuring • 1 goedkeurder vereist • Controle gelogd"
   },
@@ -17685,6 +18116,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-beperking"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automatisch goedgekeurd • Lijst IP-adressen"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Automatisch goedgekeurd • IP toegestane lijst • Audit gelogd"
@@ -17698,11 +18132,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Niet toegewezen"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collectie"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collecties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Zoekregels"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Van toepassing op"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Methode van goedkeuring"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximale duur"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Voorwaarden"
@@ -17725,6 +18177,12 @@
   "pamAccessRulesNoResults": {
     "message": "Er komen geen toegangsregels overeen met je filters."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activeren"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactiveren"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Inschakelen"
   },
@@ -17742,6 +18200,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ toegangsregels worden permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Toegangsregel deactiveren"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ regels worden niet toegepast op nieuwe toegangsverzoeken.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17836,6 +18306,9 @@
   },
   "inviteLinkCalloutBody": {
     "message": "Iedereen met een bedrijfse-mailadres kan de uitnodigingslink gebruiken om voor deelname aan je organisatie. Sleep het neer in onboarding bronnen, zodat nieuwe medewerkers kunnen deelnemen wanneer ze klaar zijn."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "De rondleiding gebruikt voorbeeldgegevens. Er verandert niets in je organisatie."
   },
   "inviteLinkCalloutImageAlt": {
     "message": "Preview van het dialoogvenster voor het uitnodigen van leden met het nieuwe tabblad"
@@ -17977,5 +18450,30 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Pro-rata-kosten service-accounts"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden heeft een nieuw uiterlijk",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Betere ervaring, dezelfde vertrouwde veiligheid. De Bitwarden-kluis is opnieuw ontworpen op basis van jullie feedback, het is dus makkelijker om te vinden en te werken zoals je zou verwachten.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Een voorbeeld van de herontworpen Bitwarden-kluis.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "De nieuwe kluis verkennen",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Je weergave aanpassen"
+  },
+  "showColumns": {
+    "message": "Kolommen weergeven"
+  },
+  "resetToDefault": {
+    "message": "Standaardinstellingen herstellen"
   }
 }

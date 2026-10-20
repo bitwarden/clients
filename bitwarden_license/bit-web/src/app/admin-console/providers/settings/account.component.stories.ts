@@ -7,6 +7,7 @@ import { action } from "storybook/actions";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -44,8 +45,8 @@ export default {
   component: AccountComponent,
   decorators: [
     moduleMetadata({
-      declarations: [AccountComponent],
       imports: [
+        AccountComponent,
         SharedModule,
         ContainerComponent,
         AvatarComponent,
@@ -56,6 +57,7 @@ export default {
         {
           provide: ActivatedRoute,
           useValue: {
+            data: of({ titleId: "myProvider" }),
             parent: { parent: { params: of({ providerId: PROVIDER_ID }) } },
           },
         },
@@ -74,7 +76,12 @@ export default {
         { provide: PlatformUtilsService, useValue: { isSelfHost: () => false } },
         { provide: SyncService, useValue: { fullSync: async () => true } },
         { provide: LogService, useValue: { error: action("LogService.error") } },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.VFO1Foundation),
+          },
+        },
         { provide: DialogService, useValue: { openSimpleDialog: async () => true } },
         { provide: ToastService, useValue: { showToast: action("ToastService.showToast") } },
       ],
