@@ -1,0 +1,48 @@
+@if (items().length > 0) {
+  <bit-section class="tw-m-2">
+    <bit-section-header class="tw-p-[0.25rem]">
+      <h2 bitTypography="h5">{{ "excludedFromList" | i18n }}</h2>
+      <span slot="end" class="tw-flex tw-items-center tw-gap-2"
+        >{{ items().length }}
+        <button
+          type="button"
+          bitIconButton="{{ isCollapsed() ? 'bwi-angle-up' : 'bwi-angle-down' }}"
+          label="{{ 'toggleCollapse' | i18n }}"
+          buttonType="subtleGhost"
+          (click)="onCollapseClick()"
+        ></button>
+      </span>
+    </bit-section-header>
+    @if (!isCollapsed()) {
+      <div>
+        @for (item of items(); track item.id) {
+          <bit-item size="base">
+            <div bit-item-content class="tw-h-[52px]">
+              <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+                <app-vault-icon [cipher]="item"></app-vault-icon>
+              </div>
+              <span bitTypography="body1">
+                {{ item.name }}
+              </span>
+              <div slot="secondary" class="tw-flex tw-flex-col">
+                <span bitTypography="body2" class="tw-text-muted">
+                  {{ item.login.username }}
+                </span>
+              </div>
+            </div>
+            <div slot="end">
+              <button
+                type="button"
+                bitButton
+                buttonType="primaryGhost"
+                (click)="onRestoreItem.emit(item.id)"
+              >
+                {{ "restore" | i18n }}
+              </button>
+            </div>
+          </bit-item>
+        }
+      </div>
+    }
+  </bit-section>
+}

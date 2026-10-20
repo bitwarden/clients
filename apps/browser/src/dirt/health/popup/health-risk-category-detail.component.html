@@ -91,6 +91,11 @@
           </ng-container>
         </bit-item>
       </cdk-virtual-scroll-viewport>
+
+      <health-excluded-items-list
+        [items]="excludedItems()"
+        (onRestoreItem)="onRestoreItem($event)"
+      ></health-excluded-items-list>
     </bit-section>
   } @else {
     <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
@@ -99,6 +104,11 @@
         <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
         <ng-container slot="description">{{ contentKeys?.emptyKey | i18n }}</ng-container>
       </bit-status-lockup>
+
+      <health-excluded-items-list
+        [items]="excludedItems()"
+        (onRestoreItem)="onRestoreItem($event)"
+      ></health-excluded-items-list>
     </div>
   }
 </popup-page>
