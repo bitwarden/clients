@@ -1,3 +1,4 @@
+import { Provider } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -17,6 +18,10 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+
+import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
+import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
 import { CipherRowMenuService } from "./cipher-row-menu.service";
@@ -66,6 +71,7 @@ describe("CipherRowMenuService", () => {
   let restrictedTypesSubject: BehaviorSubject<RestrictedCipherType[]>;
   let organizationsSubject: BehaviorSubject<Organization[]>;
   let revealedSubject: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let providers: Provider[];
 
   beforeEach(() => {
     cipherArchiveService = mock<CipherArchiveService>();
@@ -88,18 +94,17 @@ describe("CipherRowMenuService", () => {
       value: restrictedTypesSubject.asObservable(),
     });
 
-    TestBed.configureTestingModule({
-      providers: [
-        CipherRowMenuService,
-        { provide: CipherArchiveService, useValue: cipherArchiveService },
-        { provide: OrganizationService, useValue: organizationService },
-        { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
-        { provide: I18nService, useValue: i18nService },
-        { provide: AccountService, useValue: mockAccountServiceWith(userId) },
-        { provide: CipherActionService, useValue: mock<CipherActionService>() },
-        { provide: RevealedCipherService, useValue: revealedCipherService },
-      ],
-    });
+    providers = [
+      CipherRowMenuService,
+      { provide: CipherArchiveService, useValue: cipherArchiveService },
+      { provide: OrganizationService, useValue: organizationService },
+      { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
+      { provide: I18nService, useValue: i18nService },
+      { provide: AccountService, useValue: mockAccountServiceWith(userId) },
+      { provide: CipherActionService, useValue: mock<CipherActionService>() },
+      { provide: RevealedCipherService, useValue: revealedCipherService },
+    ];
+    TestBed.configureTestingModule({ providers });
 
     service = TestBed.inject(CipherRowMenuService);
   });
@@ -547,6 +552,116 @@ describe("CipherRowMenuService", () => {
       expect(visibleActionIds(makeCipher())).toEqual(
         expect.arrayContaining(["addFavorite", "edit", "archive", "delete"]),
       );
+    });
+  });
+
+  describe("contributed actions (VAULT_ROW_ACTIONS)", () => {
+    const handlers = { edit: () => {}, clone: () => {}, assignToCollections: () => {} };
+
+    function contributed(
+      id: string,
+      overrides: Partial<VaultItemsTableRowAction<CipherViewLike>> = {},
+    ): VaultItemsTableRowAction<CipherViewLike> {
+      return { id, label: id, icon: "bwi-key", run: () => {}, ...overrides };
+    }
+
+    /** Rebuilds the service with `actions` provided under `VAULT_ROW_ACTIONS`. */
+    function serviceWith(
+      actions: readonly VaultItemsTableRowAction<CipherViewLike>[],
+    ): CipherRowMenuService {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [...providers, { provide: VAULT_ROW_ACTIONS, useValue: actions }],
+      });
+      return TestBed.inject(CipherRowMenuService);
+    }
+
+    /** Runs `fn` with `isDevMode()` returning `false`, as in a production build. */
+    function inProduction<T>(fn: () => T): T {
+      // `isDevMode()` reads the `ngDevMode` global; `false` is what a production build sees.
+      const global = globalThis as { ngDevMode?: unknown };
+      const devMode = global.ngDevMode;
+      global.ngDevMode = false;
+      try {
+        return fn();
+      } finally {
+        global.ngDevMode = devMode;
+      }
+    }
+
+    const ids = (s: CipherRowMenuService) => s.getRowActions([], handlers).map((a) => a.id);
+
+    it("leaves the list unchanged without a provider", () => {
+      expect(ids(service)).toEqual([
+        "addFavorite",
+        "removeFavorite",
+        "edit",
+        "attachments",
+        "clone",
+        "addToSharedFolder",
+        "archive",
+        "unarchive",
+        "restore",
+        "delete",
+        "permanentlyDelete",
+      ]);
+    });
+
+    it("puts a contributed action after restore and before delete", () => {
+      const list = ids(serviceWith([contributed("cancelRequest")]));
+
+      expect(list.slice(list.indexOf("restore"), list.indexOf("delete") + 1)).toEqual([
+        "restore",
+        "cancelRequest",
+        "delete",
+      ]);
+    });
+
+    it("hides a contributed action for a cipher that failed to decrypt", () => {
+      const action = serviceWith([contributed("cancelRequest")])
+        .getRowActions([], handlers)
+        .find((a) => a.id === "cancelRequest")!;
+
+      expect(action.show!(makeCipher())).toBe(true);
+      expect(action.show!(makeCipher({ decryptionFailure: true }))).toBe(false);
+    });
+
+    it("passes the row to show and run", () => {
+      const show = jest.fn().mockReturnValue(true);
+      const run = jest.fn();
+      const cipher = makeCipher({ id: "row-id" });
+      const action = serviceWith([contributed("cancelRequest", { show, run })])
+        .getRowActions([], handlers)
+        .find((a) => a.id === "cancelRequest")!;
+
+      expect(action.show!(cipher)).toBe(true);
+      void action.run(cipher);
+
+      expect(show).toHaveBeenCalledWith(cipher);
+      expect(run).toHaveBeenCalledWith(cipher);
+    });
+
+    it("throws in dev mode when an ID matches a built-in action", () => {
+      expect(() => serviceWith([contributed("delete")])).toThrow(/"delete"/);
+    });
+
+    it("throws in dev mode when a contributed ID repeats", () => {
+      expect(() =>
+        serviceWith([contributed("cancelRequest"), contributed("cancelRequest")]),
+      ).toThrow(/"cancelRequest"/);
+    });
+
+    it("drops clashing actions in production", () => {
+      const list = inProduction(() =>
+        serviceWith([
+          contributed("delete", { label: "Clash" }),
+          contributed("cancelRequest", { label: "First" }),
+          contributed("cancelRequest", { label: "Second" }),
+        ]).getRowActions([], handlers),
+      );
+
+      expect(list.filter((a) => a.id === "delete").map((a) => a.label)).toEqual(["delete"]);
+      expect(list.filter((a) => a.id === "cancelRequest").map((a) => a.label)).toEqual(["First"]);
     });
   });
 

@@ -147,6 +147,7 @@ export {
   type VaultItemFilter,
   type VaultItemFilterOption,
 } from "./tokens/vault-item-filter.token";
+export { VAULT_ROW_ACTIONS } from "./tokens/vault-row-actions.token";
 export {
   ACTIVE_FILTER_ID,
   MY_REQUESTS_FILTER_ID,

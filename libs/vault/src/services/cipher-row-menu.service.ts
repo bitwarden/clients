@@ -1,4 +1,4 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, isDevMode } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, shareReplay, switchMap } from "rxjs";
 
@@ -26,6 +26,7 @@ import {
 } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
+import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
 
@@ -35,13 +36,53 @@ import { CipherActionService } from "./cipher-action.service";
  */
 const DECRYPTION_FAILURE_ACTION_IDS = new Set(["delete", "permanentlyDelete"]);
 
+/** The Delete group. Contributed actions go before it. */
+const DANGER_ACTION_IDS = new Set(["delete", "permanentlyDelete"]);
+
+/** IDs of the actions {@link CipherRowMenuService.getRowActions} builds. Contributed IDs must differ. */
+const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
+  "addFavorite",
+  "removeFavorite",
+  "edit",
+  "attachments",
+  "clone",
+  "addToSharedFolder",
+  "archive",
+  "unarchive",
+  "restore",
+  ...DANGER_ACTION_IDS,
+]);
+
+/**
+ * Drops each contributed action whose ID matches a built-in ID or an earlier contributed ID.
+ * Throws in dev mode instead.
+ */
+function uniqueContributedActions(
+  actions: readonly VaultItemsTableRowAction<CipherViewLike>[],
+): readonly VaultItemsTableRowAction<CipherViewLike>[] {
+  const seen = new Set(BUILT_IN_ACTION_IDS);
+  return actions.filter((action) => {
+    if (seen.has(action.id)) {
+      if (isDevMode()) {
+        throw new Error(`VAULT_ROW_ACTIONS action ID "${action.id}" is already in use.`);
+      }
+      return false;
+    }
+    seen.add(action.id);
+    return true;
+  });
+}
+
 export type CipherRowMenuHandlers<C extends CipherViewLike> = {
   edit: (item: C) => void | Promise<void>;
   clone: (item: C) => void | Promise<void>;
   assignToCollections: (item: C) => void | Promise<void>;
 };
 
-/** Centralises row overflow menu action definitions for vault cipher rows across clients. */
+/**
+ * Centralises row overflow menu action definitions for vault cipher rows across clients.
+ * Built-in actions, then contributed actions (`VAULT_ROW_ACTIONS`), then the Delete group.
+ */
 @Injectable({ providedIn: "root" })
 export class CipherRowMenuService {
   private readonly i18nService = inject(I18nService);
@@ -51,6 +92,9 @@ export class CipherRowMenuService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
   private readonly revealedCipherService = inject(RevealedCipherService);
+  private readonly contributedActions = uniqueContributedActions(
+    inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
+  );
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -88,7 +132,7 @@ export class CipherRowMenuService {
     collections: CollectionView[] = [],
     handlers: CipherRowMenuHandlers<C>,
   ): VaultItemsTableRowAction<C>[] {
-    const actions: VaultItemsTableRowAction<C>[] = [
+    const builtIn: VaultItemsTableRowAction<C>[] = [
       {
         id: "addFavorite",
         label: this.i18nService.t("favorite"),
@@ -175,6 +219,12 @@ export class CipherRowMenuService {
           this.allows(item, RestrictedCipherAction.Delete),
         variant: "danger",
       },
+    ];
+
+    const actions: VaultItemsTableRowAction<C>[] = [
+      ...builtIn.filter((action) => !DANGER_ACTION_IDS.has(action.id)),
+      ...this.contributedActions,
+      ...builtIn.filter((action) => DANGER_ACTION_IDS.has(action.id)),
     ];
 
     return actions.map((action) => ({
