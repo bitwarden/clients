@@ -22,16 +22,12 @@ export type ControlledAccessFilterOption = {
  * Optional "Controlled access" group in the vault's Filters sidebar and the narrowing it applies
  * to the item list. The ids are opaque to the vault, which renders {@link options$} and hands the
  * selected id back to {@link narrow$}.
+ *
+ * Legacy web vault sidebar only. Deleted with the legacy UI.
  */
 export abstract class VaultControlledAccessFilter {
   /** The group's children. An empty array hides the group. */
   abstract readonly options$: Observable<ControlledAccessFilterOption[]>;
-
-  /**
-   * The vault table chip's options, when they differ from the sidebar's {@link options$}. Unset,
-   * the chip offers {@link options$}.
-   */
-  readonly tableOptions$?: Observable<ControlledAccessFilterOption[]>;
 
   /**
    * The subset of `ciphers` matching the selected option. An id {@link options$} does not offer

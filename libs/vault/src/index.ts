@@ -143,6 +143,11 @@ export {
   type VaultItemColumnScope,
 } from "./tokens/vault-item-column.token";
 export {
+  VAULT_ITEM_FILTER,
+  type VaultItemFilter,
+  type VaultItemFilterOption,
+} from "./tokens/vault-item-filter.token";
+export {
   ACTIVE_FILTER_ID,
   MY_REQUESTS_FILTER_ID,
   PENDING_FILTER_ID,

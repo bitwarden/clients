@@ -12,7 +12,6 @@ export const VAULT_FILTER_KEYS = Object.freeze({
   myItems: "myItems",
   sharedFolder: "sharedFolder",
   folder: "folder",
-  controlledAccess: "controlledAccess",
   search: "search",
 } as const);
 
@@ -34,10 +33,16 @@ export type VaultItemsTableFilters = {
   sharedFolder?: string[];
   /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
   folder?: string[];
-  /**
-   * Ids of the selected `VAULT_CONTROLLED_ACCESS_FILTER` options. Multi-select: a cipher matches
-   * any selected option. Opaque to the table: only the host that supplied an option knows what it
-   * admits.
-   */
-  controlledAccess?: string[];
 };
+
+/**
+ * Keys the table uses itself: the chips, `bit-table-v2`'s sort and pagination params. A contributed
+ * filter (`VAULT_ITEM_FILTER`) must not use one of them.
+ */
+export const VAULT_RESERVED_FILTER_KEYS: ReadonlySet<string> = new Set([
+  ...Object.values(VAULT_FILTER_KEYS),
+  "sort",
+  "direction",
+  "page",
+  "pageSize",
+]);

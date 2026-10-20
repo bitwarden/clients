@@ -18,6 +18,7 @@ import { getOptionalUserId } from "@bitwarden/common/auth/services/account.servi
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -112,7 +113,7 @@ const SORT_ORDER: readonly AccessKind[] = [
 
 /**
  * The "Controlled access" filter: the sidebar's state groups ({@link options$}) and the vault
- * table chip's one-per-state options ({@link tableOptions$}), over one narrowing. Narrowing costs
+ * table chip's one-per-state options ({@link stateOptions$}), over one narrowing. Narrowing costs
  * one `getCipherAccessState` call per gated row in a PAM organization, shared across options.
  */
 @Injectable()
@@ -146,7 +147,8 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
   readonly options$: Observable<ControlledAccessFilterOption[]> =
     this.offered$(CONTROLLED_ACCESS_FILTERS);
 
-  readonly tableOptions$: Observable<ControlledAccessFilterOption[]> = this.offered$(
+  /** The vault table chip's options (`VAULT_ITEM_FILTER`). */
+  readonly stateOptions$: Observable<ControlledAccessFilterOption[]> = this.offered$(
     CONTROLLED_ACCESS_STATE_FILTERS,
   );
 
@@ -165,17 +167,44 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
     const definition = [...CONTROLLED_ACCESS_FILTERS, ...CONTROLLED_ACCESS_STATE_FILTERS].find(
       (candidate) => candidate.id === optionId,
     );
-    return combineLatest([this.options$, this.tableOptions$]).pipe(
-      switchMap(([options, tableOptions]) =>
-        definition != null && (offered(options) || offered(tableOptions))
+    return combineLatest([this.options$, this.stateOptions$]).pipe(
+      switchMap(([options, stateOptions]) =>
+        definition != null && (offered(options) || offered(stateOptions))
           ? this.narrowTo$(definition, ciphers)
           : of(ciphers),
       ),
     );
   }
 
+  /**
+   * The vault table chip's matches: each state option's ID → the IDs of the rows in that state.
+   * One read per list, shared across options.
+   *
+   * TODO: one emission per list, not live on access events. Re-reading on `AccessRefreshService`
+   * is PAM follow-up work.
+   */
+  matches$(
+    ciphers: readonly CipherViewLike[],
+  ): Observable<ReadonlyMap<string, ReadonlySet<CipherId>>> {
+    return this.accessKinds$(ciphers).pipe(
+      map((kinds) => {
+        const byOption = new Map<string, Set<CipherId>>();
+        for (const definition of CONTROLLED_ACCESS_STATE_FILTERS) {
+          const ids = new Set<CipherId>();
+          for (const [id, kind] of kinds) {
+            if (definition.kinds.includes(kind)) {
+              ids.add(id as CipherId);
+            }
+          }
+          byOption.set(definition.id, ids);
+        }
+        return byOption;
+      }),
+    );
+  }
+
   sortRanks$<C extends CipherViewLike>(ciphers: C[]): Observable<Map<string, number>> {
-    return this.kinds$(ciphers).pipe(
+    return this.accessKinds$(ciphers).pipe(
       map((kinds) => {
         const ranks = new Map<string, number>();
         for (const [id, kind] of kinds) {
@@ -218,7 +247,7 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
     definition: ControlledAccessFilterDefinition,
     ciphers: C[],
   ): Observable<C[]> {
-    return this.kinds$(ciphers).pipe(
+    return this.accessKinds$(ciphers).pipe(
       map((kinds) =>
         ciphers.filter((cipher) => {
           const kind = kinds.get(String(cipher.id));
@@ -228,7 +257,8 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
     );
   }
 
-  private kinds$(ciphers: readonly CipherViewLike[]): Observable<Map<string, AccessKind>> {
+  /** The access state of each restricted row in a PAM organization, by cipher ID. */
+  accessKinds$(ciphers: readonly CipherViewLike[]): Observable<Map<string, AccessKind>> {
     const cached = this.kindsByRows.get(ciphers);
     if (cached != null) {
       return cached;

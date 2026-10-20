@@ -17,6 +17,7 @@ import {
   ITEM_DETAILS_BADGE,
   SHARED_FOLDER_DECORATION,
   VAULT_ITEM_COLUMN,
+  VAULT_ITEM_FILTER,
 } from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
@@ -52,6 +53,7 @@ import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
 import { GovernedSharedFolderIconComponent } from "./shared-folder-decoration/governed-shared-folder-icon.component";
+import { controlledAccessItemFilter } from "./vault-filter-controlled-access/controlled-access-item-filter";
 import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
@@ -137,7 +139,8 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
     }),
-    // One instance behind both the filter and the column, so they share one per-row state cache.
+    // One instance behind the sidebar filter, the table chip, and the column, so they share one
+    // per-row state cache.
     safeProvider({
       provide: ControlledAccessVaultFilterService,
       useClass: ControlledAccessVaultFilterService,
@@ -146,6 +149,11 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: VAULT_CONTROLLED_ACCESS_FILTER,
       useExisting: ControlledAccessVaultFilterService,
+    }),
+    safeProvider({
+      provide: VAULT_ITEM_FILTER,
+      useFactory: controlledAccessItemFilter,
+      deps: [I18nService, ControlledAccessVaultFilterService],
     }),
     safeProvider({
       provide: VAULT_ITEM_COLUMN,

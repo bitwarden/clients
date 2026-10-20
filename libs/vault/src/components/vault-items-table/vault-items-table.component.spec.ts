@@ -60,12 +60,12 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { ALL_ITEMS_SCOPE, VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
-import {
-  ControlledAccessFilterOption,
-  VAULT_CONTROLLED_ACCESS_FILTER,
-  VaultControlledAccessFilter,
-} from "../../tokens/vault-controlled-access-filter.token";
 import { VAULT_ITEM_COLUMN, VaultItemColumn } from "../../tokens/vault-item-column.token";
+import {
+  VAULT_ITEM_FILTER,
+  VaultItemFilter,
+  VaultItemFilterOption,
+} from "../../tokens/vault-item-filter.token";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 import { CoachmarkStepId } from "../coachmark/coachmark-step";
 import { CoachmarkService } from "../coachmark/coachmark.service";
@@ -199,40 +199,25 @@ class ItemColumnHostComponent {
 }
 
 /**
- * The Controlled access contribution the host under test provides. Read lazily by
- * {@link ControlledAccessHostComponent}'s factory, so a test can set it before creating the host.
+ * The filter the host under test provides. Read lazily by {@link ItemFilterHostComponent}'s
+ * factory, so a test can set it before creating the host.
  */
-let controlledAccessFilter: VaultControlledAccessFilter | undefined;
+let itemFilter: VaultItemFilter | undefined;
 
-/** A contribution offering `options` and admitting the cipher ids listed against each option id. */
-function controlledAccessDouble(
-  options: ControlledAccessFilterOption[],
-  admits: Record<string, string[]>,
-): VaultControlledAccessFilter {
-  return {
-    options$: of(options),
-    narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]) {
-      const admitted = admits[optionId];
-      // An id no longer offered yields the input unchanged, as the token's contract requires.
-      return of(
-        admitted == null ? ciphers : ciphers.filter((c) => admitted.includes(String(c.id))),
-      );
-    },
-  };
-}
-
-/** Hosts the table beneath a node injector carrying the optional Controlled access contribution. */
+/** Hosts the table beneath a node injector carrying the optional contributed filter. */
 @Component({
-  selector: "test-controlled-access-host",
-  template: `<vault-items-table [ciphers]="ciphers()"></vault-items-table>`,
+  selector: "test-item-filter-host",
+  template: `<vault-items-table
+    [ciphers]="ciphers()"
+    [initialFilterValues]="initialFilterValues()"
+  ></vault-items-table>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [VaultItemsTableComponent],
-  providers: [
-    { provide: VAULT_CONTROLLED_ACCESS_FILTER, useFactory: () => controlledAccessFilter },
-  ],
+  providers: [{ provide: VAULT_ITEM_FILTER, useFactory: () => itemFilter }],
 })
-class ControlledAccessHostComponent {
+class ItemFilterHostComponent {
   readonly ciphers = signal<CipherViewLike[]>([]);
+  readonly initialFilterValues = signal<Partial<VaultItemsTableFilters> | undefined>(undefined);
 }
 
 function batchBarDouble() {
@@ -2780,11 +2765,10 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
-  describe("controlled access (VAULT_CONTROLLED_ACCESS_FILTER)", () => {
-    /** Mirrors the option set the licensed host offers: one per access state, already localized. */
-    const OPTIONS: ControlledAccessFilterOption[] = [
-      { id: "privileged", name: "pamAccessBadgePrivileged", icon: "bwi-key" },
-      { id: "pending", name: "pamAccessBadgePending", icon: "bwi-clock" },
+  describe("contributed filter (VAULT_ITEM_FILTER)", () => {
+    const OPTIONS: VaultItemFilterOption[] = [
+      { id: "privileged", name: "Privileged", icon: "bwi-key" },
+      { id: "pending", name: "Pending", icon: "bwi-clock" },
     ];
 
     const ROWS = () => [
@@ -2793,12 +2777,53 @@ describe("VaultItemsTableComponent", () => {
       cipherView({ id: "c", name: "Cloud" }),
     ];
 
-    let hostFixture: ComponentFixture<ControlledAccessHostComponent>;
-    let narrow: jest.SpyInstance;
+    /** Privileged admits Amazon; Pending admits Bank and Cloud. */
+    const MATCHES = (): ReadonlyMap<string, ReadonlySet<CipherId>> =>
+      new Map([
+        ["privileged", new Set(["a" as CipherId])],
+        ["pending", new Set(["b" as CipherId, "c" as CipherId])],
+      ]);
+
+    let hostFixture: ComponentFixture<ItemFilterHostComponent>;
+    let matches: Subject<ReadonlyMap<string, ReadonlySet<CipherId>>>;
+    let matches$: jest.Mock;
+
+    beforeEach(() => {
+      matches = new Subject();
+      matches$ = jest.fn(() => matches);
+    });
 
     afterEach(() => {
-      controlledAccessFilter = undefined;
+      itemFilter = undefined;
     });
+
+    /** A filter keyed `state` offering {@link OPTIONS}, with `overrides` applied. */
+    function itemFilterDouble(overrides: Partial<VaultItemFilter> = {}): VaultItemFilter {
+      return {
+        key: "state",
+        label: "State label",
+        options$: of(OPTIONS),
+        matches$,
+        ...overrides,
+      };
+    }
+
+    /** Renders the host with `filter` provided and the rows loaded. */
+    function renderHost(
+      filter: VaultItemFilter = itemFilterDouble(),
+      initialFilterValues?: Record<string, unknown>,
+    ): void {
+      itemFilter = filter;
+      hostFixture = TestBed.createComponent(ItemFilterHostComponent);
+      hostFixture.componentInstance.ciphers.set(ROWS());
+      if (initialFilterValues != null) {
+        hostFixture.componentInstance.initialFilterValues.set(
+          initialFilterValues as Partial<VaultItemsTableFilters>,
+        );
+      }
+      hostFixture.detectChanges();
+      hostFixture.detectChanges();
+    }
 
     function hostTable(): BitTableV2Component<
       CipherViewLike,
@@ -2820,41 +2845,15 @@ describe("VaultItemsTableComponent", () => {
         .map((cipher) => cipher.name);
     }
 
-    /** Renders the host with the contribution in place and the rows loaded. */
-    function renderHost(): void {
-      controlledAccessFilter = controlledAccessDouble(OPTIONS, {
-        privileged: ["a"],
-        pending: ["b", "c"],
-      });
-      narrow = jest.spyOn(controlledAccessFilter, "narrow$");
-      hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
-      hostFixture.componentInstance.ciphers.set(ROWS());
-      hostFixture.detectChanges();
-      hostFixture.detectChanges();
+    function hostKeys(): string[] {
+      return hostTable()
+        .filterControls()
+        .map((c) => c.key());
     }
 
-    it("offers no chip when nothing provides the filter", () => {
-      fixture.componentRef.setInput("ciphers", ROWS());
-      fixture.detectChanges();
-
-      expect(
-        bitTable()
-          .filterControls()
-          .map((c) => c.key()),
-      ).not.toContain("controlledAccess");
-      expect(fixture.nativeElement.textContent).not.toContain("controlledAccess");
-    });
-
-    it("leaves the rows alone when nothing provides the filter", () => {
-      fixture.componentRef.setInput("ciphers", ROWS());
-      fixture.detectChanges();
-
-      expect(filteredNames()).toEqual(["Amazon", "Bank", "Cloud"]);
-    });
-
     /**
-     * Lets a pending resolution land: the request is delivered on a microtask, and the narrowing
-     * resolves through `toObservable`, which flushes on the pass after.
+     * Lets a pending resolution land: the request is delivered on a microtask, and the matches
+     * resolve through `toObservable`, which flushes on the pass after.
      */
     async function settle(): Promise<void> {
       hostFixture.detectChanges();
@@ -2863,83 +2862,137 @@ describe("VaultItemsTableComponent", () => {
       hostFixture.detectChanges();
     }
 
-    it("renders a chip carrying the host's options once one is provided", () => {
+    /** Selects `optionIds` on the chip and delivers {@link MATCHES}. */
+    async function select(optionIds: string[] | string): Promise<void> {
+      hostControl("state")!.setValue(optionIds);
+      await settle();
+      matches.next(MATCHES());
+      hostFixture.detectChanges();
+    }
+
+    it("offers no chip and leaves the rows alone when nothing provides a filter", () => {
+      fixture.componentRef.setInput("ciphers", ROWS());
+      fixture.detectChanges();
+
+      expect(
+        bitTable()
+          .filterControls()
+          .map((c) => c.key()),
+      ).not.toContain("controlledAccess");
+      expect(filteredNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("offers no chip when the filter has no options", () => {
+      renderHost(itemFilterDouble({ options$: of([]) }));
+
+      expect(hostKeys()).not.toContain("state");
+    });
+
+    it("renders a chip under the provider's key and label, with its options", () => {
       renderHost();
 
-      expect(hostControl("controlledAccess")).toBeDefined();
-      expect(hostFixture.nativeElement.textContent).toContain("controlledAccess");
+      expect(hostControl("state")).toBeDefined();
+      expect(hostFixture.nativeElement.textContent).toContain("State label");
+      const table = hostFixture.debugElement.query(By.directive(VaultItemsTableComponent))
+        .componentInstance as VaultItemsTableComponent<CipherViewLike>;
+      expect(table["contributedOptions"]().map((o) => o.id)).toEqual(["privileged", "pending"]);
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
-    it("offers the host's table options over its sidebar options when it has both", () => {
-      const sidebar = controlledAccessDouble(OPTIONS, {});
-      controlledAccessFilter = {
-        options$: sidebar.options$,
-        tableOptions$: of([{ id: "ready", name: "pamAccessBadgeReady", icon: "bwi-check" }]),
-        narrow$: sidebar.narrow$,
-      };
-      hostFixture = TestBed.createComponent(ControlledAccessHostComponent);
-      hostFixture.componentInstance.ciphers.set(ROWS());
+    it("stores the selection in the URL as vault.<key>", async () => {
+      renderHost();
+      const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      hostControl("state")!.setValue(["privileged"]);
       hostFixture.detectChanges();
 
-      const table = hostFixture.debugElement.query(By.directive(VaultItemsTableComponent))
-        .componentInstance as VaultItemsTableComponent<CipherViewLike>;
-      expect(table["controlledAccessOptions"]().map((o) => o.id)).toEqual(["ready"]);
+      expect(navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({
+          queryParams: expect.objectContaining({ "vault.state": ["privileged"] }),
+        }),
+      );
     });
 
-    it("asks the host nothing while the chip is untouched", async () => {
+    it("throws in dev mode when the key is a built-in key", () => {
+      itemFilter = itemFilterDouble({ key: "folder" });
+
+      expect(() => TestBed.createComponent(ItemFilterHostComponent).detectChanges()).toThrow(
+        /"folder" is reserved by the vault table/,
+      );
+    });
+
+    it("renders no contributed chip and asks nothing for a built-in key outside dev mode", async () => {
+      // `isDevMode()` reads the `ngDevMode` global; `false` is what a production build sees.
+      const global = globalThis as { ngDevMode?: unknown };
+      const devMode = global.ngDevMode;
+      global.ngDevMode = false;
+      try {
+        renderHost(itemFilterDouble({ key: "folder", label: "Clash" }));
+      } finally {
+        global.ngDevMode = devMode;
+      }
+
+      hostControl("folder")!.setValue(["privileged"]);
+      await settle();
+
+      expect(hostFixture.nativeElement.textContent).not.toContain("Clash");
+      expect(matches$).not.toHaveBeenCalled();
+    });
+
+    it("asks nothing while the chip is untouched", async () => {
       renderHost();
       await settle();
 
       hostFixture.componentInstance.ciphers.set(ROWS());
       await settle();
 
-      expect(narrow).not.toHaveBeenCalled();
+      expect(matches$).not.toHaveBeenCalled();
+    });
+
+    it("asks once for a selection restored from initialFilterValues", async () => {
+      renderHost(itemFilterDouble(), { state: ["privileged"] });
+      await settle();
+
+      expect(matches$).toHaveBeenCalledTimes(1);
+      matches.next(MATCHES());
+      hostFixture.detectChanges();
+      expect(hostNames()).toEqual(["Amazon"]);
+    });
+
+    it("asks once for a selection restored from the URL", async () => {
+      await TestBed.inject(Router).navigateByUrl("/?vault.state=pending");
+      renderHost();
+      await settle();
+
+      expect(matches$).toHaveBeenCalledTimes(1);
+      matches.next(MATCHES());
+      hostFixture.detectChanges();
+      expect(hostNames()).toEqual(["Bank", "Cloud"]);
     });
 
     it("narrows the rows to the selected option", async () => {
       renderHost();
 
-      hostControl("controlledAccess")!.setValue(["privileged"]);
-      await settle();
+      await select(["privileged"]);
 
       expect(hostNames()).toEqual(["Amazon"]);
-    });
-
-    it("resolves every option's count once the chip's menu is opened", async () => {
-      renderHost();
-      const chip = hostFixture.debugElement
-        .queryAll(By.directive(FilterMenuComponent))
-        .find((menu) => menu.componentInstance.key() === "controlledAccess")!;
-
-      chip.query(By.directive(MenuTriggerForDirective)).nativeElement.click();
-      await settle();
-
-      expect(narrow).toHaveBeenCalledWith("privileged", expect.anything());
-      expect(narrow).toHaveBeenCalledWith("pending", expect.anything());
-      expect(hostTable().optionCount("controlledAccess", ["privileged"])).toBe(1);
-      expect(hostTable().optionCount("controlledAccess", ["pending"])).toBe(2);
     });
 
     it("admits a row matching any selected option", async () => {
       renderHost();
 
-      hostControl("controlledAccess")!.setValue(["privileged", "pending"]);
-      await settle();
-
+      await select(["privileged", "pending"]);
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
 
-      hostControl("controlledAccess")!.setValue(["pending"]);
-      await settle();
-
+      hostControl("state")!.setValue(["pending"]);
+      hostFixture.detectChanges();
       expect(hostNames()).toEqual(["Bank", "Cloud"]);
     });
 
     it("combines with the other chips rather than replacing them", async () => {
       renderHost();
-
-      hostControl("controlledAccess")!.setValue(["pending"]);
-      await settle();
+      await select(["pending"]);
       expect(hostNames()).toEqual(["Bank", "Cloud"]);
 
       hostFixture.componentInstance.ciphers.set([
@@ -2949,64 +3002,102 @@ describe("VaultItemsTableComponent", () => {
       ]);
       hostControl("favorites")!.setValue(true);
       await settle();
-
-      expect(hostNames()).toEqual(["Bank"]);
-    });
-
-    it("still narrows a link carrying a lone option id", async () => {
-      renderHost();
-
-      hostControl("controlledAccess")!.setValue("privileged");
-      await settle();
-
-      expect(hostNames()).toEqual(["Amazon"]);
-    });
-
-    it("keeps resolving on new rows once requested", async () => {
-      renderHost();
-      hostControl("controlledAccess")!.setValue(["privileged"]);
-      await settle();
-      narrow.mockClear();
-
-      hostFixture.componentInstance.ciphers.set(ROWS());
-      await settle();
-
-      expect(narrow).toHaveBeenCalledTimes(OPTIONS.length);
-    });
-
-    it("keeps the rows narrowed while new rows are still resolving", async () => {
-      renderHost();
-      hostControl("controlledAccess")!.setValue(["privileged"]);
-      await settle();
-      expect(hostNames()).toEqual(["Amazon"]);
-
-      const pending = new Subject<CipherViewLike[]>();
-      narrow.mockReturnValue(pending);
-      const rows = ROWS();
-      hostFixture.componentInstance.ciphers.set(rows);
-      await settle();
-
-      expect(hostNames()).toEqual(["Amazon"]);
-
-      pending.next([rows[1]]);
+      matches.next(MATCHES());
       hostFixture.detectChanges();
 
       expect(hostNames()).toEqual(["Bank"]);
     });
 
-    it("keeps every row for an option the host no longer offers", async () => {
+    it("keeps every row for an option the provider does not offer", async () => {
       renderHost();
 
-      hostControl("controlledAccess")!.setValue(["retired"]);
+      await select(["retired"]);
+
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("still narrows a lone option ID", async () => {
+      renderHost();
+
+      await select("privileged");
+
+      expect(hostNames()).toEqual(["Amazon"]);
+    });
+
+    it("lets every row pass until the matches resolve", async () => {
+      renderHost();
+
+      hostControl("state")!.setValue(["privileged"]);
+      await settle();
+
+      expect(matches$).toHaveBeenCalledTimes(1);
+      expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
+    });
+
+    it("lets every row pass when matches$ fails", async () => {
+      matches$.mockReturnValue(throwError(() => new Error("boom")));
+      renderHost();
+
+      hostControl("state")!.setValue(["privileged"]);
       await settle();
 
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
 
+    it("filters again on each emission, keeping the selection and the other rows' DOM", async () => {
+      renderHost();
+      await select(["pending"]);
+      expect(hostNames()).toEqual(["Bank", "Cloud"]);
+      const rowsBefore = Array.from(hostFixture.nativeElement.querySelectorAll("bit-row"));
+      const cloudRow = rowsBefore.find((row) =>
+        (row as HTMLElement).textContent?.includes("Cloud"),
+      );
+      expect(cloudRow).toBeDefined();
+      const bank = hostTable()
+        .filtered()
+        .find((cipher) => cipher.id === "b")!;
+      hostTable().selectionModel().select(bank);
+      hostFixture.detectChanges();
+
+      matches.next(
+        new Map([
+          ["privileged", new Set(["a" as CipherId])],
+          ["pending", new Set(["c" as CipherId])],
+        ]),
+      );
+      hostFixture.detectChanges();
+
+      expect(hostNames()).toEqual(["Cloud"]);
+      expect(
+        hostTable()
+          .selectionModel()
+          .selected()
+          .map((cipher) => cipher.id),
+      ).toEqual(["b"]);
+      const rowsAfter = Array.from(hostFixture.nativeElement.querySelectorAll("bit-row"));
+      expect(rowsAfter).toContain(cloudRow);
+      expect(matches$).toHaveBeenCalledTimes(1);
+    });
+
+    it("counts every option off one matches$ call", async () => {
+      renderHost();
+      const chip = hostFixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((menu) => menu.componentInstance.key() === "state")!;
+
+      chip.query(By.directive(MenuTriggerForDirective)).nativeElement.click();
+      await settle();
+      matches.next(MATCHES());
+      hostFixture.detectChanges();
+
+      expect(matches$).toHaveBeenCalledTimes(1);
+      expect(hostTable().optionCount("state", ["privileged"])).toBe(1);
+      expect(hostTable().optionCount("state", ["pending"])).toBe(2);
+    });
+
     it("resets when Clear all is clicked", async () => {
       renderHost();
-      hostControl("controlledAccess")!.setValue(["privileged"]);
-      await settle();
+      await select(["privileged"]);
       expect(hostNames()).toEqual(["Amazon"]);
 
       (hostFixture.nativeElement as HTMLElement)
@@ -3014,7 +3105,7 @@ describe("VaultItemsTableComponent", () => {
         .click();
       hostFixture.detectChanges();
 
-      expect(hostControl("controlledAccess")!.value()).toEqual([]);
+      expect(hostControl("state")!.value()).toEqual([]);
       expect(hostNames()).toEqual(["Amazon", "Bank", "Cloud"]);
     });
   });
