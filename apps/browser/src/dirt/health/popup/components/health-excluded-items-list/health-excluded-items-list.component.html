@@ -6,7 +6,7 @@
         >{{ items().length }}
         <button
           type="button"
-          bitIconButton="{{ isCollapsed() ? 'bwi-angle-up' : 'bwi-angle-down' }}"
+          bitIconButton="{{ isCollapsed() ? 'bwi-angle-down' : 'bwi-angle-up' }}"
           label="{{ 'toggleCollapse' | i18n }}"
           buttonType="subtleGhost"
           (click)="onCollapseClick()"
