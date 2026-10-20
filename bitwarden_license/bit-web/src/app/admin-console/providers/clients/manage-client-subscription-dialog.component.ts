@@ -1,7 +1,12 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
-import { FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
@@ -43,18 +48,21 @@ export const openManageClientSubscriptionDialog = (
 })
 export class ManageClientSubscriptionDialogComponent implements OnInit {
   protected loading = true;
-  protected providerPlan: ProviderPlanResponse;
-  protected assignedSeats: number;
-  protected openSeats: number;
-  protected purchasedSeats: number;
-  protected seatMinimum: number;
+  protected providerPlan?: ProviderPlanResponse;
+  protected assignedSeats = 0;
+  protected openSeats = 0;
+  protected purchasedSeats = 0;
+  protected seatMinimum = 0;
   protected readonly ResultType = ManageClientSubscriptionDialogResultType;
 
   protected formGroup = new FormGroup({
-    assignedSeats: new FormControl<number>(this.dialogParams.organization.seats, [
-      Validators.required,
-      Validators.min(this.dialogParams.organization.occupiedSeats),
-    ]),
+    assignedSeats: new FormControl<number>(this.dialogParams.organization.seats ?? 0, {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.min(this.dialogParams.organization.occupiedSeats ?? 0),
+      ],
+    }),
   });
 
   constructor(
@@ -75,6 +83,10 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
       this.providerPlan = response.plans.find(
         (plan) => plan.planName === this.dialogParams.organization.plan,
       );
+
+      if (this.providerPlan == null) {
+        return;
+      }
 
       this.assignedSeats = this.providerPlan.assignedSeats;
       this.openSeats = this.providerPlan.seatMinimum - this.providerPlan.assignedSeats;
@@ -104,7 +116,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
     try {
       const request = new UpdateProviderOrganizationRequest({
-        assignedSeats: this.formGroup.value.assignedSeats,
+        assignedSeats: this.formGroup.controls.assignedSeats.value,
         name: this.dialogParams.organization.organizationName,
       });
 
@@ -126,12 +138,12 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
   createPurchasedSeatsValidator =
     (): ValidatorFn =>
-    (formControl: FormControl<number>): ValidationErrors | null => {
+    (control: AbstractControl): ValidationErrors | null => {
       if (this.isProviderAdmin) {
         return null;
       }
 
-      const seatAdjustment = formControl.value - this.dialogParams.organization.seats;
+      const seatAdjustment = (control.value ?? 0) - this.organizationSeats;
 
       if (seatAdjustment <= 0) {
         return null;
@@ -146,12 +158,12 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
   createUnassignedSeatsValidator =
     (): ValidatorFn =>
-    (formControl: FormControl<number>): ValidationErrors | null => {
+    (control: AbstractControl): ValidationErrors | null => {
       if (this.isProviderAdmin) {
         return null;
       }
 
-      const seatAdjustment = formControl.value - this.dialogParams.organization.seats;
+      const seatAdjustment = (control.value ?? 0) - this.organizationSeats;
 
       if (seatAdjustment <= this.openSeats) {
         return null;
@@ -174,8 +186,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
     };
 
   get unassignedSeats(): number {
-    const seatDifference =
-      this.formGroup.value.assignedSeats - this.dialogParams.organization.seats;
+    const seatDifference = this.formGroup.controls.assignedSeats.value - this.organizationSeats;
 
     const unassignedSeats = this.openSeats - seatDifference;
 
@@ -183,8 +194,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
   }
 
   get additionalSeatsPurchased(): number {
-    const seatDifference =
-      this.formGroup.value.assignedSeats - this.dialogParams.organization.seats;
+    const seatDifference = this.formGroup.controls.assignedSeats.value - this.organizationSeats;
 
     if (this.purchasedSeats > 0) {
       return seatDifference;
@@ -194,8 +204,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
   }
 
   get purchasedSeatsRemoved(): number {
-    const seatDifference =
-      this.dialogParams.organization.seats - this.formGroup.value.assignedSeats;
+    const seatDifference = this.organizationSeats - this.formGroup.controls.assignedSeats.value;
 
     if (this.purchasedSeats >= seatDifference) {
       return seatDifference;
@@ -204,12 +213,18 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
     return this.purchasedSeats;
   }
 
+  private get organizationSeats(): number {
+    return this.dialogParams.organization.seats ?? 0;
+  }
+
   get isProviderAdmin(): boolean {
     return this.dialogParams.provider.type === ProviderUserType.ProviderAdmin;
   }
 
   get isServiceUserWithPurchasedSeats(): boolean {
-    return !this.isProviderAdmin && this.providerPlan && this.providerPlan.purchasedSeats > 0;
+    return (
+      !this.isProviderAdmin && this.providerPlan != null && this.providerPlan.purchasedSeats > 0
+    );
   }
 
   get purchasingSeats(): boolean {
