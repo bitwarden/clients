@@ -72,11 +72,8 @@ import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.
 import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
-import { AttachmentRequest } from "../vault/models/request/attachment.request";
-import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
@@ -167,38 +164,18 @@ export abstract class ApiService {
     attachmentId: string,
     emergencyAccessId?: string,
   ): Promise<AttachmentResponse>;
-  abstract getAttachmentDataAdmin(
-    cipherId: string,
-    attachmentId: string,
-  ): Promise<AttachmentResponse>;
   abstract deleteCipher(id: string): Promise<any>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,
   ): Promise<any>;
 
-  abstract postCipherAttachment(
-    id: string,
-    request: AttachmentRequest,
-  ): Promise<AttachmentUploadDataResponse>;
-  abstract deleteCipherAttachment(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse>;
-  abstract deleteCipherAttachmentAdmin(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse>;
   abstract postShareCipherAttachment(
     id: string,
     attachmentId: string,
     data: FormData,
     organizationId: string,
   ): Promise<any>;
-  abstract renewAttachmentUploadUrl(
-    id: string,
-    attachmentId: string,
-  ): Promise<AttachmentUploadDataResponse>;
   abstract postAttachmentFile(
     id: string,
     attachmentId: string,

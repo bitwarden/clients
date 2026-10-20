@@ -58,7 +58,11 @@ import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result";
-import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
+import {
+  fieldContainsKeyword,
+  isNonLoginUsernameField,
+  KeywordMatchMode,
+} from "../utils/qualification";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
@@ -1084,8 +1088,9 @@ export default class AutofillService implements AutofillServiceInterface {
         if (usernameVal != null) {
           AutofillService.fillByOpid(fillScript, focusedUsernameField, usernameVal);
         }
-        if (options.autoSubmitLogin && focusedUsernameField.form) {
-          fillScript.autosubmit = [focusedUsernameField.form];
+        if (options.autoSubmitLogin) {
+          const form = focusedUsernameField.form;
+          fillScript.autosubmit = form == null ? [null] : [form];
         }
         return AutofillService.setFillScriptForFocus(
           { [focusedUsernameField.opid]: focusedUsernameField },
@@ -1197,21 +1202,41 @@ export default class AutofillService implements AutofillServiceInterface {
           (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
 
+        const isAbbreviatedTotpField =
+          isTotpCandidate &&
+          fieldContainsKeyword(
+            field,
+            AutoFillConstants.AbbreviatedTotpFieldNames,
+            KeywordMatchMode.MatchesToken,
+          );
+
         const maybeTotpField =
           isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
-        const isUsernameField =
+        const maybeUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
-        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
+        const isUsernameField =
+          maybeUsernameField &&
+          fieldContainsKeyword(field, AutoFillConstants.UnambiguousUsernameFieldNames);
+
+        // Classify by signal strength: reliable TOTP, then unambiguous username, then a whole-token
+        // TOTP abbreviation (e.g. name="2fa"), then ambiguous username (e.g. "login"), then
+        // ambiguous TOTP.
         switch (true) {
           case isTotpField:
             totps.push(field);
             return;
           case isUsernameField:
+            usernames.set(field.opid, field);
+            return;
+          case isAbbreviatedTotpField:
+            totps.push(field);
+            return;
+          case maybeUsernameField:
             usernames.set(field.opid, field);
             return;
           case maybeTotpField:
@@ -1224,6 +1249,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
+    let loginFieldFilled = false;
     const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
 
     usernamesToFill.forEach((u) => {
@@ -1236,6 +1262,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[uOpid] = u;
+      loginFieldFilled = true;
       const usernameVal = login.username;
       if (usernameVal != null) {
         AutofillService.fillByOpid(fillScript, u, usernameVal);
@@ -1256,6 +1283,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[pOpid] = p;
+      loginFieldFilled = true;
       if (login.password != null) {
         AutofillService.fillByOpid(fillScript, p, login.password);
       }
@@ -1264,8 +1292,8 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     });
 
-    if (options.autoSubmitLogin && formElementsSet.size) {
-      fillScript.autosubmit = Array.from(formElementsSet);
+    if (options.autoSubmitLogin && loginFieldFilled) {
+      fillScript.autosubmit = formElementsSet.size ? Array.from(formElementsSet) : [null];
     }
 
     if (typeof totpToFill === "string") {
