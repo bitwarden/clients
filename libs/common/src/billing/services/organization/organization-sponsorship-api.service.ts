@@ -39,6 +39,16 @@ export class OrganizationSponsorshipApiService implements OrganizationSponsorshi
     return await this.apiService.send("POST", url, null, true, false);
   }
 
+  async postResendOwnSponsorshipOffer(sponsoringOrgId: string): Promise<void> {
+    return await this.apiService.send(
+      "POST",
+      "/organization/sponsorship/" + sponsoringOrgId + "/families-for-enterprise/resend-self",
+      null,
+      true,
+      false,
+    );
+  }
+
   async deleteRevokeSponsorship(
     sponsoringOrganizationId: string,
     isAdminInitiated: boolean = false,
