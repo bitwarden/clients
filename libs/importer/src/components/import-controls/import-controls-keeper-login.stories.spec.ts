@@ -2,15 +2,13 @@ import { TestBed } from "@angular/core/testing";
 
 import { I18nMockService } from "@bitwarden/components";
 
-import { KeeperInlineStage } from "./direct/keeper/keeper-inline-auth-ui";
+import { KeeperInlineScreen } from "./direct/keeper/keeper-inline-auth-ui";
 import { ImportControlsKeeperLoginComponent } from "./import-controls-keeper-login.component";
 
-/** Every stage the card can show. A `Record` over the stage kinds, so adding a kind to the
+/** Every screen the card can show. A `Record` over the screen kinds, so adding a kind to the
  *  union without listing it here fails to compile, and the test below then requires a story. */
-const STAGE_KINDS: Record<KeeperInlineStage["kind"], true> = {
+const STAGE_KINDS: Record<KeeperInlineScreen["kind"], true> = {
   idle: true,
-  loading: true,
-  importing: true,
   selectApproval: true,
   approvalCode: true,
   selectTwoFactor: true,
@@ -76,7 +74,7 @@ describe("import-controls-keeper-login.stories i18n coverage", () => {
     const variants = new Set<string>(
       storyNames
         .map((name) => stories[name].args.stage)
-        .filter((stage: KeeperInlineStage) => stage.kind === "approvalCode")
+        .filter((stage: KeeperInlineScreen) => stage.kind === "approvalCode")
         .map((stage: { variant: string }) => stage.variant),
     );
 

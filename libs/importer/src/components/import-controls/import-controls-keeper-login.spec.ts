@@ -73,6 +73,9 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
   };
   const continueDisabled = () => isDisabled("importer-controls_button_continue");
   const backDisabled = () => isDisabled("importer-controls_button_back");
+  // The button draws a spinner over its label while a request is in flight.
+  const continueBusy = () =>
+    fixture.debugElement.query(By.css("#importer-controls_button_continue bit-spinner")) != null;
   const controls = () => component().formGroup.controls;
   const loginControls = () =>
     fixture.debugElement.query(By.directive(ImportControlsKeeperLoginComponent)).componentInstance
@@ -209,6 +212,30 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(text()).not.toContain("keeperEmailHint");
     });
 
+    // Web and the extension load Tailwind's preflight, which gives every heading and paragraph a
+    // bottom margin that `noMargin` doesn't remove. Only explicit classes keep the card header's
+    // spacing the same as desktop's and as Figma's.
+    it("sets the card header's margins explicitly, so the title and subtitle sit together", async () => {
+      await mount(ClientType.Desktop);
+
+      const title = fixture.nativeElement.querySelector(
+        "importer-controls-direct h2",
+      ) as HTMLElement;
+      const subtitle = title.nextElementSibling as HTMLElement;
+
+      expect(title.classList).toContain("tw-mb-0");
+      expect(subtitle.classList).toContain("tw-mb-0");
+    });
+
+    it("focuses the email field when the credentials step appears", async () => {
+      await mount(ClientType.Desktop);
+      await settle();
+
+      expect(document.activeElement).toBe(
+        byId("importer-controls_input_keeper-email").nativeElement,
+      );
+    });
+
     it("explains an empty or invalid email with the design's messages", async () => {
       await mount(ClientType.Desktop);
 
@@ -322,7 +349,8 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
   describe("a rejected code, after the server has had time to answer", () => {
     // The tests above chain prompts instantly. A real login always passes through the busy state
-    // between a submit and the server's answer, which removes and re-creates the code field.
+    // between a submit and the server's answer. The field stays mounted and Continue shows its
+    // spinner, so the card doesn't flicker.
     const rejectedAfterServerReplies = async (
       firstPrompt: (ui: Ui) => Promise<unknown>,
       secondPrompt: (ui: Ui) => Promise<unknown>,
@@ -339,7 +367,8 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       });
       await submitFirst();
       await settle();
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
+      expect(text()).not.toContain("importingYourAccount");
       releaseServer();
       await settle();
     };
@@ -413,7 +442,8 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(text()).toContain("keeperLoginEmailCodeDesc");
 
       await typeCode("000000");
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
+      expect(text()).toContain("keeperLoginEmailCodeDesc");
       await reply();
 
       expect(text()).toContain("keeperLoginEmailCodeDesc");
@@ -497,6 +527,65 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(codeInput().value).toBe("");
     });
 
+    describe("Resend code as the code field's hint", () => {
+      const resendHint = () =>
+        fixture.debugElement.query(By.css("bit-hint #importer-controls_button_keeper-resend-code"));
+      const typeInto = async (value: string) => {
+        codeInput().value = value;
+        codeInput().dispatchEvent(new Event("input"));
+        await settle();
+      };
+      const emailCodeLogin = (rejectedSecondTime = false) =>
+        startLogin(async (ui) => {
+          await ui.provideApprovalCode(DeviceApprovalChannel.Email);
+          await ui.provideApprovalCode(DeviceApprovalChannel.Email, {
+            previousCodeRejected: rejectedSecondTime,
+          });
+        });
+
+      it("shows below the field, as its hint", async () => {
+        await emailCodeLogin();
+
+        expect(resendHint()).not.toBeNull();
+        expect(text()).not.toContain("verificationCodeRequired");
+      });
+
+      it("is replaced by the inline error when an empty field is submitted", async () => {
+        await emailCodeLogin();
+
+        await component().submit();
+        await settle();
+
+        expect(text()).toContain("verificationCodeRequired");
+        expect(byId("importer-controls_button_keeper-resend-code")).toBeNull();
+      });
+
+      it("returns as soon as the user starts typing again", async () => {
+        await emailCodeLogin();
+        await component().submit();
+        await settle();
+        expect(byId("importer-controls_button_keeper-resend-code")).toBeNull();
+
+        await typeInto("1");
+
+        expect(resendHint()).not.toBeNull();
+        expect(text()).not.toContain("verificationCodeRequired");
+      });
+
+      it("is replaced by the inline error when the code was rejected, and returns when typing", async () => {
+        await emailCodeLogin(true);
+        await typeCode("000000");
+        await settle();
+        expect(text()).toContain("keeperLoginCodeInvalid");
+        expect(byId("importer-controls_button_keeper-resend-code")).toBeNull();
+
+        await typeInto("1");
+
+        expect(resendHint()).not.toBeNull();
+        expect(text()).not.toContain("keeperLoginCodeInvalid");
+      });
+    });
+
     // Resend only where a code may really be sent: email, a text message, or the Two-factor method
     // path, where Keeper doesn't say which method the account uses.
     it("offers Resend for a text message and for the unknown-method path, not an authenticator code", async () => {
@@ -560,7 +649,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(component().directStep()).toBe("intro");
     });
 
-    it("an unsupported second factor shows an error toast and a fresh step 2, with no error on the email", async () => {
+    it("an unsupported second factor shows an error toast and stays on the email and server, with no error on the email", async () => {
       await startLogin(async (ui) => {
         await ui.showError("keeperUnsupported2faMethod");
         throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "none");
@@ -569,12 +658,27 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       await settle();
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "keeperUnsupported2faMethod" }),
+        expect.objectContaining({ variant: "error", message: "keeperLoginUnsupportedTwoFactor" }),
       );
-      expect(component().directStep()).toBe("intro");
-      expect(controls().keeperEmail.value).toBe("");
+      expect(component().directStep()).toBe("credentials");
+      expect(isShown("importer-controls_input_keeper-email")).toBe(true);
+      expect(controls().keeperEmail.value).toBe("user@example.com");
+      expect(controls().keeperRegion.value).toBe(KeeperRegion.Us);
       expect(controls().keeperEmail.errors).toBeNull();
-      expect(text()).not.toContain("keeperUnsupported2faMethod");
+      expect(continueDisabled()).toBe(false);
+    });
+
+    it("an unsupported-method failure the card did not report still shows on the email", async () => {
+      await startLogin(async () => {
+        throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "none");
+      });
+      await component().keeperLogin();
+      await settle();
+
+      expect(controls().keeperEmail.errors).toEqual({
+        errors: { message: "keeperUnsupported2faMethod" },
+      });
+      expect(toastService.showToast).not.toHaveBeenCalled();
     });
   });
 
@@ -785,7 +889,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(options.type).toBe("danger");
     });
 
-    it("unsupported second factor: the toast carries Keeper's real message", async () => {
+    it("unsupported second factor: the toast carries the design's message", async () => {
       await login(async (ui) => {
         await ui.showError("keeperUnsupported2faMethod");
         throw new KeeperAuthError(KeeperAuthErrorCode.UnsupportedTwoFactorMethod, "none");
@@ -795,8 +899,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({
           variant: "error",
-          message:
-            "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer.",
+          message: "Unsupported two-factor method. Switch methods or import manually.",
         }),
       );
     });
@@ -874,6 +977,22 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
   });
 
   describe("waiting states", () => {
+    // Web and the extension load Tailwind's preflight, which gives every paragraph a 16px bottom
+    // margin that `noMargin` doesn't remove. Figma's card ends 24px under the text, so the body
+    // sets its margin explicitly and the title keeps its 12px.
+    it("sets the margins under the title and body explicitly", async () => {
+      await startLogin(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush);
+      });
+
+      const [title, body] = fixture.debugElement
+        .queryAll(By.css("importer-controls-keeper-login [role=status] p"))
+        .map((el) => el.nativeElement as HTMLElement);
+
+      expect(title.classList).toContain("tw-mb-3");
+      expect(body.classList).toContain("tw-mb-0");
+    });
+
     it.each([
       [
         "Keeper Push",
@@ -903,7 +1022,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       },
     );
 
-    it("shows the spinner right after Continue, before Keeper answers, without a button spinner", async () => {
+    it("shows the Continue spinner right after Continue, before Keeper answers, and keeps the email form", async () => {
       keeperService.handleImport.mockReturnValue(new Promise(() => undefined));
       await mount(ClientType.Desktop);
       controls().keeperEmail.setValue("user@example.com");
@@ -911,10 +1030,90 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       await component().submit();
       await settle();
 
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
+      expect(text()).not.toContain("importingYourAccount");
       expect(continueDisabled()).toBe(true);
       expect(backDisabled()).toBe(false);
-      expect(isShown("importer-controls_input_keeper-email")).toBe(false);
+      expect(isShown("importer-controls_input_keeper-email")).toBe(true);
+    });
+  });
+
+  describe("busy state", () => {
+    it("keeps the code field, and what was typed, on screen while Continue shows the spinner", async () => {
+      let release: () => void = () => undefined;
+      const serverReplies = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      await startLogin(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.Email);
+        await serverReplies;
+      });
+      const input = codeInput();
+
+      await typeCode("123456");
+
+      expect(continueBusy()).toBe(true);
+      expect(codeInput()).toBe(input);
+      expect(codeInput().value).toBe("123456");
+      expect(text()).toContain("keeperLoginEmailCodeDesc");
+      expect(text()).not.toContain("importingYourAccount");
+
+      release();
+      await component().keeperLogin();
+    });
+
+    it("keeps the password field on screen while Continue shows the spinner", async () => {
+      let release: () => void = () => undefined;
+      const serverReplies = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      await startLogin(async (ui) => {
+        await ui.promptForPassword();
+        await serverReplies;
+      });
+
+      await typePassword("hunter2");
+
+      expect(continueBusy()).toBe(true);
+      expect(byId("importer-controls_input_keeper-password")).toBeTruthy();
+      expect(text()).toContain("keeperLoginPasswordDesc");
+      expect(text()).not.toContain("importingYourAccount");
+
+      release();
+      await component().keeperLogin();
+    });
+
+    it("keeps the method picker on screen after Continue", async () => {
+      let release: () => void = () => undefined;
+      const serverReplies = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      await startLogin(async (ui) => {
+        await ui.selectApprovalMethod([
+          DeviceApprovalChannel.Email,
+          DeviceApprovalChannel.KeeperPush,
+        ]);
+        await serverReplies;
+      });
+
+      await component().submit();
+      await settle();
+
+      expect(continueBusy()).toBe(true);
+      expect(byId("importer-controls_radio_keeper-approval-1")).toBeTruthy();
+
+      release();
+      await component().keeperLogin();
+    });
+
+    it("is not busy while waiting on a push, which keeps its own spinner card", async () => {
+      await startLogin(async (ui) => {
+        await ui.provideApprovalCode(DeviceApprovalChannel.KeeperPush);
+      });
+
+      expect(continueBusy()).toBe(false);
+      expect(text()).toContain("keeperPushSent");
+      expect(continueDisabled()).toBe(true);
     });
   });
 
@@ -1068,11 +1267,11 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
     it("Cancel request does nothing once the approval has started the import", async () => {
       importService.importImportResult.mockReturnValue(new Promise<ImportResult>(() => undefined));
       const { confirm } = await approvedWhileDialogOpen(async () => undefined);
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
 
       await confirm(true);
 
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
       expect(continueDisabled()).toBe(true);
       expect(component().directStep()).toBe("credentials");
     });
@@ -1163,7 +1362,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       component().back.subscribe(back);
       component().continue.subscribe(continued);
 
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
       expect(backDisabled()).toBe(true);
       expect(isDisabled("importer-controls_button_import-manually-instead")).toBe(true);
       expect(continueDisabled()).toBe(true);

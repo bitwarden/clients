@@ -335,6 +335,9 @@ export class ImportControlsComponent {
   private readonly keeperLogin = signal<Promise<void>>(Promise.resolve());
   protected readonly keeperImporting = this.keeperUi.importing;
 
+  /** Continue shows its spinner while a Keeper request is in flight. */
+  protected readonly keeperBusy = this.keeperUi.busy;
+
   // No initialValue: Continue stays blocked until this resolves. "error" (null account or failed
   // lookup) fails closed without blaming the org policy.
   private readonly personalOwnershipPolicyApplies = toSignal(

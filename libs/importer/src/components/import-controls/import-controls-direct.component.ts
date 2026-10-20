@@ -9,7 +9,7 @@ import {
 import { FormGroup } from "@angular/forms";
 
 import { BitSvg } from "@bitwarden/assets/svg";
-import { BadgeModule, IconComponent, SvgModule, TypographyModule } from "@bitwarden/components";
+import { BadgeModule, IconTileComponent, SvgModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { UpgradeImportType } from "../../models";
@@ -29,7 +29,7 @@ export type DirectStep = "intro" | "credentials";
   imports: [
     BadgeModule,
     I18nPipe,
-    IconComponent,
+    IconTileComponent,
     ImportControlsKeeperCredentialsComponent,
     ImportControlsKeeperLoginComponent,
     ImportControlsLastPassCredentialsComponent,
@@ -49,6 +49,7 @@ export class ImportControlsDirectComponent {
   /** The Keeper login prompt currently showing in place of the credential fields. */
   private readonly keeperUi = inject(KeeperInlineAuthUi);
   protected readonly keeperStage = this.keeperUi.stage;
+  protected readonly keeperScreen = this.keeperUi.screen;
   protected readonly keeperSubtitleKey = this.keeperUi.subtitleKey;
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);

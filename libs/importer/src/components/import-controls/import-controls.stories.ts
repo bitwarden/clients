@@ -362,9 +362,9 @@ function decoratorsFor(
               importDataLoginInfoTitle: "We'll ask for your login info",
               importDataLoginInfoBody: (vendor?: string) =>
                 `In the next step, log in to your ${vendor} account.`,
-              importDataEverythingTransfersTitle: "Everything transfers",
-              importDataEverythingTransfersBody:
-                "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved.",
+              importDataAutomaticTransferTitle: "Automatic transfer",
+              importDataAutomaticTransferBody:
+                "Skip the manual export. Your items and folders move over for you.",
               importHelpCenterInstructions: (vendor?: string) =>
                 `See detailed ${vendor} instructions in our`,
               importHelpCenterLinkText: "Help Center",

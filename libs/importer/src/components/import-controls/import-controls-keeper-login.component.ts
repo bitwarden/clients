@@ -40,7 +40,7 @@ import {
   TwoFactorMethod,
 } from "../../importers/keeper/access";
 
-import { KeeperInlineAuthUi, KeeperInlineStage } from "./direct/keeper/keeper-inline-auth-ui";
+import { KeeperInlineAuthUi, KeeperInlineScreen } from "./direct/keeper/keeper-inline-auth-ui";
 
 function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   if (enabled && control.disabled) {
@@ -74,7 +74,7 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   host: { class: "tw-contents" },
 })
 export class ImportControlsKeeperLoginComponent {
-  readonly stage = input.required<KeeperInlineStage>();
+  readonly stage = input.required<KeeperInlineScreen>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly keeperUi = inject(KeeperInlineAuthUi);

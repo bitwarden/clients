@@ -130,6 +130,17 @@ describe("ImportSourceSelectComponent", () => {
     expect(emitted).toEqual(["chromecsv"]);
   });
 
+  // Web and the extension load Tailwind's preflight, which gives every heading and paragraph a
+  // bottom margin that `noMargin` doesn't remove. Only explicit classes keep the header's spacing
+  // the same as desktop's and as Figma's.
+  it("sets the header's margins explicitly: none under the title, 16px under the subtitle", () => {
+    const title = fixture.nativeElement.querySelector("h2") as HTMLElement;
+    const subtitle = title.nextElementSibling as HTMLElement;
+
+    expect(title.classList).toContain("tw-mb-0");
+    expect(subtitle.classList).toContain("tw-mb-4");
+  });
+
   it("renders every browser, regardless of featured-password-manager status", () => {
     expect(cardLabels()).toEqual(expect.arrayContaining(["Chrome", "Firefox"]));
   });
