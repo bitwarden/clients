@@ -1,3 +1,5 @@
+import type { UserId } from "@bitwarden/common/types/guid";
+
 import type { TabEdgeCause, TabState } from "./enums";
 
 /**
@@ -43,42 +45,16 @@ export interface MachineContext {
 export type BufferAction = "resolve" | "drop" | "keep";
 
 /**
- * The browser-supplied facts a transition is stamped from. Every field originates with the browser
- * (`chrome.runtime.MessageSender`), never with the page. A reporting frame contributes the *fact of*
- * a transition and nothing else.
+ * A page transition as the page lifecycle reports it. None of it comes from the page: a reporting
+ * frame contributes the *fact of* a transition and nothing else.
  */
 export type TransitionReport = Readonly<{
+  /** The account active when the transition was reported, from the background's account state. */
+  userId: UserId | undefined;
+  /** The reporting tab, from `chrome.runtime.MessageSender`. */
   tabId: number | undefined;
+  /** The reporting frame, from `chrome.runtime.MessageSender`. `undefined` for the top frame. */
   frameId: number | undefined;
+  /** The reporting document's UUID, from `chrome.runtime.MessageSender`. */
   documentId: string | undefined;
 }>;
-
-/**
- * A reported transition admitted to the buffer — `lifecycle.design.md`'s *buffered* state, made
- * concrete. This is the persisted shape: it identifies a document without describing it, so a stored
- * buffer discloses no browsing activity. Do not add fields that describe the page (URL, title,
- * origin).
- */
-export type BufferedTransitionReport = Readonly<{
-  tabId: number;
-  frameId: number | undefined;
-  /** Browser-assigned UUID of the reporting document. Opaque; carries no page content. */
-  documentId: string;
-  /** Epoch ms the report was admitted. Orders reports for a frame. */
-  stampedAt: number;
-  /**
-   * Absolute epoch-ms deadline, exclusive: the report is expired at `now >= expiresAt`. Absolute,
-   * not relative, so it survives an MV3 restart.
-   */
-  expiresAt: number;
-}>;
-
-/**
- * The live facts of a frame that exists. A frame always has a `documentId` field; the browser may
- * decline to populate it, which is {@link TransitionValidity.Unverifiable}, not absence of a frame.
- * A frame that is *gone* is the absence of a `LiveFrame`, expressed at the parameter.
- */
-export type LiveFrame = Readonly<{ documentId: string | undefined }>;
-
-/** Buffered reports, keyed by {@link transitionKey}. */
-export type BufferedTransitions = Record<string, BufferedTransitionReport>;

@@ -1,23 +1,24 @@
-import {
-  BehaviorSubject,
-  firstValueFrom,
-  map,
-  merge,
-  NEVER,
-  share,
-  Subject,
-  Subscription,
-} from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, merge, NEVER, Subject } from "rxjs";
 import { TestScheduler } from "rxjs/testing";
 
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { bufferTransitionReports$, registerTransition } from "./buffer";
+import { accountEvents$ } from "../rx";
+
 import { TabState } from "./enums";
 import { SETTLE_MS, tabLifecycle } from "./rx";
-import { BUFFERED_TRANSITIONS, persistTransitions$, rehydrateTransitions$ } from "./state";
-import type { BufferedTransitionReport, TabLifecycleEvent } from "./types";
+import {
+  BufferedTransitionReport,
+  bufferEnabled,
+  persistentTransitionBuffer$,
+  registerTransition,
+  transitionBuffer$,
+} from "./transition-buffer";
+import { BUFFERED_TRANSITIONS } from "./transition-buffer/persistent";
+import type { TabLifecycleEvent } from "./types";
 import { isMonitoring } from "./utils";
 
 const activate = (focused: boolean): TabLifecycleEvent => ({ kind: "activate", focused });
@@ -75,6 +76,7 @@ describe("tab lifecycle integration tests", () => {
   describe("buffering", () => {
     const TAB = 1;
     const document: BufferedTransitionReport = {
+      userId: "user-1" as UserId,
       tabId: TAB,
       frameId: 0,
       documentId: "doc",
@@ -110,18 +112,19 @@ describe("tab lifecycle integration tests", () => {
       l: logout,
     };
 
-    it("a report held through an aborted activation resolves on the next real one", () => {
+    it("a report buffered through an aborted activation resolves on the next real one", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "u"], [101, "d"], [301, "a"]), events).pipe(
           tabLifecycle(TabState.Cold),
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -129,18 +132,19 @@ describe("tab lifecycle integration tests", () => {
       });
     });
 
-    it("a report held in cool-down resolves when the user returns inside the grace period", () => {
+    it("a report buffered in cool-down resolves when the user returns inside the grace period", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "a"], [1001, "d"], [5000, "a"]), events).pipe(
           tabLifecycle(TabState.Cold),
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([1999, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -156,11 +160,12 @@ describe("tab lifecycle integration tests", () => {
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([1000, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -168,18 +173,19 @@ describe("tab lifecycle integration tests", () => {
       });
     });
 
-    it("a command-caused arrival at hot drops the report held for the settle", () => {
+    it("a command-caused arrival at hot drops the report buffered for the settle", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "u"], [100, "c"]), events).pipe(
           tabLifecycle(TabState.Cold),
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -194,11 +200,12 @@ describe("tab lifecycle integration tests", () => {
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -214,11 +221,12 @@ describe("tab lifecycle integration tests", () => {
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -226,7 +234,7 @@ describe("tab lifecycle integration tests", () => {
       });
     });
 
-    it("logout while a report is held drops it, and signing back in does not revive it", () => {
+    it("logout while a report is buffered drops it, and signing back in does not revive it", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(
           at([1, "a"], [100, "l"], [200, "i"], [300, "a"]),
@@ -236,11 +244,12 @@ describe("tab lifecycle integration tests", () => {
           map((change) => [TAB, change] as const),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "r"]), { r: document }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -262,11 +271,12 @@ describe("tab lifecycle integration tests", () => {
           ),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "a"], [600, "b"]), { a: document, b: otherDocument }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: NEVER,
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -291,11 +301,12 @@ describe("tab lifecycle integration tests", () => {
           ),
         );
 
-        const resolved$ = bufferTransitionReports$({
+        const resolved$ = transitionBuffer$({
           report$: hot(at([50, "a"], [60, "b"]), { a: document, b: otherDocument }),
           tabLifecycleChanged$,
-          frameLost$: () => NEVER,
+          frameLost$: NEVER,
           tabRemoved$: hot(at([200, "x"]), { x: 1 }),
+          enabled$: new BehaviorSubject(true),
           now: () => scheduler.now(),
         });
 
@@ -304,17 +315,22 @@ describe("tab lifecycle integration tests", () => {
     });
   });
 
-  describe("restart", () => {
+  describe("persistence", () => {
     const TAB = 1;
     const MAX_AGE_MS = 60_000;
     const userId = "user-1" as UserId;
+    const { Locked, LoggedOut, Unlocked } = AuthenticationStatus;
     let stateProvider: FakeStateProvider;
-    let singleUser$: BehaviorSubject<UserId>;
+    let activeAccount$: BehaviorSubject<Account | null>;
+    let authStatuses$: BehaviorSubject<Record<UserId, AuthenticationStatus>>;
 
     beforeEach(() => {
       jest.useFakeTimers();
       stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
-      singleUser$ = new BehaviorSubject(userId);
+      activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as Account);
+      authStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({
+        [userId]: Unlocked,
+      });
     });
 
     afterEach(() => {
@@ -325,53 +341,42 @@ describe("tab lifecycle integration tests", () => {
     const advance = (ms: number) => jest.advanceTimersByTimeAsync(ms);
     const stored = async () =>
       Object.values(
-        (await firstValueFrom(stateProvider.getUser(userId, BUFFERED_TRANSITIONS).state$)) ?? {},
+        (await firstValueFrom(stateProvider.getGlobal(BUFFERED_TRANSITIONS).state$)) ?? {},
       );
+    const reported = (documentId: string, frameId = 0) =>
+      registerTransition(
+        { userId, tabId: TAB, frameId, documentId },
+        { now: now(), maxAgeMs: MAX_AGE_MS },
+      )!;
 
     /**
      * The buffer as the lifecycle service wires it, once per service-worker lifetime: the machine's
-     * changes and the reports feed the buffer, the buffer's output and its input feed the store,
-     * and the store's survivors rejoin the reports.
+     * changes, the registered reports and the session's `enabled$` in; the resolved reports out.
      */
     function wire() {
       const events$ = new Subject<TabLifecycleEvent>();
       const registered$ = new Subject<BufferedTransitionReport>();
 
-      const tabLifecycleChanged$ = events$.pipe(
-        tabLifecycle(TabState.Cold),
-        map((change) => [TAB, change] as const),
-      );
-
-      // restored reports take the same path as freshly registered ones
-      const report$ = merge(
-        registered$,
-        rehydrateTransitions$({ stateProvider, singleUser$, now }),
-      ).pipe(share());
-
-      const resolved$ = bufferTransitionReports$({
-        report$,
-        tabLifecycleChanged$,
-        frameLost$: () => NEVER,
-        tabRemoved$: NEVER,
-        now,
-      }).pipe(share());
-
       const resolved: BufferedTransitionReport[] = [];
-      const subscription = new Subscription();
-      subscription.add(resolved$.subscribe((report) => resolved.push(report)));
-      subscription.add(
-        persistTransitions$({ stateProvider, singleUser$, report$, resolved$, now }).subscribe(),
-      );
+      const subscription = persistentTransitionBuffer$({
+        stateProvider,
+        report$: registered$,
+        tabLifecycleChanged$: events$.pipe(
+          tabLifecycle(TabState.Cold),
+          map((change) => [TAB, change] as const),
+        ),
+        frameLost$: NEVER,
+        tabRemoved$: NEVER,
+        enabled$: accountEvents$(activeAccount$, authStatuses$).pipe(bufferEnabled()),
+        now,
+      }).subscribe((report) => resolved.push(report));
 
       return { events$, registered$, resolved, unload: () => subscription.unsubscribe() };
     }
 
     it("a report waiting at unload resolves after the restart, and only once", async () => {
       const first = wire();
-      const registered = registerTransition(
-        { tabId: TAB, frameId: 0, documentId: "doc" },
-        { now: now(), maxAgeMs: MAX_AGE_MS },
-      )!;
+      const registered = reported("doc");
       first.registered$.next(registered);
       await advance(0);
       expect(await stored()).toEqual([registered]);
@@ -388,7 +393,7 @@ describe("tab lifecycle integration tests", () => {
       expect(await stored()).toEqual([]);
       second.unload();
 
-      // the resolved report was deleted, so a later restart does not fill it again
+      // the resolved report left storage, so a later restart does not fill it again
       const third = wire();
       third.events$.next(activate(true));
       await advance(SETTLE_MS);
@@ -396,14 +401,27 @@ describe("tab lifecycle integration tests", () => {
       expect(third.resolved).toEqual([]);
     });
 
+    it("a report resolved on arrival is not filled again after a restart", async () => {
+      const first = wire();
+      first.events$.next(activate(true));
+      await advance(SETTLE_MS);
+      const registered = reported("doc");
+
+      first.registered$.next(registered);
+      await advance(0);
+      expect(first.resolved).toEqual([registered]);
+      first.unload();
+
+      const second = wire();
+      second.events$.next(activate(true));
+      await advance(SETTLE_MS);
+
+      expect(second.resolved).toEqual([]);
+    });
+
     it("a report that expired during the outage is not restored", async () => {
       const first = wire();
-      first.registered$.next(
-        registerTransition(
-          { tabId: TAB, frameId: 0, documentId: "doc" },
-          { now: now(), maxAgeMs: MAX_AGE_MS },
-        )!,
-      );
+      first.registered$.next(reported("doc"));
       await advance(0);
       first.unload();
 
@@ -413,6 +431,80 @@ describe("tab lifecycle integration tests", () => {
       await advance(SETTLE_MS);
 
       expect(second.resolved).toEqual([]);
+    });
+
+    it("a lock drops what was buffered before it, and buffers what is reported after", async () => {
+      // separate frames, so the report after the lock cannot simply replace the one before it
+      const buffer = wire();
+      buffer.registered$.next(reported("before", 1));
+      await advance(0);
+
+      authStatuses$.next({ [userId]: Locked });
+      const after = reported("after", 0);
+      buffer.registered$.next(after);
+      await advance(0);
+      buffer.events$.next(activate(true));
+      await advance(SETTLE_MS);
+
+      expect(await stored()).toEqual([]);
+      expect(buffer.resolved).toEqual([after]);
+    });
+
+    it("a lock leaves storage holding only what was reported after it", async () => {
+      const buffer = wire();
+      buffer.registered$.next(reported("before", 1));
+      await advance(0);
+
+      authStatuses$.next({ [userId]: Locked });
+      const after = reported("after", 0);
+      buffer.registered$.next(after);
+      await advance(0);
+
+      expect(await stored()).toEqual([after]);
+    });
+
+    it("a report made after a lock survives a restart", async () => {
+      const first = wire();
+      authStatuses$.next({ [userId]: Locked });
+      const after = reported("after");
+      first.registered$.next(after);
+      await advance(0);
+      first.unload();
+
+      const second = wire();
+      second.events$.next(activate(true));
+      await advance(SETTLE_MS);
+
+      expect(second.resolved).toEqual([after]);
+    });
+
+    it("logout empties storage, and nothing is buffered until an account signs in", async () => {
+      const buffer = wire();
+      buffer.registered$.next(reported("before"));
+      await advance(0);
+
+      activeAccount$.next(null);
+      authStatuses$.next({ [userId]: LoggedOut });
+      buffer.registered$.next(reported("during"));
+      await advance(0);
+      expect(await stored()).toEqual([]);
+
+      buffer.events$.next(activate(true));
+      await advance(SETTLE_MS);
+      expect(buffer.resolved).toEqual([]);
+    });
+
+    it("a buffer started while logged out discards what it finds stored", async () => {
+      const first = wire();
+      first.registered$.next(reported("before"));
+      await advance(0);
+      first.unload();
+
+      activeAccount$.next(null);
+      wire();
+      await advance(0);
+
+      expect(await stored()).toEqual([]);
     });
   });
 });
