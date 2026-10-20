@@ -66,6 +66,8 @@ import {
   FeatureFlagsCapability,
   LockCapability,
   LoggingCapability,
+  PerformanceCapability,
+  PerformanceHookMode,
   SdkCapability,
   StateCapability,
 } from "@bitwarden/automation-driver";
@@ -1692,6 +1694,17 @@ const safeProviders: SafeProvider[] = [
     provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    // Hooked right away in development builds, on demand through hookPerformance() otherwise.
+    useFactory: (platformUtilsService: PlatformUtilsServiceAbstraction) =>
+      new PerformanceCapability(
+        globalThis,
+        platformUtilsService.isDev() ? PerformanceHookMode.Auto : PerformanceHookMode.Manual,
+      ),
+    deps: [PlatformUtilsServiceAbstraction],
     multi: true,
   }),
   safeProvider({

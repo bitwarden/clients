@@ -33,6 +33,23 @@ await bitwardenAutomationDriver.get("lock").listUsers();
 
 `get` returns `undefined` when the running client does not provide the capability.
 
+### Performance tracking
+
+The `performance` capability replaces the global `performance` with a proxy that records
+`mark()` and `measure()` calls. It hooks itself in development builds; elsewhere call
+`hookPerformance()` first.
+
+```js
+const perf = bitwardenAutomationDriver.get("performance");
+perf.hookPerformance();
+performance.mark("start");
+perf.readEvents();
+// [{ type: "mark", name: "start", startTime: 1234.5, duration: 0, detail: null }]
+```
+
+The buffer keeps the latest 10,000 events. `clearEvents()` empties it, `unhookPerformance()`
+restores the original object.
+
 ### SDK client (development builds only)
 
 The `sdk` capability hands a user's SDK client to a callback. It is registered only in development
