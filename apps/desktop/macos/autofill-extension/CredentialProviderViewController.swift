@@ -67,26 +67,35 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         initializeLogging()
         let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
 
+        // The app that contains this extension, derived from the extension's own location:
+        // <App>.app/Contents/PlugIns/<extension>.appex. Resolving it by path rather than by
+        // bundle identifier keeps the beta and stable channels apart without hardcoding
+        // either one, and stops a stale copy of the app registered elsewhere on the system
+        // from being launched in place of the real container.
+        let containerURL = Bundle.main.bundleURL
+            .deletingLastPathComponent() // PlugIns
+            .deletingLastPathComponent() // Contents
+            .deletingLastPathComponent() // <App>.app
+            .resolvingSymlinksInPath()
+
         // Check if the Electron app is running
         let workspace = NSWorkspace.shared
         let isRunning = workspace.runningApplications.contains { app in
-            app.bundleIdentifier == "com.bitwarden.desktop"
+            app.bundleURL?.resolvingSymlinksInPath() == containerURL
         }
 
         if !isRunning {
-            logger.log("[autofill-extension] Bitwarden Desktop not running, attempting to launch")
+            logger.log("[autofill-extension] Bitwarden Desktop not running, attempting to launch \(containerURL.path, privacy: .public)")
 
             // Launch the app and wait for it to be ready
-            if let appURL = workspace.urlForApplication(withBundleIdentifier: "com.bitwarden.desktop") {
-                await withCheckedContinuation { continuation in
-                    workspace.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
-                        if let error = error {
-                            logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: \(error.localizedDescription)")
-                        } else {
-                            logger.log("[autofill-extension] Successfully launched Bitwarden Desktop")
-                        }
-                        continuation.resume()
+            await withCheckedContinuation { continuation in
+                workspace.openApplication(at: containerURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
+                    if let error = error {
+                        logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: \(error.localizedDescription)")
+                    } else {
+                        logger.log("[autofill-extension] Successfully launched Bitwarden Desktop")
                     }
+                    continuation.resume()
                 }
             }
         }

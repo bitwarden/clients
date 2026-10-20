@@ -21,7 +21,10 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
 import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -895,7 +898,7 @@ describe("AutofillService", () => {
             properties: {
               delay_between_operations: 20,
             },
-            savedUrls: [],
+            requiresInsecurePageConfirmation: false,
             script: [
               ["click_on_opid", "username-field"],
               ["focus_by_opid", "username-field"],
@@ -1450,6 +1453,7 @@ describe("AutofillService", () => {
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalledWith(
         {
           properties: {},
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1487,6 +1491,7 @@ describe("AutofillService", () => {
       expect(autofillService["generateCardFillScript"]).toHaveBeenCalledWith(
         {
           properties: {},
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -1524,6 +1529,7 @@ describe("AutofillService", () => {
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalledWith(
         {
           properties: {},
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "username-field"],
             ["focus_by_opid", "username-field"],
@@ -2004,63 +2010,23 @@ describe("AutofillService", () => {
       expect(value).toBeNull();
     });
 
-    describe("given a list of login uri views", () => {
-      it("returns an empty array of saved login uri views if the login cipher has no login uri views", async () => {
-        options.cipher.login.uris = [];
+    it("sets whether the fill requires insecure page confirmation within the fill script", async () => {
+      jest
+        .spyOn(autofillService as any, "requiresInsecurePageConfirmation")
+        .mockResolvedValue(true);
 
-        const value = await autofillService["generateLoginFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
+      const value = await autofillService["generateLoginFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
 
-        expect(value.savedUrls).toStrictEqual([]);
-      });
-
-      it("returns a list of saved login uri views within the fill script", async () => {
-        const secondUriView = mock<LoginUriView>({
-          uri: "https://www.second-example.com",
-        });
-        const thirdUriView = mock<LoginUriView>({
-          uri: "https://www.third-example.com",
-        });
-        options.cipher.login.uris = [defaultLoginUriView, secondUriView, thirdUriView];
-
-        const value = await autofillService["generateLoginFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
-
-        expect(value.savedUrls).toStrictEqual([
-          defaultLoginUriView.uri,
-          secondUriView.uri,
-          thirdUriView.uri,
-        ]);
-      });
-
-      it("skips adding any login uri views that have a UriMatchStrategySetting of Never to the list of saved urls", async () => {
-        const secondUriView = mock<LoginUriView>({
-          uri: "https://www.second-example.com",
-        });
-        const thirdUriView = mock<LoginUriView>({
-          uri: "https://www.third-example.com",
-          match: UriMatchStrategy.Never,
-        });
-        options.cipher.login.uris = [defaultLoginUriView, secondUriView, thirdUriView];
-
-        const value = await autofillService["generateLoginFillScript"](
-          fillScript,
-          pageDetails,
-          filledFields,
-          options,
-        );
-
-        expect(value.savedUrls).toStrictEqual([defaultLoginUriView.uri, secondUriView.uri]);
-        expect(value.savedUrls).not.toContain(thirdUriView.uri);
-      });
+      expect(autofillService["requiresInsecurePageConfirmation"]).toHaveBeenCalledWith(
+        pageDetails.url,
+        options,
+      );
+      expect(value.requiresInsecurePageConfirmation).toBe(true);
     });
 
     describe("given a valid set of page details and autofill options", () => {
@@ -2805,6 +2771,126 @@ describe("AutofillService", () => {
           );
         });
 
+        it("classifies a field as TOTP when a TOTP abbreviation is a whole token and the only username signal is ambiguous", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const emailField = createAutofillFieldMock({
+            opid: "__0",
+            type: "email",
+            form: "validFormId",
+            htmlID: "login-email-input",
+            htmlName: "email",
+            autoCompleteType: "email",
+            elementNumber: 0,
+          });
+          const twoFactorField = createAutofillFieldMock({
+            opid: "__2",
+            type: "text",
+            form: "validFormId",
+            htmlID: "login-2fa-input",
+            htmlName: "2fa",
+            title: "",
+            placeholder: "",
+            autoCompleteType: "off",
+            elementNumber: 2,
+          });
+          pageDetails.fields = [emailField, twoFactorField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            emailField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            twoFactorField,
+            totpCode,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            twoFactorField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field as TOTP when an ambiguous username keyword is a whole token and a TOTP abbreviation is a whole token", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "login-name-2fa-label",
+            type: "text",
+            form: "validFormId",
+            htmlID: "login",
+            htmlName: "login",
+            "label-left": "2FA",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+        });
+
+        it.each([
+          {
+            scenario: "an unambiguous username keyword outranks a whole-token TOTP abbreviation",
+            attributes: { htmlID: "username", htmlName: "username", "label-left": "2fa" },
+          },
+          {
+            scenario: "an ambiguous username keyword outranks ambiguous TOTP substrings",
+            attributes: { htmlID: "logincodeinput", htmlName: "logincodeinput" },
+          },
+          {
+            scenario:
+              "a whole-token `code` stays ambiguous and loses to an ambiguous username keyword",
+            attributes: { htmlID: "login-code", htmlName: "code" },
+          },
+          {
+            scenario: "a TOTP abbreviation within a larger token stays ambiguous",
+            attributes: { htmlID: "loginotpinput", htmlName: "loginotpinput" },
+          },
+        ])("classifies a field as username when $scenario", async ({ attributes }) => {
+          options.allowTotpAutofill = true;
+          const field = createAutofillFieldMock({
+            opid: "username-classified-field",
+            type: "text",
+            form: "validFormId",
+            elementNumber: 5,
+            ...attributes,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            field,
+            options.cipher.login.username,
+          );
+        });
+
         it("classifies a field with autocomplete=one-time-code as TOTP", async () => {
           const totpCode = "123456";
           options.allowTotpAutofill = true;
@@ -2893,7 +2979,7 @@ describe("AutofillService", () => {
           autosubmit: null,
           itemType: "",
           properties: { delay_between_operations: 20 },
-          savedUrls: ["https://www.example.com"],
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "default-field"],
             ["focus_by_opid", "default-field"],
@@ -3050,6 +3136,110 @@ describe("AutofillService", () => {
           );
         });
       });
+
+      describe("given a focused password-like field with no form", () => {
+        // Mirrors Gmail's password step with "Show password" checked: the
+        // input is type="text", name="Passwd", autocomplete="off",
+        // aria-label="Enter your password", and no form wraps it. The
+        // heuristic must still treat the focused input as a password, not
+        // a username candidate.
+        let gmailPasswordField: AutofillField;
+
+        beforeEach(() => {
+          gmailPasswordField = createAutofillFieldMock({
+            opid: "gmail-password",
+            type: "text",
+            htmlID: null,
+            htmlName: "Passwd",
+            autoCompleteType: "off",
+            form: null,
+            elementNumber: 1,
+          });
+          gmailPasswordField["label-aria"] = "Enter your password";
+          pageDetails.forms = {};
+          options.focusedFieldOpid = "gmail-password";
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("fills the password value into the focused field (not the username value)", async () => {
+          pageDetails.fields = [gmailPasswordField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            gmailPasswordField,
+            options.cipher.login.password,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            gmailPasswordField,
+            options.cipher.login.username,
+          );
+        });
+      });
+
+      describe("given a focused password-like field classified as registration", () => {
+        // On a page with both a login form and a registration form, the
+        // focused password field (classified as registration) must not be
+        // treated as a username candidate just because the login fields win
+        // prioritization. The guard must inspect the full passwordFields set,
+        // not the post-prioritization subset.
+        let loginPasswordField: AutofillField;
+        let registrationPasswordField: AutofillField;
+
+        beforeEach(() => {
+          loginPasswordField = createAutofillFieldMock({
+            opid: "login-password",
+            type: "password",
+            form: "login-form",
+            autoCompleteType: "current-password",
+            elementNumber: 1,
+          });
+          registrationPasswordField = createAutofillFieldMock({
+            opid: "registration-password",
+            type: "text",
+            form: "register-form",
+            htmlName: "newPasswd",
+            autoCompleteType: "off",
+            elementNumber: 2,
+          });
+          registrationPasswordField["label-aria"] = "Create a password";
+          pageDetails.forms = {
+            "login-form": createAutofillFormMock({ opid: "login-form" }),
+            "register-form": createAutofillFormMock({
+              opid: "register-form",
+              htmlName: "register",
+            }),
+          };
+          options.focusedFieldOpid = "registration-password";
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("does not write the username value into the focused registration password field", async () => {
+          pageDetails.fields = [loginPasswordField, registrationPasswordField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            registrationPasswordField,
+            options.cipher.login.username,
+          );
+        });
+      });
     });
   });
 
@@ -3118,7 +3308,7 @@ describe("AutofillService", () => {
         autosubmit: null,
         itemType: "",
         properties: { delay_between_operations: 20 },
-        savedUrls: [],
+        requiresInsecurePageConfirmation: false,
         script: [],
         untrustedIframe: false,
       };
@@ -3309,7 +3499,7 @@ describe("AutofillService", () => {
           properties: {
             delay_between_operations: 20,
           },
-          savedUrls: [],
+          requiresInsecurePageConfirmation: false,
           script: [
             ["click_on_opid", "cardholderName"],
             ["focus_by_opid", "cardholderName"],
@@ -3757,6 +3947,163 @@ describe("AutofillService", () => {
         generateFillScriptOptions.defaultUriMatch,
       );
       expect(result).toBe(true);
+    });
+  });
+
+  describe("requiresInsecurePageConfirmation", () => {
+    let generateFillScriptOptions: GenerateFillScriptOptions;
+
+    function createLoginUriView(uri: string, match?: UriMatchStrategySetting): LoginUriView {
+      const loginUriView = new LoginUriView();
+      loginUriView.uri = uri;
+      loginUriView.match = match;
+      return loginUriView;
+    }
+
+    function setLoginUris(loginUriViews: LoginUriView[]) {
+      const loginView = new LoginView();
+      loginView.uris = loginUriViews;
+      generateFillScriptOptions.cipher.login = loginView;
+    }
+
+    beforeEach(() => {
+      generateFillScriptOptions = createGenerateFillScriptOptionsMock();
+    });
+
+    describe("returns true when the page is served over http and...", () => {
+      it.each([
+        ["an identically spelled https uri", "https://example.com", "http://example.com/login"],
+        ["a unicode IDN https uri", "https://测试.com", "http://xn--0zwm56d.com/login"],
+        ["a punycode IDN https uri", "https://xn--0zwm56d.com", "http://xn--0zwm56d.com/login"],
+        ["an uppercase hostname https uri", "https://EXAMPLE.com", "http://example.com/login"],
+        ["an uppercase scheme https uri", "HTTPS://example.com", "http://example.com/login"],
+        ["an https uri with a port", "https://example.com:8764", "http://example.com:8764/login"],
+        [
+          "an https uri for the parent domain of the page",
+          "https://example.com",
+          "http://login.example.com/",
+        ],
+      ])("the cipher has %s", async (_description, savedUri, pageUrl) => {
+        setLoginUris([createLoginUriView(savedUri)]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          pageUrl,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("the cipher has an https uri on the page's host whose match strategy does not match the page", async () => {
+        setLoginUris([
+          createLoginUriView("https://example.com/other-path", UriMatchStrategy.Exact),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("the cipher has a host match https uri on the page's hostname with a different port", async () => {
+        setLoginUris([createLoginUriView("https://example.com:8443", UriMatchStrategy.Host)]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com:8080/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+
+      it("the cipher has an exact match https uri for the https version of the page", async () => {
+        setLoginUris([createLoginUriView("https://example.com/login", UriMatchStrategy.Exact)]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("returns false when...", () => {
+      it("the page is served over https", async () => {
+        setLoginUris([createLoginUriView("https://example.com")]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "https://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher has no login data", async () => {
+        generateFillScriptOptions.cipher.login = undefined;
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher only has http uris", async () => {
+        setLoginUris([createLoginUriView("http://example.com")]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher's only https uri for the page has a match strategy of Never", async () => {
+        setLoginUris([
+          createLoginUriView("http://example.com"),
+          createLoginUriView("https://example.com", UriMatchStrategy.Never),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher's https uris do not apply to the page", async () => {
+        setLoginUris([
+          createLoginUriView("http://example.com"),
+          createLoginUriView("https://some-other-uri.com"),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
+
+      it("the cipher has a regular expression uri that cannot be parsed as a url", async () => {
+        setLoginUris([
+          createLoginUriView("^https://example\\.com/.*$", UriMatchStrategy.RegularExpression),
+        ]);
+
+        const result = await autofillService["requiresInsecurePageConfirmation"](
+          "http://example.com/login",
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBe(false);
+      });
     });
   });
 
@@ -4827,6 +5174,101 @@ describe("AutofillService", () => {
         passwordField.htmlID = "inputPasswordCaptcha";
         passwordField.htmlName = "captcha";
         passwordField.placeholder = "Enter password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it("returns the field in an array when autoCompleteType is `current-password`", () => {
+        passwordField.autoCompleteType = "current-password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when autoCompleteType is a space-separated list including `current-password`", () => {
+        passwordField.autoCompleteType = "current-password webauthn";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array when autoCompleteType is `new-password` and fillNewPassword is true", () => {
+        passwordField.autoCompleteType = "new-password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, true);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns an empty array when autoCompleteType is `new-password` and fillNewPassword is false", () => {
+        passwordField.autoCompleteType = "new-password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it.each(["label-aria", "label-tag", "label-top"])(
+        "returns the field in an array when %s contains the word `password`",
+        (attr) => {
+          passwordField[attr] = "Password";
+          pageDetails.fields = [passwordField];
+
+          const result = AutofillService.loadPasswordFields(
+            pageDetails,
+            false,
+            false,
+            false,
+            false,
+          );
+
+          expect(result).toStrictEqual([passwordField]);
+        },
+      );
+
+      it("returns the field in an array when htmlName matches the `passwd` token", () => {
+        // Gmail-style name attribute. Catches the Gmail case without relying
+        // on the English-language aria-label signal.
+        passwordField.htmlName = "Passwd";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it("returns the field in an array for a Gmail-shaped password input with Show-password checked", () => {
+        // Gmail's password input with "Show password" checked: type flips
+        // to text and autocomplete goes to "off", but aria-label and
+        // name="Passwd" are stable signals.
+        passwordField.htmlName = "Passwd";
+        passwordField.autoCompleteType = "off";
+        passwordField["label-aria"] = "Enter your password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([passwordField]);
+      });
+
+      it.each([
+        ["label-aria", "Password hint"],
+        ["label-aria", "Forgot password?"],
+        ["label-tag", "Password hint"],
+        ["label-tag", "Forgot password?"],
+        ["label-top", "Password hint"],
+        ["label-top", "Forgot password?"],
+      ])("returns an empty array when %s contains an excluded phrase (%s)", (attr, value) => {
+        passwordField[attr] = value;
         pageDetails.fields = [passwordField];
 
         const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);

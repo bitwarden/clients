@@ -1,21 +1,30 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
 
 import { DesktopAutofillService } from "./desktop-autofill.service";
 import {
   CredentialNotFound,
+  DesktopFido2UserInterfaceService,
+  DesktopFido2UserInterfaceSession,
   ExcludedCredentialMatched,
   NativeWindowObject,
 } from "./desktop-fido2-user-interface.service";
@@ -30,6 +39,10 @@ describe("DesktopAutofillService", () => {
   let accountService: MockProxy<AccountService>;
   let authService: MockProxy<AuthService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let environmentService: MockProxy<EnvironmentService>;
+  /** The active account's web vault URL. */
+  let webVaultUrl: string;
+  let fido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
   let service: DesktopAutofillService;
@@ -42,6 +55,10 @@ describe("DesktopAutofillService", () => {
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
     platformUtilsService = mock<PlatformUtilsService>();
+    environmentService = mock<EnvironmentService>();
+    webVaultUrl = "https://vault.bitwarden.com";
+    environmentService.environment$ = of({ getWebVaultUrl: () => webVaultUrl } as Environment);
+    fido2UserInterfaceService = mock<DesktopFido2UserInterfaceService>();
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
@@ -55,7 +72,9 @@ describe("DesktopAutofillService", () => {
       fido2AuthenticatorService,
       accountService,
       authService,
+      environmentService,
       platformUtilsService,
+      fido2UserInterfaceService,
     );
   });
 
@@ -109,7 +128,9 @@ describe("DesktopAutofillService", () => {
         fido2AuthenticatorService,
         accountService,
         authService,
+        environmentService,
         platformUtilsService,
+        fido2UserInterfaceService,
       );
 
       await expect(service.refreshPasskeyProviderState()).resolves.toEqual(unregistered);
@@ -170,6 +191,143 @@ describe("DesktopAutofillService", () => {
       activeAccountStatus$.next(AuthenticationStatus.LoggedOut);
 
       await expect(service.doLockStatus()).resolves.toEqual({ isUnlocked: false });
+    });
+  });
+
+  describe("blocked RP IDs", () => {
+    it.each(["vault.bitwarden.com", "Vault.Bitwarden.COM"])(
+      "tells the user why, then rejects registration, assertion, and UI-less assertion for the active vault's RP ID (%s)",
+      async (rpId) => {
+        (global as any).ipc = {
+          autofill: { desktopAutofill: { getAppWindowHandle: jest.fn().mockResolvedValue(null) } },
+        };
+        const session = mock<DesktopFido2UserInterfaceSession>();
+        session.informRpIdNotAllowed.mockRejectedValue(
+          new DOMException("not allowed", "NotAllowedError"),
+        );
+        fido2UserInterfaceService.newSession.mockResolvedValue(session);
+        const request = {
+          rpId,
+          clientWindow: { position: { x: 0, y: 0 } },
+          context: "ctx",
+        } as any;
+        const abortController = new AbortController();
+
+        try {
+          await expect(
+            service.doPasskeyRegistration(request, abortController),
+          ).rejects.toMatchObject({ name: "NotAllowedError" });
+          await expect(service.doPasskeyAssertion(request, abortController)).rejects.toMatchObject({
+            name: "NotAllowedError",
+          });
+          await expect(
+            service.doPasskeyAssertionWithoutUserInterface(request, abortController),
+          ).rejects.toMatchObject({ name: "NotAllowedError" });
+        } finally {
+          delete (global as any).ipc;
+        }
+
+        expect(fido2UserInterfaceService.newSession).toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ rpId }),
+          abortController,
+        );
+        expect(session.informRpIdNotAllowed.mock.calls).toEqual([
+          ["registration"],
+          ["assertion"],
+          ["assertion"],
+        ]);
+        expect(fido2AuthenticatorService.makeCredential).not.toHaveBeenCalled();
+        expect(fido2AuthenticatorService.getAssertion).not.toHaveBeenCalled();
+      },
+    );
+
+    describe("syncing to the OS", () => {
+      // Syncs one passkey per RP ID and returns the RP IDs that reached the OS.
+      async function syncPasskeysFor(rpIds: string[]): Promise<string[]> {
+        const runCommand = jest
+          .fn()
+          .mockImplementation(async ({ command }) =>
+            command === "status"
+              ? { type: "success", value: { state: { enabled: true }, support: { fido2: true } } }
+              : { type: "success", value: { added: 0 } },
+          );
+        (global as any).ipc = { autofill: { desktopAutofill: { runCommand } } };
+        const passkeyCipher = (rpId: string) =>
+          ({
+            id: rpId,
+            type: CipherType.Login,
+            isDeleted: false,
+            login: {
+              hasFido2Credentials: true,
+              fido2Credentials: [{ credentialId: Utils.newGuid(), rpId, userName: "user" }],
+            },
+          }) as unknown as CipherView;
+
+        try {
+          await service.sync(rpIds.map(passkeyCipher));
+        } finally {
+          delete (global as any).ipc;
+        }
+
+        const syncCall = runCommand.mock.calls.find(([c]) => c.command === "sync");
+        return syncCall[0].params.credentials.map((c: { cipherId: string }) => c.cipherId);
+      }
+
+      it.each([
+        ["https://vault.bitwarden.com", "vault.bitwarden.com"],
+        ["https://vault.bitwarden.eu", "Vault.Bitwarden.EU"],
+        ["https://bitwarden.example.com", "bitwarden.example.com"],
+        ["https://bitwarden.example.com/", "bitwarden.example.com"],
+        ["https://Bitwarden.Example.COM", "bitwarden.example.com"],
+        ["https://bitwarden.example.com:443", "bitwarden.example.com"],
+      ])("does not sync passkeys for the vault at %s (RP ID %s)", async (url, rpId) => {
+        webVaultUrl = url;
+
+        await expect(syncPasskeysFor([rpId, "example.org"])).resolves.toEqual(["example.org"]);
+      });
+
+      it.each([
+        ["https://example.com:8443", "example.com"],
+        ["https://example.com/bitwarden", "example.com"],
+        ["http://bitwarden.example.com", "bitwarden.example.com"],
+        ["https://localhost", "localhost"],
+        ["https://bitwarden.localhost", "bitwarden.localhost"],
+        ["not a url", "bitwarden.example.com"],
+      ])(
+        "syncs passkeys for the host of a vault at %s, which can't be told apart from other services",
+        async (url, rpId) => {
+          webVaultUrl = url;
+
+          await expect(syncPasskeysFor([rpId])).resolves.toEqual([rpId]);
+        },
+      );
+    });
+
+    it("passes other RP IDs, including the vault's parent domain, through to the authenticator", async () => {
+      (global as any).ipc = {
+        autofill: { desktopAutofill: { getAppWindowHandle: jest.fn().mockResolvedValue(null) } },
+      };
+      const authenticatorReached = new Error("authenticator reached");
+      fido2AuthenticatorService.getAssertion.mockRejectedValue(authenticatorReached);
+
+      try {
+        await expect(
+          service.doPasskeyAssertion(
+            {
+              rpId: "bitwarden.com",
+              clientDataHash: [],
+              allowedCredentials: [],
+              userVerification: "preferred",
+              clientWindow: { position: { x: 0, y: 0 } },
+              context: "ctx",
+            } as any,
+            new AbortController(),
+          ),
+        ).rejects.toBe(authenticatorReached);
+      } finally {
+        delete (global as any).ipc;
+      }
     });
   });
 
