@@ -48,7 +48,11 @@ export class VaultProgram extends BaseProgram {
     return objects.filter((object) => !object.includes(hidden));
   }
 
-  private validateObject(requestedObject: string, validObjects: string[]): boolean {
+  private validateObject(
+    requestedObject: string,
+    validObjects: string[],
+    shownObjects: string[] = validObjects,
+  ): boolean {
     let success = true;
     if (!validObjects.includes(requestedObject)) {
       success = false;
@@ -57,7 +61,7 @@ export class VaultProgram extends BaseProgram {
           'Unknown object "' +
             requestedObject +
             '". Allowed objects are: ' +
-            validObjects.join(", ") +
+            shownObjects.join(", ") +
             ".",
         ),
       );
@@ -78,12 +82,10 @@ export class VaultProgram extends BaseProgram {
       "org-members",
       "organizations",
     ];
+    const shownObjects = this.visibleObjects(listObjects, sharedFolders);
 
     const command = new Command("list")
-      .argument(
-        "<object>",
-        "Valid objects are: " + this.visibleObjects(listObjects, sharedFolders).join(", "),
-      )
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .description("List an array of objects from the vault.")
       .option("--search <search>", "Perform a search on the listed objects.")
       .option("--url <url>", "Filter items of type login with a url-match search.")
@@ -139,7 +141,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (object, cmd) => {
-        if (!this.validateObject(object, listObjects)) {
+        if (!this.validateObject(object, listObjects, shownObjects)) {
           return;
         }
 
@@ -189,11 +191,9 @@ export class VaultProgram extends BaseProgram {
       "fingerprint",
       "send",
     ];
+    const shownObjects = this.visibleObjects(getObjects, sharedFolders);
     return new Command("get")
-      .argument(
-        "<object>",
-        "Valid objects are: " + this.visibleObjects(getObjects, sharedFolders).join(", "),
-      )
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Search term or object's globally unique `id`.")
       .description("Get an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
@@ -225,7 +225,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (object, id, cmd) => {
-        if (!this.validateObject(object, getObjects)) {
+        if (!this.validateObject(object, getObjects, shownObjects)) {
           return;
         }
 
@@ -256,11 +256,9 @@ export class VaultProgram extends BaseProgram {
   private async createCommand(): Promise<Command> {
     const sharedFolders = await this.sharedFoldersEnabled();
     const createObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
+    const shownObjects = this.visibleObjects(createObjects, sharedFolders);
     return new Command("create")
-      .argument(
-        "<object>",
-        "Valid objects are: " + this.visibleObjects(createObjects, sharedFolders).join(", "),
-      )
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument(
         "[encodedJson]",
         "Encoded json of the object to create. Can also be piped into stdin.",
@@ -285,7 +283,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (object, encodedJson, cmd) => {
-        if (!this.validateObject(object, createObjects)) {
+        if (!this.validateObject(object, createObjects, shownObjects)) {
           return;
         }
 
@@ -318,11 +316,9 @@ export class VaultProgram extends BaseProgram {
       "org-collection",
       "org-shared-folder",
     ];
+    const shownObjects = this.visibleObjects(editObjects, sharedFolders);
     return new Command("edit")
-      .argument(
-        "<object>",
-        "Valid objects are: " + this.visibleObjects(editObjects, sharedFolders).join(", "),
-      )
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
       .argument(
         "[encodedJson]",
@@ -348,7 +344,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (object, id, encodedJson, cmd) => {
-        if (!this.validateObject(object, editObjects)) {
+        if (!this.validateObject(object, editObjects, shownObjects)) {
           return;
         }
 
@@ -374,11 +370,9 @@ export class VaultProgram extends BaseProgram {
   private async deleteCommand(): Promise<Command> {
     const sharedFolders = await this.sharedFoldersEnabled();
     const deleteObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
+    const shownObjects = this.visibleObjects(deleteObjects, sharedFolders);
     return new Command("delete")
-      .argument(
-        "<object>",
-        "Valid objects are: " + this.visibleObjects(deleteObjects, sharedFolders).join(", "),
-      )
+      .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
       .description("Delete an object from the vault.")
       .option("--itemid <itemid>", "Attachment's item id.")
@@ -404,7 +398,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (object, id, cmd) => {
-        if (!this.validateObject(object, deleteObjects)) {
+        if (!this.validateObject(object, deleteObjects, shownObjects)) {
           return;
         }
 
