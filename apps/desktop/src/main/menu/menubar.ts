@@ -99,7 +99,13 @@ export class Menubar {
         pm32009NewItemTypes,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
-      new ViewMenu(i18nService, messagingService, isLocked, windowMain),
+      new ViewMenu(
+        i18nService,
+        messagingService,
+        isLocked,
+        windowMain,
+        updateRequest?.featureFlagOverrideMenuEnabled ?? false,
+      ),
       new AccountMenu(
         i18nService,
         messagingService,
