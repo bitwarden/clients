@@ -8477,5 +8477,58 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "featureFlagOverrides": {
+    "message": "Feature flag overrides",
+    "description": "Title of a developer-only dialog for overriding feature flags locally."
+  },
+  "featureFlagOverridesDeveloperTooling": {
+    "message": "Developer tooling",
+    "description": "Subtitle of the developer-only feature flag overrides dialog."
+  },
+  "featureFlagOverridesDescription": {
+    "message": "Inspect and set the local feature flag state for this client. Setting a value to on or off will override what the server has configured."
+  },
+  "featureFlagOverridesFilter": {
+    "message": "Filter flags"
+  },
+  "featureFlagOverridesCount": {
+    "message": "$COUNT$ flag(s) overridden.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "featureFlagOverridesOn": {
+    "message": "On"
+  },
+  "featureFlagOverridesOff": {
+    "message": "Off"
+  },
+  "featureFlagOverridesDefaultOn": {
+    "message": "Default (on)",
+    "description": "Choice that removes the override; the flag currently resolves to on."
+  },
+  "featureFlagOverridesDefaultOff": {
+    "message": "Default (off)",
+    "description": "Choice that removes the override; the flag currently resolves to off."
+  },
+  "featureFlagOverridesNoMatch": {
+    "message": "No feature flags match \"$SEARCH$\".",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "billing"
+      }
+    }
+  },
+  "featureFlagOverridesReload": {
+    "message": "Reload",
+    "description": "Button that reloads the app so flag overrides take effect."
+  },
+  "featureFlagOverridesClearAll": {
+    "message": "Clear all overrides"
   }
 }
