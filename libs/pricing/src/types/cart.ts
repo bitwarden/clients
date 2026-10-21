@@ -22,6 +22,10 @@ export type Cart = {
     additionalServiceAccounts?: CartItem;
     prorationCharges?: CartItem[];
   };
+  privilegedControls?: {
+    seats?: CartItem;
+    prorationCharges?: CartItem[];
+  };
   cadence: "annually" | "monthly";
   hidePricingTerm?: boolean;
   discounts?: CartDiscount[];
