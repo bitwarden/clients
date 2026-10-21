@@ -259,7 +259,13 @@ export class DefaultSdkService implements SdkService {
     await this.withClient(userId, (client) => client.platform().load_flags(flags));
   }
 
-  /** The completion point of every unlock: once the keys are applied, the client is ready. */
+  /**
+   * The completion point of every unlock: once the keys are applied, the client is ready.
+   *
+   * Fails closed: if the keys cannot be applied to a client that is not ready yet, the client is
+   * locked, so the unlock ends in a lock rather than an unlocked user whose client never becomes
+   * ready. A failure on a client that is already ready leaves it as it is.
+   */
   async setOrgKeys(
     userId: UserId,
     orgKeys: Record<OrganizationId, UnsignedSharedKey>,
@@ -269,9 +275,20 @@ export class DefaultSdkService implements SdkService {
     }
 
     await this.withClient(userId, async (client) => {
-      await client.crypto().initialize_org_crypto({
-        organizationKeys: new Map(Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v])),
-      });
+      try {
+        await client.crypto().initialize_org_crypto({
+          organizationKeys: new Map(Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v])),
+        });
+      } catch (e) {
+        if (!this.cryptoReadySubject(userId).value) {
+          try {
+            await client.unlock().lock();
+          } catch (lockError) {
+            this.logService.error(`Failed to lock the SDK client for user (${userId})`, lockError);
+          }
+        }
+        throw e;
+      }
       this.cryptoReadySubject(userId).next(true);
     });
   }

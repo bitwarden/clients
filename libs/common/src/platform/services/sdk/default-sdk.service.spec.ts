@@ -789,14 +789,44 @@ describe("DefaultSdkService", () => {
         expect(crypto.initialize_org_crypto).not.toHaveBeenCalled();
       });
 
-      it("stays false and rejects when applying the organization keys fails", async () => {
-        service = createService();
-        await service.unlock(userId, unlockRequest);
-        crypto.initialize_org_crypto.mockRejectedValue(new Error("org keys failed"));
+      describe("given applying the organization keys fails", () => {
+        const orgKeysError = new Error("org keys failed");
 
-        await expect(service.setOrgKeys(userId, {})).rejects.toThrow("org keys failed");
+        it("locks a client that is finishing an unlock, stays false and rejects", async () => {
+          service = createService();
+          await service.unlock(userId, unlockRequest);
+          unlockClient.lock.mockClear();
+          crypto.initialize_org_crypto.mockRejectedValue(orgKeysError);
 
-        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+          await expect(service.setOrgKeys(userId, {})).rejects.toBe(orgKeysError);
+
+          expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+          await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+        });
+
+        it("rejects with the original error and logs when locking also fails", async () => {
+          service = createService();
+          await service.unlock(userId, unlockRequest);
+          crypto.initialize_org_crypto.mockRejectedValue(orgKeysError);
+          unlockClient.lock.mockRejectedValue(new Error("clear failed"));
+
+          await expect(service.setOrgKeys(userId, {})).rejects.toBe(orgKeysError);
+
+          expect(logService.error).toHaveBeenCalled();
+          await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+        });
+
+        it("leaves a ready client unlocked and ready, and rejects", async () => {
+          await startUnlocked();
+          unlockClient.lock.mockClear();
+          crypto.initialize_org_crypto.mockRejectedValue(orgKeysError);
+          const tracker = new ObservableTracker(service.cryptoReady$(userId));
+
+          await expect(service.setOrgKeys(userId, {})).rejects.toBe(orgKeysError);
+
+          expect(unlockClient.lock).not.toHaveBeenCalled();
+          expect(tracker.emissions).toEqual([true]);
+        });
       });
     });
 
