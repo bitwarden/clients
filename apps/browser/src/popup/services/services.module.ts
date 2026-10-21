@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
+import { APP_INITIALIZER, Injector, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -107,6 +107,7 @@ import {
   AnimationControlService,
   DefaultAnimationControlService,
 } from "@bitwarden/common/platform/abstractions/animation-control.service";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -185,6 +186,7 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
@@ -247,6 +249,7 @@ import { BrowserScriptInjectorService } from "../../platform/services/browser-sc
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
+import { BrowserSdkService } from "../../platform/services/sdk/browser-sdk.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
@@ -723,6 +726,60 @@ const safeProviders: SafeProvider[] = [
       WINDOW,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: BrowserSdkService,
+    useFactory: (
+      sdkClientFactory: SdkClientFactory,
+      environmentService: EnvironmentService,
+      platformUtilsService: PlatformUtilsService,
+      accountService: AccountServiceAbstraction,
+      stateProvider: StateProvider,
+      v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+      managedSettingsService: ManagedSettingsService,
+      appIdService: AppIdService,
+      logService: LogService,
+      messageSender: MessageSender,
+      messageListener: MessageListener,
+      injector: Injector,
+    ) =>
+      new BrowserSdkService(
+        sdkClientFactory,
+        environmentService,
+        platformUtilsService,
+        accountService,
+        () => injector.get(KdfConfigService),
+        () => injector.get(KeyService),
+        () => injector.get(AccountCryptographicStateService),
+        () => injector.get(ApiService),
+        stateProvider,
+        () => injector.get(ConfigService),
+        v2UpgradeTokenStateService,
+        managedSettingsService,
+        appIdService,
+        logService,
+        () => injector.get(TokenService),
+        messageSender,
+        messageListener,
+      ),
+    deps: [
+      SdkClientFactory,
+      EnvironmentService,
+      PlatformUtilsService,
+      AccountServiceAbstraction,
+      StateProvider,
+      V2UpgradeTokenStateService,
+      ManagedSettingsService,
+      AppIdService,
+      LogService,
+      MessageSender,
+      MessageListener,
+      Injector,
+    ],
+  }),
+  safeProvider({
+    provide: SdkService,
+    useExisting: BrowserSdkService,
   }),
   safeProvider({
     provide: ForegroundUnlockService,

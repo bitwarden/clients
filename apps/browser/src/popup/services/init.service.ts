@@ -13,11 +13,13 @@ import { ForegroundUnlockService } from "../../key-management/unlock/foreground-
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
+import { BrowserSdkService } from "../../platform/services/sdk/browser-sdk.service";
 
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
   private automationDriver = inject(AutomationDriver);
+  private sdkService = inject(BrowserSdkService);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -36,6 +38,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
+      this.sdkService.init();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();

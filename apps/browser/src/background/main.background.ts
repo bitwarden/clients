@@ -155,7 +155,6 @@ import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   AbstractStorageService,
@@ -192,7 +191,6 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
-import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
@@ -409,6 +407,7 @@ import { BrowserPlatformUtilsService } from "../platform/services/platform-utils
 import { PopupRouterCacheBackgroundService } from "../platform/services/popup-router-cache-background.service";
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
+import { BrowserSdkService } from "../platform/services/sdk/browser-sdk.service";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
@@ -559,7 +558,7 @@ export default class MainBackground {
   animationControlService: AnimationControlService;
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
-  sdkService: SdkService;
+  sdkService: BrowserSdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   managedSettingsService: ManagedSettingsService;
@@ -792,7 +791,7 @@ export default class MainBackground {
       );
     }
 
-    this.sdkService = new DefaultSdkService(
+    this.sdkService = new BrowserSdkService(
       sdkClientFactory,
       this.environmentService,
       this.platformUtilsService,
@@ -808,6 +807,8 @@ export default class MainBackground {
       this.appIdService,
       this.logService,
       () => this.tokenService,
+      this.messagingService,
+      this.messageListener,
     );
 
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
@@ -1897,6 +1898,7 @@ export default class MainBackground {
 
     this.popupViewCacheBackgroundService.startObservingMessages();
     this.popupRouterCacheBackgroundService.init();
+    this.sdkService.init();
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();
