@@ -171,6 +171,7 @@ import {
   Vfo1TerminologyService,
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
+  VFO1_FILTERS_STEP,
   VFO1_SHARED_FOLDERS_STEP,
   VFO1_VAULT_LIST_STEP,
   VFO1_WALKTHROUGH_STEPS,
@@ -236,7 +237,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
     provide: VFO1_WALKTHROUGH_STEPS,
-    useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP],
+    useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP, VFO1_FILTERS_STEP],
   }),
   safeProvider({
     provide: CipherFormGenerationService,

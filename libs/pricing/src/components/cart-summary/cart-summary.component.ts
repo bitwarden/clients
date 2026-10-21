@@ -118,8 +118,12 @@ export class CartSummaryComponent {
     this.lineDiscountRows(this.cart().secretsManager?.additionalServiceAccounts),
   );
 
+  readonly privilegedControlsSeatsDiscountRows = computed(() =>
+    this.lineDiscountRows(this.cart().privilegedControls?.seats),
+  );
+
   /**
-   * Sums every per-line discount across all four line items
+   * Sums every per-line discount across all line items
    */
   private readonly lineDiscountTotal = computed<number>(() =>
     [
@@ -127,6 +131,7 @@ export class CartSummaryComponent {
       this.additionalStorageDiscountRows(),
       this.secretsManagerSeatsDiscountRows(),
       this.additionalServiceAccountsDiscountRows(),
+      this.privilegedControlsSeatsDiscountRows(),
     ]
       .flat()
       .reduce((sum, row) => sum + row.amount, 0),
@@ -170,6 +175,14 @@ export class CartSummaryComponent {
     );
   });
 
+  readonly privilegedControlsSeatsTotal = computed<number>(() => {
+    const seats = this.cart().privilegedControls?.seats;
+    if (!seats) {
+      return 0;
+    }
+    return seats.quantity * seats.cost;
+  });
+
   readonly estimatedTax = computed<number>(() => this.cart().estimatedTax);
 
   readonly term = computed<string>(() => {
@@ -198,7 +211,12 @@ export class CartSummaryComponent {
       this.additionalStorageTotal() +
       this.secretsManagerSeatsTotal() +
       this.additionalServiceAccountsTotal() +
-      [this.cart().passwordManager.prorationCharges, this.cart().secretsManager?.prorationCharges]
+      this.privilegedControlsSeatsTotal() +
+      [
+        this.cart().passwordManager.prorationCharges,
+        this.cart().secretsManager?.prorationCharges,
+        this.cart().privilegedControls?.prorationCharges,
+      ]
         .flatMap((charges) => charges ?? [])
         .reduce((sum, charge) => sum + charge.cost, 0) -
       this.lineDiscountTotal(),
