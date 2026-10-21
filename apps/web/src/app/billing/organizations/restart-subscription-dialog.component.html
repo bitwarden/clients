@@ -20,6 +20,19 @@
         [scenario]="{ type: 'checkout', supportsTaxId: supportsTaxId() }"
       >
       </app-enter-billing-address>
+      @if (restartCart.isLoading()) {
+        <div class="tw-mt-4 tw-text-center">
+          <bit-spinner></bit-spinner>
+        </div>
+      } @else if (restartCart.error() != null) {
+        <bit-callout type="danger" class="tw-mt-4 tw-block">
+          {{ previewErrorMessageKey() | i18n }}
+        </bit-callout>
+      } @else if (restartCart.hasValue()) {
+        <div class="tw-mt-4">
+          <billing-cart-summary [cart]="restartCart.value()" />
+        </div>
+      }
       @if (addressLoadFailed()) {
         <bit-callout type="danger" class="tw-mt-4 tw-block">
           {{ "restartSubscriptionBillingAddressLoadError" | i18n }}
@@ -34,6 +47,7 @@
       bitFormButton
       buttonType="primary"
       type="submit"
+      [disabled]="restartDisabled()"
     >
       {{ "restart" | i18n }}
     </button>

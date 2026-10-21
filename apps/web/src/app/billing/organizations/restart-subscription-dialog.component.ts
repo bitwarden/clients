@@ -4,10 +4,12 @@ import {
   computed,
   inject,
   OnInit,
+  resource,
   signal,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { debounceTime, firstValueFrom, merge } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
@@ -20,6 +22,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -28,15 +32,22 @@ import {
   DialogConfig,
   DialogModule,
   DialogService,
+  SpinnerComponent,
 } from "@bitwarden/components";
+import { CartSummaryComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import {
+  OrganizationRestartPreviewRequest,
+  SubscriberBillingClient,
+} from "@bitwarden/web-vault/app/billing/clients";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
+  getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
+import { InvoicePreviewService } from "../services/invoice-preview.service";
 
 export type RestartSubscriptionDialogParams = {
   organizationId: string;
@@ -60,6 +71,28 @@ export const openRestartSubscriptionDialog = (
     dialogConfig,
   );
 
+const addressEditDebounceMs = 1000;
+
+const isSameRestartRequest = (
+  a: OrganizationRestartPreviewRequest | undefined,
+  b: OrganizationRestartPreviewRequest | undefined,
+): boolean =>
+  a?.billingAddress.country === b?.billingAddress.country &&
+  a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
+  a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
+  a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value;
+
+// A 400 means the server rejected the request's billing address; anything else is a generic
+// preview failure. The resource wraps a non-Error rejection (ErrorResponse isn't an Error) and
+// puts the original on `cause`, so unwrap that before reading the status.
+const getPreviewErrorMessageKey = (error: unknown): string => {
+  const response =
+    error instanceof ErrorResponse ? error : (error as { cause?: unknown } | undefined)?.cause;
+  return response instanceof ErrorResponse && response.statusCode === 400
+    ? "billingPreviewInvalidAddressError"
+    : "invoicePreviewErrorMessage";
+};
+
 @Component({
   templateUrl: "./restart-subscription-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,20 +100,24 @@ export const openRestartSubscriptionDialog = (
     AsyncActionsModule,
     ButtonModule,
     CalloutModule,
+    CartSummaryComponent,
     DialogModule,
     EnterBillingAddressComponent,
     EnterPaymentMethodComponent,
     I18nPipe,
     ReactiveFormsModule,
+    SpinnerComponent,
   ],
 })
 export class RestartSubscriptionDialogComponent implements OnInit {
-  private readonly params = inject<RestartSubscriptionDialogParams>(DIALOG_DATA);
+  private readonly dialogData = inject<RestartSubscriptionDialogParams>(DIALOG_DATA);
   private readonly apiService = inject(ApiService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
   private readonly subscriberBillingClient = inject(SubscriberBillingClient);
   private readonly billingNotificationService = inject(BillingNotificationService);
+  private readonly i18nService = inject(I18nService);
+  private readonly invoicePreviewService = inject(InvoicePreviewService);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly ResultType = RestartSubscriptionDialogResultType;
@@ -97,7 +134,7 @@ export class RestartSubscriptionDialogComponent implements OnInit {
     if (plans == null) {
       return undefined;
     }
-    const subscriptionPlan = this.params.subscription.plan;
+    const subscriptionPlan = this.dialogData.subscription.plan;
     if (!subscriptionPlan.disabled) {
       return subscriptionPlan;
     }
@@ -120,13 +157,78 @@ export class RestartSubscriptionDialogComponent implements OnInit {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
+  protected readonly restartRequest = signal<OrganizationRestartPreviewRequest | undefined>(
+    undefined,
+    { equal: isSameRestartRequest },
+  );
+
+  // The request the form would produce right now, undefined while the address is invalid.
+  // Updated on every edit, unlike `restartRequest`, which waits out the debounce.
+  private readonly formAddressRequest = signal<OrganizationRestartPreviewRequest | undefined>(
+    undefined,
+    { equal: isSameRestartRequest },
+  );
+
+  protected readonly restartCart = resource({
+    params: () => this.restartRequest(),
+    loader: async ({ params }) => {
+      try {
+        return await this.invoicePreviewService.previewRestartCart(
+          this.dialogData.organizationId,
+          params,
+        );
+      } catch (error) {
+        this.billingNotificationService.showError(
+          this.i18nService.t(getPreviewErrorMessageKey(error)),
+        );
+        throw error;
+      }
+    },
+  });
+
+  protected readonly previewErrorMessageKey = computed(() =>
+    getPreviewErrorMessageKey(this.restartCart.error()),
+  );
+
+  protected readonly restartDisabled = computed(() => {
+    const formRequest = this.formAddressRequest();
+    return !(
+      !this.addressLoadFailed() &&
+      this.restartCart.hasValue() &&
+      !this.restartCart.isLoading() &&
+      formRequest != null &&
+      isSameRestartRequest(formRequest, this.restartRequest())
+    );
+  });
+
+  constructor() {
+    const address = this.formGroup.controls.billingAddress;
+
+    address.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.formAddressRequest.set(this.buildRestartRequest()));
+
+    merge(
+      address.controls.country.valueChanges,
+      address.controls.postalCode.valueChanges,
+      address.controls.taxId.valueChanges,
+    )
+      .pipe(debounceTime(addressEditDebounceMs), takeUntilDestroyed())
+      .subscribe(() => {
+        const request = this.buildRestartRequest();
+        if (this.addressReady() && request != null) {
+          this.restartRequest.set(request);
+        }
+      });
+  }
+
   async ngOnInit(): Promise<void> {
     try {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const organization = await firstValueFrom(
         this.organizationService
           .organizations$(userId)
-          .pipe(getOrganizationById(this.params.organizationId)),
+          .pipe(getOrganizationById(this.dialogData.organizationId)),
       );
       if (organization == null) {
         throw new Error("Organization not found");
@@ -154,11 +256,21 @@ export class RestartSubscriptionDialogComponent implements OnInit {
         });
       }
       this.addressReady.set(true);
+      this.restartRequest.set(this.buildRestartRequest());
     } catch (error) {
       this.addressLoadFailed.set(true);
       this.billingNotificationService.handleError(error);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private buildRestartRequest(): OrganizationRestartPreviewRequest | undefined {
+    const address = this.formGroup.controls.billingAddress;
+    if (!address.valid) {
+      return undefined;
+    }
+    const { country, postalCode, taxId } = getBillingAddressFromForm(address);
+    return { billingAddress: { country, postalCode, taxId } };
   }
 }

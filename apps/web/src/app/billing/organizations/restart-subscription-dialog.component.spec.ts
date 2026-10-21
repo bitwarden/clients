@@ -11,16 +11,21 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { CartSummaryComponent } from "@bitwarden/pricing";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
+import {
+  OrganizationRestartPreviewRequest,
+  SubscriberBillingClient,
+} from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
+  getBillingAddressFromForm,
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
 
@@ -96,6 +101,7 @@ describe("RestartSubscriptionDialogComponent", () => {
   let apiService: ReturnType<typeof mock<ApiService>>;
   let subscriberBillingClient: ReturnType<typeof mock<SubscriberBillingClient>>;
   let billingNotificationService: ReturnType<typeof mock<BillingNotificationService>>;
+  let invoicePreviewService: ReturnType<typeof mock<InvoicePreviewService>>;
   let subscriptionPlan: PlanResponse;
   let availablePlans: PlanResponse[];
 
@@ -124,7 +130,7 @@ describe("RestartSubscriptionDialogComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: SubscriberBillingClient, useValue: subscriberBillingClient },
         { provide: BillingNotificationService, useValue: billingNotificationService },
-        { provide: InvoicePreviewService, useValue: mock<InvoicePreviewService>() },
+        { provide: InvoicePreviewService, useValue: invoicePreviewService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
@@ -147,7 +153,7 @@ describe("RestartSubscriptionDialogComponent", () => {
 
     const fixture = TestBed.createComponent(RestartSubscriptionDialogComponent);
     fixture.detectChanges();
-    await fixture.whenStable();
+    await jest.advanceTimersByTimeAsync(0);
     return { fixture, component: fixture.componentInstance };
   };
 
@@ -158,6 +164,10 @@ describe("RestartSubscriptionDialogComponent", () => {
       addressLoadFailed: () => boolean;
       addressReady: () => boolean;
       supportsTaxId: () => boolean;
+      restartRequest: () => OrganizationRestartPreviewRequest | undefined;
+      restartCart: { isLoading(): boolean; hasValue(): boolean; error(): unknown };
+      previewErrorMessageKey: () => string;
+      restartDisabled: () => boolean;
     };
 
   beforeAll(() => {
@@ -172,11 +182,18 @@ describe("RestartSubscriptionDialogComponent", () => {
     } as unknown as typeof IntersectionObserver;
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
+    jest.useFakeTimers();
     apiService = mock<ApiService>();
     subscriberBillingClient = mock<SubscriberBillingClient>();
     subscriberBillingClient.getBillingAddress.mockResolvedValue(savedAddress);
     billingNotificationService = mock<BillingNotificationService>();
+    invoicePreviewService = mock<InvoicePreviewService>();
+    invoicePreviewService.previewRestartCart.mockResolvedValue({} as Cart);
     subscriptionPlan = plan({});
     availablePlans = [subscriptionPlan];
   });
@@ -261,6 +278,149 @@ describe("RestartSubscriptionDialogComponent", () => {
       const dialog = internals(await setup());
 
       expect(dialog.supportsTaxId()).toBe(true);
+    });
+  });
+
+  describe("cart preview", () => {
+    const debounceMs = 1000;
+
+    let fixture: ComponentFixture<RestartSubscriptionDialogComponent>;
+
+    const open = async () => {
+      const harness = await setup();
+      fixture = harness.fixture;
+      return internals(harness);
+    };
+
+    const settle = async () => {
+      fixture.detectChanges();
+      await jest.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+    };
+
+    const expectedRequest = (
+      dialog: ReturnType<typeof internals>,
+      postalCode: string,
+    ): OrganizationRestartPreviewRequest => {
+      const { country, taxId } = getBillingAddressFromForm(
+        dialog.formGroup.controls.billingAddress,
+      );
+      return { billingAddress: { country, postalCode, taxId } };
+    };
+
+    const editPostalCode = (dialog: ReturnType<typeof internals>, postalCode: string) =>
+      dialog.formGroup.controls.billingAddress.controls.postalCode.setValue(postalCode);
+
+    it("previews the prefilled address once it is in the form", async () => {
+      const dialog = await open();
+
+      await settle();
+
+      expect(dialog.restartRequest()?.billingAddress.taxId).toEqual({
+        code: expect.any(String),
+        value: "DE123456789",
+      });
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledWith(
+        "org-id",
+        expectedRequest(dialog, "10115"),
+      );
+    });
+
+    it("does not preview when the saved address failed to load", async () => {
+      subscriberBillingClient.getBillingAddress.mockRejectedValue(new Error("boom"));
+
+      const dialog = await open();
+      await settle();
+
+      expect(invoicePreviewService.previewRestartCart).not.toHaveBeenCalled();
+      expect(dialog.restartDisabled()).toBe(true);
+    });
+
+    it("re-previews an edited address after the 1000 ms debounce", async () => {
+      const dialog = await open();
+      await settle();
+
+      editPostalCode(dialog, "10117");
+      await jest.advanceTimersByTimeAsync(debounceMs - 1);
+      await settle();
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+
+      await jest.advanceTimersByTimeAsync(1);
+      await settle();
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(2);
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenLastCalledWith(
+        "org-id",
+        expectedRequest(dialog, "10117"),
+      );
+    });
+
+    it("does not re-preview an identical address", async () => {
+      const dialog = await open();
+      await settle();
+
+      editPostalCode(dialog, "10115");
+      await jest.advanceTimersByTimeAsync(debounceMs);
+      await settle();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not preview an invalid address and keeps the last request", async () => {
+      const dialog = await open();
+      await settle();
+
+      editPostalCode(dialog, "");
+      await jest.advanceTimersByTimeAsync(debounceMs);
+      await settle();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+      expect(dialog.restartRequest()?.billingAddress.postalCode).toBe("10115");
+      expect(dialog.restartDisabled()).toBe(true);
+    });
+
+    it("disables Restart between an address edit and the matching preview", async () => {
+      const dialog = await open();
+      await settle();
+      expect(dialog.restartDisabled()).toBe(false);
+
+      editPostalCode(dialog, "10117");
+      expect(dialog.restartDisabled()).toBe(true);
+
+      await jest.advanceTimersByTimeAsync(debounceMs);
+      await settle();
+      expect(dialog.restartDisabled()).toBe(false);
+    });
+
+    it("shows the invalid-address message for a 400 preview failure", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValue(
+        new ErrorResponse({ Message: "bad request" }, 400),
+      );
+
+      const dialog = await open();
+      await settle();
+
+      expect(dialog.previewErrorMessageKey()).toBe("billingPreviewInvalidAddressError");
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "billingPreviewInvalidAddressError",
+      );
+      expect(dialog.restartDisabled()).toBe(true);
+    });
+
+    it("shows the generic preview message for a 409 failure", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValue(
+        new ErrorResponse({ Message: "conflict" }, 409),
+      );
+
+      const dialog = await open();
+      await settle();
+
+      expect(dialog.previewErrorMessageKey()).toBe("invoicePreviewErrorMessage");
+      expect(billingNotificationService.showError).toHaveBeenCalledWith(
+        "invoicePreviewErrorMessage",
+      );
+      expect(dialog.restartCart.isLoading()).toBe(false);
+      expect(dialog.restartDisabled()).toBe(true);
     });
   });
 });
