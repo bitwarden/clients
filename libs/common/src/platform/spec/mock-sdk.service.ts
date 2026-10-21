@@ -45,7 +45,7 @@ export class MockSdkService implements SdkService {
     );
   }
 
-  unlock(): Promise<UserKey | null> {
+  unlock(): Promise<UserKey> {
     throw new Error("Not supported in mock service. Use simulate.userLogin instead.");
   }
 

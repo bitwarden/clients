@@ -118,7 +118,6 @@ import {
   MessagingService as MessagingServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -750,7 +749,6 @@ const safeProviders: SafeProvider[] = [
         accountService,
         () => injector.get(KdfConfigService),
         () => injector.get(KeyService),
-        () => injector.get(AccountCryptographicStateService),
         () => injector.get(ApiService),
         stateProvider,
         () => injector.get(ConfigService),
@@ -785,16 +783,12 @@ const safeProviders: SafeProvider[] = [
     provide: ForegroundUnlockService,
     useClass: ForegroundUnlockService,
     deps: [
-      RegisterSdkService,
       AccountCryptographicStateService,
-      KdfConfigService,
-      AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       StateProvider,
       LogService,
       BiometricsService,
       BiometricStateService,
-      V2UpgradeTokenStateService,
       KeyService,
       SdkService,
       AutoUnlockService,

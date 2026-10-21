@@ -130,8 +130,8 @@ export abstract class SdkService {
    *     of the user.
    *
    * **WARNING:** Do not use `firstValueFrom(userClient$)`! Any operations on the client must be done within the observable.
-   * The client will be destroyed when the observable is no longer subscribed to.
-   * Please let platform know if you need a client that is not destroyed when the observable is no longer subscribed to.
+   * The client lives for the user's session and is disposed when the user logs out, which a reference
+   * held outside the observable would not notice.
    *
    * @param userId The user id for which to retrieve the client
    */
@@ -140,7 +140,7 @@ export abstract class SdkService {
   /**
    * Whether the user's client can decrypt: user crypto initialized **and** organization keys applied.
    * False from the start of an {@link unlock} until {@link setOrgKeys} completes it, and after
-   * {@link lock} or {@link logout}. Always true while the long-lived client rollout is off.
+   * {@link lock} or {@link logout}.
    *
    * The user key appearing in state is not a readiness signal: it is written partway through
    * {@link unlock}, before {@link setOrgKeys} has run.
@@ -152,9 +152,9 @@ export abstract class SdkService {
    * Unlock the user's live client.
    * @param userId The user whose client to unlock
    * @param request The data needed to unlock the client
-   * @returns The user key, or `null` if no client was unlocked
+   * @returns The user key the client was unlocked with. Rejects if the client could not be unlocked.
    */
-  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null>;
+  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey>;
 
   /**
    * Clear the in-memory user key (lock).

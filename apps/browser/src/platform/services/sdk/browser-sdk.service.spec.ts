@@ -4,7 +4,6 @@ import { BehaviorSubject, defer, firstValueFrom, of, Subject, Subscription } fro
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -84,7 +83,6 @@ type Process = {
 
 describe("BrowserSdkService", () => {
   let runtime: FakeRuntime;
-  let flagEnabled: boolean;
   let userKey$: BehaviorSubject<UserKey | null>;
   let serverConfig$: BehaviorSubject<ServerConfig | null>;
   let subscriptions: Subscription[];
@@ -118,13 +116,12 @@ describe("BrowserSdkService", () => {
     }
   };
 
-  function createProcess(flag?: boolean): Process {
+  function createProcess(): Process {
     const keyService = mock<KeyService>();
     keyService.userKey$.mockReturnValue(userKey$);
     keyService.buildSdkUnlockData.mockResolvedValue(unlockData);
 
     const configService = mock<ConfigService>();
-    configService.userCachedFeatureFlag$.mockImplementation(() => of(flag ?? flagEnabled) as any);
 
     const tokenService = mock<TokenService>();
     tokenService.hasAccessToken$.mockReturnValue(of(false));
@@ -157,7 +154,6 @@ describe("BrowserSdkService", () => {
       accountService,
       () => mock<KdfConfigService>(),
       () => keyService,
-      () => mock<AccountCryptographicStateService>(),
       () => mock<ApiService>(),
       stateProvider,
       () => configService,
@@ -181,7 +177,6 @@ describe("BrowserSdkService", () => {
 
   beforeEach(() => {
     runtime = new FakeRuntime();
-    flagEnabled = true;
     userKey$ = new BehaviorSubject<UserKey | null>(null);
     serverConfig$ = new BehaviorSubject<ServerConfig | null>(null);
     subscriptions = [];
@@ -266,11 +261,11 @@ describe("BrowserSdkService", () => {
       expect(JSON.stringify(process.sent)).not.toContain("password");
     });
 
-    it("does not broadcast an unlock that unlocked nothing", async () => {
-      superUnlock.mockResolvedValue(null);
+    it("does not broadcast an unlock that failed", async () => {
+      superUnlock.mockRejectedValue(new Error("wrong password"));
       const process = createProcess();
 
-      await expect(process.service.unlock(userId, unlockRequest)).resolves.toBeNull();
+      await expect(process.service.unlock(userId, unlockRequest)).rejects.toThrow("wrong password");
 
       expect(process.sent).toHaveLength(0);
     });
@@ -646,39 +641,6 @@ describe("BrowserSdkService", () => {
     });
   });
 
-  describe("given the long-lived client flag is off", () => {
-    beforeEach(() => {
-      flagEnabled = false;
-    });
-
-    it("broadcasts only locks and logouts", async () => {
-      const process = createProcess();
-
-      await process.service.unlock(userId, unlockRequest);
-      await process.service.lock(userId);
-      process.service.logout(userId);
-      await process.service.setFlags(userId, new Map([["flag", true]]));
-      await process.service.setOrgKeys(userId, orgKeys);
-      await settle();
-
-      expect(process.sent.map((m) => m.push)).toEqual([
-        { kind: "lock", userId },
-        { kind: "logout", userId },
-      ]);
-    });
-
-    it("does not converge", async () => {
-      userKey$.next(userKey);
-      serverConfig$.next({ featureStates: { flag: true } } as unknown as ServerConfig);
-      const process = start(createProcess());
-      await settle();
-
-      expect(process.keyService.buildSdkUnlockData).not.toHaveBeenCalled();
-      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
-      expect(superSetFlags).not.toHaveBeenCalled();
-    });
-  });
-
   describe("a vault timeout lock while the woken background converges", () => {
     it("never keys the client or writes the user key back, and ends not ready", async () => {
       jest.restoreAllMocks();
@@ -719,7 +681,6 @@ describe("BrowserSdkService", () => {
       keyService.userKey$.mockReturnValue(of(userKey)); // Restored from session storage on wake.
       keyService.buildSdkUnlockData.mockResolvedValue(unlockData);
       const configService = mock<ConfigService>();
-      configService.userCachedFeatureFlag$.mockReturnValue(of(true) as any);
       configService.serverConfig$ = of(null);
       const tokenService = mock<TokenService>();
       tokenService.hasAccessToken$.mockReturnValue(of(true));
@@ -747,7 +708,6 @@ describe("BrowserSdkService", () => {
         accountService,
         () => kdfConfigService,
         () => keyService,
-        () => mock<AccountCryptographicStateService>(),
         () => mock<ApiService>(),
         stateProvider,
         () => configService,
@@ -902,27 +862,6 @@ describe("BrowserSdkService", () => {
 
       expect(superLock.mock.contexts).toEqual([background.service]);
     });
-
-    it.each(["lock", "logout"] as const)(
-      "clears the popup's client on a %s from a background whose flag is off",
-      async (kind) => {
-        const background = start(createProcess(false));
-        const popup = start(createProcess(true));
-        await settle();
-        jest.clearAllMocks();
-
-        if (kind === "lock") {
-          await background.service.lock(userId);
-        } else {
-          background.service.logout(userId);
-        }
-        await settle();
-
-        expect(background.sent.map((m) => m.push)).toEqual([{ kind, userId }]);
-        const spy = kind === "lock" ? superLock : superLogout;
-        expect(spy.mock.contexts).toEqual([background.service, popup.service]);
-      },
-    );
 
     it.each(["lock", "logout"] as const)(
       "clears the popup's client when the background pushes a %s",

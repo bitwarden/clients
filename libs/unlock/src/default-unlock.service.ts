@@ -1,36 +1,28 @@
-import { Observable, Subject, firstValueFrom, map } from "rxjs";
+import { Observable, Subject, firstValueFrom } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import {
   asUuid,
   SdkService,
   SdkUnlockRequest,
 } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   BiometricsService,
   BiometricStateService,
-  KdfConfigService,
   KeyService,
   SdkUnlockData,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import {
   EncString,
   InitUserCryptoMethod,
-  Kdf,
   MasterPasswordUnlockData,
-  PasswordManagerClient,
-  V2UpgradeToken,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
@@ -62,16 +54,12 @@ export class DefaultUnlockService implements UnlockService {
   readonly unlocked$: Observable<UnlockEvent> = this._unlocked$.asObservable();
 
   constructor(
-    private registerSdkService: RegisterSdkService,
     private accountCryptographicStateService: AccountCryptographicStateService,
-    private kdfService: KdfConfigService,
-    private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private stateProvider: StateProvider,
     protected logService: LogService,
     protected biometricsService: BiometricsService,
     private biometricStateService: BiometricStateService,
-    private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private keyService: KeyService,
     private sdkService: SdkService,
     private autoUnlockService: AutoUnlockService,
@@ -215,46 +203,10 @@ export class DefaultUnlockService implements UnlockService {
       method: initMethod,
     };
 
-    // A user's live SDK client unlocks directly and returns the user key. Organization keys can
-    // only be built once that key exists, so they follow in the unlock side effects.
+    // The user's SDK client unlocks and returns the user key. Organization keys can only be built
+    // once that key exists, so they follow in the unlock side effects.
     const userKey = await this.sdkService.unlock(userId, request);
-    if (userKey != null) {
-      await this.runOnUnlockSideEffects(userId, userKey, unlockMethod);
-      return;
-    }
-
-    await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-
-          await this.initializeUserCrypto(userId, ref, request);
-          const registeredUserKey = SymmetricCryptoKey.fromString(
-            await ref.value.crypto().get_user_encryption_key(),
-          );
-          await this.runOnUnlockSideEffects(userId, registeredUserKey, unlockMethod);
-        }),
-      ),
-    );
-  }
-
-  // Includes key derivation for master password and PIN unlocks
-  @measured(PERF_TRACK_GROUP, PERF_TRACK)
-  private async initializeUserCrypto(
-    userId: UserId,
-    client: Ref<PasswordManagerClient>,
-    request: SdkUnlockRequest,
-  ): Promise<void> {
-    await client.value.crypto().initialize_user_crypto({
-      ...request,
-      kdfParams: await this.getKdfParams(userId),
-      email: await this.getEmail(userId),
-      upgradeToken: await this.getV2UpgradeToken(userId),
-    });
+    await this.runOnUnlockSideEffects(userId, userKey, unlockMethod);
   }
 
   private async getAccountCryptographicState(
@@ -267,37 +219,12 @@ export class DefaultUnlockService implements UnlockService {
     return accountCryptographicState!;
   }
 
-  private async getKdfParams(userId: UserId): Promise<Kdf> {
-    const kdfParams = await firstValueFrom(
-      this.kdfService.getKdfConfig$(userId).pipe(
-        map((config: KdfConfig | null) => {
-          return config?.toSdkConfig();
-        }),
-      ),
-    );
-    assertNonNullish(kdfParams, "KDF parameters are required");
-    return kdfParams!;
-  }
-
-  private async getEmail(userId: UserId): Promise<string> {
-    const accounts = await firstValueFrom(this.accountService.accounts$);
-    const email = accounts[userId].email;
-    assertNonNullish(email, "Email is required");
-    return email;
-  }
-
   private async getMasterPasswordUnlockData(userId: UserId): Promise<MasterPasswordUnlockData> {
     const unlockData = await firstValueFrom(
       this.masterPasswordService.masterPasswordUnlockData$(userId),
     );
     assertNonNullish(unlockData, "Master password unlock data is required");
     return unlockData.toSdk();
-  }
-
-  private async getV2UpgradeToken(userId: UserId): Promise<V2UpgradeToken | undefined> {
-    return (
-      (await firstValueFrom(this.v2UpgradeTokenStateService.v2UpgradeToken$(userId))) ?? undefined
-    );
   }
 
   // When unlocking, certain side-effects must be run, such as setting the never-lock key and the biometrics key.
