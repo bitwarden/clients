@@ -11,6 +11,7 @@ import {
   OnePasswordImportSummary,
   OnePasswordSignInAddress,
   OnePasswordSignInMethods,
+  OnePasswordSsoImportRequest,
   SdkImportCredentials,
   SdkImportSummary,
 } from "../sdk";
@@ -49,6 +50,17 @@ export abstract class ImportServiceAbstraction {
   /** Signs in to 1Password through the SDK and imports the account; no file is involved. */
   importOnePassword: (
     request: OnePasswordImportRequest,
+    organizationId?: string,
+    selectedImportTarget?: FolderView | CollectionView,
+    canAccessImportExport?: boolean,
+  ) => Promise<OnePasswordImportSummary>;
+
+  /**
+   * Signs in to 1Password through the identity provider and imports the account; no file is
+   * involved.
+   */
+  importOnePasswordSso: (
+    request: OnePasswordSsoImportRequest,
     organizationId?: string,
     selectedImportTarget?: FolderView | CollectionView,
     canAccessImportExport?: boolean,

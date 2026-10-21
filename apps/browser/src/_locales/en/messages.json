@@ -5832,11 +5832,11 @@
   "onePasswordCheckCredentials": {
     "message": "An error has occurred. Check your credentials and try again."
   },
-  "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
-  },
   "onePasswordOnlyPasswordLoginTryAgain": {
     "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "onePasswordUnsupportedSignIn": {
+    "message": "This 1Password account uses a sign-in method that is not supported. Try again or use a different import method."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
     "message": "Enter a valid email address or use a different import method."
@@ -5877,6 +5877,9 @@
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
   },
+  "onePasswordEmailHintPasswordLoginOnly": {
+    "message": "Enter the email you use to log in to 1Password. Only login with password is supported."
+  },
   "secretKey": {
     "message": "Secret key"
   },
@@ -5885,6 +5888,24 @@
   },
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+  },
+  "onePasswordSsoApproveDeviceTitle": {
+    "message": "Approve this device"
+  },
+  "onePasswordSsoWaitingForApproval": {
+    "message": "Approve this device from another device signed in to 1Password."
+  },
+  "onePasswordSsoEnterVerificationCode": {
+    "message": "Enter the verification code shown on the other device."
+  },
+  "onePasswordSsoExchangingCredentials": {
+    "message": "Receiving credentials"
+  },
+  "onePasswordSsoCompleting": {
+    "message": "Finishing"
+  },
+  "onePasswordSsoDeviceDenied": {
+    "message": "This device was not approved on your other device. Try again or use a different import method."
   },
   "keeperEmail": {
     "message": "Keeper email"

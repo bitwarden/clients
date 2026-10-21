@@ -34,6 +34,7 @@ import {
   OnePasswordDirectImportService,
 } from "./onepassword-direct-import.service";
 import { onePasswordSignInDomains } from "./onepassword-sign-in-domains";
+import { OnePasswordSsoBrowser } from "./onepassword-sso-browser";
 import {
   requiredWithMessage,
   subdomainWithMessage,
@@ -68,10 +69,16 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly onePasswordDirectImportService = inject(OnePasswordDirectImportService);
+  private readonly onePasswordSsoBrowser = inject(OnePasswordSsoBrowser);
 
   private readonly parentFormGroup = signal<FormGroup | null>(null);
 
   protected readonly domains = onePasswordSignInDomains;
+  protected readonly ssoSupported = this.onePasswordSsoBrowser.supported;
+  /** Without single sign-on, the hint also says that only the password is supported. */
+  protected readonly emailHintKey = this.ssoSupported
+    ? "onePasswordEmailHint"
+    : "onePasswordEmailHintPasswordLoginOnly";
 
   private readonly rejection = signal<Rejection | undefined>(undefined);
 
@@ -108,11 +115,12 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
 
   /**
    * Signs in to 1Password through the SDK, which downloads, decrypts and submits the account, then
-   * hands the summary to `onImported`. The Secret Key, password and two-factor code are asked for in
-   * dialogs along the way, which show the import's progress. An account that cannot sign in with a
-   * password, or a refused email or sign-in address, is marked on its field, and any other failure
-   * is shown in a toast. The parent invokes this from its submit handler; 1Password direct has no
-   * file fallback to fall through to.
+   * hands the summary to `onImported`. 1Password tells how the account signs in. The Secret Key,
+   * password and two-factor code are asked for in dialogs along the way, which show the import's
+   * progress, or, for single sign-on, the identity provider and the approval of a new device. An
+   * account that cannot sign in on this client, or a refused email or sign-in address, is marked on
+   * its field, and any other failure is shown in a toast. The parent invokes this from its submit
+   * handler; 1Password direct has no file fallback to fall through to.
    */
   async submitDirect(
     context: OnePasswordImportContext,
@@ -124,18 +132,35 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
     }
 
     const account = this.account();
+    const { organizationId, selectedImportTarget, canAccessImportExport } = context;
     let summary: OnePasswordImportSummary | undefined;
     try {
-      if (!(await this.onePasswordDirectImportService.signsInWithPassword(account))) {
-        this.reject("email", this.i18nService.t("onePasswordOnlyPasswordLoginTryAgain"));
+      const signInMethod = await this.onePasswordDirectImportService.signInMethod(account);
+      if (signInMethod == null) {
+        this.reject(
+          "email",
+          this.i18nService.t(
+            this.ssoSupported
+              ? "onePasswordUnsupportedSignIn"
+              : "onePasswordOnlyPasswordLoginTryAgain",
+          ),
+        );
         return;
       }
-      summary = await this.onePasswordDirectImportService.handleImport(
-        account,
-        context.organizationId,
-        context.selectedImportTarget,
-        context.canAccessImportExport,
-      );
+      summary =
+        signInMethod === "sso"
+          ? await this.onePasswordDirectImportService.handleSsoImport(
+              account,
+              organizationId,
+              selectedImportTarget,
+              canAccessImportExport,
+            )
+          : await this.onePasswordDirectImportService.handleImport(
+              account,
+              organizationId,
+              selectedImportTarget,
+              canAccessImportExport,
+            );
     } catch (error) {
       this.logService.error(`1Password importer error: ${onePasswordErrorLogName(error)}`);
       this.showError(error);
@@ -148,7 +173,12 @@ export class ImportOnePasswordComponent implements OnInit, OnDestroy {
   }
 
   private showError(error: unknown): void {
-    const { field, message } = this.onePasswordDirectImportService.describeError(error);
+    const description = this.onePasswordDirectImportService.describeError(error);
+    if (description == null) {
+      return;
+    }
+
+    const { field, message } = description;
     if (field === "email" || field === "signInAddress") {
       this.reject(field === "email" ? "email" : "subdomain", message);
       return;

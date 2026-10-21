@@ -8,3 +8,7 @@ export {
   OnePasswordTwoFactorPromptComponent,
   OnePasswordTwoFactorPromptData,
 } from "./onepassword-two-factor-prompt.component";
+export {
+  OnePasswordSsoEnrollmentPromptComponent,
+  OnePasswordSsoEnrollmentPromptData,
+} from "./onepassword-sso-enrollment-prompt.component";

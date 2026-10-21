@@ -20,6 +20,14 @@ const chromiumImporter = {
     ipcRenderer.invoke("chromium_importer.importLogins", browser, profileId),
 };
 
+const onePasswordSso = {
+  // Resolves with the address the identity provider redirected to, or undefined if the user gave up
+  login: (ssoLoginUrl: string, redirectTo: string): Promise<string | undefined> =>
+    ipcRenderer.invoke("onePasswordSso.login", ssoLoginUrl, redirectTo),
+  cancel: (): Promise<void> => ipcRenderer.invoke("onePasswordSso.cancel"),
+};
+
 export default {
   chromiumImporter,
+  onePasswordSso,
 };

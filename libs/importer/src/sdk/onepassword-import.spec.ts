@@ -35,10 +35,7 @@ describe("onePasswordErrorDisplay", () => {
       "OnePasswordInvalidSignInAddress",
       { field: "signInAddress", messageKey: "enterValidSignInAddress" },
     ],
-    [
-      "OnePasswordUnsupported",
-      { field: "email", messageKey: "onePasswordOnlyPasswordLoginTryAgain" },
-    ],
+    ["OnePasswordUnsupported", { field: "email", messageKey: "onePasswordUnsupportedSignIn" }],
   ])("marks %s on the field the user can correct", (variant, display) => {
     expect(onePasswordErrorDisplay(importError(variant))).toEqual(display);
   });
@@ -47,6 +44,16 @@ describe("onePasswordErrorDisplay", () => {
     expect(onePasswordErrorDisplay(importError("OnePasswordInvalidEmail"))).toEqual({
       messageKey: "enterValidEmailOrUseDifferentImportMethod",
     });
+  });
+
+  it("shows a device denied on another device in a toast that says so", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordDenied"))).toEqual({
+      messageKey: "onePasswordSsoDeviceDenied",
+    });
+  });
+
+  it("shows nothing when the user canceled", () => {
+    expect(onePasswordErrorDisplay(importError("OnePasswordCanceled"))).toBeUndefined();
   });
 
   it("shows any other SDK failure in a toast", () => {
