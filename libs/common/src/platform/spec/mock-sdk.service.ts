@@ -35,6 +35,16 @@ export class MockSdkService implements SdkService {
     );
   }
 
+  /**
+   * Ready whenever a client exists. A spec needing the unlock/org-keys gap should use the real service.
+   */
+  cryptoReady$(userId: UserId): Observable<boolean> {
+    return this.userClients$.pipe(
+      map((clients) => clients[userId] !== undefined),
+      distinctUntilChanged(),
+    );
+  }
+
   unlock(): Promise<UserKey | null> {
     throw new Error("Not supported in mock service. Use simulate.userLogin instead.");
   }

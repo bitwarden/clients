@@ -138,6 +138,17 @@ export abstract class SdkService {
   abstract userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>>;
 
   /**
+   * Whether the user's client can decrypt: user crypto initialized **and** organization keys applied.
+   * False from the start of an {@link unlock} until {@link setOrgKeys} completes it, and after
+   * {@link lock} or {@link logout}. Always true while the long-lived client rollout is off.
+   *
+   * The user key appearing in state is not a readiness signal: it is written partway through
+   * {@link unlock}, before {@link setOrgKeys} has run.
+   * @param userId The user whose client to check
+   */
+  abstract cryptoReady$(userId: UserId): Observable<boolean>;
+
+  /**
    * Unlock the user's live client.
    * @param userId The user whose client to unlock
    * @param request The data needed to unlock the client
