@@ -84,6 +84,7 @@ import {
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { collectionOptionsInScope, folderOptionsInScope } from "../../../utils/filter-options";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
@@ -152,6 +153,7 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly vaultTourService = inject(VaultPopupTourService);
 
   /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
   protected readonly autofocusSearch = !inject(VaultPopupScrollPositionService).restoresCollapse();
@@ -298,8 +300,21 @@ export class VaultPopupListTableComponent {
    */
   protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
 
-  /** Whether the toolbar's filter dialog is open. */
-  protected readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
+  /** Whether the user left the toolbar's filter dialog open; restored when the popup reopens. */
+  private readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
+
+  /** The filter dialog is up while the user or the tour holds it open. */
+  protected readonly showFilterDialog = computed(
+    () => this.filterDialogOpen() || this.vaultTourService.filterDialogOpen(),
+  );
+
+  /** Closing the dialog releases the tour's hold too, which ends the tour on its step. */
+  protected setFilterDialogOpen(open: boolean) {
+    this.filterDialogOpen.set(open);
+    if (!open) {
+      this.vaultTourService.filterDialogOpen.set(false);
+    }
+  }
 
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],

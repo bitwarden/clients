@@ -6,7 +6,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { BitTableToolbarComponent, PopoverRef, PopoverService } from "@bitwarden/components";
 import { CoachmarkService, CoachmarkStepId } from "@bitwarden/vault";
 
-import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import {
   SharedFoldersRow,
   VaultPopupTourService,
@@ -25,6 +24,7 @@ describe("VaultFiltersTourComponent", () => {
   });
   /** The filter dialog row the tour picked for its shared folders step. */
   const sharedFoldersRow = signal<SharedFoldersRow | null>("collection");
+  /** Whether the tour holds the filter dialog open. */
   const filterDialogOpen = signal(false);
   const popoverService = mock<PopoverService>();
 
@@ -52,8 +52,7 @@ describe("VaultFiltersTourComponent", () => {
       imports: [VaultFiltersTourComponent],
       providers: [
         { provide: CoachmarkService, useValue: coachmarkService },
-        { provide: VaultPopupTourService, useValue: { sharedFoldersRow } },
-        { provide: VaultPopupListTableFiltersService, useValue: { filterDialogOpen } },
+        { provide: VaultPopupTourService, useValue: { sharedFoldersRow, filterDialogOpen } },
         { provide: PopoverService, useValue: popoverService },
         { provide: I18nService, useValue: mock<I18nService>() },
       ],

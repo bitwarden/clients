@@ -22,7 +22,10 @@ describe("VaultPopupTourService", () => {
   const userId = "user-1" as UserId;
 
   let service: VaultPopupTourService;
-  const coachmark = mock<CoachmarkService>();
+  /** Whether a tour is showing; `startTour` shows the one it's given. */
+  const running = signal(false);
+  const coachmark = mock<CoachmarkService>({ isRunning: running });
+  const stateProvider = mock<StateProvider>();
   const vaultNav$ = new BehaviorSubject<any>({ vaults: [] });
   const collections$ = new BehaviorSubject<any[]>([]);
   const folders$ = new BehaviorSubject<any[]>([]);
@@ -37,6 +40,8 @@ describe("VaultPopupTourService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    running.set(false);
+    coachmark.startTour.mockImplementation(async () => running.set(true));
     vaultNav$.next({ vaults: [{ id: "user-1" }, { id: "org-1" }] });
     collections$.next([collection]);
     folders$.next([]);
@@ -46,7 +51,7 @@ describe("VaultPopupTourService", () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: CoachmarkService, useValue: coachmark },
-        { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: StateProvider, useValue: stateProvider },
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
         { provide: VaultPopupListTableService, useValue: { vaultScope } },
         { provide: VaultPopupListTableFiltersService, useValue: { collections$, folders$ } },
@@ -99,5 +104,28 @@ describe("VaultPopupTourService", () => {
 
     expect(startedSteps()).toEqual(["switchVaults", "filters"]);
     expect(service.sharedFoldersRow()).toBeNull();
+  });
+
+  it("marks the tour complete as soon as it starts", async () => {
+    await service.start(userId);
+
+    expect(stateProvider.setUserState).toHaveBeenCalledWith(expect.anything(), true, userId);
+  });
+
+  it("doesn't mark the tour complete when it doesn't start", async () => {
+    coachmark.startTour.mockResolvedValue(undefined);
+
+    await service.start(userId);
+
+    expect(stateProvider.setUserState).not.toHaveBeenCalled();
+  });
+
+  it("leaves a running tour alone", async () => {
+    running.set(true);
+
+    await service.start(userId);
+
+    expect(coachmark.startTour).not.toHaveBeenCalled();
+    expect(stateProvider.setUserState).not.toHaveBeenCalled();
   });
 });

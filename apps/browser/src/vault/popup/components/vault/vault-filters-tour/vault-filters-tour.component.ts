@@ -12,7 +12,6 @@ import {
 import { BitTableToolbarComponent, PopoverService } from "@bitwarden/components";
 import { CoachmarkComponent, CoachmarkService } from "@bitwarden/vault";
 
-import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 
 /**
@@ -27,10 +26,9 @@ import { VaultPopupTourService } from "../../../services/vault-popup-tour.servic
   imports: [CoachmarkComponent],
 })
 export class VaultFiltersTourComponent {
-  private readonly coachmark = inject(CoachmarkService);
-  private readonly vaultTour = inject(VaultPopupTourService);
+  private readonly coachmarkService = inject(CoachmarkService);
+  private readonly vaultTourService = inject(VaultPopupTourService);
   private readonly popoverService = inject(PopoverService);
-  private readonly filterDialogOpen = inject(VaultPopupListTableFiltersService).filterDialogOpen;
 
   /** The toolbar whose filter button and filter dialog rows the steps anchor to. */
   readonly toolbar = input.required<BitTableToolbarComponent>();
@@ -45,12 +43,12 @@ export class VaultFiltersTourComponent {
   private readonly showCoachmarks = effect((onCleanup) => {
     const toolbar = this.toolbar();
 
-    if (this.coachmark.isStepActive("filters")) {
+    if (this.coachmarkService.isStepActive("filters")) {
       const ref = this.popoverService.open(
         this.filtersCoachmark().popover(),
         toolbar.filterButton,
         {
-          position: this.coachmark.getStepPosition("filters"),
+          position: this.coachmarkService.getStepPosition("filters"),
           spotlight: true,
         },
       );
@@ -59,17 +57,17 @@ export class VaultFiltersTourComponent {
     }
 
     // The tour drops this step when it has no row to point at.
-    const rowKey = untracked(() => this.vaultTour.sharedFoldersRow());
-    if (this.coachmark.isStepActive("sharedFolders") && rowKey) {
+    const rowKey = untracked(() => this.vaultTourService.sharedFoldersRow());
+    if (this.coachmarkService.isStepActive("sharedFolders") && rowKey) {
       untracked(() => {
-        this.filterDialogOpen.set(true);
+        this.vaultTourService.filterDialogOpen.set(true);
         this.tourOpenedFilterDialog.set(true);
       });
       const ref = this.popoverService.open(
         this.sharedFoldersCoachmark().popover(),
         toolbar.filterRow(rowKey),
         {
-          position: this.coachmark.getStepPosition("sharedFolders"),
+          position: this.coachmarkService.getStepPosition("sharedFolders"),
           spotlight: true,
         },
       );
@@ -77,17 +75,17 @@ export class VaultFiltersTourComponent {
         ref.close();
         // Cleared before the dialog closes, so moving off the step doesn't read as the user closing it.
         this.tourOpenedFilterDialog.set(false);
-        this.filterDialogOpen.set(false);
+        this.vaultTourService.filterDialogOpen.set(false);
       });
     }
   });
 
   /** Closing the dialog takes the shared folders step's anchor with it, so it ends the tour. */
   private readonly endTourOnFilterDialogClose = effect(() => {
-    if (this.tourOpenedFilterDialog() && !this.filterDialogOpen()) {
+    if (this.tourOpenedFilterDialog() && !this.vaultTourService.filterDialogOpen()) {
       untracked(() => {
         this.tourOpenedFilterDialog.set(false);
-        void this.coachmark.completeTour();
+        void this.coachmarkService.completeTour();
       });
     }
   });

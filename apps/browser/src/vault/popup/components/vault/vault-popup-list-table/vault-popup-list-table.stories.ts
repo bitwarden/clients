@@ -718,7 +718,10 @@ const buildProviders = (args: StoryArgs) => {
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
-    { provide: VaultPopupTourService, useValue: { sharedFoldersRow: signal(null) } },
+    {
+      provide: VaultPopupTourService,
+      useValue: { sharedFoldersRow: signal(null), filterDialogOpen: signal(false) },
+    },
     {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(true) },

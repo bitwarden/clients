@@ -35,7 +35,23 @@ export class VaultPopupTourService {
    */
   readonly sharedFoldersRow = this._sharedFoldersRow.asReadonly();
 
+  /**
+   * Whether the tour holds the filter dialog open for its shared folders step. Kept apart from the
+   * view-cached `VaultPopupListTableFiltersService.filterDialogOpen`, which would reopen the dialog
+   * after the popup closes mid-step, when the tour itself is gone.
+   */
+  readonly filterDialogOpen = signal(false);
+
+  /**
+   * Starts the tour and marks it complete straight away: its progress lives only in memory, so a
+   * user who closes the popup partway through doesn't get it again.
+   */
   async start(userId: UserId): Promise<void> {
+    // Another tour holds the coachmarks, and this one would be marked complete without showing.
+    if (this.coachmarkService.isRunning()) {
+      return;
+    }
+
     const [nav, collections, folders, ciphers] = await Promise.all([
       firstValueFrom(this.vaultNavService.viewModel$(userId)),
       firstValueFrom(this.listFiltersService.collections$),
@@ -53,8 +69,15 @@ export class VaultPopupTourService {
           : null;
     this._sharedFoldersRow.set(sharedFoldersRow);
 
-    await this.coachmarkService.startTour(
-      extensionVaultTour(this.stateProvider, nav.vaults.length > 1, sharedFoldersRow != null),
+    const tour = extensionVaultTour(
+      this.stateProvider,
+      nav.vaults.length > 1,
+      sharedFoldersRow != null,
     );
+    await this.coachmarkService.startTour(tour);
+    // `startTour` skips a tour that is already complete or has no steps, so check it is showing.
+    if (this.coachmarkService.isRunning()) {
+      await tour.markCompleted(userId);
+    }
   }
 }

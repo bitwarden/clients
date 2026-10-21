@@ -700,7 +700,10 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
-    { provide: VaultPopupTourService, useValue: { sharedFoldersRow: signal(null) } },
+    {
+      provide: VaultPopupTourService,
+      useValue: { sharedFoldersRow: signal(null), filterDialogOpen: signal(false) },
+    },
     { provide: PasswordRepromptService, useValue: {} },
     { provide: ToastService, useValue: { showToast: () => {} } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
