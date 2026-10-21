@@ -14,13 +14,15 @@
     </bit-form-field>
     @if (passwordRepromptEnabled$ | async) {
       <bit-form-control
-        [disableMargin]="(hasCustomFields || isPartialEdit) && !showHTTPAuthenticationSetting()"
+        [disableMargin]="
+          (hasCustomFields || isPartialEdit) && !showHTTPAuthenticationCipherSetting()
+        "
       >
         <input type="checkbox" bitCheckbox formControlName="reprompt" />
         <bit-label>{{ "passwordPrompt" | i18n }}</bit-label>
       </bit-form-control>
     }
-    @if (showHTTPAuthenticationSetting()) {
+    @if (showHTTPAuthenticationCipherSetting()) {
       <bit-form-control [disableMargin]="hasCustomFields || isPartialEdit">
         <input
           type="checkbox"

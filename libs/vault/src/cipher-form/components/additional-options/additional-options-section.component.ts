@@ -81,19 +81,25 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     this.platformUtilsService.getClientType() === ClientType.Browser &&
     this.platformUtilsService.isSafari();
 
-  /** True when the HTTP authentication setting is shown */
-  protected readonly showHTTPAuthenticationSetting = toSignal(
-    this.configService
-      .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
-      .pipe(
-        map(
-          (enabled) =>
-            enabled &&
-            this.httpAuthenticationSupported &&
-            !this.isSafariExtension &&
-            this.cipherFormContainer.config.cipherType === CipherType.Login,
-        ),
+  /**
+   * True when the HTTP authentication setting is shown. The cipher-level controls are gated
+   * separately from the HTTP authentication feature itself, so they can be turned on
+   * independently.
+   */
+  protected readonly showHTTPAuthenticationCipherSetting = toSignal(
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse),
+      this.configService.getFeatureFlag$(FeatureFlag.EnableHttpAuthCipherControls),
+    ]).pipe(
+      map(
+        ([httpAuthenticationEnabled, cipherControlsEnabled]) =>
+          httpAuthenticationEnabled &&
+          cipherControlsEnabled &&
+          this.httpAuthenticationSupported &&
+          !this.isSafariExtension &&
+          this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),
+    ),
     { initialValue: false },
   );
 

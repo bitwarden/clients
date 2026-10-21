@@ -395,16 +395,21 @@ export const WithSubmitButton: Story = {
   },
 };
 
-/** Provides a `ConfigService` with only the HTTP authentication feature flag turned on */
+const httpAuthenticationFeatureFlags: FeatureFlag[] = [
+  FeatureFlag.EnableBasicAuthResponse,
+  FeatureFlag.EnableHttpAuthCipherControls,
+];
+
+/** Provides a `ConfigService` with only the HTTP authentication feature flags turned on */
 const withHTTPAuthenticationFeatureFlag = moduleMetadata({
   providers: [
     {
       provide: ConfigService,
       useValue: {
         getFeatureFlag: (flag: FeatureFlag) =>
-          Promise.resolve(flag === FeatureFlag.EnableBasicAuthResponse),
+          Promise.resolve(httpAuthenticationFeatureFlags.includes(flag)),
         getFeatureFlag$: (flag: FeatureFlag) =>
-          new BehaviorSubject(flag === FeatureFlag.EnableBasicAuthResponse),
+          new BehaviorSubject(httpAuthenticationFeatureFlags.includes(flag)),
       },
     },
   ],

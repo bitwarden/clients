@@ -41,6 +41,7 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
   let configService: MockProxy<ConfigService>;
   let httpAuthenticationFeatureFlag$: BehaviorSubject<boolean>;
+  let httpAuthenticationCipherControlsFeatureFlag$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let httpAuthenticationService: CipherFormHTTPAuthenticationService;
@@ -60,12 +61,18 @@ describe("AdditionalOptionsSectionComponent", () => {
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
     httpAuthenticationFeatureFlag$ = new BehaviorSubject(true);
+    httpAuthenticationCipherControlsFeatureFlag$ = new BehaviorSubject(true);
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
-      flag === FeatureFlag.EnableBasicAuthResponse
-        ? httpAuthenticationFeatureFlag$
-        : new BehaviorSubject(false),
-    );
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
+      switch (flag) {
+        case FeatureFlag.EnableBasicAuthResponse:
+          return httpAuthenticationFeatureFlag$;
+        case FeatureFlag.EnableHttpAuthCipherControls:
+          return httpAuthenticationCipherControlsFeatureFlag$;
+        default:
+          return new BehaviorSubject(false);
+      }
+    });
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
     platformUtilsService = mock<PlatformUtilsService>();
@@ -177,14 +184,21 @@ describe("AdditionalOptionsSectionComponent", () => {
 
     const flushPromises = () => fixture.whenStable();
 
-    it("shows the HTTP authentication setting for login items when the feature flag is on", () => {
+    it("shows the HTTP authentication setting for login items when both feature flags are on", () => {
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).not.toBeNull();
     });
 
-    it("hides the HTTP authentication setting when the feature flag is off", () => {
+    it("hides the HTTP authentication setting when the HTTP authentication feature flag is off", () => {
       httpAuthenticationFeatureFlag$.next(false);
+      fixture.detectChanges();
+
+      expect(getHTTPAuthenticationCheckbox()).toBeNull();
+    });
+
+    it("hides the HTTP authentication setting when the cipher controls feature flag is off", () => {
+      httpAuthenticationCipherControlsFeatureFlag$.next(false);
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).toBeNull();
