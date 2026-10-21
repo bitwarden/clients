@@ -100,16 +100,17 @@
           role="columnheader"
           [attr.aria-colspan]="columnCount()"
           [attr.aria-expanded]="!item.group.collapsed()"
-          [class]="groupHeaderButtonClass(item.level)"
+          [class]="groupHeaderButtonClass(item.level, forceHeight)"
           [style.height.px]="forceHeight ? headerHeight(item.level) : null"
           (click)="item.group.toggle()"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
           <!-- Count only on non-empty top-level group headers. -->
           @if (item.level === 0 && item.count > 0) {
-            <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+            <span class="tw-ms-auto tw-font-normal tw-text-fg-body-subtle">{{ item.count }}</span>
           }
           <bit-icon
+            class="tw-text-fg-body-subtle"
             [class]="item.level === 0 ? 'tw-ps-2' : 'tw-ms-auto'"
             [name]="item.group.collapsed() ? 'bwi-angle-down' : 'bwi-angle-up'"
             aria-hidden="true"
@@ -119,12 +120,12 @@
         <div
           role="columnheader"
           [attr.aria-colspan]="columnCount()"
-          [class]="groupHeaderClass(item.level)"
+          [class]="groupHeaderClass(item.level, forceHeight)"
           [style.height.px]="forceHeight ? headerHeight(item.level) : null"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
           @if (item.level === 0 && item.count > 0) {
-            <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+            <span class="tw-ms-auto tw-font-normal tw-text-fg-body-subtle">{{ item.count }}</span>
           }
         </div>
       }
