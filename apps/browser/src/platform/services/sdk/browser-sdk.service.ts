@@ -145,11 +145,24 @@ export class BrowserSdkService extends DefaultSdkService {
     await this.broadcast({ kind: "flags", userId, entries: [...flags.entries()] });
   }
 
+  /**
+   * When this process's client fails closed (it was finishing an unlock and got locked), the
+   * user key in shared state is cleared with it, so the other process is told to lock too: its
+   * client may already be ready from its own unlock.
+   */
   override async setOrgKeys(
     userId: UserId,
     orgKeys: Record<OrganizationId, UnsignedSharedKey>,
   ): Promise<void> {
-    await super.setOrgKeys(userId, orgKeys);
+    const readyBefore = await firstValueFrom(this.cryptoReady$(userId));
+    try {
+      await super.setOrgKeys(userId, orgKeys);
+    } catch (e) {
+      if (!readyBefore) {
+        await this.broadcast({ kind: "lock", userId });
+      }
+      throw e;
+    }
     await this.broadcast({ kind: "orgKeys", userId, orgKeys });
   }
 

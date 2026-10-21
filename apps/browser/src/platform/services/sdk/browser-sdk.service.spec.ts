@@ -254,13 +254,37 @@ describe("BrowserSdkService", () => {
       expect(superLogout).toHaveBeenCalledWith(userId);
     });
 
-    it("does not broadcast organization keys that failed to apply", async () => {
+    it("does not broadcast organization keys that failed to apply on a ready client", async () => {
       superSetOrgKeys.mockRejectedValue(new Error("org keys failed"));
+      cryptoReady.mockReturnValue(of(true));
       const process = createProcess();
 
       await expect(process.service.setOrgKeys(userId, orgKeys)).rejects.toThrow("org keys failed");
 
       expect(process.sent).toHaveLength(0);
+    });
+
+    it("broadcasts a lock, then rethrows, when organization keys fail on a client finishing an unlock", async () => {
+      const error = new Error("org keys failed");
+      superSetOrgKeys.mockRejectedValue(error);
+      const process = createProcess();
+
+      await expect(process.service.setOrgKeys(userId, orgKeys)).rejects.toBe(error);
+
+      expect(process.sent.map((m) => m.push)).toEqual([{ kind: "lock", userId }]);
+    });
+
+    it("rethrows the original error and logs when the lock broadcast throws", async () => {
+      const error = new Error("org keys failed");
+      superSetOrgKeys.mockRejectedValue(error);
+      const process = createProcess();
+      (process.service as any).messageSender.send.mockImplementation(() => {
+        throw new Error("context invalidated");
+      });
+
+      await expect(process.service.setOrgKeys(userId, orgKeys)).rejects.toBe(error);
+
+      expect(process.logService.error).toHaveBeenCalled();
     });
 
     it("resolves lock and logs when broadcasting throws", async () => {
@@ -562,6 +586,23 @@ describe("BrowserSdkService", () => {
       expect(superUnlock.mock.contexts).toContain(popup.service);
       expect(popup.keyService.buildSdkUnlockData).toHaveBeenCalledWith(userId, userKey);
       expect(superSetOrgKeys.mock.contexts.filter((c) => c === popup.service)).toHaveLength(2);
+    });
+
+    it("clears the other process's ready client when one process fails closed on organization keys", async () => {
+      const background = start(createProcess());
+      const popup = start(createProcess());
+      await settle();
+      jest.clearAllMocks();
+      superSetOrgKeys.mockImplementation(async function (this: BrowserSdkService) {
+        if (this === popup.service) {
+          throw new Error("org keys failed");
+        }
+      });
+
+      await expect(popup.service.setOrgKeys(userId, orgKeys)).rejects.toThrow("org keys failed");
+      await settle();
+
+      expect(superLock.mock.contexts).toEqual([background.service]);
     });
 
     it.each(["lock", "logout"] as const)(
