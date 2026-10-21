@@ -41,6 +41,14 @@ export const VFO1_SHARED_FOLDERS_STEP: CoachmarkStep = {
   opensSideNav: true,
 };
 
+export const VFO1_FILTERS_STEP: CoachmarkStep = {
+  id: "filters",
+  titleKey: "coachmarkFiltersTitle",
+  descriptionKey: "coachmarkFiltersDescription",
+  position: "left-start",
+  route: "/vault",
+};
+
 export function vfo1WalkthroughTour(
   nudgesService: NudgesService,
   steps: CoachmarkStep[],
