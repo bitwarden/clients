@@ -23,14 +23,14 @@ const writeLn = CliUtils.writeLn;
 
 export class VaultProgram extends BaseProgram {
   async register() {
-    const sharedFolders = await this.sharedFoldersEnabled();
+    const useSharedFoldersTerm = await this.sharedFoldersEnabled();
 
     program
-      .addCommand(this.listCommand(sharedFolders))
-      .addCommand(this.getCommand(sharedFolders))
-      .addCommand(this.createCommand(sharedFolders))
-      .addCommand(this.editCommand(sharedFolders))
-      .addCommand(this.deleteCommand(sharedFolders))
+      .addCommand(this.listCommand(useSharedFoldersTerm))
+      .addCommand(this.getCommand(useSharedFoldersTerm))
+      .addCommand(this.createCommand(useSharedFoldersTerm))
+      .addCommand(this.editCommand(useSharedFoldersTerm))
+      .addCommand(this.deleteCommand(useSharedFoldersTerm))
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
@@ -45,8 +45,8 @@ export class VaultProgram extends BaseProgram {
   }
 
   /** Hides the object names that use the terminology the feature flag has turned off. */
-  private visibleObjects(objects: string[], sharedFolders: boolean): string[] {
-    const hidden = sharedFolders ? "collection" : "shared-folder";
+  private visibleObjects(objects: string[], useSharedFoldersTerm: boolean): string[] {
+    const hidden = useSharedFoldersTerm ? "collection" : "shared-folder";
     return objects.filter((object) => !object.includes(hidden));
   }
 
@@ -71,7 +71,7 @@ export class VaultProgram extends BaseProgram {
     return success;
   }
 
-  private listCommand(sharedFolders: boolean): Command {
+  private listCommand(useSharedFoldersTerm: boolean): Command {
     const listObjects = [
       "items",
       "folders",
@@ -82,7 +82,7 @@ export class VaultProgram extends BaseProgram {
       "org-members",
       "organizations",
     ];
-    const shownObjects = this.visibleObjects(listObjects, sharedFolders);
+    const shownObjects = this.visibleObjects(listObjects, useSharedFoldersTerm);
 
     const command = new Command("list")
       .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
@@ -92,18 +92,18 @@ export class VaultProgram extends BaseProgram {
       .option("--folderid <folderid>", "Filter items by folder id.")
       .addOption(
         new Option("--collectionid <collectionid>", "Filter items by collection id.").hideHelp(
-          sharedFolders,
+          useSharedFoldersTerm,
         ),
       )
       .addOption(
         new Option(
           "--sharedfolderid <sharedfolderid>",
           "Filter items by shared folder id.",
-        ).hideHelp(!sharedFolders),
+        ).hideHelp(!useSharedFoldersTerm),
       )
       .option(
         "--organizationid <organizationid>",
-        `Filter items or ${sharedFolders ? "shared folders" : "collections"} by organization id.`,
+        `Filter items or ${useSharedFoldersTerm ? "shared folders" : "collections"} by organization id.`,
       )
       .option("--trash", "Filter items that are deleted and in the trash.")
       .on("--help", () => {
@@ -126,13 +126,13 @@ export class VaultProgram extends BaseProgram {
         writeLn(
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
-        if (sharedFolders) {
+        if (useSharedFoldersTerm) {
           writeLn("    bw list items --sharedfolderid 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38");
         }
         writeLn("    bw list items --trash");
         writeLn("    bw list items --archived");
         writeLn("    bw list folders --search email");
-        if (sharedFolders) {
+        if (useSharedFoldersTerm) {
           writeLn("    bw list shared-folders --search engineering");
         } else {
           writeLn("    bw list collections --search engineering");
@@ -170,7 +170,7 @@ export class VaultProgram extends BaseProgram {
     return command;
   }
 
-  private getCommand(sharedFolders: boolean): Command {
+  private getCommand(useSharedFoldersTerm: boolean): Command {
     const getObjects = [
       "item",
       "username",
@@ -190,7 +190,7 @@ export class VaultProgram extends BaseProgram {
       "fingerprint",
       "send",
     ];
-    const shownObjects = this.visibleObjects(getObjects, sharedFolders);
+    const shownObjects = this.visibleObjects(getObjects, useSharedFoldersTerm);
     return new Command("get")
       .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Search term or object's globally unique `id`.")
@@ -218,7 +218,7 @@ export class VaultProgram extends BaseProgram {
         );
         writeLn("    bw get folder email");
         writeLn("    bw get template folder");
-        const folderObject = sharedFolders ? "shared-folder" : "collection";
+        const folderObject = useSharedFoldersTerm ? "shared-folder" : "collection";
         writeLn(`    bw get ${folderObject} 6f1c2a3e-8d4b-4c57-9a10-2b7e5d9c4f38`);
         writeLn(`    bw get template ${folderObject}`);
         writeLn("", true);
@@ -252,9 +252,9 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private createCommand(sharedFolders: boolean): Command {
+  private createCommand(useSharedFoldersTerm: boolean): Command {
     const createObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
-    const shownObjects = this.visibleObjects(createObjects, sharedFolders);
+    const shownObjects = this.visibleObjects(createObjects, useSharedFoldersTerm);
     return new Command("create")
       .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument(
@@ -271,7 +271,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K");
         writeLn("    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create folder");
         writeLn(
-          `    bw create ${sharedFolders ? "org-shared-folder" : "org-collection"} eyJuYW1lIjoiTXkgRm9sZGVyIn0K ` +
+          `    bw create ${useSharedFoldersTerm ? "org-shared-folder" : "org-collection"} eyJuYW1lIjoiTXkgRm9sZGVyIn0K ` +
             "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
         );
         writeLn(
@@ -304,7 +304,7 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private editCommand(sharedFolders: boolean): Command {
+  private editCommand(useSharedFoldersTerm: boolean): Command {
     const editObjects = [
       "item",
       "item-collections",
@@ -313,7 +313,7 @@ export class VaultProgram extends BaseProgram {
       "org-collection",
       "org-shared-folder",
     ];
-    const shownObjects = this.visibleObjects(editObjects, sharedFolders);
+    const shownObjects = this.visibleObjects(editObjects, useSharedFoldersTerm);
     return new Command("edit")
       .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
@@ -334,7 +334,7 @@ export class VaultProgram extends BaseProgram {
             "bw edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02",
         );
         writeLn(
-          `    bw edit ${sharedFolders ? "item-shared-folders" : "item-collections"} ` +
+          `    bw edit ${useSharedFoldersTerm ? "item-shared-folders" : "item-collections"} ` +
             "78307355-fd25-416b-88b8-b33fd0e88c82 " +
             "WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==",
         );
@@ -364,9 +364,9 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private deleteCommand(sharedFolders: boolean): Command {
+  private deleteCommand(useSharedFoldersTerm: boolean): Command {
     const deleteObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
-    const shownObjects = this.visibleObjects(deleteObjects, sharedFolders);
+    const shownObjects = this.visibleObjects(deleteObjects, useSharedFoldersTerm);
     return new Command("delete")
       .argument("<object>", "Valid objects are: " + shownObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
@@ -384,7 +384,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("    bw delete item 89c21cd2-fab0-4f69-8c6e-ab8a0168f69a --permanent");
         writeLn("    bw delete folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02");
         writeLn(
-          `    bw delete ${sharedFolders ? "org-shared-folder" : "org-collection"} ` +
+          `    bw delete ${useSharedFoldersTerm ? "org-shared-folder" : "org-collection"} ` +
             "5cdfbd80-d99f-409b-915b-f4c5d0241b02 " +
             "--organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2",
         );
