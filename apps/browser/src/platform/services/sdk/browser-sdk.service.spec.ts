@@ -777,6 +777,77 @@ describe("BrowserSdkService", () => {
   });
 
   describe("across the popup and the background", () => {
+    const rotatedUserKey = new SymmetricCryptoKey(new Uint8Array(64).fill(9)) as UserKey;
+
+    it("re-keys the other process's ready client when one process unlocks with a new user key", async () => {
+      const background = start(createProcess());
+      const popup = start(createProcess());
+      await settle();
+      await popup.service.unlock(userId, unlockRequest);
+      await popup.service.setOrgKeys(userId, orgKeys);
+      await settle();
+      jest.clearAllMocks();
+
+      // A key rotation in the popup, followed by the re-key with the rotated key.
+      superUnlock.mockResolvedValue(rotatedUserKey);
+      await popup.service.unlock(userId, unlockRequest);
+      await settle();
+
+      expect(superUnlockAtEpoch.mock.contexts).toEqual([background.service]);
+      expect(background.keyService.buildSdkUnlockData).toHaveBeenCalledWith(userId, rotatedUserKey);
+    });
+
+    it("leaves the other process's ready client alone when the same user key is pushed again", async () => {
+      start(createProcess());
+      const popup = start(createProcess());
+      await settle();
+      await popup.service.unlock(userId, unlockRequest);
+      await popup.service.setOrgKeys(userId, orgKeys);
+      await settle();
+      jest.clearAllMocks();
+
+      await popup.service.unlock(userId, unlockRequest);
+      await settle();
+
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
+    });
+
+    it("does not re-key a ready client when converging finds a different key in state", async () => {
+      const process = createProcess();
+      await process.service.unlock(userId, unlockRequest);
+      await process.service.setOrgKeys(userId, orgKeys);
+      jest.clearAllMocks();
+      userKey$.next(rotatedUserKey);
+
+      start(process);
+      await settle();
+
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
+    });
+
+    it.each(["lock", "logout"] as const)(
+      "forgets the applied user key on a local and a remote %s",
+      async (kind) => {
+        const background = start(createProcess());
+        const popup = start(createProcess());
+        await settle();
+        await popup.service.unlock(userId, unlockRequest);
+        await popup.service.setOrgKeys(userId, orgKeys);
+        await settle();
+        const applied = (process: Process) => (process.service as any).appliedUserKeys.has(userId);
+        expect([applied(popup), applied(background)]).toEqual([true, true]);
+
+        if (kind === "lock") {
+          await popup.service.lock(userId);
+        } else {
+          popup.service.logout(userId);
+        }
+        await settle();
+
+        expect([applied(popup), applied(background)]).toEqual([false, false]);
+      },
+    );
+
     it("unlocks the background's client when the popup unlocks", async () => {
       const background = start(createProcess());
       const popup = start(createProcess());

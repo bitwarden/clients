@@ -66,6 +66,12 @@ export const SDK_PUSH = new CommandDefinition<SdkPushMessage>("sdkPush");
  */
 export class BrowserSdkService extends DefaultSdkService {
   private readonly origin = Utils.newGuid();
+  /**
+   * The user key each user's client in this process was last unlocked with. Kept only between an
+   * unlock and the next lock or logout, so a ready client can tell a push of the key it already
+   * holds from a push of a new one (a key rotation).
+   */
+  private readonly appliedUserKeys = new Map<UserId, UserKey>();
 
   constructor(
     sdkClientFactory: SdkClientFactory,
@@ -122,19 +128,23 @@ export class BrowserSdkService extends DefaultSdkService {
   }
 
   override async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+    this.appliedUserKeys.delete(userId);
     const userKey = await super.unlock(userId, request);
     if (userKey != null) {
+      this.appliedUserKeys.set(userId, userKey);
       await this.broadcast({ kind: "unlock", userId, userKeyB64: userKey.toBase64() });
     }
     return userKey;
   }
 
   override async lock(userId: UserId): Promise<void> {
+    this.appliedUserKeys.delete(userId);
     await super.lock(userId);
     await this.broadcast({ kind: "lock", userId });
   }
 
   override logout(userId: UserId): void {
+    this.appliedUserKeys.delete(userId);
     // Synchronous, so the logout counter is bumped before this returns.
     super.logout(userId);
     void this.broadcast({ kind: "logout", userId });
@@ -162,12 +172,15 @@ export class BrowserSdkService extends DefaultSdkService {
             push.userId,
             SymmetricCryptoKey.fromString(push.userKeyB64) as UserKey,
             this.lockEpoch(push.userId),
+            true,
           );
           break;
         case "lock":
+          this.appliedUserKeys.delete(push.userId);
           await super.lock(push.userId);
           break;
         case "logout":
+          this.appliedUserKeys.delete(push.userId);
           super.logout(push.userId);
           break;
         case "flags":
@@ -226,12 +239,25 @@ export class BrowserSdkService extends DefaultSdkService {
   /**
    * Unlocks this process's client with a user key and applies the organization keys built from
    * shared state, so the client becomes ready without depending on a later organization-key push.
-   * A client that is already ready is left alone: re-unlocking it would clear the user key in
-   * shared state for a moment, and the other process would see the user as locked.
+   *
+   * A client that is already ready is left alone: re-unlocking it clears the user key in shared
+   * state for a moment, and the other process sees the user as locked. The exception is a pushed
+   * key that differs from the one the client holds (`rekeyOnNewKey`): the other process unlocked
+   * with a new user key after a key rotation, and this client must not keep the retired one.
+   * Converging never re-keys, since it reads the key from the same shared state.
    */
-  private async unlockFromUserKey(userId: UserId, userKey: UserKey, epoch: number): Promise<void> {
+  private async unlockFromUserKey(
+    userId: UserId,
+    userKey: UserKey,
+    epoch: number,
+    rekeyOnNewKey = false,
+  ): Promise<void> {
     if (await firstValueFrom(this.cryptoReady$(userId))) {
-      return;
+      const applied = this.appliedUserKeys.get(userId);
+      const newKey = applied != null && applied.keyB64 !== userKey.keyB64;
+      if (!rekeyOnNewKey || !newKey) {
+        return;
+      }
     }
 
     const unlockData = await this.keyServiceProvider().buildSdkUnlockData(userId, userKey);
@@ -241,7 +267,9 @@ export class BrowserSdkService extends DefaultSdkService {
 
     // The base class rejects, and clears the client, if the user is locked after `epoch`. A lock
     // after the organization keys are applied finds a keyed client and clears it itself.
+    this.appliedUserKeys.delete(userId);
     await this.unlockAtEpoch(userId, unlockData.request, epoch);
+    this.appliedUserKeys.set(userId, userKey);
     await this.setOrgKeysOrLockBoth(userId, unlockData.orgKeys);
   }
 
@@ -259,6 +287,7 @@ export class BrowserSdkService extends DefaultSdkService {
       await super.setOrgKeys(userId, orgKeys);
     } catch (e) {
       if (!readyBefore) {
+        this.appliedUserKeys.delete(userId);
         await this.broadcast({ kind: "lock", userId });
       }
       throw e;
