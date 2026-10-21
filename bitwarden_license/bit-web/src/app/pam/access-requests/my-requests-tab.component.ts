@@ -234,6 +234,14 @@ export class MyRequestsTabComponent {
   protected readonly byStatus: SortFn = (a: MyRequestRow, b: MyRequestRow): number =>
     myRequestStatusRank(this.rowStatus(a)) - myRequestStatusRank(this.rowStatus(b));
 
+  /**
+   * `window` is a synthetic column, so there is no property for the table to sort on: without a
+   * comparator every row reads `undefined` and the header sorts nothing. Orders by when the
+   * window opens, as the Approvals tab does.
+   */
+  protected readonly byWindow: SortFn = (a: MyRequestRow, b: MyRequestRow): number =>
+    Date.parse(a.notBefore) - Date.parse(b.notBefore);
+
   protected readonly myRequestsTable = defineTable<MyRequestRow, "window" | "status" | "actions">(
     this.myRequestRows,
   );

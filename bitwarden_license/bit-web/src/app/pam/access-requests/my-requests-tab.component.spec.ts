@@ -646,6 +646,47 @@ describe("MyRequestsTabComponent", () => {
       });
     });
 
+    /**
+     * `window` is a synthetic column, so without an explicit comparator the table sorts on a
+     * property that does not exist and the header silently does nothing. The rows are built in
+     * window-END order, so the fixtures below deliberately disagree on window START — otherwise
+     * the default order already matches and the assertion cannot tell the two apart.
+     */
+    it("sorts the Requested window column when its header is clicked", () => {
+      pendingRows$.next([
+        requestRow({
+          id: "req-starts-late",
+          status: "pending",
+          leaseNotBefore: "2026-08-20T18:00:00.000Z",
+          leaseNotAfter: "2026-08-20T19:00:00.000Z",
+        }),
+        requestRow({
+          id: "req-starts-early",
+          status: "pending",
+          leaseNotBefore: "2026-08-20T14:00:00.000Z",
+          leaseNotAfter: "2026-08-20T20:00:00.000Z",
+        }),
+      ]);
+      create();
+
+      // Built end-ascending: the later-starting row leads until the column is sorted.
+      expect(rowIds()).toEqual([
+        "my-access-request-req-starts-late",
+        "my-access-request-req-starts-early",
+      ]);
+
+      const header = queryAll(table(), '[role="columnheader"]').find(
+        (h) => text(h) === "pamColumnRequestedWindow",
+      );
+      header?.querySelector("button")?.click();
+      fixture.detectChanges();
+
+      expect(rowIds()).toEqual([
+        "my-access-request-req-starts-early",
+        "my-access-request-req-starts-late",
+      ]);
+    });
+
     it("sorts by Status by default, closest to lapsing first", () => {
       leases$.next([
         leaseRow({ id: "lease-active", notAfter: "2026-08-20T13:30:00.000Z" }),
