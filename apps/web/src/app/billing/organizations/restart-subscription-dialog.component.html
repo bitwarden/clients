@@ -1,0 +1,50 @@
+<form [formGroup]="formGroup" bit-dialog dialogSize="large" [loading]="loading()">
+  <span bitDialogTitle class="tw-font-medium">
+    {{ "restartSubscription" | i18n }}
+  </span>
+  <div bitDialogContent>
+    @if (!loading()) {
+      @if (restartPlan(); as plan) {
+        <div class="tw-mb-4">
+          <span class="tw-text-sm tw-text-muted">{{ "plan" | i18n }}</span>
+          <p class="tw-mb-0 tw-font-medium tw-text-main">
+            {{ plan.nameLocalizationKey | i18n }} ·
+            {{ (plan.isAnnual ? "annually" : "monthly") | i18n }}
+          </p>
+        </div>
+      }
+      <app-enter-payment-method [group]="formGroup.controls.paymentMethod">
+      </app-enter-payment-method>
+      <app-enter-billing-address
+        [group]="formGroup.controls.billingAddress"
+        [scenario]="{ type: 'checkout', supportsTaxId: supportsTaxId() }"
+      >
+      </app-enter-billing-address>
+      @if (addressLoadFailed()) {
+        <bit-callout type="danger" class="tw-mt-4 tw-block">
+          {{ "restartSubscriptionBillingAddressLoadError" | i18n }}
+        </bit-callout>
+      }
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="restart-subscription-dialog_button_restart"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      type="submit"
+    >
+      {{ "restart" | i18n }}
+    </button>
+    <button
+      id="restart-subscription-dialog_button_cancel"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [bitDialogClose]="ResultType.Closed"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>
