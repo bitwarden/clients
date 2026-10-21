@@ -807,6 +807,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.collectionEncryptionService,
       this.logService,
+      this.sdkService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -1005,6 +1006,7 @@ export class ServiceContainer {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
+      this.sdkService,
     );
 
     this.cipherArchiveService = new DefaultCipherArchiveService(

@@ -744,6 +744,7 @@ const safeProviders: SafeProvider[] = [
       cipherEncryptionService: CipherEncryptionService,
       messagingService: MessagingServiceAbstraction,
       cipherSdkService: CipherSdkService,
+      sdkService: SdkService,
     ) =>
       new CipherService(
         keyService,
@@ -761,6 +762,7 @@ const safeProviders: SafeProvider[] = [
         cipherEncryptionService,
         messagingService,
         cipherSdkService,
+        sdkService,
       ),
     deps: [
       KeyService,
@@ -778,6 +780,7 @@ const safeProviders: SafeProvider[] = [
       CipherEncryptionService,
       MessagingServiceAbstraction,
       CipherSdkService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -852,6 +855,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       CollectionEncryptionService,
       LogService,
+      SdkService,
     ],
   }),
   safeProvider({

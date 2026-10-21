@@ -1041,6 +1041,7 @@ export default class MainBackground {
       this.stateProvider,
       this.collectionEncryptionService,
       this.logService,
+      this.sdkService,
     );
 
     this.pinService = new PinService(this.sdkService);
@@ -1220,6 +1221,7 @@ export default class MainBackground {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
+      this.sdkService,
     );
     this.folderService = new FolderService(
       this.keyService,

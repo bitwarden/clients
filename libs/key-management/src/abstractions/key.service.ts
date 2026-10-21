@@ -23,21 +23,6 @@ export class UserPrivateKeyDecryptionFailedError extends Error {
 }
 
 /**
- * An object containing all the users key needed to decrypt a users personal and organization vaults.
- */
-export type CipherDecryptionKeys = {
-  /**
-   * A users {@link UserKey} that is useful for decrypted ciphers in the users personal vault.
-   */
-  userKey: UserKey;
-
-  /**
-   * A users decrypted organization keys.
-   */
-  orgKeys: Record<OrganizationId, OrgKey> | null;
-};
-
-/**
  * The data needed to unlock a user's SDK client and give it the user's organization keys.
  * Both parts derive from the same in-memory user key, so they are built together.
  */
@@ -169,24 +154,11 @@ export abstract class KeyService {
   abstract clearKeys(userId: UserId): Promise<void>;
 
   /**
-   * Retrieves all the keys needed for decrypting Ciphers
-   * @param userId The user id of the keys to retrieve or null if the user is not Unlocked
-   * @param legacySupport `true` if you need to support retrieving the legacy version of the users key, `false` if
-   * you do not need legacy support. Use `true` by necessity only. Defaults to `false`. Legacy support is for users
-   * that may not have updated to use the new {@link UserKey} yet.
-   *
-   * @throws If an invalid user id is passed in.
-   */
-  abstract cipherDecryptionKeys$(
-    userId: UserId,
-    legacySupport?: boolean,
-  ): Observable<CipherDecryptionKeys | null>;
-
-  /**
    * Gets an observable of org keys for the given user.
    * @param userId The user id of the user of which to get the keys for.
    * @return An observable stream of the users organization keys if they are unlocked, or null if the user is not unlocked.
-   * The observable will stay alive through locks/unlocks.
+   * The observable will stay alive through locks/unlocks. Keys are held back until the user's SDK client is ready
+   * (see `SdkService.cryptoReady$`), while a lock is emitted right away.
    *
    * @throws If an invalid user id is passed in.
    */
