@@ -99,7 +99,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   individual vault and the Admin Console org sidebar (the same
   `VaultFilterSectionComponent` hosts it in both).
 - `gated-collection-banner/` — the notice above the vault's item list while a governed
-  collection is the active filter, carrying the sidebar lock's sentence verbatim. It
+  collection is the active filter, carrying the sidebar lock's sentence verbatim — both swap
+  to the VFO1 wording together, so neither can word the restriction differently from the other. It
   cannot read the flag the way the sidebar lock and the collection-row badge do, because
   it is handed ids alone, never a collection: it decides "governed" through
   `services/gated-collection.ts`, which wraps the same `GovernedCollectionsService` /

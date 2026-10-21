@@ -17913,7 +17913,11 @@
   },
   "pamCollectionRequiresRequest": {
     "message": "Items in this collection require a request.",
-    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+    "description": "Names the restriction on a collection governed by an access rule: its items cannot be opened until the user requests access and an approver grants it. Shared verbatim by the lock indicator in the vault's Filters sidebar and the callout shown when the collection is opened; the two must always say the same thing. Both swap to pamSharedFolderRequiresRequest together while the VFO1 terminology flag is on, so translate the pair consistently."
+  },
+  "pamSharedFolderRequiresRequest": {
+    "message": "Items in this Shared folder require a request.",
+    "description": "Callout below the breadcrumb on a shared folder's page, explaining why the items inside cannot be opened directly: the folder is governed by an access rule, so each item needs a request that an approver grants. Shown only while the folder is governed; a folder with no access rule shows no callout. 'Shared folder' is the product name for a collection and stays capitalised. Same sentence as pamCollectionRequiresRequest, which carries the older 'collection' wording"
   },
   "pamGatedCollectionBannerName": {
     "message": "Privileged access",
