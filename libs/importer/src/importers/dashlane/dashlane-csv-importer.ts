@@ -153,7 +153,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
         // export format) the cardholder name in `account_name` is used as the item title instead
         cipher.type = CipherType.Card;
         cipher.card = new CardView();
-        cipher.name = row.name ?? row.account_name;
+        cipher.name = !this.isNullOrWhitespace(row.name) ? row.name : row.account_name;
         cipher.card.cardholderName = row.account_name;
         cipher.card.number = row.cc_number;
         cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
