@@ -583,6 +583,19 @@ describe("BrowserSdkService", () => {
       expect(superUnlockAtEpoch).not.toHaveBeenCalled();
     });
 
+    it("leaves the client locked and logs when the user's account cryptographic state is missing", async () => {
+      userKey$.next(userKey);
+      const process = createProcess();
+      process.keyService.buildSdkUnlockData.mockResolvedValue(null);
+      start(process);
+      await settle();
+
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
+      expect(superSetOrgKeys).not.toHaveBeenCalled();
+      expect(process.logService.error).toHaveBeenCalled();
+      expect(process.sent).toHaveLength(0);
+    });
+
     it("broadcasts a lock when converging fails closed on organization keys", async () => {
       userKey$.next(userKey);
       superSetOrgKeys.mockRejectedValue(new Error("org keys failed"));
