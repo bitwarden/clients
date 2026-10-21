@@ -109,6 +109,11 @@ export class DefaultSdkService implements SdkService {
   private readySubjects = new Map<UserId, BehaviorSubject<boolean>>();
   /** Users whose access token is watched to create and remove their client. */
   private watchedUsers = new Set<UserId>();
+  /**
+   * Clients that may hold user keys. Only these need clearing before an unlock: clearing also
+   * clears the user key in state, which another process of the same client may already rely on.
+   */
+  private keyedClients = new WeakSet<PasswordManagerClient>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
@@ -204,7 +209,10 @@ export class DefaultSdkService implements SdkService {
       // client locked, which consumers see as a lock.
       this.cryptoReadySubject(userId).next(false);
       // A client that still holds keys hard-errors `CryptoInitialization` on initialization.
-      await client.unlock().lock();
+      if (this.keyedClients.has(client)) {
+        await this.clearKeys(client);
+      }
+      this.keyedClients.add(client);
       await client.crypto().initialize_user_crypto({
         ...request,
         email,
@@ -236,7 +244,7 @@ export class DefaultSdkService implements SdkService {
 
     this.cryptoReadySubject(userId).next(false);
     try {
-      await this.withClient(userId, (client) => client.unlock().lock());
+      await this.withClient(userId, (client) => this.clearKeys(client));
     } catch (e) {
       this.logService.error(`Failed to lock the SDK client for user (${userId})`, e);
     }
@@ -282,7 +290,7 @@ export class DefaultSdkService implements SdkService {
       } catch (e) {
         if (!this.cryptoReadySubject(userId).value) {
           try {
-            await client.unlock().lock();
+            await this.clearKeys(client);
           } catch (lockError) {
             this.logService.error(`Failed to lock the SDK client for user (${userId})`, lockError);
           }
@@ -452,6 +460,12 @@ export class DefaultSdkService implements SdkService {
       throw e;
     }
     return client;
+  }
+
+  /** The SDK clears its in-memory keys before anything that can fail, so the client is unkeyed. */
+  private async clearKeys(client: PasswordManagerClient): Promise<void> {
+    this.keyedClients.delete(client);
+    await client.unlock().lock();
   }
 
   private async withClient(

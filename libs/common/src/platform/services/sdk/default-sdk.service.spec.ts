@@ -611,8 +611,10 @@ describe("DefaultSdkService", () => {
         });
       });
 
-      it("clears the client's keys before initializing the user crypto", async () => {
-        service = createService();
+      it("clears the keys of an unlocked client before initializing the user crypto", async () => {
+        await startUnlocked();
+        unlockClient.lock.mockClear();
+        crypto.initialize_user_crypto.mockClear();
 
         await service.unlock(userId, unlockRequest);
 
@@ -621,6 +623,25 @@ describe("DefaultSdkService", () => {
         expect(lock.mock.invocationCallOrder[0]).toBeLessThan(
           initialize.mock.invocationCallOrder[0],
         );
+      });
+
+      it("does not clear a token-only client, so the user key in state is left alone", async () => {
+        service = createService();
+
+        await service.unlock(userId, unlockRequest);
+
+        expect(unlockClient.lock).not.toHaveBeenCalled();
+        expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(1);
+      });
+
+      it("clears a client whose earlier unlock failed after initialization started", async () => {
+        service = createService();
+        crypto.initialize_user_crypto.mockRejectedValueOnce(new Error("wrong password"));
+        await expect(service.unlock(userId, unlockRequest)).rejects.toThrow("wrong password");
+
+        await service.unlock(userId, unlockRequest);
+
+        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
       });
 
       it("throws when there is no client to unlock", async () => {
@@ -734,7 +755,7 @@ describe("DefaultSdkService", () => {
 
         await expect(service.unlock(userId, unlockRequest)).rejects.toThrow();
 
-        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+        expect(unlockClient.lock).not.toHaveBeenCalled();
         await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
       });
 
