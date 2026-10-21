@@ -1,5 +1,5 @@
-import { inject, NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { inject } from "@angular/core";
+import { Routes } from "@angular/router";
 import { map } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -14,7 +14,7 @@ import { PoliciesComponent, PoliciesDeactivateGuard } from "../../organizations/
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
 
-const routes: Routes = [
+export const organizationSettingsRoutes: Routes = [
   {
     path: "",
     canActivate: [organizationPermissionsGuard(canAccessSettingsTab)],
@@ -120,9 +120,3 @@ function getSettingsRoute(organization: Organization) {
 
   return "/";
 }
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class OrganizationSettingsRoutingModule {}

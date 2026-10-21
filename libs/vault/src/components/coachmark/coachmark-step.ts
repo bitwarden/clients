@@ -9,7 +9,8 @@ export type CoachmarkStepId =
   | "switchProducts"
   | "vaultList"
   /** Used by the VFO1 walkthrough. The new-user tour uses `shareWithCollections`. */
-  | "sharedFolders";
+  | "sharedFolders"
+  | "filters";
 
 /** Configuration for a single coachmark step */
 export interface CoachmarkStep {

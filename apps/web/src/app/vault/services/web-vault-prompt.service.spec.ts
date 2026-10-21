@@ -193,6 +193,14 @@ describe("WebVaultPromptService", () => {
       expect(sideNavOpen()).toBe(false);
     });
 
+    it("leaves the upgrade prompt for the next load when it opened", async () => {
+      conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+    });
+
     it("holds back the extension prompt when it opened, so the two do not stack", async () => {
       conditionallyOpenNewExperience.mockResolvedValueOnce(true);
 
@@ -209,6 +217,34 @@ describe("WebVaultPromptService", () => {
   });
 
   describe("setupAutoConfirm", () => {
+    it("waits for the walkthrough to end when the new experience dialog started it", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+      organizations$.mockReturnValueOnce(
+        of([{ id: mockOrganizationId, canEnableAutoConfirmPolicy: true } as Organization]),
+      );
+      conditionallyOpenNewExperience.mockImplementationOnce(async () => {
+        tourRunning.set(true);
+        return true;
+      });
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open").mockReturnValue({
+        closed: of(null),
+      } as unknown as DialogRef<PolicyEditDialogResult>);
+
+      void service.conditionallyPromptUser();
+      tick();
+      TestBed.tick();
+      tick();
+      expect(openSpy).not.toHaveBeenCalled();
+
+      tourRunning.set(false);
+      TestBed.tick();
+      tick();
+      expect(openSpy).toHaveBeenCalled();
+    }));
+
     it("shows dialog when all conditions are met", fakeAsync(() => {
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
