@@ -1,4 +1,8 @@
-import { CreateAttachmentRequest, CreatedAttachment } from "@bitwarden/sdk-internal";
+import {
+  CipherListView,
+  CreateAttachmentRequest,
+  CreatedAttachment,
+} from "@bitwarden/sdk-internal";
 
 import {
   CipherId,
@@ -16,6 +20,18 @@ import { CipherView } from "../models/view/cipher.view";
 export interface DecryptAllCiphersResult {
   /** Successfully decrypted cipher views */
   successes: CipherView[];
+  /** Cipher views that failed to decrypt (with decryptionFailure flag set) */
+  failures: CipherView[];
+}
+
+/**
+ * Result of listing an organization's ciphers for display, without fully decrypting them.
+ */
+export interface OrganizationCipherListResult {
+  /** All encrypted ciphers returned from the API, kept so a single cipher can be decrypted on demand */
+  ciphers: Cipher[];
+  /** Lightweight list views of the ciphers that decrypted successfully */
+  listViews: CipherListView[];
   /** Cipher views that failed to decrypt (with decryptionFailure flag set) */
   failures: CipherView[];
 }
@@ -304,6 +320,35 @@ export abstract class CipherSdkService {
     organizationId: string,
     userId: UserId,
   ): Promise<DecryptAllCiphersResult>;
+
+  /**
+   * Fetches all ciphers for an organization from the API and decrypts them to lightweight list
+   * views using the SDK. The encrypted ciphers are returned too, for on-demand full decryption.
+   *
+   * @param organizationId The organization ID to fetch ciphers for
+   * @param userId The user ID to use for SDK client
+   * @param includeMemberItems Whether to include member items
+   * @returns A promise that resolves to the encrypted ciphers, list views, and decryption failures
+   */
+  abstract getAllListViewsFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+    includeMemberItems: boolean,
+  ): Promise<OrganizationCipherListResult>;
+
+  /**
+   * Fetches the ciphers an organization member is assigned to (via collections) and decrypts them
+   * to lightweight list views using the SDK. The encrypted ciphers are returned too, for on-demand
+   * full decryption.
+   *
+   * @param organizationId The organization ID to fetch ciphers for
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the encrypted ciphers, list views, and decryption failures
+   */
+  abstract getManyListViewsFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<OrganizationCipherListResult>;
 
   /**
    * Fetches all Login ciphers for an organization, including those in default user collections,

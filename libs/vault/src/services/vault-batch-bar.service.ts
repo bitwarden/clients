@@ -87,6 +87,12 @@ export interface VaultBatchBarConfig {
    * scopes by route segment must set it, or Assign to collections can't preselect or remove it.
    */
   activeCollectionId?: CollectionId;
+  /**
+   * Resolves the full {@link CipherView}s for the selected ciphers. Hosts whose ciphers are not in
+   * the user's local vault state (e.g. the Admin Console) must set it; otherwise `CipherListView`s
+   * are resolved from local state.
+   */
+  getFullCipherViews?: (ciphers: CipherViewLike[]) => Promise<CipherView[]>;
 }
 
 /**
@@ -764,7 +770,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     // Convert CipherListView to CipherView if necessary
     let ciphersToAssign: CipherView[];
-    if (ciphers.some(CipherViewLikeUtils.isCipherListView)) {
+    if (config.getFullCipherViews) {
+      ciphersToAssign = await config.getFullCipherViews(ciphers);
+    } else if (ciphers.some(CipherViewLikeUtils.isCipherListView)) {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       ciphersToAssign = await firstValueFrom(
         this.cipherService

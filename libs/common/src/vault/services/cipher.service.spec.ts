@@ -1613,6 +1613,95 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("getAllListViewsFromApiForOrganization()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return encrypted ciphers and sorted list views, including failures, when feature flag is enabled", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const encrypted = new Cipher(cipherData);
+      const listView: any = { id: "list-view", name: "b", type: "secureNote" };
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getAllListViewsFromApiForOrganization")
+        .mockResolvedValue({ ciphers: [encrypted], listViews: [listView], failures: [failed] });
+      const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
+
+      const result = await cipherService.getAllListViewsFromApiForOrganization(testOrgId, true);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result.ciphers).toEqual([encrypted]);
+      expect(result.views).toEqual([failed, listView]);
+    });
+
+    it("should fall back to fully decrypted ciphers when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const decrypted = new CipherView();
+      jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue({ data: [new CipherResponse(cipherData)] } as any);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[decrypted], []]);
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllListViewsFromApiForOrganization");
+
+      const result = await cipherService.getAllListViewsFromApiForOrganization(testOrgId);
+
+      expect(sdkServiceSpy).not.toHaveBeenCalled();
+      expect(result.ciphers).toHaveLength(1);
+      expect(result.ciphers[0]).toBeInstanceOf(Cipher);
+      expect(result.views).toEqual([decrypted]);
+    });
+
+    it("should return empty arrays when SDK throws", async () => {
+      sdkCrudFeatureFlag$.next(true);
+      jest
+        .spyOn(cipherSdkService, "getAllListViewsFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getAllListViewsFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual({ ciphers: [], views: [] });
+    });
+  });
+
+  describe("getManyListViewsFromApiForOrganization()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return encrypted ciphers and sorted list views, including failures", async () => {
+      const encrypted = new Cipher(cipherData);
+      const listView: any = { id: "list-view", name: "b", type: "secureNote" };
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getManyListViewsFromApiForOrganization")
+        .mockResolvedValue({ ciphers: [encrypted], listViews: [listView], failures: [failed] });
+
+      const result = await cipherService.getManyListViewsFromApiForOrganization(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result.ciphers).toEqual([encrypted]);
+      expect(result.views).toEqual([failed, listView]);
+    });
+
+    it("should return empty arrays when SDK throws", async () => {
+      jest
+        .spyOn(cipherSdkService, "getManyListViewsFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getManyListViewsFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual({ ciphers: [], views: [] });
+    });
+  });
+
   describe("getCiphersOrganizationLogins()", () => {
     const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
 

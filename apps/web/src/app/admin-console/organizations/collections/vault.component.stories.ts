@@ -176,8 +176,8 @@ const mockAccountService: Partial<AccountService> = {
 };
 
 const mockCipherService: Partial<CipherService> = {
-  getAllFromApiForOrganization: () => Promise.resolve(ciphers),
-  getManyFromApiForOrganization: () => Promise.resolve(ciphers),
+  getAllListViewsFromApiForOrganization: () => Promise.resolve({ ciphers: [], views: ciphers }),
+  getManyListViewsFromApiForOrganization: () => Promise.resolve({ ciphers: [], views: ciphers }),
 };
 
 const mockSearchService: Partial<SearchService> = {

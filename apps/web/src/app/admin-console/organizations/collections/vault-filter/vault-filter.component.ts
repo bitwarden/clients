@@ -28,9 +28,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   VaultFilterServiceAbstraction,
   VaultFilterList,
@@ -66,7 +68,7 @@ export class VaultFilterComponent {
 
   /** Org-scoped ciphers provided by the parent vault component. Used to build type filter badges
    * without triggering a personal vault decrypt. */
-  readonly ciphers$ = input<Observable<CipherView[]>>(of([]));
+  readonly ciphers$ = input<Observable<CipherViewLike[]>>(of([]));
 
   readonly filters = signal<VaultFilterList | undefined>(undefined);
   readonly isLoaded = signal(false);

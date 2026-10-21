@@ -38,10 +38,15 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import {
+  CipherSdkService,
+  DecryptAllCiphersResult,
+  OrganizationCipherListResult,
+} from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
+  OrganizationCipherListViews,
 } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
@@ -672,6 +677,74 @@ export class CipherService implements CipherServiceAbstraction {
     } catch {
       return [];
     }
+  }
+
+  async getAllListViewsFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<OrganizationCipherListViews> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
+    if (!useSdk) {
+      // The legacy path has no list views, so fall back to fully decrypted ciphers
+      const response = await this.apiService.getCiphersOrganization(
+        organizationId,
+        includeMemberItems,
+      );
+      const ciphers = (response?.data ?? []).map((cr) => new Cipher(new CipherData(cr)));
+      const [successful, failed] = await this.cipherEncryptionService.decryptManyLegacy(
+        ciphers,
+        userId,
+      );
+      const views = [...successful, ...failed];
+      views.sort(this.getLocaleSortingFunction());
+      return { ciphers, views };
+    }
+
+    try {
+      const result = await this.cipherSdkService.getAllListViewsFromApiForOrganization(
+        organizationId,
+        userId,
+        includeMemberItems ?? false,
+      );
+      return this.toOrganizationCipherListViews(result);
+    } catch {
+      // Return empty arrays on error to maintain existing behavior
+      return { ciphers: [], views: [] };
+    }
+  }
+
+  async getManyListViewsFromApiForOrganization(
+    organizationId: string,
+  ): Promise<OrganizationCipherListViews> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    try {
+      const result = await this.cipherSdkService.getManyListViewsFromApiForOrganization(
+        organizationId,
+        userId,
+      );
+      return this.toOrganizationCipherListViews(result);
+    } catch {
+      return { ciphers: [], views: [] };
+    }
+  }
+
+  private toOrganizationCipherListViews({
+    ciphers,
+    listViews,
+    failures,
+  }: OrganizationCipherListResult): OrganizationCipherListViews {
+    const views: CipherViewLike[] = [...listViews, ...failures];
+    views.sort(this.getLocaleSortingFunction());
+    return { ciphers, views };
   }
 
   async getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult> {

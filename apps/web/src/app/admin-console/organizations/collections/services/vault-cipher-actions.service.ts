@@ -13,13 +13,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -46,6 +46,7 @@ import { AssignCollectionsWebComponent } from "../../../../vault/components/assi
 import { openBulkDeleteDialog } from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { ACRoutedVaultFilterModel, toACFilter } from "../models/ac-routed-vault-filter.model";
 
+import { VaultCipherListService } from "./vault-cipher-list.service";
 import { VaultCollectionService } from "./vault-collection.service";
 
 @Injectable()
@@ -67,6 +68,7 @@ export class VaultCipherActionsService {
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private readonly vaultCollectionService = inject(VaultCollectionService);
+  private readonly cipherListService = inject(VaultCipherListService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -112,9 +114,10 @@ export class VaultCipherActionsService {
     this._navigate$.next({ queryParams, options: navigateOptions });
   }
 
-  async editCipherAttachments(cipher: CipherView): Promise<void> {
+  async editCipherAttachments(cipher: CipherViewLike): Promise<void> {
+    const cipherId = uuidAsString(cipher.id!);
     if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipherId));
       return;
     }
 
@@ -125,7 +128,7 @@ export class VaultCipherActionsService {
     }
 
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
-      cipherId: cipher.id as CipherId,
+      cipherId: cipherId as CipherId,
       organizationId: cipher.organizationId as OrganizationId,
       admin: true,
     });
@@ -168,30 +171,34 @@ export class VaultCipherActionsService {
    * @param cipher - When set, the cipher to be edited
    * @param cloneCipher - `true` when the cipher should be cloned.
    */
-  async editCipher(cipher: CipherView | undefined, cloneCipher?: boolean): Promise<void> {
+  async editCipher(cipher: CipherViewLike | undefined, cloneCipher?: boolean): Promise<void> {
+    const cipherId = cipher?.id != null ? uuidAsString(cipher.id) : undefined;
     if (
       cipher &&
       cipher.reprompt !== 0 &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal
-      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipher.id));
+      this.go({ cipherId: null, itemId: null }, this.configureRouterFocusToCipher(cipherId));
       return;
     }
 
+    // The form config fetches and decrypts the full cipher, so only the id is needed here
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       cloneCipher ? "clone" : "edit",
-      cipher?.id as CipherId | undefined,
+      cipherId as CipherId | undefined,
     );
 
     await this.openVaultItemDialog("form", cipherFormConfig, cipher);
   }
 
   /** Opens the view dialog for the given cipher unless password reprompt fails */
-  async viewCipherById(cipher: CipherView): Promise<void> {
+  async viewCipherById(cipher: CipherViewLike): Promise<void> {
     if (!cipher) {
       return;
     }
+
+    const cipherId = uuidAsString(cipher.id!);
 
     if (
       cipher &&
@@ -201,15 +208,16 @@ export class VaultCipherActionsService {
       // Didn't pass password prompt, so don't open add / edit modal.
       this.go(
         { cipherId: null, itemId: null, action: null },
-        this.configureRouterFocusToCipher(cipher.id),
+        this.configureRouterFocusToCipher(cipherId),
       );
       return;
     }
 
+    // The form config fetches and decrypts the full cipher, so only the id is needed here
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       "edit",
-      cipher.id as CipherId,
-      cipher.type,
+      cipherId as CipherId,
+      CipherViewLikeUtils.getType(cipher),
     );
 
     const activeFilter = await firstValueFrom(this.activeFilter$);
@@ -227,7 +235,7 @@ export class VaultCipherActionsService {
   async openVaultItemDialog(
     mode: VaultItemDialogMode,
     formConfig: CipherFormConfig,
-    cipher?: CipherView,
+    cipher?: CipherViewLike,
     activeCollectionId?: CollectionId,
   ): Promise<void> {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
@@ -259,8 +267,8 @@ export class VaultCipherActionsService {
     );
   }
 
-  async cloneCipher(cipher: CipherView): Promise<boolean | void> {
-    if (cipher.login.hasFido2Credentials) {
+  async cloneCipher(cipher: CipherViewLike): Promise<boolean | void> {
+    if (CipherViewLikeUtils.hasFido2Credentials(cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -301,7 +309,11 @@ export class VaultCipherActionsService {
       }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const asAdmin = organization.canEditAnyCollection || CipherViewLikeUtils.isUnassigned(c);
-      await this.cipherService.restoreWithServer(c.id as CipherId, activeUserId, asAdmin);
+      await this.cipherService.restoreWithServer(
+        uuidAsString(c.id) as CipherId,
+        activeUserId,
+        asAdmin,
+      );
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("restoredItem"),
@@ -314,7 +326,7 @@ export class VaultCipherActionsService {
     }
   };
 
-  async bulkRestore(ciphers: CipherView[]): Promise<void> {
+  async bulkRestore(ciphers: CipherViewLike[]): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     if (
       !organization.permissions.editAnyCollection &&
@@ -336,14 +348,14 @@ export class VaultCipherActionsService {
     // If user has edit all Access no need to check for unassigned ciphers
     if (organization.canEditAllCiphers) {
       ciphers.map((cipher) => {
-        editAccessCiphers.push(cipher.id);
+        editAccessCiphers.push(uuidAsString(cipher.id!));
       });
     } else {
       ciphers.map((cipher) => {
         if (cipher.collectionIds.length === 0) {
-          unassignedCiphers.push(cipher.id);
+          unassignedCiphers.push(uuidAsString(cipher.id!));
         } else if (cipher.edit) {
-          editAccessCiphers.push(cipher.id);
+          editAccessCiphers.push(uuidAsString(cipher.id!));
         }
       });
     }
@@ -372,7 +384,7 @@ export class VaultCipherActionsService {
     this.refresh();
   }
 
-  async deleteCipher(c: CipherView): Promise<boolean> {
+  async deleteCipher(c: CipherViewLike): Promise<boolean> {
     const organization = await firstValueFrom(this.organization$);
     if (!c.edit && !organization.canEditAllCiphers) {
       this.showMissingPermissionsError();
@@ -383,7 +395,7 @@ export class VaultCipherActionsService {
       return false;
     }
 
-    const permanent = c.isDeleted;
+    const permanent = CipherViewLikeUtils.isDeleted(c);
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: permanent ? "permanentlyDeleteItem" : "deleteItem" },
@@ -397,7 +409,12 @@ export class VaultCipherActionsService {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.deleteCipherWithServer(c.id, activeUserId, permanent, c.isUnassigned);
+      await this.deleteCipherWithServer(
+        uuidAsString(c.id!),
+        activeUserId,
+        permanent,
+        CipherViewLikeUtils.isUnassigned(c),
+      );
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem"),
@@ -411,7 +428,7 @@ export class VaultCipherActionsService {
   }
 
   async bulkDelete(
-    ciphers: CipherView[],
+    ciphers: CipherViewLike[],
     collections: CollectionView[],
     organization: Organization,
   ): Promise<void> {
@@ -424,10 +441,10 @@ export class VaultCipherActionsService {
     const assignedCiphers: string[] = [];
 
     ciphers.map((c) => {
-      if (c.isUnassigned) {
-        unassignedCiphers.push(c.id);
+      if (CipherViewLikeUtils.isUnassigned(c)) {
+        unassignedCiphers.push(uuidAsString(c.id!));
       } else {
-        assignedCiphers.push(c.id);
+        assignedCiphers.push(uuidAsString(c.id!));
       }
     });
 
@@ -467,22 +484,23 @@ export class VaultCipherActionsService {
     }
   }
 
-  async copy(cipher: CipherView, field: "username" | "password" | "totp"): Promise<void> {
+  async copy(cipher: CipherViewLike, field: "username" | "password" | "totp"): Promise<void> {
     let aType;
     let value;
     let typeI18nKey;
 
-    if (field === "username") {
+    const login = CipherViewLikeUtils.getLogin(cipher);
+
+    if (field === "username" && login != null) {
       aType = "Username";
-      value = cipher.login.username;
+      value = login.username;
       typeI18nKey = "username";
-    } else if (field === "password") {
+    } else if (field === "password" && login != null) {
       aType = "Password";
-      value = cipher.login.password;
       typeI18nKey = "password";
-    } else if (field === "totp" && cipher.login.totp != null) {
+    } else if (field === "totp" && login?.totp != null) {
       aType = "TOTP";
-      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
       value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
@@ -500,7 +518,16 @@ export class VaultCipherActionsService {
       return;
     }
 
-    if (!cipher.viewPassword || value == null) {
+    if (!cipher.viewPassword) {
+      return;
+    }
+
+    // List views don't include the password, so decrypt the full cipher only once it is needed
+    if (field === "password") {
+      value = (await this.cipherListService.getFullCipherView(cipher)).login?.password;
+    }
+
+    if (value == null) {
       return;
     }
 
@@ -511,16 +538,19 @@ export class VaultCipherActionsService {
     });
 
     if (field === "password") {
-      await this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientCopiedPassword,
+        uuidAsString(cipher.id!),
+      );
     } else if (field === "totp") {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientCopiedHiddenField,
-        cipher.id,
+        uuidAsString(cipher.id!),
       );
     }
   }
 
-  async bulkAssignToCollections(items: CipherView[]): Promise<void> {
+  async bulkAssignToCollections(items: CipherViewLike[]): Promise<void> {
     if (!(await this.repromptCipher(items))) {
       return;
     }
@@ -538,14 +568,16 @@ export class VaultCipherActionsService {
     );
     const organization = await firstValueFrom(this.organization$);
     const activeFilter = await firstValueFrom(this.activeFilter$);
+    // Assigning collections saves the full cipher, so decrypt the selected ciphers now
+    const ciphers = await this.cipherListService.getFullCipherViews(items);
     const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
       data: {
-        ciphers: items,
+        ciphers,
         organizationId: organization.id,
         availableCollections,
         activeCollection: activeFilter?.selectedCollectionNode?.node,
         isSingleCipherAdmin:
-          items.length === 1 && (organization.canEditAllCiphers || items[0].isUnassigned),
+          ciphers.length === 1 && (organization.canEditAllCiphers || ciphers[0].isUnassigned),
       },
     });
 
@@ -555,13 +587,13 @@ export class VaultCipherActionsService {
     }
   }
 
-  async viewEvents(cipher: CipherView): Promise<void> {
+  async viewEvents(cipher: CipherViewLike): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     openEntityEventsDialog(this.dialogService, {
       data: {
         name: cipher.name,
         organizationId: organization.id,
-        entityId: cipher.id,
+        entityId: uuidAsString(cipher.id!),
         showUser: true,
         entity: "cipher",
       },

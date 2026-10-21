@@ -5,7 +5,8 @@
 //
 // Compares the old Admin Console cipher load path (the SDK decrypts every cipher to an unused
 // list view, then the client decrypts each cipher again, one SDK call at a time) against the
-// new single SDK call that decrypts straight to full cipher views.
+// single SDK call that decrypts straight to full cipher views, and against the list view path the
+// Admin Console now uses (list views only; a full cipher is decrypted when it is opened).
 //
 // Usage: open an organization's Admin Console vault, then run in the DevTools console:
 //   await bwPocOrgCipherBenchmark()      // 3 iterations
@@ -86,6 +87,13 @@ export async function runOrgCipherLoadBenchmark(
       },
     },
     {
+      name: "list views: end-to-end (list_org_ciphers)",
+      run: async () => {
+        const result = await adminClient.list_org_ciphers(orgId, includeMemberItems);
+        return result.listViews.length;
+      },
+    },
+    {
       name: "old: decrypt only (list views + per-cipher decrypt)",
       run: async () => {
         await ciphersClient.decrypt_list_with_failures(encrypted);
@@ -100,6 +108,23 @@ export async function runOrgCipherLoadBenchmark(
       run: async () => {
         const result = await ciphersClient.decrypt_list_full_with_failures(encrypted);
         return result.successes.map((v) => CipherView.fromSdkCipherView(v)).length;
+      },
+    },
+    {
+      name: "list views: decrypt only (decrypt_list_with_failures)",
+      run: async () => {
+        const result = await ciphersClient.decrypt_list_with_failures(encrypted);
+        return result.successes.length;
+      },
+    },
+    {
+      name: "list views: open one cipher (decrypt)",
+      run: async () => {
+        if (encrypted.length === 0) {
+          return 0;
+        }
+        const sdkView = await ciphersClient.decrypt(encrypted[0]);
+        return CipherView.fromSdkCipherView(sdkView) ? 1 : 0;
       },
     },
   ];
@@ -148,8 +173,10 @@ export async function runOrgCipherLoadBenchmark(
       `[POC-PERF] ${r.scenario}: median ${r["median ms"]} ms (min ${r["min ms"]}, max ${r["max ms"]}), ${r.decrypted} decrypted`,
     );
   }
-  console.info(`[POC-PERF] End-to-end: ${speedup(0, 1)}`);
-  console.info(`[POC-PERF] Decrypt only: ${speedup(2, 3)}`);
+  console.info(`[POC-PERF] End-to-end, old vs full views: ${speedup(0, 1)}`);
+  console.info(`[POC-PERF] End-to-end, old vs list views: ${speedup(0, 2)}`);
+  console.info(`[POC-PERF] Decrypt only, old vs full views: ${speedup(3, 4)}`);
+  console.info(`[POC-PERF] Decrypt only, old vs list views: ${speedup(3, 5)}`);
   console.table(results);
 
   return results;

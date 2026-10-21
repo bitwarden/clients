@@ -48,20 +48,19 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-// POC-PERF: TEMPORARY SPEED TEST IMPORT. Remove before release.
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+// POC-PERF: TEMPORARY SPEED TEST IMPORT (`SdkService` only). Remove before release.
+import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // POC-PERF: END
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BannerModule,
   DialogService,
@@ -112,6 +111,7 @@ import { runOrgCipherLoadBenchmark } from "./poc-org-cipher-load-benchmark";
 // POC-PERF: END
 import { DefaultVaultCollectionService } from "./services/default-vault-collection.service";
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
+import { VaultCipherListService } from "./services/vault-cipher-list.service";
 import { VaultCollectionActionsService } from "./services/vault-collection-actions.service";
 import { AddAccessStatusType, VaultCollectionService } from "./services/vault-collection.service";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
@@ -144,6 +144,7 @@ const SearchTextDebounceInterval = 200;
     VaultCollectionActionsService,
     { provide: VaultCollectionService, useClass: DefaultVaultCollectionService },
     VaultCipherActionsService,
+    VaultCipherListService,
     VaultBatchBarService,
     safeProvider({
       provide: VaultFilterService,
@@ -176,7 +177,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly syncService = inject(SyncService);
   private readonly i18nService = inject(I18nService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly cipherService = inject(CipherService);
+  private readonly cipherListService = inject(VaultCipherListService);
   private readonly searchService = inject(SearchService);
   private readonly groupService = inject(GroupApiService);
   private readonly logService = inject(LogService);
@@ -211,8 +212,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly processingEvent$ = new BehaviorSubject<boolean>(false);
   protected readonly organization$: Observable<Organization>;
   protected readonly allGroups$: Observable<GroupView[]>;
-  protected readonly ciphers$: Observable<CipherView[]>;
-  protected readonly allCiphers$: Observable<CipherView[]>;
+  protected readonly ciphers$: Observable<CipherViewLike[]>;
+  protected readonly allCiphers$: Observable<CipherViewLike[]>;
 
   protected readonly isEmpty$: Observable<boolean>;
   private readonly prevCipherId = signal<string | undefined>(undefined);
@@ -235,7 +236,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   protected readonly showCollectionAccessRestricted$: Observable<boolean>;
 
-  protected readonly vaultItemsComponent = viewChild<VaultItemsComponent<CipherView>>("vaultItems");
+  protected readonly vaultItemsComponent =
+    viewChild<VaultItemsComponent<CipherViewLike>>("vaultItems");
 
   constructor() {
     this.organizationId$ = this.filter$.pipe(
@@ -277,28 +279,13 @@ export class VaultComponent implements OnInit, OnDestroy {
           switchMap(async ([organization, restricted]) => {
             // Reset the add-access filter whenever ciphers reload (e.g. on org switch or refresh)
             this.collectionService.setAddAccessStatus(AddAccessStatusType.All);
-            let ciphers;
             // POC-PERF: TEMPORARY SPEED TEST. Remove before release.
             const pocLoadStart = performance.now();
             // POC-PERF: END
 
-            // Restricted providers (who are not members) do not have access org cipher endpoint below
-            // Return early to avoid 404 response
-            if (!organization.isMember && organization.isProviderUser) {
-              return [];
-            }
-
-            // If the user can edit all ciphers for the organization then fetch them ALL.
-            if (organization.canEditAllCiphers) {
-              ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-              ciphers.forEach((c) => {
-                c.edit = true;
-                c.viewPassword = true;
-              });
-            } else {
-              // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
-              ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
-            }
+            // Ciphers are loaded as lightweight list views; a cipher is only fully decrypted
+            // when it is opened or one of its secret fields is needed.
+            let ciphers = await this.cipherListService.load(organization);
 
             // POC-PERF: TEMPORARY SPEED TEST. Remove before release.
             this.logService.info(
@@ -329,7 +316,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       filter(([ciphers, f]) => ciphers != undefined && f != undefined),
       concatMap(
         async ([ciphers, f, searchText, showCollectionAccessRestricted, userId, organizationId]: [
-          CipherView[],
+          CipherViewLike[],
           ACRoutedVaultFilterModel,
           string,
           boolean,
@@ -349,7 +336,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           const filterFunction = createFilterFunction(f);
 
           if (await this.searchService.isSearchable(searchText)) {
-            const searchFilteredCiphers = await this.searchService.searchCiphers<CipherView>(
+            const searchFilteredCiphers = await this.searchService.searchCiphers<CipherViewLike>(
               userId,
               organizationId,
               searchText,
@@ -464,6 +451,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           allCollections,
           hasCiphers: ciphers.length > 0,
           inTrash: filter.type === "trash",
+          getFullCipherViews: (c) => this.cipherListService.getFullCipherViews(c),
         });
       });
 
@@ -486,7 +474,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const allCipherMap$ = this.allCiphers$.pipe(
       map((ciphers) => {
-        return Object.fromEntries(ciphers.map((c) => [c.id, c]));
+        return Object.fromEntries(ciphers.map((c) => [uuidAsString(c.id!), c]));
       }),
     );
 
@@ -561,7 +549,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           if (!cipherId) {
             return;
           }
-          const cipher = allCiphers$.find((c) => c.id === cipherId);
+          const cipher = allCiphers$.find((c) => uuidAsString(c.id!) === cipherId);
           if (organization.useEvents && cipher != undefined) {
             await this.cipherActions.viewEvents(cipher);
           } else {
@@ -620,7 +608,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async onVaultItemsEvent(event: VaultItemEvent<CipherView>) {
+  async onVaultItemsEvent(event: VaultItemEvent<CipherViewLike>) {
     this.processingEvent$.next(true);
 
     try {

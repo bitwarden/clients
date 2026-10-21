@@ -8,6 +8,7 @@ import {
   CreatedAttachment,
   DecryptCipherResult,
   isEditCipherError,
+  ListOrganizationCiphersResult,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
@@ -19,7 +20,11 @@ import {
   OrganizationId,
   UserId,
 } from "../../types/guid";
-import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import {
+  CipherSdkService,
+  DecryptAllCiphersResult,
+  OrganizationCipherListResult,
+} from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -526,6 +531,57 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
+  async getAllListViewsFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+    includeMemberItems: boolean,
+  ): Promise<OrganizationCipherListResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_org_ciphers(asUuid(organizationId), includeMemberItems);
+
+          return this.toOrganizationCipherListResult(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list organization cipher list views: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async getManyListViewsFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<OrganizationCipherListResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .list_assigned_org_ciphers(asUuid(organizationId));
+
+          return this.toOrganizationCipherListResult(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to list assigned organization cipher list views: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
   async getOrganizationLoginCiphers(
     organizationId: string,
     userId: UserId,
@@ -663,13 +719,39 @@ export class DefaultCipherSdkService implements CipherSdkService {
       .map((sdkCipherView) => CipherView.fromSdkCipherView(sdkCipherView))
       .filter((v): v is CipherView => v !== undefined);
 
-    const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) => {
-      const cipherView = new CipherView(Cipher.fromSdkCipher(failure));
-      cipherView.name = DECRYPT_ERROR;
-      cipherView.decryptionFailure = true;
-      return cipherView;
-    });
+    const failures: CipherView[] = [...(decryptResult.failures ?? [])].map((failure) =>
+      this.toDecryptionFailureView(Cipher.fromSdkCipher(failure)),
+    );
 
     return { successes, failures };
+  }
+
+  private toOrganizationCipherListResult(
+    result: ListOrganizationCiphersResult,
+  ): OrganizationCipherListResult {
+    // The SDK only returns list views for ciphers that decrypted, so a cipher without one failed
+    const decryptedIds = new Set(result.listViews.map((v) => v.id));
+    const ciphers: Cipher[] = [];
+    const failures: CipherView[] = [];
+
+    for (const sdkCipher of result.ciphers) {
+      const cipher = Cipher.fromSdkCipher(sdkCipher);
+      if (cipher == null) {
+        continue;
+      }
+      ciphers.push(cipher);
+      if (!decryptedIds.has(sdkCipher.id)) {
+        failures.push(this.toDecryptionFailureView(cipher));
+      }
+    }
+
+    return { ciphers, listViews: result.listViews, failures };
+  }
+
+  private toDecryptionFailureView(cipher: Cipher | undefined): CipherView {
+    const cipherView = new CipherView(cipher);
+    cipherView.name = DECRYPT_ERROR;
+    cipherView.decryptionFailure = true;
+    return cipherView;
   }
 }
