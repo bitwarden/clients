@@ -680,7 +680,7 @@ describe("BrowserSdkService", () => {
   });
 
   describe("a vault timeout lock while the woken background converges", () => {
-    it("ends with the client cleared, not ready, and the user key not written back", async () => {
+    it("never keys the client or writes the user key back, and ends not ready", async () => {
       jest.restoreAllMocks();
       Object.defineProperty(SdkLoadService, "Ready", {
         value: Promise.resolve(),
@@ -767,8 +767,8 @@ describe("BrowserSdkService", () => {
       resolveClient(client);
       await settle();
 
-      expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(1);
-      expect(unlockClient.lock).toHaveBeenCalled();
+      expect(crypto.initialize_user_crypto).not.toHaveBeenCalled();
+      expect(unlockClient.lock).not.toHaveBeenCalled();
       expect(stateUserKey).toBeNull();
       expect(crypto.initialize_org_crypto).not.toHaveBeenCalled();
       await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
