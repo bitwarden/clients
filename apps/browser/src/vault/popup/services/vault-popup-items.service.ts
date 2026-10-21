@@ -21,6 +21,7 @@ import {
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -146,7 +147,7 @@ export class VaultPopupItemsService {
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter((c) => !CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isArchived(c))
-
+            .filter((c) => hasAccessibleOrganization(c, orgMap))
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
                 (colId) => collectionMap[colId as CollectionId],
@@ -340,6 +341,7 @@ export class VaultPopupItemsService {
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter((c) => CipherViewLikeUtils.isDeleted(c))
+            .filter((c) => hasAccessibleOrganization(c, orgMap))
             .map(
               (cipher) =>
                 ({
@@ -416,6 +418,18 @@ export class VaultPopupItemsService {
     return this.cipherService.sortCiphersByLastUsedThenName(a, b);
   }
 }
+
+/**
+ * Whether the cipher is personal or belongs to an organization the user is still a member of.
+ *
+ * A sync replaces organizations before ciphers, so after a user is revoked or removed from an
+ * organization there is a window where that organization's ciphers are still listed but the
+ * organization itself is gone. Those ciphers are no longer accessible and must not be rendered.
+ */
+const hasAccessibleOrganization = (
+  cipher: CipherViewLike,
+  orgMap: Record<string, Organization>,
+): boolean => !cipher.organizationId || orgMap[cipher.organizationId as OrganizationId] != null;
 
 /**
  * Operator that waits until the active account has synced at least once before allowing the source to continue emission.

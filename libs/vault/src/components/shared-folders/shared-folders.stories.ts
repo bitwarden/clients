@@ -1,4 +1,5 @@
-import { importProvidersFrom } from "@angular/core";
+import { PortalModule } from "@angular/cdk/portal";
+import { ChangeDetectionStrategy, Component, importProvidersFrom, inject } from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
@@ -14,7 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogModule, I18nMockService } from "@bitwarden/components";
+import { DialogModule, I18nMockService, LayoutFooterService } from "@bitwarden/components";
 
 import { SHARED_FOLDERS_ROUTE } from "../../models/vault-scope";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogResult } from "../../tokens/bulk-delete-dialog.token";
@@ -181,10 +182,25 @@ const atSharedFolders: Decorator = (storyFn, context) => {
   return storyFn(context);
 };
 
+/**
+ * Renders whatever `LayoutFooterService` is holding. The page hands its bulk actions bar to that
+ * service as a portal, and these stories skip the `bit-layout` that normally hosts the outlet.
+ */
+@Component({
+  selector: "story-layout-footer",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class StoryLayoutFooterComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
+
 const template = /* HTML */ `
   <div class="tw-bg-background-alt tw-p-6">
     <router-outlet></router-outlet>
   </div>
+  <story-layout-footer></story-layout-footer>
 `;
 
 export default {
@@ -199,8 +215,9 @@ export default {
   decorators: [
     withVault,
     atSharedFolders,
-    // The outlet the route renders the page into, for the story's own template.
-    moduleMetadata({ imports: [RouterOutlet] }),
+    // The outlets the route renders the page and its bulk actions bar into, for the story's own
+    // template.
+    moduleMetadata({ imports: [RouterOutlet, StoryLayoutFooterComponent] }),
     applicationConfig({
       providers: [
         provideRouter(routes, withHashLocation()),
@@ -275,14 +292,6 @@ export default {
               edit: "Edit",
               access: "Access",
               delete: "Delete",
-              // Paginator
-              rowsPerPage: "Rows per page",
-              rowsPerPageOption: (count) => `${count} rows per page`,
-              previousPage: "Previous page",
-              nextPage: "Next page",
-              goToPage: "Go to page",
-              ofPageCount: (count) => `of ${count}`,
-              selectPlaceholder: "-- Select --",
               // Bulk actions bar
               editAccess: "Edit access",
               bulkActionsBar: "Bulk actions",
@@ -391,12 +400,8 @@ export const Empty: Story = {
   args: { folders: [] },
 };
 
-/**
- * The rows page themselves against the window, so the paginator appears only once the window is too
- * short to show every folder. Shorten this frame and the page shrinks with it; give it room for all
- * sixty and the paginator goes away.
- */
-export const Pagination: Story = {
+/** Sixty folders, all on one page — the table doesn't paginate. */
+export const ManyFolders: Story = {
   args: {
     folders: Array.from({ length: 60 }, (_, index) => ({
       ...folders[index % folders.length],

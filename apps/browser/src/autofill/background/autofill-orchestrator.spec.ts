@@ -1169,18 +1169,25 @@ describe("DefaultAutofillOrchestrator", () => {
     });
   });
 
-  describe("autoSubmitLoginOnTab", () => {
+  describe("automated login", () => {
     it("collects the reporting frame and fills it with the auto-submit script", async () => {
       const pd = pageDetail(1, 0);
       const cipher = makeCipher(CipherType.Login);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
+      cipherService.getLastUsedForUrl.mockResolvedValue(cipher);
 
       autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0);
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
+      expect(cipherService.getLastLaunchedForUrl).toHaveBeenCalledWith(
+        DEFAULT_URL,
+        "user-1",
+        false,
+      );
+      expect(cipherService.getLastUsedForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1", false);
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
         expect.objectContaining({
           tab: pd.tab,
@@ -1189,14 +1196,59 @@ describe("DefaultAutofillOrchestrator", () => {
           autoSubmitLogin: true,
         }),
       );
-      // A submit that filled used a credential, so the url's rotation advances once commit returns.
-      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(pd.tab.url);
+    });
+
+    it("fills the same cipher on each step of a multi-step login", async () => {
+      const first = makeCipher(CipherType.Login, { id: "first-cipher" });
+      const usernameStep = pageDetail(1, 0);
+      const passwordStep = pageDetail(1, 0);
+      cipherService.getLastUsedForUrl.mockResolvedValue(first);
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
+
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([usernameStep]));
+      emitAutomatedLoginStep(usernameStep);
+      await flushPromises();
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([passwordStep]));
+      emitAutomatedLoginStep(passwordStep);
+      await flushPromises();
+
+      // Selection does not advance the rotation, so both steps resolve to the same cipher.
+      expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
+      expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFill).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ cipher: first, pageDetails: [usernameStep] }),
+      );
+      expect(autofillService.doAutoFill).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ cipher: first, pageDetails: [passwordStep] }),
+      );
+    });
+
+    it("cycles past a reprompt cipher and abandons the fill when auto-submit surfaces a reprompt", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      cipherService.getLastUsedForUrl.mockResolvedValue(
+        makeCipher(CipherType.Login, { reprompt: CipherRepromptType.Password }),
+      );
+      autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
+
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
+
+      // The popout fills after the master password. This attempt is abandoned, and the rotation
+      // moves so the next selection offers the next cipher.
+      expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalled();
+      expect(cipherService.updateLastUsedIndexForUrl).toHaveBeenCalledWith(DEFAULT_URL);
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
     });
 
     it("does not fill when the frame has no page details to submit", async () => {
+      const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](createChromeTabMock({ id: 1 }), 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
     });
@@ -1212,7 +1264,8 @@ describe("DefaultAutofillOrchestrator", () => {
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 2 }));
 
-      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
 
       // The read ran but no credential was filled or submitted to the non-foreground tab, and no
       // activity was booked — the guard short-circuits before `doAutoFill`, so a blocked submit
@@ -1220,21 +1273,6 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("automatedLoginStepReady$ consumer", () => {
-    it("interprets an auto-submit step-ready fact as a collect → fill → submit", async () => {
-      const pd = pageDetail(1, 0);
-      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-
-      emitAutomatedLoginStep(pd);
-      await flushPromises();
-
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, pd.frameId);
-      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
-        expect.objectContaining({ pageDetails: [pd], autoSubmitLogin: true }),
-      );
     });
   });
 });

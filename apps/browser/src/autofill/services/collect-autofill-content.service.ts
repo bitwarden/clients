@@ -232,11 +232,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
-    this.intersectionObserver.disconnect();
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
-    this.elementInitializingIntersectionObserver.clear();
+    this.clearFieldCache();
     // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
     this.shadowTracker.reset();
     this.noFieldsFound = false;
@@ -257,6 +253,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.domRecentlyMutated = true;
     }
   };
+
+  /** Clears the field cache. */
+  private clearFieldCache() {
+    this.intersectionObserver.disconnect();
+    this._autofillFormElements.clear();
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    this.elementInitializingIntersectionObserver.clear();
+  }
 
   /**
    * Builds the data for all forms and fields found within the page DOM.
@@ -293,7 +298,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
-      this.updateCachedAutofillFieldVisibility();
+      await this.updateCachedAutofillFieldVisibility();
 
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
@@ -639,15 +644,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    *
    * @private
    */
-  private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(async (autofillField, element) => {
-      const previouslyViewable = autofillField.viewable;
-      autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
+  private async updateCachedAutofillFieldVisibility() {
+    await Promise.all(
+      Array.from(this.autofillFieldElements, async ([element, autofillField]) => {
+        const previouslyViewable = autofillField.viewable;
+        autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
 
-      if (!previouslyViewable && autofillField.viewable) {
-        this.setupOverlayOnField(element, autofillField);
-      }
-    });
+        if (!previouslyViewable && autofillField.viewable) {
+          this.setupOverlayOnField(element, autofillField);
+        }
+      }),
+    );
   }
 
   /**
@@ -861,6 +868,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (index >= 0 && existingAutofillField) {
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
+      // A cached field may have been shown or hidden since it was first collected.
+      existingAutofillField.viewable =
+        await this.domElementVisibilityService.isElementViewable(element);
       this.autofillFieldElements.set(element, existingAutofillField);
 
       return existingAutofillField;
@@ -1595,9 +1605,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // time; the new URL must re-fetch to pick up rule and gate changes.
     this.pageTargetingRules = undefined;
 
-    this._autofillFormElements.clear();
-    this.autofillFieldElements.clear();
-    this.autofillFieldsByOpid.clear();
+    this.clearFieldCache();
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();

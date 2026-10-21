@@ -498,16 +498,6 @@ export class MembersComponent {
       });
     }
 
-    // Self-hosted keeps the per-user status dialog for the resend portion.
-    if (!this.dataSource().isIncreasedBulkLimitEnabled() && invitedUsers.length > 0) {
-      await this.memberDialogManager.openBulkStatusDialog(
-        invitedUsers,
-        invitedUsers,
-        Promise.resolve(reinvited),
-        this.i18nService.t("bulkReinviteMessage"),
-      );
-    }
-
     this.dataSource().uncheckAllUsers();
     await this.load(organization);
   }
