@@ -6,7 +6,6 @@ import * as path from "path";
 import * as lowdb from "lowdb";
 import * as FileSync from "lowdb/adapters/FileSync";
 import * as lock from "proper-lockfile";
-import { OperationOptions } from "retry";
 import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -17,18 +16,42 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-const retries: OperationOptions = {
+/** How long to wait for a lock another process holds: 50 attempts, backing off 100 to 250 ms. */
+const retries = {
   retries: 50,
   minTimeout: 100,
   maxTimeout: 250,
   factor: 2,
 };
 
+/**
+ * Deep copy of plain JSON data, which is all the storage holds: values come from parsing data.json
+ * or are stored as their JSON round-trip. ~4x faster than structuredClone on a large vault's
+ * ciphers, which a command reads at least once.
+ */
+function copyJson(value: unknown): unknown {
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(copyJson);
+  }
+
+  const copy: Record<string, unknown> = {};
+  for (const key of Object.keys(value)) {
+    copy[key] = copyJson((value as Record<string, unknown>)[key]);
+  }
+  return copy;
+}
+
 export class LowdbStorageService implements AbstractStorageService {
   protected dataFilePath: string;
   private db: lowdb.LowdbSync<any>;
   private defaults: any;
   private ready = false;
+  /** Identity of data.json when this process last read or wrote it, see `readForNoCache`. */
+  private fileVersion: string | null = null;
   private updatesSubject = new Subject<StorageUpdate>();
   updates$;
 
@@ -73,7 +96,11 @@ export class LowdbStorageService implements AbstractStorageService {
     }
     try {
       this.logService.info("Attempting to create lowdb storage adapter.");
+      // Stat before reading: init reads outside the lock, so a concurrent write may land in between.
+      // This order makes that cost one extra re-read, instead of caching stale contents as current.
+      const version = this.currentFileVersion();
       this.db = lowdb(adapter);
+      this.fileVersion = version;
       this.logService.info("Successfully created lowdb storage adapter.");
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -104,6 +131,7 @@ export class LowdbStorageService implements AbstractStorageService {
         this.logService.info("Writing defaults.");
         this.readForNoCache();
         this.db.defaults(this.defaults).write();
+        this.fileVersion = this.currentFileVersion();
         this.logService.info("Successfully wrote defaults to db.");
       });
     }
@@ -124,7 +152,9 @@ export class LowdbStorageService implements AbstractStorageService {
       if (val == null) {
         return null;
       }
-      return val as T;
+      // A copy, as a fresh read used to return: the cached state must not change if a caller
+      // mutates the value.
+      return copyJson(val) as T;
     });
   }
 
@@ -136,9 +166,16 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.db.set(key, obj).write();
+      // Writing rewrites the whole file (megabytes for a large vault); skip it when the stored
+      // JSON would not change.
+      const json = JSON.stringify(obj);
+      if (JSON.stringify(this.db.get(key).value()) !== json) {
+        // Hold what the file holds, as a re-read would: plain JSON, not the caller's object.
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.db.set(key, json === undefined ? obj : JSON.parse(json)).write();
+        this.fileVersion = this.currentFileVersion();
+      }
       this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
@@ -152,6 +189,7 @@ export class LowdbStorageService implements AbstractStorageService {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.db.unset(key).write();
+      this.fileVersion = this.currentFileVersion();
       this.updatesSubject.next({ key, updateType: "remove" });
       this.logService.debug(`Successfully removed ${key} from db`);
       return;
@@ -159,25 +197,76 @@ export class LowdbStorageService implements AbstractStorageService {
   }
 
   protected async lockDbFile<T>(action: () => T): Promise<T> {
-    if (this.requireLock && !Utils.isNullOrWhitespace(this.dataFilePath)) {
-      this.logService.info("acquiring db file lock");
-      return await lock.lock(this.dataFilePath, { retries: retries }).then((release) => {
+    if (!this.requireLock || Utils.isNullOrWhitespace(this.dataFilePath)) {
+      return action();
+    }
+
+    this.logService.info("acquiring db file lock");
+    for (let attempt = 0; ; attempt++) {
+      // Lock, act and release in one synchronous step: no other access of this process can run
+      // while the lock is held, so it never waits for itself. Only another process makes it wait.
+      const release = this.tryLockDbFile();
+      if (release != null) {
         try {
           return action();
         } finally {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           release();
         }
-      });
-    } else {
-      return action();
+      }
+
+      if (attempt >= retries.retries) {
+        throw new Error("Could not acquire the db file lock");
+      }
+      await Utils.delay(
+        Math.min(retries.minTimeout * retries.factor ** attempt, retries.maxTimeout),
+      );
     }
   }
 
+  /** The lock's release function, or null while another process holds the lock. */
+  private tryLockDbFile(): (() => void) | null {
+    try {
+      return lock.lockSync(this.dataFilePath);
+    } catch (e) {
+      if (e.code === "ELOCKED") {
+        return null;
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Re-reads data.json unless this process already holds its current contents.
+   *
+   * A command reads storage dozens of times, and each read parses the whole file (tens of ms for a
+   * large vault). The file only needs re-reading when another process changed it since this one
+   * last read or wrote it, which its inode, size, mtime and ctime reveal.
+   */
   private readForNoCache() {
-    if (!this.allowCache) {
-      this.db.read();
+    if (this.allowCache) {
+      return;
+    }
+
+    const version = this.currentFileVersion();
+    if (version != null && version === this.fileVersion) {
+      return;
+    }
+
+    this.db.read();
+    this.fileVersion = version;
+  }
+
+  /** Identity of data.json's current contents, or null when there is no file to check. */
+  private currentFileVersion(): string | null {
+    if (Utils.isNullOrWhitespace(this.dataFilePath)) {
+      return null;
+    }
+
+    try {
+      const stat = fs.statSync(this.dataFilePath, { bigint: true });
+      return `${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
+    } catch {
+      return null;
     }
   }
 
