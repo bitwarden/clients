@@ -459,7 +459,7 @@ describe("RestartSubscriptionDialogComponent", () => {
       expect(organizationWarningsService.refreshInactiveSubscriptionWarning).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
+        title: undefined,
         message: "restartOrganizationSubscription",
       });
       expect(syncService.fullSync).toHaveBeenCalledWith(true);

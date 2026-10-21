@@ -143,10 +143,10 @@ export class RestartSubscriptionDialogComponent implements OnInit {
 
   protected readonly restartPlan = computed<PlanResponse | undefined>(() => {
     const plans = this.plans();
-    if (plans == null) {
+    const subscriptionPlan = this.dialogData.subscription.plan;
+    if (plans == null || subscriptionPlan == null) {
       return undefined;
     }
-    const subscriptionPlan = this.dialogData.subscription.plan;
     if (!subscriptionPlan.disabled) {
       return subscriptionPlan;
     }
@@ -297,7 +297,7 @@ export class RestartSubscriptionDialogComponent implements OnInit {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("restartOrganizationSubscription"),
     });
     await this.syncService.fullSync(true);
