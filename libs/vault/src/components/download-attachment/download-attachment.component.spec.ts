@@ -14,7 +14,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR, EncArrayBuffer, EncryptService } from "@bitwarden/legacy-crypto";
-import { isCipherGetAttachmentDownloadUrlError } from "@bitwarden/sdk-internal";
+import {
+  isCipherGetAttachmentDownloadUrlError,
+  isDecryptEmergencyAccessAttachmentError,
+} from "@bitwarden/sdk-internal";
 
 import { PasswordRepromptService } from "../../services/password-reprompt.service";
 
@@ -24,6 +27,7 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   ...jest.requireActual("@bitwarden/sdk-internal"),
   isCipherAdminGetAttachmentDownloadUrlError: jest.fn().mockReturnValue(false),
   isCipherGetAttachmentDownloadUrlError: jest.fn().mockReturnValue(false),
+  isDecryptEmergencyAccessAttachmentError: jest.fn().mockReturnValue(false),
 }));
 
 class MockRequest {
@@ -68,12 +72,14 @@ describe("DownloadAttachmentComponent", () => {
 
   const sdkUrl = "https://sdk.example/attachment";
   const cipherSdkGetAttachmentDownloadUrl = jest.fn();
+  const cipherSdkDecryptEmergencyAccessAttachment = jest.fn();
 
   beforeEach(async () => {
     showToast.mockClear();
     download.mockClear();
     cipherSdkGetAttachmentDownloadUrl.mockReset();
     cipherSdkGetAttachmentDownloadUrl.mockResolvedValue(sdkUrl);
+    cipherSdkDecryptEmergencyAccessAttachment.mockReset();
 
     await TestBed.configureTestingModule({
       imports: [DownloadAttachmentComponent],
@@ -92,6 +98,7 @@ describe("DownloadAttachmentComponent", () => {
           provide: CipherSdkService,
           useValue: {
             getAttachmentDownloadUrl: cipherSdkGetAttachmentDownloadUrl,
+            decryptEmergencyAccessAttachment: cipherSdkDecryptEmergencyAccessAttachment,
           },
         },
       ],
@@ -220,6 +227,69 @@ describe("DownloadAttachmentComponent", () => {
         activeUserId$.value,
         { emergencyAccessId },
       );
+    });
+
+    describe("emergency access", () => {
+      const emergencyAccessId = "ea-id-123";
+      const encryptedBytes = new Uint8Array([1, 2, 3]);
+      const decryptedBytes = new Uint8Array([4, 5, 6]);
+      let eaFetchMock: jest.Mock;
+
+      beforeEach(() => {
+        fixture.componentRef.setInput("emergencyAccessId", emergencyAccessId);
+        fixture.detectChanges();
+
+        eaFetchMock = jest.fn().mockResolvedValue({
+          status: 200,
+          arrayBuffer: jest.fn().mockResolvedValue(encryptedBytes.buffer),
+        });
+        global.fetch = eaFetchMock;
+      });
+
+      it("decrypts with the SDK using the attachment view and not the cipher service", async () => {
+        cipherSdkDecryptEmergencyAccessAttachment.mockResolvedValue(decryptedBytes);
+
+        await component.download();
+
+        expect(cipherSdkDecryptEmergencyAccessAttachment).toHaveBeenCalledWith(
+          attachment,
+          encryptedBytes,
+          activeUserId$.value,
+        );
+        const cipherService = TestBed.inject(CipherService) as jest.Mocked<CipherService>;
+        expect(cipherService.getDecryptedAttachmentBuffer).not.toHaveBeenCalled();
+        expect(download).toHaveBeenCalledWith({
+          blobData: decryptedBytes,
+          fileName: attachment.fileName,
+        });
+      });
+
+      it("shows the outdated encryption toast for legacy attachments", async () => {
+        jest.mocked(isDecryptEmergencyAccessAttachmentError).mockReturnValueOnce(true);
+        cipherSdkDecryptEmergencyAccessAttachment.mockRejectedValue({
+          variant: "LegacyAttachmentUnsupported",
+        });
+
+        await component.download();
+
+        expect(showToast).toHaveBeenCalledWith({
+          message: "emergencyAccessAttachmentUnsupported",
+          variant: "error",
+        });
+        expect(download).not.toHaveBeenCalled();
+      });
+
+      it("shows the generic error toast when SDK decryption fails for another reason", async () => {
+        cipherSdkDecryptEmergencyAccessAttachment.mockRejectedValue(new Error("crypto error"));
+
+        await component.download();
+
+        expect(showToast).toHaveBeenCalledWith({
+          message: "errorOccurred",
+          variant: "error",
+        });
+        expect(download).not.toHaveBeenCalled();
+      });
     });
 
     it("propagates SDK errors without falling back to attachment.url", async () => {

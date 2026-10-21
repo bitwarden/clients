@@ -15,7 +15,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { Measurement, PerfTrackGroup } from "@bitwarden/logging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -1581,37 +1581,18 @@ export class CipherService implements CipherServiceAbstraction {
     attachment: AttachmentView,
     response: Response,
     userId: UserId,
-    useLegacyDecryption?: boolean,
   ): Promise<Uint8Array> {
     const cipherDomain = await firstValueFrom(
       this.ciphers$(userId).pipe(map((ciphersData) => new Cipher(ciphersData[cipherId]))),
     );
 
-    if (!useLegacyDecryption) {
-      const encryptedContent = await response.arrayBuffer();
-      return this.cipherEncryptionService.decryptAttachmentContent(
-        cipherDomain,
-        attachment,
-        new Uint8Array(encryptedContent),
-        userId,
-      );
-    }
-
-    // The SDK doesn't currently support emergency access for attachments, so we need to keep this legacy path
-    // until the SDK is updated to support it.
-    const encBuf = await EncArrayBuffer.fromResponse(response);
-    const key =
-      attachment.key != null
-        ? attachment.key
-        : cipherDomain.organizationId
-          ? await firstValueFrom(
-              this.keyService.orgKeys$(userId).pipe(
-                filterOutNullish(),
-                map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
-              ),
-            )
-          : await firstValueFrom(this.keyService.userKey$(userId).pipe(filterOutNullish()));
-    return await this.encryptService.decryptFileData(encBuf, key);
+    const encryptedContent = await response.arrayBuffer();
+    return this.cipherEncryptionService.decryptAttachmentContent(
+      cipherDomain,
+      attachment,
+      new Uint8Array(encryptedContent),
+      userId,
+    );
   }
 
   /**

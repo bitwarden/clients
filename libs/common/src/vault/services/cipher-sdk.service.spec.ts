@@ -18,6 +18,7 @@ import {
 } from "../../types/guid";
 import { CipherType } from "../enums/cipher-type";
 import { Cipher } from "../models/domain/cipher";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
 
@@ -80,6 +81,7 @@ describe("DefaultCipherSdkService", () => {
     };
     mockAttachmentsSdk = {
       create_attachment: jest.fn(),
+      decrypt_emergency_access_buffer: jest.fn(),
       delete_attachment: jest.fn(),
       get_attachment_download_url: jest.fn(),
       upgrade_attachment: jest.fn(),
@@ -866,6 +868,43 @@ describe("DefaultCipherSdkService", () => {
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to delete cipher attachment"),
       );
+    });
+  });
+
+  describe("decryptEmergencyAccessAttachment()", () => {
+    const encryptedContent = new Uint8Array([1, 2, 3]);
+    const decryptedContent = new Uint8Array([4, 5, 6]);
+    const attachment = new AttachmentView();
+    attachment.id = "attachment-id";
+    attachment.fileName = "file.txt";
+
+    it("decrypts the content with the SDK using the attachment view", async () => {
+      mockAttachmentsSdk.decrypt_emergency_access_buffer.mockReturnValue(decryptedContent);
+
+      const result = await cipherSdkService.decryptEmergencyAccessAttachment(
+        attachment,
+        encryptedContent,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockAttachmentsSdk.decrypt_emergency_access_buffer).toHaveBeenCalledWith(
+        attachment.toSdkAttachmentView(),
+        encryptedContent,
+      );
+      expect(result).toEqual(decryptedContent);
+    });
+
+    it("logs and rethrows SDK errors", async () => {
+      const error = { variant: "LegacyAttachmentUnsupported" };
+      mockAttachmentsSdk.decrypt_emergency_access_buffer.mockImplementation(() => {
+        throw error;
+      });
+
+      await expect(
+        cipherSdkService.decryptEmergencyAccessAttachment(attachment, encryptedContent, userId),
+      ).rejects.toEqual(error);
+      expect(logService.error).toHaveBeenCalled();
     });
   });
 

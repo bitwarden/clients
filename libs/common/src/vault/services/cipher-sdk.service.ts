@@ -1,4 +1,4 @@
-import { firstValueFrom, switchMap, catchError } from "rxjs";
+import { firstValueFrom, switchMap, catchError, map } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
@@ -22,6 +22,7 @@ import {
 } from "../../types/guid";
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
 export class DefaultCipherSdkService implements CipherSdkService {
@@ -387,6 +388,28 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to get attachment download URL: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async decryptEmergencyAccessAttachment(
+    attachment: AttachmentView,
+    encryptedContent: Uint8Array,
+    userId: UserId,
+  ): Promise<Uint8Array> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          using ref = sdk.take();
+          return ref.value
+            .vault()
+            .attachments()
+            .decrypt_emergency_access_buffer(attachment.toSdkAttachmentView(), encryptedContent);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to decrypt emergency access attachment: ${error}`);
           throw error;
         }),
       ),

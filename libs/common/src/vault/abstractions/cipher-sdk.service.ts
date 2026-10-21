@@ -12,6 +12,7 @@ import {
   UserId,
 } from "../../types/guid";
 import { Cipher } from "../models/domain/cipher";
+import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 
 /**
@@ -231,6 +232,24 @@ export abstract class CipherSdkService {
     userId: UserId,
     options?: { asAdmin?: boolean; emergencyAccessId?: EmergencyAccessId },
   ): Promise<string>;
+
+  /**
+   * Decrypts the content of an attachment on a grantor's vault item, viewed through emergency
+   * access. The SDK uses the attachment key on `attachment`, so no user or cipher key is needed.
+   *
+   * Legacy v1 attachments have no attachment key and are rejected by the SDK with a
+   * `LegacyAttachmentUnsupported` error.
+   *
+   * @param attachment The attachment view returned by the emergency access view
+   * @param encryptedContent The encrypted attachment bytes downloaded from the attachment URL
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the decrypted content
+   */
+  abstract decryptEmergencyAccessAttachment(
+    attachment: AttachmentView,
+    encryptedContent: Uint8Array,
+    userId: UserId,
+  ): Promise<Uint8Array>;
 
   /**
    * Opens a new attachment slot on the server via the SDK. The caller is responsible for

@@ -7936,6 +7936,9 @@
   "fixEncryptionTooltip": {
     "message": "This file is using an outdated encryption method."
   },
+  "emergencyAccessAttachmentUnsupported": {
+    "message": "This file is using an outdated encryption method and can't be downloaded through emergency access."
+  },
   "attachmentUpdated": {
     "message": "Attachment updated"
   },

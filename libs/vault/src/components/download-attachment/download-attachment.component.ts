@@ -15,6 +15,7 @@ import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/c
 import {
   isCipherAdminGetAttachmentDownloadUrlError,
   isCipherGetAttachmentDownloadUrlError,
+  isDecryptEmergencyAccessAttachmentError,
 } from "@bitwarden/sdk-internal";
 
 type DownloadOptions = { asAdmin?: boolean; emergencyAccessId?: EmergencyAccessId };
@@ -81,21 +82,34 @@ export class DownloadAttachmentComponent {
     }
 
     try {
-      const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
-        cipher.id as CipherId,
-        attachment,
-        response,
-        userId,
-        // When the emergency access ID is present, the cipher is being viewed via emergency access.
-        // Force legacy decryption in these cases.
-        Boolean(this.emergencyAccessId()),
-      );
+      const decBuf = this.emergencyAccessId()
+        ? await this.cipherSdkService.decryptEmergencyAccessAttachment(
+            attachment,
+            new Uint8Array(await response.arrayBuffer()),
+            userId,
+          )
+        : await this.cipherService.getDecryptedAttachmentBuffer(
+            cipher.id as CipherId,
+            attachment,
+            response,
+            userId,
+          );
 
       this.fileDownloadService.download({
         fileName: attachment.fileName,
         blobData: decBuf as BlobPart,
       });
-    } catch {
+    } catch (e) {
+      if (
+        isDecryptEmergencyAccessAttachmentError(e) &&
+        e.variant === "LegacyAttachmentUnsupported"
+      ) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("emergencyAccessAttachmentUnsupported"),
+        });
+        return;
+      }
       this.showErrorToast();
     }
   };

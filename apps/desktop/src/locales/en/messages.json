@@ -754,6 +754,9 @@
   "errorOccurred": {
     "message": "An error has occurred."
   },
+  "emergencyAccessAttachmentUnsupported": {
+    "message": "This file is using an outdated encryption method and can't be downloaded through emergency access."
+  },
   "error": {
     "message": "Error"
   },
