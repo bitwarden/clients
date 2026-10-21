@@ -662,6 +662,104 @@ describe("DefaultSdkService", () => {
       });
     });
 
+    describe("a lock racing an unlock", () => {
+      /** Holds the next call of `fn` until the returned function is called. */
+      function holdNext(fn: jest.Mock | jest.MockInstance<any, any>, value?: unknown) {
+        let release!: () => void;
+        fn.mockImplementationOnce(() => new Promise((resolve) => (release = () => resolve(value))));
+        return () => release();
+      }
+
+      it("clears the client and rejects when a lock lands while the user crypto initializes", async () => {
+        service = createService();
+        await settle();
+        const release = holdNext(crypto.initialize_user_crypto);
+
+        const unlock = service.unlock(userId, unlockRequest);
+        await settle();
+        await service.lock(userId);
+        unlockClient.lock.mockClear();
+        release();
+
+        await expect(unlock).rejects.toThrow("locked while unlocking");
+        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+      });
+
+      it("clears the client of an unlock that was in flight when a lock found no client yet", async () => {
+        let resolveClient!: (client: PasswordManagerClient) => void;
+        sdkClientFactory.createSdkClient.mockReturnValue(
+          new Promise((resolve) => (resolveClient = resolve)),
+        );
+        service = createService();
+        await settle();
+
+        const unlock = service.unlock(userId, unlockRequest);
+        await service.lock(userId);
+        expect(unlockClient.lock).not.toHaveBeenCalled();
+        resolveClient(mockClient);
+
+        await expect(unlock).rejects.toThrow("locked while unlocking");
+        expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(1);
+        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+      });
+
+      it("clears the client and rejects when a lock lands while organization keys apply", async () => {
+        service = createService();
+        await service.unlock(userId, unlockRequest);
+        const release = holdNext(crypto.initialize_org_crypto);
+
+        const setOrgKeys = service.setOrgKeys(userId, {});
+        await settle();
+        await service.lock(userId);
+        unlockClient.lock.mockClear();
+        release();
+
+        await expect(setOrgKeys).rejects.toThrow("locked while applying organization keys");
+        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+      });
+
+      it("does not become ready when organization keys arrive after a lock", async () => {
+        service = createService();
+        await service.unlock(userId, unlockRequest);
+        await service.lock(userId);
+
+        await expect(service.setOrgKeys(userId, {})).resolves.toBeUndefined();
+
+        expect(crypto.initialize_org_crypto).not.toHaveBeenCalled();
+        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+      });
+
+      it("rejects an unlock decided before a logout", async () => {
+        service = createService();
+        await settle();
+        const release = holdNext(crypto.initialize_user_crypto);
+
+        const unlock = service.unlock(userId, unlockRequest);
+        await settle();
+        service.logout(userId);
+        release();
+
+        await expect(unlock).rejects.toThrow("locked while unlocking");
+      });
+
+      it("rejects an unlock decided before the access token was removed", async () => {
+        service = createService();
+        await settle();
+        const release = holdNext(crypto.initialize_user_crypto);
+
+        const unlock = service.unlock(userId, unlockRequest);
+        await settle();
+        hasAccessToken$.next(false);
+        await settle();
+        release();
+
+        await expect(unlock).rejects.toThrow("locked while unlocking");
+      });
+    });
+
     describe("lock", () => {
       it("clears the keys of the same client instance, which unlocks again", async () => {
         await startUnlocked();

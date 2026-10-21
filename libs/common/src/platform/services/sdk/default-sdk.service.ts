@@ -114,6 +114,10 @@ export class DefaultSdkService implements SdkService {
    * clears the user key in state, which another process of the same client may already rely on.
    */
   private keyedClients = new WeakSet<PasswordManagerClient>();
+  /** Bumped on every lock, logout and token removal. See {@link lockEpoch}. */
+  private lockEpochs = new Map<UserId, number>();
+  /** The lock epoch at which each user's client last finished unlocking its user crypto. */
+  private unlockedAtEpoch = new Map<UserId, number>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
@@ -186,6 +190,19 @@ export class DefaultSdkService implements SdkService {
    * {@link setOrgKeys}.
    */
   async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+    return this.unlockAtEpoch(userId, request, this.lockEpoch(userId));
+  }
+
+  /**
+   * {@link unlock}, for an unlock whose decision to unlock was made at the given lock epoch. If
+   * the user is locked or logged out after that, the unlock clears the client and rejects rather
+   * than leaving keys behind a lock that has already run.
+   */
+  protected async unlockAtEpoch(
+    userId: UserId,
+    request: SdkUnlockRequest,
+    epoch: number,
+  ): Promise<UserKey | null> {
     // `null` makes the caller fall back to unlocking through a register client.
     if (!(await this.longLivedEnabled(userId))) {
       return null;
@@ -219,6 +236,13 @@ export class DefaultSdkService implements SdkService {
         kdfParams: kdfConfig.toSdkConfig(),
         upgradeToken: v2UpgradeToken ?? undefined,
       });
+      // Initializing also wrote the user key to state, so a lock that ran meanwhile is undone
+      // unless the keys are cleared again.
+      if (this.lockEpoch(userId) !== epoch) {
+        await this.clearKeys(client);
+        throw new Error(`User (${userId}) was locked while unlocking the SDK client`);
+      }
+      this.unlockedAtEpoch.set(userId, epoch);
       userKey = SymmetricCryptoKey.fromString(
         await client.crypto().get_user_encryption_key(),
       ) as UserKey;
@@ -238,6 +262,8 @@ export class DefaultSdkService implements SdkService {
    * resolves, and a rejection would leave the vault unlocked.
    */
   async lock(userId: UserId): Promise<void> {
+    // Bumped first and even without a client, so an unlock already in flight sees the lock.
+    this.bumpLockEpoch(userId);
     if (!(await this.longLivedEnabled(userId))) {
       return;
     }
@@ -255,6 +281,7 @@ export class DefaultSdkService implements SdkService {
    */
   logout(userId: UserId): void {
     this.logouts.set(userId, (this.logouts.get(userId) ?? 0) + 1);
+    this.bumpLockEpoch(userId);
     void this.longLivedEnabled(userId).then((longLived) => {
       if (longLived) {
         this.removeClient(userId);
@@ -283,6 +310,12 @@ export class DefaultSdkService implements SdkService {
     }
 
     await this.withClient(userId, async (client) => {
+      // A locked client gets its organization keys from the unlock that follows.
+      if (!this.keyedClients.has(client)) {
+        return;
+      }
+
+      const unlockedAt = this.unlockedAtEpoch.get(userId);
       try {
         await client.crypto().initialize_org_crypto({
           organizationKeys: new Map(Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v])),
@@ -297,8 +330,24 @@ export class DefaultSdkService implements SdkService {
         }
         throw e;
       }
+      if (unlockedAt !== this.lockEpoch(userId)) {
+        await this.clearKeys(client);
+        throw new Error(`User (${userId}) was locked while applying organization keys`);
+      }
       this.cryptoReadySubject(userId).next(true);
     });
+  }
+
+  /**
+   * Increases on every lock, logout and token removal of the user, whether or not a client
+   * exists. An unlock that started at an earlier epoch must not leave keys behind.
+   */
+  protected lockEpoch(userId: UserId): number {
+    return this.lockEpochs.get(userId) ?? 0;
+  }
+
+  private bumpLockEpoch(userId: UserId): void {
+    this.lockEpochs.set(userId, this.lockEpoch(userId) + 1);
   }
 
   /**
@@ -351,6 +400,7 @@ export class DefaultSdkService implements SdkService {
             if (!loggedIn) {
               // Only a long-lived user ever has a client, so this is inert on the reactive path.
               this.logouts.set(userId, (this.logouts.get(userId) ?? 0) + 1);
+              this.bumpLockEpoch(userId);
               this.removeClient(userId);
               return;
             }
