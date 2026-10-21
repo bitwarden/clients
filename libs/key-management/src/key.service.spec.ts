@@ -936,6 +936,23 @@ describe("keyService", () => {
       expect(result?.orgKeys).toEqual({});
       expect((keyService as any).providerKeysHelper$).not.toHaveBeenCalled();
     });
+
+    it("returns the unlock request with no organization keys when none are stored", async () => {
+      stateProvider.singleUser
+        .getFake(mockUserId, USER_ENCRYPTED_ORGANIZATION_KEYS)
+        .nextState(null);
+
+      const result = await keyService.buildSdkUnlockData(mockUserId, userKey);
+
+      expect(result).toEqual({
+        request: {
+          userId: mockUserId,
+          method: { decryptedKey: { decrypted_user_key: userKey.toSdk() } },
+          accountCryptographicState,
+        },
+        orgKeys: {},
+      });
+    });
   });
 
   describe("toUserEncryptedOrgKeys", () => {
