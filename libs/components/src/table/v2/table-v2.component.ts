@@ -237,10 +237,11 @@ type RenderItem<T> =
   host: {
     // In `fill` mode the host becomes a flex column that fills its parent's
     // height, so the table can hand a bounded height down to its scroll region.
+    // The floor stops a crowded parent squeezing it to nothing; the page scrolls instead.
     "[class.tw-flex]": "isFill()",
     "[class.tw-flex-col]": "isFill()",
     "[class.tw-flex-1]": "isFill()",
-    "[class.tw-min-h-0]": "isFill()",
+    "[class.tw-min-h-64]": "isFill()",
   },
 })
 export class BitTableV2Component<T = unknown, S extends string = never, F = Record<string, unknown>>

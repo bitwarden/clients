@@ -1931,6 +1931,33 @@ export const FillPageResizedViewport: Story = {
 };
 
 /**
+ * A crowded `fill` table keeps a minimum height instead of shrinking, and the frame scrolls to
+ * reach it. The header keeps its full height; the empty state scrolls beneath it.
+ */
+export const FillCrowdedEmpty: Story = {
+  render: () => ({
+    props: { table: emptyTable },
+    template: `
+      <div class="tw-flex tw-flex-col tw-overflow-auto" style="height: 480px">
+        <div class="tw-mb-4 tw-flex tw-h-96 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-secondary">
+          Content above the table
+        </div>
+        <bit-table-v2 [tableDef]="table" height="fill">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      </div>
+    `,
+  }),
+};
+
+/**
  * Filtering with projected filter chips. A radio chip and a toggle chip register
  * with the table automatically when projected in; the table composes their
  * predicates into the rendered rows and shows a "no matching items" state when
