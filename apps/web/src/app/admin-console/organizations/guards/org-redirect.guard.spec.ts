@@ -17,21 +17,21 @@ import { organizationRedirectGuard } from "./org-redirect.guard";
 
 @Component({
   template: "<h1>This is the home screen!</h1>",
-  standalone: false,
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomescreenComponent {}
 
 @Component({
   template: "<h1>This is the admin console!</h1>",
-  standalone: false,
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminConsoleComponent {}
 
 @Component({
   template: "<h1> This is a subroute of the admin console!</h1>",
-  standalone: false,
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminConsoleSubrouteComponent {}
@@ -58,6 +58,7 @@ describe("Organization Redirect Guard", () => {
     accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
+      imports: [HomescreenComponent, AdminConsoleComponent, AdminConsoleSubrouteComponent],
       providers: [
         { provide: OrganizationService, useValue: organizationService },
         { provide: AccountService, useValue: accountService },
