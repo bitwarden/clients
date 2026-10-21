@@ -105,7 +105,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
-    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
+    allowedSendTypes: [[SendType.Text, SendType.File, SendType.Item], [Validators.required]],
     deletionHours: null,
   });
   readonly enableSendControl = new FormControl<boolean>(false);
@@ -234,7 +234,11 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       .subscribe((values) => {
         this.data.get("allowedSendTypes")?.patchValue((values ?? []).map<SendType>((v) => v.value));
       });
-    super.ngOnInit();
+    // Our loadData override does setup that we want to do regardless of whether there is existing
+    // policy data, so instead of calling the base class ngOnInit we do its enabled signal setup
+    // and call loadData ourselves
+    this.enabled.setValue(this.policyResponse()?.enabled ?? false);
+    this.loadData();
   }
 
   protected override loadData(): void {
