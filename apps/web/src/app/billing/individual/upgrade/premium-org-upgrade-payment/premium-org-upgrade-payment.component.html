@@ -55,7 +55,7 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading() || !isFormValid()"
+      [disabled]="loading() || !isFormValid() || previewFailed()"
       type="submit"
     >
       {{ "upgrade" | i18n }}
