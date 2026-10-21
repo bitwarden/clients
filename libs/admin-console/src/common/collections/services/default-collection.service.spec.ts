@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import {
+  BehaviorSubject,
   combineLatest,
   filter,
   first,
@@ -17,6 +18,7 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { FakeStateProvider, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -49,6 +51,7 @@ describe("DefaultCollectionService", () => {
   let userId: UserId;
 
   let cryptoKeys: ReplaySubject<Record<OrganizationId, OrgKey> | null>;
+  let cryptoReady$: BehaviorSubject<boolean>;
 
   let collectionService: DefaultCollectionService;
 
@@ -64,6 +67,9 @@ describe("DefaultCollectionService", () => {
 
     cryptoKeys = new ReplaySubject(1);
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
+    cryptoReady$ = new BehaviorSubject(true);
+    const sdkService = mock<SdkService>();
+    sdkService.cryptoReady$.mockReturnValue(cryptoReady$);
 
     // Set up mock decryption
     encryptService.decryptString
@@ -88,6 +94,7 @@ describe("DefaultCollectionService", () => {
       stateProvider,
       collectionEncryptionService,
       mock<LogService>({ startMeasurement: () => mock<Measurement>() }),
+      sdkService,
     );
   });
 
@@ -139,6 +146,26 @@ describe("DefaultCollectionService", () => {
         userId,
       );
       expect(encryptService.decryptString).not.toHaveBeenCalled();
+    });
+
+    it("waits for the SDK client to be ready before decrypting", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionViewDataFactory(org1);
+      const encryptedCollection1 = collectionDataFactory(org1);
+      encryptedCollection1.id = collection1.id;
+      await setEncryptedState([encryptedCollection1]);
+      cryptoKeys.next({});
+      cryptoReady$.next(false);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([collection1]));
+
+      const result = firstValueFrom(collectionService.decryptedCollections$(userId));
+      await new Promise(process.nextTick);
+      expect(collectionEncryptionService.decryptMany).not.toHaveBeenCalled();
+
+      cryptoReady$.next(true);
+
+      await expect(result).resolves.toContainPartialObjects([{ id: collection1.id }]);
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
     });
 
     it("emits decrypted collections from in-memory state when available", async () => {

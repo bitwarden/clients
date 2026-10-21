@@ -31,7 +31,7 @@ import { ConfigService } from "../../platform/abstractions/config/config.service
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
-import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { MessageSender } from "../../platform/messaging";
 import { StateProvider } from "../../platform/state";
@@ -115,6 +115,7 @@ export class CipherService implements CipherServiceAbstraction {
     private cipherEncryptionService: CipherEncryptionService,
     private messageSender: MessageSender,
     private cipherSdkService: CipherSdkService,
+    private sdkService: SdkService,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -140,9 +141,9 @@ export class CipherService implements CipherServiceAbstraction {
       return combineLatest([
         this.encryptedCiphersState(userId).state$,
         this.localData$(userId),
-        this.keyService.cipherDecryptionKeys$(userId),
+        this.sdkService.cryptoReady$(userId),
       ]).pipe(
-        filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
+        filter(([ciphers, _, ready]) => ciphers != null && ready), // Skip if ciphers haven't been loaded yor synced yet
         switchMap(() => this.getAllDecryptedIncludingPartials(userId)),
         tap(() => {
           this.messageSender.send("updateOverlayCiphers");
@@ -183,9 +184,9 @@ export class CipherService implements CipherServiceAbstraction {
         return combineLatest([
           this.encryptedCiphersState(userId).state$,
           this.localData$(userId),
-          this.keyService.cipherDecryptionKeys$(userId, true),
+          this.sdkService.cryptoReady$(userId),
         ]).pipe(
-          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+          filter(([cipherDataState, _, ready]) => cipherDataState != null && ready),
           map(([cipherDataState, localData]) =>
             Object.values(cipherDataState).map(
               (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
@@ -281,8 +282,7 @@ export class CipherService implements CipherServiceAbstraction {
     ciphers: T[],
     userId: UserId,
   ): Promise<T[]> {
-    const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId));
-    const orgKeys = keys?.orgKeys;
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
     if (orgKeys == null) {
       return ciphers;
     }

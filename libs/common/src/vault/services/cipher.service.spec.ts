@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwErro
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   EncArrayBuffer,
@@ -27,6 +27,7 @@ import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
 import { ContainerService } from "../../platform/services/container.service";
@@ -115,6 +116,7 @@ describe("Cipher Service", () => {
   const cipherEncryptionService = mock<CipherEncryptionService>();
   const messageSender = mock<MessageSender>();
   const cipherSdkService = mock<CipherSdkService>();
+  const sdkService = mock<SdkService>();
 
   const userId = "TestUserId" as UserId;
   const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
@@ -173,6 +175,7 @@ describe("Cipher Service", () => {
       cipherEncryptionService,
       messageSender,
       cipherSdkService,
+      sdkService,
     );
 
     encryptionContext = { cipher: new Cipher(cipherData), encryptedFor: userId };
@@ -633,9 +636,7 @@ describe("Cipher Service", () => {
 
     beforeEach(() => {
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
-
-      const keys = { userKey: originalUserKey } as CipherDecryptionKeys;
-      keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
+      sdkService.cryptoReady$.mockReturnValue(of(true));
 
       const cipher1 = new CipherView(encryptionContext.cipher);
       cipher1.id = "Cipher 1" as CipherId;
@@ -827,6 +828,52 @@ describe("Cipher Service", () => {
       expect(emitted).not.toHaveBeenCalled();
       subscription.unsubscribe();
     });
+  });
+
+  describe("SDK client readiness", () => {
+    let cryptoReady$: BehaviorSubject<boolean>;
+    let decrypt: jest.SpyInstance;
+    let decryptWithSdk: jest.SpyInstance;
+
+    const settle = () => new Promise(process.nextTick);
+
+    beforeEach(() => {
+      cryptoReady$ = new BehaviorSubject<boolean>(false);
+      sdkService.cryptoReady$.mockReturnValue(cryptoReady$);
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id as CipherId]: cipherData });
+      decrypt = jest
+        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .mockResolvedValue([]);
+      decryptWithSdk = jest
+        .spyOn(cipherService as any, "decryptCiphersWithSdk")
+        .mockResolvedValue([[], []]);
+    });
+
+    it.each([
+      ["cipherViews$", false],
+      ["cipherListViews$", true],
+    ])(
+      "%s decrypts once the client is ready, and not again on lock",
+      async (stream, sdkListView) => {
+        sdkCrudFeatureFlag$.next(sdkListView);
+        const decryptSpy = sdkListView ? decryptWithSdk : decrypt;
+        const subscription = (cipherService as any)[stream](mockUserId).subscribe();
+        await settle();
+        expect(decryptSpy).not.toHaveBeenCalled();
+
+        cryptoReady$.next(true);
+        await settle();
+        expect(decryptSpy).toHaveBeenCalledTimes(1);
+
+        cryptoReady$.next(false);
+        await settle();
+        expect(decryptSpy).toHaveBeenCalledTimes(1);
+
+        subscription.unsubscribe();
+      },
+    );
   });
 
   describe("partial (PAM-gated) cipher filtering", () => {
@@ -1065,13 +1112,8 @@ describe("Cipher Service", () => {
     const cipher2_id = "22222222-2222-2222-2222-222222222222";
 
     beforeEach(() => {
-      const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
       const orgKey = new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey;
-      const keys = {
-        userKey: originalUserKey,
-        orgKeys: { [orgId]: orgKey },
-      } as CipherDecryptionKeys;
-      keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
+      keyService.orgKeys$.mockReturnValue(of({ [orgId]: orgKey }));
 
       mockCiphers = [
         new Cipher({ ...cipherData, id: cipher1_id }),
@@ -1140,12 +1182,7 @@ describe("Cipher Service", () => {
     const normal_id = "44444444-4444-4444-4444-444444444444";
 
     it("passes gated ciphers through the SDK like any other cipher", async () => {
-      keyService.cipherDecryptionKeys$.mockReturnValue(
-        of({
-          userKey: makeSymmetricCryptoKey(64) as UserKey,
-          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
-        } as CipherDecryptionKeys),
-      );
+      keyService.orgKeys$.mockReturnValue(of({ [orgId]: makeSymmetricCryptoKey(32) as OrgKey }));
 
       const gatedCipher = new Cipher({ ...cipherData, id: gated_id, organizationId: orgId });
       gatedCipher.partialData = '{"Name":"enc-name"}';

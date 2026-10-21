@@ -49,11 +49,7 @@ import {
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UnsignedSharedKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
-import {
-  CipherDecryptionKeys,
-  KeyService as KeyServiceAbstraction,
-  SdkUnlockData,
-} from "./abstractions/key.service";
+import { KeyService as KeyServiceAbstraction, SdkUnlockData } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 
 const PERF_TRACK_GROUP = PerfTrackGroup.KeyManagement;
@@ -477,10 +473,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
-  orgKeys$(userId: UserId): Observable<Record<OrganizationId, OrgKey> | null> {
-    return this.cipherDecryptionKeys$(userId).pipe(map((keys) => keys?.orgKeys ?? null));
-  }
-
   encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>> {
     return this.userPrivateKey$(userId)?.pipe(
       switchMap((userPrivateKey) => {
@@ -570,7 +562,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return result;
   }
 
-  cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {
+  orgKeys$(userId: UserId): Observable<Record<OrganizationId, OrgKey> | null> {
     return this.sdkService.cryptoReady$(userId).pipe(
       distinctUntilChanged(),
       // Keys are held back until the SDK client can decrypt with them, so consumers keep their
@@ -583,15 +575,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           : this.userPrivateKeyHelper$(userId).pipe(filter((userKeys) => userKeys == null)),
       ),
       switchMap((userKeys) => {
-        if (userKeys == null) {
-          return of(null);
-        }
-
-        const userPrivateKey = userKeys.userPrivateKey;
-
+        const userPrivateKey = userKeys?.userPrivateKey;
         if (userPrivateKey == null) {
-          // We can't do any org based decryption
-          return of({ userKey: userKeys.userKey, orgKeys: null });
+          // Locked, or no private key to do any org based decryption with
+          return of(null);
         }
 
         return combineLatest([
@@ -626,8 +613,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
             return result;
           }),
-          // Combine them back together
-          map((orgKeys) => ({ userKey: userKeys.userKey, orgKeys: orgKeys })),
         );
       }),
     );

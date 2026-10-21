@@ -37,7 +37,7 @@ import {
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey, ProviderKey } from "@bitwarden/common/types/key";
+import { OrgKey, UserKey, ProviderKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
@@ -51,7 +51,6 @@ import {
 import { Measurement } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
-import { CipherDecryptionKeys } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
 
@@ -313,7 +312,7 @@ describe("keyService", () => {
     });
   });
 
-  describe("cipherDecryptionKeys$", () => {
+  describe("orgKeys$", () => {
     let accountStateSubject: BehaviorSubject<WrappedAccountCryptographicState | null>;
 
     beforeEach(() => {
@@ -393,20 +392,26 @@ describe("keyService", () => {
       }
     }
 
-    it("returns decryption keys when there are no org or provider keys set", async () => {
+    it("returns an empty record when there are no org or provider keys set", async () => {
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
       });
 
-      const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
+      const orgKeys = await firstValueFrom(keyService.orgKeys$(mockUserId));
 
-      expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys!.userKey).not.toBeNull();
-      expect(decryptionKeys!.orgKeys).toEqual({});
+      expect(orgKeys).toEqual({});
     });
 
-    it("returns decryption keys when there are org keys", async () => {
+    it("returns null when the user has no private key", async () => {
+      updateKeys({ userKey: makeSymmetricCryptoKey<UserKey>(64) });
+
+      const orgKeys = await firstValueFrom(keyService.orgKeys$(mockUserId));
+
+      expect(orgKeys).toBeNull();
+    });
+
+    it("returns the org keys when there are org keys", async () => {
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
@@ -415,18 +420,16 @@ describe("keyService", () => {
         },
       });
 
-      const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
+      const orgKeys = await firstValueFrom(keyService.orgKeys$(mockUserId));
 
-      expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys!.userKey).not.toBeNull();
-      expect(decryptionKeys!.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
-      expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
-      const orgKey = decryptionKeys!.orgKeys![org1Id];
+      expect(orgKeys).not.toBeNull();
+      expect(Object.keys(orgKeys!)).toHaveLength(1);
+      expect(orgKeys![org1Id]).not.toBeNull();
+      const orgKey = orgKeys![org1Id];
       expect(orgKey.keyB64).toContain("org1Key");
     });
 
-    it("returns decryption keys when there is an empty record for provider keys", async () => {
+    it("returns the org keys when there is an empty record for provider keys", async () => {
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
@@ -436,18 +439,16 @@ describe("keyService", () => {
         providerKeys: {},
       });
 
-      const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
+      const orgKeys = await firstValueFrom(keyService.orgKeys$(mockUserId));
 
-      expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys!.userKey).not.toBeNull();
-      expect(decryptionKeys!.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
-      expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
-      const orgKey = decryptionKeys!.orgKeys![org1Id];
+      expect(orgKeys).not.toBeNull();
+      expect(Object.keys(orgKeys!)).toHaveLength(1);
+      expect(orgKeys![org1Id]).not.toBeNull();
+      const orgKey = orgKeys![org1Id];
       expect(orgKey.keyB64).toContain("org1Key");
     });
 
-    it("returns decryption keys when some of the org keys are providers", async () => {
+    it("returns the org keys when some of them are provider-encrypted", async () => {
       const org2Id = "org2Id" as OrganizationId;
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
@@ -465,18 +466,16 @@ describe("keyService", () => {
         },
       });
 
-      const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
+      const orgKeys = await firstValueFrom(keyService.orgKeys$(mockUserId));
 
-      expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys!.userKey).not.toBeNull();
-      expect(decryptionKeys!.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(2);
+      expect(orgKeys).not.toBeNull();
+      expect(Object.keys(orgKeys!)).toHaveLength(2);
 
-      const orgKey = decryptionKeys!.orgKeys![org1Id];
+      const orgKey = orgKeys![org1Id];
       expect(orgKey).not.toBeNull();
       expect(orgKey.keyB64).toContain("org1Key");
 
-      const org2Key = decryptionKeys!.orgKeys![org2Id];
+      const org2Key = orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
       expect(org2Key.toEncoded()).toHaveLength(64);
       expect(org2Key.keyB64).toContain("provider1Key");
@@ -486,9 +485,7 @@ describe("keyService", () => {
       jest.useFakeTimers();
 
       // Start listening until there have been 6 emissions
-      const promise = lastValueFrom(
-        keyService.cipherDecryptionKeys$(mockUserId).pipe(bufferCount(6), take(1)),
-      );
+      const promise = lastValueFrom(keyService.orgKeys$(mockUserId).pipe(bufferCount(6), take(1)));
 
       // User has their UserKey set
       const initialUserKey = makeSymmetricCryptoKey<UserKey>(64, 0);
@@ -535,49 +532,32 @@ describe("keyService", () => {
       // They start with no data
       expect(emittedValues[0]).toBeNull();
 
-      // They get their user key set
-      expect(emittedValues[1]).toEqual({
-        userKey: initialUserKey,
-        orgKeys: null,
-      });
+      // Without a private key there is no org based decryption
+      expect(emittedValues[1]).toBeNull();
 
       // Once a private key is set we will attempt org key decryption, even if org keys haven't been set
-      expect(emittedValues[2]).toEqual({
-        userKey: initialUserKey,
-        orgKeys: {},
-      });
+      expect(emittedValues[2]).toEqual({});
 
       // Will emit again when providers alone are set, but this won't change the output until orgs are set
-      expect(emittedValues[3]).toEqual({
-        userKey: initialUserKey,
-        orgKeys: {},
-      });
+      expect(emittedValues[3]).toEqual({});
 
       // Expect org keys to get emitted
       expect(emittedValues[4]).toEqual({
-        userKey: initialUserKey,
-        orgKeys: {
-          [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
-        },
+        [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
       });
 
       // Expect out of band user key update
       expect(emittedValues[5]).toEqual({
-        userKey: updatedUserKey,
-        orgKeys: {
-          [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
-        },
+        [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
       });
 
       // The org key is decrypted with the user key, so the out of band update must produce a new
       // org key rather than replaying the one decrypted with the previous user key
-      expect(emittedValues[5]!.orgKeys![org1Id].keyB64).not.toEqual(
-        emittedValues[4]!.orgKeys![org1Id].keyB64,
-      );
+      expect(emittedValues[5]![org1Id].keyB64).not.toEqual(emittedValues[4]![org1Id].keyB64);
     });
 
     it("does not re-emit when a sync rewrites identical org and provider keys", async () => {
-      // Every emission makes cipher consumers decrypt the whole vault.
+      // Every emission makes org key consumers, such as collections, decrypt again.
       const orgKeys = {
         [org1Id]: { type: "organization" as const, key: makeEncString("org1Key").encryptedString! },
       };
@@ -589,9 +569,7 @@ describe("keyService", () => {
       });
 
       const emitted: unknown[] = [];
-      const subscription = keyService
-        .cipherDecryptionKeys$(mockUserId)
-        .subscribe((keys) => emitted.push(keys));
+      const subscription = keyService.orgKeys$(mockUserId).subscribe((keys) => emitted.push(keys));
       await new Promise(process.nextTick);
 
       updateKeys({ providerKeys: {} });
@@ -614,9 +592,7 @@ describe("keyService", () => {
       });
 
       const emitted: unknown[] = [];
-      const subscription = keyService
-        .cipherDecryptionKeys$(mockUserId)
-        .subscribe((keys) => emitted.push(keys));
+      const subscription = keyService.orgKeys$(mockUserId).subscribe((keys) => emitted.push(keys));
       await new Promise(process.nextTick);
 
       updateKeys({
@@ -632,14 +608,12 @@ describe("keyService", () => {
 
     describe("SDK client readiness", () => {
       let cryptoReady$: BehaviorSubject<boolean>;
-      let emitted: (CipherDecryptionKeys | null)[];
+      let emitted: (Record<OrganizationId, OrgKey> | null)[];
       let subscription: Subscription;
 
       const settle = () => new Promise(process.nextTick);
       const subscribe = async () => {
-        subscription = keyService
-          .cipherDecryptionKeys$(mockUserId)
-          .subscribe((keys) => emitted.push(keys));
+        subscription = keyService.orgKeys$(mockUserId).subscribe((keys) => emitted.push(keys));
         await settle();
       };
 
@@ -682,23 +656,30 @@ describe("keyService", () => {
         cryptoReady$.next(true);
         await settle();
 
-        expect(emitted).toHaveLength(1);
-        expect(emitted[0]).toEqual({ userKey: expect.anything(), orgKeys: {} });
+        expect(emitted).toEqual([{}]);
       });
 
       it("holds the keys through a lock and unlock until the client is ready again", async () => {
         const initialUserKey = makeSymmetricCryptoKey<UserKey>(64, 0);
-        updateKeys({ userKey: initialUserKey, encryptedPrivateKey: makeEncString("privateKey") });
+        updateKeys({
+          userKey: initialUserKey,
+          encryptedPrivateKey: makeEncString("privateKey"),
+          providerKeys: {},
+          orgKeys: {
+            [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
+          },
+        });
         cryptoReady$.next(true);
         await subscribe();
-        expect(emitted).toEqual([{ userKey: initialUserKey, orgKeys: {} }]);
+        expect(emitted).toHaveLength(1);
+        const initialOrgKey = emitted[0]![org1Id];
 
         // Lock: the client stops being ready before the user key is cleared
         cryptoReady$.next(false);
         await settle();
         setUserKeyState(mockUserId, null);
         await settle();
-        expect(emitted).toEqual([{ userKey: initialUserKey, orgKeys: {} }, null]);
+        expect(emitted).toEqual([{ [org1Id]: initialOrgKey }, null]);
 
         // Unlock: the user key is written before the organization keys reach the client
         cryptoReady$.next(false);
@@ -709,11 +690,9 @@ describe("keyService", () => {
 
         cryptoReady$.next(true);
         await settle();
-        expect(emitted).toEqual([
-          { userKey: initialUserKey, orgKeys: {} },
-          null,
-          { userKey: unlockedUserKey, orgKeys: {} },
-        ]);
+        expect(emitted).toHaveLength(3);
+        // The org key is decrypted with the private key the unlocked user key unwraps.
+        expect(emitted[2]![org1Id].keyB64).not.toEqual(initialOrgKey.keyB64);
       });
     });
   });

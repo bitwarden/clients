@@ -21,6 +21,7 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -47,6 +48,7 @@ export class DefaultCollectionService implements CollectionService {
     protected stateProvider: StateProvider,
     private collectionEncryptionService: CollectionEncryptionService,
     private logService: LogService,
+    private sdkService: SdkService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
@@ -117,6 +119,7 @@ export class DefaultCollectionService implements CollectionService {
     return combineLatest([
       this.encryptedCollections$(userId),
       this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+      this.sdkService.cryptoReady$(userId).pipe(filter((ready) => ready)),
     ]).pipe(
       switchMap(([collections]) => {
         const decryptMeasurement = this.logService.startMeasurement(
