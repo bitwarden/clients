@@ -346,12 +346,6 @@ export class HistoryTabComponent {
     ].some((field) => field != null && field.toLowerCase().includes(term));
   }
 
-  /** These rows are access requests, so the default "N items" count label would misname them. */
-  protected readonly resultsLabel = (count: number) =>
-    count === 1
-      ? this.i18nService.t("oneFilterResult")
-      : this.i18nService.t("filterResults", count);
-
   /**
    * Falls back to submitted time, or an undecided row would sink to the end of the descending sort.
    * Ascending, since `bitSortable` applies the direction itself.
