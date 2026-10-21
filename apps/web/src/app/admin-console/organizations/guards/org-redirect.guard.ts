@@ -1,4 +1,4 @@
-import { inject } from "@angular/core";
+import { EnvironmentInjector, inject, runInInjectionContext } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
   CanActivateFn,
@@ -19,7 +19,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
  * `CanActivateFn` that returns a URL Tree redirecting to a caller provided
  * sub route of `/organizations/{id}/`. If no sub route is provided the URL
  * tree returned will redirect to `/organizations/{id}` if possible, or `/` if
- * the user does not have permission to access `organizations/{id}`.
+ * the user does not have permission to access `organizations/{id}` or is
+ * already there.
+ *
+ * `customRedirect` runs inside an injection context, so it may `inject()`.
  */
 export function organizationRedirectGuard(
   customRedirect?: (org: Organization) => string | string[] | undefined,
@@ -28,6 +31,8 @@ export function organizationRedirectGuard(
     const router = inject(Router);
     const organizationService = inject(OrganizationService);
     const accountService = inject(AccountService);
+    // Captured before the first await, which ends the guard's own injection context.
+    const environmentInjector = inject(EnvironmentInjector);
 
     const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
 
@@ -48,7 +53,7 @@ export function organizationRedirectGuard(
     }
 
     if (customRedirect != null) {
-      let redirectPath = customRedirect(org);
+      let redirectPath = runInInjectionContext(environmentInjector, () => customRedirect(org));
       if (redirectPath != null) {
         if (typeof redirectPath === "string") {
           redirectPath = [redirectPath];
@@ -58,7 +63,11 @@ export function organizationRedirectGuard(
     }
 
     if (org != null && canAccessOrgAdmin(org)) {
-      return router.createUrlTree(["/organizations", org.id]);
+      const orgRoot = router.createUrlTree(["/organizations", org.id]);
+      // The organization root mounts this guard too, so redirecting there from itself would loop.
+      if (router.serializeUrl(orgRoot) !== state.url.split(/[?#]/)[0]) {
+        return orgRoot;
+      }
     }
 
     return router.createUrlTree(["/"]);

@@ -32,6 +32,7 @@ describe("Organization", () => {
       useSecretsManager: true,
       usePasswordManager: true,
       usePam: false,
+      accessPam: false,
       useActivateAutofillPolicy: false,
       useAutomaticUserConfirmation: false,
       selfHost: false,
@@ -57,6 +58,8 @@ describe("Organization", () => {
         manageUsers: false,
         manageResetPassword: false,
         manageScim: false,
+        manageAccessRules: false,
+        manageRotation: false,
       }),
       resetPasswordEnrolled: false,
       userId: "user-id",
@@ -293,6 +296,105 @@ describe("Organization", () => {
       const organization = new Organization(data);
 
       expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+  });
+
+  // Both mirror server-side requirements: each admits a Custom user only with its own
+  // permission, and neither admits a provider managing the organization.
+  describe("canManageAccessRules", () => {
+    beforeEach(() => {
+      data.usePam = true;
+    });
+
+    it("returns true for an admin", () => {
+      data.type = OrganizationUserType.Admin;
+
+      expect(new Organization(data).canManageAccessRules).toBe(true);
+    });
+
+    it("returns true for a custom user holding the permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+
+      expect(new Organization(data).canManageAccessRules).toBe(true);
+    });
+
+    it("returns false for a custom user without the permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = false;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+      data.usePam = false;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+
+    it("returns false for a provider user managing the organization", () => {
+      data.type = OrganizationUserType.Owner;
+      data.isProviderUser = true;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+
+    it("returns false for a provider user holding the permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+      data.isProviderUser = true;
+
+      expect(new Organization(data).canManageAccessRules).toBe(false);
+    });
+  });
+
+  describe("canManageRotation", () => {
+    beforeEach(() => {
+      data.usePam = true;
+    });
+
+    it("returns true for an admin", () => {
+      data.type = OrganizationUserType.Admin;
+
+      expect(new Organization(data).canManageRotation).toBe(true);
+    });
+
+    it("returns true for a custom user holding the rotation permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageRotation = true;
+
+      expect(new Organization(data).canManageRotation).toBe(true);
+    });
+
+    it("returns false for a custom user holding the access-rule permission", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageAccessRules = true;
+
+      expect(new Organization(data).canManageRotation).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM", () => {
+      data.type = OrganizationUserType.Owner;
+      data.usePam = false;
+
+      expect(new Organization(data).canManageRotation).toBe(false);
+    });
+
+    it("returns false for a provider user managing the organization", () => {
+      data.type = OrganizationUserType.Owner;
+      data.isProviderUser = true;
+
+      expect(new Organization(data).canManageRotation).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM, permission or not", () => {
+      data.type = OrganizationUserType.Custom;
+      data.permissions.manageRotation = true;
+      data.usePam = false;
+
+      expect(new Organization(data).canManageRotation).toBe(false);
     });
   });
 
