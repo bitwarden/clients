@@ -105,7 +105,7 @@
     </bit-cell>
   </bit-column>
 
-  <bit-column sortable width="minmax(200px, 1fr)">
+  <bit-column sortable [sortFn]="byWindow" width="minmax(200px, 1fr)">
     <bit-header-cell>{{ "pamColumnRequestedWindow" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="myRequestsTable.columns.window; let row" [truncate]="false">
       {{ row.windowSeconds | durationCompound }}
