@@ -25,7 +25,6 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
@@ -182,7 +181,6 @@ export class SharedFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
-  private readonly i18nService = inject(I18nService);
   private readonly organizationService = inject(OrganizationService);
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
@@ -349,9 +347,6 @@ export class SharedFoldersComponent {
     const folders = this.sharedFolders();
     return folders.some((row) => row.gated) && folders.some((row) => !row.gated);
   });
-
-  protected readonly folderCountLabel = (count: number): string =>
-    this.i18nService.t(count === 1 ? "sharedFolderSingular" : "sharedFolderCount", count);
 
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
