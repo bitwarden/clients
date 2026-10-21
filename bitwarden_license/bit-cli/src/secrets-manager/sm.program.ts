@@ -6,9 +6,15 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ServiceContainer } from "../service-container";
 
+import { AccessGetCommand } from "./access/access-get.command";
+import { AccessGrantCommand } from "./access/access-grant.command";
+import { AccessRevokeCommand } from "./access/access-revoke.command";
+import { AccessSetCommand } from "./access/access-set.command";
+import { SmAccessPermissions, SmAccessTargets } from "./access/sm-access-policies";
 import { AccessTokenCreateCommand } from "./access-tokens/access-token-create.command";
 import { AccessTokenListCommand } from "./access-tokens/access-token-list.command";
 import { AccessTokenRevokeCommand } from "./access-tokens/access-token-revoke.command";
+import { GranteesListCommand, SmGranteeKinds } from "./grantees/grantees-list.command";
 import { MachineAccountCreateCommand } from "./machine-accounts/machine-account-create.command";
 import { MachineAccountDeleteCommand } from "./machine-accounts/machine-account-delete.command";
 import { MachineAccountEditCommand } from "./machine-accounts/machine-account-edit.command";
@@ -71,6 +77,8 @@ export class SmProgram extends BaseProgram {
       .addCommand(this.machineAccountCommand())
       .addCommand(this.accessTokenCommand())
       .addCommand(this.trashCommand())
+      .addCommand(this.accessCommand())
+      .addCommand(this.granteesCommand())
       .addCommand(this.templateCommand())
       .on("--help", () => {
         writeLn("\n  Examples:");
@@ -682,6 +690,194 @@ export class SmProgram extends BaseProgram {
             const response = await TrashEmptyCommand.create(this.serviceContainer).run(
               options.organizationid,
               { secretIds, all: options.all },
+            );
+            this.processResponse(response);
+          }),
+      );
+  }
+
+  private accessCommand(): Command {
+    const targetDescription = "The object type: " + SmAccessTargets.join(", ");
+    const granteeDescription =
+      "A user's email, the name of a group, machine account, or project, or a grantee id";
+    const permissionOption = "--permission <permission>";
+    const permissionDescription =
+      "The permission to grant: " + SmAccessPermissions.join(", ") + " (required)";
+
+    return new Command("access")
+      .description("Manage who and what can access projects, machine accounts, and secrets.")
+      .addCommand(
+        new Command("get")
+          .description("List the access policies on a project, machine account, or secret.")
+          .argument("<target>", targetDescription)
+          .argument("<id>", "The id of the object")
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Projects and secrets list user, group, and machine account access.");
+            writeLn("    Machine accounts list user and group access, and the projects the");
+            writeLn("    machine account can access.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn("    bw sm access get project <projectId> --organizationid <organizationid>");
+            writeLn(
+              "    bw sm access get machine-account <machineAccountId> --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (target: string, id: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await AccessGetCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              target,
+              id,
+            );
+            this.processResponse(response);
+          }),
+      )
+      .addCommand(
+        new Command("set")
+          .description("Replace every access policy on a project, machine account, or secret.")
+          .argument("<target>", targetDescription)
+          .argument("<id>", "The id of the object")
+          .argument("[encodedJson]", ENCODED_JSON_DESCRIPTION)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Any existing policy not listed in `policies` is removed. Use `grant`");
+            writeLn("    and `revoke` to change a single policy.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm template sm-access-policies | jq '.policies[0].id=\"<id>\"' | bw encode | bw sm access set project <projectId> --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(
+            async (
+              target: string,
+              id: string,
+              encodedJson: string | undefined,
+              options: OrgOptions,
+            ) => {
+              await this.exitIfLocked();
+              const response = await AccessSetCommand.create(this.serviceContainer).run(
+                options.organizationid,
+                target,
+                id,
+                encodedJson,
+              );
+              this.processResponse(response);
+            },
+          ),
+      )
+      .addCommand(
+        new Command("grant")
+          .description("Grant access to a project, machine account, or secret.")
+          .argument("<target>", targetDescription)
+          .argument("<id>", "The id of the object")
+          .argument("<grantee>", granteeDescription)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .requiredOption(permissionOption, permissionDescription)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Other existing policies are kept. Granting to a grantee that already has");
+            writeLn("    access changes its permission. People can only be granted read-write");
+            writeLn("    access to a machine account.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm access grant project <projectId> alice@example.com --permission read --organizationid <organizationid>",
+            );
+            writeLn(
+              '    bw sm access grant machine-account <machineAccountId> "Backend" --permission read-write --organizationid <organizationid>',
+            );
+            writeLn("", true);
+          })
+          .action(
+            async (
+              target: string,
+              id: string,
+              grantee: string,
+              options: OrgOptions & { permission: string },
+            ) => {
+              await this.exitIfLocked();
+              const response = await AccessGrantCommand.create(this.serviceContainer).run(
+                options.organizationid,
+                target,
+                id,
+                grantee,
+                options.permission,
+              );
+              this.processResponse(response);
+            },
+          ),
+      )
+      .addCommand(
+        new Command("revoke")
+          .description("Remove access to a project, machine account, or secret.")
+          .argument("<target>", targetDescription)
+          .argument("<id>", "The id of the object")
+          .argument("<grantee>", granteeDescription)
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    Other existing policies are kept.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn(
+              "    bw sm access revoke secret <secretId> alice@example.com --organizationid <organizationid>",
+            );
+            writeLn("", true);
+          })
+          .action(async (target: string, id: string, grantee: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await AccessRevokeCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              target,
+              id,
+              grantee,
+            );
+            this.processResponse(response);
+          }),
+      );
+  }
+
+  private granteesCommand(): Command {
+    return new Command("grantees")
+      .description("List who and what can be granted access in Secrets Manager.")
+      .addCommand(
+        new Command("list")
+          .description("List potential grantees of the given type.")
+          .argument("<type>", "The grantee type: " + SmGranteeKinds.join(", "))
+          .requiredOption(ORGANIZATION_ID_OPTION, ORGANIZATION_ID_DESCRIPTION)
+          .on("--help", () => {
+            writeLn("\n  Notes:");
+            writeLn("");
+            writeLn("    `people` lists users and groups that can be granted access to projects");
+            writeLn("    and machine accounts. `machine-accounts` lists machine accounts that can");
+            writeLn("    be granted access to projects. `projects` lists projects a machine");
+            writeLn("    account can be granted access to.");
+            writeLn("");
+            writeLn("  Examples:");
+            writeLn("");
+            writeLn("    bw sm grantees list people --organizationid <organizationid>");
+            writeLn("    bw sm grantees list machine-accounts --organizationid <organizationid>");
+            writeLn("", true);
+          })
+          .action(async (type: string, options: OrgOptions) => {
+            await this.exitIfLocked();
+            const response = await GranteesListCommand.create(this.serviceContainer).run(
+              options.organizationid,
+              type,
             );
             this.processResponse(response);
           }),
