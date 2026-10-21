@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject, Subscription } from "rxjs";
+import { BehaviorSubject, defer, firstValueFrom, of, Subject, Subscription } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -9,10 +9,14 @@ import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upg
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkUnlockRequest } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
@@ -22,7 +26,14 @@ import { KdfConfigService, KeyService, SdkUnlockData } from "@bitwarden/key-mana
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
-import { UnsignedSharedKey, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import {
+  CryptoClient,
+  ManagedSettingsClient,
+  PasswordManagerClient,
+  UnlockClient,
+  UnsignedSharedKey,
+  WrappedAccountCryptographicState,
+} from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { stampWebExtSender } from "../../utils/web-ext-sender";
@@ -79,6 +90,7 @@ describe("BrowserSdkService", () => {
   let subscriptions: Subscription[];
 
   let superUnlock: jest.SpyInstance;
+  let superUnlockAtEpoch: jest.SpyInstance;
   let superLock: jest.SpyInstance;
   let superLogout: jest.SpyInstance;
   let superSetFlags: jest.SpyInstance;
@@ -106,13 +118,13 @@ describe("BrowserSdkService", () => {
     }
   };
 
-  function createProcess(): Process {
+  function createProcess(flag?: boolean): Process {
     const keyService = mock<KeyService>();
     keyService.userKey$.mockReturnValue(userKey$);
     keyService.buildSdkUnlockData.mockResolvedValue(unlockData);
 
     const configService = mock<ConfigService>();
-    configService.userCachedFeatureFlag$.mockImplementation(() => of(flagEnabled) as any);
+    configService.userCachedFeatureFlag$.mockImplementation(() => of(flag ?? flagEnabled) as any);
 
     const tokenService = mock<TokenService>();
     tokenService.hasAccessToken$.mockReturnValue(of(false));
@@ -160,6 +172,8 @@ describe("BrowserSdkService", () => {
     return { service, keyService, logService, sent };
   }
 
+  const lockEpochOf = (process: Process): number => (process.service as any).lockEpoch(userId);
+
   function start(process: Process): Process {
     subscriptions.push(process.service.init());
     return process;
@@ -173,13 +187,28 @@ describe("BrowserSdkService", () => {
     subscriptions = [];
 
     superUnlock = jest.spyOn(DefaultSdkService.prototype, "unlock").mockResolvedValue(userKey);
-    superLock = jest.spyOn(DefaultSdkService.prototype, "lock").mockResolvedValue();
+    superUnlockAtEpoch = jest
+      .spyOn(DefaultSdkService.prototype as any, "unlockAtEpoch")
+      .mockResolvedValue(userKey);
+    // Readiness per process: organization keys make a client ready, a lock clears it.
+    const ready = new Set<unknown>();
+    superLock = jest.spyOn(DefaultSdkService.prototype, "lock").mockImplementation(async function (
+      this: unknown,
+    ) {
+      ready.delete(this);
+    });
     superLogout = jest.spyOn(DefaultSdkService.prototype, "logout").mockReturnValue();
     superSetFlags = jest.spyOn(DefaultSdkService.prototype, "setFlags").mockResolvedValue();
-    superSetOrgKeys = jest.spyOn(DefaultSdkService.prototype, "setOrgKeys").mockResolvedValue();
+    superSetOrgKeys = jest
+      .spyOn(DefaultSdkService.prototype, "setOrgKeys")
+      .mockImplementation(async function (this: unknown) {
+        ready.add(this);
+      });
     cryptoReady = jest
       .spyOn(DefaultSdkService.prototype, "cryptoReady$")
-      .mockReturnValue(of(false));
+      .mockImplementation(function (this: unknown) {
+        return of(ready.has(this));
+      });
   });
 
   afterEach(() => {
@@ -372,6 +401,7 @@ describe("BrowserSdkService", () => {
       const process = start(createProcess());
       await settle();
       jest.clearAllMocks();
+      cryptoReady.mockReturnValue(of(true));
 
       runtime.deliver({ command: SDK_PUSH.command, origin: "other-process", push });
       await settle();
@@ -393,9 +423,13 @@ describe("BrowserSdkService", () => {
       await settle();
 
       expect(process.keyService.buildSdkUnlockData).toHaveBeenCalledWith(userId, userKey);
-      expect(superUnlock).toHaveBeenCalledWith(userId, unlockData.request);
+      expect(superUnlockAtEpoch).toHaveBeenCalledWith(
+        userId,
+        unlockData.request,
+        lockEpochOf(process),
+      );
       expect(superSetOrgKeys).toHaveBeenCalledWith(userId, orgKeys);
-      expect(superUnlock.mock.invocationCallOrder[0]).toBeLessThan(
+      expect(superUnlockAtEpoch.mock.invocationCallOrder[0]).toBeLessThan(
         superSetOrgKeys.mock.invocationCallOrder[0],
       );
       expect(process.sent).toHaveLength(0);
@@ -414,7 +448,63 @@ describe("BrowserSdkService", () => {
       });
       await settle();
 
-      expect(superUnlock).not.toHaveBeenCalled();
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
+    });
+
+    it("skips remote organization keys while this process's client is not ready", async () => {
+      start(createProcess());
+      await settle();
+      jest.clearAllMocks();
+
+      runtime.deliver({
+        command: SDK_PUSH.command,
+        origin: "other-process",
+        push: { kind: "orgKeys", userId, orgKeys },
+      });
+      await settle();
+
+      expect(superSetOrgKeys).not.toHaveBeenCalled();
+    });
+
+    it("broadcasts a lock when a remote unlock fails closed on organization keys", async () => {
+      const process = start(createProcess());
+      await settle();
+      jest.clearAllMocks();
+      superSetOrgKeys.mockRejectedValue(new Error("org keys failed"));
+
+      runtime.deliver({
+        command: SDK_PUSH.command,
+        origin: "other-process",
+        push: { kind: "unlock", userId, userKeyB64: userKey.toBase64() },
+      });
+      await settle();
+
+      expect(process.sent.map((m) => m.push)).toEqual([{ kind: "lock", userId }]);
+      expect(process.logService.error).toHaveBeenCalled();
+    });
+
+    it("unlocks at the lock epoch from before it used the pushed key", async () => {
+      const process = start(createProcess());
+      await settle();
+      jest.clearAllMocks();
+      let releaseUnlockData!: () => void;
+      process.keyService.buildSdkUnlockData.mockImplementationOnce(
+        () => new Promise((resolve) => (releaseUnlockData = () => resolve(unlockData))),
+      );
+      const epochAtDelivery = lockEpochOf(process);
+
+      runtime.deliver({
+        command: SDK_PUSH.command,
+        origin: "other-process",
+        push: { kind: "unlock", userId, userKeyB64: userKey.toBase64() },
+      });
+      await settle();
+      // A lock lands while the unlock data is being built from the pushed key.
+      (process.service as any).bumpLockEpoch(userId);
+      releaseUnlockData();
+      await settle();
+
+      expect(superUnlockAtEpoch).toHaveBeenCalledWith(userId, unlockData.request, epochAtDelivery);
     });
 
     it("ignores pushes from content scripts", async () => {
@@ -441,6 +531,7 @@ describe("BrowserSdkService", () => {
       const process = start(createProcess());
       await settle();
       jest.clearAllMocks();
+      cryptoReady.mockReturnValue(of(true));
       superLock.mockRejectedValueOnce(new Error("lock failed"));
 
       runtime.deliver({
@@ -467,7 +558,11 @@ describe("BrowserSdkService", () => {
       await settle();
 
       expect(process.keyService.buildSdkUnlockData).toHaveBeenCalledWith(userId, userKey);
-      expect(superUnlock).toHaveBeenCalledWith(userId, unlockData.request);
+      expect(superUnlockAtEpoch).toHaveBeenCalledWith(
+        userId,
+        unlockData.request,
+        lockEpochOf(process),
+      );
       expect(superSetOrgKeys).toHaveBeenCalledWith(userId, orgKeys);
       expect(process.sent).toHaveLength(0);
     });
@@ -476,7 +571,7 @@ describe("BrowserSdkService", () => {
       start(createProcess());
       await settle();
 
-      expect(superUnlock).not.toHaveBeenCalled();
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
     });
 
     it("leaves a ready client alone", async () => {
@@ -485,7 +580,34 @@ describe("BrowserSdkService", () => {
       start(createProcess());
       await settle();
 
-      expect(superUnlock).not.toHaveBeenCalled();
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
+    });
+
+    it("broadcasts a lock when converging fails closed on organization keys", async () => {
+      userKey$.next(userKey);
+      superSetOrgKeys.mockRejectedValue(new Error("org keys failed"));
+      const process = start(createProcess());
+      await settle();
+
+      expect(process.sent.map((m) => m.push)).toEqual([{ kind: "lock", userId }]);
+    });
+
+    it("unlocks at the lock epoch from before it read the user key", async () => {
+      const process = createProcess();
+      await settle();
+      const epochBeforeRead = lockEpochOf(process);
+      // A lock lands while the user key is being read.
+      process.keyService.userKey$.mockReturnValue(
+        defer(() => {
+          (process.service as any).bumpLockEpoch(userId);
+          return of(userKey);
+        }),
+      );
+      start(process);
+      await settle();
+
+      expect(lockEpochOf(process)).toBe(epochBeforeRead + 1);
+      expect(superUnlockAtEpoch).toHaveBeenCalledWith(userId, unlockData.request, epochBeforeRead);
     });
 
     it("loads the user's flags from the stored server config", async () => {
@@ -501,7 +623,7 @@ describe("BrowserSdkService", () => {
     it("applies a push that arrives while converging after converging", async () => {
       userKey$.next(userKey);
       let finishUnlock!: () => void;
-      superUnlock.mockImplementationOnce(
+      superUnlockAtEpoch.mockImplementationOnce(
         () => new Promise((resolve) => (finishUnlock = () => resolve(userKey))),
       );
       start(createProcess());
@@ -529,7 +651,7 @@ describe("BrowserSdkService", () => {
       flagEnabled = false;
     });
 
-    it("does not broadcast", async () => {
+    it("broadcasts only locks and logouts", async () => {
       const process = createProcess();
 
       await process.service.unlock(userId, unlockRequest);
@@ -539,7 +661,10 @@ describe("BrowserSdkService", () => {
       await process.service.setOrgKeys(userId, orgKeys);
       await settle();
 
-      expect(process.sent).toHaveLength(0);
+      expect(process.sent.map((m) => m.push)).toEqual([
+        { kind: "lock", userId },
+        { kind: "logout", userId },
+      ]);
     });
 
     it("does not converge", async () => {
@@ -549,8 +674,105 @@ describe("BrowserSdkService", () => {
       await settle();
 
       expect(process.keyService.buildSdkUnlockData).not.toHaveBeenCalled();
-      expect(superUnlock).not.toHaveBeenCalled();
+      expect(superUnlockAtEpoch).not.toHaveBeenCalled();
       expect(superSetFlags).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("a vault timeout lock while the woken background converges", () => {
+    it("ends with the client cleared, not ready, and the user key not written back", async () => {
+      jest.restoreAllMocks();
+      Object.defineProperty(SdkLoadService, "Ready", {
+        value: Promise.resolve(),
+        writable: true,
+        configurable: true,
+      });
+
+      // The SDK writes the user key to state when it initializes the user crypto, and clears it
+      // when it locks. Modelled here as one value.
+      let stateUserKey: string | null = null;
+      const crypto = mock<CryptoClient>();
+      crypto.initialize_user_crypto.mockImplementation(async () => {
+        stateUserKey = userKey.toBase64();
+      });
+      crypto.get_user_encryption_key.mockResolvedValue(userKey.toBase64());
+      const unlockClient = mock<UnlockClient>();
+      unlockClient.lock.mockImplementation(async () => {
+        stateUserKey = null;
+      });
+      const client = mock<PasswordManagerClient>();
+      client.crypto.mockReturnValue(crypto);
+      client.unlock.mockReturnValue(unlockClient);
+      client.platform.mockReturnValue({
+        state: jest.fn().mockReturnValue(mock()),
+        load_flags: jest.fn(),
+      } as any);
+      client.km_state_bridge.mockReturnValue({ register_bridge_impl: jest.fn() } as any);
+
+      let resolveClient!: (client: PasswordManagerClient) => void;
+      const sdkClientFactory = mock<SdkClientFactory>();
+      sdkClientFactory.createSdkClient.mockReturnValue(
+        new Promise((resolve) => (resolveClient = resolve)),
+      );
+
+      const keyService = mock<KeyService>();
+      keyService.userKey$.mockReturnValue(of(userKey)); // Restored from session storage on wake.
+      keyService.buildSdkUnlockData.mockResolvedValue(unlockData);
+      const configService = mock<ConfigService>();
+      configService.userCachedFeatureFlag$.mockReturnValue(of(true) as any);
+      configService.serverConfig$ = of(null);
+      const tokenService = mock<TokenService>();
+      tokenService.hasAccessToken$.mockReturnValue(of(true));
+      const environmentService = mock<EnvironmentService>();
+      environmentService.environment$ = of();
+      // `of(mock())` would treat the mock as a scheduler, see `mockManagedSettingsService`.
+      environmentService.getEnvironment$.mockReturnValue(new BehaviorSubject(mock<Environment>()));
+      const kdfConfigService = mock<KdfConfigService>();
+      kdfConfigService.getKdfConfig$.mockReturnValue(of({ toSdkConfig: () => ({}) } as any));
+      const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+      v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
+      const accountService = mock<AccountService>();
+      accountService.accounts$ = of({ [userId]: { email: "email" } as any });
+      const stateProvider = mock<StateProvider>();
+      stateProvider.getUser.mockReturnValue({ state$: of(null) } as any);
+      const managedSettingsService = mock<ManagedSettingsService>();
+      managedSettingsService.client$ = new BehaviorSubject(mock<ManagedSettingsClient>());
+      const logService = mock<LogService>();
+      const inbox: Inbox = new Subject();
+
+      const service = new BrowserSdkService(
+        sdkClientFactory,
+        environmentService,
+        mock<PlatformUtilsService>(),
+        accountService,
+        () => kdfConfigService,
+        () => keyService,
+        () => mock<AccountCryptographicStateService>(),
+        () => mock<ApiService>(),
+        stateProvider,
+        () => configService,
+        v2UpgradeTokenStateService,
+        managedSettingsService,
+        mock<AppIdService>(),
+        logService,
+        () => tokenService,
+        mock<MessageSender>(),
+        new MessageListener(inbox),
+      );
+
+      // bootstrap: converge starts, then the vault timeout check locks before the client exists.
+      subscriptions.push(service.init());
+      await settle();
+      await service.lock(userId);
+      resolveClient(client);
+      await settle();
+
+      expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(1);
+      expect(unlockClient.lock).toHaveBeenCalled();
+      expect(stateUserKey).toBeNull();
+      expect(crypto.initialize_org_crypto).not.toHaveBeenCalled();
+      await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+      expect(logService.error).toHaveBeenCalled();
     });
   });
 
@@ -565,8 +787,13 @@ describe("BrowserSdkService", () => {
       await popup.service.setOrgKeys(userId, orgKeys);
       await settle();
 
-      expect(superUnlock.mock.contexts).toEqual([popup.service, background.service]);
-      expect(superUnlock).toHaveBeenLastCalledWith(userId, unlockData.request);
+      expect(superUnlock.mock.contexts).toEqual([popup.service]);
+      expect(superUnlockAtEpoch.mock.contexts).toEqual([background.service]);
+      expect(superUnlockAtEpoch).toHaveBeenCalledWith(
+        userId,
+        unlockData.request,
+        lockEpochOf(background),
+      );
       expect(background.keyService.buildSdkUnlockData).toHaveBeenCalledWith(userId, userKey);
       expect(background.sent).toHaveLength(0);
     });
@@ -583,7 +810,7 @@ describe("BrowserSdkService", () => {
       runtime.deliver({ command: "backgroundUnlockCompleted", userId });
       await settle();
 
-      expect(superUnlock.mock.contexts).toContain(popup.service);
+      expect(superUnlockAtEpoch.mock.contexts).toEqual([popup.service]);
       expect(popup.keyService.buildSdkUnlockData).toHaveBeenCalledWith(userId, userKey);
       expect(superSetOrgKeys.mock.contexts.filter((c) => c === popup.service)).toHaveLength(2);
     });
@@ -604,6 +831,27 @@ describe("BrowserSdkService", () => {
 
       expect(superLock.mock.contexts).toEqual([background.service]);
     });
+
+    it.each(["lock", "logout"] as const)(
+      "clears the popup's client on a %s from a background whose flag is off",
+      async (kind) => {
+        const background = start(createProcess(false));
+        const popup = start(createProcess(true));
+        await settle();
+        jest.clearAllMocks();
+
+        if (kind === "lock") {
+          await background.service.lock(userId);
+        } else {
+          background.service.logout(userId);
+        }
+        await settle();
+
+        expect(background.sent.map((m) => m.push)).toEqual([{ kind, userId }]);
+        const spy = kind === "lock" ? superLock : superLogout;
+        expect(spy.mock.contexts).toEqual([background.service, popup.service]);
+      },
+    );
 
     it.each(["lock", "logout"] as const)(
       "clears the popup's client when the background pushes a %s",

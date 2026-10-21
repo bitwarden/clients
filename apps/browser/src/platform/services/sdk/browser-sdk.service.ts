@@ -145,24 +145,11 @@ export class BrowserSdkService extends DefaultSdkService {
     await this.broadcast({ kind: "flags", userId, entries: [...flags.entries()] });
   }
 
-  /**
-   * When this process's client fails closed (it was finishing an unlock and got locked), the
-   * user key in shared state is cleared with it, so the other process is told to lock too: its
-   * client may already be ready from its own unlock.
-   */
   override async setOrgKeys(
     userId: UserId,
     orgKeys: Record<OrganizationId, UnsignedSharedKey>,
   ): Promise<void> {
-    const readyBefore = await firstValueFrom(this.cryptoReady$(userId));
-    try {
-      await super.setOrgKeys(userId, orgKeys);
-    } catch (e) {
-      if (!readyBefore) {
-        await this.broadcast({ kind: "lock", userId });
-      }
-      throw e;
-    }
+    await this.setOrgKeysOrLockBoth(userId, orgKeys);
     await this.broadcast({ kind: "orgKeys", userId, orgKeys });
   }
 
@@ -174,6 +161,7 @@ export class BrowserSdkService extends DefaultSdkService {
           await this.unlockFromUserKey(
             push.userId,
             SymmetricCryptoKey.fromString(push.userKeyB64) as UserKey,
+            this.lockEpoch(push.userId),
           );
           break;
         case "lock":
@@ -186,7 +174,11 @@ export class BrowserSdkService extends DefaultSdkService {
           await super.setFlags(push.userId, new Map(push.entries));
           break;
         case "orgKeys":
-          await super.setOrgKeys(push.userId, push.orgKeys);
+          // A client that is not ready gets its organization keys from its own unlock. Applying
+          // them here could fail it closed, which clears the user key in shared state.
+          if (await firstValueFrom(this.cryptoReady$(push.userId))) {
+            await super.setOrgKeys(push.userId, push.orgKeys);
+          }
           break;
       }
     } catch (e) {
@@ -215,9 +207,12 @@ export class BrowserSdkService extends DefaultSdkService {
   }
 
   private async convergeUser(userId: UserId): Promise<void> {
+    // Captured before the user key is read, so a lock that lands while converging (such as a
+    // vault timeout lock right after the background wakes) is not undone by this unlock.
+    const epoch = this.lockEpoch(userId);
     const userKey = await firstValueFrom(this.keyServiceProvider().userKey$(userId));
     if (userKey != null) {
-      await this.unlockFromUserKey(userId, userKey);
+      await this.unlockFromUserKey(userId, userKey, epoch);
     }
 
     const config = await firstValueFrom(
@@ -234,7 +229,7 @@ export class BrowserSdkService extends DefaultSdkService {
    * A client that is already ready is left alone: re-unlocking it would clear the user key in
    * shared state for a moment, and the other process would see the user as locked.
    */
-  private async unlockFromUserKey(userId: UserId, userKey: UserKey): Promise<void> {
+  private async unlockFromUserKey(userId: UserId, userKey: UserKey, epoch: number): Promise<void> {
     if (await firstValueFrom(this.cryptoReady$(userId))) {
       return;
     }
@@ -244,12 +239,41 @@ export class BrowserSdkService extends DefaultSdkService {
       throw new Error(`Missing the account cryptographic state of user (${userId})`);
     }
 
-    await super.unlock(userId, unlockData.request);
-    await super.setOrgKeys(userId, unlockData.orgKeys);
+    // The base class rejects, and clears the client, if the user is locked after `epoch`. A lock
+    // after the organization keys are applied finds a keyed client and clears it itself.
+    await this.unlockAtEpoch(userId, unlockData.request, epoch);
+    await this.setOrgKeysOrLockBoth(userId, unlockData.orgKeys);
   }
 
+  /**
+   * Applies organization keys to this process's client. If that fails closed (the client was
+   * finishing an unlock and got locked), the user key in shared state is cleared with it, so the
+   * other process is told to lock too: its client may already be ready from its own unlock.
+   */
+  private async setOrgKeysOrLockBoth(
+    userId: UserId,
+    orgKeys: Record<OrganizationId, UnsignedSharedKey>,
+  ): Promise<void> {
+    const readyBefore = await firstValueFrom(this.cryptoReady$(userId));
+    try {
+      await super.setOrgKeys(userId, orgKeys);
+    } catch (e) {
+      if (!readyBefore) {
+        await this.broadcast({ kind: "lock", userId });
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Unlock, organization-key and flag pushes are only sent while the sender is on the long-lived
+   * path. Lock and logout pushes are always sent: they carry no keys, every receiver checks its
+   * own flag, and during a rollout the process that locks can have the flag off while the other
+   * has it on.
+   */
   private async broadcast(push: SdkPush): Promise<void> {
-    if (!(await this.longLivedEnabled(push.userId))) {
+    const alwaysSent = push.kind === "lock" || push.kind === "logout";
+    if (!alwaysSent && !(await this.longLivedEnabled(push.userId))) {
       return;
     }
 
