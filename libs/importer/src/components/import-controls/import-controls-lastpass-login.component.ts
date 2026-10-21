@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from "@angular/common";
 import {
   afterRenderEffect,
   ChangeDetectionStrategy,
@@ -31,7 +30,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   LastPassInlineAuthUi,
-  LastPassInlineStage,
+  LastPassInlineScreen,
 } from "./direct/lastpass/lastpass-inline-auth-ui";
 
 function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
@@ -53,18 +52,19 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
     I18nPipe,
     IconButtonModule,
     InputVerbatimDirective,
-    NgTemplateOutlet,
     ReactiveFormsModule,
     SpinnerComponent,
     TypographyModule,
   ],
-  host: { class: "tw-contents" },
+  // Inert while a request is in flight, so the field can't be edited or resubmitted.
+  host: { class: "tw-contents", "[attr.inert]": "busy() ? '' : null" },
 })
 export class ImportControlsLastPassLoginComponent {
-  readonly stage = input.required<LastPassInlineStage>();
+  readonly stage = input.required<LastPassInlineScreen>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly lastPassUi = inject(LastPassInlineAuthUi);
+  protected readonly busy = this.lastPassUi.busy;
   private readonly i18nService = inject(I18nService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -136,6 +136,19 @@ export class ImportControlsLastPassLoginComponent {
       if (passwordWasRejected) {
         controls.lastPassPassword.markAsTouched();
       }
+    });
+
+    // The answer has already been handed over, so it isn't left in the form while the request
+    // runs. Disabled controls don't validate, so the cleared field shows no "required" error.
+    effect(() => {
+      const controls = this.form.controls;
+      if (this.busy()) {
+        controls.lastPassCode.reset("");
+        controls.lastPassPassword.reset("");
+      }
+      const stage = untracked(this.stage);
+      setEnabled(controls.lastPassCode, !this.busy() && stage.kind === "code");
+      setEnabled(controls.lastPassPassword, !this.busy() && stage.kind === "password");
     });
 
     // The card has to move focus itself, or it is left on a Continue button that has just been

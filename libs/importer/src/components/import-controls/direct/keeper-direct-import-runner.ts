@@ -48,6 +48,10 @@ export class KeeperDirectImportRunner {
         return { kind: "cancelled" };
       }
       this.logService.error(`Keeper importer error: ${error}`);
+      // The card already showed this failure as a toast.
+      if (session.errorReported) {
+        return { kind: "cancelled" };
+      }
       email.setErrors({
         errors: { message: this.i18nService.t(keeperValidationErrorI18nKey(error)) },
       });

@@ -2,15 +2,13 @@ import { TestBed } from "@angular/core/testing";
 
 import { I18nMockService } from "@bitwarden/components";
 
-import { LastPassInlineStage } from "./direct/lastpass/lastpass-inline-auth-ui";
+import { LastPassInlineScreen } from "./direct/lastpass/lastpass-inline-auth-ui";
 import { ImportControlsLastPassLoginComponent } from "./import-controls-lastpass-login.component";
 
-/** Every stage the card can show. A `Record` over the stage kinds, so adding a kind to the
+/** Every screen the card can show. A `Record` over the screen kinds, so adding a kind to the
  *  union without listing it here fails to compile, and the test below then requires a story. */
-const STAGE_KINDS: Record<LastPassInlineStage["kind"], true> = {
+const STAGE_KINDS: Record<LastPassInlineScreen["kind"], true> = {
   idle: true,
-  loading: true,
-  importing: true,
   password: true,
   code: true,
   sso: true,

@@ -1,17 +1,19 @@
 <ng-container [formGroup]="form">
   <ng-template #waiting let-title="title" let-body="body">
     <div
-      class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-py-4 tw-text-center"
+      class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-pt-4 tw-text-center"
       role="status"
       tabindex="-1"
     >
-      <bit-spinner size="base" class="tw-mb-1" />
-      @if (title) {
-        <p bitTypography="body1" class="tw-font-semibold" noMargin>{{ title | i18n }}</p>
-      }
-      @if (body) {
-        <p bitTypography="body1" noMargin>{{ body | i18n }}</p>
-      }
+      <bit-spinner size="base" />
+      <div>
+        @if (title) {
+          <p bitTypography="body1" class="tw-mb-3 tw-font-semibold" noMargin>{{ title | i18n }}</p>
+        }
+        @if (body) {
+          <p bitTypography="body1" noMargin class="tw-mb-0">{{ body | i18n }}</p>
+        }
+      </div>
     </div>
   </ng-template>
 
@@ -25,34 +27,28 @@
         appInputVerbatim
         id="importer-controls_input_keeper-code"
       />
+      @if (canResend) {
+        <!-- The field swaps its hint for an error while the code is invalid, so the link returns
+             as soon as the user types. -->
+        <bit-hint>
+          <button
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-text-xs"
+            (mousedown)="$event.preventDefault()"
+            (click)="resend()"
+            id="importer-controls_button_keeper-resend-code"
+          >
+            {{ "resendCode" | i18n }}
+          </button>
+        </bit-hint>
+      }
     </bit-form-field>
-    @if (canResend) {
-      <button
-        type="button"
-        bitLink
-        linkType="primary"
-        class="tw-text-xs"
-        (mousedown)="$event.preventDefault()"
-        (click)="resend()"
-        id="importer-controls_button_keeper-resend-code"
-      >
-        {{ "resendCode" | i18n }}
-      </button>
-    }
   </ng-template>
 
   @let current = stage();
   @switch (current.kind) {
-    @case ("loading") {
-      <ng-container
-        *ngTemplateOutlet="waiting; context: { title: null, body: 'importingYourAccount' }"
-      />
-    }
-    @case ("importing") {
-      <ng-container
-        *ngTemplateOutlet="waiting; context: { title: null, body: 'importingYourAccount' }"
-      />
-    }
     @case ("selectApproval") {
       <bit-radio-group formControlName="keeperApprovalMethod" [block]="true">
         <bit-label>{{ "keeperLoginApprovalMethod" | i18n }}</bit-label>

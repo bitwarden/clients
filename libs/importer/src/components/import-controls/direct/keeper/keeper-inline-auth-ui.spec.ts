@@ -342,12 +342,35 @@ describe("KeeperInlineAuthUi", () => {
       ui.registerStartOver(startOver);
       const session = ui.begin();
 
-      await expect(session.showError("keeperUnsupported2faMethod")).resolves.toBeUndefined();
+      await expect(session.showError("errorOccurred")).resolves.toBeUndefined();
 
       expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "keeperUnsupported2faMethod" }),
+        expect.objectContaining({ variant: "error", message: "errorOccurred" }),
       );
       expect(startOver).toHaveBeenCalledTimes(1);
+      expect(session.errorReported).toBe(true);
+    });
+
+    it("words an unsupported second factor for the design and keeps the user where they are", async () => {
+      const ui = create();
+      const startOver = jest.fn();
+      ui.registerStartOver(startOver);
+      const session = ui.begin();
+
+      await session.showError("keeperUnsupported2faMethod");
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "keeperLoginUnsupportedTwoFactor" }),
+      );
+      expect(startOver).not.toHaveBeenCalled();
+      expect(session.errorReported).toBe(true);
+      expect(session.userLeft).toBe(false);
+    });
+
+    it("has not reported an error until one is shown", () => {
+      const ui = create();
+
+      expect(ui.begin().errorReported).toBe(false);
     });
 
     it("ignores an error from a login that was superseded", async () => {

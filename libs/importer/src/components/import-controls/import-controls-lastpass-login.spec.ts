@@ -55,6 +55,9 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
   };
   const continueDisabled = () => isDisabled("importer-controls_button_continue");
   const backDisabled = () => isDisabled("importer-controls_button_back");
+  // The button draws a spinner over its label while a request is in flight.
+  const continueBusy = () =>
+    fixture.debugElement.query(By.css("#importer-controls_button_continue bit-spinner")) != null;
   const controls = () => component().formGroup.controls;
   const loginControls = () =>
     fixture.debugElement.query(By.directive(ImportControlsLastPassLoginComponent)).componentInstance
@@ -181,6 +184,15 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       expect(text()).toContain("email");
       expect(text()).not.toContain("lastPassEmail");
       expect(text()).toContain("includeSharedFolders");
+    });
+
+    it("focuses the Email field when the credentials step appears", async () => {
+      await mount();
+      await settle();
+
+      expect(document.activeElement).toBe(
+        byId("importer-controls_input_lastpass-email").nativeElement,
+      );
     });
 
     it("explains an empty or invalid email with the design's messages", async () => {
@@ -311,7 +323,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       expect(toastService.showToast).not.toHaveBeenCalled();
     });
 
-    it("takes the code for an out-of-band login, and drops the prompt once it is approved in the app", async () => {
+    it("takes the code for an out-of-band login, and locks the prompt once it is approved in the app", async () => {
       let approve: () => void = () => undefined;
       const approved = new Promise<void>((resolve) => {
         approve = resolve;
@@ -332,8 +344,11 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       approve();
       await settle();
 
-      expect(byId("importer-controls_input_lastpass-code")).toBeNull();
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
+      expect(
+        byId("importer-controls_input_lastpass-code").nativeElement.closest("[inert]"),
+      ).not.toBeNull();
+      expect(text()).not.toContain("importingYourAccount");
 
       finishLogin();
       await component().lastPassLogin();
@@ -351,6 +366,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       expect(text()).toContain("lastPassLoginWaitingForSsoDesc");
       expect(fixture.nativeElement.querySelector("bit-spinner")).toBeTruthy();
       expect(continueDisabled()).toBe(true);
+      expect(continueBusy()).toBe(false);
       expect(backDisabled()).toBe(false);
       expect(isDisabled("importer-controls_button_import-manually-instead")).toBe(false);
     });
@@ -480,12 +496,92 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       await startLogin(async () => undefined);
       await settle();
 
-      expect(text()).toContain("importingYourAccount");
+      expect(continueBusy()).toBe(true);
       expect(backDisabled()).toBe(true);
       expect(isDisabled("importer-controls_button_import-manually-instead")).toBe(true);
 
       finishImport(result);
       await component().lastPassLogin();
+    });
+  });
+
+  describe("busy state", () => {
+    const waitForServer = () => {
+      let release: () => void = () => undefined;
+      const replies = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      return { replies, release: () => release() };
+    };
+
+    it("keeps the email field on screen while Continue shows the spinner", async () => {
+      const server = waitForServer();
+      await startLogin(async () => server.replies);
+
+      expect(isShown("importer-controls_input_lastpass-email")).toBe(true);
+      expect(continueBusy()).toBe(true);
+      expect(text()).not.toContain("importingYourAccount");
+
+      server.release();
+      await component().lastPassLogin();
+    });
+
+    it("keeps the password field on screen, locked and cleared, while Continue shows the spinner", async () => {
+      const server = waitForServer();
+      await startLogin(async (session) => {
+        await session.promptForPassword({ previousPasswordRejected: false });
+        await server.replies;
+      });
+      const input = byId("importer-controls_input_lastpass-password").nativeElement;
+
+      await typePassword("hunter2");
+
+      expect(continueBusy()).toBe(true);
+      expect(byId("importer-controls_input_lastpass-password").nativeElement).toBe(input);
+      expect(input.value).toBe("");
+      expect(input.closest("[inert]")).not.toBeNull();
+      expect(loginControls().lastPassPassword.disabled).toBe(true);
+      expect(text()).not.toContain("lastPassLoginPasswordRequired");
+      expect(text()).toContain("lastPassLoginPasswordDesc");
+
+      server.release();
+      await component().lastPassLogin();
+    });
+
+    it("keeps the code field on screen, locked and cleared, while Continue shows the spinner", async () => {
+      const server = waitForServer();
+      await startLogin(async (session) => {
+        await session.provideGoogleAuthPasscode();
+        await server.replies;
+      });
+      const input = byId("importer-controls_input_lastpass-code").nativeElement;
+
+      await typeCode("123456");
+
+      expect(continueBusy()).toBe(true);
+      expect(byId("importer-controls_input_lastpass-code").nativeElement).toBe(input);
+      expect(input.value).toBe("");
+      expect(input.closest("[inert]")).not.toBeNull();
+      expect(loginControls().lastPassCode.disabled).toBe(true);
+      expect(text()).not.toContain("verificationCodeRequired");
+      expect(text()).toContain("lastPassLoginCodeDesc");
+
+      server.release();
+      await component().lastPassLogin();
+    });
+
+    it("unlocks the field when LastPass rejects the answer", async () => {
+      await startLogin(async (session) => {
+        await session.promptForPassword({ previousPasswordRejected: false });
+        await session.promptForPassword({ previousPasswordRejected: true });
+      });
+
+      await typePassword("wrong");
+
+      expect(continueBusy()).toBe(false);
+      expect(
+        byId("importer-controls_input_lastpass-password").nativeElement.closest("[inert]"),
+      ).toBeNull();
     });
   });
 });

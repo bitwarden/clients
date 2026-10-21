@@ -353,6 +353,9 @@ export class ImportControlsComponent {
     () => this.keeperUi.importing() || this.lastPassUi.importing(),
   );
 
+  /** Continue shows its spinner while a direct-import request is in flight. */
+  protected readonly directBusy = computed(() => this.keeperUi.busy() || this.lastPassUi.busy());
+
   // No initialValue: Continue stays blocked until this resolves. "error" (null account or failed
   // lookup) fails closed without blaming the org policy.
   private readonly personalOwnershipPolicyApplies = toSignal(

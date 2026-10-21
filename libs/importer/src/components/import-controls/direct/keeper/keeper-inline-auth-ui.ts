@@ -12,6 +12,16 @@ import { KeeperAuthSession, KeeperInlineStage } from "./keeper-auth-session";
 
 export type { KeeperInlineStage } from "./keeper-auth-session";
 
+// The key Keeper's client reports this failure by; the legacy dialog words it, the card words it
+// again for the new design.
+const UNSUPPORTED_TWO_FACTOR_KEY = "keeperUnsupported2faMethod";
+
+/** A prompt the card can render. Loading and importing are busy states over a screen, not screens. */
+export type KeeperInlineScreen = Exclude<
+  KeeperInlineStage,
+  { kind: "loading" } | { kind: "importing" }
+>;
+
 /** Shows Keeper's login prompts in the import card instead of the legacy dialog. It owns what the
  *  card displays; each login runs through its own `KeeperAuthSession`, and only the current
  *  session can change the display. */
@@ -29,13 +39,23 @@ export class KeeperInlineAuthUi {
   private readonly _stage = signal<KeeperInlineStage>({ kind: "idle" });
   readonly stage = this._stage.asReadonly();
 
+  // The screen stays up while a request is in flight; the Continue button shows the busy state.
+  private readonly _screen = signal<KeeperInlineScreen>({ kind: "idle" });
+  readonly screen = this._screen.asReadonly();
+
+  /** A request is in flight, or the vault is being written. */
+  readonly busy = computed(() => {
+    const kind = this.stage().kind;
+    return kind === "loading" || kind === "importing";
+  });
+
   private current: KeeperAuthSession | undefined;
   private answerer: (() => void) | undefined;
   private startOver: (() => void) | undefined;
 
   /** The card header's subtitle for the screen showing; null keeps the default one. */
   readonly subtitleKey = computed<string | null>(() => {
-    const stage = this.stage();
+    const stage = this.screen();
     switch (stage.kind) {
       case "selectApproval":
         return "keeperLoginApprovalMethodDesc";
@@ -97,6 +117,7 @@ export class KeeperInlineAuthUi {
   begin(): KeeperAuthSession {
     this.current?.leave();
     const session = this.create();
+    this._screen.set({ kind: "idle" });
     this._stage.set({ kind: "loading" });
     return session;
   }
@@ -104,7 +125,7 @@ export class KeeperInlineAuthUi {
   /** Ends `session`'s display. A superseded session can't blank the login that replaced it. */
   end(session: KeeperAuthSession): void {
     if (this.current === session) {
-      this._stage.set({ kind: "idle" });
+      this.setStage({ kind: "idle" });
     }
   }
 
@@ -112,7 +133,7 @@ export class KeeperInlineAuthUi {
   leave(): void {
     const session = this.current;
     this.current = undefined;
-    this._stage.set({ kind: "idle" });
+    this.setStage({ kind: "idle" });
     session?.leave();
   }
 
@@ -169,17 +190,30 @@ export class KeeperInlineAuthUi {
     if (this.current !== session) {
       return;
     }
+    const unsupportedTwoFactor = message === UNSUPPORTED_TWO_FACTOR_KEY;
     this.toastService.showToast({
       variant: "error",
       title: undefined,
-      message: this.i18nService.t(message),
+      message: this.i18nService.t(
+        unsupportedTwoFactor ? "keeperLoginUnsupportedTwoFactor" : message,
+      ),
     });
-    this.startOver?.();
+    // The user can still switch methods or import manually, so they keep their email and server.
+    if (!unsupportedTwoFactor) {
+      this.startOver?.();
+    }
   }
 
   private show(session: KeeperAuthSession, stage: KeeperInlineStage): void {
     if (this.current === session) {
-      this._stage.set(stage);
+      this.setStage(stage);
+    }
+  }
+
+  private setStage(stage: KeeperInlineStage): void {
+    this._stage.set(stage);
+    if (stage.kind !== "loading" && stage.kind !== "importing") {
+      this._screen.set(stage);
     }
   }
 }

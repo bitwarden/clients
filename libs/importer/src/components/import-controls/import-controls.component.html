@@ -94,6 +94,7 @@
             bitFormButton
             buttonType="primary"
             [disabled]="continueBlocked()"
+            [loading]="directBusy()"
             id="importer-controls_button_continue"
           >
             {{ "continue" | i18n }}

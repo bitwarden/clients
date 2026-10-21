@@ -9,6 +9,12 @@ import { LastPassAuthSession, LastPassInlineStage } from "./lastpass-auth-sessio
 
 export type { LastPassInlineStage } from "./lastpass-auth-session";
 
+/** A prompt the card can render. Loading and importing are busy states over a screen, not screens. */
+export type LastPassInlineScreen = Exclude<
+  LastPassInlineStage,
+  { kind: "loading" } | { kind: "importing" }
+>;
+
 /** Shows LastPass's login prompts in the import card instead of dialogs. It owns what the card
  *  displays; each login runs through its own `LastPassAuthSession`, and only the current session
  *  can change the display. */
@@ -21,13 +27,23 @@ export class LastPassInlineAuthUi {
   private readonly _stage = signal<LastPassInlineStage>({ kind: "idle" });
   readonly stage = this._stage.asReadonly();
 
+  // The screen stays up while a request is in flight; the Continue button shows the busy state.
+  private readonly _screen = signal<LastPassInlineScreen>({ kind: "idle" });
+  readonly screen = this._screen.asReadonly();
+
+  /** A request is in flight, or the vault is being written. */
+  readonly busy = computed(() => {
+    const kind = this.stage().kind;
+    return kind === "loading" || kind === "importing";
+  });
+
   private current: LastPassAuthSession | undefined;
   private answerer: (() => void) | undefined;
   private startOver: (() => void) | undefined;
 
   /** The card header's subtitle for the screen showing; null keeps the default one. */
   readonly subtitleKey = computed<string | null>(() => {
-    switch (this.stage().kind) {
+    switch (this.screen().kind) {
       case "password":
         return "lastPassLoginPasswordDesc";
       case "code":
@@ -58,6 +74,7 @@ export class LastPassInlineAuthUi {
   begin(): LastPassAuthSession {
     this.current?.leave();
     const session = this.create();
+    this._screen.set({ kind: "idle" });
     this._stage.set({ kind: "loading" });
     return session;
   }
@@ -65,7 +82,7 @@ export class LastPassInlineAuthUi {
   /** Ends `session`'s display. A superseded session can't blank the login that replaced it. */
   end(session: LastPassAuthSession): void {
     if (this.current === session) {
-      this._stage.set({ kind: "idle" });
+      this.setStage({ kind: "idle" });
     }
   }
 
@@ -73,7 +90,7 @@ export class LastPassInlineAuthUi {
   leave(): void {
     const session = this.current;
     this.current = undefined;
-    this._stage.set({ kind: "idle" });
+    this.setStage({ kind: "idle" });
     session?.leave();
   }
 
@@ -120,7 +137,14 @@ export class LastPassInlineAuthUi {
 
   private show(session: LastPassAuthSession, stage: LastPassInlineStage): void {
     if (this.current === session) {
-      this._stage.set(stage);
+      this.setStage(stage);
+    }
+  }
+
+  private setStage(stage: LastPassInlineStage): void {
+    this._stage.set(stage);
+    if (stage.kind !== "loading" && stage.kind !== "importing") {
+      this._screen.set(stage);
     }
   }
 }

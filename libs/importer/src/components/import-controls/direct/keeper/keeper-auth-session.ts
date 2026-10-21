@@ -27,6 +27,7 @@ type PendingResolver = (value: unknown) => void;
 export class KeeperAuthSession implements Ui {
   private pendingResolver: PendingResolver | undefined;
   private _userLeft = false;
+  private _errorReported = false;
   private dnaChosen = false;
 
   constructor(
@@ -39,6 +40,11 @@ export class KeeperAuthSession implements Ui {
   /** True once the user left mid-login, so the resulting cancellation isn't shown as an error. */
   get userLeft(): boolean {
     return this._userLeft;
+  }
+
+  /** True once the card has shown this login's failure itself, so it needs no second message. */
+  get errorReported(): boolean {
+    return this._errorReported;
   }
 
   /** Cancels the login from wherever it is: the open prompt, the SSO tab, or the next prompt. */
@@ -278,6 +284,7 @@ export class KeeperAuthSession implements Ui {
     if (this._userLeft) {
       return;
     }
+    this._errorReported = true;
     this.reportError(this, message);
   }
 }

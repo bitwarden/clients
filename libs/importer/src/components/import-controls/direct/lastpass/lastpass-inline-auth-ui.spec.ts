@@ -53,6 +53,70 @@ describe("LastPassInlineAuthUi", () => {
     expect(ui.stage()).toEqual({ kind: "idle" });
   });
 
+  describe("screen and busy", () => {
+    it("keeps the last screen up while a request is in flight", async () => {
+      const ui = create();
+      const session = ui.begin();
+      const answered = session.promptForPassword({ previousPasswordRejected: false });
+
+      expect(ui.screen()).toEqual({ kind: "password", previousPasswordRejected: false });
+      expect(ui.busy()).toBe(false);
+
+      session.submit("hunter2");
+
+      expect(ui.stage()).toEqual({ kind: "loading" });
+      expect(ui.screen()).toEqual({ kind: "password", previousPasswordRejected: false });
+      expect(ui.subtitleKey()).toBe("lastPassLoginPasswordDesc");
+      expect(ui.busy()).toBe(true);
+      expect(await answered).toBe("hunter2");
+    });
+
+    it("is not busy while waiting on SSO, and busy once the vault is being written", () => {
+      const ui = create();
+      const session = ui.begin();
+      void session.waitForSsoCancel().catch((): void => undefined);
+
+      expect(ui.screen()).toEqual({ kind: "sso" });
+      expect(ui.busy()).toBe(false);
+
+      session.beginImport();
+
+      expect(ui.screen()).toEqual({ kind: "sso" });
+      expect(ui.busy()).toBe(true);
+    });
+
+    it("clears the screen when the login ends or is left", () => {
+      const ui = create();
+      const ended = ui.begin();
+      void ended
+        .promptForPassword({ previousPasswordRejected: false })
+        .catch((): void => undefined);
+      ui.end(ended);
+
+      expect(ui.screen()).toEqual({ kind: "idle" });
+
+      const left = ui.begin();
+      void left.promptForPassword({ previousPasswordRejected: false }).catch((): void => undefined);
+      ui.leave();
+
+      expect(ui.screen()).toEqual({ kind: "idle" });
+      expect(ui.busy()).toBe(false);
+    });
+
+    it("starts a new login on an idle screen even if the last one left a prompt up", () => {
+      const ui = create();
+      const first = ui.begin();
+      void first
+        .promptForPassword({ previousPasswordRejected: false })
+        .catch((): void => undefined);
+
+      ui.begin();
+
+      expect(ui.screen()).toEqual({ kind: "idle" });
+      expect(ui.busy()).toBe(true);
+    });
+  });
+
   describe("derived state", () => {
     it.each([
       ["loading", false, true, false],

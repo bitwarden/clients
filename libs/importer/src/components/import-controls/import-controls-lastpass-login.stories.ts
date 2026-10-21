@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -5,11 +6,11 @@ import { I18nMockService } from "@bitwarden/components";
 
 import {
   LastPassInlineAuthUi,
-  LastPassInlineStage,
+  LastPassInlineScreen,
 } from "./direct/lastpass/lastpass-inline-auth-ui";
 import { ImportControlsLastPassLoginComponent } from "./import-controls-lastpass-login.component";
 
-const storyFor = (stage: LastPassInlineStage): Story => ({ args: { stage } });
+const storyFor = (stage: LastPassInlineScreen): Story => ({ args: { stage } });
 
 export default {
   title: "Tools/Import/Controls/LastPass login",
@@ -20,7 +21,7 @@ export default {
         // The card only registers how to answer; nothing is running to talk to.
         {
           provide: LastPassInlineAuthUi,
-          useValue: { registerAnswerer: (): void => undefined },
+          useValue: { registerAnswerer: (): void => undefined, busy: signal(false) },
         },
         {
           provide: I18nService,
@@ -34,7 +35,6 @@ export default {
               masterPassword: "Master password",
               verificationCode: "Verification code",
               verificationCodeRequired: "Verification code is required.",
-              importingYourAccount: "Importing your account...",
               lastPassLoginPasswordRequired: "Password is required.",
               lastPassLoginPasswordInvalid: "Enter a valid password",
               lastPassLoginCodeInvalid: "Enter a valid verification code.",
@@ -49,12 +49,6 @@ export default {
 } as Meta<ImportControlsLastPassLoginComponent>;
 
 type Story = StoryObj<ImportControlsLastPassLoginComponent>;
-
-/** After Continue on the email screen, before LastPass answers. */
-export const Loading: Story = storyFor({ kind: "loading" });
-
-/** After the last prompt, while the vault is written. Back and Import manually are disabled. */
-export const Importing: Story = storyFor({ kind: "importing" });
 
 export const MasterPassword: Story = storyFor({
   kind: "password",

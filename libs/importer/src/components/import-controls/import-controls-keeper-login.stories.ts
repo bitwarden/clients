@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,10 +11,10 @@ import {
   TwoFactorMethod,
 } from "../../importers/keeper/access";
 
-import { KeeperInlineAuthUi, KeeperInlineStage } from "./direct/keeper/keeper-inline-auth-ui";
+import { KeeperInlineAuthUi, KeeperInlineScreen } from "./direct/keeper/keeper-inline-auth-ui";
 import { ImportControlsKeeperLoginComponent } from "./import-controls-keeper-login.component";
 
-const storyFor = (stage: KeeperInlineStage): Story => ({ args: { stage } });
+const storyFor = (stage: KeeperInlineScreen): Story => ({ args: { stage } });
 
 export default {
   title: "Tools/Import/Controls/Keeper login",
@@ -24,7 +25,11 @@ export default {
         // The card only registers how to answer and forwards Resend; nothing is running to talk to.
         {
           provide: KeeperInlineAuthUi,
-          useValue: { registerAnswerer: (): void => undefined, resend: (): void => undefined },
+          useValue: {
+            registerAnswerer: (): void => undefined,
+            resend: (): void => undefined,
+            busy: signal(false),
+          },
         },
         {
           provide: I18nService,
@@ -86,12 +91,6 @@ export default {
 } as Meta<ImportControlsKeeperLoginComponent>;
 
 type Story = StoryObj<ImportControlsKeeperLoginComponent>;
-
-/** After Continue on the email screen, before Keeper answers; also the extension's SSO wait. */
-export const Loading: Story = storyFor({ kind: "loading" });
-
-/** After the last prompt, while the vault is written. Back and Import manually are disabled. */
-export const Importing: Story = storyFor({ kind: "importing" });
 
 export const DeviceApprovalMethod: Story = storyFor({
   kind: "selectApproval",

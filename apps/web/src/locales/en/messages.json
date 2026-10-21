@@ -3760,6 +3760,12 @@
   "importDataEverythingTransfersBody": {
     "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
   },
+  "importDataAutomaticTransferTitle": {
+    "message": "Automatic transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Skip the manual export. Your items and folders move over for you."
+  },
   "importAcceptedFormats": {
     "message": "Accepted: $FORMATS$",
     "placeholders": {
@@ -17581,6 +17587,9 @@
   },
   "keeperLoginEmailInvalid": {
     "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
   },
   "keeperLoginApprovalMethod": {
     "message": "Device approval method"

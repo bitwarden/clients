@@ -40,7 +40,7 @@ import {
   TwoFactorMethod,
 } from "../../importers/keeper/access";
 
-import { KeeperInlineAuthUi, KeeperInlineStage } from "./direct/keeper/keeper-inline-auth-ui";
+import { KeeperInlineAuthUi, KeeperInlineScreen } from "./direct/keeper/keeper-inline-auth-ui";
 
 function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   if (enabled && control.disabled) {
@@ -48,6 +48,13 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   } else if (!enabled && control.enabled) {
     control.disable();
   }
+}
+
+function isCodeStage(stage: KeeperInlineScreen): boolean {
+  return (
+    (stage.kind === "approvalCode" && stage.variant === "email") ||
+    (stage.kind === "twoFactorCode" && stage.needsInput)
+  );
 }
 
 /** Renders one Keeper login prompt in the import card and owns the form behind it. The parent's
@@ -71,13 +78,15 @@ function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
     SpinnerComponent,
     TypographyModule,
   ],
-  host: { class: "tw-contents" },
+  // Inert while a request is in flight, so the field can't be edited or resubmitted.
+  host: { class: "tw-contents", "[attr.inert]": "busy() ? '' : null" },
 })
 export class ImportControlsKeeperLoginComponent {
-  readonly stage = input.required<KeeperInlineStage>();
+  readonly stage = input.required<KeeperInlineScreen>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly keeperUi = inject(KeeperInlineAuthUi);
+  protected readonly busy = this.keeperUi.busy;
   private readonly i18nService = inject(I18nService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -129,17 +138,9 @@ export class ImportControlsKeeperLoginComponent {
     effect(() => {
       const stage = this.stage();
       const controls = this.form.controls;
-      const codeStage =
-        (stage.kind === "approvalCode" && stage.variant === "email") ||
-        (stage.kind === "twoFactorCode" && stage.needsInput);
+      const codeStage = isCodeStage(stage);
 
-      setEnabled(controls.keeperApprovalMethod, stage.kind === "selectApproval");
-      setEnabled(controls.keeperTwoFactorMethod, stage.kind === "selectTwoFactor");
-      setEnabled(controls.keeperDuoMethod, stage.kind === "selectDuo");
-      setEnabled(controls.keeperDnaMethod, stage.kind === "selectDna");
-      setEnabled(controls.keeperCode, codeStage);
-      setEnabled(controls.keeperPassword, stage.kind === "password");
-      setEnabled(controls.keeperSsoToken, stage.kind === "ssoToken");
+      this.enableFor(stage, true);
 
       // Preselects the first method, as the legacy dialog did.
       if (stage.kind === "selectApproval") {
@@ -174,6 +175,18 @@ export class ImportControlsKeeperLoginComponent {
       controls.keeperSsoToken.reset("");
     });
 
+    // The answer has already been handed over, so it isn't left in the form while the request
+    // runs. Disabled controls don't validate, so the cleared field shows no "required" error.
+    effect(() => {
+      const controls = this.form.controls;
+      if (this.busy()) {
+        controls.keeperCode.reset("");
+        controls.keeperPassword.reset("");
+        controls.keeperSsoToken.reset("");
+      }
+      this.enableFor(untracked(this.stage), !this.busy());
+    });
+
     // The legacy dialog trapped focus and focused its first field; the card has to do it itself,
     // or keyboard focus is left on a Continue button that has just been disabled.
     afterRenderEffect(() => {
@@ -184,6 +197,18 @@ export class ImportControlsKeeperLoginComponent {
         )
         ?.focus();
     });
+  }
+
+  /** Enables the controls the screen uses; none while a request is in flight. */
+  private enableFor(stage: KeeperInlineScreen, active: boolean): void {
+    const controls = this.form.controls;
+    setEnabled(controls.keeperApprovalMethod, active && stage.kind === "selectApproval");
+    setEnabled(controls.keeperTwoFactorMethod, active && stage.kind === "selectTwoFactor");
+    setEnabled(controls.keeperDuoMethod, active && stage.kind === "selectDuo");
+    setEnabled(controls.keeperDnaMethod, active && stage.kind === "selectDna");
+    setEnabled(controls.keeperCode, active && isCodeStage(stage));
+    setEnabled(controls.keeperPassword, active && stage.kind === "password");
+    setEnabled(controls.keeperSsoToken, active && stage.kind === "ssoToken");
   }
 
   protected resend(): void {

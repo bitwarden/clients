@@ -1,52 +1,51 @@
 @if (step() === "intro") {
-  <h2 bitTypography="h2" noMargin class="tw-mb-1">
+  <h2
+    bitTypography="h2"
+    noMargin
+    class="tw-mb-0 tw-flex tw-items-center tw-gap-2 !tw-text-fg-heading"
+  >
     {{ "importDataDirectTitle" | i18n }}
-    <span
-      bitBadge
-      variant="success"
-      size="small"
-      [startIcon]="null"
-      class="tw-ml-2 tw-align-middle"
-      >{{ "fastest" | i18n }}</span
-    >
+    <span bitBadge variant="success" size="small" [startIcon]="null">{{ "fastest" | i18n }}</span>
   </h2>
-  <p bitTypography="body1" class="tw-text-fg-body-subtle">
+  <p bitTypography="body1" class="tw-text-fg-body tw-mb-4">
     {{ "importDataDirectSubtitlePrefix" | i18n }}{{ " "
     }}<span class="tw-font-semibold">{{ vendorName() }}</span
     >{{ " " }}{{ "importDataDirectSubtitleSuffix" | i18n }}
   </p>
 
-  <div class="tw-flex tw-gap-4 tw-mb-4">
-    <bit-icon name="bwi-lock" aria-hidden="true" class="tw-text-fg-brand" />
-    <div>
-      <h3 bitTypography="h6" noMargin>
-        {{ "importDataSecureByDesignTitle" | i18n }}
-      </h3>
-      <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
-        {{ "importDataSecureByDesignBody" | i18n: vendorName() }}
-      </p>
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <div class="tw-flex tw-min-h-11 tw-items-center tw-gap-4">
+      <bit-icon-tile icon="bwi-lock" aria-hidden="true" />
+      <div>
+        <h3 bitTypography="h6" noMargin class="tw-mb-0 !tw-text-fg-heading">
+          {{ "importDataSecureByDesignTitle" | i18n }}
+        </h3>
+        <p bitTypography="body2" noMargin class="tw-text-fg-body tw-mb-0">
+          {{ "importDataSecureByDesignBody" | i18n: vendorName() }}
+        </p>
+      </div>
     </div>
-  </div>
-  <div class="tw-flex tw-gap-4 tw-mb-4">
-    <bit-icon name="bwi-eye" aria-hidden="true" class="tw-text-fg-brand" />
-    <div>
-      <h3 bitTypography="h6" noMargin>
-        {{ "importDataLoginInfoTitle" | i18n }}
-      </h3>
-      <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
-        {{ "importDataLoginInfoBody" | i18n: vendorName() }}
-      </p>
+    <div class="tw-flex tw-min-h-11 tw-items-center tw-gap-4">
+      <bit-icon-tile icon="bwi-eye" aria-hidden="true" />
+      <div>
+        <h3 bitTypography="h6" noMargin class="tw-mb-0 !tw-text-fg-heading">
+          {{ "importDataLoginInfoTitle" | i18n }}
+        </h3>
+        <p bitTypography="body2" noMargin class="tw-text-fg-body tw-mb-0">
+          {{ "importDataLoginInfoBody" | i18n: vendorName() }}
+        </p>
+      </div>
     </div>
-  </div>
-  <div class="tw-flex tw-gap-4">
-    <bit-icon name="bwi-download" aria-hidden="true" class="tw-text-fg-brand" />
-    <div>
-      <h3 bitTypography="h6" noMargin>
-        {{ "importDataEverythingTransfersTitle" | i18n }}
-      </h3>
-      <p bitTypography="body2" noMargin class="tw-text-fg-body-subtle">
-        {{ "importDataEverythingTransfersBody" | i18n }}
-      </p>
+    <div class="tw-flex tw-min-h-11 tw-items-center tw-gap-4">
+      <bit-icon-tile icon="bwi-download" aria-hidden="true" />
+      <div>
+        <h3 bitTypography="h6" noMargin class="tw-mb-0 !tw-text-fg-heading">
+          {{ "importDataAutomaticTransferTitle" | i18n }}
+        </h3>
+        <p bitTypography="body2" noMargin class="tw-text-fg-body tw-mb-0">
+          {{ "importDataAutomaticTransferBody" | i18n }}
+        </p>
+      </div>
     </div>
   </div>
 } @else {
@@ -56,8 +55,10 @@
         <bit-svg [content]="icon" class="tw-size-12" />
       }
       <div>
-        <h2 bitTypography="h2" noMargin>{{ "importDataLoginTitle" | i18n: vendorName() }}</h2>
-        <p bitTypography="body1" noMargin class="tw-text-fg-body-subtle">
+        <h2 bitTypography="h2" noMargin class="tw-mb-0 !tw-text-fg-heading">
+          {{ "importDataLoginTitle" | i18n: vendorName() }}
+        </h2>
+        <p bitTypography="body1" noMargin class="tw-text-fg-body tw-mb-0">
           {{ subtitleKey() ?? "importDataLoginSubtitle" | i18n }}
         </p>
       </div>
@@ -77,20 +78,20 @@
   @switch (importType()) {
     @case ("keeper") {
       <!-- Hidden, not removed: re-binding its inputs would clear a login error set on the email. -->
-      <div [hidden]="keeperStage().kind !== 'idle'">
+      <div [hidden]="keeperScreen().kind !== 'idle'">
         <importer-controls-keeper-credentials [form]="form()" />
       </div>
-      @if (keeperStage().kind !== "idle") {
-        <importer-controls-keeper-login [stage]="keeperStage()" />
+      @if (keeperScreen().kind !== "idle") {
+        <importer-controls-keeper-login [stage]="keeperScreen()" />
       }
     }
     @case ("lastpasscsv") {
       <!-- Hidden, not removed: re-binding its inputs would clear a login error set on the email. -->
-      <div [hidden]="lastPassStage().kind !== 'idle'">
+      <div [hidden]="lastPassScreen().kind !== 'idle'">
         <importer-controls-lastpass-credentials [form]="form()" />
       </div>
-      @if (lastPassStage().kind !== "idle") {
-        <importer-controls-lastpass-login [stage]="lastPassStage()" />
+      @if (lastPassScreen().kind !== "idle") {
+        <importer-controls-lastpass-login [stage]="lastPassScreen()" />
       }
     }
   }
