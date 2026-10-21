@@ -3,10 +3,9 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, createUrlTreeFromSnapshot } from "@angular/router";
 
+import { ProjectService } from "@bitwarden/bit-common/secrets-manager/projects/project.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
-
-import { ProjectService } from "../projects/project.service";
 
 /**
  * Redirects to projects list if the user doesn't have access to project.

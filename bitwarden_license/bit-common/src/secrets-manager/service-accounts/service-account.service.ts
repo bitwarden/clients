@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
 import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,7 +21,6 @@ import {
   ServiceAccountSecretsDetailsView,
   ServiceAccountView,
 } from "../models/view/service-account.view";
-import { BulkOperationStatus } from "../shared/dialogs/bulk-status-dialog.component";
 
 import { ServiceAccountRequest } from "./models/requests/service-account.request";
 import {
@@ -30,9 +28,6 @@ import {
   ServiceAccountSecretsDetailsResponse,
 } from "./models/responses/service-account.response";
 
-@Injectable({
-  providedIn: "root",
-})
 export class ServiceAccountService {
   protected _serviceAccount: Subject<ServiceAccountView> = new Subject();
 

@@ -15,6 +15,12 @@ import {
 } from "rxjs";
 
 import { SecretsManagerLogo } from "@bitwarden/assets/svg";
+import { OrganizationCounts } from "@bitwarden/bit-common/secrets-manager/models/view/counts.view";
+import { ProjectService } from "@bitwarden/bit-common/secrets-manager/projects/project.service";
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
+import { SecretsManagerPortingApiService } from "@bitwarden/bit-common/secrets-manager/settings/services/sm-porting-api.service";
+import { CountService } from "@bitwarden/bit-common/secrets-manager/shared/counts/count.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -22,13 +28,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-
-import { OrganizationCounts } from "../models/view/counts.view";
-import { ProjectService } from "../projects/project.service";
-import { SecretService } from "../secrets/secret.service";
-import { ServiceAccountService } from "../service-accounts/service-account.service";
-import { SecretsManagerPortingApiService } from "../settings/services/sm-porting-api.service";
-import { CountService } from "../shared/counts/count.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

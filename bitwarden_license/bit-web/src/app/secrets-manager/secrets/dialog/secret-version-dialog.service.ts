@@ -1,12 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 
+import { SecretView } from "@bitwarden/bit-common/secrets-manager/models/view/secret.view";
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
-
-import { SecretView } from "../../models/view/secret.view";
-import { SecretService } from "../secret.service";
 
 import {
   SecretVersionDialogComponent,

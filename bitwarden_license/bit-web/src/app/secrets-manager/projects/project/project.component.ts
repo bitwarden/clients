@@ -15,6 +15,12 @@ import {
   concatMap,
 } from "rxjs";
 
+import { ProjectCounts } from "@bitwarden/bit-common/secrets-manager/models/view/counts.view";
+import { ProjectView } from "@bitwarden/bit-common/secrets-manager/models/view/project.view";
+import { ProjectService } from "@bitwarden/bit-common/secrets-manager/projects/project.service";
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
+import { AccessPolicyService } from "@bitwarden/bit-common/secrets-manager/shared/access-policies/access-policy.service";
+import { CountService } from "@bitwarden/bit-common/secrets-manager/shared/counts/count.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -25,17 +31,11 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
-import { ProjectCounts } from "../../models/view/counts.view";
-import { ProjectView } from "../../models/view/project.view";
-import { SecretService } from "../../secrets/secret.service";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
-import { CountService } from "../../shared/counts/count.service";
 import {
   OperationType,
   ProjectDialogComponent,
   ProjectOperation,
 } from "../dialog/project-dialog.component";
-import { ProjectService } from "../project.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

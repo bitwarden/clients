@@ -3,10 +3,9 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, createUrlTreeFromSnapshot } from "@angular/router";
 
+import { ServiceAccountService } from "@bitwarden/bit-common/secrets-manager/service-accounts/service-account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
-
-import { ServiceAccountService } from "../service-account.service";
 
 /**
  * Redirects to service accounts page if the user doesn't have access to service account.

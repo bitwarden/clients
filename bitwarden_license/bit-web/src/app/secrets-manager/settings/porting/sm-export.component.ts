@@ -5,6 +5,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
+import { SecretsManagerPortingApiService } from "@bitwarden/bit-common/secrets-manager/settings/services/sm-porting-api.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -18,7 +19,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 import { openUserVerificationPrompt } from "@bitwarden/web-vault/app/auth/shared/components/user-verification";
 
-import { SecretsManagerPortingApiService } from "../services/sm-porting-api.service";
 import { SecretsManagerPortingService } from "../services/sm-porting.service";
 
 type ExportFormat = {

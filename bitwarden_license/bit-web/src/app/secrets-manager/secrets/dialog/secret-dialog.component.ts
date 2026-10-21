@@ -4,6 +4,15 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angula
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
+import { SecretAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/secret-access-policies.view";
+import { ProjectListView } from "@bitwarden/bit-common/secrets-manager/models/view/project-list.view";
+import { ProjectView } from "@bitwarden/bit-common/secrets-manager/models/view/project.view";
+import { SecretListView } from "@bitwarden/bit-common/secrets-manager/models/view/secret-list.view";
+import { SecretProjectView } from "@bitwarden/bit-common/secrets-manager/models/view/secret-project.view";
+import { SecretView } from "@bitwarden/bit-common/secrets-manager/models/view/secret.view";
+import { ProjectService } from "@bitwarden/bit-common/secrets-manager/projects/project.service";
+import { SecretService } from "@bitwarden/bit-common/secrets-manager/secrets/secret.service";
+import { AccessPolicyService } from "@bitwarden/bit-common/secrets-manager/shared/access-policies/access-policy.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -22,13 +31,6 @@ import {
   CenterPositionStrategy,
 } from "@bitwarden/components";
 
-import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
-import { ProjectListView } from "../../models/view/project-list.view";
-import { ProjectView } from "../../models/view/project.view";
-import { SecretListView } from "../../models/view/secret-list.view";
-import { SecretProjectView } from "../../models/view/secret-project.view";
-import { SecretView } from "../../models/view/secret.view";
-import { ProjectService } from "../../projects/project.service";
 import { AccessPolicySelectorService } from "../../shared/access-policies/access-policy-selector/access-policy-selector.service";
 import {
   ApItemValueType,
@@ -40,8 +42,6 @@ import {
   convertSecretAccessPoliciesToApItemViews,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-item.enum";
-import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
-import { SecretService } from "../secret.service";
 
 import { SecretDeleteDialogComponent, SecretDeleteOperation } from "./secret-delete.component";
 

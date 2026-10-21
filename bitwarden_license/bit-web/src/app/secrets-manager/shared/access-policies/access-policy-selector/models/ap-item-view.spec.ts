@@ -2,12 +2,12 @@ import {
   GroupAccessPolicyView,
   ServiceAccountAccessPolicyView,
   UserAccessPolicyView,
-} from "../../../../models/view/access-policies/access-policy.view";
-import { ProjectPeopleAccessPoliciesView } from "../../../../models/view/access-policies/project-people-access-policies.view";
-import { ProjectServiceAccountsAccessPoliciesView } from "../../../../models/view/access-policies/project-service-accounts-access-policies.view";
-import { SecretAccessPoliciesView } from "../../../../models/view/access-policies/secret-access-policies.view";
-import { ServiceAccountGrantedPoliciesView } from "../../../../models/view/access-policies/service-account-granted-policies.view";
-import { ServiceAccountPeopleAccessPoliciesView } from "../../../../models/view/access-policies/service-account-people-access-policies.view";
+} from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/access-policy.view";
+import { ProjectPeopleAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/project-people-access-policies.view";
+import { ProjectServiceAccountsAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/project-service-accounts-access-policies.view";
+import { SecretAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/secret-access-policies.view";
+import { ServiceAccountGrantedPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/service-account-granted-policies.view";
+import { ServiceAccountPeopleAccessPoliciesView } from "@bitwarden/bit-common/secrets-manager/models/view/access-policies/service-account-people-access-policies.view";
 
 import {
   convertGrantedPoliciesToAccessPolicyItemViews,

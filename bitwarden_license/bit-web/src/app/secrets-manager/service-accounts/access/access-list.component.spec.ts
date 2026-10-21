@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
-import { AccessTokenView } from "../models/view/access-token.view";
+import { AccessTokenView } from "@bitwarden/bit-common/secrets-manager/service-accounts/models/view/access-token.view";
 
 import { AccessListComponent } from "./access-list.component";
 
