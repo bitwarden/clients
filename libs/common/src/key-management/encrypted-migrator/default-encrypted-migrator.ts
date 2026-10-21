@@ -6,6 +6,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../auth/utils";
@@ -49,6 +50,8 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     sdkService: SdkService,
     stateProvider: StateProvider,
     i18nService: I18nService,
+    unlockService: UnlockService,
+    lockService: LockService,
   ) {
     // Register migrations here
 
@@ -95,6 +98,8 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
           logService,
           cipherService,
           sdkService,
+          unlockService,
+          lockService,
         ),
       });
     }

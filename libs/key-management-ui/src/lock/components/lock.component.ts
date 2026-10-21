@@ -298,13 +298,16 @@ export class LockComponent implements OnInit, OnDestroy {
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
-    // Every unlock of this user continues from here, except
-    // for master password, as a policy evaluation has to be run
+    // Every unlock of this user continues from here, except for master password, as a policy
+    // evaluation has to be run, and key rotation, which re-keys a user who is already unlocked
+    // from within the master password unlock's own continuation
     this.unlockService.unlocked$
       .pipe(
         filter(
           (unlock) =>
-            unlock.userId === activeAccount.id && unlock.method !== UnlockMethod.MasterPassword,
+            unlock.userId === activeAccount.id &&
+            unlock.method !== UnlockMethod.MasterPassword &&
+            unlock.method !== UnlockMethod.KeyRotation,
         ),
         take(1),
         takeUntil(this.activeAccountChange$),

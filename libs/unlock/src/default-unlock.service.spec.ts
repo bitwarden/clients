@@ -100,6 +100,7 @@ describe("DefaultUnlockService", () => {
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
     sdkService.unlock.mockResolvedValue(null);
     sdkService.setOrgKeys.mockResolvedValue(undefined);
+    sdkService.cryptoReady$.mockReturnValue(of(true));
     keyService.buildSdkUnlockData.mockResolvedValue(null);
 
     Object.defineProperty(SdkLoadService, "Ready", {
@@ -399,6 +400,60 @@ describe("DefaultUnlockService", () => {
       expect(autoUnlockService.setAutoUnlockKey).toHaveBeenCalledWith(mockUserId, liveUserKey);
       expect(keyService.buildSdkUnlockData).toHaveBeenCalledWith(mockUserId, liveUserKey);
       expect(action).toHaveBeenCalledWith(mockUserId, liveUserKey, UnlockMethod.Pin);
+      expect(sdkService.lock).not.toHaveBeenCalled();
+    });
+
+    it("locks the live client and rethrows when an unlock side effect fails", async () => {
+      sdkService.unlock.mockResolvedValue(liveUserKey);
+      sdkService.lock.mockResolvedValue(undefined);
+      const error = new Error("biometric key write failed");
+      biometricsService.setBiometricProtectedUnlockKeyForUser.mockRejectedValue(error);
+
+      await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toBe(error);
+
+      expect(sdkService.lock).toHaveBeenCalledWith(mockUserId);
+      expect(sdkService.setOrgKeys).not.toHaveBeenCalled();
+    });
+
+    it("locks the live client and rethrows when applying the organization keys fails", async () => {
+      sdkService.unlock.mockResolvedValue(liveUserKey);
+      sdkService.lock.mockResolvedValue(undefined);
+      const error = new Error("org keys failed");
+      sdkService.setOrgKeys.mockRejectedValue(error);
+
+      await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toBe(error);
+
+      expect(sdkService.lock).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("fails the unlock and locks the live client when a lock lands before the organization keys apply", async () => {
+      sdkService.unlock.mockResolvedValue(liveUserKey);
+      sdkService.lock.mockResolvedValue(undefined);
+      // The lock cleared the client, so applying the organization keys leaves it not ready.
+      sdkService.cryptoReady$.mockReturnValue(of(false));
+      const action = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(action);
+      const otherProcess = jest.spyOn(service as any, "runUnlockActionInOtherProcess");
+
+      await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toThrow(
+        "was locked during unlock",
+      );
+
+      expect(sdkService.setOrgKeys).toHaveBeenCalled();
+      expect(sdkService.lock).toHaveBeenCalledWith(mockUserId);
+      expect(action).not.toHaveBeenCalled();
+      expect(otherProcess).not.toHaveBeenCalled();
+    });
+
+    it("leaves the live client unlocked and rethrows when an unlock action fails", async () => {
+      sdkService.unlock.mockResolvedValue(liveUserKey);
+      const error = new Error("unlock action failed");
+      service.registerOnUnlockAction(jest.fn().mockRejectedValue(error));
+
+      await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toBe(error);
+
+      expect(sdkService.setOrgKeys).toHaveBeenCalled();
+      expect(sdkService.lock).not.toHaveBeenCalled();
     });
   });
 

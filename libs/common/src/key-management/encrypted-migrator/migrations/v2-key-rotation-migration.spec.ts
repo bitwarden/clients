@@ -6,6 +6,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { LockService, LockSource, UnlockMethod, UnlockService } from "@bitwarden/unlock";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
@@ -30,6 +31,8 @@ describe("V2KeyRotationMigration", () => {
   const mockLogService = mock<LogService>();
   const mockCipherService = mock<CipherService>();
   const mockSdkService = mock<SdkService>();
+  const mockUnlockService = mock<UnlockService>();
+  const mockLockService = mock<LockService>();
 
   let sut: V2KeyRotationMigration;
   let mockUserCryptoMgmt: {
@@ -108,6 +111,8 @@ describe("V2KeyRotationMigration", () => {
       mockLogService,
       mockCipherService,
       mockSdkService,
+      mockUnlockService,
+      mockLockService,
     );
   });
 
@@ -252,30 +257,79 @@ describe("V2KeyRotationMigration", () => {
   });
 
   describe("runMigrations", () => {
-    it("throws when userId is null", async () => {
-      await expect(sut.runMigrations(null as any, mockMasterPassword)).rejects.toThrow("userId");
-    });
+    let callOrder: string[];
 
-    it("performs a full sync after rotating the user key", async () => {
-      const callOrder: string[] = [];
-      mockSyncService.fullSync.mockImplementation(async () => {
-        callOrder.push("fullSync");
-        return true;
-      });
+    beforeEach(() => {
+      callOrder = [];
+      mockMasterPasswordService.userHasMasterPassword.mockResolvedValue(true);
+      // The rotation writes the new user key to state.
+      mockKeyService.userKey$.mockReturnValue(of(mockUserKeyV2));
       mockUserKeyRotationService.rotateUserKey.mockImplementation(async () => {
         callOrder.push("rotateUserKey");
         return true;
       });
+      mockUnlockService.unlockWithDecryptedUserKey.mockImplementation(async () => {
+        callOrder.push("rekey");
+      });
+      mockSyncService.fullSync.mockImplementation(async () => {
+        callOrder.push("fullSync");
+        return true;
+      });
+      mockLockService.lock.mockResolvedValue(undefined);
+    });
 
+    it("throws when userId is null", async () => {
+      await expect(sut.runMigrations(null as any, mockMasterPassword)).rejects.toThrow("userId");
+    });
+
+    it("unlocks with the rotated user key, then performs a full sync", async () => {
       await sut.runMigrations(mockUserId, mockMasterPassword);
 
-      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
         { Password: { password: mockMasterPassword } },
         "CreateIfNeeded",
         mockUserId,
       );
-      expect(callOrder).toEqual(["rotateUserKey", "fullSync"]);
+      expect(mockUnlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+        mockUserId,
+        mockUserKeyV2,
+        UnlockMethod.KeyRotation,
+      );
+      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+      expect(callOrder).toEqual(["rotateUserKey", "rekey", "fullSync"]);
+      expect(mockLockService.lock).not.toHaveBeenCalled();
+    });
+
+    it("locks and rethrows when unlocking with the rotated user key fails", async () => {
+      const rekeyError = new Error("rekey failed");
+      mockUnlockService.unlockWithDecryptedUserKey.mockRejectedValue(rekeyError);
+
+      await expect(sut.runMigrations(mockUserId, mockMasterPassword)).rejects.toBe(rekeyError);
+
+      expect(mockLockService.lock).toHaveBeenCalledWith(mockUserId, LockSource.Manual);
+      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
+    });
+
+    it("locks when the rotated user key is missing from state", async () => {
+      mockKeyService.userKey$.mockReturnValue(of(null));
+
+      await expect(sut.runMigrations(mockUserId, mockMasterPassword)).rejects.toThrow();
+
+      expect(mockUnlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+      expect(mockLockService.lock).toHaveBeenCalledWith(mockUserId, LockSource.Manual);
+    });
+
+    it("rethrows the original error and logs when locking also fails", async () => {
+      const rekeyError = new Error("rekey failed");
+      mockUnlockService.unlockWithDecryptedUserKey.mockRejectedValue(rekeyError);
+      mockLockService.lock.mockRejectedValue(new Error("lock failed"));
+
+      await expect(sut.runMigrations(mockUserId, mockMasterPassword)).rejects.toBe(rekeyError);
+
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to lock"),
+        expect.any(Error),
+      );
     });
 
     it("throws when the rotation service returns false (trust denied)", async () => {
@@ -284,6 +338,8 @@ describe("V2KeyRotationMigration", () => {
       await expect(sut.runMigrations(mockUserId, mockMasterPassword)).rejects.toThrow(
         "[V2KeyRotationMigration] Rotation aborted by user trust prompt.",
       );
+      expect(mockUnlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+      expect(mockLockService.lock).not.toHaveBeenCalled();
       expect(mockSyncService.fullSync).not.toHaveBeenCalled();
     });
 
@@ -294,6 +350,8 @@ describe("V2KeyRotationMigration", () => {
       await expect(sut.runMigrations(mockUserId, mockMasterPassword)).rejects.toThrow(
         "rotation failed",
       );
+      expect(mockUnlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
+      expect(mockLockService.lock).not.toHaveBeenCalled();
     });
   });
 });

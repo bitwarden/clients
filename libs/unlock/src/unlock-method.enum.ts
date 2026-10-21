@@ -13,5 +13,7 @@ export const UnlockMethod = Object.freeze({
   DecryptedUserKey: "decryptedUserKey",
   SharedUnlock: "sharedUnlock",
   AutoKey: "autoKey",
+  /** A user who was already unlocked had their user key replaced by a key rotation. */
+  KeyRotation: "keyRotation",
 } as const);
 export type UnlockMethod = (typeof UnlockMethod)[keyof typeof UnlockMethod];
