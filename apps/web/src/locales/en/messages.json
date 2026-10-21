@@ -18382,7 +18382,7 @@
   },
   "pamWindowRange": {
     "message": "$START$ to $END$",
-    "description": "The range an access window covers, on the secondary line of the Requested window column — for example '5:11 PM to 7:11 PM'. The window's length is stated above it.",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals — for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -18395,11 +18395,12 @@
     }
   },
   "pamWindowUntil": {
-    "message": "Until $DATE$",
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state — shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
     "placeholders": {
-      "date": {
+      "end": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "8:07 PM"
       }
     }
   },
@@ -19114,15 +19115,6 @@
   "pamApprovalsRevokeAccess": {
     "message": "Revoke access"
   },
-  "pamWindowUntil": {
-    "message": "Until $END$",
-    "placeholders": {
-      "end": {
-        "content": "$1",
-        "example": "8:07 PM"
-      }
-    }
-  },
   "pamWindowTodayRange": {
     "message": "Today, $START$ to $END$",
     "placeholders": {
@@ -19163,19 +19155,6 @@
       "end": {
         "content": "$3",
         "example": "1 PM"
-      }
-    }
-  },
-  "pamWindowRange": {
-    "message": "$START$ to $END$",
-    "placeholders": {
-      "start": {
-        "content": "$1",
-        "example": "Sep 30, 4:12 PM"
-      },
-      "end": {
-        "content": "$2",
-        "example": "Oct 3, 4:12 PM"
       }
     }
   },
