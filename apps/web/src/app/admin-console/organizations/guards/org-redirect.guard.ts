@@ -31,7 +31,6 @@ export function organizationRedirectGuard(
     const router = inject(Router);
     const organizationService = inject(OrganizationService);
     const accountService = inject(AccountService);
-    // Captured before the first await, which ends the guard's own injection context.
     const environmentInjector = inject(EnvironmentInjector);
 
     const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
