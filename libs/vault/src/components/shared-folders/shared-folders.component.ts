@@ -194,7 +194,6 @@ export class SharedFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
-  private readonly i18nService = inject(I18nService);
   private readonly organizationService = inject(OrganizationService);
   private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
   private readonly i18nService = inject(I18nService);
@@ -383,9 +382,6 @@ export class SharedFoldersComponent {
     const folders = this.sharedFolders();
     return folders.some((row) => row.gated) && folders.some((row) => !row.gated);
   });
-
-  protected readonly folderCountLabel = (count: number): string =>
-    this.i18nService.t(count === 1 ? "sharedFolderSingular" : "sharedFolderCount", count);
 
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
