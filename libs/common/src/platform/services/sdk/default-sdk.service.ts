@@ -1,6 +1,8 @@
 import {
+  BehaviorSubject,
   combineLatest,
   concatMap,
+  defer,
   Observable,
   share,
   shareReplay,
@@ -22,7 +24,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PerfTrackGroup } from "@bitwarden/logging";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
@@ -37,6 +39,8 @@ import {
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import { TokenService } from "../../../auth/abstractions/token.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
@@ -89,6 +93,23 @@ const CRYPTO_TRACK = "Crypto";
 export class DefaultSdkService implements SdkService {
   private sdkClientCache = new Map<UserId, Observable<Rc<PasswordManagerClient>>>();
 
+  /**
+   * The live per-user clients of the long-lived path. A client exists while its user has an
+   * access token, and is removed on logout.
+   */
+  private clients$ = new BehaviorSubject<{
+    [userId: UserId]: Rc<PasswordManagerClient> | undefined;
+  }>({});
+  /** Dedupes concurrent token-only client builds for the same user. */
+  private creating = new Map<UserId, Promise<void>>();
+  /** Bumped on every logout and token removal, so a build that started before is never published. */
+  private logouts = new Map<UserId, number>();
+  /** The rollout flag, captured per user on first use and kept for the life of the service. */
+  private enabled = new Map<UserId, Promise<boolean>>();
+  private readySubjects = new Map<UserId, BehaviorSubject<boolean>>();
+  /** Users whose access token is watched to create and remove their client. */
+  private watchedUsers = new Set<UserId>();
+
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       await SdkLoadService.Ready;
@@ -114,21 +135,229 @@ export class DefaultSdkService implements SdkService {
     private sdkClientFactory: SdkClientFactory,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
-    private accountService: AccountService,
+    protected accountService: AccountService,
     private kdfConfigServiceProvider: () => KdfConfigService,
-    private keyServiceProvider: () => KeyService,
+    protected keyServiceProvider: () => KeyService,
     private accountCryptographyStateServiceProvider: () => AccountCryptographicStateService,
     private apiServiceProvider: () => ApiService,
-    private stateProvider: StateProvider,
+    protected stateProvider: StateProvider,
     private configServiceProvider: () => ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private managedSettingsService: ManagedSettingsService,
     private appIdService: AppIdService,
     private logService: LogService,
+    private tokenServiceProvider: () => TokenService,
     private userAgent: string | null = null,
-  ) {}
+  ) {
+    // Deferred to a microtask: `accounts$` can replay synchronously on subscribe, and resolving a
+    // lazy dependency mid-construction is a DI cycle in Angular and an undefined field in the
+    // CLI and browser background.
+    this.accountService.accounts$.subscribe(
+      (accounts) => void Promise.resolve().then(() => this.watchUsers(accounts)),
+    );
+  }
 
   userClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
+    return defer(() => this.longLivedEnabled(userId)).pipe(
+      switchMap((longLived) =>
+        longLived ? this.longLivedUserClient$(userId) : this.legacyUserClient$(userId),
+      ),
+    );
+  }
+
+  cryptoReady$(userId: UserId): Observable<boolean> {
+    // Per-user clients of the reactive path are rebuilt from the same state their consumers read,
+    // so there is no window in which the state shows a user key that the client cannot decrypt with.
+    return defer(() => this.longLivedEnabled(userId)).pipe(
+      switchMap((longLived) =>
+        longLived ? this.cryptoReadySubject(userId).asObservable() : of(true),
+      ),
+      distinctUntilChanged(),
+    );
+  }
+
+  /**
+   * Unlocks the user crypto of the user's live client. Organization keys follow in
+   * {@link setOrgKeys}.
+   */
+  async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+    // `null` makes the caller fall back to unlocking through a register client.
+    if (!(await this.longLivedEnabled(userId))) {
+      return null;
+    }
+
+    await this.ensureClient(userId);
+
+    const [v2UpgradeToken, accounts, kdfConfig] = await Promise.all([
+      firstValueFrom(this.v2UpgradeTokenStateService.v2UpgradeToken$(userId)),
+      firstValueFrom(this.accountService.accounts$),
+      firstValueFrom(this.kdfConfigServiceProvider().getKdfConfig$(userId)),
+    ]);
+    const email = accounts[userId]?.email;
+    if (email == null || kdfConfig == null) {
+      throw new Error(`Failed to unlock the SDK client for user (${userId})`);
+    }
+
+    let userKey: UserKey | undefined;
+    await this.withClient(userId, async (client) => {
+      // Not ready from the moment the keys are cleared. A failure after this point leaves the
+      // client locked, which consumers see as a lock.
+      this.cryptoReadySubject(userId).next(false);
+      // A client that still holds keys hard-errors `CryptoInitialization` on initialization.
+      await client.unlock().lock();
+      await client.crypto().initialize_user_crypto({
+        ...request,
+        email,
+        kdfParams: kdfConfig.toSdkConfig(),
+        upgradeToken: v2UpgradeToken ?? undefined,
+      });
+      userKey = SymmetricCryptoKey.fromString(
+        await client.crypto().get_user_encryption_key(),
+      ) as UserKey;
+    });
+
+    if (userKey == null) {
+      throw new Error(`Failed to unlock the SDK client for user (${userId})`);
+    }
+    return userKey;
+  }
+
+  /**
+   * Clears the keys of the user's live client. The client instance is kept, so a later
+   * {@link unlock} re-initializes the same instance.
+   *
+   * Never rejects: the lock service wipes the rest of the user's decrypted state after this
+   * resolves, and a rejection would leave the vault unlocked.
+   */
+  async lock(userId: UserId): Promise<void> {
+    if (!(await this.longLivedEnabled(userId))) {
+      return;
+    }
+
+    this.cryptoReadySubject(userId).next(false);
+    try {
+      await this.withClient(userId, (client) => client.unlock().lock());
+    } catch (e) {
+      this.logService.error(`Failed to lock the SDK client for user (${userId})`, e);
+    }
+  }
+
+  /**
+   * Returns void: the logout service does not await it, so the flag is resolved in a `.then`.
+   */
+  logout(userId: UserId): void {
+    this.logouts.set(userId, (this.logouts.get(userId) ?? 0) + 1);
+    void this.longLivedEnabled(userId).then((longLived) => {
+      if (longLived) {
+        this.removeClient(userId);
+      }
+    });
+  }
+
+  /** Ungated: there is no live client to update on the reactive path, so `withClient` no-ops. */
+  async setFlags(userId: UserId, flags: Map<string, boolean>): Promise<void> {
+    await this.withClient(userId, (client) => client.platform().load_flags(flags));
+  }
+
+  /** The completion point of every unlock: once the keys are applied, the client is ready. */
+  async setOrgKeys(
+    userId: UserId,
+    orgKeys: Record<OrganizationId, UnsignedSharedKey>,
+  ): Promise<void> {
+    if (!(await this.longLivedEnabled(userId))) {
+      return;
+    }
+
+    await this.withClient(userId, async (client) => {
+      await client.crypto().initialize_org_crypto({
+        organizationKeys: new Map(Object.entries(orgKeys).map(([k, v]) => [asUuid(k), v])),
+      });
+      this.cryptoReadySubject(userId).next(true);
+    });
+  }
+
+  /**
+   * Whether the user is on the long-lived client path. A failed flag lookup lands on the
+   * reactive path.
+   */
+  protected longLivedEnabled(userId: UserId): Promise<boolean> {
+    let enabled = this.enabled.get(userId);
+    if (enabled == null) {
+      enabled = firstValueFrom(
+        defer(() =>
+          this.configServiceProvider().userCachedFeatureFlag$(
+            FeatureFlag.PM31844_LongLivedSdkClient,
+            userId,
+          ),
+        ),
+      ).catch(() => false);
+      this.enabled.set(userId, enabled);
+    }
+    return enabled;
+  }
+
+  /**
+   * Starts from false and outlives the client, so a user who logs in again starts not ready.
+   */
+  private cryptoReadySubject(userId: UserId): BehaviorSubject<boolean> {
+    let subject = this.readySubjects.get(userId);
+    if (subject == null) {
+      subject = new BehaviorSubject(false);
+      this.readySubjects.set(userId, subject);
+    }
+    return subject;
+  }
+
+  /**
+   * Watches the access token of every account: a token appearing (login) creates the user's
+   * client, and a token disappearing removes it. The token is also what covers logouts that do
+   * not call {@link logout}.
+   */
+  private watchUsers(accounts: Record<UserId, AccountInfo>): void {
+    for (const userId of Object.keys(accounts) as UserId[]) {
+      if (this.watchedUsers.has(userId)) {
+        continue;
+      }
+      this.watchedUsers.add(userId);
+
+      this.loggedIn$(userId)
+        .pipe(
+          concatMap(async (loggedIn) => {
+            if (!loggedIn) {
+              // Only a long-lived user ever has a client, so this is inert on the reactive path.
+              this.logouts.set(userId, (this.logouts.get(userId) ?? 0) + 1);
+              this.removeClient(userId);
+              return;
+            }
+
+            if (await this.longLivedEnabled(userId)) {
+              this.ensureClient(userId).catch((e) =>
+                this.logService.error(`Failed to create the SDK client for user (${userId})`, e),
+              );
+            }
+          }),
+        )
+        .subscribe({
+          error: (e: unknown) =>
+            this.logService.error(`Failed to watch the access token of user (${userId})`, e),
+        });
+    }
+  }
+
+  private loggedIn$(userId: UserId): Observable<boolean> {
+    return defer(() => this.tokenServiceProvider().hasAccessToken$(userId)).pipe(
+      distinctUntilChanged(),
+    );
+  }
+
+  private removeClient(userId: UserId): void {
+    this.cryptoReadySubject(userId).next(false);
+    if (this.clients$.value[userId] != null) {
+      this.publish(userId, undefined);
+    }
+  }
+
+  private legacyUserClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
     return this.internalClient$(userId).pipe(
       takeWhile((client) => client !== undefined, false),
       // Filter out clients that have been marked for disposal. This can happen in the
@@ -142,26 +371,90 @@ export class DefaultSdkService implements SdkService {
     );
   }
 
-  cryptoReady$(userId: UserId): Observable<boolean> {
-    // Per-user clients are rebuilt from the same state their consumers read, so there is no
-    // window in which the state shows a user key that the client cannot decrypt with.
-    return of(true);
+  /**
+   * Waits while the client is being built, errors with {@link UserNotLoggedInError} when the user
+   * has no access token, and completes when the token is removed (logout). Unsubscribing never
+   * disposes the client.
+   */
+  private longLivedUserClient$(userId: UserId): Observable<Rc<PasswordManagerClient>> {
+    return combineLatest([this.loggedIn$(userId), this.clients$]).pipe(
+      takeWhile(([loggedIn]) => loggedIn, false),
+      map(([, clients]) => clients[userId]),
+      filter(
+        (client): client is Rc<PasswordManagerClient> =>
+          client != null && !client.isMarkedForDisposal,
+      ),
+      distinctUntilChanged(),
+      throwIfEmpty(() => new UserNotLoggedInError(userId)),
+    );
   }
 
-  async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
-    return null;
+  /** Idempotent, and dedupes concurrent builds. The only path to a new long-lived client. */
+  private ensureClient(userId: UserId): Promise<void> {
+    if (this.clients$.value[userId] != null) {
+      return Promise.resolve();
+    }
+
+    let creation = this.creating.get(userId);
+    if (creation == null) {
+      const logouts = this.logouts.get(userId);
+      creation = this.buildTokenOnlyClient(userId)
+        .then(async (client) => {
+          const loggedIn = await firstValueFrom(this.loggedIn$(userId));
+          if (
+            loggedIn &&
+            this.logouts.get(userId) === logouts &&
+            this.clients$.value[userId] == null
+          ) {
+            this.publish(userId, new Rc(client));
+          } else {
+            client.free();
+          }
+        })
+        .finally(() => this.creating.delete(userId));
+      this.creating.set(userId, creation);
+    }
+    return creation;
   }
 
-  async lock(userId: UserId): Promise<void> {}
+  /** Builds a client that can make authenticated requests but holds no keys. */
+  private async buildTokenOnlyClient(userId: UserId): Promise<PasswordManagerClient> {
+    await SdkLoadService.Ready;
+    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const settings = await this.toSettings(env);
+    const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
+    const client = await this.sdkClientFactory.createSdkClient(
+      new JsTokenProvider(this.apiServiceProvider, userId),
+      settings,
+      managedSettings,
+    );
+    try {
+      await this.initializeClient(userId, client);
+    } catch (e) {
+      client.free();
+      throw e;
+    }
+    return client;
+  }
 
-  logout(userId: UserId): void {}
-
-  async setFlags(userId: UserId, flags: Map<string, boolean>): Promise<void> {}
-
-  async setOrgKeys(
+  private async withClient(
     userId: UserId,
-    orgKeys: Record<OrganizationId, UnsignedSharedKey>,
-  ): Promise<void> {}
+    fn: (client: PasswordManagerClient) => Promise<void>,
+  ): Promise<void> {
+    const rc = this.clients$.value[userId];
+    if (rc == null || rc.isMarkedForDisposal) {
+      return;
+    }
+
+    using ref = rc.take();
+    await fn(ref.value);
+  }
+
+  private publish(userId: UserId, rc: Rc<PasswordManagerClient> | undefined) {
+    const previous = this.clients$.value[userId];
+    this.clients$.next({ ...this.clients$.value, [userId]: rc });
+    previous?.markForDisposal();
+  }
 
   /**
    * Creates a client for a specific user by using the existing state of the application.

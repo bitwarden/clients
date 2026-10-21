@@ -1999,6 +1999,7 @@ const safeProviders: SafeProvider[] = [
         managedSettingsService,
         appIdService,
         logService,
+        () => injector.get(TokenServiceAbstraction),
       ),
     deps: [
       SdkClientFactory,

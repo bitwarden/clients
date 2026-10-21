@@ -548,6 +548,7 @@ export class ServiceContainer {
       managedSettingsService,
       this.appIdService,
       this.logService,
+      () => this.tokenService,
       customUserAgent,
     );
 
