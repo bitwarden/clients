@@ -252,11 +252,13 @@ export abstract class CipherSdkService {
    * @param cipherId The cipher to attach the new file to
    * @param request Encrypted attachment metadata (key, fileName, fileSize, lastKnownRevisionDate)
    * @param userId The user ID to use for SDK client
+   * @param options.asAdmin Whether to use the organization admin endpoint
    */
   abstract createAttachment(
     cipherId: CipherId,
     request: CreateAttachmentRequest,
     userId: UserId,
+    options?: { asAdmin?: boolean },
   ): Promise<CreatedAttachment>;
 
   /**

@@ -202,10 +202,10 @@ describe("Cipher Service", () => {
       expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
         testCipher.id,
         expect.objectContaining({
-          asAdmin: false,
           lastKnownRevisionDate: testCipher.revisionDate.toISOString(),
         }),
         userId,
+        { asAdmin: false },
       );
       expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
         testCipher.id,
@@ -252,8 +252,9 @@ describe("Cipher Service", () => {
 
       expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
         testCipher.id,
-        expect.objectContaining({ asAdmin: true }),
+        expect.any(Object),
         userId,
+        { asAdmin: true },
       );
       expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
         testCipher.id,
