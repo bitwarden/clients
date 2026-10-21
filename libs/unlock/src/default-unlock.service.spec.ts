@@ -100,6 +100,7 @@ describe("DefaultUnlockService", () => {
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
     sdkService.unlock.mockResolvedValue(null);
     sdkService.setOrgKeys.mockResolvedValue(undefined);
+    sdkService.cryptoReady$.mockReturnValue(of(true));
     keyService.buildSdkUnlockData.mockResolvedValue(null);
 
     Object.defineProperty(SdkLoadService, "Ready", {
@@ -423,6 +424,25 @@ describe("DefaultUnlockService", () => {
       await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toBe(error);
 
       expect(sdkService.lock).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("fails the unlock and locks the live client when a lock lands before the organization keys apply", async () => {
+      sdkService.unlock.mockResolvedValue(liveUserKey);
+      sdkService.lock.mockResolvedValue(undefined);
+      // The lock cleared the client, so applying the organization keys leaves it not ready.
+      sdkService.cryptoReady$.mockReturnValue(of(false));
+      const action = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(action);
+      const otherProcess = jest.spyOn(service as any, "runUnlockActionInOtherProcess");
+
+      await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toThrow(
+        "was locked during unlock",
+      );
+
+      expect(sdkService.setOrgKeys).toHaveBeenCalled();
+      expect(sdkService.lock).toHaveBeenCalledWith(mockUserId);
+      expect(action).not.toHaveBeenCalled();
+      expect(otherProcess).not.toHaveBeenCalled();
     });
 
     it("leaves the live client unlocked and rethrows when an unlock action fails", async () => {

@@ -222,6 +222,11 @@ export class DefaultSdkService implements SdkService {
 
     let userKey: UserKey | undefined;
     await this.withClient(userId, async (client) => {
+      // An unlock that a lock already overtook must not touch the client: it may belong to a
+      // newer unlock by now, and initializing would write the user key back to state.
+      if (this.lockEpoch(userId) !== epoch) {
+        throw new Error(`User (${userId}) was locked while unlocking the SDK client`);
+      }
       // Not ready from the moment the keys are cleared. A failure after this point leaves the
       // client locked, which consumers see as a lock.
       this.cryptoReadySubject(userId).next(false);

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of, throwError } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject, throwError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -686,7 +686,7 @@ describe("DefaultSdkService", () => {
         await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
       });
 
-      it("clears the client of an unlock that was in flight when a lock found no client yet", async () => {
+      it("leaves the client alone for an unlock that was in flight when a lock found no client yet", async () => {
         let resolveClient!: (client: PasswordManagerClient) => void;
         sdkClientFactory.createSdkClient.mockReturnValue(
           new Promise((resolve) => (resolveClient = resolve)),
@@ -700,9 +700,49 @@ describe("DefaultSdkService", () => {
         resolveClient(mockClient);
 
         await expect(unlock).rejects.toThrow("locked while unlocking");
-        expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(1);
-        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+        expect(crypto.initialize_user_crypto).not.toHaveBeenCalled();
+        expect(unlockClient.lock).not.toHaveBeenCalled();
         await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(false);
+      });
+
+      it("never initializes the user crypto for an unlock that a lock already overtook", async () => {
+        service = createService();
+        await settle();
+        const kdfConfig$ = new Subject<PBKDF2KdfConfig>();
+        kdfConfigService.getKdfConfig$
+          .mockReturnValueOnce(kdfConfig$)
+          .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
+
+        const unlock = service.unlock(userId, unlockRequest);
+        await settle();
+        await service.lock(userId);
+        kdfConfig$.next(PBKDF2KdfConfig.createDefault());
+
+        await expect(unlock).rejects.toThrow("locked while unlocking");
+        expect(crypto.initialize_user_crypto).not.toHaveBeenCalled();
+      });
+
+      it("leaves a newer unlock keyed and ready when an overtaken unlock arrives after it", async () => {
+        service = createService();
+        await settle();
+        const kdfConfig$ = new Subject<PBKDF2KdfConfig>();
+        kdfConfigService.getKdfConfig$
+          .mockReturnValueOnce(kdfConfig$)
+          .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
+
+        const staleUnlock = service.unlock(userId, unlockRequest);
+        await settle();
+        await service.lock(userId);
+        await expect(service.unlock(userId, unlockRequest)).resolves.toEqual(userKey);
+        await service.setOrgKeys(userId, {});
+        const clearsBefore = unlockClient.lock.mock.calls.length;
+
+        kdfConfig$.next(PBKDF2KdfConfig.createDefault());
+        await expect(staleUnlock).rejects.toThrow("locked while unlocking");
+
+        expect(unlockClient.lock).toHaveBeenCalledTimes(clearsBefore);
+        expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(1);
+        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
       });
 
       it("clears the client and rejects when a lock lands while organization keys apply", async () => {

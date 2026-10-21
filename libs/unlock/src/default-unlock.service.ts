@@ -314,6 +314,12 @@ export class DefaultUnlockService implements UnlockService {
       }
       await this.autoUnlockService.setAutoUnlockKey(userId, userKey);
       await this.pushOrgKeys(userId, userKey as UserKey);
+      // A lock that lands during the side effects leaves the client locked, and applying the
+      // organization keys to a locked client does nothing. The unlock must fail rather than
+      // carry on as if it had succeeded.
+      if (!(await firstValueFrom(this.sdkService.cryptoReady$(userId)))) {
+        throw new Error(`The SDK client of user (${userId}) was locked during unlock`);
+      }
     } catch (e) {
       // Until the organization keys are applied, the user's live SDK client holds keys that the
       // rest of the client never got to use. A failed unlock must not leave them there while the
