@@ -96,10 +96,12 @@ export class ProjectService {
     return project;
   }
 
-  async update(organizationId: string, projectView: ProjectView) {
+  async update(organizationId: string, projectView: ProjectView): Promise<ProjectView> {
     const request = await this.getProjectRequest(organizationId, projectView);
     const r = await this.apiService.send("PUT", "/projects/" + projectView.id, request, true, true);
-    this._project.next(await this.createProjectView(new ProjectResponse(r)));
+    const project = await this.createProjectView(new ProjectResponse(r));
+    this._project.next(project);
+    return project;
   }
 
   async delete(projects: ProjectListView[]): Promise<BulkOperationStatus[]> {
