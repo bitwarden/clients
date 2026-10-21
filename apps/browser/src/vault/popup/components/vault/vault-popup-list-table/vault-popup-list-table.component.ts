@@ -8,11 +8,8 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   Injector,
-  signal,
-  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -53,7 +50,6 @@ import {
   FilterOptionNode,
   IconButtonModule,
   IconComponent,
-  PopoverService,
   ScrollCollapseSourceDirective,
   SearchModule,
   StatusLockupComponent,
@@ -61,8 +57,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  CoachmarkComponent,
-  CoachmarkService,
   EmptyVaultComponent,
   hasMultipleVaults,
   matchesFolder,
@@ -90,11 +84,11 @@ import {
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
-import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { collectionOptionsInScope, folderOptionsInScope } from "../../../utils/filter-options";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+import { VaultFiltersTourComponent } from "../vault-filters-tour/vault-filters-tour.component";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -127,7 +121,7 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
-    CoachmarkComponent,
+    VaultFiltersTourComponent,
     ScrollCollapseSourceDirective,
     CollapseOnScrollDirective,
     FilterMenuModule,
@@ -158,9 +152,6 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
-  private readonly coachmark = inject(CoachmarkService);
-  private readonly vaultTour = inject(VaultPopupTourService);
-  private readonly popoverService = inject(PopoverService);
 
   /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
   protected readonly autofocusSearch = !inject(VaultPopupScrollPositionService).restoresCollapse();
@@ -177,72 +168,6 @@ export class VaultPopupListTableComponent {
 
   /** The projected `bit-table-v2`, used to seed and observe chip selections. */
   private readonly tableEl = viewChild(BitTableV2Component);
-
-  private readonly toolbar = viewChild(BitTableToolbarComponent);
-  private readonly filtersCoachmark = viewChild.required<CoachmarkComponent>("filtersCoachmark");
-  private readonly sharedFoldersCoachmark =
-    viewChild.required<CoachmarkComponent>("sharedFoldersCoachmark");
-
-  /**
-   * Anchors the tour's filter steps inside the toolbar: the filter button, then the filter dialog
-   * row {@link VaultPopupTourService} picked when it started the tour. Both live in the toolbar's
-   * own template, so the popovers open from code rather than from `[bitPopoverAnchorFor]`.
-   */
-  private readonly showFilterCoachmarks = effect((onCleanup) => {
-    const toolbar = this.toolbar();
-    if (!toolbar) {
-      return;
-    }
-
-    if (this.coachmark.isStepActive("filters")) {
-      const ref = this.popoverService.open(
-        this.filtersCoachmark().popover(),
-        toolbar.filterButton,
-        {
-          position: this.coachmark.getStepPosition("filters"),
-          spotlight: true,
-        },
-      );
-      onCleanup(() => ref.close());
-      return;
-    }
-
-    // The tour drops this step when it has no row to point at.
-    const rowKey = untracked(() => this.vaultTour.sharedFoldersRow());
-    if (this.coachmark.isStepActive("sharedFolders") && rowKey) {
-      untracked(() => {
-        this.filterDialogOpen.set(true);
-        this.tourOpenedFilterDialog.set(true);
-      });
-      const ref = this.popoverService.open(
-        this.sharedFoldersCoachmark().popover(),
-        toolbar.filterRow(rowKey),
-        {
-          position: this.coachmark.getStepPosition("sharedFolders"),
-          spotlight: true,
-        },
-      );
-      onCleanup(() => {
-        ref.close();
-        // Cleared before the dialog closes, so moving off the step doesn't read as the user closing it.
-        this.tourOpenedFilterDialog.set(false);
-        this.filterDialogOpen.set(false);
-      });
-    }
-  });
-
-  /** Whether the tour opened the filter dialog for its shared folders step and it's still up. */
-  private readonly tourOpenedFilterDialog = signal(false);
-
-  /** Closing the dialog takes the shared folders step's anchor with it, so it ends the tour. */
-  private readonly endTourOnFilterDialogClose = effect(() => {
-    if (this.tourOpenedFilterDialog() && !this.filterDialogOpen()) {
-      untracked(() => {
-        this.tourOpenedFilterDialog.set(false);
-        void this.coachmark.completeTour();
-      });
-    }
-  });
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 

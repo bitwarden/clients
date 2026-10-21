@@ -32,22 +32,18 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
-  BitTableToolbarComponent,
   ChipFilterOption,
   CompactModeService,
   DialogService,
   FilterMenuComponent,
   FilterOptionRow,
   FilterSectionComponent,
-  PopoverRef,
-  PopoverService,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   CoachmarkService,
-  CoachmarkStepId,
   NO_FOLDER,
   PasswordRepromptService,
   VaultCopyButtonsService,
@@ -64,10 +60,7 @@ import { VaultPopupListTableFiltersService } from "../../../services/vault-popup
 import { VaultPopupListTableService } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
-import {
-  SharedFoldersRow,
-  VaultPopupTourService,
-} from "../../../services/vault-popup-tour.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -94,20 +87,6 @@ const makeRow = (
   section: "autofill" | "favorites" | "allItems",
   overrides: Partial<PopupCipherViewLike> = {},
 ) => ({ cipher: makeCipher(overrides), _section: section, actions: {} }) as any;
-
-/**
- * JSDOM has no layout, so the toolbar measures 0 and treats itself as wide. Reports a popup-width
- * toolbar instead, which collapses its filters behind the trigger that opens the filter dialog.
- */
-const NarrowResizeObserver = class {
-  constructor(private readonly callback: ResizeObserverCallback) {}
-  observe(target: Element) {
-    const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
-    this.callback([entry], this as unknown as ResizeObserver);
-  }
-  unobserve() {}
-  disconnect() {}
-} as unknown as typeof ResizeObserver;
 
 describe("VaultPopupListTableComponent", () => {
   let fixture: ComponentFixture<VaultPopupListTableComponent>;
@@ -235,18 +214,11 @@ describe("VaultPopupListTableComponent", () => {
     viewModel$: jest.fn().mockReturnValue(nav$.asObservable()),
   };
 
-  /** The tour's active step, read through the signal so the component's effects track it. */
-  const activeStep = signal<CoachmarkStepId | null>(null);
-  const coachmarkService = mock<CoachmarkService>({
-    isStepActive: (stepId: CoachmarkStepId) => activeStep() === stepId,
-  });
-  /** The filter dialog row the tour picked for its shared folders step. */
-  const sharedFoldersRow = signal<SharedFoldersRow | null>("collection");
+  /** No tour step is active; the filters tour is covered by its own spec. */
+  const coachmarkService = mock<CoachmarkService>({ isStepActive: () => false });
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    activeStep.set(null);
-    sharedFoldersRow.set("collection");
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
@@ -277,7 +249,7 @@ describe("VaultPopupListTableComponent", () => {
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: CoachmarkService, useValue: coachmarkService },
-        { provide: VaultPopupTourService, useValue: { sharedFoldersRow } },
+        { provide: VaultPopupTourService, useValue: { sharedFoldersRow: signal(null) } },
         { provide: WINDOW, useValue: window },
         {
           provide: ViewCacheService,
@@ -1123,7 +1095,15 @@ describe("VaultPopupListTableComponent", () => {
     beforeEach(() => {
       open = jest.spyOn(DialogService.prototype, "open");
       // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
-      globalThis.ResizeObserver = NarrowResizeObserver;
+      globalThis.ResizeObserver = class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe(target: Element) {
+          const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
+          this.callback([entry], this as unknown as ResizeObserver);
+        }
+        unobserve() {}
+        disconnect() {}
+      } as unknown as typeof ResizeObserver;
     });
     afterEach(() => {
       open.mockRestore();
@@ -1148,111 +1128,6 @@ describe("VaultPopupListTableComponent", () => {
       second.autoDetectChanges();
       await second.whenStable();
       expect(open).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("tour coachmarks", () => {
-    let openPopover: jest.SpyInstance;
-    let popoverRef: PopoverRef;
-    let toolbar: BitTableToolbarComponent;
-    const originalResizeObserver = globalThis.ResizeObserver;
-
-    beforeEach(() => {
-      // The toolbar only keeps the dialog open while collapsed, as it always is in the popup. It
-      // measures itself on creation, so the fixture is rebuilt once the narrow width is in place.
-      globalThis.ResizeObserver = NarrowResizeObserver;
-      fixture.destroy();
-      fixture = TestBed.createComponent(VaultPopupListTableComponent);
-      popoverRef = new PopoverRef(() => {});
-      jest.spyOn(popoverRef, "close");
-      openPopover = jest.spyOn(TestBed.inject(PopoverService), "open").mockReturnValue(popoverRef);
-      // The toolbar's own dialog is not under test; the tour drives it through `filterDialogOpen`.
-      jest.spyOn(DialogService.prototype, "open").mockReturnValue({
-        closed: new Subject(),
-        close: jest.fn(),
-      } as any);
-
-      fixture.detectChanges();
-      toolbar = fixture.debugElement.query(
-        By.directive(BitTableToolbarComponent),
-      ).componentInstance;
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-      globalThis.ResizeObserver = originalResizeObserver;
-    });
-
-    it("anchors the filters step to the toolbar's filter button", () => {
-      activeStep.set("filters");
-      fixture.detectChanges();
-
-      expect(openPopover).toHaveBeenCalledWith(
-        expect.anything(),
-        toolbar.filterButton,
-        expect.objectContaining({ spotlight: true }),
-      );
-    });
-
-    it("opens the filter dialog and anchors its Shared folders row for the shared folders step", () => {
-      collections$.next([
-        {
-          value: { id: "col-1", name: "Alpha", organizationId: "org-1" } as CollectionView,
-          label: "Alpha",
-        },
-      ]);
-      activeStep.set("sharedFolders");
-      fixture.detectChanges();
-
-      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(true);
-      expect(openPopover).toHaveBeenCalledWith(
-        expect.anything(),
-        toolbar.filterRow("collection"),
-        expect.objectContaining({ spotlight: true }),
-      );
-    });
-
-    it("anchors the My folders row for the shared folders step when the tour picked it", () => {
-      sharedFoldersRow.set("folder");
-      activeStep.set("sharedFolders");
-      fixture.detectChanges();
-
-      expect(openPopover).toHaveBeenCalledWith(
-        expect.anything(),
-        toolbar.filterRow("folder"),
-        expect.objectContaining({ spotlight: true }),
-      );
-    });
-
-    it("leaves the filter dialog closed when the tour has no row for the shared folders step", () => {
-      sharedFoldersRow.set(null);
-      activeStep.set("sharedFolders");
-      fixture.detectChanges();
-
-      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
-      expect(openPopover).not.toHaveBeenCalled();
-    });
-
-    it("closes the filter dialog when the tour leaves the shared folders step", () => {
-      activeStep.set("sharedFolders");
-      fixture.detectChanges();
-
-      activeStep.set("filters");
-      fixture.detectChanges();
-
-      expect(popoverRef.close).toHaveBeenCalled();
-      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
-      expect(coachmarkService.completeTour).not.toHaveBeenCalled();
-    });
-
-    it("ends the tour when the user closes the filter dialog during the shared folders step", () => {
-      activeStep.set("sharedFolders");
-      fixture.detectChanges();
-
-      vaultPopupListTableFiltersService.filterDialogOpen.set(false);
-      fixture.detectChanges();
-
-      expect(coachmarkService.completeTour).toHaveBeenCalled();
     });
   });
 
