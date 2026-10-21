@@ -40,6 +40,16 @@ export function formatCompoundDuration(
     : new Intl.ListFormat(locale, { type: "unit", style: "long" }).format(parts);
 }
 
+/** One value in one unit, localized, e.g. `47m` narrow in English. */
+export function formatUnit(
+  locale: string,
+  value: number,
+  unit: DurationUnit,
+  unitDisplay: Intl.NumberFormatOptions["unitDisplay"],
+): string {
+  return formatterFor(locale, unit, unitDisplay).format(value);
+}
+
 function formatterFor(
   locale: string,
   unit: DurationUnit,

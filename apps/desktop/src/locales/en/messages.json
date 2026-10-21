@@ -4578,6 +4578,9 @@
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nothing was imported."
   },
@@ -7297,6 +7300,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

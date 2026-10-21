@@ -121,9 +121,8 @@ describe("Cipher Service", () => {
 
   let cipherService: CipherService;
   let encryptionContext: EncryptionContext;
-  // BehaviorSubjects for SDK feature flags - allows tests to change the value after service instantiation
+  // BehaviorSubject for the SDK feature flag - allows tests to change the value after service instantiation
   let sdkCrudFeatureFlag$: BehaviorSubject<boolean>;
-  let sdkAttachmentOpsFeatureFlag$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
@@ -143,18 +142,11 @@ describe("Cipher Service", () => {
       legacyCompatKeyService,
     );
 
-    // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
+    // Create BehaviorSubject for the SDK feature flag - tests can update it to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
-    sdkAttachmentOpsFeatureFlag$ = new BehaviorSubject<boolean>(false);
     configService.getFeatureFlag$.mockImplementation(
-      <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
-        if (flag === FeatureFlag.PM28192_CipherAttachmentOpsToSdk) {
-          return sdkAttachmentOpsFeatureFlag$.asObservable() as Observable<
-            FeatureFlagValueType<Flag>
-          >;
-        }
-        return sdkCrudFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
-      },
+      <Flag extends FeatureFlag>(): Observable<FeatureFlagValueType<Flag>> =>
+        sdkCrudFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>,
     );
 
     cipherService = new CipherService(
@@ -183,53 +175,7 @@ describe("Cipher Service", () => {
   });
 
   describe("saveAttachmentRawWithServer()", () => {
-    it("should upload encrypted file contents with save attachments", async () => {
-      const fileName = "filename";
-      const fileData = new Uint8Array(10);
-      keyService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
-      );
-      legacyCompatKeyService.makeDataEncKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32))),
-      );
-
-      configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-
-      const spy = jest.spyOn(cipherFileUploadService, "upload");
-
-      await cipherService.saveAttachmentRawWithServer(new Cipher(), fileName, fileData, userId);
-
-      expect(spy).toHaveBeenCalled();
-    });
-
-    it("should include lastKnownRevisionDate in the upload request", async () => {
-      const fileName = "filename";
-      const fileData = new Uint8Array(10);
-      const testCipher = new Cipher(cipherData);
-      const expectedRevisionDate = "2022-01-31T12:00:00.000Z";
-
-      legacyCompatKeyService.makeDataEncKey.mockReturnValue(
-        Promise.resolve([
-          new SymmetricCryptoKey(new Uint8Array(32)),
-          new EncString("encrypted-key"),
-        ] as any),
-      );
-
-      configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-
-      const uploadSpy = jest.spyOn(cipherFileUploadService, "upload").mockResolvedValue({} as any);
-
-      await cipherService.saveAttachmentRawWithServer(testCipher, fileName, fileData, userId);
-
-      // Verify upload was called with cipher that has revisionDate
-      expect(uploadSpy).toHaveBeenCalled();
-      const cipherArg = uploadSpy.mock.calls[0][0];
-      expect(cipherArg.revisionDate).toEqual(new Date(expectedRevisionDate));
-    });
-
-    it("routes through SDK createAttachment + uploadPrepared when flag is enabled (non-admin)", async () => {
-      sdkAttachmentOpsFeatureFlag$.next(true);
-
+    it("routes through SDK createAttachment + uploadPrepared (non-admin)", async () => {
       const fileName = "filename";
       const fileData = new Uint8Array(10);
       const testCipher = new Cipher(cipherData);
@@ -255,7 +201,10 @@ describe("Cipher Service", () => {
 
       expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
         testCipher.id,
-        expect.objectContaining({ asAdmin: false }),
+        expect.objectContaining({
+          asAdmin: false,
+          lastKnownRevisionDate: testCipher.revisionDate.toISOString(),
+        }),
         userId,
       );
       expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
@@ -272,9 +221,7 @@ describe("Cipher Service", () => {
       expect(getSpy).toHaveBeenCalledWith(testCipher.id, userId);
     });
 
-    it("returns SDK-provided cipher and skips state fetch when admin and flag is enabled", async () => {
-      sdkAttachmentOpsFeatureFlag$.next(true);
-
+    it("returns SDK-provided cipher and skips state fetch when admin", async () => {
       const fileName = "filename";
       const fileData = new Uint8Array(10);
       const testCipher = new Cipher(cipherData);
@@ -1327,58 +1274,13 @@ describe("Cipher Service", () => {
     const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
     const testAttachmentId = "a1";
 
-    it("should call apiService.deleteCipherAttachment when feature flag is disabled", async () => {
-      const response = { cipher: cipherData } as any;
-      const apiSpy = jest.spyOn(apiService, "deleteCipherAttachment").mockResolvedValue(response);
-      const adminApiSpy = jest.spyOn(apiService, "deleteCipherAttachmentAdmin");
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "deleteAttachmentWithServer");
-      const deleteAttachmentSpy = jest
-        .spyOn(cipherService, "deleteAttachment")
-        .mockResolvedValue(cipherData);
-
-      const result = await cipherService.deleteAttachmentWithServer(
-        testCipherId,
-        testAttachmentId,
-        userId,
-      );
-
-      expect(apiSpy).toHaveBeenCalledWith(testCipherId, testAttachmentId);
-      expect(adminApiSpy).not.toHaveBeenCalled();
-      expect(sdkServiceSpy).not.toHaveBeenCalled();
-      expect(deleteAttachmentSpy).toHaveBeenCalledWith(
-        testCipherId,
-        cipherData.revisionDate,
-        testAttachmentId,
-        userId,
-      );
-      expect(result).toBe(cipherData);
-    });
-
-    it("should call apiService.deleteCipherAttachmentAdmin when feature flag is disabled and admin is true", async () => {
-      const response = { cipher: cipherData } as any;
-      const apiSpy = jest
-        .spyOn(apiService, "deleteCipherAttachmentAdmin")
-        .mockResolvedValue(response);
-      const userApiSpy = jest.spyOn(apiService, "deleteCipherAttachment");
-      jest.spyOn(cipherService, "deleteAttachment").mockResolvedValue(cipherData);
-
-      await cipherService.deleteAttachmentWithServer(testCipherId, testAttachmentId, userId, true);
-
-      expect(apiSpy).toHaveBeenCalledWith(testCipherId, testAttachmentId);
-      expect(userApiSpy).not.toHaveBeenCalled();
-    });
-
-    it("should clearCache and use SDK when feature flag is enabled", async () => {
-      sdkAttachmentOpsFeatureFlag$.next(true);
-
+    it("should clearCache and use SDK", async () => {
       const updatedCipher = new Cipher(cipherData);
       updatedCipher.revisionDate = new Date("2026-04-23T12:00:00.000Z");
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteAttachmentWithServer")
         .mockResolvedValue(updatedCipher);
-      const apiSpy = jest.spyOn(apiService, "deleteCipherAttachment");
-      const deleteAttachmentSpy = jest.spyOn(cipherService, "deleteAttachment");
       const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
 
       const result = await cipherService.deleteAttachmentWithServer(
@@ -1389,22 +1291,16 @@ describe("Cipher Service", () => {
 
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(sdkServiceSpy).toHaveBeenCalledWith(testCipherId, testAttachmentId, userId, false);
-      expect(apiSpy).not.toHaveBeenCalled();
-      expect(deleteAttachmentSpy).not.toHaveBeenCalled();
       expect(result).toEqual(updatedCipher.toCipherData());
     });
 
-    it("should clearCache and use SDK admin path when feature flag is enabled and admin is true", async () => {
-      sdkAttachmentOpsFeatureFlag$.next(true);
-
+    it("should clearCache and use SDK admin path when admin is true", async () => {
       const updatedCipher = new Cipher(cipherData);
       updatedCipher.revisionDate = new Date("2026-04-23T12:00:00.000Z");
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteAttachmentWithServer")
         .mockResolvedValue(updatedCipher);
-      const apiSpy = jest.spyOn(apiService, "deleteCipherAttachmentAdmin");
-      const deleteAttachmentSpy = jest.spyOn(cipherService, "deleteAttachment");
       const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
 
       const result = await cipherService.deleteAttachmentWithServer(
@@ -1416,8 +1312,6 @@ describe("Cipher Service", () => {
 
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(sdkServiceSpy).toHaveBeenCalledWith(testCipherId, testAttachmentId, userId, true);
-      expect(apiSpy).not.toHaveBeenCalled();
-      expect(deleteAttachmentSpy).not.toHaveBeenCalled();
       expect(result).toEqual(updatedCipher.toCipherData());
     });
   });
@@ -1435,9 +1329,7 @@ describe("Cipher Service", () => {
       expect(apiSpy).not.toHaveBeenCalled();
     });
 
-    it("routes each legacy attachment through upgradeAttachment when flag is enabled", async () => {
-      sdkAttachmentOpsFeatureFlag$.next(true);
-
+    it("routes each legacy attachment through upgradeAttachment", async () => {
       const view = new CipherView(new Cipher(cipherData));
       const legacyAttachment = new AttachmentView();
       legacyAttachment.id = "legacy-attachment-id";

@@ -1,5 +1,5 @@
 import { PortalModule } from "@angular/cdk/portal";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
@@ -46,6 +46,7 @@ import { RoutedVaultFilterService } from "../../services/routed-vault-filter.ser
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import { ASSIGN_COLLECTIONS_DIALOG } from "../../tokens/assign-collections-dialog.token";
 import { BULK_DELETE_DIALOG } from "../../tokens/bulk-delete-dialog.token";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { VaultBatchActionComponent } from "../vault-batch-bar/vault-batch-action.component";
 
 import {
@@ -532,6 +533,18 @@ export default {
     // App-level so root services and dialogs opened through DialogService can resolve these.
     applicationConfig({
       providers: [
+        {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: () => false,
+            getStepPosition: () => undefined,
+            getStepTitle: () => "",
+            getStepDescription: () => "",
+            getStepLearnMoreUrl: () => undefined,
+            currentStepNumber: signal(0),
+            totalSteps: signal(0),
+          } as Partial<CoachmarkService>,
+        },
         {
           provide: I18nService,
           useFactory: () =>

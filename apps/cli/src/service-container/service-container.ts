@@ -289,6 +289,8 @@ export class ServiceContainer {
   legacyCompatKeyService: LegacyCompatKeyService;
   tokenService: TokenService;
   appIdService: AppIdService;
+  /** The User-Agent the CLI identifies itself with, for clients that build their own HTTP stack. */
+  customUserAgent: string;
   apiService: NodeApiService;
   twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
@@ -513,6 +515,7 @@ export class ServiceContainer {
       " (" +
       this.platformUtilsService.getDeviceString().toUpperCase() +
       ")";
+    this.customUserAgent = customUserAgent;
 
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
@@ -969,7 +972,6 @@ export class ServiceContainer {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
-      this.configService,
       this.cipherSdkService,
     );
 

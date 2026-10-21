@@ -1194,7 +1194,6 @@ export default class MainBackground {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
-      this.configService,
       this.cipherSdkService,
     );
 

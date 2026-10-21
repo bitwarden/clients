@@ -156,6 +156,17 @@ export abstract class BaseImporter {
     return doc != null && doc.querySelector("parsererror") == null ? doc : null;
   }
 
+  /**
+   * Parses an HTML export. HTML parsing ignores DTDs entirely, so unlike {@link parseXml} there
+   * is nothing here to guard against. Prefer this for exports that are only incidentally XHTML —
+   * parsing those as XML rejects their DOCTYPE for no benefit.
+   */
+  protected parseHtml(data: string): Document {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data, "text/html");
+    return doc != null ? doc : null;
+  }
+
   protected parseCsv(data: string, header: boolean, options: any = {}): any[] {
     const parseOptions: papa.ParseConfig<string> = Object.assign(
       { header: header },
@@ -452,9 +463,25 @@ export abstract class BaseImporter {
   }
 
   private validateNoExternalEntities(data: string): boolean {
-    const regex = new RegExp("<!ENTITY", "i");
-    const hasExternalEntities = regex.test(data);
-    return !hasExternalEntities;
+    // Entity declarations are never legitimate in an export.
+    if (/<!ENTITY/i.test(data)) {
+      return false;
+    }
+
+    // Reject DOCTYPEs pointing at an external DTD. PUBLIC counts: its second literal is a URL, so
+    // `PUBLIC "-//x//y//EN" "file:///etc/passwd"` is the SYSTEM attack with the keyword swapped.
+    // Internal-only subsets (<!DOCTYPE foo [...]>) are fine — [^>[]* stops at '['.
+    //
+    // Two things to leave alone here:
+    //   - matchAll, not one match: a decoy <!DOCTYPE> in a comment must not hide a real one below.
+    //   - nothing after [^>[]*: putting \bSYSTEM\b back on the end backtracks quadratically, and
+    //     1.5 MB of "<!DOCTYPE " then blocks the thread for ~109s.
+    for (const doctype of data.matchAll(/<!DOCTYPE[^>[]*/gi)) {
+      if (/\b(?:SYSTEM|PUBLIC)\b/i.test(doctype[0])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /** Parses a date from a string and returns its representation in
