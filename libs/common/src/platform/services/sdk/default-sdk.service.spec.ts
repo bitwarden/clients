@@ -525,6 +525,18 @@ describe("DefaultSdkService", () => {
         expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
       });
 
+      it("watches the access token of an account once, however often accounts emit", async () => {
+        service = createService();
+        await settle();
+        const tokenLookups = tokenService.hasAccessToken$.mock.calls.length;
+
+        accounts$.next({ ...accounts$.value });
+        await settle();
+
+        expect(tokenService.hasAccessToken$).toHaveBeenCalledTimes(tokenLookups);
+        expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
+      });
+
       it("creates a client when the user's access token appears", async () => {
         hasAccessToken$.next(false);
         service = createService();
@@ -659,6 +671,16 @@ describe("DefaultSdkService", () => {
         service = createService();
 
         await expect(service.unlock(userId, unlockRequest)).rejects.toThrow("build failed");
+      });
+
+      it("frees a client whose initialization fails, and rejects", async () => {
+        jest.mocked(mockClient.km_state_bridge().register_bridge_impl).mockImplementation(() => {
+          throw new Error("init failed");
+        });
+        service = createService();
+
+        await expect(service.unlock(userId, unlockRequest)).rejects.toThrow("init failed");
+        expect(mockClient.free).toHaveBeenCalled();
       });
     });
 
