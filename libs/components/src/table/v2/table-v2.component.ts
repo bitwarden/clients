@@ -1,8 +1,9 @@
 import { _isNumberValue } from "@angular/cdk/coercion";
 import {
+  CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
+  CdkVirtualScrollableElement,
   CdkVirtualScrollViewport,
-  VIRTUAL_SCROLL_STRATEGY,
 } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
@@ -23,6 +24,7 @@ import {
   signal,
   untracked,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -39,7 +41,6 @@ import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
-import { TooltipDirective } from "../../tooltip";
 import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
 
@@ -61,7 +62,6 @@ import { TableDef } from "./table-def";
 import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableStateKey } from "./table-state-keys";
-import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
 const SELECTION_COLUMN_WIDTH = "56px";
@@ -81,22 +81,6 @@ function growsToFill(width: string): boolean {
 function grown(width: string): string {
   return `minmax(${MINMAX_MIN.exec(width)?.[1] ?? width.trim()}, 1fr)`;
 }
-
-/**
- * Fixed heights (px) of group headers when virtualized. Must match the header chrome
- * in {@link BitTableV2Component.groupHeaderClass}.
- */
-const GROUP_HEADER_HEIGHT = 28;
-const SUBGROUP_HEADER_HEIGHT = 22;
-
-/**
- * Fixed height (px) of a group description when virtualized: two `text-sm` lines (20px
- * each) plus the cell's `tw-pb-2`. Descriptions are consumer-supplied localized strings,
- * so they wrap in narrow tables even where English doesn't — two lines is the allowance,
- * and the cell clamps past it. The strategy never measures, so every description gets
- * this height whether or not it wraps.
- */
-const GROUP_DESCRIPTION_HEIGHT = 48;
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
@@ -174,9 +158,12 @@ function sortRows<T>(
   });
 }
 
-/** A flattened body item: a data row, a group header with its row-group and count, or a group description. */
+/**
+ * A flattened body item: a run of data rows (`owner` is the group they render under, `null` for
+ * ungrouped rows), a group header with its row-group and count, or a group description.
+ */
 type RenderItem<T> =
-  | { kind: "row"; row: T }
+  | { kind: "rows"; owner: BitRowGroupComponent<T> | null; rows: readonly T[] }
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
   | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
@@ -203,6 +190,8 @@ type RenderItem<T> =
   imports: [
     CommonModule,
     CdkVirtualScrollViewport,
+    CdkVirtualScrollableElement,
+    CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     BitCellComponent,
     BitHeaderRowComponent,
@@ -214,7 +203,6 @@ type RenderItem<T> =
     SkeletonTextComponent,
     SvgComponent,
     SyncScrollLeftDirective,
-    TooltipDirective,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -225,12 +213,6 @@ type RenderItem<T> =
     {
       provide: TABLE_PRESENTATION,
       useFactory: (table: BitTableV2Component) => table.presentation,
-      deps: [forwardRef(() => BitTableV2Component)],
-    },
-    // The virtual-scroll viewport in the template picks up the table's own strategy.
-    {
-      provide: VIRTUAL_SCROLL_STRATEGY,
-      useFactory: (table: BitTableV2Component) => table.scrollStrategy,
       deps: [forwardRef(() => BitTableV2Component)],
     },
   ],
@@ -536,14 +518,6 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         );
       }
     });
-
-    // The strategy pulls heights lazily, so a collapse (which changes the row count)
-    // is handled by CDK's `onDataLengthChanged`. This covers the other case — heights
-    // changing with no row-count change (e.g. row height) — which CDK can't observe.
-    effect(() => {
-      this.itemHeights();
-      this.scrollStrategy.refresh();
-    });
   }
 
   /**
@@ -780,13 +754,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     }
   }
 
-  /**
-   * The element the body scrolls in, virtualized or not — replaced when the table swaps between
-   * them
-   */
-  private readonly scrollBody = viewChild<ElementRef<HTMLElement> | CdkVirtualScrollViewport>(
-    "scrollBody",
-  );
+  /** The element the body scrolls in, shared by every row run's viewport. */
+  private readonly scrollBody = viewChild<ElementRef<HTMLElement>>("scrollBody");
+
+  /** The body's content, whose height moves when a group above a viewport collapses or expands. */
+  private readonly scrollContent = viewChild<ElementRef<HTMLElement>>("scrollContent");
+
+  /** One viewport per run of rows when virtualized. */
+  private readonly viewports = viewChildren(CdkVirtualScrollViewport);
 
   /**
    * Publishes the scrolling body as the page's scroll region while {@link scrollLayoutHost} is set.
@@ -796,8 +771,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       return;
     }
 
-    const body = this.scrollBody();
-    const element = body instanceof CdkVirtualScrollViewport ? body.elementRef : body;
+    const element = this.scrollBody();
 
     if (element == null) {
       return;
@@ -814,14 +788,23 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     });
   });
 
-  /** CDK re-measures only on window resize; this viewport also resizes with its surrounding layout. */
+  /**
+   * CDK re-measures only on window resize and scroll. The body also resizes with its surrounding
+   * layout, and a viewport moves within it when a group above it collapses or expands.
+   */
   private readonly _viewportResizeEffect = effect((onCleanup) => {
     const body = this.scrollBody();
-    if (!(body instanceof CdkVirtualScrollViewport)) {
+    const content = this.scrollContent();
+    if (!this.isVirtualized() || body == null || content == null) {
       return;
     }
-    const observer = new ResizeObserver(() => body.checkViewportSize());
-    observer.observe(body.elementRef.nativeElement);
+    const observer = new ResizeObserver(() => {
+      for (const viewport of this.viewports()) {
+        viewport.checkViewportSize();
+      }
+    });
+    observer.observe(body.nativeElement);
+    observer.observe(content.nativeElement);
     onCleanup(() => observer.disconnect());
   });
 
@@ -886,15 +869,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * The non-virtualized body's render list: {@link rows} as-is when ungrouped, else
-   * interleaved headers and rows. A row joins the first group whose `match` claims it;
+   * The body's render list: {@link rows} as one run when ungrouped, else headers interleaved
+   * with each group's run of rows. A row joins the first group whose `match` claims it;
    * empty groups are skipped unless they clear `hideOnEmpty`, and unclaimed rows trail in
    * a headerless block.
    */
   protected readonly renderItems = computed<RenderItem<T>[]>(() => {
     const rows = this.rows();
     if (!this.groupingActive()) {
-      return rows.map((row): RenderItem<T> => ({ kind: "row", row }));
+      return rows.length ? [{ kind: "rows", owner: null, rows }] : [];
     }
 
     // First-match-wins partition of `toSplit` across `groups`, preserving row order.
@@ -916,8 +899,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
       return { buckets, unmatched };
     };
-    const rowItems = (rs: readonly T[]): RenderItem<T>[] =>
-      rs.map((row): RenderItem<T> => ({ kind: "row", row }));
+    const rowItems = (owner: BitRowGroupComponent<T> | null, rs: readonly T[]): RenderItem<T>[] =>
+      rs.length ? [{ kind: "rows", owner, rows: rs }] : [];
 
     const items: RenderItem<T>[] = [];
     const top = partition(this._groups(), rows);
@@ -938,7 +921,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
       const children = group.children();
       if (children.length === 0) {
-        items.push(...rowItems(groupRows));
+        items.push(...rowItems(group, groupRows));
         continue;
       }
       // One extra level: sub-partition the group's rows across its child groups.
@@ -946,7 +929,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       // Rows no subgroup claims render flat directly under the parent header, BEFORE
       // the subheadered subgroups — e.g. the extension's flat run followed by a
       // "Cards" subgroup section.
-      items.push(...rowItems(sub.unmatched));
+      items.push(...rowItems(group, sub.unmatched));
       for (const child of children) {
         const childRows = sub.buckets.get(child);
         if (!childRows?.length) {
@@ -954,50 +937,33 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         }
         items.push({ kind: "group", group: child, count: childRows.length, level: 1 });
         if (!(child.collapsible() && child.collapsed())) {
-          items.push(...rowItems(childRows));
+          items.push(...rowItems(child, childRows));
         }
       }
     }
-    items.push(...rowItems(top.unmatched));
+    items.push(...rowItems(null, top.unmatched));
     return items;
   });
 
-  /**
-   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order.
-   * Empty until {@link virtualRowHeight} is set.
-   */
-  protected readonly itemHeights = computed<number[]>(() => {
-    const rowHeight = this.virtualRowHeight();
-    if (rowHeight === undefined) {
-      return [];
+  /** Stable identity for each group's run of rows; a run isn't otherwise an object that persists. */
+  private readonly rowRunKeys = new WeakMap<BitRowGroupComponent<T>, object>();
+
+  /** @see {@link rowRunKeys} */
+  private readonly ungroupedRunKey = {};
+
+  private rowRunKey(owner: BitRowGroupComponent<T> | null): object {
+    if (owner == null) {
+      return this.ungroupedRunKey;
     }
-    return this.renderItems().map((item) => {
-      if (item.kind === "row") {
-        return rowHeight;
-      }
-      return item.kind === "groupDescription"
-        ? this.groupDescriptionHeight
-        : this.headerHeight(item.level);
-    });
-  });
-
-  /** @see {@link GROUP_DESCRIPTION_HEIGHT} */
-  protected readonly groupDescriptionHeight = GROUP_DESCRIPTION_HEIGHT;
-
-  /** Fixed virtualized height for a group header at `level` (0 = top, 1 = subgroup). */
-  protected headerHeight(level: number): number {
-    return level === 0 ? GROUP_HEADER_HEIGHT : SUBGROUP_HEADER_HEIGHT;
+    let key = this.rowRunKeys.get(owner);
+    if (!key) {
+      key = {};
+      this.rowRunKeys.set(owner, key);
+    }
+    return key;
   }
 
-  /** Total pixel height of every render item (rows + group headers). */
-  protected readonly totalContentHeight = computed(() =>
-    this.itemHeights().reduce((sum, height) => sum + height, 0),
-  );
-
-  /**
-   * trackBy for the render list — a header by its group, a row by the consumer's
-   * {@link trackBy}, falling back to row identity.
-   */
+  /** trackBy for the render list — a header by its group, a run of rows by the group it renders under. */
   protected readonly trackRenderItem: TrackByFunction<RenderItem<T>> = (index, item) => {
     if (item.kind === "group") {
       return item.group;
@@ -1006,15 +972,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       // Stable and per-group, but not `item.group` — that already keys the header.
       return item.group.headerTemplate();
     }
-    const trackBy = this.trackBy();
-    return trackBy ? trackBy(index, item.row) : item.row;
+    return this.rowRunKey(item.owner);
   };
 
-  /**
-   * Virtual-scroll strategy, provided to the viewport via `VIRTUAL_SCROLL_STRATEGY`.
-   * Reads {@link itemHeights} lazily; the constructor effect re-renders on change.
-   */
-  readonly scrollStrategy = new TableVirtualScrollStrategy(this.itemHeights);
+  /** trackBy for rows — the consumer's {@link trackBy}, falling back to row identity. */
+  protected readonly trackRow: TrackByFunction<T> = (index, row) => {
+    const trackBy = this.trackBy();
+    return trackBy ? trackBy(index, row) : row;
+  };
 
   /** Index array for the skeleton rows shown while loading. */
   protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);
@@ -1029,22 +994,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     () => this.isEmpty() && this.tableDef().data().length > 0,
   );
 
-  /**
-   * Pixel height for the virtual-scroll viewport, capped at {@link maxRows} rows. CDK
-   * positions rows absolutely, so they contribute no in-flow height.
-   */
-  protected readonly viewportHeight = computed<string | undefined>(() => {
+  /** The body's cap at {@link maxRows} rows; it grows to content below that. */
+  protected readonly maxBodyHeight = computed<number | undefined>(() => {
     const rowHeight = this.virtualRowHeight();
-    if (rowHeight === undefined) {
-      return undefined;
-    }
-    // Content height includes group headers, so grouped tables grow to fit them;
-    // the `maxRows` cap stays row-based ("show N rows before scrolling").
-    const contentHeight = this.totalContentHeight();
     const maxRows = this.maxRows();
-    const height =
-      maxRows !== undefined ? Math.min(maxRows * rowHeight, contentHeight) : contentHeight;
-    return `${height}px`;
+    return rowHeight !== undefined && maxRows !== undefined ? maxRows * rowHeight : undefined;
   });
 
   private readonly logService = inject(LogService, { optional: true });
@@ -1068,7 +1022,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.isVirtualized() && this.height() === undefined) {
       this.logService?.warning(
         "bit-table-v2: virtualization (`virtualRowHeight`) needs a bounded height — set `height` to a " +
-          'row count or `"fill"` (inside a bounded container). Without one the viewport collapses and no rows render.',
+          'row count or `"fill"` (inside a bounded container). Without one every row renders.',
       );
     }
     if (this.isVirtualized() && this.paginator()) {
