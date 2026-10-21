@@ -25,7 +25,6 @@ import { AutofillSettingsServiceAbstraction } from "../../autofill/services/auto
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
-import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
@@ -58,7 +57,6 @@ import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { CipherRequest } from "../models/request/cipher.request";
 import { CipherResponse } from "../models/response/cipher.response";
-import { DeleteAttachmentResponse } from "../models/response/delete-attachment.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
@@ -95,9 +93,6 @@ export class CipherService implements CipherServiceAbstraction {
   private readonly sdkCipherCrudEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.PM27632_SdkCipherCrudOperations,
   );
-
-  private readonly sdkCipherAttachmentOpsEnabled$: Observable<boolean> =
-    this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk);
 
   constructor(
     private keyService: KeyService,
@@ -168,47 +163,39 @@ export class CipherService implements CipherServiceAbstraction {
    * Like {@link cipherListViews$}, but retains PAM-gated ("partial") rows. Opt-in: only the vault
    * list should consume it.
    *
-   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViewsWithPartials$` observable will be emitted.
+   * This uses the SDK for decryption.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViewsWithPartials$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
-    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
-      switchMap((useSdk) => {
-        if (!useSdk) {
-          return this.cipherViewsWithPartials$(userId);
-        }
-
-        return combineLatest([
-          this.encryptedCiphersState(userId).state$,
-          this.localData$(userId),
-          this.keyService.cipherDecryptionKeys$(userId, true),
-        ]).pipe(
-          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
-          map(([cipherDataState, localData]) =>
-            Object.values(cipherDataState).map(
-              (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
-            ),
-          ),
-          tap(() => {
-            decryptMeasurement = this.logService.startMeasurement(
-              PERF_TRACK_GROUP,
-              PERF_TRACK,
-              "listViewDecrypt",
-            );
-          }),
-          switchMap(async (ciphers) => {
-            return await this.decryptCiphersWithSdk(ciphers, userId, false);
-          }),
-          tap(([decrypted, failures]) => {
-            void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
-
-            decryptMeasurement.finish([["Items", decrypted.length]]);
-          }),
-          map(([decrypted]) => decrypted),
+    return combineLatest([
+      this.encryptedCiphersState(userId).state$,
+      this.localData$(userId),
+      this.keyService.cipherDecryptionKeys$(userId, true),
+    ]).pipe(
+      filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+      map(([cipherDataState, localData]) =>
+        Object.values(cipherDataState).map(
+          (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
+        ),
+      ),
+      tap(() => {
+        decryptMeasurement = this.logService.startMeasurement(
+          PERF_TRACK_GROUP,
+          PERF_TRACK,
+          "listViewDecrypt",
         );
       }),
+      switchMap(async (ciphers) => {
+        return await this.decryptCiphersWithSdk(ciphers, userId, false);
+      }),
+      tap(([decrypted, failures]) => {
+        void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
+
+        decryptMeasurement.finish([["Items", decrypted.length]]);
+      }),
+      map(([decrypted]) => decrypted),
     );
   }, this.clearCipherViewsForUser$);
 
@@ -217,7 +204,7 @@ export class CipherService implements CipherServiceAbstraction {
    * ("partial") rows.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * This uses the SDK for decryption.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
@@ -1061,8 +1048,6 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
     options?: UploadOptions,
   ): Promise<Cipher> {
-    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
-
     // The organization's symmetric key or the user's user key
     const vaultKey: UserKey | OrgKey =
       cipher.organizationId == null
@@ -1086,56 +1071,38 @@ export class CipherService implements CipherServiceAbstraction {
       attachmentKey[0],
     );
 
-    if (useSdk) {
-      await this.clearCache(userId);
+    await this.clearCache(userId);
 
-      const created = await this.cipherSdkService.createAttachment(
-        cipher.id as CipherId,
-        {
-          key: attachmentKey[1].encryptedString,
-          fileName: encFileName.encryptedString,
-          fileSize: encData.buffer.byteLength,
-          lastKnownRevisionDate: cipher.revisionDate.toISOString(),
-          asAdmin: admin,
-        },
-        userId,
-      );
+    const created = await this.cipherSdkService.createAttachment(
+      cipher.id as CipherId,
+      {
+        key: attachmentKey[1].encryptedString,
+        fileName: encFileName.encryptedString,
+        fileSize: encData.buffer.byteLength,
+        lastKnownRevisionDate: cipher.revisionDate.toISOString(),
+        asAdmin: admin,
+      },
+      userId,
+    );
 
-      await this.cipherFileUploadService.uploadPrepared(
-        cipher.id,
-        created.attachmentId,
-        created.uploadUrl,
-        created.fileUploadType === "Direct" ? FileUploadType.Direct : FileUploadType.Azure,
-        encFileName,
-        encData,
-        userId,
-        admin,
-        options,
-      );
-
-      if (admin) {
-        // Admin ops bypass local state; the SDK returns the merged cipher inline.
-        return Cipher.fromSdkCipher(created.cipher) ?? cipher;
-      }
-
-      return await this.get(cipher.id, userId);
-    }
-
-    const response = await this.cipherFileUploadService.upload(
-      cipher,
+    await this.cipherFileUploadService.uploadPrepared(
+      cipher.id,
+      created.attachmentId,
+      created.uploadUrl,
+      created.fileUploadType === "Direct" ? FileUploadType.Direct : FileUploadType.Azure,
       encFileName,
       encData,
-      admin,
-      attachmentKey,
       userId,
+      admin,
       options,
     );
 
-    const cData = new CipherData(response, cipher.collectionIds);
-    if (!admin) {
-      await this.upsert(cData);
+    if (admin) {
+      // Admin ops bypass local state; the SDK returns the merged cipher inline.
+      return Cipher.fromSdkCipher(created.cipher) ?? cipher;
     }
-    return new Cipher(cData);
+
+    return await this.get(cipher.id, userId);
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
@@ -1319,70 +1286,20 @@ export class CipherService implements CipherServiceAbstraction {
     await this.delete(ids, userId);
   }
 
-  async deleteAttachment(
-    id: string,
-    revisionDate: string,
-    attachmentId: string,
-    userId: UserId,
-  ): Promise<CipherData> {
-    let ciphers = await firstValueFrom(this.ciphers$(userId));
-    const cipherId = id as CipherId;
-    // eslint-disable-next-line
-    if (ciphers == null || !ciphers.hasOwnProperty(id) || ciphers[cipherId].attachments == null) {
-      return;
-    }
-
-    for (let i = 0; i < ciphers[cipherId].attachments.length; i++) {
-      if (ciphers[cipherId].attachments[i].id === attachmentId) {
-        ciphers[cipherId].attachments.splice(i, 1);
-      }
-    }
-
-    // Deleting the cipher updates the revision date on the server,
-    // Update the stored `revisionDate` to match
-    ciphers[cipherId].revisionDate = revisionDate;
-
-    await this.clearCache();
-    await this.encryptedCiphersState(userId).update(() => {
-      if (ciphers == null) {
-        ciphers = {};
-      }
-      return ciphers;
-    });
-
-    return ciphers[cipherId];
-  }
-
   async deleteAttachmentWithServer(
     id: string,
     attachmentId: string,
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
-    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      const updatedCipher = await this.cipherSdkService.deleteAttachmentWithServer(
-        id as CipherId,
-        attachmentId,
-        userId,
-        admin,
-      );
-      return updatedCipher?.toCipherData();
-    }
-
-    let response: DeleteAttachmentResponse;
-    try {
-      response = admin
-        ? await this.apiService.deleteCipherAttachmentAdmin(id, attachmentId)
-        : await this.apiService.deleteCipherAttachment(id, attachmentId);
-    } catch (e) {
-      return Promise.reject((e as ErrorResponse).getSingleMessage());
-    }
-
-    const cipherData = new CipherData(response.cipher);
-
-    return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId, userId);
+    await this.clearCache(userId);
+    const updatedCipher = await this.cipherSdkService.deleteAttachmentWithServer(
+      id as CipherId,
+      attachmentId,
+      userId,
+      admin,
+    );
+    return updatedCipher?.toCipherData();
   }
 
   sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number {
@@ -1806,10 +1723,6 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher;
     }
 
-    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
-    let cipherDomain = await this.get(cipher.id, userId);
-    // The SDK path returns the decrypted, post-upgrade view directly; track the latest one so we
-    // can return it without an extra decrypt. The non-SDK path keeps threading `cipherDomain`.
     let upgradedView: CipherView | undefined;
 
     for (const attachmentView of cipher.attachments) {
@@ -1821,89 +1734,19 @@ export class CipherService implements CipherServiceAbstraction {
       }
 
       try {
-        if (useSdk) {
-          upgradedView = await this.upgradeOldAttachmentViaSdk(
-            cipher.id,
-            attachmentView.id,
-            userId,
-          );
-        } else {
-          // 1. Get download URL
-          const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
-
-          // 2. Download attachment data
-          const dataResponse = await this.apiService.nativeFetch(
-            new Request(downloadUrl, { cache: "no-store" }),
-          );
-
-          if (dataResponse.status !== 200) {
-            throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
-          }
-
-          // 3. Decrypt the attachment
-          const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
-            cipher.id as CipherId,
-            attachmentView,
-            dataResponse,
-            userId,
-          );
-
-          // 4. Re-upload with attachment key
-          await this.saveAttachmentRawWithServer(
-            cipherDomain,
-            attachmentView.fileName,
-            decryptedBuffer,
-            userId,
-          );
-
-          // 5. Delete the old attachment
-          const cipherData = await this.deleteAttachmentWithServer(
-            cipher.id,
-            attachmentView.id,
-            userId,
-          );
-          cipherDomain = new Cipher(cipherData);
-        }
+        await this.clearCache(userId);
+        upgradedView = await this.cipherSdkService.upgradeAttachment(
+          cipher.id as CipherId,
+          attachmentView.id,
+          userId,
+        );
       } catch (e) {
         this.logService.error(`Failed to upgrade attachment ${attachmentView.id}`, e);
         throw e;
       }
     }
 
-    return upgradedView ?? (await this.decrypt(cipherDomain, userId));
-  }
-
-  private async upgradeOldAttachmentViaSdk(
-    cipherId: string,
-    attachmentId: string,
-    userId: UserId,
-  ): Promise<CipherView | undefined> {
-    await this.clearCache(userId);
-
-    return await this.cipherSdkService.upgradeAttachment(
-      cipherId as CipherId,
-      attachmentId,
-      userId,
-    );
-  }
-
-  private async getAttachmentDownloadUrl(
-    cipherId: string,
-    attachmentView: AttachmentView,
-  ): Promise<string> {
-    try {
-      const attachmentResponse = await this.apiService.getAttachmentData(
-        cipherId,
-        attachmentView.id,
-      );
-      return attachmentResponse.url;
-    } catch (e) {
-      // Fall back to the attachment's stored URL
-      if (e instanceof ErrorResponse && e.statusCode === 404 && attachmentView.url) {
-        return attachmentView.url;
-      }
-      throw new Error(`Failed to get download URL for attachment ${attachmentView.id}`);
-    }
+    return upgradedView ?? (await this.decrypt(await this.get(cipher.id, userId), userId));
   }
 
   private async getAutofillOnPageLoadDefault() {

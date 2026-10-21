@@ -46,6 +46,13 @@ export const TRASH_ROUTE = "trash";
 /** The `:vaultId` route segment for archived items. */
 export const ARCHIVE_ROUTE = "archive";
 
+/**
+ * The top-level route segment for the user's own folders: the My folders list at `/folders`, and
+ * one folder's page at `/folders/:folderId`. Unlike the segments above it does not hang off
+ * `:vaultId`, because a folder belongs to the user rather than to any one vault.
+ */
+export const FOLDERS_ROUTE = "folders";
+
 export const VaultScopeType = Object.freeze({
   AllItems: "allItems",
   MyVault: "myVault",
@@ -238,6 +245,11 @@ export function isPersonalOnly(nav: VaultsNavViewModel): boolean {
   return nav.vaults.length === 1 && !nav.organizationDataOwnership;
 }
 
+/** Whether the nav lists several vaults under a "Vaults" header; data ownership lists orgs without one. */
+export function showsVaultsSection(nav: VaultsNavViewModel): boolean {
+  return nav.vaults.length > 1 && !nav.organizationDataOwnership;
+}
+
 /**
  * The id of an organization's "My items" collection, as the nav holds it. `undefined` when the
  * account's vaults have yet to load, when the organization is not one of them, or when it has no
@@ -356,6 +368,15 @@ export function sharedFoldersCommands(organizationId: OrganizationId): string[] 
     ...vaultScopeCommands({ type: VaultScopeType.Organization, organizationId }),
     SHARED_FOLDERS_ROUTE,
   ];
+}
+
+/**
+ * The `Router.navigate` commands for one of the user's folders.
+ *
+ * Deliberately not a {@link VaultScope} member, for the reason {@link sharedFoldersCommands} isn't.
+ */
+export function folderCommands(folderId: string): string[] {
+  return [`/${FOLDERS_ROUTE}`, folderId];
 }
 
 /**

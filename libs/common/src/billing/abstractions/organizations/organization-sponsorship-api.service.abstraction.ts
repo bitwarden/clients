@@ -11,6 +11,8 @@ export abstract class OrganizationSponsorshipApiServiceAbstraction {
     friendlyName?: string,
   ): Promise<void>;
 
+  abstract postResendOwnSponsorshipOffer(sponsoringOrgId: string): Promise<void>;
+
   abstract deleteRevokeSponsorship: (sponsoringOrganizationId: string) => Promise<void>;
 
   abstract deleteAdminInitiatedRevokeSponsorship: (

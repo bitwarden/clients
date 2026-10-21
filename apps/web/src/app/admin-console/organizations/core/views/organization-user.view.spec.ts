@@ -101,19 +101,4 @@ describe("OrganizationUserView", () => {
       expect(createMember(OrganizationUserStatusType.Confirmed, true).canRemove).toBe(false);
     });
   });
-
-  describe("canManageMember", () => {
-    it("is false for staged members so only Revoke and Remove remain", () => {
-      expect(createMember(OrganizationUserStatusType.Staged).canManageMember).toBe(false);
-    });
-
-    it.each([
-      ["invited", OrganizationUserStatusType.Invited],
-      ["accepted", OrganizationUserStatusType.Accepted],
-      ["confirmed", OrganizationUserStatusType.Confirmed],
-      ["revoked", OrganizationUserStatusType.Revoked],
-    ])("is true for %s members", (_, status) => {
-      expect(createMember(status).canManageMember).toBe(true);
-    });
-  });
 });
