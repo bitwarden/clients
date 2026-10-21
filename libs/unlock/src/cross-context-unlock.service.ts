@@ -1,22 +1,14 @@
 import { Subscription, concatMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   CommandDefinition,
   MessageListener,
   MessageSender,
 } from "@bitwarden/common/platform/messaging";
-import {
-  BiometricsService,
-  BiometricStateService,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
@@ -51,16 +43,12 @@ export abstract class CrossContextUnlockService extends DefaultUnlockService {
   protected abstract readonly listensFor: CommandDefinition<UnlockCompletedMessage>;
 
   constructor(
-    registerSdkService: RegisterSdkService,
     accountCryptographicStateService: AccountCryptographicStateService,
-    kdfService: KdfConfigService,
-    accountService: AccountService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     stateProvider: StateProvider,
     logService: LogService,
     biometricsService: BiometricsService,
     biometricStateService: BiometricStateService,
-    v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     keyService: KeyService,
     sdkService: SdkService,
     autoUnlockService: AutoUnlockService,
@@ -68,16 +56,12 @@ export abstract class CrossContextUnlockService extends DefaultUnlockService {
     private readonly messageListener: MessageListener,
   ) {
     super(
-      registerSdkService,
       accountCryptographicStateService,
-      kdfService,
-      accountService,
       masterPasswordService,
       stateProvider,
       logService,
       biometricsService,
       biometricStateService,
-      v2UpgradeTokenStateService,
       keyService,
       sdkService,
       autoUnlockService,

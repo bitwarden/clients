@@ -3,7 +3,6 @@ import { concatMap, filter, firstValueFrom, map, merge, Observable, of, Subscrip
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -79,8 +78,7 @@ export class BrowserSdkService extends DefaultSdkService {
     platformUtilsService: PlatformUtilsService,
     accountService: AccountService,
     kdfConfigServiceProvider: () => KdfConfigService,
-    keyServiceProvider: () => KeyService,
-    accountCryptographyStateServiceProvider: () => AccountCryptographicStateService,
+    private readonly keyServiceProvider: () => KeyService,
     apiServiceProvider: () => ApiService,
     stateProvider: StateProvider,
     configServiceProvider: () => ConfigService,
@@ -98,8 +96,6 @@ export class BrowserSdkService extends DefaultSdkService {
       platformUtilsService,
       accountService,
       kdfConfigServiceProvider,
-      keyServiceProvider,
-      accountCryptographyStateServiceProvider,
       apiServiceProvider,
       stateProvider,
       configServiceProvider,
@@ -127,13 +123,11 @@ export class BrowserSdkService extends DefaultSdkService {
       .subscribe();
   }
 
-  override async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+  override async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey> {
     this.appliedUserKeys.delete(userId);
     const userKey = await super.unlock(userId, request);
-    if (userKey != null) {
-      this.appliedUserKeys.set(userId, userKey);
-      await this.broadcast({ kind: "unlock", userId, userKeyB64: userKey.toBase64() });
-    }
+    this.appliedUserKeys.set(userId, userKey);
+    await this.broadcast({ kind: "unlock", userId, userKeyB64: userKey.toBase64() });
     return userKey;
   }
 
@@ -203,16 +197,14 @@ export class BrowserSdkService extends DefaultSdkService {
   }
 
   /**
-   * Brings every long-lived client of this process in line with shared state: an unlocked user's
-   * client is unlocked, and the user's flags are loaded.
+   * Brings every client of this process in line with shared state: an unlocked user's client is
+   * unlocked, and the user's flags are loaded.
    */
   private async converge(): Promise<void> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
     for (const userId of Object.keys(accounts) as UserId[]) {
       try {
-        if (await this.longLivedEnabled(userId)) {
-          await this.convergeUser(userId);
-        }
+        await this.convergeUser(userId);
       } catch (e) {
         this.logService.error(`[BrowserSdkService] Failed to converge user (${userId})`, e);
       }
@@ -294,18 +286,7 @@ export class BrowserSdkService extends DefaultSdkService {
     }
   }
 
-  /**
-   * Unlock, organization-key and flag pushes are only sent while the sender is on the long-lived
-   * path. Lock and logout pushes are always sent: they carry no keys, every receiver checks its
-   * own flag, and during a rollout the process that locks can have the flag off while the other
-   * has it on.
-   */
   private async broadcast(push: SdkPush): Promise<void> {
-    const alwaysSent = push.kind === "lock" || push.kind === "logout";
-    if (!alwaysSent && !(await this.longLivedEnabled(push.userId))) {
-      return;
-    }
-
     try {
       this.messageSender.send(SDK_PUSH, { origin: this.origin, push });
     } catch (e) {

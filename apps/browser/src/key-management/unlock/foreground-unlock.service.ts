@@ -16,7 +16,7 @@ export class ForegroundUnlockService extends CrossContextUnlockService {
    * key runs in the background, which unlocks itself with it so the user stays unlocked even if the
    * popup dies while the OS prompt has focus. The popup is told through
    * {@link BACKGROUND_UNLOCK_COMPLETED} like any other unlock the background performs, and its SDK
-   * client re-initializes off the user key the unlock wrote to state.
+   * client is unlocked by the unlock push the background's SDK service broadcasts.
    *
    * Unlocking here as well would announce the unlock back to the background, running both contexts'
    * on-unlock actions twice for the one unlock.

@@ -1,11 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
-import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import {
   CommandDefinition,
@@ -13,12 +10,7 @@ import {
   MessageSender,
 } from "@bitwarden/common/platform/messaging";
 import { UserKey } from "@bitwarden/common/types/key";
-import {
-  BiometricsService,
-  BiometricStateService,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
@@ -50,16 +42,12 @@ describe("CrossContextUnlockService", () => {
 
   function createService(): TestUnlockService {
     return new TestUnlockService(
-      mock<RegisterSdkService>(),
       mock<AccountCryptographicStateService>(),
-      mock<KdfConfigService>(),
-      mock<AccountService>(),
       mock<InternalMasterPasswordServiceAbstraction>(),
       mock<StateProvider>(),
       mock<LogService>(),
       mock<BiometricsService>(),
       mock<BiometricStateService>(),
-      mock<V2UpgradeTokenStateService>(),
       mock<KeyService>(),
       mock<SdkService>(),
       mock<AutoUnlockService>(),

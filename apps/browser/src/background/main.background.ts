@@ -798,7 +798,6 @@ export default class MainBackground {
       this.accountService,
       () => this.kdfConfigService,
       () => this.keyService,
-      () => this.accountCryptographicStateService,
       () => this.apiService,
       this.stateProvider,
       () => this.configService,
@@ -1050,16 +1049,12 @@ export default class MainBackground {
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.unlockService = new BackgroundUnlockService(
-      this.registerSdkService,
       this.accountCryptographicStateService,
-      this.kdfConfigService,
-      this.accountService,
       this.masterPasswordService,
       this.stateProvider,
       this.logService,
       this.biometricsService,
       this.biometricStateService,
-      this.v2UpgradeTokenStateService,
       this.keyService,
       this.sdkService,
       this.autoUnlockService,

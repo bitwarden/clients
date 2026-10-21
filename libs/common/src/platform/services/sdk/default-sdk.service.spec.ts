@@ -1,14 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of, Subject, throwError } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
 import {
   CryptoClient,
+  EncString,
   PasswordManagerClient,
   UnlockClient,
   UnsignedSharedKey,
@@ -26,20 +27,18 @@ import {
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
-import { DefaultFeatureFlagValue, FeatureFlag } from "../../../enums/feature-flag.enum";
-import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
+import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { asUuid, SdkUnlockRequest, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
-import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
 import { DefaultSdkService } from "./default-sdk.service";
@@ -58,8 +57,6 @@ describe("DefaultSdkService", () => {
   let environmentService!: MockProxy<EnvironmentService>;
   let platformUtilsService!: MockProxy<PlatformUtilsService>;
   let kdfConfigService!: MockProxy<KdfConfigService>;
-  let keyService!: MockProxy<KeyService>;
-  let accountCryptographicStateService!: MockProxy<AccountCryptographicStateService>;
   let configService!: MockProxy<ConfigService>;
   let service!: DefaultSdkService;
   let accountService!: FakeAccountService;
@@ -77,8 +74,6 @@ describe("DefaultSdkService", () => {
     environmentService = mock<EnvironmentService>();
     platformUtilsService = mock<PlatformUtilsService>();
     kdfConfigService = mock<KdfConfigService>();
-    keyService = mock<KeyService>();
-    accountCryptographicStateService = mock<AccountCryptographicStateService>();
     apiService = mock<ApiService>();
     const mockUserId = Utils.newGuid() as UserId;
     accountService = mockAccountServiceWith(mockUserId);
@@ -97,7 +92,6 @@ describe("DefaultSdkService", () => {
     environmentService.environment$ = new BehaviorSubject(mock<Environment>());
   });
 
-  /** The rollout flag is captured on first use, so stub it before creating the service. */
   function createService(): DefaultSdkService {
     return new DefaultSdkService(
       sdkClientFactory,
@@ -105,8 +99,6 @@ describe("DefaultSdkService", () => {
       platformUtilsService,
       accountService,
       () => kdfConfigService,
-      () => keyService,
-      () => accountCryptographicStateService,
       () => apiService,
       fakeStateProvider,
       () => configService,
@@ -132,222 +124,7 @@ describe("DefaultSdkService", () => {
     });
   });
 
-  describe.each([
-    ["the long-lived client flag is off", () => of(false)],
-    ["the long-lived client flag lookup fails", () => throwError(() => new Error("lookup failed"))],
-  ])("given %s", (_, flag$) => {
-    beforeEach(() => {
-      configService.userCachedFeatureFlag$.mockImplementation(flag$ as any);
-      service = createService();
-    });
-
-    it("creates no clients for the logged-in accounts", async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-    });
-
-    describe("userClient$", () => {
-      describe("given the user is logged in", () => {
-        const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
-        beforeEach(() => {
-          environmentService.getEnvironment$
-            .calledWith(userId)
-            .mockReturnValue(new BehaviorSubject(mock<Environment>()));
-          accountService.accounts$ = of({
-            [userId]: mockAccountInfoWith({
-              email: "email",
-              name: "name",
-            }),
-          });
-          kdfConfigService.getKdfConfig$
-            .calledWith(userId)
-            .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
-          keyService.userKey$
-            .calledWith(userId)
-            .mockReturnValue(of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey));
-          keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
-          accountCryptographicStateService.accountCryptographicState$
-            .calledWith(userId)
-            .mockReturnValue(
-              of({
-                V1: {
-                  private_key: "private-key" as EncryptedString,
-                },
-              }),
-            );
-          upgradeTokenStateService.v2UpgradeToken$.calledWith(userId).mockReturnValue(of(null));
-          service = createService();
-        });
-
-        describe("given the SDK client factory creates a client", () => {
-          let mockClient!: MockProxy<PasswordManagerClient>;
-
-          beforeEach(() => {
-            mockClient = createMockClient();
-            sdkClientFactory.createSdkClient.mockResolvedValue(mockClient);
-          });
-
-          it("creates an internal SDK client when called the first time", async () => {
-            await firstValueFrom(service.userClient$(userId));
-
-            expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
-          });
-
-          it("creates the SDK client with the app ID as the device identifier", async () => {
-            await firstValueFrom(service.userClient$(userId));
-
-            const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
-            expect(settings?.deviceIdentifier).toBe(appId);
-          });
-
-          it("provides the user's access token from the API service to the SDK client", async () => {
-            apiService.getActiveBearerToken.calledWith(userId).mockResolvedValue("access-token");
-            await firstValueFrom(service.userClient$(userId));
-
-            const [tokenProvider] = sdkClientFactory.createSdkClient.mock.calls[0];
-            await expect(tokenProvider.get_access_token()).resolves.toBe("access-token");
-            expect(apiService.getActiveBearerToken).toHaveBeenCalledWith(userId);
-          });
-
-          it("does not create an SDK client when called the second time with same userId", async () => {
-            const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-            const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-
-            // Use subjects to ensure the subscription is kept alive
-            service.userClient$(userId).subscribe(subject_1);
-            service.userClient$(userId).subscribe(subject_2);
-
-            // Let the async client initialization in internalClient$ settle.
-            await new Promise((resolve) => setTimeout(resolve, 0));
-
-            expect(subject_1.value.take().value).toBe(mockClient);
-            expect(subject_2.value.take().value).toBe(mockClient);
-            expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
-          });
-
-          it("destroys the internal SDK client when all subscriptions are closed", async () => {
-            jest.useFakeTimers();
-            const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-            const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-            const subscription_1 = service.userClient$(userId).subscribe(subject_1);
-            const subscription_2 = service.userClient$(userId).subscribe(subject_2);
-            await jest.advanceTimersByTimeAsync(0);
-
-            subscription_1.unsubscribe();
-            subscription_2.unsubscribe();
-
-            await jest.advanceTimersByTimeAsync(0);
-            expect(mockClient.free).not.toHaveBeenCalled();
-
-            await jest.advanceTimersByTimeAsync(1000);
-            expect(mockClient.free).toHaveBeenCalledTimes(1);
-            jest.useRealTimers();
-          });
-
-          it("does not destroy the internal SDK client if resubscribed within 1 second", async () => {
-            jest.useFakeTimers();
-            const subject_1 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-            const subscription_1 = service.userClient$(userId).subscribe(subject_1);
-            await jest.advanceTimersByTimeAsync(0);
-
-            subscription_1.unsubscribe();
-            await jest.advanceTimersByTimeAsync(500);
-            expect(mockClient.free).not.toHaveBeenCalled();
-
-            // Resubscribe before the 1 second delay
-            const subject_2 = new BehaviorSubject<Rc<PasswordManagerClient> | undefined>(undefined);
-            const subscription_2 = service.userClient$(userId).subscribe(subject_2);
-            await jest.advanceTimersByTimeAsync(1000);
-
-            // Client should not be freed since we resubscribed
-            expect(mockClient.free).not.toHaveBeenCalled();
-            expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
-            subscription_2.unsubscribe();
-            jest.useRealTimers();
-          });
-
-          it("emits a new locked client and frees the previous unlocked client when the userKey is unset", async () => {
-            const userKey$ = new BehaviorSubject(
-              new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-            );
-            keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
-
-            const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-            await userClientTracker.pauseUntilReceived(1, 200);
-
-            userKey$.next(undefined);
-            await userClientTracker.pauseUntilReceived(2);
-
-            expect(mockClient.free).toHaveBeenCalledTimes(1);
-            expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
-            expect(userClientTracker.emissions[1]).toBeDefined();
-          });
-
-          it("completes the subscription and frees the internal SDK client when the environment is unset (logout)", async () => {
-            const env$ = new BehaviorSubject<Environment | undefined>(mock<Environment>());
-            environmentService.getEnvironment$
-              .calledWith(userId)
-              .mockReturnValue(env$ as BehaviorSubject<Environment>);
-
-            const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-            await userClientTracker.pauseUntilReceived(1);
-
-            env$.next(undefined);
-            await userClientTracker.expectCompletion();
-
-            expect(mockClient.free).toHaveBeenCalledTimes(1);
-          });
-        });
-      });
-    });
-
-    describe("push methods", () => {
-      const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
-
-      it("resolves unlock with null without creating a client", async () => {
-        await expect(
-          service.unlock(userId, {
-            userId: asUuid(userId),
-            method: { clientManagedState: {} },
-            accountCryptographicState: mock<WrappedAccountCryptographicState>(),
-          }),
-        ).resolves.toBeNull();
-        expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-      });
-
-      it("resolves lock, setFlags and setOrgKeys without creating a client", async () => {
-        await expect(service.lock(userId)).resolves.toBeUndefined();
-        await expect(service.setFlags(userId, new Map([["flag", true]]))).resolves.toBeUndefined();
-        await expect(service.setOrgKeys(userId, {})).resolves.toBeUndefined();
-        expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-      });
-
-      it("returns from logout without creating a client", () => {
-        expect(() => service.logout(userId)).not.toThrow();
-        expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("cryptoReady$", () => {
-      const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
-
-      it("emits true without creating a client", async () => {
-        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
-        expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-      });
-
-      it("stays true across lock and logout", async () => {
-        await service.lock(userId);
-        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
-
-        service.logout(userId);
-        await expect(firstValueFrom(service.cryptoReady$(userId))).resolves.toBe(true);
-      });
-    });
-  });
-
-  describe("given the long-lived client flag is on", () => {
+  describe("given a logged-in account", () => {
     const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
     const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
     const unlockRequest: SdkUnlockRequest = {
@@ -363,7 +140,6 @@ describe("DefaultSdkService", () => {
     let unlockClient!: MockProxy<UnlockClient>;
 
     beforeEach(() => {
-      configService.userCachedFeatureFlag$.mockReturnValue(of(true) as any);
       accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({
         [userId]: mockAccountInfoWith({ email: "email", name: "name" }),
       });
@@ -398,10 +174,6 @@ describe("DefaultSdkService", () => {
       await service.setOrgKeys(userId, {});
     }
 
-    it("defaults the flag to off", () => {
-      expect(DefaultFeatureFlagValue[FeatureFlag.PM31844_LongLivedSdkClient]).toBe(false);
-    });
-
     describe("userClient$", () => {
       it("creates a token-only client for a logged-in account without unlocking it", async () => {
         service = createService();
@@ -419,6 +191,18 @@ describe("DefaultSdkService", () => {
         await settle();
 
         expect(mockClient.km_state_bridge().register_bridge_impl).toHaveBeenCalledTimes(1);
+      });
+
+      it("loads the server config's feature flags into the token-only client", async () => {
+        configService.serverConfig$ = new BehaviorSubject({
+          featureStates: { "some-flag": true },
+        } as unknown as ServerConfig);
+        service = createService();
+        await settle();
+
+        expect(mockClient.platform().load_flags).toHaveBeenCalledWith(
+          new Map([["some-flag", true]]),
+        );
       });
 
       it("provides the user's access token from the API service to the SDK client", async () => {
@@ -537,6 +321,43 @@ describe("DefaultSdkService", () => {
         await expect(firstValueFrom(service.userClient$(userId))).resolves.toBeDefined();
       });
 
+      it("creates a client for an account that logs in while the service runs, and unlocks it", async () => {
+        const newUserId = "5b8d3e1c-2a4f-4c6e-9d7b-1f0a2b3c4d5e" as UserId;
+        const newUserHasToken$ = new BehaviorSubject(false);
+        tokenService.hasAccessToken$.mockImplementation((id) =>
+          id === newUserId ? newUserHasToken$ : hasAccessToken$,
+        );
+        environmentService.getEnvironment$
+          .calledWith(newUserId)
+          .mockReturnValue(new BehaviorSubject(mock<Environment>()));
+        kdfConfigService.getKdfConfig$
+          .calledWith(newUserId)
+          .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
+        upgradeTokenStateService.v2UpgradeToken$.calledWith(newUserId).mockReturnValue(of(null));
+        service = createService();
+        await settle();
+        const newUserClient = createMockClient();
+        newUserClient.crypto.mockReturnValue(crypto);
+        sdkClientFactory.createSdkClient.mockResolvedValue(newUserClient);
+
+        accounts$.next({
+          ...accounts$.value,
+          [newUserId]: mockAccountInfoWith({ email: "new-email", name: "new-name" }),
+        });
+        newUserHasToken$.next(true);
+        await settle();
+
+        const rc = await firstValueFrom(service.userClient$(newUserId));
+        using ref = rc.take();
+        expect(ref.value).toBe(newUserClient);
+        await expect(
+          service.unlock(newUserId, { ...unlockRequest, userId: asUuid(newUserId) }),
+        ).resolves.toEqual(userKey);
+        await service.setOrgKeys(newUserId, {});
+        await expect(firstValueFrom(service.cryptoReady$(newUserId))).resolves.toBe(true);
+        expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
+      });
+
       it("creates a fresh client when the user logs in again after a logout", async () => {
         service = createService();
         await settle();
@@ -609,6 +430,23 @@ describe("DefaultSdkService", () => {
           kdfParams: PBKDF2KdfConfig.createDefault().toSdkConfig(),
           upgradeToken: undefined,
         });
+      });
+
+      it("forwards the persisted V2 upgrade token to the user crypto initialization", async () => {
+        const upgradeToken = {
+          wrapped_user_key_1: "2.wrapped-v1" as EncString,
+          wrapped_user_key_2: "7.wrapped-v2" as EncString,
+        };
+        upgradeTokenStateService.v2UpgradeToken$
+          .calledWith(userId)
+          .mockReturnValue(of(upgradeToken));
+        service = createService();
+
+        await service.unlock(userId, unlockRequest);
+
+        expect(crypto.initialize_user_crypto).toHaveBeenCalledWith(
+          expect.objectContaining({ upgradeToken }),
+        );
       });
 
       it("clears the keys of an unlocked client before initializing the user crypto", async () => {
@@ -986,6 +824,32 @@ describe("DefaultSdkService", () => {
           expect(unlockClient.lock).not.toHaveBeenCalled();
           expect(tracker.emissions).toEqual([true]);
         });
+      });
+    });
+
+    describe("lifecycle", () => {
+      it("runs unlock, lock, re-unlock and logout on one client", async () => {
+        service = createService();
+        await settle();
+        const ready = new ObservableTracker(service.cryptoReady$(userId));
+        const clients = new ObservableTracker(service.userClient$(userId), false);
+        await clients.pauseUntilReceived(1);
+
+        await expect(service.unlock(userId, unlockRequest)).resolves.toEqual(userKey);
+        await service.setOrgKeys(userId, {});
+        await service.lock(userId);
+        await expect(service.unlock(userId, unlockRequest)).resolves.toEqual(userKey);
+        await service.setOrgKeys(userId, {});
+        service.logout(userId);
+        await logOut();
+
+        expect(ready.emissions).toEqual([false, true, false, true, false]);
+        expect(crypto.initialize_user_crypto).toHaveBeenCalledTimes(2);
+        expect(unlockClient.lock).toHaveBeenCalledTimes(1);
+        expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
+        await clients.expectCompletion();
+        expect(clients.emissions).toHaveLength(1);
+        expect(mockClient.free).toHaveBeenCalledTimes(1);
       });
     });
 
