@@ -2,14 +2,11 @@
 // @ts-strict-ignore
 
 // eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ErrorResponse } from "../../../models/response/error.response";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import {
-  FileUploadApiMethods,
   FileUploadService,
   UploadOptions,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
@@ -17,61 +14,13 @@ import { FileUploadType } from "../../../platform/enums";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherSdkService } from "../../abstractions/cipher-sdk.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "../../abstractions/file-upload/cipher-file-upload.service";
-import { Cipher } from "../../models/domain/cipher";
-import { AttachmentRequest } from "../../models/request/attachment.request";
-import { AttachmentUploadDataResponse } from "../../models/response/attachment-upload-data.response";
-import { CipherResponse } from "../../models/response/cipher.response";
 
 export class CipherFileUploadService implements CipherFileUploadServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private fileUploadService: FileUploadService,
-    private configService: ConfigService,
     private cipherSdkService: CipherSdkService,
   ) {}
-
-  async upload(
-    cipher: Cipher,
-    encFileName: EncString,
-    encData: EncArrayBuffer,
-    admin: boolean,
-    dataEncKey: [SymmetricCryptoKey, EncString],
-    userId: UserId,
-    options?: UploadOptions,
-  ): Promise<CipherResponse> {
-    const request: AttachmentRequest = {
-      key: dataEncKey[1].encryptedString,
-      fileName: encFileName.encryptedString,
-      fileSize: encData.buffer.byteLength,
-      adminRequest: admin,
-      lastKnownRevisionDate: cipher.revisionDate,
-    };
-
-    const progressEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34410AttachmentUploadProgress,
-    );
-    const opts = progressEnabled ? options : undefined;
-
-    let response: CipherResponse;
-    try {
-      const uploadDataResponse = await this.apiService.postCipherAttachment(cipher.id, request);
-      response = admin ? uploadDataResponse.cipherMiniResponse : uploadDataResponse.cipherResponse;
-      await this.fileUploadService.upload(
-        uploadDataResponse,
-        encFileName,
-        encData,
-        this.generateMethods(uploadDataResponse, response, request.adminRequest, userId, opts),
-        opts,
-      );
-    } catch (e) {
-      if (e instanceof ErrorResponse) {
-        throw new Error((e as ErrorResponse).getSingleMessage());
-      } else {
-        throw e;
-      }
-    }
-    return response;
-  }
 
   async uploadPrepared(
     cipherId: string,
@@ -84,11 +33,6 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
     isAdmin: boolean,
     options?: UploadOptions,
   ): Promise<void> {
-    const progressEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34410AttachmentUploadProgress,
-    );
-    const opts = progressEnabled ? options : undefined;
-
     try {
       await this.fileUploadService.upload(
         { url: uploadUrl, fileUploadType },
@@ -96,7 +40,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
         encData,
         {
           postDirect: (data: FormData) =>
-            this.apiService.postAttachmentFile(cipherId, attachmentId, data, opts),
+            this.apiService.postAttachmentFile(cipherId, attachmentId, data, options),
           renewFileUploadUrl: async () =>
             await this.cipherSdkService.renewAttachmentUploadUrl(
               cipherId as CipherId,
@@ -112,7 +56,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
             );
           },
         },
-        opts,
+        options,
       );
     } catch (e) {
       if (e instanceof ErrorResponse) {
@@ -121,76 +65,5 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
         throw e;
       }
     }
-  }
-
-  private generateMethods(
-    uploadData: AttachmentUploadDataResponse,
-    response: CipherResponse,
-    isAdmin: boolean,
-    userId: UserId,
-    options?: UploadOptions,
-  ): FileUploadApiMethods {
-    return {
-      postDirect: this.generatePostDirectCallback(uploadData, isAdmin, options),
-      renewFileUploadUrl: this.generateRenewFileUploadUrlCallback(uploadData, response),
-      rollback: this.generateRollbackCallback(response, uploadData, isAdmin, userId),
-    };
-  }
-
-  private generatePostDirectCallback(
-    uploadData: AttachmentUploadDataResponse,
-    isAdmin: boolean,
-    options?: UploadOptions,
-  ) {
-    return (data: FormData) => {
-      const response = isAdmin ? uploadData.cipherMiniResponse : uploadData.cipherResponse;
-      return this.apiService.postAttachmentFile(
-        response.id,
-        uploadData.attachmentId,
-        data,
-        options,
-      );
-    };
-  }
-
-  private generateRenewFileUploadUrlCallback(
-    uploadData: AttachmentUploadDataResponse,
-    response: CipherResponse,
-  ) {
-    return async () => {
-      const renewResponse = await this.apiService.renewAttachmentUploadUrl(
-        response.id,
-        uploadData.attachmentId,
-      );
-      return renewResponse?.url;
-    };
-  }
-
-  private generateRollbackCallback(
-    response: CipherResponse,
-    uploadData: AttachmentUploadDataResponse,
-    isAdmin: boolean,
-    userId: UserId,
-  ): () => Promise<void> {
-    return async () => {
-      const useSdk = await this.configService.getFeatureFlag(
-        FeatureFlag.PM28192_CipherAttachmentOpsToSdk,
-      );
-      if (useSdk) {
-        await this.cipherSdkService.deleteAttachmentWithServer(
-          response.id as CipherId,
-          uploadData.attachmentId,
-          userId,
-          isAdmin,
-        );
-        return;
-      }
-
-      if (isAdmin) {
-        await this.apiService.deleteCipherAttachmentAdmin(response.id, uploadData.attachmentId);
-      } else {
-        await this.apiService.deleteCipherAttachment(response.id, uploadData.attachmentId);
-      }
-    };
   }
 }

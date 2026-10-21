@@ -13,7 +13,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
-import { ARCHIVE_ROUTE, TRASH_ROUTE } from "../../models/vault-scope";
+import { ARCHIVE_ROUTE, FOLDERS_ROUTE, TRASH_ROUTE } from "../../models/vault-scope";
 
 import { VaultManageNavComponent } from "./vault-manage-nav.component";
 
@@ -79,6 +79,8 @@ describe("VaultManageNavComponent", () => {
         RouterModule.forRoot([
           { path: `vault/${ARCHIVE_ROUTE}`, children: [] },
           { path: `vault/${TRASH_ROUTE}`, children: [] },
+          { path: FOLDERS_ROUTE, children: [] },
+          { path: `${FOLDERS_ROUTE}/:folderId`, children: [] },
         ]),
       ],
       providers: [
@@ -109,6 +111,33 @@ describe("VaultManageNavComponent", () => {
 
   it("links Trash to the trash vault scope", () => {
     expect(navItem("trash").componentInstance.route()).toEqual(["/vault", TRASH_ROUTE]);
+  });
+
+  describe("highlighting My folders", () => {
+    const FOLDER_ID = "11111111-1111-4111-8111-111111111111";
+    const ariaCurrent = () =>
+      navItem("myFolders").nativeElement.querySelector("a")?.getAttribute("aria-current");
+
+    it("is not current away from the folders pages", async () => {
+      await router.navigateByUrl(`/vault/${TRASH_ROUTE}`);
+      fixture.detectChanges();
+
+      expect(ariaCurrent()).toBeNull();
+    });
+
+    it("is current on the My folders list", async () => {
+      await router.navigateByUrl(`/${FOLDERS_ROUTE}`);
+      fixture.detectChanges();
+
+      expect(ariaCurrent()).toBe("page");
+    });
+
+    it("stays current on a folder's page", async () => {
+      await router.navigateByUrl(`/${FOLDERS_ROUTE}/${FOLDER_ID}`);
+      fixture.detectChanges();
+
+      expect(ariaCurrent()).toBe("page");
+    });
   });
 
   describe("Archive upgrade path", () => {

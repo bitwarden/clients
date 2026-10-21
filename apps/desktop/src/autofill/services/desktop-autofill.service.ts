@@ -20,6 +20,7 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2AuthenticatorGetAssertionParams,
   Fido2AuthenticatorGetAssertionResult,
@@ -46,6 +47,7 @@ type PasskeyAssertionWithoutUserInterfaceRequest =
 type NativeStatus = autofill.NativeStatus;
 export type PasskeyProviderState = passkey_authenticator.PasskeyProviderState;
 
+import { AutofillIpcErrorKind } from "../models/autofill-ipc-channels";
 import {
   AutofillOpenSettingsCommand,
   AutofillRequestEnableCommand,
@@ -56,12 +58,51 @@ import {
   AutofillPasswordCredential,
   AutofillSyncCommand,
 } from "../models/autofill-sync.command";
-import { IpcListenerBindFn } from "../models/ipc-handler.type";
+import { CompletionCallback, IpcListenerBindFn } from "../models/ipc-handler.type";
 
-import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import {
+  CredentialNotFound,
+  DesktopFido2UserInterfaceService,
+  ExcludedCredentialMatched,
+  type NativeWindowObject,
+  type RpIdNotAllowedOperation,
+} from "./desktop-fido2-user-interface.service";
 
 type NativeCredentialSyncFeatureFlag =
   typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
+
+/**
+ * Derives an RP ID from the web vault URL for the purpose of excluding passkey
+ * requests that match it.
+ *
+ * An RP ID ignores the port and path, so a vault on a non-standard port or
+ * under a sub-path shares its RP ID with other services on the same host.
+ * Blocking it would block those services too, so those vaults, along with
+ * localhost and plain-HTTP vaults, don't get this protection.
+ */
+function vaultRpId(webVaultUrl: string): string | undefined {
+  let url: URL;
+  try {
+    url = new URL(webVaultUrl);
+  } catch {
+    return undefined;
+  }
+
+  const hasPath = url.pathname !== "" && url.pathname !== "/";
+  if (url.protocol !== "https:" || url.port !== "" || hasPath) {
+    return undefined;
+  }
+  if (url.hostname === "localhost" || url.hostname.endsWith(".localhost")) {
+    return undefined;
+  }
+
+  // `URL` lowercases the hostname.
+  return url.hostname;
+}
+
+function isVaultRpId(rpId: string, vaultRpId: string | undefined): boolean {
+  return vaultRpId !== undefined && rpId.toLowerCase() === vaultRpId;
+}
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
@@ -79,7 +120,9 @@ export class DesktopAutofillService implements OnDestroy {
     private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
     private authService: AuthService,
+    private environmentService: EnvironmentService,
     platformUtilsService: PlatformUtilsService,
+    private fido2UserInterfaceService: DesktopFido2UserInterfaceService,
   ) {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
@@ -280,10 +323,15 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     if (status.value.support.fido2) {
-      fido2Credentials = (await getCredentialsForAutofill(cipherViews)).map((credential) => ({
-        type: "fido2",
-        ...credential,
-      }));
+      // Filter out passkey requests if the RP ID is this account's web vault
+      // hostname, so a vault can't hold the passkey that unlocks itself.
+      const vaultRpId = await this.activeVaultRpId();
+      fido2Credentials = (await getCredentialsForAutofill(cipherViews))
+        .filter((credential) => !isVaultRpId(credential.rpId, vaultRpId))
+        .map((credential) => ({
+          type: "fido2",
+          ...credential,
+        }));
     }
 
     this.logService.info("Syncing autofill credentials", {
@@ -340,6 +388,8 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyRegistrationRequest,
     abortController: AbortController,
   ): Promise<PasskeyRegistrationResponse> {
+    await this.assertRpIdAllowed(request, "registration", abortController);
+
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
       await this.nativeWindowObject(request),
@@ -352,6 +402,8 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyAssertionRequest,
     abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
+    await this.assertRpIdAllowed(request, "assertion", abortController);
+
     const assumeUserPresence = false;
 
     const response = await this.fido2AuthenticatorService.getAssertion(
@@ -367,6 +419,8 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyAssertionWithoutUserInterfaceRequest,
     abortController: AbortController,
   ): Promise<PasskeyAssertionResponse> {
+    await this.assertRpIdAllowed(request, "assertion", abortController);
+
     const assumeUserPresence = true;
 
     const response = await this.fido2AuthenticatorService.getAssertion(
@@ -376,6 +430,38 @@ export class DesktopAutofillService implements OnDestroy {
     );
 
     return this.convertAssertionResponse(request, response);
+  }
+
+  /** The RP ID of the active account's vault, if it can be protected. */
+  private async activeVaultRpId(): Promise<string | undefined> {
+    const environment = await firstValueFrom(this.environmentService.environment$);
+    return vaultRpId(environment.getWebVaultUrl());
+  }
+
+  /**
+   * Refuses requests for a blocked RP ID, telling the user why before
+   * rejecting.
+   *
+   * @throws {DOMException} `NotAllowedError` if the RP ID is blocked.
+   */
+  private async assertRpIdAllowed(
+    request:
+      | PasskeyRegistrationRequest
+      | PasskeyAssertionRequest
+      | PasskeyAssertionWithoutUserInterfaceRequest,
+    operation: RpIdNotAllowedOperation,
+    abortController: AbortController,
+  ) {
+    if (!isVaultRpId(request.rpId, await this.activeVaultRpId())) {
+      return;
+    }
+
+    const session = await this.fido2UserInterfaceService.newSession(
+      false,
+      await this.nativeWindowObject(request),
+      abortController,
+    );
+    await session.informRpIdNotAllowed(operation);
   }
 
   /**
@@ -472,10 +558,7 @@ export class DesktopAutofillService implements OnDestroy {
       request: Request,
       /** Callback to return the response back to Autofill main process. May be
        * empty for requests that do not expect a response. */
-      completeCallback?: {
-        (error: null, response: Response): void;
-        (error: Error, response: null): void;
-      },
+      completeCallback?: CompletionCallback<Response>,
     ) => {
       this.logService.debug("[DesktopAutofillService]", `${handlerName}: Received message`, {
         clientId,
@@ -516,7 +599,11 @@ export class DesktopAutofillService implements OnDestroy {
           error,
         );
         if (completeCallback) {
-          if (error instanceof Error) {
+          if (error instanceof ExcludedCredentialMatched) {
+            completeCallback(error, null, AutofillIpcErrorKind.ExcludedCredentialMatched);
+          } else if (error instanceof CredentialNotFound) {
+            completeCallback(error, null, AutofillIpcErrorKind.CredentialNotFound);
+          } else if (error instanceof Error) {
             completeCallback(error, null);
           } else if (typeof error === "string") {
             completeCallback(new Error(error), null);

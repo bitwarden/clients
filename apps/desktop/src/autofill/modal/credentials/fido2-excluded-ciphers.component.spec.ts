@@ -2,10 +2,8 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -44,10 +42,6 @@ describe("Fido2ExcludedCiphersComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
-        {
-          provide: ConfigService,
-          useValue: mock<ConfigService>({ getFeatureFlag$: () => of(false) }),
-        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -77,7 +71,6 @@ describe("Fido2ExcludedCiphersComponent", () => {
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
-      expect(mockSession.hideUi).toHaveBeenCalled();
 
       // The session owns this teardown; the component must not duplicate it.
       expect(mockDesktopSettingsService.setModalMode).not.toHaveBeenCalled();
