@@ -398,6 +398,30 @@ describe("Organization", () => {
     });
   });
 
+  describe("canAccessPrivilegedAccess", () => {
+    it("returns true when the organization is subscribed to PAM and the member holds a seat", () => {
+      data.usePam = true;
+      data.accessPam = true;
+
+      expect(new Organization(data).canAccessPrivilegedAccess).toBe(true);
+    });
+
+    it("returns false for an admin without a seat", () => {
+      data.type = OrganizationUserType.Admin;
+      data.usePam = true;
+      data.accessPam = false;
+
+      expect(new Organization(data).canAccessPrivilegedAccess).toBe(false);
+    });
+
+    it("returns false when the organization is not subscribed to PAM, seat or not", () => {
+      data.usePam = false;
+      data.accessPam = true;
+
+      expect(new Organization(data).canAccessPrivilegedAccess).toBe(false);
+    });
+  });
+
   describe("canUseAccessIntelligence", () => {
     it("should return true when the server UseRiskInsights ability is enabled, regardless of plan type", () => {
       data.useAccessIntelligence = true;
