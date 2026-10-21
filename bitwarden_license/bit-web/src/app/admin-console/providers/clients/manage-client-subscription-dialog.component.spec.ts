@@ -163,6 +163,21 @@ describe("ManageClientSubscriptionDialogComponent", () => {
       expect(assignedSeatsControl(component).hasError("min")).toBe(true);
     });
 
+    it.each([
+      ["with", purchasedSeatsPlan],
+      ["without", openSeatsPlan],
+    ])(
+      "leaves an empty value to the required validator for a service user %s purchased seats",
+      async (_, plan) => {
+        const component = await createComponent(ProviderUserType.ServiceUser, plan);
+
+        // A cleared number input writes null despite the nonNullable control type
+        assignedSeatsControl(component).setValue(null as unknown as number);
+
+        expect(assignedSeatsControl(component).errors).toEqual({ required: true });
+      },
+    );
+
     it("stops loading without seat validation when the provider plan is not found", async () => {
       const component = await createComponent(ProviderUserType.ServiceUser, null);
 

@@ -138,12 +138,16 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
   createPurchasedSeatsValidator =
     (): ValidatorFn =>
-    (control: AbstractControl): ValidationErrors | null => {
+    (control: AbstractControl<number | null>): ValidationErrors | null => {
+      if (control.value == null) {
+        return null;
+      }
+
       if (this.isProviderAdmin) {
         return null;
       }
 
-      const seatAdjustment = (control.value ?? 0) - this.organizationSeats;
+      const seatAdjustment = control.value - this.organizationSeats;
 
       if (seatAdjustment <= 0) {
         return null;
@@ -158,12 +162,16 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
   createUnassignedSeatsValidator =
     (): ValidatorFn =>
-    (control: AbstractControl): ValidationErrors | null => {
+    (control: AbstractControl<number | null>): ValidationErrors | null => {
+      if (control.value == null) {
+        return null;
+      }
+
       if (this.isProviderAdmin) {
         return null;
       }
 
-      const seatAdjustment = (control.value ?? 0) - this.organizationSeats;
+      const seatAdjustment = control.value - this.organizationSeats;
 
       if (seatAdjustment <= this.openSeats) {
         return null;
