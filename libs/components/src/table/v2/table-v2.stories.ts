@@ -64,7 +64,7 @@ type UsersRow = { id: number; name: string; email: string; starred: boolean };
     <bit-column sortable>
       <bit-header-cell>Status</bit-header-cell>
       <bit-cell *bitCellDef="table().columns.other; let row">
-        <span class="tw-rounded tw-bg-primary-100 tw-px-2 tw-py-0.5 tw-text-xs">
+        <span class="tw-rounded tw-bg-bg-brand-soft tw-px-2 tw-py-0.5 tw-text-xs">
           {{ row.other }}
         </span>
       </bit-cell>
@@ -791,7 +791,7 @@ class DemoSearchableTableComponent {
   ],
   template: `
     <bit-layout>
-      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-main">{{ url() }}</p>
+      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-fg-heading">{{ url() }}</p>
       <bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>

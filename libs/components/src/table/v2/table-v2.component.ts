@@ -614,8 +614,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     // Matches the extension's section headers.
     const type =
       level === 0
-        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
-        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-1 tw-pe-1 tw-pb-1";
+        ? "tw-text-sm tw-text-fg-heading tw-font-medium tw-px-1 tw-pb-1"
+        : "tw-text-xs tw-text-fg-body-subtle tw-font-medium tw-ps-1 tw-pe-1 tw-pb-1";
     return `tw-flex tw-items-center ${type}`;
   }
 
@@ -625,7 +625,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       this.groupHeaderClass(level) +
       " tw-w-full tw-cursor-pointer tw-rounded tw-border-0 tw-bg-transparent tw-text-start" +
       " hover:tw-bg-hover-default focus-visible:tw-outline-none focus-visible:tw-ring-2" +
-      " focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
+      " focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
     );
   }
 
