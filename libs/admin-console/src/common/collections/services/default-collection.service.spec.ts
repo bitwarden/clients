@@ -168,6 +168,28 @@ describe("DefaultCollectionService", () => {
       expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
     });
 
+    it("does not decrypt new encrypted collections after the SDK client stops being ready", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const encryptedCollection1 = collectionDataFactory(org1);
+      await setEncryptedState([encryptedCollection1]);
+      cryptoKeys.next({});
+      // A failed batch is not cached, so decryption stays subscribed to new encrypted collections.
+      collectionEncryptionService.decryptMany.mockReturnValue(
+        throwError(() => new Error("failed")),
+      );
+      const subscription = collectionService.decryptedCollections$(userId).subscribe();
+      await new Promise(process.nextTick);
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
+
+      // A lock: the client stops being ready while the organization keys keep their value.
+      cryptoReady$.next(false);
+      await setEncryptedState([encryptedCollection1, collectionDataFactory(org1)]);
+      await new Promise(process.nextTick);
+
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
+      subscription.unsubscribe();
+    });
+
     it("emits decrypted collections from in-memory state when available", async () => {
       // Arrange test data
       const org1 = Utils.newGuid() as OrganizationId;

@@ -118,9 +118,12 @@ export class DefaultCollectionService implements CollectionService {
   private initializeDecryptedState(userId: UserId): Observable<CollectionView[]> {
     return combineLatest([
       this.encryptedCollections$(userId),
-      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-      this.sdkService.cryptoReady$(userId).pipe(filter((ready) => ready)),
+      this.keyService.orgKeys$(userId),
+      this.sdkService.cryptoReady$(userId),
     ]).pipe(
+      // Tested on the latest values, so a client that stops being ready (a lock) stops decryption
+      // even while the organization keys still hold their previous value.
+      filter(([, orgKeys, ready]) => !!orgKeys && ready),
       switchMap(([collections]) => {
         const decryptMeasurement = this.logService.startMeasurement(
           PerfTrackGroup.Unlock,
