@@ -105,6 +105,7 @@ export enum FeatureFlag {
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
+  SmCli = "sm-2107-cli",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
@@ -216,6 +217,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
+  [FeatureFlag.SmCli]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
