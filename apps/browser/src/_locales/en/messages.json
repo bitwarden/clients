@@ -1425,6 +1425,10 @@
     "message": "Error saving",
     "description": "Error message shown when the system fails to save login details."
   },
+  "failedToCreateNewLogin": {
+    "message": "Failed to create new login",
+    "description": "Error message shown when saving a passkey as a new login fails."
+  },
   "saveFailureDetails": {
     "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."

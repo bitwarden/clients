@@ -15,14 +15,19 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NoResults } from "@bitwarden/assets/svg";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
@@ -42,6 +47,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SvgComponent,
+  ToastService,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -126,6 +132,10 @@ export class Fido2Component implements OnInit, OnDestroy {
     private browserMessagingApi: ZonedMessageListenerService,
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
+    private policyService: PolicyService,
+    private collectionService: CollectionService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
   ngOnInit() {
@@ -323,6 +333,8 @@ export class Fido2Component implements OnInit, OnDestroy {
 
   protected async saveNewLogin() {
     const data = this.message$.value;
+    // Set before awaiting so the button can't start a second save while this one is in flight.
+    this.loading = true;
 
     if (data?.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest) {
       const name = data.credentialName || data.rpId;
@@ -331,6 +343,7 @@ export class Fido2Component implements OnInit, OnDestroy {
       await this.createNewCipher(name, data.userName);
 
       if (this.sessionId == null || this.cipher == null) {
+        this.loading = false;
         return;
       }
       // We are bypassing user verification pending approval.
@@ -341,8 +354,6 @@ export class Fido2Component implements OnInit, OnDestroy {
         userVerified: data.userVerification,
       });
     }
-
-    this.loading = true;
   }
 
   async handleCipherItemSelect(item: CipherView) {
@@ -447,7 +458,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private buildCipher(name: string, username: string) {
+  private async buildCipher(name: string, username: string, userId: UserId) {
     if (this.url == null) {
       return;
     }
@@ -465,20 +476,53 @@ export class Fido2Component implements OnInit, OnDestroy {
     this.cipher.secureNote = new SecureNoteView();
     this.cipher.secureNote.type = SecureNoteType.Generic;
     this.cipher.reprompt = CipherRepromptType.None;
+
+    // FIXME (PM-45489): This duplicates the ownership defaults applied by the cipher form's
+    // `ItemDetailsSectionComponent`. Share that logic instead of reimplementing it here.
+    const dataOwnershipPolicies = await firstValueFrom(
+      this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
+    );
+    if (dataOwnershipPolicies.length === 0) {
+      return;
+    }
+
+    const policyOrgIds = new Set<string>(dataOwnershipPolicies.map((p) => p.organizationId));
+    const collections = await firstValueFrom(this.collectionService.decryptedCollections$(userId));
+    // Users added after the policy was enabled have no default collection in that organization.
+    const defaultCollection = collections.find(
+      (c) => c.isDefaultCollection && policyOrgIds.has(c.organizationId),
+    );
+    if (defaultCollection == null) {
+      throw new Error(
+        "Organization data ownership policy applies, but no default collection found.",
+      );
+    }
+
+    this.cipher.organizationId = defaultCollection.organizationId;
+    this.cipher.collectionIds = [defaultCollection.id];
   }
 
   private async createNewCipher(name: string, username: string) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    this.buildCipher(name, username);
-    if (this.cipher == null) {
-      return;
-    }
     try {
+      await this.buildCipher(name, username, activeUserId);
+      if (this.cipher == null) {
+        return;
+      }
       const result = await this.cipherService.createWithServer(this.cipher, activeUserId);
+      if (!result.id) {
+        throw new Error("Cipher creation returned no id.");
+      }
       this.cipher.id = result.id;
     } catch (e) {
       this.logService.error(e);
+      // Clearing the cipher prevents `saveNewLogin` from confirming a credential that was never saved.
+      this.cipher = null;
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("failedToCreateNewLogin"),
+      });
     }
   }
 
