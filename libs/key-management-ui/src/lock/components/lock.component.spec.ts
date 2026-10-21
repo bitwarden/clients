@@ -208,6 +208,12 @@ describe("LockComponent", () => {
       expect(continueAfterSettingUserKey).not.toHaveBeenCalled();
     });
 
+    it("ignores the re-key after a key rotation", () => {
+      unlocked.next({ userId, method: UnlockMethod.KeyRotation });
+
+      expect(continueAfterSettingUserKey).not.toHaveBeenCalled();
+    });
+
     it("continues only once", () => {
       unlocked.next({ userId, method: UnlockMethod.Pin });
       unlocked.next({ userId, method: UnlockMethod.SharedUnlock });
@@ -219,6 +225,44 @@ describe("LockComponent", () => {
       unlocked.next({ userId: "other-user-id" as UserId, method: UnlockMethod.Pin });
 
       expect(continueAfterSettingUserKey).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("master password unlock that runs the V2 key rotation migration", () => {
+    const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+    let unlocked: Subject<UnlockEvent>;
+
+    beforeEach(async () => {
+      unlocked = new Subject<UnlockEvent>();
+      mockUnlockService.unlocked$ = unlocked;
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+        of({
+          masterPassword: { enabled: true },
+          pin: { enabled: false },
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.NotEnabledLocally },
+          prf: { enabled: false },
+        }),
+      );
+      mockPolicyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      // The migration re-keys the user through the unlock service, which announces it.
+      mockEncryptedMigrator.runMigrations.mockImplementation(async () => {
+        unlocked.next({ userId, method: UnlockMethod.KeyRotation });
+      });
+
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      await (component as any).handleActiveAccountChange(component.activeAccount);
+    });
+
+    it("continues the unlock only once", async () => {
+      await component.successfulMasterPasswordUnlock({
+        userKey: mockUserKey,
+        masterPassword: "test-password",
+      });
+
+      expect(mockEncryptedMigrator.runMigrations).toHaveBeenCalledTimes(1);
+      expect(mockDeviceTrustService.trustDeviceIfRequired).toHaveBeenCalledTimes(1);
+      expect(mockMessagingService.send).toHaveBeenCalledTimes(1);
+      expect(mockMessagingService.send).toHaveBeenCalledWith("unlocked");
     });
   });
 

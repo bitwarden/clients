@@ -5,7 +5,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
+import { LockService, LockSource, UnlockMethod, UnlockService } from "@bitwarden/unlock";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../../auth/utils";
@@ -138,6 +138,10 @@ export class V2KeyRotationMigration implements EncryptedMigration {
    * SDK client, and the keys derived from the user key (auto-unlock, biometrics), still hold the
    * old one. Unlocking again with the new key brings them in line.
    *
+   * The user is already unlocked, so the unlock is reported as a key rotation: listeners that
+   * finish an unlock (the lock screen) must not run a second time, while the shared unlock peer
+   * and the client's other context still receive the new key.
+   *
    * State already holds the new key, so if that fails the user is locked rather than left with a
    * client that encrypts with the retired key.
    */
@@ -145,7 +149,11 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     try {
       const newUserKey = await firstValueFrom(this.keyService.userKey$(userId));
       assertNonNullish(newUserKey, "newUserKey");
-      await this.unlockService.unlockWithDecryptedUserKey(userId, newUserKey);
+      await this.unlockService.unlockWithDecryptedUserKey(
+        userId,
+        newUserKey,
+        UnlockMethod.KeyRotation,
+      );
     } catch (e) {
       this.logService.error(
         `[V2KeyRotationMigration] Failed to apply the rotated user key for user ${userId}. Locking.`,

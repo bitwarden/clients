@@ -6,7 +6,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
+import { LockService, LockSource, UnlockMethod, UnlockService } from "@bitwarden/unlock";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
@@ -293,6 +293,7 @@ describe("V2KeyRotationMigration", () => {
       expect(mockUnlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
         mockUserId,
         mockUserKeyV2,
+        UnlockMethod.KeyRotation,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       expect(callOrder).toEqual(["rotateUserKey", "rekey", "fullSync"]);
