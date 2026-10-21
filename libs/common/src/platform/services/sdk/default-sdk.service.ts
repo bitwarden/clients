@@ -154,7 +154,7 @@ export class DefaultSdkService implements SdkService {
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private managedSettingsService: ManagedSettingsService,
     private appIdService: AppIdService,
-    private logService: LogService,
+    protected logService: LogService,
     private tokenServiceProvider: () => TokenService,
     private userAgent: string | null = null,
   ) {
