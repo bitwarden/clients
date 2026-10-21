@@ -19,7 +19,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
  * `CanActivateFn` that returns a URL Tree redirecting to a caller provided
  * sub route of `/organizations/{id}/`. If no sub route is provided the URL
  * tree returned will redirect to `/organizations/{id}` if possible, or `/` if
- * the user does not have permission to access `organizations/{id}`.
+ * the user does not have permission to access `organizations/{id}` or is
+ * already there.
  *
  * `customRedirect` runs inside an injection context, so it may `inject()`.
  */
@@ -62,7 +63,11 @@ export function organizationRedirectGuard(
     }
 
     if (org != null && canAccessOrgAdmin(org)) {
-      return router.createUrlTree(["/organizations", org.id]);
+      const orgRoot = router.createUrlTree(["/organizations", org.id]);
+      // The organization root mounts this guard too, so redirecting there from itself would loop.
+      if (router.serializeUrl(orgRoot) !== state.url.split(/[?#]/)[0]) {
+        return orgRoot;
+      }
     }
 
     return router.createUrlTree(["/"]);

@@ -177,3 +177,41 @@ describe("Organization Redirect Guard", () => {
     );
   });
 });
+
+describe("Organization Redirect Guard on the organization root", () => {
+  it("redirects to `/` rather than to itself when the redirect callback returns undefined", async () => {
+    const org = orgFactory();
+    const organizationService = mock<OrganizationService>();
+    organizationService.organizations$.mockReturnValue(of([org]));
+    let visits = 0;
+
+    TestBed.configureTestingModule({
+      imports: [HomescreenComponent, AdminConsoleComponent],
+      providers: [
+        { provide: OrganizationService, useValue: organizationService },
+        { provide: AccountService, useValue: mockAccountServiceWith(Utils.newGuid() as UserId) },
+        provideRouter([
+          {
+            path: "",
+            component: HomescreenComponent,
+          },
+          {
+            path: "organizations/:organizationId",
+            component: AdminConsoleComponent,
+            // The counter stops the redirect loop a regression would cause, which would otherwise
+            // hang the test rather than fail it.
+            canActivate: [() => ++visits <= 2, organizationRedirectGuard(() => undefined)],
+          },
+        ]),
+      ],
+    });
+    const routerHarness = await RouterTestingHarness.create();
+
+    await routerHarness.navigateByUrl(`organizations/${org.id}`);
+
+    expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
+      "This is the home screen!",
+    );
+    expect(visits).toBe(1);
+  });
+});
