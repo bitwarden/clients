@@ -165,10 +165,9 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     // The two downstream outcomes:
     //  - New user: server JIT-provisions and accepts into the org as a side effect of
     //    account setup (per-decryption-option: MP set-initial-password, TDE admin-recovery
-    //    enrollment, or Key Connector provisioning). The cleanup step of each path drops
-    //    both the persisted /join URL and the stashed invite (KC has a known bug where
-    //    the stashed invite is not cleared yet), so the guard does not replay and
-    //    authedHandler does not re-fire accept.
+    //    enrollment, or Key Connector provisioning). Because this invite is stashed, the
+    //    cleanup step of each path drops both the persisted /join URL and the stashed
+    //    invite, so the guard does not replay and authedHandler does not re-fire accept.
     //  - Existing user: server rejects SSO login and redirects to /login for MP auth.
     //    After login, the guard replays /join and authedHandler fires acceptOpenOrgInvite.
     if (invite.sso?.required) {

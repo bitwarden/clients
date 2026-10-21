@@ -1704,7 +1704,9 @@ export default class NotificationBackground {
   }
 
   /**
-   * Saves the current tab's domain to the never save list.
+   * Saves the hostname of the frame the login was submitted from to the never save list. The
+   * submitting frame's hostname is used rather than the tab's because exclusions are checked
+   * against the origin of the frame reporting the submission.
    *
    * @param tab - The tab that sent the neverSave message
    */
@@ -1722,7 +1724,7 @@ export default class NotificationBackground {
       this.notificationQueue.splice(i, 1);
       await BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
-      const hostname = Utils.getHostname(tab.url ?? "") ?? "";
+      const hostname = Utils.getHostname(queueMessage.data.uri ?? "") ?? "";
       if (hostname) {
         await this.cipherService.saveNeverDomain(hostname);
       }

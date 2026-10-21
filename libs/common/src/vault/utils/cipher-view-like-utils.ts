@@ -417,6 +417,14 @@ export class CipherViewLikeUtils {
   };
 
   /**
+   * @returns `true` when the server gated the cipher: only name and login URIs are populated.
+   * Gated ciphers are kept out of every cipher stream except `cipherListViewsWithPartials$`.
+   */
+  static isPartial = (cipher: CipherViewLike): boolean => {
+    return "partial" in cipher ? !!cipher.partial : false;
+  };
+
+  /**
    * Returns the notes from the cipher.
    *
    * @param cipher - The cipher to extract notes from (either `CipherView` or `CipherListView`)

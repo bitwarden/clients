@@ -38,6 +38,7 @@
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
+      "BitwardenAppGroupIdentifier": "LTZ2PFU5D6.com.bitwarden.desktop",
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
         "en",
@@ -70,7 +71,7 @@
       ],
       "CFBundleDevelopmentRegion": "en"
     },
-    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "provisioningProfile": "bitwarden_stable_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
@@ -182,7 +183,7 @@
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
     },
-    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile"
+    "provisioningProfile": "bitwarden_stable_desktop_appstore.provisionprofile"
   },
   "nsisWeb": {
     "oneClick": false,
@@ -203,6 +204,7 @@
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
     "minVersion": "10.0.14393.0",
+    "maxVersionTested": "10.0.26100.0",
     "customExtensionsPath": "../custom-appx-extensions.stable.xml",
     "publisherDisplayName": "Bitwarden Inc",
     "languages": [

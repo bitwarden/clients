@@ -309,6 +309,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       return;
     }
 
+    if (this.previewFailed()) {
+      return;
+    }
+
     const paymentMethodComponent = this.paymentMethodComponent();
     const isChangingPayment = paymentMethodComponent?.isChangingPayment();
     const paymentMethod = this.paymentMethod();
@@ -531,7 +535,11 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private refreshPreviewCart$(): Observable<InvoicePreview> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
 
-    if (!this.isFormValid() || !billingAddress.country || !billingAddress.postalCode) {
+    if (
+      this.formGroup.controls.billingAddress.invalid ||
+      !billingAddress.country ||
+      !billingAddress.postalCode
+    ) {
       this.previewCart.set(null);
       this.previewFailed.set(false);
       return of(this.getEmptyInvoicePreview());

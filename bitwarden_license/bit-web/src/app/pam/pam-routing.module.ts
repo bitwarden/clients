@@ -7,6 +7,7 @@ import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-con
 
 import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
+import { unsavedChangesDialogGuard } from "./unsaved-changes.guard";
 
 const routes: Routes = [
   {
@@ -31,11 +32,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
+            canDeactivate: [unsavedChangesDialogGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
+            canDeactivate: [unsavedChangesDialogGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],

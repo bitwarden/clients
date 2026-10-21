@@ -1,8 +1,17 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  Signal,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { provideRouter, Router } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -36,7 +45,10 @@ import {
   FilterControl,
   FilterMenuComponent,
   FilterOptionRow,
+  BitTableToolbarComponent,
   FilterSectionComponent,
+  PopoverRef,
+  PopoverService,
   SelectionConfig,
 } from "@bitwarden/components";
 import { Measurement } from "@bitwarden/logging";
@@ -46,6 +58,8 @@ import { VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
+import { CoachmarkStepId } from "../coachmark/coachmark-step";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 
 import {
   MAX_SELECTION_COUNT,
@@ -151,6 +165,9 @@ describe("VaultItemsTableComponent", () => {
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
   let batchBar: ReturnType<typeof batchBarDouble>;
+  let activeStepId: WritableSignal<CoachmarkStepId | null>;
+  let coachmark: Partial<CoachmarkService>;
+  let popoverService: MockProxy<PopoverService>;
 
   // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
   // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
@@ -169,6 +186,19 @@ describe("VaultItemsTableComponent", () => {
 
   beforeEach(async () => {
     batchBar = batchBarDouble();
+    activeStepId = signal<CoachmarkStepId | null>(null);
+    coachmark = {
+      activeStepId,
+      isStepActive: (id: CoachmarkStepId) => activeStepId() === id,
+      getStepPosition: () => "left-start",
+      getStepTitle: () => "",
+      getStepDescription: () => "",
+      getStepLearnMoreUrl: () => undefined,
+      currentStepNumber: signal(1),
+      totalSteps: signal(1),
+    };
+    popoverService = mock<PopoverService>();
+    popoverService.open.mockReturnValue(mock<PopoverRef>());
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -212,6 +242,9 @@ describe("VaultItemsTableComponent", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: VaultBatchBarService, useValue: batchBar },
+        provideRouter([]),
+        { provide: CoachmarkService, useValue: coachmark },
+        { provide: PopoverService, useValue: popoverService },
       ],
     }).compileComponents();
 
@@ -554,6 +587,32 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipher, { vault: ["org-1"] })).toBe(true);
       expect(applyFilter(cipher, { folder: ["folder-1"] })).toBe(true);
       expect(applyFilter(cipher, { sharedFolder: ["col-1"] })).toBe(true);
+    });
+  });
+
+  describe("option counts", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ type: CipherType.Login, folderId: "folder-1" as never }),
+        cipherView({ type: CipherType.Login, folderId: "folder-2" as never }),
+        cipherView({ type: CipherType.Card, folderId: "folder-2" as never }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("counts each option against the other active filters", () => {
+      expect(bitTable().optionCount("type", CipherType.Card)).toBe(1);
+
+      filterControl("folder").setValue(["folder-1"]);
+
+      expect(bitTable().optionCount("type", CipherType.Card)).toBe(0);
+      expect(bitTable().optionCount("type", CipherType.Login)).toBe(1);
+    });
+
+    it("ignores the chip's own selection when counting its options", () => {
+      filterControl("folder").setValue(["folder-1"]);
+
+      expect(bitTable().optionCount("folder", ["folder-2"])).toBe(2);
     });
   });
 
@@ -972,6 +1031,88 @@ describe("VaultItemsTableComponent", () => {
       });
     });
 
+    describe("My vault items outside the scope", () => {
+      beforeEach(() => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+        ]);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: "org-1",
+        });
+        fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+      });
+
+      it("hides the Vault chip on an org page when My vault is empty", () => {
+        expect(component["showMyVaultOption"]()).toBe(false);
+        expect(component["showVaults"]()).toBe(false);
+      });
+
+      it("hides the Vault chip on an org page without data ownership, whose nav keeps My vault", () => {
+        fixture.componentRef.setInput("orgRequiresDataOwnership", false);
+        fixture.componentRef.setInput("myVaultItemCount", 3);
+
+        expect(component["showVaults"]()).toBe(false);
+      });
+
+      it("keeps the Vault chip and its My vault option, without adding the Vault column", () => {
+        fixture.componentRef.setInput("myVaultItemCount", 3);
+
+        expect(component["showMyVaultOption"]()).toBe(true);
+        expect(component["showVaults"]()).toBe(true);
+        expect(component["showVaultColumn"]()).toBe(false);
+      });
+
+      it("counts My vault from the account's items, not the rows", () => {
+        expect(component["myVaultOptionCount"]()).toBeUndefined();
+
+        fixture.componentRef.setInput("myVaultItemCount", 3);
+
+        expect(component["myVaultOptionCount"]()).toBe(3);
+      });
+
+      it("sends a My vault pick to All items and clears it from the chip", () => {
+        fixture.componentRef.setInput("myVaultItemCount", 3);
+        const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+        fixture.detectChanges();
+
+        filterMenu("vault").setValue([MY_VAULT, "org-1"]);
+        fixture.detectChanges();
+
+        expect(navigate).toHaveBeenCalledWith(["/vault"], {
+          queryParams: { "vault.vault": MY_VAULT },
+        });
+        // The table's own URL sync never writes the pick onto this page.
+        const urlSyncs = navigate.mock.calls.filter(([commands]) => commands.length === 0);
+        expect(
+          urlSyncs.map(([, extras]) => extras?.queryParams?.["vault.vault"]),
+        ).not.toContainEqual(expect.arrayContaining([MY_VAULT]));
+        expect(filterControl("vault").value()).toEqual(["org-1"]);
+      });
+
+      it("leaves a My vault pick alone when the page can show it", () => {
+        fixture.componentRef.setInput("scopedOrganizationId", undefined);
+        fixture.componentRef.setInput("scope", { type: VaultScopeType.AllItems });
+        fixture.componentRef.setInput("myVaultItemCount", 1);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: undefined }),
+          cipherView({ id: "b", organizationId: "org-1" as never }),
+        ]);
+        const navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+        fixture.detectChanges();
+
+        filterMenu("vault").setValue([MY_VAULT]);
+        fixture.detectChanges();
+
+        expect(navigate).not.toHaveBeenCalledWith(["/vault"], expect.anything());
+        expect(filterControl("vault").value()).toEqual([MY_VAULT]);
+      });
+    });
+
     describe("chip option icon tiles", () => {
       it("tints the My vault option with the user's avatar color", () => {
         expect(component["myVaultFilterTile"]()).toEqual({
@@ -1136,6 +1277,18 @@ describe("VaultItemsTableComponent", () => {
         "Engineering",
         "Operations",
       ]);
+    });
+
+    it("labels a nested shared folder chip by its own name, without its parent path", () => {
+      fixture.componentRef.setInput("collections", [
+        { id: "col-3", name: "Engineering/Backend" } as CollectionView,
+      ]);
+      const cipher = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-3"] as never,
+      });
+
+      expect(chipsFor(cipher).sharedFolders.map((chip) => chip.label)).toEqual(["Backend"]);
     });
 
     it("resolves the folder as a single-entry chip list", () => {
@@ -1428,11 +1581,11 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
-    it("keeps a nested collection's full path as its name when its parent is unavailable", () => {
+    it("labels a nested collection by its own name when its parent is unavailable", () => {
       const collection = { id: "child", name: "Engineering/Backend" } as CollectionView;
 
       expect(component["buildNestedSharedFolders"]([collection])).toEqual([
-        { value: "child", label: "Engineering/Backend", options: [] },
+        { value: "child", label: "Backend", options: [] },
       ]);
     });
 
@@ -1450,7 +1603,7 @@ describe("VaultItemsTableComponent", () => {
           options: [
             {
               value: "descendant",
-              label: "Backend/Infrastructure",
+              label: "Infrastructure",
               options: [],
             },
           ],
@@ -1472,7 +1625,7 @@ describe("VaultItemsTableComponent", () => {
 
       expect(component["buildNestedSharedFolders"]([orgAParent, orgBChild])).toEqual([
         { value: "org-a-parent", label: "Finance", options: [] },
-        { value: "org-b-child", label: "Finance/Reports", options: [] },
+        { value: "org-b-child", label: "Reports", options: [] },
       ]);
     });
 
@@ -2186,6 +2339,31 @@ describe("VaultItemsTableComponent", () => {
       expect(host().style.marginBottom).toBe("0px");
     });
 
+    it("excludes a selected item from the batch bar when a filter hides it", () => {
+      const favorited = cipherView({ id: "a", name: "Amazon", favorite: true });
+      const notFavorited = cipherView({ id: "b", name: "Apple ID", favorite: false });
+      fixture.componentRef.setInput("ciphers", [favorited, notFavorited]);
+      fixture.detectChanges();
+
+      // Select the favorited item.
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a"]);
+
+      // Activate the Favorites chip — "Apple ID" is now filtered out of the visible rows.
+      filterControl("favorites").setValue(true);
+      fixture.detectChanges();
+
+      // Simulate unfavoriting: the item's `favorite` flips to false in the ciphers input,
+      // which causes it to be filtered out of the visible rows.
+      const unfavorited = cipherView({ id: "a", name: "Amazon", favorite: false });
+      fixture.componentRef.setInput("ciphers", [unfavorited, notFavorited]);
+      fixture.detectChanges();
+
+      // The item is no longer visible, so the batch bar must not count it.
+      expect(batchBarIds()).toEqual([]);
+    });
+
     it("deregisters its source when the table is destroyed", () => {
       fixture.detectChanges();
       expect(batchBar.source()).toBeDefined();
@@ -2193,6 +2371,48 @@ describe("VaultItemsTableComponent", () => {
       fixture.destroy();
 
       expect(batchBar.source()).toBeUndefined();
+    });
+  });
+
+  describe("filters coachmark", () => {
+    it("spotlights the filter anchor while the filters step is active", () => {
+      fixture.detectChanges();
+      expect(popoverService.open).not.toHaveBeenCalled();
+
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      expect(popoverService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ spotlight: true, position: "left-start" }),
+      );
+    });
+
+    it("anchors to the inline chips when the filter button is not rendered", () => {
+      fixture.detectChanges();
+      const toolbar = fixture.debugElement.query(By.directive(BitTableToolbarComponent))
+        .componentInstance as BitTableToolbarComponent;
+      const chips = new ElementRef(document.createElement("div"));
+      Object.assign(toolbar, { filterButton: signal(undefined), filterChips: signal(chips) });
+
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      const anchor = popoverService.open.mock.calls[0][1] as Signal<ElementRef>;
+      expect(anchor()).toBe(chips);
+    });
+
+    it("closes the popover when the step ends", () => {
+      const ref = mock<PopoverRef>();
+      popoverService.open.mockReturnValue(ref);
+      activeStepId.set("filters");
+      fixture.detectChanges();
+
+      activeStepId.set(null);
+      fixture.detectChanges();
+
+      expect(ref.close).toHaveBeenCalled();
     });
   });
 });

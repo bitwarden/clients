@@ -7,16 +7,21 @@
         [selectedIndex]="selectedTabIndex()"
         (selectedIndexChange)="selectedTabIndex.set($event)"
       >
-        <bit-tab [label]="'byEmail' | i18n">
+        <bit-tab [label]="'byEmail' | i18n" [disabled]="params.showCoachMarks">
           <ng-container
             *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
           ></ng-container>
         </bit-tab>
         <bit-tab [label]="'byLink' | i18n">
-          <app-by-link-tab
-            [organizationId]="params.organizationId"
-            [showCoachMarks]="params.showCoachMarks ?? false"
-          />
+          <!-- TODO(guided-tour removal): collapse this back to a single, unconditional
+          <app-by-link-tab [organizationId]="params.organizationId" />, dropping the @if/@else and
+          the <app-by-link-tab-tour> branch. See the header comment in
+          by-link-tab-tour.component.ts for the full removal checklist. -->
+          @if (params.showCoachMarks) {
+            <app-by-link-tab-tour (tourFinished)="finishTour()" />
+          } @else {
+            <app-by-link-tab [organizationId]="params.organizationId" />
+          }
         </bit-tab>
       </bit-tab-group>
     } @else {
@@ -39,7 +44,10 @@
       <button type="button" bitButton buttonType="secondary" (click)="cancel()">
         {{ "cancel" | i18n }}
       </button>
-    } @else {
+      <!-- TODO(guided-tour removal): change the condition above back to a plain @else and drop
+      `!params.showCoachMarks` from it. See the header comment in by-link-tab-tour.component.ts
+      for the full removal checklist. -->
+    } @else if (!params.showCoachMarks) {
       <button
         type="button"
         bitButton
