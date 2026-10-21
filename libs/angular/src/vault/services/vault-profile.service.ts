@@ -18,6 +18,13 @@ export class VaultProfileService {
   private profileCreatedDate: string | null = null;
 
   /**
+   * Shared promise for an in-flight profile fetch so concurrent callers
+   * (e.g. multiple nudge services during popup init) trigger a single
+   * `getProfile` request.
+   */
+  private profileFetch: Promise<ProfileResponse> | null = null;
+
+  /**
    * Returns the creation date of the profile.
    * Note: `Date`s are mutable in JS, creating a new
    * instance is important to avoid unwanted changes.
@@ -35,12 +42,18 @@ export class VaultProfileService {
     return new Date(profile.creationDate);
   }
 
-  private async fetchAndCacheProfile(): Promise<ProfileResponse> {
-    const profile = await this.apiService.getProfile();
+  private fetchAndCacheProfile(): Promise<ProfileResponse> {
+    this.profileFetch ??= this.apiService
+      .getProfile()
+      .then((profile: ProfileResponse) => {
+        this.userId = profile.id;
+        this.profileCreatedDate = profile.creationDate;
+        return profile;
+      })
+      .finally(() => {
+        this.profileFetch = null;
+      });
 
-    this.userId = profile.id;
-    this.profileCreatedDate = profile.creationDate;
-
-    return profile;
+    return this.profileFetch;
   }
 }
