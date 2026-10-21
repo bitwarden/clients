@@ -35,7 +35,6 @@ import {
   FieldsEntity,
   Item,
   LoginFieldType,
-  LoginFieldsEntity,
   Overview,
   PasswordHistoryEntity,
   SectionsEntity,
@@ -231,61 +230,37 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     }
 
     item.details.loginFields.forEach((loginField) => {
-      // 1Password usually emits a plain string here, but linked-account values
-      // (e.g. a Fastmail alias) arrive as a structured object. Only strings may
-      // reach the cipher: anything else is normalized or skipped. See #22838.
-      const fieldValue = this.normalizeLoginFieldValue(loginField.value);
-      if (fieldValue == null) {
+      if (loginField.value == null || typeof loginField.value !== "string") {
         return;
       }
 
-      if (loginField.designation === "username" && fieldValue !== "") {
+      if (loginField.designation === "username" && loginField.value !== "") {
         cipher.type = CipherType.Login;
-        cipher.login.username = fieldValue;
+        cipher.login.username = loginField.value;
         return;
       }
 
-      if (loginField.designation === "password" && fieldValue !== "") {
+      if (loginField.designation === "password" && loginField.value !== "") {
         cipher.type = CipherType.Login;
-        cipher.login.password = fieldValue;
+        cipher.login.password = loginField.value;
         return;
       }
 
-      let customFieldValue = fieldValue;
+      let fieldValue = loginField.value;
       let fieldType: FieldType = FieldType.Text;
       switch (loginField.fieldType) {
         case LoginFieldType.Password:
           fieldType = FieldType.Hidden;
           break;
         case LoginFieldType.CheckBox:
-          customFieldValue = fieldValue !== "" ? "true" : "false";
+          fieldValue = loginField.value !== "" ? "true" : "false";
           fieldType = FieldType.Boolean;
           break;
         default:
           break;
       }
-      this.processKvp(cipher, loginField.name, customFieldValue, fieldType);
+      this.processKvp(cipher, loginField.name, fieldValue, fieldType);
     });
-  }
-
-  /**
-   * Coerce a 1Password login-field value to the string Bitwarden can store.
-   * Returns null when the value has no string representation, so the caller
-   * skips the field instead of handing a structured object to the SDK.
-   */
-  private normalizeLoginFieldValue(value: LoginFieldsEntity["value"]): string | null {
-    if (typeof value === "string") {
-      return value;
-    }
-    if (value != null && typeof value === "object") {
-      if (typeof value.email_address === "string") {
-        return value.email_address;
-      }
-      if (typeof value.string === "string") {
-        return value.string;
-      }
-    }
-    return null;
   }
 
   private processDetails(category: Category, details: Details, cipher: CipherView) {
@@ -310,7 +285,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     }
 
     sections.forEach((section: SectionsEntity) => {
-      if (section == null || section.fields == null) {
+      if (section.fields == null) {
         return;
       }
 
@@ -332,30 +307,18 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     useNewDedicatedTypes: boolean,
   ) {
     fields.forEach((field: FieldsEntity) => {
-      if (field == null || field.value == null || typeof field.value !== "object") {
-        return;
-      }
-
       const valueKey = Object.keys(field.value)[0];
-      if (valueKey == null) {
-        return;
-      }
+      const anyField = field as any;
 
-      if (field.value[valueKey] == null || field.value[valueKey] === "") {
+      if (anyField.value == null || anyField.value[valueKey] === "") {
         return;
       }
 
       const fieldName = this.getFieldName(field.title, sectionTitle);
-      const extractedValue = this.extractValue(field.value, valueKey);
-      const isStructuredValue =
-        (cipher.type === CipherType.Identity && valueKey === "address") ||
-        (cipher.type === CipherType.SshKey && valueKey === "sshKey");
-      if (extractedValue == null && !isStructuredValue) {
+      const fieldValue = this.extractValue(field.value, valueKey);
+      if (fieldValue == null) {
         return;
       }
-      // Structured values are handled below. Never coerce an unrecognized object
-      // into the string "[object Object]".
-      const fieldValue = extractedValue ?? "";
 
       if (cipher.type === CipherType.Login) {
         if (this.fillLogin(field, fieldValue, cipher)) {
@@ -449,13 +412,9 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         }
       } else if (cipher.type === CipherType.SshKey) {
         if (valueKey === "sshKey") {
-          const sshKey = field.value.sshKey;
-          if (sshKey == null || sshKey.metadata == null) {
-            return;
-          }
           // Use sshKey.metadata.privateKey instead of the sshKey.privateKey field.
           // The sshKey.privateKey field doesn't have a consistent format for every item.
-          const { privateKey } = sshKey.metadata;
+          const { privateKey } = field.value.sshKey.metadata;
           // Convert SSH key from PKCS#8 (1Password format) to OpenSSH format using the SDK.
           // Note: 1Password does not store password-protected SSH keys
           // A key the SDK can't parse throws here and is handled per-item by parse()'s try/catch.
@@ -481,12 +440,13 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
       if (valueKey === "email") {
         const { email_address, provider } = field.value.email;
-        if (typeof email_address === "string") {
-          this.processKvp(cipher, fieldName, email_address, FieldType.Text);
-        }
+        this.processKvp(cipher, fieldName, email_address, FieldType.Text);
         if (typeof provider === "string") {
           this.processKvp(cipher, "provider", provider, FieldType.Text);
         }
+      }
+
+      if (typeof fieldValue !== "string") {
         return;
       }
 
@@ -523,7 +483,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return "";
   }
 
-  private extractValue(value: Value, valueKey: string): string | null {
+  private extractValue(value: Value, valueKey: string): string {
     if (valueKey === "date") {
       return typeof value.date === "number" ? new Date(value.date * 1000).toUTCString() : null;
     }
@@ -532,33 +492,23 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       return typeof value.monthYear === "number" ? value.monthYear.toString() : null;
     }
 
-    const fieldValue = value[valueKey];
-    if (typeof fieldValue === "string") {
-      return fieldValue;
-    }
-    if (fieldValue != null && typeof fieldValue === "object") {
-      if ("email_address" in fieldValue && typeof fieldValue.email_address === "string") {
-        return fieldValue.email_address;
-      }
-      if ("string" in fieldValue && typeof fieldValue.string === "string") {
-        return fieldValue.string;
-      }
-    }
-    return null;
+    return (value as any)[valueKey];
   }
 
   private fillLogin(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
     const fieldName = this.getFieldName(field.title);
 
-    // Section values may also arrive as structured objects (see #22838):
-    // only strings may be assigned to the login view.
-    if (typeof fieldValue !== "string") {
-      return false;
+    if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
+      const username =
+        typeof fieldValue === "string" ? fieldValue : field.value.email?.email_address;
+      if (typeof username === "string") {
+        cipher.login.username = username;
+        return true;
+      }
     }
 
-    if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
-      cipher.login.username = fieldValue;
-      return true;
+    if (typeof fieldValue !== "string") {
+      return false;
     }
 
     if (this.isNullOrWhitespace(cipher.login.password) && fieldName === "password") {
@@ -705,23 +655,17 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       if (valueKey === "email") {
         const { email_address, provider } = field.value.email;
         cipher.identity.email = this.getValueOrDefault(email_address);
-        if (typeof provider === "string") {
-          this.processKvp(cipher, "provider", provider, FieldType.Text);
-        }
+        this.processKvp(cipher, "provider", provider as string, FieldType.Text);
         return true;
       }
 
-      if (field.id === "email" && typeof fieldValue === "string") {
+      if (field.id === "email") {
         cipher.identity.email = fieldValue;
         return true;
       }
     }
 
-    if (
-      this.isNullOrWhitespace(cipher.identity.username) &&
-      field.id === "username" &&
-      typeof fieldValue === "string"
-    ) {
+    if (this.isNullOrWhitespace(cipher.identity.username) && field.id === "username") {
       cipher.identity.username = fieldValue;
       return true;
     }
