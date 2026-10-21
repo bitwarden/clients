@@ -38,6 +38,7 @@ import {
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
+import { CipherFormHTTPAuthenticationService } from "../services/cipher-form-http-authentication.service";
 import { CipherFormCacheService } from "../services/default-cipher-form-cache.service";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
@@ -63,6 +64,9 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     },
     {
       provide: CipherFormCacheService,
+    },
+    {
+      provide: CipherFormHTTPAuthenticationService,
     },
   ],
   imports: [

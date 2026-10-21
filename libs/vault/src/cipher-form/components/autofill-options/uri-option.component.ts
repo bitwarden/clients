@@ -6,6 +6,7 @@ import {
   ElementRef,
   EventEmitter,
   forwardRef,
+  inject,
   Input,
   input,
   Output,
@@ -35,6 +36,7 @@ import {
 } from "@bitwarden/components";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
@@ -162,6 +164,11 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   protected showMatchDetection = false;
 
+  /** The most recent match strategy, used to restore it when a change to the default is declined */
+  private lastMatchDetection: UriMatchStrategySetting = null;
+
+  private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
+
   protected toggleMatchDetection() {
     this.showMatchDetection = !this.showMatchDetection;
     if (this.showMatchDetection) {
@@ -221,6 +228,36 @@ export class UriOptionComponent implements ControlValueAccessor {
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    this.uriForm.controls.matchDetection.valueChanges
+      .pipe(
+        concatMap((current) => this.handleDefaultMatch(current)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+
+  /**
+   * HTTP authentication can't be used while a URI uses the default match strategy. Switching to the default
+   * strategy while HTTP authentication is on asks the user to confirm turning HTTP authentication off; declining
+   * restores the previous strategy.
+   */
+  private async handleDefaultMatch(current: UriMatchStrategySetting) {
+    const previous = this.lastMatchDetection;
+    this.lastMatchDetection = current;
+
+    if (current != null || previous == null) {
+      return;
+    }
+
+    if (await this.httpAuthenticationService.confirmDefaultMatchStrategy()) {
+      return;
+    }
+
+    // Restore the previous strategy without re-running the advanced option warning
+    this.uriForm.controls.matchDetection.setValue(previous, { emitEvent: false });
+    this.lastMatchDetection = previous;
+    this.onChange(this.uriForm.value);
   }
 
   private async handleAdvancedMatch(
@@ -265,6 +302,7 @@ export class UriOptionComponent implements ControlValueAccessor {
         },
         { emitEvent: false },
       );
+      this.lastMatchDetection = value.matchDetection ?? null;
     }
   }
 

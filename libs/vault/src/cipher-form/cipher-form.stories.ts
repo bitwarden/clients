@@ -395,6 +395,33 @@ export const WithSubmitButton: Story = {
   },
 };
 
+/** Provides a `ConfigService` with only the HTTP authentication feature flag turned on */
+const withHTTPAuthenticationFeatureFlag = moduleMetadata({
+  providers: [
+    {
+      provide: ConfigService,
+      useValue: {
+        getFeatureFlag: (flag: FeatureFlag) =>
+          Promise.resolve(flag === FeatureFlag.EnableBasicAuthResponse),
+        getFeatureFlag$: (flag: FeatureFlag) =>
+          new BehaviorSubject(flag === FeatureFlag.EnableBasicAuthResponse),
+      },
+    },
+  ],
+});
+
+/** Editing a login with no URIs, so the HTTP authentication setting can be turned on */
+export const HTTPAuthentication: Story = {
+  ...Edit,
+  decorators: [withHTTPAuthenticationFeatureFlag],
+};
+
+/** Adding a login whose URI uses the default match strategy, so the HTTP authentication setting is disabled */
+export const HTTPAuthenticationRequiresMatchDetection: Story = {
+  ...Add,
+  decorators: [withHTTPAuthenticationFeatureFlag],
+};
+
 export const OrganizationDataOwnershipEnabled: Story = {
   ...Add,
   args: {

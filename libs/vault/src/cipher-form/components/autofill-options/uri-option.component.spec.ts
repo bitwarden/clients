@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -7,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 import { UriOptionComponent } from "./uri-option.component";
@@ -16,6 +18,7 @@ describe("UriOptionComponent", () => {
   let fixture: ComponentFixture<UriOptionComponent>;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let dialogRefMock: jest.Mocked<DialogRef<boolean>>;
+  let httpAuthenticationService: MockProxy<CipherFormHTTPAuthenticationService>;
 
   const getToggleMatchDetectionBtn = () =>
     fixture.nativeElement.querySelector(
@@ -42,10 +45,14 @@ describe("UriOptionComponent", () => {
       afterClosed: jest.fn().mockReturnValue(of(true)),
     } as unknown as jest.Mocked<DialogRef<boolean>>;
 
+    httpAuthenticationService = mock<CipherFormHTTPAuthenticationService>();
+    httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(true);
+
     await TestBed.configureTestingModule({
       imports: [UriOptionComponent],
       providers: [
         { provide: DialogService, useValue: dialogServiceMock },
+        { provide: CipherFormHTTPAuthenticationService, useValue: httpAuthenticationService },
         {
           provide: I18nService,
           useValue: { t: (...keys: string[]) => keys.filter(Boolean).join(" ") },
@@ -265,6 +272,48 @@ describe("UriOptionComponent", () => {
 
     it("should revert to the previous strategy when the user cancels", () => {
       testDialogAction("onCancel", UriMatchStrategy.Domain);
+    });
+  });
+
+  describe("default match strategy confirmation", () => {
+    let onChange: jest.Mock;
+
+    beforeEach(() => {
+      onChange = jest.fn();
+      component.registerOnChange(onChange);
+      component.writeValue({ uri: "https://example.com", matchDetection: UriMatchStrategy.Host });
+    });
+
+    it("asks to confirm when the strategy changes to the default", () => {
+      component["uriForm"].controls.matchDetection.setValue(null);
+
+      expect(httpAuthenticationService.confirmDefaultMatchStrategy).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not ask to confirm when the strategy changes between explicit strategies", () => {
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.Exact);
+
+      expect(httpAuthenticationService.confirmDefaultMatchStrategy).not.toHaveBeenCalled();
+    });
+
+    it("keeps the default strategy when the user confirms", async () => {
+      component["uriForm"].controls.matchDetection.setValue(null);
+      await fixture.whenStable();
+
+      expect(component["uriForm"].controls.matchDetection.value).toBeNull();
+    });
+
+    it("restores the previous strategy when the user declines", async () => {
+      httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
+
+      component["uriForm"].controls.matchDetection.setValue(null);
+      await fixture.whenStable();
+
+      expect(component["uriForm"].controls.matchDetection.value).toBe(UriMatchStrategy.Host);
+      expect(onChange).toHaveBeenLastCalledWith({
+        uri: "https://example.com",
+        matchDetection: UriMatchStrategy.Host,
+      });
     });
   });
 });
