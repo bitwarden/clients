@@ -5,6 +5,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptionType } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../../auth/utils";
@@ -34,6 +35,8 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     private readonly logService: LogService,
     private readonly cipherService: CipherService,
     private readonly sdkService: SdkService,
+    private readonly unlockService: UnlockService,
+    private readonly lockService: LockService,
   ) {}
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
@@ -122,10 +125,39 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       );
     }
 
+    await this.rekeyAfterRotation(userId);
+
     this.logService.info(
       `[V2KeyRotationMigration] Performing full sync after v2 upgrade for user ${userId}`,
     );
     await this.syncService.fullSync(true);
+  }
+
+  /**
+   * The rotation writes the new user key and account cryptographic state to state, but the user's
+   * SDK client, and the keys derived from the user key (auto-unlock, biometrics), still hold the
+   * old one. Unlocking again with the new key brings them in line.
+   *
+   * State already holds the new key, so if that fails the user is locked rather than left with a
+   * client that encrypts with the retired key.
+   */
+  private async rekeyAfterRotation(userId: UserId): Promise<void> {
+    try {
+      const newUserKey = await firstValueFrom(this.keyService.userKey$(userId));
+      assertNonNullish(newUserKey, "newUserKey");
+      await this.unlockService.unlockWithDecryptedUserKey(userId, newUserKey);
+    } catch (e) {
+      this.logService.error(
+        `[V2KeyRotationMigration] Failed to apply the rotated user key for user ${userId}. Locking.`,
+        e,
+      );
+      try {
+        await this.lockService.lock(userId, LockSource.Manual);
+      } catch (lockError) {
+        this.logService.error(`[V2KeyRotationMigration] Failed to lock user ${userId}.`, lockError);
+      }
+      throw e;
+    }
   }
 
   private async userKeyIsV1(userId: UserId): Promise<boolean> {

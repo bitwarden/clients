@@ -8,6 +8,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import { LogService, Measurement } from "@bitwarden/logging";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { ClientType } from "../../enums";
@@ -100,6 +101,8 @@ describe("EncryptedMigrator", () => {
       mockSdkService,
       mockStateProvider,
       mockI18nService,
+      mock<UnlockService>(),
+      mock<LockService>(),
     );
   });
 

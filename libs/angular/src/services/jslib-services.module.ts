@@ -638,6 +638,8 @@ const safeProviders: SafeProvider[] = [
       SdkService,
       StateProvider,
       I18nServiceAbstraction,
+      UnlockService,
+      LockService,
     ],
   }),
   safeProvider({
