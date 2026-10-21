@@ -308,11 +308,20 @@ export class DefaultUnlockService implements UnlockService {
     userKey: SymmetricCryptoKey,
     method: UnlockMethod,
   ): Promise<void> {
-    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
-      await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
+    try {
+      if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
+        await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
+      }
+      await this.autoUnlockService.setAutoUnlockKey(userId, userKey);
+      await this.pushOrgKeys(userId, userKey as UserKey);
+    } catch (e) {
+      // Until the organization keys are applied, the user's live SDK client holds keys that the
+      // rest of the client never got to use. A failed unlock must not leave them there while the
+      // user is reported locked. Once they are applied, the client is ready and consistent with
+      // state, so later failures leave the user unlocked. `lock` never rejects.
+      await this.sdkService.lock(userId);
+      throw e;
     }
-    await this.autoUnlockService.setAutoUnlockKey(userId, userKey);
-    await this.pushOrgKeys(userId, userKey as UserKey);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.runOnUnlockActions(userId, userKey, method);
