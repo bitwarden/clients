@@ -21,6 +21,20 @@ import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 import { DecryptAllCiphersResult } from "./cipher-sdk.service";
 
+/**
+ * An organization's ciphers prepared for display: lightweight views for the list, plus the
+ * encrypted ciphers so a single cipher can be fully decrypted when it is opened.
+ */
+export interface OrganizationCipherListViews {
+  /** All encrypted ciphers returned from the API */
+  ciphers: Cipher[];
+  /**
+   * Views for display, sorted by name. Ciphers that failed to decrypt are included as
+   * {@link CipherView}s with the `decryptionFailure` flag set.
+   */
+  views: CipherViewLike[];
+}
+
 export type EncryptionContext = {
   cipher: Cipher;
   /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
@@ -116,6 +130,21 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Ciphers that are not assigned to any collections are only included for users with admin access.
    */
   abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  /**
+   * Like {@link getAllFromApiForOrganization}, but returns lightweight list views instead of fully
+   * decrypted ciphers, alongside the encrypted ciphers for on-demand decryption.
+   */
+  abstract getAllListViewsFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<OrganizationCipherListViews>;
+  /**
+   * Like {@link getManyFromApiForOrganization}, but returns lightweight list views instead of fully
+   * decrypted ciphers, alongside the encrypted ciphers for on-demand decryption.
+   */
+  abstract getManyListViewsFromApiForOrganization(
+    organizationId: string,
+  ): Promise<OrganizationCipherListViews>;
   /**
    * Gets all Login ciphers belonging to the specified organization, including those in default
    * user collections. Ciphers that fail to decrypt are returned separately in `failures`.

@@ -202,10 +202,10 @@ describe("Cipher Service", () => {
       expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
         testCipher.id,
         expect.objectContaining({
-          asAdmin: false,
           lastKnownRevisionDate: testCipher.revisionDate.toISOString(),
         }),
         userId,
+        { asAdmin: false },
       );
       expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
         testCipher.id,
@@ -252,8 +252,9 @@ describe("Cipher Service", () => {
 
       expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
         testCipher.id,
-        expect.objectContaining({ asAdmin: true }),
+        expect.any(Object),
         userId,
+        { asAdmin: true },
       );
       expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
         testCipher.id,
@@ -1538,25 +1539,18 @@ describe("Cipher Service", () => {
       expect(result).toEqual([failed, decrypted]);
     });
 
-    it("should use SDK to list organization ciphers when feature flag is enabled", async () => {
+    it("should use SDK to list and decrypt organization ciphers, keeping failures, when feature flag is enabled", async () => {
       sdkCrudFeatureFlag$.next(true);
 
-      const mockCipher1 = new Cipher(cipherData);
-      const mockCipher2 = new Cipher(cipherData);
-
-      const mockCipherView1 = new CipherView();
-      mockCipherView1.name = "Test Cipher 1";
-      const mockCipherView2 = new CipherView();
-      mockCipherView2.name = "Test Cipher 2";
+      const decrypted = new CipherView();
+      decrypted.name = "b";
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
-        .mockResolvedValue([[mockCipher1, mockCipher2], []]);
-
-      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
-        [mockCipherView1, mockCipherView2],
-        [],
-      ]);
+        .mockResolvedValue({ successes: [decrypted], failures: [failed] });
 
       const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
 
@@ -1564,13 +1558,9 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
       expect(apiSpy).not.toHaveBeenCalled();
-      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
-        [mockCipher1, mockCipher2],
-        mockUserId,
-      );
-      expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(CipherView);
-      expect(result[1]).toBeInstanceOf(CipherView);
+      // The SDK decrypts the full ciphers itself; no second client-side decryption pass
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result).toEqual([failed, decrypted]);
     });
 
     it("should use SDK with includeMemberItems=false when not provided", async () => {
@@ -1578,9 +1568,7 @@ describe("Cipher Service", () => {
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getAllFromApiForOrganization")
-        .mockResolvedValue([[], []]);
-
-      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[], []]);
+        .mockResolvedValue({ successes: [], failures: [] });
 
       const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
 
@@ -1594,23 +1582,16 @@ describe("Cipher Service", () => {
   describe("getManyFromApiForOrganization()", () => {
     const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
 
-    it("should use SDK to list assigned organization ciphers", async () => {
-      const mockCipher1 = new Cipher(cipherData);
-      const mockCipher2 = new Cipher(cipherData);
-
-      const mockCipherView1 = new CipherView();
-      mockCipherView1.name = "Test Cipher 1";
-      const mockCipherView2 = new CipherView();
-      mockCipherView2.name = "Test Cipher 2";
+    it("should use SDK to list and decrypt assigned organization ciphers, keeping failures", async () => {
+      const decrypted = new CipherView();
+      decrypted.name = "b";
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
 
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "getManyFromApiForOrganization")
-        .mockResolvedValue([[mockCipher1, mockCipher2], []]);
-
-      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([
-        [mockCipherView1, mockCipherView2],
-        [],
-      ]);
+        .mockResolvedValue({ successes: [decrypted], failures: [failed] });
 
       const apiSpy = jest.spyOn(apiService, "send");
 
@@ -1618,13 +1599,8 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
       expect(apiSpy).not.toHaveBeenCalled();
-      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
-        [mockCipher1, mockCipher2],
-        mockUserId,
-      );
-      expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(CipherView);
-      expect(result[1]).toBeInstanceOf(CipherView);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result).toEqual([failed, decrypted]);
     });
 
     it("should return empty array when SDK throws", async () => {
@@ -1635,6 +1611,95 @@ describe("Cipher Service", () => {
       const result = await cipherService.getManyFromApiForOrganization(testOrgId);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("getAllListViewsFromApiForOrganization()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return encrypted ciphers and sorted list views, including failures, when feature flag is enabled", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const encrypted = new Cipher(cipherData);
+      const listView: any = { id: "list-view", name: "b", type: "secureNote" };
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getAllListViewsFromApiForOrganization")
+        .mockResolvedValue({ ciphers: [encrypted], listViews: [listView], failures: [failed] });
+      const apiSpy = jest.spyOn(apiService, "getCiphersOrganization");
+
+      const result = await cipherService.getAllListViewsFromApiForOrganization(testOrgId, true);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, true);
+      expect(apiSpy).not.toHaveBeenCalled();
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result.ciphers).toEqual([encrypted]);
+      expect(result.views).toEqual([failed, listView]);
+    });
+
+    it("should fall back to fully decrypted ciphers when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const decrypted = new CipherView();
+      jest
+        .spyOn(apiService, "getCiphersOrganization")
+        .mockResolvedValue({ data: [new CipherResponse(cipherData)] } as any);
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[decrypted], []]);
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllListViewsFromApiForOrganization");
+
+      const result = await cipherService.getAllListViewsFromApiForOrganization(testOrgId);
+
+      expect(sdkServiceSpy).not.toHaveBeenCalled();
+      expect(result.ciphers).toHaveLength(1);
+      expect(result.ciphers[0]).toBeInstanceOf(Cipher);
+      expect(result.views).toEqual([decrypted]);
+    });
+
+    it("should return empty arrays when SDK throws", async () => {
+      sdkCrudFeatureFlag$.next(true);
+      jest
+        .spyOn(cipherSdkService, "getAllListViewsFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getAllListViewsFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual({ ciphers: [], views: [] });
+    });
+  });
+
+  describe("getManyListViewsFromApiForOrganization()", () => {
+    const testOrgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b21" as OrganizationId;
+
+    it("should return encrypted ciphers and sorted list views, including failures", async () => {
+      const encrypted = new Cipher(cipherData);
+      const listView: any = { id: "list-view", name: "b", type: "secureNote" };
+      const failed = new CipherView();
+      failed.name = "a";
+      failed.decryptionFailure = true;
+
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "getManyListViewsFromApiForOrganization")
+        .mockResolvedValue({ ciphers: [encrypted], listViews: [listView], failures: [failed] });
+
+      const result = await cipherService.getManyListViewsFromApiForOrganization(testOrgId);
+
+      expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result.ciphers).toEqual([encrypted]);
+      expect(result.views).toEqual([failed, listView]);
+    });
+
+    it("should return empty arrays when SDK throws", async () => {
+      jest
+        .spyOn(cipherSdkService, "getManyListViewsFromApiForOrganization")
+        .mockRejectedValue(new Error("SDK error"));
+
+      const result = await cipherService.getManyListViewsFromApiForOrganization(testOrgId);
+
+      expect(result).toEqual({ ciphers: [], views: [] });
     });
   });
 

@@ -31,7 +31,10 @@ import {
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+// POC-PERF: TEMPORARY SPEED TEST IMPORT. Remove before release.
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+// POC-PERF: END
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -173,8 +176,8 @@ const mockAccountService: Partial<AccountService> = {
 };
 
 const mockCipherService: Partial<CipherService> = {
-  getAllFromApiForOrganization: () => Promise.resolve(ciphers),
-  getManyFromApiForOrganization: () => Promise.resolve(ciphers),
+  getAllListViewsFromApiForOrganization: () => Promise.resolve({ ciphers: [], views: ciphers }),
+  getManyListViewsFromApiForOrganization: () => Promise.resolve({ ciphers: [], views: ciphers }),
 };
 
 const mockSearchService: Partial<SearchService> = {
@@ -368,6 +371,9 @@ const rootProviders = [
     useValue: { isSelfHost: () => false, copyToClipboard: () => {} },
   },
   { provide: LogService, useValue: { error: () => {}, info: () => {} } },
+  // POC-PERF: TEMPORARY SPEED TEST PROVIDER. Remove before release.
+  { provide: SdkService, useValue: {} },
+  // POC-PERF: END
   { provide: DialogService, useValue: {} },
   { provide: ToastService, useValue: { showToast: () => {} } },
   { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },

@@ -1,0 +1,184 @@
+// ============================================================================================
+// POC-PERF: TEMPORARY SPEED TEST. DO NOT SHIP TO PRODUCTION.
+// Remove this entire file, plus every block marked "POC-PERF" in vault.component.ts, before
+// this change is released.
+//
+// Compares the old Admin Console cipher load path (the SDK decrypts every cipher to an unused
+// list view, then the client decrypts each cipher again, one SDK call at a time) against the
+// single SDK call that decrypts straight to full cipher views, and against the list view path the
+// Admin Console now uses (list views only; a full cipher is decrypted when it is opened).
+//
+// Usage: open an organization's Admin Console vault, then run in the DevTools console:
+//   await bwPocOrgCipherBenchmark()      // 3 iterations
+//   await bwPocOrgCipherBenchmark(5)     // 5 iterations
+// Only timings and cipher counts are logged, never vault data.
+// ============================================================================================
+/* eslint-disable no-console */
+
+import { firstValueFrom } from "rxjs";
+
+import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
+
+type Scenario = { name: string; run: () => Promise<number> };
+
+type ScenarioResult = {
+  scenario: string;
+  "median ms": number;
+  "min ms": number;
+  "max ms": number;
+  decrypted: number | undefined;
+};
+
+export async function runOrgCipherLoadBenchmark(
+  sdkService: SdkService,
+  userId: UserId,
+  organizationId: string,
+  includeMemberItems: boolean,
+  iterations = 3,
+): Promise<ScenarioResult[]> {
+  const sdk = await firstValueFrom(sdkService.userClient$(userId));
+  if (sdk == null) {
+    throw new Error("SDK client is not available");
+  }
+  using ref = sdk.take();
+  const ciphersClient = ref.value.vault().ciphers();
+  const adminClient = ciphersClient.admin();
+  const orgId = asUuid<SdkOrganizationId>(organizationId);
+
+  // Old path: list_org_ciphers decrypts every cipher to a list view that is thrown away, then each
+  // cipher is converted and decrypted again in its own SDK call.
+  const decryptOneByOne = async (sdkCiphers: Cipher[]) => {
+    const views: CipherView[] = [];
+    for (const cipher of sdkCiphers) {
+      try {
+        const sdkView = await ciphersClient.decrypt(cipher.toSdkCipher());
+        views.push(CipherView.fromSdkCipherView(sdkView)!);
+      } catch {
+        // Failures are counted by length below
+      }
+    }
+    return views;
+  };
+
+  // Encrypted ciphers fetched once, so the decrypt-only scenarios compare the same data with no
+  // network time.
+  const encrypted = await adminClient.get_org_ciphers(orgId, includeMemberItems);
+
+  const scenarios: Scenario[] = [
+    {
+      name: "old: end-to-end (list_org_ciphers + per-cipher decrypt)",
+      run: async () => {
+        const result = await adminClient.list_org_ciphers(orgId, includeMemberItems);
+        const ciphers = result.ciphers
+          .map((c) => Cipher.fromSdkCipher(c))
+          .filter((c): c is Cipher => c !== undefined);
+        return (await decryptOneByOne(ciphers)).length;
+      },
+    },
+    {
+      name: "new: end-to-end (list_org_cipher_views)",
+      run: async () => {
+        const result = await adminClient.list_org_cipher_views(orgId, includeMemberItems);
+        return result.successes.map((v) => CipherView.fromSdkCipherView(v)).length;
+      },
+    },
+    {
+      name: "list views: end-to-end (list_org_ciphers)",
+      run: async () => {
+        const result = await adminClient.list_org_ciphers(orgId, includeMemberItems);
+        return result.listViews.length;
+      },
+    },
+    {
+      name: "old: decrypt only (list views + per-cipher decrypt)",
+      run: async () => {
+        await ciphersClient.decrypt_list_with_failures(encrypted);
+        const ciphers = encrypted
+          .map((c) => Cipher.fromSdkCipher(c))
+          .filter((c): c is Cipher => c !== undefined);
+        return (await decryptOneByOne(ciphers)).length;
+      },
+    },
+    {
+      name: "new: decrypt only (decrypt_list_full_with_failures)",
+      run: async () => {
+        const result = await ciphersClient.decrypt_list_full_with_failures(encrypted);
+        return result.successes.map((v) => CipherView.fromSdkCipherView(v)).length;
+      },
+    },
+    {
+      name: "list views: decrypt only (decrypt_list_with_failures)",
+      run: async () => {
+        const result = await ciphersClient.decrypt_list_with_failures(encrypted);
+        return result.successes.length;
+      },
+    },
+    {
+      name: "list views: open one cipher (decrypt)",
+      run: async () => {
+        if (encrypted.length === 0) {
+          return 0;
+        }
+        const sdkView = await ciphersClient.decrypt(encrypted[0]);
+        return CipherView.fromSdkCipherView(sdkView) ? 1 : 0;
+      },
+    },
+  ];
+
+  const timings = new Map<string, number[]>(scenarios.map((s): [string, number[]] => [s.name, []]));
+  const decryptedCounts = new Map<string, number>();
+
+  // Scenarios are interleaved within each iteration so caching and JIT warm-up affect them evenly
+  for (let i = 0; i < iterations; i++) {
+    for (const scenario of scenarios) {
+      const start = performance.now();
+      decryptedCounts.set(scenario.name, await scenario.run());
+      timings.get(scenario.name)!.push(performance.now() - start);
+    }
+  }
+
+  const median = (values: number[]) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  };
+
+  const results: ScenarioResult[] = scenarios.map(({ name }) => {
+    const runs = timings.get(name)!;
+    return {
+      scenario: name,
+      "median ms": Math.round(median(runs)),
+      "min ms": Math.round(Math.min(...runs)),
+      "max ms": Math.round(Math.max(...runs)),
+      decrypted: decryptedCounts.get(name),
+    };
+  });
+
+  const speedup = (oldIndex: number, newIndex: number) => {
+    const oldMs = results[oldIndex]["median ms"];
+    const newMs = results[newIndex]["median ms"];
+    return `${oldMs - newMs} ms saved (${(oldMs / Math.max(newMs, 1)).toFixed(1)}x faster)`;
+  };
+
+  // Plain text lines as well as the table, so the results survive copy/paste out of DevTools
+  console.info(
+    `[POC-PERF] Org cipher load benchmark: ${encrypted.length} ciphers, ${iterations} iterations`,
+  );
+  for (const r of results) {
+    console.info(
+      `[POC-PERF] ${r.scenario}: median ${r["median ms"]} ms (min ${r["min ms"]}, max ${r["max ms"]}), ${r.decrypted} decrypted`,
+    );
+  }
+  console.info(`[POC-PERF] End-to-end, old vs full views: ${speedup(0, 1)}`);
+  console.info(`[POC-PERF] End-to-end, old vs list views: ${speedup(0, 2)}`);
+  console.info(`[POC-PERF] Decrypt only, old vs full views: ${speedup(3, 4)}`);
+  console.info(`[POC-PERF] Decrypt only, old vs list views: ${speedup(3, 5)}`);
+  console.table(results);
+
+  return results;
+}
+// POC-PERF: END OF TEMPORARY SPEED TEST FILE

@@ -21,6 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
@@ -42,6 +43,7 @@ import * as AssignCollectionsModule from "../../../../vault/components/assign-co
 import * as BulkDeleteModule from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
 import { VaultCipherActionsService } from "./vault-cipher-actions.service";
+import { VaultCipherListService } from "./vault-cipher-list.service";
 import { VaultCollectionService } from "./vault-collection.service";
 
 const USER_ID = "user-1" as UserId;
@@ -66,9 +68,24 @@ function buildOrg(overrides: Partial<Organization> = {}): Organization {
   } as Organization;
 }
 
+function buildListView(overrides: Partial<CipherListView> = {}): CipherListView {
+  return {
+    id: "cipher-1",
+    organizationId: ORG_ID,
+    collectionIds: ["col-1"],
+    name: "Test Cipher",
+    type: { login: { username: "user@example.com", totp: undefined, hasFido2: false } },
+    reprompt: CipherRepromptType.None,
+    edit: true,
+    viewPassword: true,
+    ...overrides,
+  } as unknown as CipherListView;
+}
+
 function buildCipher(overrides: Partial<CipherView> = {}): CipherView {
   return {
     id: "cipher-1" as CipherId,
+    type: CipherType.Login,
     reprompt: CipherRepromptType.None,
     edit: true,
     isDeleted: false,
@@ -97,6 +114,7 @@ describe("VaultCipherActionsService", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let i18nService: MockProxy<I18nService>;
   let organizationService: MockProxy<OrganizationService>;
+  let cipherListService: MockProxy<VaultCipherListService>;
 
   let organization: Organization;
   let refresh: jest.Mock;
@@ -129,6 +147,7 @@ describe("VaultCipherActionsService", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     i18nService = mock<I18nService>();
     organizationService = mock<OrganizationService>();
+    cipherListService = mock<VaultCipherListService>();
 
     i18nService.t.mockReturnValue("translated");
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
@@ -161,6 +180,7 @@ describe("VaultCipherActionsService", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: mock<Router>() },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: VaultCipherListService, useValue: cipherListService },
         {
           provide: RoutedVaultFilterService,
           useValue: {
@@ -438,7 +458,7 @@ describe("VaultCipherActionsService", () => {
 
   describe("cloneCipher", () => {
     it("returns false when user declines fido2 credential warning", async () => {
-      const cipher = buildCipher({ login: { hasFido2Credentials: true } } as any);
+      const cipher = buildCipher({ login: { fido2Credentials: [{}] } } as any);
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const result = await service.cloneCipher(cipher);
@@ -448,7 +468,7 @@ describe("VaultCipherActionsService", () => {
     });
 
     it("proceeds to clone when user confirms fido2 warning", async () => {
-      const cipher = buildCipher({ login: { hasFido2Credentials: true } } as any);
+      const cipher = buildCipher({ login: { fido2Credentials: [{}] } } as any);
       dialogService.openSimpleDialog.mockResolvedValue(true);
       jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue(makeDialogRef(undefined));
 
@@ -458,7 +478,7 @@ describe("VaultCipherActionsService", () => {
     });
 
     it("clones without fido2 dialog when cipher has no passkeys", async () => {
-      const cipher = buildCipher({ login: { hasFido2Credentials: false } } as any);
+      const cipher = buildCipher({ login: { fido2Credentials: [] } } as any);
       jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue(makeDialogRef(undefined));
 
       await service.cloneCipher(cipher);
@@ -756,6 +776,7 @@ describe("VaultCipherActionsService", () => {
 
     it("copies password value and collects a password-copied event", async () => {
       const cipher = buildCipher({ login: { password: "s3cr3t" } } as any);
+      cipherListService.getFullCipherView.mockResolvedValue(cipher);
 
       await service.copy(cipher, "password");
 
@@ -818,6 +839,70 @@ describe("VaultCipherActionsService", () => {
     });
   });
 
+  describe("with list views", () => {
+    it("copies the username from the list view without decrypting the full cipher", async () => {
+      await service.copy(buildListView(), "username");
+
+      expect(cipherListService.getFullCipherView).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+        "user@example.com",
+        expect.any(Object),
+      );
+    });
+
+    it("decrypts the full cipher only when copying the password", async () => {
+      const listView = buildListView();
+      cipherListService.getFullCipherView.mockResolvedValue(
+        buildCipher({ login: { password: "s3cr3t" } } as any),
+      );
+
+      await service.copy(listView, "password");
+
+      expect(cipherListService.getFullCipherView).toHaveBeenCalledWith(listView);
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+        "s3cr3t",
+        expect.any(Object),
+      );
+    });
+
+    it("does not decrypt the full cipher when the password cannot be viewed", async () => {
+      await service.copy(buildListView({ viewPassword: false }), "password");
+
+      expect(cipherListService.getFullCipherView).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+    });
+
+    it("opens the view dialog by id and type without decrypting the full cipher", async () => {
+      jest.spyOn(VaultItemDialogComponent, "open").mockReturnValue(makeDialogRef(undefined));
+
+      await service.viewCipherById(buildListView());
+
+      expect(cipherListService.getFullCipherView).not.toHaveBeenCalled();
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "edit",
+        "cipher-1",
+        CipherType.Login,
+      );
+    });
+
+    it("passes decrypted ciphers to the assign collections dialog", async () => {
+      const listView = buildListView();
+      const fullView = buildCipher();
+      cipherListService.getFullCipherViews.mockResolvedValue([fullView]);
+      const openSpy = jest
+        .spyOn(AssignCollectionsModule.AssignCollectionsWebComponent, "open")
+        .mockReturnValue(makeDialogRef(undefined) as any);
+
+      await service.bulkAssignToCollections([listView]);
+
+      expect(cipherListService.getFullCipherViews).toHaveBeenCalledWith([listView]);
+      expect(openSpy).toHaveBeenCalledWith(
+        dialogService,
+        expect.objectContaining({ data: expect.objectContaining({ ciphers: [fullView] }) }),
+      );
+    });
+  });
+
   describe("bulkAssignToCollections", () => {
     it("returns early when reprompt fails", async () => {
       const items = [buildCipher({ reprompt: CipherRepromptType.Password })];
@@ -838,6 +923,7 @@ describe("VaultCipherActionsService", () => {
 
     it("calls refresh when collection assignment is saved", async () => {
       const items = [buildCipher()];
+      cipherListService.getFullCipherViews.mockResolvedValue(items);
       jest
         .spyOn(AssignCollectionsModule.AssignCollectionsWebComponent, "open")
         .mockReturnValue(makeDialogRef(CollectionAssignmentResult.Saved) as any);
@@ -849,6 +935,7 @@ describe("VaultCipherActionsService", () => {
 
     it("does not call refresh when assignment dialog is cancelled", async () => {
       const items = [buildCipher()];
+      cipherListService.getFullCipherViews.mockResolvedValue(items);
       jest
         .spyOn(AssignCollectionsModule.AssignCollectionsWebComponent, "open")
         .mockReturnValue(makeDialogRef(undefined) as any);
