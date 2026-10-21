@@ -32,7 +32,12 @@ import { BillingAddress } from "@bitwarden/web-vault/app/billing/payment/types";
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { InvoicePreviewService } from "../services/invoice-preview.service";
 
-import { RestartSubscriptionDialogComponent } from "./restart-subscription-dialog.component";
+import {
+  RestartSubscriptionDialogComponent,
+  RestartSubscriptionDialogResultType,
+} from "./restart-subscription-dialog.component";
+
+const tokenizeMock = jest.fn();
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +52,7 @@ import { RestartSubscriptionDialogComponent } from "./restart-subscription-dialo
 })
 class StubEnterPaymentMethodComponent {
   readonly group = input<unknown>();
-  tokenize = jest.fn();
+  tokenize = () => tokenizeMock();
 }
 
 @Component({
@@ -102,6 +107,11 @@ describe("RestartSubscriptionDialogComponent", () => {
   let subscriberBillingClient: ReturnType<typeof mock<SubscriberBillingClient>>;
   let billingNotificationService: ReturnType<typeof mock<BillingNotificationService>>;
   let invoicePreviewService: ReturnType<typeof mock<InvoicePreviewService>>;
+  let toastService: ReturnType<typeof mock<ToastService>>;
+  let syncService: ReturnType<typeof mock<SyncService>>;
+  let router: ReturnType<typeof mock<Router>>;
+  let dialogRef: ReturnType<typeof mock<DialogRef>>;
+  let organizationWarningsService: ReturnType<typeof mock<OrganizationWarningsService>>;
   let subscriptionPlan: PlanResponse;
   let availablePlans: PlanResponse[];
 
@@ -116,7 +126,6 @@ describe("RestartSubscriptionDialogComponent", () => {
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = new BehaviorSubject({ id: "user-id" } as never);
     const i18nService = mock<I18nService>();
-    const router = mock<Router>({ url: "/", events: EMPTY });
     i18nService.t.mockImplementation((key: string) => key);
 
     apiService.getPlans.mockResolvedValue({ data: availablePlans } as ListResponse<PlanResponse>);
@@ -124,7 +133,7 @@ describe("RestartSubscriptionDialogComponent", () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: DIALOG_DATA, useValue: { organizationId: "org-id", subscription } },
-        { provide: DialogRef, useValue: mock<DialogRef>() },
+        { provide: DialogRef, useValue: dialogRef },
         { provide: ApiService, useValue: apiService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: AccountService, useValue: accountService },
@@ -132,10 +141,10 @@ describe("RestartSubscriptionDialogComponent", () => {
         { provide: BillingNotificationService, useValue: billingNotificationService },
         { provide: InvoicePreviewService, useValue: invoicePreviewService },
         { provide: I18nService, useValue: i18nService },
-        { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: SyncService, useValue: mock<SyncService>() },
+        { provide: ToastService, useValue: toastService },
+        { provide: SyncService, useValue: syncService },
         { provide: Router, useValue: router },
-        { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
+        { provide: OrganizationWarningsService, useValue: organizationWarningsService },
       ],
     });
     TestBed.overrideComponent(RestartSubscriptionDialogComponent, {
@@ -154,6 +163,7 @@ describe("RestartSubscriptionDialogComponent", () => {
     const fixture = TestBed.createComponent(RestartSubscriptionDialogComponent);
     fixture.detectChanges();
     await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
     return { fixture, component: fixture.componentInstance };
   };
 
@@ -168,6 +178,7 @@ describe("RestartSubscriptionDialogComponent", () => {
       restartCart: { isLoading(): boolean; hasValue(): boolean; error(): unknown };
       previewErrorMessageKey: () => string;
       restartDisabled: () => boolean;
+      submit: () => Promise<void>;
     };
 
   beforeAll(() => {
@@ -193,6 +204,13 @@ describe("RestartSubscriptionDialogComponent", () => {
     subscriberBillingClient.getBillingAddress.mockResolvedValue(savedAddress);
     billingNotificationService = mock<BillingNotificationService>();
     invoicePreviewService = mock<InvoicePreviewService>();
+    toastService = mock<ToastService>();
+    syncService = mock<SyncService>();
+    router = mock<Router>({ url: "/", events: EMPTY });
+    dialogRef = mock<DialogRef>();
+    organizationWarningsService = mock<OrganizationWarningsService>();
+    tokenizeMock.mockReset();
+    tokenizeMock.mockResolvedValue({ type: "card", token: "tok" });
     invoicePreviewService.previewRestartCart.mockResolvedValue({} as Cart);
     subscriptionPlan = plan({});
     availablePlans = [subscriptionPlan];
@@ -421,6 +439,64 @@ describe("RestartSubscriptionDialogComponent", () => {
       );
       expect(dialog.restartCart.isLoading()).toBe(false);
       expect(dialog.restartDisabled()).toBe(true);
+    });
+  });
+
+  describe("submit", () => {
+    const callOrder = (fn: jest.Mock | jest.MockInstance<unknown, never[]>) =>
+      fn.mock.invocationCallOrder[0];
+
+    it("restarts with the tokenized payment method and the form's address, then refreshes, toasts, syncs, navigates and closes", async () => {
+      const dialog = internals(await setup());
+
+      await dialog.submit();
+
+      expect(subscriberBillingClient.restartSubscription).toHaveBeenCalledWith(
+        { type: "organization", data: organization },
+        { type: "card", token: "tok" },
+        getBillingAddressFromForm(dialog.formGroup.controls.billingAddress),
+      );
+      expect(organizationWarningsService.refreshInactiveSubscriptionWarning).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: null,
+        message: "restartOrganizationSubscription",
+      });
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      expect(router.navigate).toHaveBeenCalledWith(["/organizations/org-id/billing/subscription"]);
+      expect(dialogRef.close).toHaveBeenCalledWith(RestartSubscriptionDialogResultType.Submitted);
+
+      const sequence = [
+        subscriberBillingClient.restartSubscription,
+        organizationWarningsService.refreshInactiveSubscriptionWarning,
+        toastService.showToast,
+        syncService.fullSync,
+        router.navigate,
+        dialogRef.close,
+      ].map((fn) => callOrder(fn as jest.Mock));
+      expect(sequence).toEqual([...sequence].sort((a, b) => a - b));
+    });
+
+    it("does not restart when the payment method could not be tokenized", async () => {
+      tokenizeMock.mockResolvedValue(null);
+      const dialog = internals(await setup());
+
+      await dialog.submit();
+
+      expect(subscriberBillingClient.restartSubscription).not.toHaveBeenCalled();
+      expect(dialogRef.close).not.toHaveBeenCalled();
+    });
+
+    it("does not toast, sync, navigate or close when restart fails", async () => {
+      subscriberBillingClient.restartSubscription.mockRejectedValue(new Error("restart failed"));
+      const dialog = internals(await setup());
+
+      await expect(dialog.submit()).rejects.toThrow("restart failed");
+
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(dialogRef.close).not.toHaveBeenCalled();
     });
   });
 });

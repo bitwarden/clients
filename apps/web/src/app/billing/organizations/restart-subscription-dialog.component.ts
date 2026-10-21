@@ -6,9 +6,11 @@ import {
   OnInit,
   resource,
   signal,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { Router } from "@angular/router";
 import { debounceTime, firstValueFrom, merge } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -24,6 +26,7 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -31,8 +34,10 @@ import {
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
+  DialogRef,
   DialogService,
   SpinnerComponent,
+  ToastService,
 } from "@bitwarden/components";
 import { CartSummaryComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -40,6 +45,7 @@ import {
   OrganizationRestartPreviewRequest,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -118,7 +124,13 @@ export class RestartSubscriptionDialogComponent implements OnInit {
   private readonly billingNotificationService = inject(BillingNotificationService);
   private readonly i18nService = inject(I18nService);
   private readonly invoicePreviewService = inject(InvoicePreviewService);
+  private readonly toastService = inject(ToastService);
+  private readonly syncService = inject(SyncService);
+  private readonly router = inject(Router);
+  private readonly dialogRef = inject<DialogRef<RestartSubscriptionDialogResultType>>(DialogRef);
+  private readonly organizationWarningsService = inject(OrganizationWarningsService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly enterPaymentMethodComponent = viewChild.required(EnterPaymentMethodComponent);
 
   protected readonly ResultType = RestartSubscriptionDialogResultType;
 
@@ -264,6 +276,36 @@ export class RestartSubscriptionDialogComponent implements OnInit {
       this.loading.set(false);
     }
   }
+
+  protected readonly submit = async (): Promise<void> => {
+    const organization = this.organization();
+    if (organization == null) {
+      throw new Error("Cannot restart a subscription before the organization has loaded.");
+    }
+
+    const paymentMethod = await this.enterPaymentMethodComponent().tokenize();
+    if (paymentMethod == null) {
+      return;
+    }
+
+    await this.subscriberBillingClient.restartSubscription(
+      { type: "organization", data: organization },
+      paymentMethod,
+      getBillingAddressFromForm(this.formGroup.controls.billingAddress),
+    );
+    this.organizationWarningsService.refreshInactiveSubscriptionWarning();
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("restartOrganizationSubscription"),
+    });
+    await this.syncService.fullSync(true);
+    await this.router.navigate([
+      `/organizations/${this.dialogData.organizationId}/billing/subscription`,
+    ]);
+    await this.dialogRef.close(RestartSubscriptionDialogResultType.Submitted);
+  };
 
   private buildRestartRequest(): OrganizationRestartPreviewRequest | undefined {
     const address = this.formGroup.controls.billingAddress;

@@ -1,4 +1,10 @@
-<form [formGroup]="formGroup" bit-dialog dialogSize="large" [loading]="loading()">
+<form
+  [formGroup]="formGroup"
+  [bitSubmit]="submit"
+  bit-dialog
+  dialogSize="large"
+  [loading]="loading()"
+>
   <span bitDialogTitle class="tw-font-medium">
     {{ "restartSubscription" | i18n }}
   </span>
