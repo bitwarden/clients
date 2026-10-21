@@ -541,6 +541,73 @@ describe("ApproverInboxService", () => {
     });
   });
 
+  describe("approverRows$", () => {
+    const PAST = new Date(Date.now() - 60 * 1000).toISOString();
+    const LATER = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+
+    it("lists pending requests, then approvals not yet started, then running leases", async () => {
+      approvalApi.listInbox.mockResolvedValue([request({ id: "pending" })]);
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "running",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+        request({ id: "ready", status: "approved", producedLeaseId: undefined }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.approverRows$);
+      expect(rows.map((row) => [row.id, row.kind])).toEqual([
+        ["pending", "pending"],
+        ["ready", "ready"],
+        ["running", "active"],
+      ]);
+    });
+
+    it("orders approvals not yet started by when their window opens", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "later", status: "approved", leaseNotBefore: LATER, leaseNotAfter: LATER }),
+        request({ id: "sooner", status: "approved" }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.approverRows$);
+      expect(rows.map((row) => row.id)).toEqual(["sooner", "later"]);
+    });
+
+    it("leaves out decided requests the approver can no longer act on", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({ id: "denied", status: "denied" }),
+        request({ id: "lapsed", status: "approved", leaseNotAfter: PAST }),
+        request({
+          id: "ended",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+        }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.approverRows$)).toEqual([]);
+    });
+
+    it("leaves out an approved extension, which moves its lease rather than minting one", async () => {
+      approvalApi.listHistory.mockResolvedValue(
+        extendedLease(FUTURE, new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString()),
+      );
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.approverRows$);
+      expect(rows.map((row) => row.id)).toEqual(["original"]);
+    });
+  });
+
   it("sorts history newest-resolved first", async () => {
     approvalApi.listHistory.mockResolvedValue([
       request({ id: "older", status: "denied", resolvedAt: "2026-08-17T09:00:00.000Z" }),

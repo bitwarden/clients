@@ -18315,6 +18315,18 @@
   "pamMyRequestsPendingEmpty": {
     "message": "No pending requests"
   },
+  "pamMyRequestsStatusInUse": {
+    "message": "In use",
+    "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
+  },
+  "pamMyRequestsStatusEndingSoon": {
+    "message": "Ending soon",
+    "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing — the same threshold at which the access badge escalates."
+  },
+  "pamNoSharedFoldersToFilter": {
+    "message": "No shared folders to filter by",
+    "description": "Tooltip on the disabled Shared folders filter on Access requests > My requests. Unlike the Status filter, this chip's options come from the rows themselves, so it has nothing to offer when the requester holds no access in any shared folder."
+  },
   "pamMyRequestsHistoryEmpty": {
     "message": "No request history"
   },
@@ -18354,12 +18366,41 @@
   "pamColumnActions": {
     "message": "Actions"
   },
-  "pamWindowUntil": {
-    "message": "Until $DATE$",
+  "pamWindowOnDay": {
+    "message": "$DAY$, $TIME$",
+    "description": "Puts the day in front of a time, or in front of a whole range, in the Requested window column — for example 'Tomorrow, 9 AM to 1 PM' or 'Aug 25, 8:07 PM'. Only used when the window does not fall on today.",
     "placeholders": {
-      "date": {
+      "day": {
         "content": "$1",
-        "example": "2025-06-15 14:00"
+        "example": "Tomorrow"
+      },
+      "time": {
+        "content": "$2",
+        "example": "9 AM to 1 PM"
+      }
+    }
+  },
+  "pamWindowRange": {
+    "message": "$START$ to $END$",
+    "description": "The range an access window covers, on the secondary line of the Requested window column on My requests and on Approvals — for example '5:11 PM to 7:11 PM', or 'Sep 30, 4:12 PM to Oct 3, 4:12 PM' when it spans days. The window's length is stated above it.",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "5:11 PM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "7:11 PM"
+      }
+    }
+  },
+  "pamWindowUntil": {
+    "message": "Until $END$",
+    "description": "An access window that has already opened, so only its end is left to state — shown in the Requested window column on My requests and on Approvals. The end is a time alone when it falls today, otherwise a date and time.",
+    "placeholders": {
+      "end": {
+        "content": "$1",
+        "example": "8:07 PM"
       }
     }
   },
@@ -18402,9 +18443,6 @@
         "example": "Production"
       }
     }
-  },
-  "pamInboxReason": {
-    "message": "Reason"
   },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
@@ -19059,26 +19097,66 @@
   "requestAccessModalRequestCreatedSuccess": {
     "message": "Request submitted — awaiting approval."
   },
-  "pamApprovalsActiveAccessEmpty": {
-    "message": "No active access"
-  },
-  "pamApprovalsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamApprovalsCollectionFilter": {
-    "message": "Collection"
-  },
-  "pamApprovalsPendingEmpty": {
-    "message": "No requests waiting for your decision"
-  },
-  "pamApprovalsPendingSection": {
-    "message": "Pending approval"
-  },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsSearchPlaceholder": {
-    "message": "Search credential, collection, requester"
+  "pamApprovalsStatusInUse": {
+    "message": "In use"
+  },
+  "pamApprovalsStatusEndingSoon": {
+    "message": "Ending soon"
+  },
+  "pamApprovalsApproveRequest": {
+    "message": "Approve request"
+  },
+  "pamApprovalsDenyRequest": {
+    "message": "Deny request"
+  },
+  "pamApprovalsRevokeAccess": {
+    "message": "Revoke access"
+  },
+  "pamWindowTodayRange": {
+    "message": "Today, $START$ to $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "9 AM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "1 PM"
+      }
+    }
+  },
+  "pamWindowTomorrowRange": {
+    "message": "Tomorrow, $START$ to $END$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "9 AM"
+      },
+      "end": {
+        "content": "$2",
+        "example": "1 PM"
+      }
+    }
+  },
+  "pamWindowSameDayRange": {
+    "message": "$DATE$, $START$ to $END$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Sep 30"
+      },
+      "start": {
+        "content": "$2",
+        "example": "9 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "1 PM"
+      }
+    }
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -19178,9 +19256,6 @@
   },
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
-  },
-  "pamInboxWindow": {
-    "message": "Requested window"
   },
   "pamApprovalsNoResults": {
     "message": "No access requests match your filters."
