@@ -440,6 +440,37 @@ describe("RestartSubscriptionDialogComponent", () => {
       expect(dialog.restartCart.isLoading()).toBe(false);
       expect(dialog.restartDisabled()).toBe(true);
     });
+
+    const retryButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector("#restart-subscription-dialog_button_retry-preview");
+
+    it("retries a failed preview with the same address from the try-again link", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValueOnce(
+        new ErrorResponse({ Message: "conflict" }, 409),
+      );
+      const dialog = await open();
+      await settle();
+
+      retryButton()!.click();
+      await settle();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(2);
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenLastCalledWith(
+        "org-id",
+        expectedRequest(dialog, "10115"),
+      );
+      expect(dialog.restartDisabled()).toBe(false);
+    });
+
+    it("offers no try-again link for an invalid-address failure", async () => {
+      invoicePreviewService.previewRestartCart.mockRejectedValue(
+        new ErrorResponse({ Message: "bad request" }, 400),
+      );
+      await open();
+      await settle();
+
+      expect(retryButton()).toBeNull();
+    });
   });
 
   describe("submit", () => {

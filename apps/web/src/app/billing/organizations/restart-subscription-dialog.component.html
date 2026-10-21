@@ -33,6 +33,17 @@
       } @else if (restartCart.error() != null) {
         <bit-callout type="danger" class="tw-mt-4 tw-block">
           {{ previewErrorMessageKey() | i18n }}
+          @if (previewRetryable()) {
+            <button
+              id="restart-subscription-dialog_button_retry-preview"
+              bitLink
+              linkType="primary"
+              type="button"
+              (click)="retryPreview()"
+            >
+              {{ "tryAgain" | i18n }}
+            </button>
+          }
         </bit-callout>
       } @else if (restartCart.hasValue()) {
         <div class="tw-mt-4">

@@ -36,6 +36,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  LinkModule,
   SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
@@ -111,6 +112,7 @@ const getPreviewErrorMessageKey = (error: unknown): string => {
     EnterBillingAddressComponent,
     EnterPaymentMethodComponent,
     I18nPipe,
+    LinkModule,
     ReactiveFormsModule,
     SpinnerComponent,
   ],
@@ -201,6 +203,13 @@ export class RestartSubscriptionDialogComponent implements OnInit {
   protected readonly previewErrorMessageKey = computed(() =>
     getPreviewErrorMessageKey(this.restartCart.error()),
   );
+
+  // Retrying an address the server rejected would fail the same way; the user has to edit it.
+  protected readonly previewRetryable = computed(
+    () => this.previewErrorMessageKey() !== "billingPreviewInvalidAddressError",
+  );
+
+  protected readonly retryPreview = () => this.restartCart.reload();
 
   protected readonly restartDisabled = computed(() => {
     const formRequest = this.formAddressRequest();
