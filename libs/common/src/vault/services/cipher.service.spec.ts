@@ -542,6 +542,32 @@ describe("Cipher Service", () => {
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
     });
+
+    it("should delegate a lease-gated save to cipherSdkService when feature flag is disabled", async () => {
+      sdkCrudFeatureFlag$.next(false);
+
+      const testCipher = new Cipher(cipherData);
+      const cipherView = new CipherView(testCipher);
+      const originalCipherView = new CipherView(testCipher);
+
+      const cipherSdkServiceSpy = jest
+        .spyOn(cipherSdkService, "updateWithServer")
+        .mockResolvedValue(new CipherView(testCipher));
+      const encryptSpy = jest.spyOn(cipherService, "encrypt");
+      const apiSpy = jest.spyOn(apiService, "putCipher");
+
+      await cipherService.updateWithServer(cipherView, userId, originalCipherView, false, true);
+
+      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(
+        cipherView,
+        userId,
+        originalCipherView,
+        false,
+        true,
+      );
+      expect(encryptSpy).not.toHaveBeenCalled();
+      expect(apiSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("encrypt", () => {

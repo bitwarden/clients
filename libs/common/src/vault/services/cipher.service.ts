@@ -943,7 +943,9 @@ export class CipherService implements CipherServiceAbstraction {
     await this.assertWritable(cipherView.id, userId, orgAdmin);
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
-    if (useSdk) {
+    // Only the SDK's `edit_gated` diffs password history against the full original and keeps the
+    // stored copy gated, so a lease-gated save takes the SDK path regardless of the flag.
+    if (useSdk || leaseGated) {
       return await this.updateWithServerUsingSdk(
         cipherView,
         userId,
