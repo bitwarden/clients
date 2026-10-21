@@ -96,6 +96,17 @@ export const COLLECT_SETTLE_MS = 50;
  */
 export const LOGIN_LAST_LAUNCHED_WINDOW_MS = 30000;
 
+/** Why `selectLogin` chooses a cipher, and whether the page-load cipher filter applies. */
+const FillReason = Object.freeze({
+  /** Keyboard shortcut or login cipher-type fill. Next cipher in the URL rotation. */
+  userCommand: "userCommand",
+  /** Auto-submit. Last-launched or last-used, from every cipher for the URL. */
+  policyCommand: "policyCommand",
+  /** Page-load fill. Last-launched or last-used, with the page-load cipher filter. */
+  automatic: "automatic",
+} as const);
+type FillReason = (typeof FillReason)[keyof typeof FillReason];
+
 /**
  * A concrete fill boiled down from a request: the chosen cipher, the rotation key its fillable
  * cipher cycles under (the tab URL for logins, the cipher-type cache key for card/identity), and
@@ -295,13 +306,12 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     if (pageDetails.length === 0) {
       return;
     }
-
-    const cipher = await this.selectLogin(tab.url, activeUserId, true);
+    const cipher = await this.selectLogin(tab.url, activeUserId, FillReason.policyCommand);
     if (cipher == null || (await this.resolveReprompt(cipher, tab, true, tab.url))) {
       return;
     }
 
-    const result = await this.commit({
+    await this.commit({
       tab,
       cipher,
       pageDetails,
@@ -310,9 +320,6 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       allowTotpAutofill: true,
       autoSubmitLogin: true,
     });
-    if (result.outcome === AutofillOutcome.Filled) {
-      this.cycleFillableCipher(tab.url);
-    }
   }
 
   private enqueueUserInitiated(
@@ -466,7 +473,8 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       };
     }
 
-    const cipher = await this.selectLogin(target.url, activeUserId, fromCommand);
+    const reason = request.kind === "pageLoad" ? FillReason.automatic : FillReason.userCommand;
+    const cipher = await this.selectLogin(target.url, activeUserId, reason);
     if (cipher == null) {
       return undefined;
     }
@@ -485,22 +493,24 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   }
 
   /**
-   * Selects the login cipher for a URL. A command-initiated fill takes the next cipher in the
-   * URL's rotation; a page-load fill prefers a cipher launched within the last
-   * {@link LOGIN_LAST_LAUNCHED_WINDOW_MS}, else the last one used for the URL.
+   * Selects the login cipher for a URL. `userCommand` takes the next cipher in the URL's rotation.
+   * `policyCommand` and `automatic` prefer a cipher launched within the last
+   * {@link LOGIN_LAST_LAUNCHED_WINDOW_MS}, else the last one used for the URL. Only `automatic`
+   * applies the per-item autofill-on-page-load filter.
    */
   private async selectLogin(
     tabUrl: string,
     activeUserId: UserId,
-    fromCommand: boolean,
+    reason: FillReason,
   ): Promise<CipherView | undefined> {
-    if (fromCommand) {
+    if (reason === FillReason.userCommand) {
       return (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId)) ?? undefined;
     }
+    const isAutomatic = reason === FillReason.automatic;
     const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
       tabUrl,
       activeUserId,
-      true,
+      isAutomatic,
     );
     const lastLaunched = lastLaunchedCipher?.localData?.lastLaunched;
     if (
@@ -510,7 +520,8 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     ) {
       return lastLaunchedCipher;
     }
-    return (await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, true)) ?? undefined;
+    const cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, isAutomatic);
+    return cipher ?? undefined;
   }
 
   /** Selects the next card or identity cipher and the cache key its rotation index advances under. */

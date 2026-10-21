@@ -519,7 +519,10 @@ export class SettingsDialogComponent implements OnInit {
         // above still allows biometric unlock.
         await this.enrollPersistentBiometricIfNeeded(activeUserId);
       } else {
-        this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
+        // Awaited instead of emitted: the change handler deletes the biometric key before storing
+        // it again, and running it in parallel races the validation below.
+        this.form.controls.requireMasterPasswordOnAppRestart.setValue(true, { emitEvent: false });
+        await this.updateRequireMasterPasswordOnAppRestart(true, activeUserId);
       }
     } else if (this.isMac) {
       // Touch ID always persists the key. Enrolling records the enrolled key id, so the
