@@ -38,6 +38,7 @@
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
+      "BitwardenAppGroupIdentifier": "LTZ2PFU5D6.com.bitwarden.desktop",
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
         "en",
@@ -203,6 +204,7 @@
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
     "minVersion": "10.0.14393.0",
+    "maxVersionTested": "10.0.26100.0",
     "customExtensionsPath": "../custom-appx-extensions.stable.xml",
     "publisherDisplayName": "Bitwarden Inc",
     "languages": [

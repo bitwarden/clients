@@ -1,5 +1,5 @@
-import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { NgComponentOutlet, NgTemplateOutlet } from "@angular/common";
+import { ChangeDetectionStrategy, Component, computed, inject, Type } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { isActive, IsActiveMatchOptions, QueryParamsHandling, Router } from "@angular/router";
 import { switchMap } from "rxjs";
@@ -9,6 +9,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   A11yTitleDirective,
+  HoverRevealContainerDirective,
+  HoverRevealDirective,
   IconModule,
   IconTileComponent,
   IconTileOptions,
@@ -24,11 +26,17 @@ import {
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   sharedFoldersCommands,
+  showsVaultsSection,
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
+import {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "../../tokens/vault-nav-organization-options.token";
+import { CoachmarkStep } from "../coachmark/coachmark-step";
 import { CoachmarkComponent } from "../coachmark/coachmark.component";
 import { CoachmarkService } from "../coachmark/coachmark.service";
 
@@ -42,6 +50,9 @@ import { CoachmarkService } from "../coachmark/coachmark.service";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgTemplateOutlet,
+    NgComponentOutlet,
+    HoverRevealContainerDirective,
+    HoverRevealDirective,
     I18nPipe,
     NavigationModule,
     IconTileComponent,
@@ -58,6 +69,11 @@ export class VaultNavSectionComponent {
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
   protected readonly coachmark = inject(CoachmarkService);
+
+  protected readonly organizationOptions = inject<Type<VaultNavOrganizationOptions>>(
+    VAULT_NAV_ORGANIZATION_OPTIONS,
+    { optional: true },
+  );
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -171,6 +187,12 @@ export class VaultNavSectionComponent {
     return nav != null && isPersonalOnly(nav);
   });
 
+  /** Whether to render the Vaults header over the list of vaults. */
+  protected readonly showsVaultsSection = computed(() => {
+    const nav = this.vaultNav();
+    return nav != null && showsVaultsSection(nav);
+  });
+
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);
   }
@@ -187,7 +209,16 @@ export class VaultNavSectionComponent {
   /** Whether the tour's popover anchors to this vault's Shared folders entry. */
   protected coachmarkTargets(vault: VaultNavItemViewModel): boolean {
     return (
-      this.coachmark.isStepActive("shareWithCollections") && vault.id === this.coachmarkVaultId()
+      (this.coachmark.isStepActive("shareWithCollections") ||
+        this.coachmark.isStepActive("sharedFolders")) &&
+      vault.id === this.coachmarkVaultId()
+    );
+  }
+
+  /** Where the popover sits, which depends on which tour's Shared folders step is active. */
+  protected coachmarkPosition(): CoachmarkStep["position"] | undefined {
+    return this.coachmark.getStepPosition(
+      this.coachmark.isStepActive("sharedFolders") ? "sharedFolders" : "shareWithCollections",
     );
   }
 

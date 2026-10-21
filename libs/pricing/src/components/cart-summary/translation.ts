@@ -1,6 +1,6 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { PlanTier, PurchasableReference } from "../../types/invoice-preview";
+import { PlanTier, PurchasableReference, SeatReference } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
 
@@ -44,11 +44,16 @@ export const getCartItemTranslationKey = (
       return "additionalStorageGbLower";
     case "sm-seat":
       return getSeatUnitTranslationKey(
-        getSecretsManagerSeatTranslationKey(flowContext),
+        getAddOnSeatTranslationKey(flowContext, "secretsManagerPlanPrice"),
         quantity ?? 0,
       );
     case "sm-service-account":
       return "additionalServiceAccountsLower";
+    case "pam-seat":
+      return getSeatUnitTranslationKey(
+        getAddOnSeatTranslationKey(flowContext, "privilegedControlsPlanPrice"),
+        quantity ?? 0,
+      );
     default: {
       // `reference` is a closed union, so this arm is unreachable through the type system. It
       // still guards against a server value outside the union reaching us at runtime.
@@ -109,14 +114,18 @@ const getPasswordManagerSeatTranslationKey = (
 };
 
 /**
- * Resolves the translation key for a Secrets Manager seat based on the flow context.
+ * Resolves the translation key for an add-on seat (Secrets Manager, Privileged Controls) based on
+ * the flow context.
  */
-const getSecretsManagerSeatTranslationKey = (flowContext: InvoicePreviewFlowContext): string => {
+const getAddOnSeatTranslationKey = (
+  flowContext: InvoicePreviewFlowContext,
+  planPriceKey: string,
+): string => {
   switch (flowContext) {
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
       return "membersLower";
     default:
-      return "secretsManagerPlanPrice";
+      return planPriceKey;
   }
 };
 
@@ -147,30 +156,38 @@ export const getCreditTranslationKey = (
 export const getSeatUnitTranslationKey = (key: string, quantity: number): string =>
   key === "membersLower" && quantity === 1 ? "memberLower" : key;
 
+const prorationChargeKeys: Record<PurchasableReference, string> = {
+  "pm-seat": "passwordManagerProratedCharge",
+  "pm-storage": "storageProratedCharge",
+  "sm-seat": "secretsManagerProratedCharge",
+  "sm-service-account": "serviceAccountsProratedCharge",
+  "pam-seat": "privilegedControlsProratedCharge",
+};
+
 /**
  * Resolves the translation key for a proration charge line by the purchasable it offsets,
  * falling back to the group's seat reference when the server omits the reference.
  */
 export const getProrationChargeTranslationKey = (
   reference: PurchasableReference | undefined,
-  seatReference: PurchasableReference,
+  seatReference: SeatReference,
+  logService: LogService,
 ): string => {
+  if (reference == null) {
+    return prorationChargeKeys[seatReference];
+  }
+
   // `reference` passes through the response unvalidated, so an unknown server value is possible;
   // fall back to the group's charge key rather than rendering a blank label.
-  switch (reference ?? seatReference) {
-    case "pm-seat":
-      return "passwordManagerProratedCharge";
-    case "pm-storage":
-      return "storageProratedCharge";
-    case "sm-seat":
-      return "secretsManagerProratedCharge";
-    case "sm-service-account":
-      return "serviceAccountsProratedCharge";
-    default:
-      return seatReference === "pm-seat"
-        ? "passwordManagerProratedCharge"
-        : "secretsManagerProratedCharge";
+  const key: string | undefined = prorationChargeKeys[reference];
+  if (typeof key !== "string") {
+    logService.error(
+      `Unmapped proration charge reference "${reference}"; using the "${seatReference}" charge label`,
+    );
+    return prorationChargeKeys[seatReference];
   }
+
+  return key;
 };
 /**
  * Resolves the seat label that carries the plan name and prorated month count. Only the

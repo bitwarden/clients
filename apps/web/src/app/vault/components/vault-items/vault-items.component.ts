@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, EventEmitter, Input, Output, Signal, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Observable, of, switchMap } from "rxjs";
 
 import {
@@ -11,6 +11,8 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -31,6 +33,7 @@ import {
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 76.5;
@@ -131,6 +134,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   protected readonly batchBarService = inject(VaultBatchBarService) as VaultBatchBarService<C>;
 
+  protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
+
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
   get selection(): SelectionModel<VaultItem<C>> {
@@ -138,14 +143,21 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
   protected showQuickCopyActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
+  private readonly pamEnabled: Signal<boolean>;
 
   private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
+  private readonly configService = inject(ConfigService);
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.showQuickCopyActions$ = this.vaultCopyButtonsService.showQuickCopyActions$;
+
+    this.pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+      initialValue: false,
+    });
+
     this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {
       this.restrictedTypes = types;
       this.refreshItems();
@@ -157,7 +169,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get showExtraColumn() {
-    return this.showCollections || this.showGroups || this.showOwner;
+    return this.showCollections || this.showGroups || this.showOwner || this.showControlledAccess;
+  }
+
+  /** The badge is host-provided; without it the column has nothing to render. */
+  get showControlledAccess() {
+    return (
+      this.pamEnabled() && this.leaseBadge != null && this.allOrganizations.some((o) => o.usePam)
+    );
   }
 
   /**
@@ -346,9 +365,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
     // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted
+    // Gated ("partial") ciphers are read-only, so they are never selectable
     this.editableItems = items.filter(
       (item) =>
-        (item.cipher !== undefined && this.canEditCipher(item.cipher)) ||
+        (item.cipher !== undefined &&
+          this.canEditCipher(item.cipher) &&
+          !CipherViewLikeUtils.isPartial(item.cipher)) ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );

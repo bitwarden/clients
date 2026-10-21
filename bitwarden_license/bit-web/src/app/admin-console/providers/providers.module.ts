@@ -40,8 +40,6 @@ import { ProviderActionsService } from "./manage/services/provider-actions/provi
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { WebProviderService } from "./services/web-provider.service";
-import { AccountComponent } from "./settings/account.component";
-import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-provider.component";
 
 @NgModule({
   imports: [
@@ -66,7 +64,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
   ],
   declarations: [
     AcceptProviderComponent,
-    AccountComponent,
     EventsComponent,
     MembersComponent,
     AddEditMemberDialogComponent,
@@ -79,7 +76,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ProviderBillingHistoryComponent,
     ProviderSubscriptionComponent,
     ProviderSubscriptionStatusComponent,
-    VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
   providers: [WebProviderService, ProviderActionsService],
