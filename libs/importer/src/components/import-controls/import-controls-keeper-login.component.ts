@@ -153,8 +153,8 @@ export class ImportControlsKeeperLoginComponent {
         controls.keeperDnaMethod.setValue(stage.methods[0] ?? null);
       }
 
-      // A rejected code or password is shown on its field; a fresh prompt starts empty. Secrets
-      // are cleared as soon as their prompt is over.
+      // A rejected code or password is shown on its field; a fresh prompt starts empty. A rejected
+      // code stays in the field so the user can see what they entered; the password is cleared.
       const codeWasRejected =
         codeStage && (stage.kind === "approvalCode" || stage.kind === "twoFactorCode")
           ? stage.previousCodeRejected
@@ -163,10 +163,13 @@ export class ImportControlsKeeperLoginComponent {
       this.codeRejected.set(codeWasRejected);
       this.passwordRejected.set(passwordWasRejected);
 
-      controls.keeperCode.reset("");
       controls.keeperPassword.reset("");
       if (codeWasRejected) {
+        controls.keeperCode.markAsPristine();
         controls.keeperCode.markAsTouched();
+        controls.keeperCode.updateValueAndValidity();
+      } else {
+        controls.keeperCode.reset("");
       }
       if (passwordWasRejected) {
         controls.keeperPassword.markAsTouched();
@@ -175,12 +178,11 @@ export class ImportControlsKeeperLoginComponent {
       controls.keeperSsoToken.reset("");
     });
 
-    // The answer has already been handed over, so it isn't left in the form while the request
-    // runs. Disabled controls don't validate, so the cleared field shows no "required" error.
+    // The password and token have already been handed over, so they aren't left in the form while
+    // the request runs. Disabled controls don't validate, so no "required" error shows.
     effect(() => {
       const controls = this.form.controls;
       if (this.busy()) {
-        controls.keeperCode.reset("");
         controls.keeperPassword.reset("");
         controls.keeperSsoToken.reset("");
       }

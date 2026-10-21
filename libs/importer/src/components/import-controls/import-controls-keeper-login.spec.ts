@@ -448,7 +448,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
       expect(text()).toContain("keeperLoginEmailCodeDesc");
       expect(text()).toContain("keeperLoginCodeInvalid");
-      expect(codeInput().value).toBe("");
+      expect(codeInput().value).toBe("000000");
 
       await typeCode("123456");
 
@@ -958,7 +958,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
       expect(prompts[1]).toBe("654321");
     });
 
-    it("shows a rejected code on the field and starts the next prompt empty", async () => {
+    it("shows a rejected code on the field, keeping what was entered", async () => {
       await startLogin(async (ui) => {
         await ui.provideApprovalCode(DeviceApprovalChannel.Email);
         await ui.provideApprovalCode(DeviceApprovalChannel.Email, { previousCodeRejected: true });
@@ -972,7 +972,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
         "keeperLoginCodeInvalid",
       );
       expect(loginControls().keeperCode.touched).toBe(true);
-      expect(loginControls().keeperCode.value).toBe("");
+      expect(loginControls().keeperCode.value).toBe("bad");
     });
   });
 
@@ -1039,7 +1039,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
   });
 
   describe("busy state", () => {
-    it("keeps the code field on screen, locked and cleared, while Continue shows the spinner", async () => {
+    it("keeps the code field on screen, locked and showing what was entered, while Continue shows the spinner", async () => {
       let release: () => void = () => undefined;
       const serverReplies = new Promise<void>((resolve) => {
         release = resolve;
@@ -1054,7 +1054,7 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
 
       expect(continueBusy()).toBe(true);
       expect(codeInput()).toBe(input);
-      expect(codeInput().value).toBe("");
+      expect(codeInput().value).toBe("123456");
       expect(codeInput().closest("[inert]")).not.toBeNull();
       expect(text()).toContain("keeperLoginEmailCodeDesc");
       expect(text()).not.toContain("importingYourAccount");

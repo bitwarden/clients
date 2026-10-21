@@ -121,29 +121,31 @@ export class ImportControlsLastPassLoginComponent {
       setEnabled(controls.lastPassCode, stage.kind === "code");
       setEnabled(controls.lastPassPassword, stage.kind === "password");
 
-      // A rejected code or password is shown on its field; a fresh prompt starts empty. Secrets
-      // are cleared as soon as their prompt is over.
+      // A rejected code or password is shown on its field; a fresh prompt starts empty. A rejected
+      // code stays in the field so the user can see what they entered; the password is cleared.
       const codeWasRejected = stage.kind === "code" && stage.previousCodeRejected;
       const passwordWasRejected = stage.kind === "password" && stage.previousPasswordRejected;
       this.codeRejected.set(codeWasRejected);
       this.passwordRejected.set(passwordWasRejected);
 
-      controls.lastPassCode.reset("");
       controls.lastPassPassword.reset("");
       if (codeWasRejected) {
+        controls.lastPassCode.markAsPristine();
         controls.lastPassCode.markAsTouched();
+        controls.lastPassCode.updateValueAndValidity();
+      } else {
+        controls.lastPassCode.reset("");
       }
       if (passwordWasRejected) {
         controls.lastPassPassword.markAsTouched();
       }
     });
 
-    // The answer has already been handed over, so it isn't left in the form while the request
+    // The password has already been handed over, so it isn't left in the form while the request
     // runs. Disabled controls don't validate, so the cleared field shows no "required" error.
     effect(() => {
       const controls = this.form.controls;
       if (this.busy()) {
-        controls.lastPassCode.reset("");
         controls.lastPassPassword.reset("");
       }
       const stage = untracked(this.stage);

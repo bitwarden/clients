@@ -320,6 +320,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       expect(loginControls().lastPassCode.errors.lastPassCodeRejected.message).toBe(
         "lastPassLoginCodeInvalid",
       );
+      expect(loginControls().lastPassCode.value).toBe("000000");
       expect(toastService.showToast).not.toHaveBeenCalled();
     });
 
@@ -548,7 +549,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
       await component().lastPassLogin();
     });
 
-    it("keeps the code field on screen, locked and cleared, while Continue shows the spinner", async () => {
+    it("keeps the code field on screen, locked and showing what was entered, while Continue shows the spinner", async () => {
       const server = waitForServer();
       await startLogin(async (session) => {
         await session.provideGoogleAuthPasscode();
@@ -560,7 +561,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
 
       expect(continueBusy()).toBe(true);
       expect(byId("importer-controls_input_lastpass-code").nativeElement).toBe(input);
-      expect(input.value).toBe("");
+      expect(input.value).toBe("123456");
       expect(input.closest("[inert]")).not.toBeNull();
       expect(loginControls().lastPassCode.disabled).toBe(true);
       expect(text()).not.toContain("verificationCodeRequired");
