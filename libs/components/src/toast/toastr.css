@@ -1,5 +1,37 @@
 @import "./toast.tokens.css";
-@import "ngx-toastr/toastr";
+
+/*
+ * Chrome 152+ bug workaround: don't import "ngx-toastr/toastr" until Chrome fixes it.
+ *
+ * Its width-range media queries make scrolling in the extension popup janky. Chrome now remeasures
+ * auto-sized popups on every layout change, the queries flip each time, and every scroll frame pays
+ * for a full style and layout recalc. So we copy only the ngx-toastr rules our toasts rely on.
+ * https://github.com/willmartian/chrome-popup-autosize-scroll-repro
+ */
+.toast-container {
+  pointer-events: none;
+  position: fixed;
+  z-index: 999999;
+}
+
+.toast-container * {
+  box-sizing: border-box;
+}
+
+.toast-container.toast-top-right {
+  top: 12px;
+  right: 12px;
+}
+
+.toast-container.toast-top-full-width,
+.toast-container.toast-bottom-full-width {
+  right: 0;
+  width: 100%;
+}
+
+.toast-container.toast-bottom-full-width {
+  bottom: 0;
+}
 
 /* Override all default styles from `ngx-toaster` */
 .toast-container .ngx-toastr {
@@ -11,9 +43,10 @@
   -webkit-app-region: no-drag;
 }
 
-/* Disable hover styles */
-.toast-container .ngx-toastr:hover {
-  box-shadow: none;
+.toast-container.toast-top-full-width .ngx-toastr {
+  width: 96%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .toast-container.toast-bottom-full-width .ngx-toastr {
