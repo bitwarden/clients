@@ -568,7 +568,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {
-    return this.userPrivateKeyHelper$(userId)?.pipe(
+    return this.sdkService.cryptoReady$(userId).pipe(
+      distinctUntilChanged(),
+      // Keys are held back until the SDK client can decrypt with them, so consumers keep their
+      // previous value through an unlock. `null` passes through regardless, so a lock is seen right away.
+      // Gated here and not on userPrivateKeyHelper$: setOrgKeys awaits the private key before it
+      // marks the client ready.
+      switchMap((ready) =>
+        ready
+          ? this.userPrivateKeyHelper$(userId)
+          : this.userPrivateKeyHelper$(userId).pipe(filter((userKeys) => userKeys == null)),
+      ),
       switchMap((userKeys) => {
         if (userKeys == null) {
           return of(null);
