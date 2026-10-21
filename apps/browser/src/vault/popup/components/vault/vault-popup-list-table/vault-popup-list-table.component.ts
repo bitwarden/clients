@@ -61,7 +61,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  collectionInScope,
   CoachmarkComponent,
   CoachmarkService,
   EmptyVaultComponent,
@@ -91,11 +90,11 @@ import {
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
+import { collectionOptionsInScope, folderOptionsInScope } from "../../../utils/filter-options";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
-
-import { flattenOptions, folderOptionsInScope } from "./filter-options";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -160,6 +159,7 @@ export class VaultPopupListTableComponent {
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly coachmark = inject(CoachmarkService);
+  private readonly vaultTour = inject(VaultPopupTourService);
   private readonly popoverService = inject(PopoverService);
 
   /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
@@ -184,9 +184,9 @@ export class VaultPopupListTableComponent {
     viewChild.required<CoachmarkComponent>("sharedFoldersCoachmark");
 
   /**
-   * Anchors the tour's filter steps inside the toolbar: the filter button, then the Shared folders
-   * (or else My folders) row of the filter dialog it opens. Both live in the toolbar's own template, so the popovers
-   * open from code rather than from `[bitPopoverAnchorFor]`.
+   * Anchors the tour's filter steps inside the toolbar: the filter button, then the filter dialog
+   * row {@link VaultPopupTourService} picked when it started the tour. Both live in the toolbar's
+   * own template, so the popovers open from code rather than from `[bitPopoverAnchorFor]`.
    */
   private readonly showFilterCoachmarks = effect((onCleanup) => {
     const toolbar = this.toolbar();
@@ -207,9 +207,9 @@ export class VaultPopupListTableComponent {
       return;
     }
 
-    if (this.coachmark.isStepActive("sharedFolders")) {
-      // Falls back to My folders when the scoped vault has no Shared folders row to point at.
-      const rowKey = untracked(() => (this.collectionOptions().length ? "collection" : "folder"));
+    // The tour drops this step when it has no row to point at.
+    const rowKey = untracked(() => this.vaultTour.sharedFoldersRow());
+    if (this.coachmark.isStepActive("sharedFolders") && rowKey) {
       untracked(() => {
         this.filterDialogOpen.set(true);
         this.tourOpenedFilterDialog.set(true);
@@ -400,12 +400,9 @@ export class VaultPopupListTableComponent {
    * Narrowed to the scoped vault's collections — the vault chip is gone, so the filter service
    * hands back every organization's.
    */
-  protected readonly collectionOptions = computed(() => {
-    const scope = this.listTableService.vaultScope();
-    return flattenOptions(this.collectionTree()).filter(
-      (option) => option.value != null && collectionInScope(option.value, scope),
-    );
-  });
+  protected readonly collectionOptions = computed(() =>
+    collectionOptionsInScope(this.collectionTree(), this.listTableService.vaultScope()),
+  );
   /** Every active cipher, before the search narrows it — the folder chip's options come from here. */
   private readonly activeCiphers = toSignal(this.vaultPopupItemsService.activeCiphers$, {
     initialValue: [] as PopupCipherViewLike[],

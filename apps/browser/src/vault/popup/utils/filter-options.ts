@@ -1,7 +1,14 @@
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ChipFilterOption } from "@bitwarden/components";
-import { cipherInScope, idString, type VaultScope, VaultScopeType } from "@bitwarden/vault";
+import {
+  cipherInScope,
+  collectionInScope,
+  idString,
+  type VaultScope,
+  VaultScopeType,
+} from "@bitwarden/vault";
 
 /**
  * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
@@ -10,6 +17,16 @@ import { cipherInScope, idString, type VaultScope, VaultScopeType } from "@bitwa
  */
 export function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
+}
+
+/** The collection options a vault lists. */
+export function collectionOptionsInScope(
+  collectionTree: ChipFilterOption<CollectionView>[],
+  scope: VaultScope,
+): ChipFilterOption<CollectionView>[] {
+  return flattenOptions(collectionTree).filter(
+    (option) => option.value != null && collectionInScope(option.value, scope),
+  );
 }
 
 /** The folder options a vault lists, narrowed against its ciphers since folders belong to none. */

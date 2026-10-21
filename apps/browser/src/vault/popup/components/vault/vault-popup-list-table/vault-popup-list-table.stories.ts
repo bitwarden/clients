@@ -89,6 +89,7 @@ import {
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -717,6 +718,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
+    { provide: VaultPopupTourService, useValue: { sharedFoldersRow: signal(null) } },
     {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(true) },

@@ -65,11 +65,8 @@ import {
   TypographyModule,
   CalloutModule,
 } from "@bitwarden/components";
-import { StateProvider } from "@bitwarden/state";
 import {
   ALL_ITEMS_SCOPE,
-  CoachmarkService,
-  collectionInScope,
   DecryptionFailureDialogComponent,
   DefaultVaultItemsTransferService,
   NewExperienceDialogResult,
@@ -94,7 +91,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupListTableService } from "../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
-import { extensionVaultTour } from "../../tours/extension-vault-tour";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
 import { VaultFadeInOutComponent } from "../vault-fade-in-out/vault-fade-in-out.component";
 import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/vault-fade-in-out-skeleton.component";
@@ -108,7 +105,6 @@ import {
 } from "./new-item-dropdown/new-item-dropdown.component";
 import { AppVaultFabComponent } from "./vault-fab/vault-fab.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
-import { folderOptionsInScope } from "./vault-popup-list-table/filter-options";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 import { VaultSwitcherComponent } from "./vault-switcher/vault-switcher.component";
 
@@ -307,8 +303,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly newExperienceDialogService = inject(NewExperienceDialogService);
-  private readonly stateProvider = inject(StateProvider);
-  private readonly coachmark = inject(CoachmarkService);
+  private readonly vaultTourService = inject(VaultPopupTourService);
 
   /** The account's vaults; `undefined` until they load. */
   private readonly vaultNav = toSignal(
@@ -533,21 +528,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const [nav, collections, folders, ciphers] = await Promise.all([
-      firstValueFrom(this.vaultNavService.viewModel$(userId)),
-      firstValueFrom(this.collectionService.decryptedCollections$(userId)),
-      firstValueFrom(this.vaultPopupListTableFiltersService.folders$),
-      firstValueFrom(this.vaultPopupItemsService.activeCiphers$),
-    ]);
-    // The popup can be scoped to a single vault here, so check the filters that vault lists.
-    const scope = this.vaultScope();
-    const hasFolderFilterInScope =
-      scope != null &&
-      (collections.some((collection) => collectionInScope(collection, scope)) ||
-        folderOptionsInScope(folders, ciphers, scope).length > 0);
-    await this.coachmark.startTour(
-      extensionVaultTour(this.stateProvider, nav.vaults.length > 1, hasFolderFilterInScope),
-    );
+    await this.vaultTourService.start(userId);
   }
 
   ngOnDestroy() {

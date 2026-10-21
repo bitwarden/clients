@@ -87,6 +87,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 import { VaultComponent } from "./vault.component";
@@ -567,18 +568,6 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     { provide: SearchService, useValue: { isCipherSearching$: of(false) } },
-    {
-      provide: CoachmarkService,
-      useValue: {
-        isStepActive: () => false,
-        getStepPosition: () => undefined,
-        getStepTitle: () => "",
-        getStepDescription: () => "",
-        getStepLearnMoreUrl: () => undefined,
-        currentStepNumber: signal(0),
-        totalSteps: signal(0),
-      } as Partial<CoachmarkService>,
-    },
     // `VaultComponent` hardcodes `useClass: DefaultVaultItemsTransferService` in its own
     // `providers`, which outrank `applicationConfig`, so the real implementation is always
     // constructed and these two dependencies of it have to be satisfied here.
@@ -711,6 +700,7 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: TotpService, useValue: {} },
     { provide: CoachmarkService, useValue: mockCoachmarkService },
+    { provide: VaultPopupTourService, useValue: { sharedFoldersRow: signal(null) } },
     { provide: PasswordRepromptService, useValue: {} },
     { provide: ToastService, useValue: { showToast: () => {} } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },

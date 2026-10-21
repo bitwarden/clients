@@ -64,6 +64,10 @@ import { VaultPopupListTableFiltersService } from "../../../services/vault-popup
 import { VaultPopupListTableService } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import {
+  SharedFoldersRow,
+  VaultPopupTourService,
+} from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -236,10 +240,13 @@ describe("VaultPopupListTableComponent", () => {
   const coachmarkService = mock<CoachmarkService>({
     isStepActive: (stepId: CoachmarkStepId) => activeStep() === stepId,
   });
+  /** The filter dialog row the tour picked for its shared folders step. */
+  const sharedFoldersRow = signal<SharedFoldersRow | null>("collection");
 
   beforeEach(async () => {
     jest.clearAllMocks();
     activeStep.set(null);
+    sharedFoldersRow.set("collection");
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
@@ -270,6 +277,7 @@ describe("VaultPopupListTableComponent", () => {
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
         { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: VaultPopupTourService, useValue: { sharedFoldersRow } },
         { provide: WINDOW, useValue: window },
         {
           provide: ViewCacheService,
@@ -1204,8 +1212,8 @@ describe("VaultPopupListTableComponent", () => {
       );
     });
 
-    it("anchors the My folders row for the shared folders step when there are no Shared folders", () => {
-      collections$.next([]);
+    it("anchors the My folders row for the shared folders step when the tour picked it", () => {
+      sharedFoldersRow.set("folder");
       activeStep.set("sharedFolders");
       fixture.detectChanges();
 
@@ -1214,6 +1222,15 @@ describe("VaultPopupListTableComponent", () => {
         toolbar.filterRow("folder"),
         expect.objectContaining({ spotlight: true }),
       );
+    });
+
+    it("leaves the filter dialog closed when the tour has no row for the shared folders step", () => {
+      sharedFoldersRow.set(null);
+      activeStep.set("sharedFolders");
+      fixture.detectChanges();
+
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+      expect(openPopover).not.toHaveBeenCalled();
     });
 
     it("closes the filter dialog when the tour leaves the shared folders step", () => {
