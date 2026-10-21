@@ -265,12 +265,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     asAdmin?: boolean,
     orgId?: OrganizationId,
   ): Promise<void>;
-  abstract deleteAttachment(
-    id: string,
-    revisionDate: string,
-    attachmentId: string,
-    userId: UserId,
-  ): Promise<CipherData>;
   abstract deleteAttachmentWithServer(
     id: string,
     attachmentId: string,
