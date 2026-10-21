@@ -23,12 +23,14 @@ const writeLn = CliUtils.writeLn;
 
 export class VaultProgram extends BaseProgram {
   async register() {
+    const sharedFolders = await this.sharedFoldersEnabled();
+
     program
-      .addCommand(await this.listCommand())
-      .addCommand(await this.getCommand())
-      .addCommand(await this.createCommand())
-      .addCommand(await this.editCommand())
-      .addCommand(await this.deleteCommand())
+      .addCommand(this.listCommand(sharedFolders))
+      .addCommand(this.getCommand(sharedFolders))
+      .addCommand(this.createCommand(sharedFolders))
+      .addCommand(this.editCommand(sharedFolders))
+      .addCommand(this.deleteCommand(sharedFolders))
       .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
@@ -69,9 +71,7 @@ export class VaultProgram extends BaseProgram {
     return success;
   }
 
-  private async listCommand(): Promise<Command> {
-    const sharedFolders = await this.sharedFoldersEnabled();
-
+  private listCommand(sharedFolders: boolean): Command {
     const listObjects = [
       "items",
       "folders",
@@ -170,8 +170,7 @@ export class VaultProgram extends BaseProgram {
     return command;
   }
 
-  private async getCommand(): Promise<Command> {
-    const sharedFolders = await this.sharedFoldersEnabled();
+  private getCommand(sharedFolders: boolean): Command {
     const getObjects = [
       "item",
       "username",
@@ -253,8 +252,7 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private async createCommand(): Promise<Command> {
-    const sharedFolders = await this.sharedFoldersEnabled();
+  private createCommand(sharedFolders: boolean): Command {
     const createObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
     const shownObjects = this.visibleObjects(createObjects, sharedFolders);
     return new Command("create")
@@ -306,8 +304,7 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private async editCommand(): Promise<Command> {
-    const sharedFolders = await this.sharedFoldersEnabled();
+  private editCommand(sharedFolders: boolean): Command {
     const editObjects = [
       "item",
       "item-collections",
@@ -367,8 +364,7 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private async deleteCommand(): Promise<Command> {
-    const sharedFolders = await this.sharedFoldersEnabled();
+  private deleteCommand(sharedFolders: boolean): Command {
     const deleteObjects = ["item", "attachment", "folder", "org-collection", "org-shared-folder"];
     const shownObjects = this.visibleObjects(deleteObjects, sharedFolders);
     return new Command("delete")
