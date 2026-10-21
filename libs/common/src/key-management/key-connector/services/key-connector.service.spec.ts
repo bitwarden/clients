@@ -26,7 +26,6 @@ import { OrganizationUserType } from "../../../admin-console/enums";
 import { OrganizationData } from "../../../admin-console/models/data/organization.data";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
-import { KeyConnectorUserKeyResponse } from "../../../auth/models/response/key-connector-user-key.response";
 import { TokenService } from "../../../auth/services/token.service";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
@@ -75,9 +74,8 @@ describe("KeyConnectorService", () => {
   const mockSsoOrgIdentifier = "test-sso-org-id";
   const mockOrgId = Utils.newGuid() as OrganizationId;
 
-  const mockMasterKeyResponse: KeyConnectorUserKeyResponse = new KeyConnectorUserKeyResponse({
-    key: "eO9nVlVl3I3sU6O+CyK0kEkpGtl/auT84Hig2WTXmZtDTqYtKpDvUPfjhgMOHf+KQzx++TVS2AOLYq856Caa7w==",
-  });
+  const mockMasterKeyB64 =
+    "eO9nVlVl3I3sU6O+CyK0kEkpGtl/auT84Hig2WTXmZtDTqYtKpDvUPfjhgMOHf+KQzx++TVS2AOLYq856Caa7w==";
 
   const keyConnectorUrl = "https://key-connector-url.com";
 
@@ -882,7 +880,7 @@ describe("KeyConnectorService", () => {
   }
 
   function getMockMasterKey(): MasterKey {
-    const keyArr = Utils.fromB64ToArray(mockMasterKeyResponse.key);
+    const keyArr = Utils.fromB64ToArray(mockMasterKeyB64);
     const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
     return masterKey;
   }

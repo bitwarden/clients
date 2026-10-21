@@ -32,6 +32,7 @@ describe("cart preview translation keys", () => {
     "pm-storage",
     "sm-seat",
     "sm-service-account",
+    "pam-seat",
   ];
 
   const lineItemKeys = Object.values(InvoicePreviewFlowContext).flatMap((flowContext) =>
@@ -45,10 +46,12 @@ describe("cart preview translation keys", () => {
   );
 
   const prorationChargeKeys = allReferences.flatMap((reference) => [
-    getProrationChargeTranslationKey(reference, "pm-seat"),
-    getProrationChargeTranslationKey(reference, "sm-seat"),
-    getProrationChargeTranslationKey(undefined, "pm-seat"),
-    getProrationChargeTranslationKey(undefined, "sm-seat"),
+    getProrationChargeTranslationKey(reference, "pm-seat", logService),
+    getProrationChargeTranslationKey(reference, "sm-seat", logService),
+    getProrationChargeTranslationKey(reference, "pam-seat", logService),
+    getProrationChargeTranslationKey(undefined, "pm-seat", logService),
+    getProrationChargeTranslationKey(undefined, "sm-seat", logService),
+    getProrationChargeTranslationKey(undefined, "pam-seat", logService),
   ]);
 
   const creditKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
@@ -59,20 +62,9 @@ describe("cart preview translation keys", () => {
     getProratedSeatTranslationKey(flowContext),
   );
 
-  // The account credit row is the one key the adapter hardcodes rather than resolving through
-  // translation.ts (see `buildAccountCreditRow` in invoice-preview.adapter.ts), so it is listed
-  // here by hand to keep it behind the same guard.
-  const adapterKeys = ["accountCredit"];
-
   // Unmapped combinations intentionally return "" and emit no row, so they carry no copy.
   const resolvedKeys = [
-    ...new Set([
-      ...lineItemKeys,
-      ...creditKeys,
-      ...prorationChargeKeys,
-      ...proratedSeatKeys,
-      ...adapterKeys,
-    ]),
+    ...new Set([...lineItemKeys, ...creditKeys, ...prorationChargeKeys, ...proratedSeatKeys]),
   ].filter((key): key is string => !!key);
 
   const localeMessages = messages as Record<string, { message: string } | undefined>;
@@ -94,14 +86,15 @@ describe("cart preview translation keys", () => {
         "additionalStorageGbLower",
         "additionalServiceAccountsLower",
         "premiumSubscriptionCredit",
-        "appliedSubscriptionCredits",
+        "appliedProrationCredits",
         "passwordManagerProratedCharge",
         "storageProratedCharge",
         "secretsManagerProratedCharge",
         "serviceAccountsProratedCharge",
         "memberLower",
         "planProratedMembershipInMonths",
-        "accountCredit",
+        "privilegedControlsPlanPrice",
+        "privilegedControlsProratedCharge",
       ].sort(),
     );
   });

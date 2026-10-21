@@ -38,7 +38,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { DEFAULT_FILL_ASSIST_RULES_URL } from "../constants";
+import { DEFAULT_FILL_ASSIST_RULES_URL, LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS } from "../constants";
 import { FormContent, TargetingRulesByDomain } from "../types";
 import { matchTargetingRulesForUrl } from "../utils/targeting-rules";
 
@@ -312,10 +312,15 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         const withSlash = (u: string) => (u.endsWith("/") ? u : `${u}/`);
         const defaultUrl = withSlash(DEFAULT_FILL_ASSIST_RULES_URL);
 
-        // Normalize before comparing so a default URL entered with a
-        // trailing slash doesn't shadow server-config on self-hosted.
+        // Normalize both sides so a trailing slash doesn't shadow server config.
+        // Legacy defaults count too — policies saved before the constant changed
+        // must fetch current server config, not the retired URL.
         const policyUrl = policy?.rulesUrl;
-        if (policyUrl && withSlash(policyUrl) !== defaultUrl) {
+        const isDefault =
+          !policyUrl ||
+          withSlash(policyUrl) === defaultUrl ||
+          LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS.has(policyUrl);
+        if (!isDefault) {
           return withSlash(policyUrl);
         }
         const serverUrl = serverConfig?.environment?.fillAssistRules;

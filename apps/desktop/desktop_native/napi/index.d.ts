@@ -212,6 +212,16 @@ export declare namespace autofill {
     completeLockStatus(clientId: number, sequenceNumber: number, response: LockStatusResponse): number
     completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
+    /**
+     * Fails a registration request because the vault holds a credential
+     * the relying party asked to exclude.
+     */
+    completeExcludedCredentialMatched(clientId: number, sequenceNumber: number): number
+    /**
+     * Fails an assertion request because the vault holds none of the
+     * requested credentials.
+     */
+    completeCredentialNotFound(clientId: number, sequenceNumber: number): number
   }
   export interface AutofillIpcCallbacks {
     /**
@@ -371,6 +381,25 @@ export declare namespace logging {
 }
 
 export declare namespace passkey_authenticator {
+  /** Gets the app's status as a passkey provider with the OS. */
+  export function getState(): Promise<PasskeyProviderState>
+  /**
+   * The error message thrown by {@link register} when the passkey plugin is not supported on
+   * this platform or by this build of the app.
+   */
+  export const NOT_SUPPORTED: string
+  /** The app's status as a passkey provider with the OS. */
+  export interface PasskeyProviderState {
+    /** Whether the app is registered with the OS as a passkey provider. */
+    registered: boolean
+    /** Whether the user has enabled the app as a passkey provider. */
+    enabled: boolean
+  }
+  /**
+   * Registers the app as a plugin authenticator with the OS.
+   * Throws {@link Error} with message {@link NOT_SUPPORTED} if the passkey plugin is not
+   * supported, which callers may ignore. Any other error means registration failed.
+   */
   export function register(): void
 }
 

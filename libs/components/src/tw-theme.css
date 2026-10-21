@@ -8,6 +8,7 @@
 @import "./tooltip/tooltip.component.css";
 @import "./search/search.component.css";
 @import "./item/item.component.css";
+@import "./navigation/side-nav.component.css";
 
 @tailwind base;
 @tailwind components;

@@ -23,6 +23,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
@@ -86,23 +87,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   host: {
     "[class.vfo1]": "vfo1Enabled()",
   },
-  template: `
-    @if (showHeader$ | async) {
-      <div class="header" [class.vfo1]="vfo1Enabled()"></div>
-    }
-
-    <div id="container">
-      @if (loading) {
-        <div class="loading">
-          <bit-spinner />
-        </div>
-      } @else {
-        <router-outlet />
-      }
-    </div>
-
-    <bit-toast-container></bit-toast-container>
-  `,
+  templateUrl: "app.component.html",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -165,6 +150,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountDeletionService: AccountDeletionService,
     private premiumCheckoutPendingService: PremiumCheckoutPendingService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountSwitcherService: AccountSwitcherService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -462,10 +448,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
             await this.accountService.switchAccount(message.userId);
 
-            const locked =
-              (await this.authService.getAuthStatus(message.userId)) ===
-              AuthenticationStatus.Locked;
-            if (locked) {
+            const authStatus = await this.authService.getAuthStatus(message.userId);
+            if (authStatus === AuthenticationStatus.Locked) {
               this.modalService.closeAll();
 
               // We only have to handle TDE lock on "switchAccount" message scenarios but not normal
@@ -484,6 +468,12 @@ export class AppComponent implements OnInit, OnDestroy {
               } else {
                 await this.router.navigate(["lock"]);
               }
+            } else if (authStatus === AuthenticationStatus.LoggedOut) {
+              this.modalService.closeAll();
+              // A logged-out account has nothing to sync and cannot open the vault. Leave `loading`
+              // untouched: toggling it re-creates the router outlet, which remounts every routed
+              // component and re-runs its initialization.
+              await this.router.navigate(["login"]);
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;
@@ -544,6 +534,31 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       });
     });
+
+    void this.resolveActiveAccount();
+  }
+
+  /**
+   * Replaces a logged-out active account with a switchable one, or clears it. Accounts whose
+   * tokens live only in memory are logged out after every launch and process reload, so this
+   * runs once per renderer load.
+   *
+   * It must run after the message handler subscribes, and it must navigate: a process reload
+   * restores the previous route, so the root route's redirect guard does not choose the page.
+   * Sending `switchAccount` reuses that handler's routing and sync.
+   */
+  private async resolveActiveAccount() {
+    try {
+      const resolution = await this.accountSwitcherService.resolveActiveAccount();
+      if (resolution.action === "switch") {
+        this.messagingService.send("switchAccount", { userId: resolution.targetUserId });
+      } else if (resolution.action === "clear") {
+        await this.accountService.switchAccount(null);
+        await this.router.navigate(["login"]);
+      }
+    } catch (e) {
+      this.logService.error("Failed to resolve the active account on load", e);
+    }
   }
 
   ngOnDestroy() {
@@ -702,6 +717,9 @@ export class AppComponent implements OnInit, OnDestroy {
   // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
   // passing null-ish values to us.
   private async logOut(logoutReason: LogoutReason, userId: UserId) {
+    // Desktop logout paths bypass DefaultLogoutService (see PM-21212 TODO above),
+    // so the log line that lives there is mirrored here to cover every caller.
+    this.logService.info("Logging out user %s for reason: %s", userId, logoutReason);
     await this.displayLogoutReason(logoutReason);
 
     const activeUserId = await firstValueFrom(
@@ -717,7 +735,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const nextUpAccount =
       activeUserId === userBeingLoggedOut
-        ? await firstValueFrom(this.accountService.nextUpAccount$) // We'll need to switch accounts
+        ? await firstValueFrom(this.accountSwitcherService.nextSwitchableAccount$) // We'll need to switch accounts
         : null;
 
     try {

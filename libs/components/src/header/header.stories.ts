@@ -373,3 +373,19 @@ export const WithTitleSuffixComponent: Story = {
   `,
   }),
 };
+
+export const WithActiveBreadcrumbAndTitleSuffixVfo1: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <button slot="title-suffix" buttonType="subtleGhost" bitIconButton="bwi-info-circle" label="A thing"></button>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};

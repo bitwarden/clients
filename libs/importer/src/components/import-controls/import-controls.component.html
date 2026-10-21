@@ -1,0 +1,98 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" [allowDisabledFormSubmit]="true">
+  <bit-card-segmented>
+    <bit-card-content>
+      @if (capabilitiesPending() || profilesPending()) {
+        <div class="tw-flex tw-justify-center tw-py-8">
+          <bit-spinner size="lg" />
+        </div>
+      } @else if (primaryMode() === "direct") {
+        <importer-controls-direct
+          [form]="formGroup"
+          [step]="directStep()"
+          [importType]="importType()"
+          [vendorName]="vendorName()"
+          [vendorIcon]="vendorIcon()"
+        />
+      } @else if (primaryMode() === "chromium") {
+        <importer-controls-chromium
+          [form]="formGroup"
+          [vendorName]="vendorName()"
+          [instructionKey]="vendor().instructionKey"
+          [instructionLink]="vendor().instructionLink"
+          [profiles]="profiles()"
+          [profilesError]="profilesError()"
+        />
+      } @else {
+        <importer-controls-manual
+          [form]="formGroup"
+          [vendorName]="vendorName()"
+          [instructionKey]="activeInstructions().instructionKey"
+          [instructionLink]="activeInstructions().instructionLink"
+          [method]="method()"
+          [needsFilePassword]="needsFilePassword()"
+          [formatChoiceActive]="formatChoiceActive()"
+          [formatChoiceItems]="formatChoiceItems()"
+          [needsKdbxCredentials]="needsKdbxCredentials()"
+          [showKeyFile]="showKeyFile()"
+          [fileAccept]="fileAccept()"
+          [acceptedFileTypesHint]="acceptedFileTypesHint()"
+          [pasteFormatsHint]="pasteFormatsHint()"
+          (addKeyFile)="addKeyFile()"
+        />
+      }
+    </bit-card-content>
+
+    <bit-card-content>
+      <div class="tw-flex tw-justify-between tw-items-center">
+        @if (hasAlternate()) {
+          @if (primaryMode() === "manual") {
+            <button
+              type="button"
+              bitButton
+              buttonType="primaryGhost"
+              (click)="toggleToAlternate()"
+              id="importer-controls_button_directly-import-instead"
+            >
+              {{ "directlyImportInstead" | i18n }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              bitButton
+              buttonType="subtleGhost"
+              (click)="toggleToManual()"
+              id="importer-controls_button_import-manually-instead"
+            >
+              {{ "importManuallyInstead" | i18n }}
+            </button>
+          }
+        } @else {
+          <span></span>
+        }
+
+        <div class="tw-flex tw-gap-3">
+          <button
+            type="button"
+            bitButton
+            bitFormButton
+            buttonType="secondary"
+            (click)="onBack()"
+            id="importer-controls_button_back"
+          >
+            {{ "back" | i18n }}
+          </button>
+          <button
+            type="submit"
+            bitButton
+            bitFormButton
+            buttonType="primary"
+            [disabled]="continueBlocked()"
+            id="importer-controls_button_continue"
+          >
+            {{ "continue" | i18n }}
+          </button>
+        </div>
+      </div>
+    </bit-card-content>
+  </bit-card-segmented>
+</form>

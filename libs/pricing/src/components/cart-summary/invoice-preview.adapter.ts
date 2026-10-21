@@ -5,7 +5,7 @@ import {
   InvoicePreview,
   InvoicePreviewItem,
   PurchasableProration,
-  PurchasableReference,
+  SeatReference,
 } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
@@ -21,16 +21,12 @@ export type AdaptInvoicePreviewOptions = {
 };
 
 /**
- * Where a proration charge appears in the cart.
+ * Describes where a proration charge should be placed in the cart.
  *
- * - SeatLine (upgrade, plan-change): the server bakes each proration charge into its seat line —
- *   the seat line is the charge. No separate charge row renders, and the seat line's quantity x
- *   cost breakdown hides because its cost is a lump, not a per-unit price. When the invoice is all
- *   prorations (the Premium upgrade's `always_invoice` preview), there is no seat line on the wire,
- *   so the summed charge becomes the seat line.
- * - ProrationLine (subscription page): the seat line is a real per-unit renewal price, or absent
- *   entirely on an all-proration transition invoice — where no seat quantity exists, so a seat
- *   line can't be built. Charged prorations render as their own lines either way.
+ * - SeatLine (upgrade): Places the proration charges within the seat line itself, with no separate charge row.
+ * The seat (charge) line's quantity x cost breakdown is hidden because the cost is a lump sum.
+ * - ProrationLine (subscription page, plan-change): charged prorations render as their own lines beside any real seat line (pm-seat, etc),
+ *   or as the only line when the invoice is all prorations.
  */
 const ProrationChargePlacements = {
   SeatLine: "seat-line",
@@ -39,11 +35,33 @@ const ProrationChargePlacements = {
 type ProrationChargePlacement =
   (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
 
+const DiscountPlacements = {
+  CartLevel: "cart-level",
+  LineLevel: "line-level",
+} as const;
+type DiscountPlacement = (typeof DiscountPlacements)[keyof typeof DiscountPlacements];
+
+const getDiscountPlacement = (flowContext: InvoicePreviewFlowContext): DiscountPlacement => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.PersonalCheckout:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
+      return DiscountPlacements.CartLevel;
+    default:
+      return DiscountPlacements.LineLevel;
+  }
+};
+
+/**
+ * Determines where a proration charge should be placed in the cart based on the flow context.
+ * @param flowContext The current flow context of the invoice preview.
+ * @returns The placement of the proration charge in the cart.
+ */
 const getProrationChargePlacement = (
   flowContext: InvoicePreviewFlowContext,
 ): ProrationChargePlacement => {
   switch (flowContext) {
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+    case InvoicePreviewFlowContext.OrganizationPlanChange:
       return ProrationChargePlacements.ProrationLine;
     default:
       return ProrationChargePlacements.SeatLine;
@@ -64,7 +82,8 @@ export const adaptInvoicePreviewToCart = (
   logService: LogService,
   options: AdaptInvoicePreviewOptions = {},
 ): Cart => {
-  const { passwordManager, secretsManager, planTier } = preview;
+  const { passwordManager, secretsManager, privilegedControls, planTier } = preview;
+  const keepLineDiscounts = getDiscountPlacement(flowContext) === DiscountPlacements.LineLevel;
 
   const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
     translationKey: getCartItemTranslationKey(
@@ -78,18 +97,30 @@ export const adaptInvoicePreviewToCart = (
     cost: item.cost,
     // Discounts pass through untouched: the server's `amount` is authoritative and the renderer
     // does not cascade per-line discounts.
-    ...(item.discounts ? { discounts: item.discounts } : {}),
+    ...(keepLineDiscounts && item.discounts ? { discounts: item.discounts } : {}),
     ...(hideBreakdown ? { hideBreakdown: true } : {}),
   });
+
+  const hoistedLineDiscounts = keepLineDiscounts
+    ? []
+    : [
+        passwordManager.seats,
+        passwordManager.additionalStorage,
+        secretsManager?.seats,
+        secretsManager?.additionalServiceAccounts,
+        privilegedControls?.seats,
+      ].flatMap((item) => item?.discounts ?? []);
+  const discounts = [...(preview.discounts ?? []), ...hoistedLineDiscounts];
 
   /**
    * Constructs a proration charge line for the cart.
    */
-  const chargeLine = (
-    proration: PurchasableProration,
-    seatReference: PurchasableReference,
-  ): CartItem => ({
-    translationKey: getProrationChargeTranslationKey(proration.reference, seatReference),
+  const chargeLine = (proration: PurchasableProration, seatReference: SeatReference): CartItem => ({
+    translationKey: getProrationChargeTranslationKey(
+      proration.reference,
+      seatReference,
+      logService,
+    ),
     quantity: 1,
     cost: proration.charge,
     hideBreakdown: true,
@@ -102,7 +133,7 @@ export const adaptInvoicePreviewToCart = (
    */
   const derivedSeatLine = (
     prorations: PurchasableProration[] | undefined,
-    seatReference: PurchasableReference,
+    seatReference: SeatReference,
   ): CartItem | undefined => {
     const cost = sumInCents((prorations ?? []).map((proration) => proration.charge));
     if (cost <= 0) {
@@ -130,7 +161,7 @@ export const adaptInvoicePreviewToCart = (
   const buildGroup = (
     item: InvoicePreviewItem | undefined,
     prorations: PurchasableProration[] | undefined,
-    seatReference: PurchasableReference,
+    seatReference: SeatReference,
   ): { seats?: CartItem; prorationCharges?: CartItem[] } => {
     const placement = getProrationChargePlacement(flowContext);
 
@@ -162,6 +193,9 @@ export const adaptInvoicePreviewToCart = (
   const sm = secretsManager
     ? buildGroup(secretsManager.seats, secretsManager.prorations, "sm-seat")
     : {};
+  const pc = privilegedControls
+    ? buildGroup(privilegedControls.seats, privilegedControls.prorations, "pam-seat")
+    : {};
 
   const proratedMonths = passwordManager.prorations?.[0]?.months ?? 0;
 
@@ -177,14 +211,21 @@ export const adaptInvoicePreviewToCart = (
       translationParams: [options.planName, formatMonthLabel(proratedMonths)],
     };
   };
-
-  // A mid-cycle change can return an "all-proration" invoice: only one-time proration adjustments,
-  // with no recurring seat, storage, or service-account line items.
+  // Hide the recurring term for one-time invoices: an all-proration invoice (no recurring line at
+  // all) or a mid-cycle plan change carrying prorations.
   const allProrationInvoice =
     pm.seats == null &&
     passwordManager.additionalStorage == null &&
     sm.seats == null &&
-    secretsManager?.additionalServiceAccounts == null;
+    secretsManager?.additionalServiceAccounts == null &&
+    pc.seats == null;
+
+  const oneTimePlanChange =
+    flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
+    (hasProrations(passwordManager.prorations) ||
+      hasProrations(secretsManager?.prorations) ||
+      hasProrations(privilegedControls?.prorations));
+  const hidePricingTerm = allProrationInvoice || oneTimePlanChange;
 
   const cart: Cart = {
     passwordManager: {
@@ -208,11 +249,19 @@ export const adaptInvoicePreviewToCart = (
           },
         }
       : {}),
+    ...(pc.seats || pc.prorationCharges
+      ? {
+          privilegedControls: {
+            ...(pc.seats ? { seats: pc.seats } : {}),
+            ...(pc.prorationCharges ? { prorationCharges: pc.prorationCharges } : {}),
+          },
+        }
+      : {}),
     cadence: preview.cadence,
-    ...(allProrationInvoice ? { hidePricingTerm: true } : {}),
-    ...(preview.discounts ? { discounts: preview.discounts } : {}),
+    ...(hidePricingTerm ? { hidePricingTerm: true } : {}),
+    ...(discounts.length ? { discounts } : {}),
     estimatedTax: preview.estimatedTax,
-    total: preview.amountDue,
+    total: preview.total,
   };
 
   const credit = buildCreditRow(preview, flowContext);
@@ -220,15 +269,12 @@ export const adaptInvoicePreviewToCart = (
     cart.credit = credit;
   }
 
-  const accountCredit = buildAccountCreditRow(preview);
-  if (accountCredit) {
-    cart.accountCredit = accountCredit;
+  cart.amountDue = preview.amountDue;
+  const appliedBalance = sumInCents([preview.total, -preview.amountDue]);
+  if (appliedBalance > 0) {
+    cart.appliedBalance = appliedBalance;
   }
 
-  // Deliberately NOT mapped as their own fields:
-  // - `total`: rendered indirectly, as `amountDue` plus the account credit row.
-  // - `startingBalance`: rendered indirectly, as the account credit row.
-  // - `nextPaymentAttempt`: no corresponding `Cart` field.
   return cart;
 };
 
@@ -242,7 +288,7 @@ const sumInCents = (amounts: number[]): number =>
   amounts.reduce((sum, amount) => sum + Math.round(amount * 100), 0) / 100;
 
 /**
- * Collapses every proration across both product groups into at most one credit row. The row is
+ * Collapses every proration across every product group into at most one credit row. The row is
  * emitted only when the total is positive AND the flow context actually renders credit.
  */
 const buildCreditRow = (
@@ -258,6 +304,7 @@ const buildCreditRow = (
     [
       ...(preview.passwordManager.prorations ?? []),
       ...(preview.secretsManager?.prorations ?? []),
+      ...(preview.privilegedControls?.prorations ?? []),
     ].map((proration) => proration.credit),
   );
 
@@ -266,28 +313,4 @@ const buildCreditRow = (
   }
 
   return { translationKey, value };
-};
-
-/**
- * Emits the account balance Stripe applied to the invoice as its own row, so the line items still
- * sum to the rendered `amountDue`.
- *
- * The row's value is `total - amountDue` rather than `startingBalance`: a balance larger than the
- * invoice is only applied up to the invoice total, and the difference between the two
- * server-supplied figures is exactly what Stripe consumed. `startingBalance` gates the row so the
- * "Account credit" label is only shown when a credit balance is what closed the gap.
- *
- * No debit-balance row: the server omits `startingBalance` unless it is negative.
- */
-const buildAccountCreditRow = (preview: InvoicePreview): Cart["accountCredit"] => {
-  if (preview.startingBalance === undefined || preview.startingBalance >= 0) {
-    return undefined;
-  }
-
-  const value = sumInCents([preview.total, -preview.amountDue]);
-  if (value <= 0) {
-    return undefined;
-  }
-
-  return { translationKey: "accountCredit", value };
 };

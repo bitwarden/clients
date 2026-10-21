@@ -30,4 +30,19 @@ export class Vfo1TerminologyService {
   iconClass(iconClass: BitwardenIcon): BitwardenIcon {
     return this.enabled() ? (VFO1_ICON_MAP[iconClass] ?? iconClass) : iconClass;
   }
+
+  /**
+   * Builds the `collectionId`/`sharedFolderId` query params for navigating to `collectionId`,
+   * writing the terminology-appropriate key and nulling out the other so that a
+   * `queryParamsHandling: "merge"` navigation removes any stale param from the URL.
+   */
+  collectionQueryParams(collectionId: string | null | undefined): {
+    collectionId: string | null;
+    sharedFolderId: string | null;
+  } {
+    const value = collectionId ?? null;
+    return this.enabled()
+      ? { sharedFolderId: value, collectionId: null }
+      : { collectionId: value, sharedFolderId: null };
+  }
 }

@@ -666,6 +666,11 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     map((generated) => generated?.credential ?? "-"),
   );
 
+  /** Emits the character count of the last generated value. */
+  protected readonly valueLength$ = this.generatedCredential$.pipe(
+    map((generated) => generated?.credential.length ?? 0),
+  );
+
   /** Identifies generator requests that were requested by the user */
   protected readonly USER_REQUEST = "user request";
 

@@ -23,6 +23,7 @@ module.exports = {
     "<rootDir>/bitwarden_license/bit-browser/jest.config.js",
     "<rootDir>/bitwarden_license/bit-cli/jest.config.js",
     "<rootDir>/bitwarden_license/bit-common/jest.config.js",
+    "<rootDir>/bitwarden_license/bit-desktop/jest.config.js",
     "<rootDir>/bitwarden_license/bit-web/jest.config.js",
 
     "<rootDir>/libs/admin-console/jest.config.js",

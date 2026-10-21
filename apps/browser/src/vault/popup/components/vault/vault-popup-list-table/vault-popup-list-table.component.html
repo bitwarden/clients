@@ -15,14 +15,14 @@
     list. Has to stay outside the virtual scroll viewport: `bit-table-v2` renders the toolbar above
     it, so the height it gives up goes to that viewport rather than to the scrolled content.
   -->
-  <bit-table-toolbar bitCollapseOnScroll>
+  <bit-table-toolbar bitCollapseOnScroll [(filterDialogOpen)]="filterDialogOpen">
     <bit-search
       class="tw-flex-1"
       autocomplete="off"
       [placeholder]="'search' | i18n"
       [(ngModel)]="searchText"
       (ngModelChange)="onSearchTextChanged()"
-      appAutofocus
+      [appAutofocus]="autofocusSearch"
     ></bit-search>
 
     <bit-filter-menu
@@ -109,15 +109,16 @@
       (clearSearch)="clearSearch()"
       (clearFilters)="clearFilters()"
     >
-      <a
+      <button
         slot="empty-add-item"
         bitButton
-        routerLink="/import"
+        type="button"
         buttonType="secondary"
         startIcon="bwi-external-link"
+        (click)="navigateToImport()"
       >
         {{ "importItems" | i18n }}
-      </a>
+      </button>
     </vault-empty-vault>
   }
 
@@ -144,10 +145,10 @@
               row.cipher.name
             }}</span>
             <div class="tw-flex tw-items-center tw-gap-1.5 tw-shrink-0">
-              @if (row.cipher.organizationId) {
+              @if (row.cipher.organization; as organization) {
                 <i
                   appOrgIcon
-                  [tierType]="row.cipher.organization!.productTierType"
+                  [tierType]="organization.productTierType"
                   [size]="'small'"
                   [appA11yTitle]="orgIconTooltip(row.cipher)"
                 ></i>
@@ -176,17 +177,6 @@
           >
             {{ "fill" | i18n }}
           </button>
-        }
-        @if (row.actions.showAutofillBadge) {
-          <button
-            type="button"
-            bit-chip-action
-            variant="primary"
-            (click)="doAutofill(row.cipher)"
-            [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: row.cipher.name)"
-            [attr.aria-label]="'autofillTitle' | i18n: row.cipher.name"
-            [label]="'fill' | i18n"
-          ></button>
         }
         @if (row.actions.showLaunch && CipherViewLikeUtils.canLaunch(row.cipher)) {
           <button

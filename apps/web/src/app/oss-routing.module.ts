@@ -55,6 +55,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import { canActivateImportType } from "@bitwarden/importer-ui";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
@@ -63,6 +64,7 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { sponsoredFamiliesTitleResolver } from "./admin-console/organizations/sponsorships/sponsored-families-title.resolver";
 import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
@@ -96,6 +98,7 @@ import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
+import { ImportShellWebComponent } from "./tools/import/import-shell-web.component";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -436,7 +439,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [deepLinkGuard(), lockGuard()],
+        canActivate: [lockGuard()],
         children: [
           {
             path: "",
@@ -818,14 +821,35 @@ const routes: Routes = [
                   .getFeatureFlag$(FeatureFlag.ImportUpgrade)
                   .pipe(map((flagValue) => flagValue === true)),
             ],
-            // Lazy load vendor icon set
-            loadComponent: () =>
-              import("./tools/import/import-source-select-web.component").then(
-                (mod) => mod.ImportSourceSelectWebComponent,
-              ),
+            component: ImportShellWebComponent,
             data: {
               titleId: "importNoun",
             } satisfies RouteDataProperties,
+            children: [
+              {
+                path: "",
+                pathMatch: "full",
+                // Lazy load vendor icon set
+                loadComponent: () =>
+                  import("./tools/import/import-source-select-web.component").then(
+                    (mod) => mod.ImportSourceSelectWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: ":importType",
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-controls-web.component").then(
+                    (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+            ],
           },
           {
             path: "import",
@@ -857,7 +881,12 @@ const routes: Routes = [
         path: "reports",
         loadChildren: () => ReportsModule,
       },
-      { path: "setup/families-for-enterprise", component: FamiliesForEnterpriseSetupComponent },
+      {
+        path: "setup/families-for-enterprise",
+        component: FamiliesForEnterpriseSetupComponent,
+        // Tab title is VFO1-gated: the legacy page keeps the default title until the switch.
+        resolve: { title: sponsoredFamiliesTitleResolver },
+      },
     ],
   },
   {

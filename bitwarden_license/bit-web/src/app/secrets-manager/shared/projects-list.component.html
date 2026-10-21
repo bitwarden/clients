@@ -12,9 +12,8 @@
     bitButton
     buttonType="secondary"
     (click)="newProjectEvent.emit()"
-    [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
   >
-    {{ (btnTextAddCreateFeatureFlag() ? "addProject" : "newProject") | i18n }}
+    {{ "addProject" | i18n }}
   </button>
 </bit-status-lockup>
 

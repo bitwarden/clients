@@ -1,22 +1,3 @@
-<p bitTypography="h5" noMargin class="tw-mb-2 !tw-text-fg-heading">
-  {{ "importSourceBreadcrumb" | i18n }}
-</p>
-
-<bit-progress-bar
-  [hideStartHint]="true"
-  [value]="progressValue()"
-  [accessibleName]="stepText()"
-  [ariaValueText]="stepText()"
-></bit-progress-bar>
-<p
-  bitTypography="helper"
-  noMargin
-  aria-hidden="true"
-  class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
->
-  {{ stepText() }}
-</p>
-
 <bit-card-segmented>
   <bit-card-content>
     <h2 bitTypography="h2" noMargin>{{ "importSourceSelectTitle" | i18n }}</h2>
@@ -43,12 +24,7 @@
             <bit-icon-tile slot="start" icon="bwi-key"></bit-icon-tile>
           }
           <input type="radio" bitRadio [value]="option.id" />
-          <bit-label>
-            <!-- tw-block + tw-min-w-0: text-overflow's ellipsis glyph has no effect on an inline
-               element and won't shrink inside bit-label's flex host without a width to shrink to
-               — both needed for tw-truncate to render an ellipsis instead of clipping mid-word. -->
-            <span class="tw-block tw-truncate tw-min-w-0">{{ displayNameFor(option) }}</span>
-          </bit-label>
+          <bit-label>{{ displayNameFor(option) }}</bit-label>
         </bit-form-control-card>
       </ng-template>
 

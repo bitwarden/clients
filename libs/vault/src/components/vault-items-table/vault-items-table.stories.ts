@@ -1,7 +1,7 @@
 import { PortalModule } from "@angular/cdk/portal";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { of } from "rxjs";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -11,7 +11,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -37,6 +36,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
+import { StateProvider } from "@bitwarden/state";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -46,6 +46,7 @@ import { RoutedVaultFilterService } from "../../services/routed-vault-filter.ser
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import { ASSIGN_COLLECTIONS_DIALOG } from "../../tokens/assign-collections-dialog.token";
 import { BULK_DELETE_DIALOG } from "../../tokens/bulk-delete-dialog.token";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { VaultBatchActionComponent } from "../vault-batch-bar/vault-batch-action.component";
 
 import {
@@ -529,14 +530,21 @@ export default {
   render: (args) => ({ props: args, template }),
   args: baseProps,
   decorators: [
-    moduleMetadata({
-      imports: [
-        ButtonModule,
-        TypographyModule,
-        VaultBatchActionComponent,
-        StoryLayoutFooterComponent,
-      ],
+    // App-level so root services and dialogs opened through DialogService can resolve these.
+    applicationConfig({
       providers: [
+        {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: () => false,
+            getStepPosition: () => undefined,
+            getStepTitle: () => "",
+            getStepDescription: () => "",
+            getStepLearnMoreUrl: () => undefined,
+            currentStepNumber: signal(0),
+            totalSteps: signal(0),
+          } as Partial<CoachmarkService>,
+        },
         {
           provide: I18nService,
           useFactory: () =>
@@ -544,6 +552,7 @@ export default {
               // Toolbar
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               type: "Type",
               all: "All",
               favorites: "Favorites",
@@ -567,6 +576,11 @@ export default {
               clearAll: "Clear all",
               filtersSelected: (count) => `${count} selected`,
               removeItem: (name) => `Remove ${name}`,
+              // Column picker
+              customize: "Customize",
+              customizeYourView: "Customize your view",
+              showColumns: "Show columns",
+              resetToDefault: "Reset to default",
               // Cipher types, for the Type chip
               typeLogin: "Login",
               typeCard: "Card",
@@ -662,6 +676,30 @@ export default {
                 "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
+        // In-memory column preferences, so Customize toggles persist for the session.
+        {
+          provide: StateProvider,
+          useFactory: () => {
+            const prefs = new BehaviorSubject<unknown>(null);
+            return {
+              getActive: () => ({
+                state$: prefs.asObservable(),
+                update: async (configure: (state: unknown) => unknown) =>
+                  prefs.next(configure(prefs.value)),
+              }),
+            };
+          },
+        },
+      ],
+    }),
+    moduleMetadata({
+      imports: [
+        ButtonModule,
+        TypographyModule,
+        VaultBatchActionComponent,
+        StoryLayoutFooterComponent,
+      ],
+      providers: [
         {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
@@ -688,12 +726,10 @@ export default {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
-        // The batch bar gates itself on its own flag, so it has to read as enabled here for the
-        // bulk-action bar to appear at all.
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.PM37785_VaultBatchBar),
+            getFeatureFlag$: () => of(false),
           },
         },
         { provide: CipherService, useValue: { updateLastLaunchedDate: () => Promise.resolve() } },

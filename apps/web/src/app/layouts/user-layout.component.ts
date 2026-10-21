@@ -20,11 +20,16 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
+import {
+  VaultManageNavComponent,
+  VaultNavSectionComponent,
+  CoachmarkComponent,
+  CoachmarkService,
+} from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
-import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
+import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
 
 import { WebLayoutModule } from "./web-layout.module";
 
@@ -42,6 +47,7 @@ import { WebLayoutModule } from "./web-layout.module";
     VaultManageNavComponent,
     VaultNavSectionComponent,
     BillingFreeFamiliesNavItemComponent,
+    PamUserNavSlotComponent,
     PopoverModule,
     CoachmarkComponent,
   ],

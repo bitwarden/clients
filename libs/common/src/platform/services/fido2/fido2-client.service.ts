@@ -6,7 +6,6 @@ import { parse } from "tldts";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
@@ -63,9 +62,6 @@ export class Fido2ClientService<
       MAX: 600000,
     },
   };
-  protected readonly relatedOriginChecksEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.WebAuthnRelatedOrigins,
-  );
 
   constructor(
     private authenticator: Fido2AuthenticatorService<ParentWindowReference>,
@@ -154,13 +150,7 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (
-      !(await isValidRpId(
-        params.rp.id,
-        params.origin,
-        await firstValueFrom(this.relatedOriginChecksEnabled$),
-      ))
-    ) {
+    if (!(await isValidRpId(params.rp.id, params.origin))) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rp.id}; origin = ${params.origin}`,
       );
@@ -299,13 +289,7 @@ export class Fido2ClientService<
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (
-      !(await isValidRpId(
-        params.rpId,
-        params.origin,
-        await firstValueFrom(this.relatedOriginChecksEnabled$),
-      ))
-    ) {
+    if (!(await isValidRpId(params.rpId, params.origin))) {
       this.logService?.warning(
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
       );
