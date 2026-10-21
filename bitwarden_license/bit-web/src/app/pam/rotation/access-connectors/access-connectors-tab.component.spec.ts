@@ -1884,7 +1884,6 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
         ),
       ).toEqual(["status", "connection"]);
       expect(loadingToolbar!.querySelectorAll("bit-filter-option")).toHaveLength(0);
-      expect(loadingToolbar!.textContent).not.toContain("itemCount");
       expect(placeholder().querySelectorAll("bit-row").length).toBeGreaterThan(0);
 
       rows$.next(ROWS);

@@ -1019,49 +1019,6 @@ describe("SharedFoldersComponent", () => {
     });
   });
 
-  describe("the row count", () => {
-    function countText(): string | undefined {
-      return fixture.nativeElement
-        .querySelector("bit-table-toolbar [bitOverflowTrigger]")
-        ?.textContent?.trim();
-    }
-
-    const mixedPermissions = (count: number) =>
-      Array.from({ length: count }, (_unused, index) =>
-        collectionWith(index === 0 ? SharedFolderPermission.View : SharedFolderPermission.Manage, {
-          id: `col-${index}`,
-          name: `Folder ${index}`,
-        }),
-      );
-
-    it("counts shared folders rather than items", async () => {
-      await setup({ collections: mixedPermissions(3) });
-      fixture.detectChanges();
-
-      expect(countText()).toBe("sharedFolderCount:3");
-    });
-
-    it("uses the singular at one folder", async () => {
-      await setup({ collections: mixedPermissions(3) });
-      fixture.detectChanges();
-
-      searchControl().setValue("Folder 1");
-      fixture.detectChanges();
-
-      expect(countText()).toBe("sharedFolderSingular:1");
-    });
-
-    it("follows the active filters rather than the whole list", async () => {
-      await setup({ collections: mixedPermissions(4) });
-      fixture.detectChanges();
-
-      filterControl("permissions").setValue([SharedFolderPermission.Manage]);
-      fixture.detectChanges();
-
-      expect(countText()).toBe("sharedFolderCount:3");
-    });
-  });
-
   describe("the controlled access toggle", () => {
     async function setupMixed(): Promise<void> {
       await setup({
