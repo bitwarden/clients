@@ -36,7 +36,6 @@ export enum FeatureFlag {
   // Note: This flag gates security risks and should not be turned on without
   // changes to the underlying experience
   EnableBasicAuthResponse = "enable-basic-auth-response",
-  EnableHttpAuthCipherControls = "enable-http-auth-cipher-controls",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -139,7 +138,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
-  [FeatureFlag.EnableHttpAuthCipherControls]: FALSE,
 
   /* Desktop Native */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,

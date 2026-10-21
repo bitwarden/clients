@@ -11,6 +11,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import {
   CardComponent,
@@ -82,24 +83,22 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     this.platformUtilsService.isSafari();
 
   /**
-   * True when the HTTP authentication setting is shown. The cipher-level controls are gated
-   * separately from the HTTP authentication feature itself, so they can be turned on
-   * independently.
+   * True when the HTTP authentication setting is shown. The cipher-level controls are also gated
+   * behind a dev flag while their storage work is completed.
    */
   protected readonly showHTTPAuthenticationCipherSetting = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse),
-      this.configService.getFeatureFlag$(FeatureFlag.EnableHttpAuthCipherControls),
-    ]).pipe(
-      map(
-        ([httpAuthenticationEnabled, cipherControlsEnabled]) =>
-          httpAuthenticationEnabled &&
-          cipherControlsEnabled &&
-          this.httpAuthenticationSupported &&
-          !this.isSafariExtension &&
-          this.cipherFormContainer.config.cipherType === CipherType.Login,
+    this.configService
+      .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
+      .pipe(
+        map(
+          (httpAuthenticationEnabled) =>
+            httpAuthenticationEnabled &&
+            devFlagEnabled("httpAuthenticationCipherControls") &&
+            this.httpAuthenticationSupported &&
+            !this.isSafariExtension &&
+            this.cipherFormContainer.config.cipherType === CipherType.Login,
+        ),
       ),
-    ),
     { initialValue: false },
   );
 

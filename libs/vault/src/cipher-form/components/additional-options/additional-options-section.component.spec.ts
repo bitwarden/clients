@@ -9,6 +9,7 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
@@ -20,6 +21,13 @@ import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
+
+jest.mock("@bitwarden/common/platform/misc/flags", () => ({
+  ...jest.requireActual("@bitwarden/common/platform/misc/flags"),
+  devFlagEnabled: jest.fn(),
+}));
+
+const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -41,7 +49,6 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
   let configService: MockProxy<ConfigService>;
   let httpAuthenticationFeatureFlag$: BehaviorSubject<boolean>;
-  let httpAuthenticationCipherControlsFeatureFlag$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let httpAuthenticationService: CipherFormHTTPAuthenticationService;
@@ -61,18 +68,15 @@ describe("AdditionalOptionsSectionComponent", () => {
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
     httpAuthenticationFeatureFlag$ = new BehaviorSubject(true);
-    httpAuthenticationCipherControlsFeatureFlag$ = new BehaviorSubject(true);
+    mockDevFlagEnabled.mockImplementation(
+      (flag: string) => flag === "httpAuthenticationCipherControls",
+    );
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      switch (flag) {
-        case FeatureFlag.EnableBasicAuthResponse:
-          return httpAuthenticationFeatureFlag$;
-        case FeatureFlag.EnableHttpAuthCipherControls:
-          return httpAuthenticationCipherControlsFeatureFlag$;
-        default:
-          return new BehaviorSubject(false);
-      }
-    });
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+      flag === FeatureFlag.EnableBasicAuthResponse
+        ? httpAuthenticationFeatureFlag$
+        : new BehaviorSubject(false),
+    );
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
     platformUtilsService = mock<PlatformUtilsService>();
@@ -184,7 +188,7 @@ describe("AdditionalOptionsSectionComponent", () => {
 
     const flushPromises = () => fixture.whenStable();
 
-    it("shows the HTTP authentication setting for login items when both feature flags are on", () => {
+    it("shows the HTTP authentication setting for login items when the feature flag and dev flag are on", () => {
       fixture.detectChanges();
 
       expect(getHTTPAuthenticationCheckbox()).not.toBeNull();
@@ -197,11 +201,15 @@ describe("AdditionalOptionsSectionComponent", () => {
       expect(getHTTPAuthenticationCheckbox()).toBeNull();
     });
 
-    it("hides the HTTP authentication setting when the cipher controls feature flag is off", () => {
-      httpAuthenticationCipherControlsFeatureFlag$.next(false);
-      fixture.detectChanges();
+    it("hides the HTTP authentication setting when the cipher controls dev flag is off", () => {
+      mockDevFlagEnabled.mockReturnValue(false);
+      const localFixture = TestBed.createComponent(AdditionalOptionsSectionComponent);
+      localFixture.detectChanges();
 
-      expect(getHTTPAuthenticationCheckbox()).toBeNull();
+      expect(mockDevFlagEnabled).toHaveBeenCalledWith("httpAuthenticationCipherControls");
+      expect(
+        localFixture.nativeElement.querySelector("input[formControlName='httpAuthentication']"),
+      ).toBeNull();
     });
 
     it("hides the HTTP authentication setting for items other than logins", () => {
