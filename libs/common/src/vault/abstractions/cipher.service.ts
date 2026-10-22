@@ -59,13 +59,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows, whose sensitive
-   * fields the server suppressed. Only surfaces that render gated rows, such as the vault list,
-   * should use it.
+   * Like {@link cipherListViews$}, but includes restricted ciphers.
+   * Consumers: vault list UIs (web VFO1 `vault-next`, `MyFolders`, `SharedFolders`, the web vault
+   * filter, desktop `vault-v3`). Add a new consumer to this list.
    */
-  abstract cipherListViewsWithPartials$(
+  abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
+  /** Not filtered: includes restricted ciphers, as do {@link get} and {@link getAll}. */
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -111,13 +112,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
-   * Like {@link getAllDecryptedForIds}, but keeps PAM-gated ("partial") rows, which carry only the
-   * name and, for logins, the URIs. Only for surfaces that must name a gated cipher.
+   * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers.
+   * Named non-list consumers: the PAM access-name resolver (shows names of restricted ciphers).
    */
-  abstract getAllDecryptedForIdsIncludingPartials(
+  abstract getAllDecryptedForIdsIncludingRestricted(
     userId: UserId,
     ids: string[],
   ): Promise<CipherView[]>;
+  /** Excludes restricted ciphers; a revealed view (`partial` false) can match. */
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -184,7 +186,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView>;
 
   /**
@@ -267,6 +268,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<void>;
   /**
    * Update the local store of CipherData with the provided data. Values are upserted into the existing store.
+   * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} stays authoritative.
    *
    * @param cipher The cipher data to upsert. Can be a single CipherData object or an array of CipherData objects.
    * @param userId Optional user ID for whom the cipher data is being upserted.

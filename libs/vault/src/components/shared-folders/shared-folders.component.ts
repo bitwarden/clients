@@ -1,4 +1,5 @@
 import { TemplatePortal } from "@angular/cdk/portal";
+import { NgComponentOutlet } from "@angular/common";
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -72,6 +73,10 @@ import {
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
+import {
+  SHARED_FOLDER_DECORATION,
+  SharedFolderDecoration,
+} from "../../tokens/shared-folder-decoration.token";
 import {
   BULK_BAR_CLEARANCE,
   VAULT_TABLE_MIN_HEIGHT,
@@ -182,6 +187,7 @@ export type SharedFoldersTableFilters = {
     IconTileComponent,
     LinkModule,
     MenuModule,
+    NgComponentOutlet,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
@@ -201,6 +207,11 @@ export class SharedFoldersComponent {
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+
+  /** Host-provided decoration after each folder's name; null when unprovided. */
+  protected readonly decoration: SharedFolderDecoration | null = inject(SHARED_FOLDER_DECORATION, {
+    optional: true,
+  });
 
   private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
@@ -231,7 +242,7 @@ export class SharedFoldersComponent {
         combineLatest([
           this.collectionService.decryptedCollections$(userId),
           // Emits null until the first decrypt completes.
-          this.cipherService.cipherListViewsWithPartials$(userId).pipe(filterOutNullish()),
+          this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
           this.organizationService.organizations$(userId),
         ]),
       ),
@@ -380,7 +391,10 @@ export class SharedFoldersComponent {
 
   protected readonly showControlledAccess = computed(() => {
     const folders = this.sharedFolders();
-    return folders.some((row) => row.gated) && folders.some((row) => !row.gated);
+    return (
+      folders.some((row) => row.hasEnabledAccessRule) &&
+      folders.some((row) => !row.hasEnabledAccessRule)
+    );
   });
 
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
@@ -593,8 +607,8 @@ export class SharedFoldersComponent {
     return !pinned || this.pinnedIds().has(row.id);
   }
 
-  private matchesControlledAccess(row: SharedFolderRow, gatedOnly: boolean | undefined): boolean {
-    return !gatedOnly || row.gated;
+  private matchesControlledAccess(row: SharedFolderRow, ruleOnly: boolean | undefined): boolean {
+    return !ruleOnly || row.hasEnabledAccessRule;
   }
 
   protected hasActiveChipFilters(

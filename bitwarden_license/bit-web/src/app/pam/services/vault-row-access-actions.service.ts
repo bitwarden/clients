@@ -62,7 +62,7 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
 
   /** Only a gated row can carry an access request. */
   private gatedCipherId(cipher: CipherViewLike): string | null {
-    return CipherViewLikeUtils.isPartial(cipher) && cipher.id != null ? String(cipher.id) : null;
+    return CipherViewLikeUtils.isRestricted(cipher) && cipher.id != null ? String(cipher.id) : null;
   }
 
   private buildCancelableRequest$(cipherId: string): Observable<boolean> {
