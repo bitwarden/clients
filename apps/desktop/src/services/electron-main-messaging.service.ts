@@ -41,7 +41,7 @@ export class ElectronMainMessagingService implements MessageSender {
       });
 
       alert.addListener("click", () => {
-        this.windowMain.win.show();
+        void this.windowMain.ensureRenderer();
       });
 
       alert.show();
