@@ -1,0 +1,135 @@
+<bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter">
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search access requests" />
+    <bit-filter-menu key="status" placeholderText="Status" multiple>
+      @for (option of statusOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+    <bit-filter-menu key="folder" placeholderText="Shared folders" multiple>
+      @for (option of folderOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+    @if (!isMyRequests()) {
+      <bit-filter-menu key="requester" placeholderText="Requester" multiple>
+        @for (option of requesterOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+  </bit-table-toolbar>
+
+  <div slot="empty" class="tw-py-6 tw-text-center tw-text-muted">No access requests to show.</div>
+
+  <!-- Item column: icon + name + "in {folder}" subline -->
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 1.5fr)">
+    <bit-header-cell>Item</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.itemName; let r" [truncate]="false">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <div
+          class="tw-flex tw-shrink-0 tw-items-center tw-justify-center"
+          style="width: 40px; height: 40px"
+        >
+          <app-vault-icon [cipher]="buildCipher(r)" [coloredIcon]="true"></app-vault-icon>
+        </div>
+        <div class="tw-flex tw-min-w-0 tw-flex-col">
+          <button
+            type="button"
+            class="tw-truncate tw-border-0 tw-bg-transparent tw-p-0 tw-text-start tw-font-semibold tw-text-main hover:tw-underline focus-visible:tw-outline-none"
+            (click)="onRowClick(r)"
+          >
+            {{ r.itemName }}
+          </button>
+          @if (r.folder) {
+            <span class="tw-truncate tw-text-sm tw-text-muted">in {{ r.folder }}</span>
+          }
+        </div>
+      </div>
+    </bit-cell>
+  </bit-column>
+
+  <!-- Status column -->
+  @if (isHistory()) {
+    <bit-column sortable width="minmax(160px, 1fr)">
+      <bit-header-cell>Status</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.status; let r">
+        {{ statusLabel(r.status) }}
+      </bit-cell>
+    </bit-column>
+  } @else {
+    <bit-column sortable width="minmax(200px, 1fr)">
+      <bit-header-cell>Status</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.status; let r">
+        @let badge = statusBadge(r.status, r.leaseRemaining);
+        <span bitBadge [variant]="badge.variant" [startIcon]="badge.icon ?? null">
+          {{ badge.label }}
+        </span>
+      </bit-cell>
+    </bit-column>
+  }
+
+  <!-- Requester column: approvals + history (not my-requests) -->
+  @if (!isMyRequests()) {
+    <bit-column sortable width="minmax(180px, 1fr)">
+      <bit-header-cell>Requester</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.requester; let r">
+        <div class="tw-flex tw-flex-col">
+          <span class="tw-text-main">{{ r.requester.name }}</span>
+          @if (!isHistory()) {
+            <span class="tw-text-sm tw-text-muted">{{ r.requester.email }}</span>
+          }
+        </div>
+      </bit-cell>
+    </bit-column>
+  }
+
+  <!-- Approvals + My requests: requested window; History: resolved by + resolved -->
+  @if (!isHistory()) {
+    <bit-column width="minmax(200px, 1fr)">
+      <bit-header-cell>Requested window</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.accessRequested; let r">
+        <div class="tw-flex tw-flex-col">
+          <span class="tw-text-main">{{ splitDuration(r.accessRequested).duration }}</span>
+          <span class="tw-text-sm tw-text-muted">{{ splitDuration(r.accessRequested).when }}</span>
+        </div>
+      </bit-cell>
+    </bit-column>
+  } @else {
+    <bit-column width="minmax(160px, 1fr)">
+      <bit-header-cell>Resolved by</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.resolvedBy; let r">
+        {{ resolvedBy(r) }}
+      </bit-cell>
+    </bit-column>
+    <bit-column sortable defaultSort="desc" width="minmax(140px, 1fr)">
+      <bit-header-cell>Resolved</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.resolvedAt; let r">
+        {{ r.resolvedAt ?? "—" }}
+      </bit-cell>
+    </bit-column>
+  }
+
+  <!-- Hover-revealed row actions (approvals + my-requests only). -->
+  @if (!isHistory()) {
+    <bit-column width="112px">
+      <bit-header-cell><span class="tw-sr-only">Actions</span></bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.actions; let r">
+        <div
+          class="tw-flex tw-items-center tw-justify-end tw-gap-1 tw-opacity-0 group-hover/row:tw-opacity-100 focus-within:tw-opacity-100"
+        >
+          @for (btn of hoverActions(r); track btn.key) {
+            <button
+              type="button"
+              [bitIconButton]="btn.icon"
+              [buttonType]="btn.buttonType"
+              size="small"
+              [label]="btn.label"
+              (click)="onAction($event, r, btn.key)"
+            ></button>
+          }
+        </div>
+      </bit-cell>
+    </bit-column>
+  }
+</bit-table-v2>
