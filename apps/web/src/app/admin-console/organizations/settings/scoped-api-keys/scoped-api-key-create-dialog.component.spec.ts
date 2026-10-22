@@ -106,6 +106,15 @@ describe("ScopedApiKeyCreateDialogComponent", () => {
     expect(organizationApiService.createScopedApiKey).not.toHaveBeenCalled();
   });
 
+  it("doesn't create a key whose name is only whitespace", async () => {
+    fillValidForm();
+    form().patchValue({ name: "   " });
+
+    await component.submit();
+
+    expect(organizationApiService.createScopedApiKey).not.toHaveBeenCalled();
+  });
+
   it("doesn't create a key that has already expired", async () => {
     fillValidForm();
     form().patchValue({ expireAt: "2000-01-01T00:00" });

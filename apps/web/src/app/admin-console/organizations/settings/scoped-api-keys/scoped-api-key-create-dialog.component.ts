@@ -41,7 +41,10 @@ export class ScopedApiKeyCreateDialogComponent {
   protected readonly scopeGroups = ScopedApiKeyScopeGroups;
 
   protected readonly formGroup = this.formBuilder.group({
-    name: ["", [Validators.required, Validators.maxLength(200)]],
+    name: [
+      "",
+      [Validators.required, (control) => this.notBlank(control), Validators.maxLength(200)],
+    ],
     scopes: this.formBuilder.group(
       Object.fromEntries(ScopedApiKeyScopes.map((scope) => [scope.controlName, false])),
       { validators: (group) => this.atLeastOneScope(group) },
@@ -49,6 +52,10 @@ export class ScopedApiKeyCreateDialogComponent {
     expireAt: new FormControl<string | null>(null, [(control) => this.expiresInFuture(control)]),
     verification: new FormControl<Verification | null>(null, [Validators.required]),
   });
+
+  private notBlank(control: AbstractControl<string | null>): ValidationErrors | null {
+    return control.value?.trim() ? null : { required: true };
+  }
 
   private atLeastOneScope(group: AbstractControl): ValidationErrors | null {
     return Object.values(group.value ?? {}).some((selected) => selected === true)
