@@ -27,10 +27,13 @@
               />
               <bit-label>{{ scope.labelKey | i18n }}</bit-label>
               <bit-hint>
+                @if (scope.descriptionKey) {
+                  <span class="tw-block">{{ scope.descriptionKey | i18n }}</span>
+                }
                 <code>{{ scope.value }}</code>
                 @if (scope.warningKey) {
-                  <span class="tw-block tw-text-warning">
-                    <bit-icon name="bwi-exclamation-triangle"></bit-icon>
+                  <span class="tw-flex tw-items-center tw-gap-1">
+                    <bit-icon name="bwi-exclamation-triangle" class="tw-text-warning"></bit-icon>
                     {{ scope.warningKey | i18n }}
                   </span>
                 }

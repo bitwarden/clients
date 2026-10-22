@@ -1,6 +1,6 @@
 @if (enabled()) {
   <section>
-    <h2 bitTypography="h2" class="tw-mt-8 tw-pb-2">{{ "scopedApiKeys" | i18n }}</h2>
+    <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "scopedApiKeys" | i18n }}</h1>
     <p bitTypography="body1">{{ "scopedApiKeysDesc" | i18n }}</p>
     <button
       type="button"
@@ -28,7 +28,7 @@
       <bit-table class="tw-mt-4">
         <ng-container header>
           <tr>
-            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-1/4">{{ "name" | i18n }}</th>
             <th bitCell>{{ "scopedApiKeyScopes" | i18n }}</th>
             <th bitCell>{{ "dateCreated" | i18n }}</th>
             <th bitCell>{{ "expires" | i18n }}</th>
@@ -40,7 +40,7 @@
         <ng-template body>
           @for (key of rows; track key.id) {
             <tr bitRow>
-              <td bitCell class="tw-break-all">{{ key.name }}</td>
+              <td bitCell class="tw-break-words">{{ key.name }}</td>
               <td bitCell>
                 <bit-badge-list [items]="key.scopeLabels" [maxItems]="3"></bit-badge-list>
               </td>

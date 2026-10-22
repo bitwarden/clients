@@ -2,6 +2,7 @@ export type ScopedApiKeyScope = {
   value: string;
   controlName: string;
   labelKey: string;
+  descriptionKey?: string;
   warningKey?: string;
 };
 
@@ -23,6 +24,7 @@ export const ScopedApiKeyScopeGroups: readonly ScopedApiKeyScopeGroup[] = Object
         value: "api.organization.members.write",
         controlName: "membersWrite",
         labelKey: "scopedApiKeyScopeWrite",
+        descriptionKey: "scopedApiKeyScopeWriteDesc",
         warningKey: "scopedApiKeyCollectionAccessWarning",
       },
     ],
@@ -39,6 +41,7 @@ export const ScopedApiKeyScopeGroups: readonly ScopedApiKeyScopeGroup[] = Object
         value: "api.organization.groups.write",
         controlName: "groupsWrite",
         labelKey: "scopedApiKeyScopeWrite",
+        descriptionKey: "scopedApiKeyScopeWriteDesc",
         warningKey: "scopedApiKeyCollectionAccessWarning",
       },
     ],
@@ -55,6 +58,7 @@ export const ScopedApiKeyScopeGroups: readonly ScopedApiKeyScopeGroup[] = Object
         value: "api.organization.collections.write",
         controlName: "collectionsWrite",
         labelKey: "scopedApiKeyScopeWrite",
+        descriptionKey: "scopedApiKeyScopeWriteDesc",
         warningKey: "scopedApiKeyCollectionAccessWarning",
       },
     ],
@@ -90,7 +94,8 @@ export const ScopedApiKeyScopeGroups: readonly ScopedApiKeyScopeGroup[] = Object
       {
         value: "api.organization.subscription.write",
         controlName: "subscriptionWrite",
-        labelKey: "scopedApiKeyScopeWrite",
+        labelKey: "scopedApiKeyScopeManage",
+        descriptionKey: "scopedApiKeyScopeManageSubscriptionDesc",
         warningKey: "scopedApiKeyBillingWarning",
       },
     ],

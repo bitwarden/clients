@@ -90,7 +90,7 @@ export class ScopedApiKeysComponent {
       title: { key: "revokeScopedApiKey" },
       content: { key: "revokeScopedApiKeyConfirmation", placeholders: [key.name] },
       acceptButtonText: { key: "revoke" },
-      type: "warning",
+      type: "danger",
       acceptAction: () =>
         this.organizationApiService.revokeScopedApiKey(this.organizationId(), key.id),
     });
