@@ -109,11 +109,11 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `vault-filter-controlled-access/` — the "Controlled access" filter, in two option sets over
   one narrowing. The legacy sidebar's children (`options$`, `CONTROLLED_ACCESS_FILTERS`) are
   state groups: "Privileged" and "My requests" (`pending`/`ready`/`active`). The VFO1 vault
-  table's multi-select chip (`tableOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
+  table's multi-select chip (`stateOptions$`, `CONTROLLED_ACCESS_STATE_FILTERS`) offers one
   option per `AccessBadgeState.kind`, labelled like the badge it admits, so its counts match
   the badges on screen; the table ORs the selected options itself. "Unavailable" matches
   nothing until the SDK produces that kind. Each row's state is read once per row list and
-  shared across options (`kinds$`), so the chip's counts don't multiply the reads. Add an
+  shared across options (`accessKinds$`), so the chip's counts don't multiply the reads. Add an
   option by appending to the matching list, not by branching in `narrow$`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
@@ -242,7 +242,7 @@ Two services drive every refresh:
   `accessChanged$` (`RefreshAccessRequest`) and `approverInboxChanged$`
   (`RefreshApproverInbox`, sent to everyone who can Manage the request's collection).
 - `AccessRefreshService` — merges `accessChanged$` with this client's own mutations and fans it
-  out per cipher, so the cipher-view banner and the gated-cipher reloader react to a local
+  out per cipher, so the cipher-view banner and `PamRevealedCipherService` react to a local
   change and a remote one through exactly the same path.
 
 Page-level services subscribe to the pushes directly and reload: `MyAccessService` on
@@ -262,7 +262,7 @@ drops a lapsed lease whatever the response said and fails closed on an unparseab
 Something has to move that clock. **Use one of the two that already tick; do not add a third.**
 The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
 active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` and
-`PamGatedCipherReloader` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
+`PamRevealedCipherService` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
 clock the badges run on, and only while the state they hold carries a live lease.
 
 **A lapse is a cue to ask again, not proof the lease ended.** It may have been extended on another
@@ -273,7 +273,7 @@ old `notAfter`, so the item still locks; only a genuinely later end keeps it ope
 
 Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
 host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
-more; the reloader re-enters explicitly, because the re-lock writes plain component fields on
+more; `PamRevealedCipherService` re-enters explicitly, because the re-lock writes plain component fields on
 `vault-item-dialog.component.ts`.
 
 `badgeState` is NOT clamped — only the SDK ranks it, so a lapsed `active` badge falls to
@@ -285,7 +285,7 @@ shared ticker.
 
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
-binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER`, `ITEM_DETAILS_STATE_BADGE`
+binds them all: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`
 (all `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill straight off the collection's server-derived

@@ -33,10 +33,13 @@ import {
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AsyncActionsModule,
@@ -126,6 +129,8 @@ const CUSTOM_OPTION = "custom";
 export class CipherViewBannerComponent implements OnInit {
   /** The cipher the view is showing, partial when the server gated it. */
   readonly cipher = input.required<CipherView>();
+  /** Set by the cipher view when the item is open in the Admin Console. Not read yet. */
+  readonly isAdminConsole = input(false);
 
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly accessRequestCancelService = inject(AccessRequestCancelService);
@@ -141,6 +146,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly myLeasesService = inject(MyLeasesService);
+  private readonly revealedCipherService = inject(RevealedCipherService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
@@ -157,13 +163,23 @@ export class CipherViewBannerComponent implements OnInit {
     this.organizationService,
   );
 
+  /** The active user's revealed ciphers, which stay governed after `partial` is gone. */
+  private readonly revealed$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+  );
+
   /** The open cipher when PAM governs it, else `null`. */
-  private readonly governedCipher$ = combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
-    switchMap(([cipher, enabled]) => {
+  private readonly governedCipher$ = combineLatest([
+    toObservable(this.cipher),
+    this.enabled$,
+    this.revealed$,
+  ]).pipe(
+    switchMap(([cipher, enabled, revealed]) => {
       if (!enabled || cipher.id == null) {
         return of(null);
       }
-      if (isGovernedCipher(cipher)) {
+      if (isGovernedCipher(cipher, revealed.has(cipher.id as CipherId))) {
         return of(cipher);
       }
       // A live lease keeps governing an item that has since become reachable through a rule-less
@@ -177,8 +193,8 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * The caller's access state, re-read on every {@link AccessRefreshService} change. The
-   * gated-cipher reloader shares that trigger, so starting access here also reveals the credential.
+   * The caller's access state, re-read on every {@link AccessRefreshService} change. The reveal
+   * provider shares that trigger, so starting access here also reveals the credential.
    */
   protected readonly state = toSignal(
     this.governedCipher$.pipe(
@@ -248,8 +264,8 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly canExtendLease = computed(() => this.state()?.extensionsAllowed === true);
 
   /**
-   * Requires a still-gated (`partial`) cipher. A `leaseGated` cipher without a live lease has
-   * lapsed, and its state stream re-drives the resting banner instead.
+   * Requires a still-gated (`partial`) cipher. A revealed cipher without a live lease has lapsed,
+   * and the dialog falls back to the `partial` copy, which re-drives the resting banner.
    */
   protected readonly canRequestAccess = computed(
     () =>

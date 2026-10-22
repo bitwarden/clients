@@ -275,7 +275,7 @@ describe("sharedFolderRows", () => {
 
     const gatedIds = (collections: CollectionView[], ciphers: CipherView[] = []) =>
       sharedFolderRows({ organizationId, organization: undefined, collections, ciphers })
-        .filter((row) => row.gated)
+        .filter((row) => row.hasEnabledAccessRule)
         .map((row) => row.id);
 
     it("marks a folder an enabled access rule governs", () => {
@@ -310,7 +310,7 @@ describe("sharedFolderRows", () => {
         ciphers: [buildCipher("one", ["gated"]), buildCipher("two", ["gated"])],
       });
 
-      expect(row).toEqual(expect.objectContaining({ items: 2, gated: true }));
+      expect(row).toEqual(expect.objectContaining({ items: 2, hasEnabledAccessRule: true }));
     });
   });
 });
