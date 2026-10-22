@@ -439,6 +439,9 @@ describe("Cipher Service", () => {
     it("excludes partial (PAM-gated) ciphers from rotation", async () => {
       // Drop the beforeEach mock so the real cipherViews$ filter chain runs.
       (cipherService.cipherViews$ as jest.Mock).mockRestore();
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
 
       const normal = new CipherView(encryptionContext.cipher);
       normal.id = "normal" as CipherId;
@@ -507,6 +510,9 @@ describe("Cipher Service", () => {
 
     it("sends overlay update when cipherViews$ emits", async () => {
       (cipherService.cipherViews$ as jest.Mock)?.mockRestore();
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
 
       const decryptedView = new CipherView(encryptionContext.cipher);
       jest
