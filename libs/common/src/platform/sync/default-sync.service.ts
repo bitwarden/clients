@@ -67,17 +67,17 @@ import { SyncOptions } from "./sync.service";
 const PERF_TRACK_GROUP = PerfTrackGroup.Sync;
 const PERF_TRACK = "Full Sync";
 
+/** The promises associated with one user's in-flight api calls. */
+type InFlightApiCalls = {
+  refreshToken: Promise<void> | null;
+  sync: Promise<SyncResponse> | null;
+};
+
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
 
-  /** The promises associated with any in-flight api calls. */
-  private inFlightApiCalls: {
-    refreshToken: Promise<void> | null;
-    sync: Promise<SyncResponse> | null;
-  } = {
-    refreshToken: null,
-    sync: null,
-  };
+  /** The promises associated with any in-flight api calls, keyed by the user they were made for. */
+  private inFlightApiCalls = new Map<UserId, InFlightApiCalls>();
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -148,7 +148,7 @@ export class DefaultSyncService extends CoreSyncService {
     let needsSync = false;
     let needsSyncSucceeded = true;
     try {
-      needsSync = await this.needsSyncing(forceSync);
+      needsSync = await this.needsSyncing(forceSync, userId);
     } catch (e) {
       needsSyncSucceeded = false;
       if (allowThrowOnError) {
@@ -164,32 +164,10 @@ export class DefaultSyncService extends CoreSyncService {
       return this.syncCompleted(false, userId);
     }
 
+    const inFlightApiCalls = this.getInFlightApiCalls(userId);
+
     try {
-      if (!skipTokenRefresh) {
-        // Store the promise so multiple calls to refresh the token are not made
-        if (this.inFlightApiCalls.refreshToken === null) {
-          this.inFlightApiCalls.refreshToken = this.apiService.refreshIdentityToken();
-        }
-
-        await this.inFlightApiCalls.refreshToken;
-      }
-
-      // Store the promise so multiple calls to sync are not made
-      if (this.inFlightApiCalls.sync === null) {
-        this.inFlightApiCalls.sync = this.apiService.getSync();
-      } else {
-        this.logService.debug(
-          "Sync: Sync network call already in progress, returning existing promise",
-        );
-      }
-
-      const getSyncMeasurement = this.logService.startMeasurement(
-        PERF_TRACK_GROUP,
-        PERF_TRACK,
-        "getSync",
-      );
-      const response = await this.inFlightApiCalls.sync;
-      getSyncMeasurement.finish();
+      const response = await this.fetchSyncResponse(userId, inFlightApiCalls, skipTokenRefresh);
 
       const processMeasurement = this.logService.startMeasurement(
         PERF_TRACK_GROUP,
@@ -227,22 +205,69 @@ export class DefaultSyncService extends CoreSyncService {
         return this.syncCompleted(false, userId);
       }
     } finally {
-      this.inFlightApiCalls.refreshToken = null;
-      this.inFlightApiCalls.sync = null;
+      // Cleared only after the response is processed, so a call for the same user that arrives
+      // during processing reuses this response instead of sending new requests. The identity
+      // check keeps a call from clearing an entry that a newer call created.
+      if (this.inFlightApiCalls.get(userId) === inFlightApiCalls) {
+        this.inFlightApiCalls.delete(userId);
+      }
     }
   }
 
-  private async needsSyncing(forceSync: boolean) {
+  /** Returns the user's in-flight api calls, creating an empty entry when none exists. */
+  private getInFlightApiCalls(userId: UserId): InFlightApiCalls {
+    let inFlightApiCalls = this.inFlightApiCalls.get(userId);
+    if (inFlightApiCalls === undefined) {
+      inFlightApiCalls = { refreshToken: null, sync: null };
+      this.inFlightApiCalls.set(userId, inFlightApiCalls);
+    }
+    return inFlightApiCalls;
+  }
+
+  /**
+   * Fetches the user's sync response, reusing any refresh or sync request already in flight for
+   * the user so that overlapping calls send each request at most once.
+   */
+  private async fetchSyncResponse(
+    userId: UserId,
+    inFlightApiCalls: InFlightApiCalls,
+    skipTokenRefresh: boolean,
+  ): Promise<SyncResponse> {
+    // An in-flight sync is reused below, so a refreshed token would not change the response.
+    if (!skipTokenRefresh && inFlightApiCalls.sync === null) {
+      inFlightApiCalls.refreshToken ??= this.apiService.refreshIdentityToken(userId);
+      await inFlightApiCalls.refreshToken;
+    }
+
+    if (inFlightApiCalls.sync === null) {
+      inFlightApiCalls.sync = this.apiService.getSync(userId);
+    } else {
+      this.logService.debug(
+        "Sync: Sync network call already in progress, returning existing promise",
+      );
+    }
+
+    const getSyncMeasurement = this.logService.startMeasurement(
+      PERF_TRACK_GROUP,
+      PERF_TRACK,
+      "getSync",
+    );
+    const response = await inFlightApiCalls.sync;
+    getSyncMeasurement.finish();
+    return response;
+  }
+
+  private async needsSyncing(forceSync: boolean, userId: UserId) {
     if (forceSync) {
       return true;
     }
 
-    const lastSync = await this.getLastSync();
+    const lastSync = await firstValueFrom(this.lastSync$(userId));
     if (lastSync == null || lastSync.getTime() === 0) {
       return true;
     }
 
-    const response = await this.apiService.getAccountRevisionDate();
+    const response = await this.apiService.getAccountRevisionDate(userId);
     if (response < 0 && this.logoutCallback) {
       // Account was deleted, log out now
       await this.logoutCallback("accountDeleted");
