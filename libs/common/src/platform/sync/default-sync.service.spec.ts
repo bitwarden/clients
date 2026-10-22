@@ -992,19 +992,16 @@ describe("DefaultSyncService", () => {
       collectionService.encryptedCollections$.mockReturnValue(of([]));
     });
 
-    it("does not persist a full response over a partial local copy", async () => {
+    // CipherService.upsert keeps the stored restricted copy; core sync passes the response through.
+    it("hands a full response over a restricted local copy to cipherService.upsert", async () => {
       cipherService.get.mockResolvedValue(localCipher(true));
-      apiService.getFullCipherDetails.mockResolvedValue(remoteCipher(false));
+      const remote = remoteCipher(false);
+      apiService.getFullCipherDetails.mockResolvedValue(remote);
 
       const result = await sut.syncUpsertCipher(notification(), true, user1);
 
-      expect(result).toBe(false);
-      expect(cipherService.upsert).not.toHaveBeenCalled();
-      expect(messageSender.send).not.toHaveBeenCalledWith(
-        "syncedUpsertedCipher",
-        expect.anything(),
-      );
-      expect(logService.debug).toHaveBeenCalledWith(expect.stringContaining(cipherId));
+      expect(result).toBe(true);
+      expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
     });
 
     it.each([
