@@ -179,7 +179,10 @@ const withVault: Decorator = (storyFn, context) => {
       { provide: PinnedSharedFoldersService, useValue: pinnedSharedFolders },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
       { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
-      { provide: CipherService, useValue: { cipherListViewsWithPartials$: () => of(ciphers) } },
+      {
+        provide: CipherService,
+        useValue: { cipherListViewsIncludingRestricted$: () => of(ciphers) },
+      },
       { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
     ],
   })(storyFn, context);
@@ -326,7 +329,6 @@ export default {
               optionsForItem: (name) => `Options for ${name}`,
               selectAllRows: "Select all rows",
               selectRow: "Select row",
-              pamSharedFolderPrivilegedControls: "Privileged controls: access requires a request",
               // Row actions
               edit: "Edit",
               access: "Access",

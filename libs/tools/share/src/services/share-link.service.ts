@@ -35,6 +35,10 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { PolicyType } from "@bitwarden/sdk-internal";
 
 /**
@@ -214,14 +218,13 @@ export class ShareLinkService {
         if (!ffEnabled || !hasPremium) {
           return false;
         }
-        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or gated
-        // ("partial") by PAM
+        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or restricted
         if (
           !c ||
           c.archivedDate ||
           c.deletedDate ||
           CipherViewLikeUtils.getType(c) === CipherType.SshKey ||
-          CipherViewLikeUtils.isPartial(c)
+          !RestrictedCipherPolicy.allows(c, RestrictedCipherAction.Share)
         ) {
           return false;
         }

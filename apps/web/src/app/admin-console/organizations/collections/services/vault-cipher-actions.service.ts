@@ -407,17 +407,9 @@ export class VaultCipherActionsService {
       return true;
     } catch (e) {
       this.logService.error(e);
-      // A failed lookup only drops the gating reason from the toast. try/catch rather than
-      // .catch(), since an absent stream throws synchronously.
-      let collections: CollectionView[] = [];
-      try {
-        collections = await firstValueFrom(this.vaultCollectionService.allCollections$);
-      } catch {
-        collections = [];
-      }
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t(deleteFailureMessageKey(c, collections)),
+        message: this.i18nService.t(deleteFailureMessageKey(c)),
       });
       return false;
     }
