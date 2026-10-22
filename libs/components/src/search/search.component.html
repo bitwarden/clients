@@ -3,6 +3,7 @@
   [size]="size()"
   role="search"
   (keydown)="handleInputKeydown($event)"
+  (click)="handleFieldClick()"
   class="tw-relative tw-items-center tw-w-full [&_input]:tw-h-full tw-ps-3 tw-pe-1"
 >
   <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>

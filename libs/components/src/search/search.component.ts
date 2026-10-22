@@ -96,6 +96,20 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
     this.notifyOnChange()?.(searchText);
   }
 
+  protected handleFieldClick(): void {
+    if (this.disabled()) {
+      return;
+    }
+    //Don't do anything if the input is already focused, otherwise it will blur and focus again, which can cause issues with some browsers.
+    const inputEl = this.input()?.nativeElement;
+    if (!inputEl || document.activeElement === inputEl) {
+      return;
+    }
+
+    // Set focus to the input when the field is clicked, but only if it's not already focused
+    inputEl.focus();
+  }
+
   protected handleDocumentShortcut(event: KeyboardEvent): void {
     if (!this.useKeyShortcuts() || this.disabled() || this.obscuredByDialog()) {
       return;
