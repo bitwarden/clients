@@ -156,8 +156,16 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
       useAngularDecorators: true,
     }),
     VaultBatchBarService,
-    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
-    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+    safeProvider({
+      provide: ASSIGN_COLLECTIONS_DIALOG,
+      useClass: AssignCollectionsWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
     safeProvider({
       provide: COLLECTION_DIALOG,
       useClass: CollectionWebDialogAdapter,
