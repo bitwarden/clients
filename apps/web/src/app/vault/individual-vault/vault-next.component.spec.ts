@@ -390,7 +390,7 @@ describe("VaultNextComponent", () => {
             // Needed by `CollectionOptionsMenuComponent`, kept as a real child above.
             {
               provide: PinnedSharedFoldersService,
-              useValue: mock<PinnedSharedFoldersService>({ pinnedIds$: () => of([]) }),
+              useValue: mock<PinnedSharedFoldersService>({ activePinnedIds: signal([]) }),
             },
             { provide: ToastService, useValue: mock<ToastService>() },
           ],

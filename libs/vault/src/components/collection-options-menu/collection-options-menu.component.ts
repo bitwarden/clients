@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId } from "@bitwarden/common/types/guid";
 import { IconButtonModule, IconModule, MenuModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -67,11 +65,8 @@ export class CollectionOptionsMenuComponent {
   /** Exposed so the template can name a tab by member rather than a bare string. */
   protected readonly CollectionDialogTab = CollectionDialogTab;
 
-  /** The ids the user pinned — see `SharedFoldersComponent`'s own copy. */
-  private readonly pinnedIds = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.pinnedSharedFolders.pinnedIds$(userId))),
-    { initialValue: [] as CollectionId[] },
-  );
+  /** The ids the user pinned. */
+  private readonly pinnedIds = this.pinnedSharedFolders.activePinnedIds;
 
   protected readonly showEditActions = computed(
     () => this.collectionDialog != null && this.collection().canEdit(this.organization()),

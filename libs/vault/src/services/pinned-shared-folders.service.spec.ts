@@ -6,6 +6,7 @@ import {
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
@@ -25,7 +26,11 @@ describe("PinnedSharedFoldersService", () => {
     const stateProvider = new FakeStateProvider(accountService);
 
     TestBed.configureTestingModule({
-      providers: [PinnedSharedFoldersService, { provide: StateProvider, useValue: stateProvider }],
+      providers: [
+        PinnedSharedFoldersService,
+        { provide: StateProvider, useValue: stateProvider },
+        { provide: AccountService, useValue: accountService },
+      ],
     });
 
     service = TestBed.inject(PinnedSharedFoldersService);
@@ -93,5 +98,24 @@ describe("PinnedSharedFoldersService", () => {
 
     expect(await firstValueFrom(service.pinnedIds$(otherUserId))).toEqual([]);
     expect(await firstValueFrom(service.emptyStateDismissed$(otherUserId))).toBe(false);
+  });
+
+  describe("activePinnedIds", () => {
+    it("starts empty for the active account", () => {
+      expect(service.activePinnedIds()).toEqual([]);
+    });
+
+    it("reflects pins made for the active account", async () => {
+      await service.pin(userId, folderB);
+      await service.pin(userId, folderA);
+
+      expect(service.activePinnedIds()).toEqual([folderB, folderA]);
+    });
+
+    it("does not reflect another account's pins", async () => {
+      await service.pin(otherUserId, folderA);
+
+      expect(service.activePinnedIds()).toEqual([]);
+    });
   });
 });

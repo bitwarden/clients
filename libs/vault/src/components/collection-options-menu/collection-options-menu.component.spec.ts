@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -95,8 +96,7 @@ describe("CollectionOptionsMenuComponent", () => {
     collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Saved);
     bulkDeleteDialog = mock<BulkDeleteDialogRef>();
     bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Deleted);
-    pinnedSharedFolders = mock<PinnedSharedFoldersService>();
-    pinnedSharedFolders.pinnedIds$.mockReturnValue(of(pinnedIds));
+    pinnedSharedFolders = mock<PinnedSharedFoldersService>({ activePinnedIds: signal(pinnedIds) });
     toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
