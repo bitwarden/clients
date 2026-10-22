@@ -358,15 +358,15 @@ function decoratorsFor(
               importDataLoginTitle: (vendor?: string) => `Log in to ${vendor}`,
               importDataLoginSubtitle:
                 "Your credentials are encrypted in transit and never stored.",
-              importDataSecureByDesignTitle: "Secure by design",
-              importDataSecureByDesignBody: (vendor?: string) =>
-                `End-to-end encrypted handoff. Bitwarden never sees your ${vendor} login details.`,
-              importDataLoginInfoTitle: "We'll ask for your login info",
-              importDataLoginInfoBody: (vendor?: string) =>
-                `In the next step, log in to your ${vendor} account.`,
-              importDataAutomaticTransferTitle: "Automatic transfer",
+              importDataSecureByDesignTitleV2: "Fast and secure",
+              importDataSecureByDesignBodyV2:
+                "This process is end-to-end encrypted. No export file needed.",
+              importDataLoginInfoTitleV2: "All you need is your login",
+              importDataLoginInfoBodyV2: (vendor?: string) =>
+                `In the next step, you'll enter your ${vendor} login details.`,
+              importDataAutomaticTransferTitle: "What will transfer",
               importDataAutomaticTransferBody:
-                "Skip the manual export. Your items and folders move over for you.",
+                "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded.",
               importHelpCenterInstructions: (vendor?: string) =>
                 `See detailed ${vendor} instructions in our`,
               importHelpCenterLinkText: "Help Center",

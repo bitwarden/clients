@@ -92,6 +92,15 @@ describe("ImportControlsDirectComponent: intro", () => {
     expect(subtitle.classList).toContain("tw-mb-4");
   });
 
+  it("uses the product-approved wording for the first two value props", () => {
+    expect(text()).toContain("importDataSecureByDesignTitleV2");
+    expect(text()).toContain("importDataSecureByDesignBodyV2");
+    expect(text()).toContain("importDataLoginInfoTitleV2");
+    expect(text()).toContain("importDataLoginInfoBodyV2");
+    expect(text()).not.toContain("importDataSecureByDesignTitle ");
+    expect(text()).not.toContain("importDataLoginInfoTitle ");
+  });
+
   it("words the third value prop as the automatic transfer", () => {
     expect(text()).toContain("importDataAutomaticTransferTitle");
     expect(text()).toContain("importDataAutomaticTransferBody");
