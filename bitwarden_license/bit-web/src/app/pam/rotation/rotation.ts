@@ -50,7 +50,6 @@ export type TargetSystemMethod = SdkTargetSystemMethod;
 /** The integration behind an automatic target system. A manual one has none. */
 export const TargetSystemKind = Object.freeze({
   Entra: "entra",
-  Mssql: "mssql",
   CustomScript: "custom_script",
   Unknown: "unknown",
 } as const satisfies Record<string, SdkTargetSystemKind>);

@@ -31,10 +31,6 @@ describe("targetSystemQualifierKey", () => {
     );
   });
 
-  it("states nothing about mssql, which this client no longer offers", () => {
-    expect(targetSystemQualifierKey(systemWithKind(TargetSystemKind.Mssql))).toBeNull();
-  });
-
   it("falls back to the method for a manual target, which has no integration", () => {
     expect(
       targetSystemQualifierKey(systemWithKind(undefined, { method: TargetSystemMethod.Manual })),

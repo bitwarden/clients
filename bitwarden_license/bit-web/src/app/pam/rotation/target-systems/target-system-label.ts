@@ -18,9 +18,8 @@ export type TargetSystemLabel = {
   qualified: string;
 };
 
-const KIND_LABEL_KEYS: Record<TargetSystemKind, string | null> = {
+const KIND_LABEL_KEYS: Partial<Record<TargetSystemKind, string | null>> = {
   [TargetSystemKind.Entra]: "pamTargetSystemTypeEntra",
-  [TargetSystemKind.Mssql]: null,
   [TargetSystemKind.CustomScript]: "pamTargetSystemTypeCustomScript",
   [TargetSystemKind.Unknown]: null,
 };
@@ -32,8 +31,8 @@ const METHOD_LABEL_KEYS: Record<TargetSystemMethod, string | null> = {
 };
 
 /**
- * The i18n key naming a target system's integration. Null for a manual target, for `mssql`, which
- * this client does not offer, and for a kind this SDK cannot model.
+ * The i18n key naming a target system's integration. Null for a manual target and for a kind this
+ * SDK cannot model.
  */
 export function targetSystemKindLabelKey(kind: TargetSystemKind | undefined | null): string | null {
   return kind == null ? null : (KIND_LABEL_KEYS[kind] ?? null);
