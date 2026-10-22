@@ -1,26 +1,57 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 
 import {
-  DialogService,
   TabComponent,
   TabGroupComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
-import { AccessRequestDetailDialogComponent } from "./access-request-detail-dialog.component";
+import {
+  AccessRequestDetailDialogComponent,
+  AccessRequestDialogStep,
+} from "./access-request-detail-dialog.component";
 import {
   approvalsRequests,
+  DEREK,
   historyRequests,
   myRequests as myRequestsFixture,
 } from "./access-request-fixtures";
-import { AccessRequestContext, AccessRequestDetailView } from "./access-request.model";
+import {
+  AccessApproverLike,
+  AccessRequestContext,
+  AccessRequestDetailView,
+} from "./access-request.model";
 import {
   AccessRequestsListComponent,
   RowAction,
   RowActionEvent,
 } from "./access-requests-list.component";
+
+/** Actions emitted by the detail dialog's footer (withdraw is handled via `withdrawConfirmed`). */
+type DialogAction =
+  "approve" | "deny" | "cancel" | "activate" | "revokeLease" | "endSession" | "resubmit";
+
+/**
+ * Snapshot of the currently open detail dialog. Mirrors `AccessRequestDetailDialogData`,
+ * but held in a signal so the prototype can render the dialog inline over a backdrop
+ * rather than routing through `DialogService` + CDK overlay — which doesn't lay out
+ * correctly inside Storybook's harness, leaving the dialog host without its size classes.
+ * The production app would wire this through `DialogService` instead.
+ */
+type OpenDialogState = {
+  request: AccessRequestDetailView;
+  context: AccessRequestContext;
+  initialStep?: AccessRequestDialogStep;
+};
 
 /**
  * Full-page Access Requests prototype. Hosts the three tabs (Approvals, My
@@ -34,6 +65,7 @@ import {
   imports: [
     CommonModule,
     AccessRequestsListComponent,
+    AccessRequestDetailDialogComponent,
     TabGroupComponent,
     TabComponent,
     TypographyModule,
@@ -41,12 +73,14 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessRequestsComponent {
-  private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
 
   protected readonly approvals = signal<AccessRequestDetailView[]>(approvalsRequests);
   protected readonly myRequests = signal<AccessRequestDetailView[]>(myRequestsFixture);
   protected readonly history = signal<AccessRequestDetailView[]>(historyRequests);
+
+  /** Which detail dialog is open, or `null` when none. */
+  protected readonly openDialog = signal<OpenDialogState | null>(null);
 
   /** Approvals badge counts items pending my decision. */
   protected readonly approvalsCount = computed(
@@ -59,66 +93,211 @@ export class AccessRequestsComponent {
   );
 
   protected onRowClick(context: AccessRequestContext, request: AccessRequestDetailView): void {
-    this.openDetailDialog(context, request);
+    this.openDialog.set({ request, context });
   }
 
   protected onAction(context: AccessRequestContext, event: RowActionEvent): void {
     // Destructive revoke on a live approval → open the detail dialog pre-advanced to the
     // withdraw step so the user still sees the item context before confirming.
     if (event.action === "revoke") {
-      this.openDetailDialog(context, event.request, "withdraw");
+      this.openDialog.set({ request: event.request, context, initialStep: "withdraw" });
       return;
     }
-    this.handleQuickAction(context, event.request, event.action);
+    this.applyAction(context, event.request, rowActionToDialogAction(event.action));
   }
 
-  private openDetailDialog(
+  protected onDialogAction(action: string): void {
+    const state = this.openDialog();
+    if (!state) {
+      return;
+    }
+    // The dialog's `withdraw` action is intercepted internally and surfaced via
+    // `withdrawConfirmed`, so it never reaches here. Guard anyway for completeness.
+    if (action === "withdraw") {
+      return;
+    }
+    this.applyAction(state.context, state.request, action as DialogAction);
+    this.openDialog.set(null);
+  }
+
+  protected onWithdrawConfirmed(payload: { reason: string }): void {
+    const state = this.openDialog();
+    if (!state) {
+      return;
+    }
+    this.applyWithdraw(state.context, state.request, payload.reason);
+    this.openDialog.set(null);
+  }
+
+  protected closeDialog(): void {
+    this.openDialog.set(null);
+  }
+
+  /**
+   * Optimistic prototype mutation: apply the action to the right tab's signal, then
+   * show the toast. Each case either updates the request in place (status change) or
+   * moves it to the History tab as a terminal record. Keeps hover-row actions and
+   * dialog-footer actions behaving identically.
+   */
+  private applyAction(
     context: AccessRequestContext,
     request: AccessRequestDetailView,
-    initialStep?: "withdraw",
+    action: DialogAction,
   ): void {
-    const ref = AccessRequestDetailDialogComponent.open(this.dialogService, {
-      request,
-      context,
-      initialStep,
-    });
-    ref.componentInstance?.withdrawConfirmed.subscribe((payload) => {
-      this.toastService.showToast({
-        variant: "success",
-        title: "Approval withdrawn",
-        message: `Access for ${request.requester.name} has been revoked. Reason logged: "${payload.reason}".`,
-      });
+    switch (action) {
+      case "approve":
+        this.updateIn(this.approvals, request.id, (r) => ({
+          ...r,
+          status: "readyToUse",
+          awaitingActivation: true,
+          resolvedAt: "Just now",
+          decisions: [...r.decisions, decision("approve")],
+        }));
+        this.showToast({
+          title: "Approved",
+          message: `${request.requester.name} can now activate access to ${request.itemName}.`,
+        });
+        return;
+
+      case "deny":
+        this.moveToHistory(this.approvals, request.id, (r) => ({
+          ...r,
+          status: "denied",
+          resolvedAt: "Just now",
+          resolvedBy: DEREK,
+          decisions: [...r.decisions, decision("deny")],
+        }));
+        this.showToast({
+          title: "Denied",
+          message: `${request.requester.name} has been notified.`,
+        });
+        return;
+
+      case "cancel":
+        this.moveToHistory(this.myRequests, request.id, (r) => ({
+          ...r,
+          status: "canceled",
+          resolvedAt: "Just now",
+          resolvedBy: r.requester,
+        }));
+        this.showToast({ message: `Request for ${request.itemName} canceled.` });
+        return;
+
+      case "activate":
+        this.updateIn(this.myRequests, request.id, (r) => ({
+          ...r,
+          status: "active",
+          leaseRemaining: r.leaseRemaining ?? "4h",
+          awaitingActivation: false,
+        }));
+        this.showToast({ message: `Session started for ${request.itemName}.` });
+        return;
+
+      case "endSession":
+        this.moveToHistory(this.myRequests, request.id, (r) => ({
+          ...r,
+          status: "sessionEnded",
+          resolvedAt: "Just now",
+          resolvedBy: r.requester,
+          leaseRemaining: undefined,
+        }));
+        this.showToast({ message: `Session ended for ${request.itemName}.` });
+        return;
+
+      case "revokeLease":
+        // Approver cuts a live session mid-lease → terminal "revoked" in History.
+        this.moveToHistory(this.approvals, request.id, (r) => ({
+          ...r,
+          status: "revoked",
+          resolvedAt: "Just now",
+          resolvedBy: DEREK,
+          leaseRemaining: undefined,
+        }));
+        this.showToast({
+          title: "Access revoked",
+          message: `Access for ${request.requester.name} has been revoked.`,
+        });
+        return;
+
+      case "resubmit":
+        // Prototype: no form yet, just acknowledge.
+        this.showToast({ message: `Opening a new request for ${request.itemName}…` });
+        return;
+    }
+  }
+
+  private applyWithdraw(
+    context: AccessRequestContext,
+    request: AccessRequestDetailView,
+    reason: string,
+  ): void {
+    void context;
+    this.moveToHistory(this.approvals, request.id, (r) => ({
+      ...r,
+      status: "revoked",
+      resolvedAt: "Just now",
+      resolvedBy: DEREK,
+      leaseRemaining: undefined,
+      decisions: [
+        ...r.decisions,
+        {
+          decider: DEREK,
+          verdict: "approve",
+          comment: `Withdrawn: ${reason}`,
+          decidedAt: "Just now",
+        },
+      ],
+    }));
+    this.showToast({
+      title: "Approval withdrawn",
+      message: `Access for ${request.requester.name} has been revoked. Reason logged: "${reason}".`,
     });
   }
 
-  private handleQuickAction(
-    context: AccessRequestContext,
-    request: AccessRequestDetailView,
-    action: RowAction,
+  /** In-place status mutation inside a single tab's signal. */
+  private updateIn(
+    source: WritableSignal<AccessRequestDetailView[]>,
+    id: string,
+    mutate: (r: AccessRequestDetailView) => AccessRequestDetailView,
   ): void {
-    const toasts: Record<RowAction, { title?: string; message: string }> = {
-      approve: {
-        title: "Approved",
-        message: `${request.requester.name} can now activate access to ${request.itemName}.`,
-      },
-      deny: {
-        title: "Denied",
-        message: `${request.requester.name} has been notified.`,
-      },
-      revoke: {
-        title: "Access revoked",
-        message: `Access for ${request.requester.name} has been revoked.`,
-      },
-      cancel: { message: `Request for ${request.itemName} canceled.` },
-      activate: { message: "Access activated. Session ends soon." },
-      endSession: { message: `Session ended for ${request.itemName}.` },
-    };
-    const toast = toasts[action];
+    source.update((list) => list.map((r) => (r.id === id ? mutate(r) : r)));
+  }
+
+  /**
+   * Terminal transition: remove the request from its source tab and prepend the mutated
+   * version to the History tab, so the user sees it land at the top of the audit log.
+   */
+  private moveToHistory(
+    source: WritableSignal<AccessRequestDetailView[]>,
+    id: string,
+    mutate: (r: AccessRequestDetailView) => AccessRequestDetailView,
+  ): void {
+    const original = source().find((r) => r.id === id);
+    if (!original) {
+      return;
+    }
+    source.update((list) => list.filter((r) => r.id !== id));
+    this.history.update((list) => [mutate(original), ...list]);
+  }
+
+  private showToast(toast: { title?: string; message: string }): void {
     this.toastService.showToast({
       variant: "success",
       title: toast.title,
       message: toast.message,
     });
-    void context;
   }
+}
+
+/** Row hover-action verbs map 1:1 onto dialog actions, except `revoke` goes through the withdraw flow. */
+function rowActionToDialogAction(action: Exclude<RowAction, "revoke">): DialogAction {
+  return action;
+}
+
+function decision(verdict: "approve" | "deny"): {
+  decider: AccessApproverLike;
+  verdict: "approve" | "deny";
+  decidedAt: string;
+} {
+  return { decider: DEREK, verdict, decidedAt: "Just now" };
 }

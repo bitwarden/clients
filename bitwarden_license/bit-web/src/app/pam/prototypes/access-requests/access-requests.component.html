@@ -40,3 +40,30 @@
     </bit-tab>
   </bit-tab-group>
 </div>
+
+@let dialog = openDialog();
+@if (dialog) {
+  <!-- Inline modal shell. See `OpenDialogState` note on `access-requests.component.ts` for why this
+       does not route through DialogService. Backdrop click + ESC both close the dialog. -->
+  <div
+    class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-start tw-justify-center tw-overflow-y-auto tw-bg-bg-overlay tw-p-6"
+    role="presentation"
+    (click)="closeDialog()"
+    (keydown.escape)="closeDialog()"
+  >
+    <div
+      class="tw-w-full tw-max-w-3xl"
+      role="presentation"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <pam-access-request-detail-dialog
+        [request]="dialog.request"
+        [context]="dialog.context"
+        [initialStep]="dialog.initialStep ?? 'detail'"
+        (action)="onDialogAction($event)"
+        (withdrawConfirmed)="onWithdrawConfirmed($event)"
+      ></pam-access-request-detail-dialog>
+    </div>
+  </div>
+}
