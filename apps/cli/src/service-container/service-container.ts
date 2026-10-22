@@ -291,6 +291,8 @@ export class ServiceContainer {
   legacyCompatKeyService: LegacyCompatKeyService;
   tokenService: TokenService;
   appIdService: AppIdService;
+  /** The User-Agent the CLI identifies itself with, for clients that build their own HTTP stack. */
+  customUserAgent: string;
   apiService: NodeApiService;
   twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
@@ -507,6 +509,51 @@ export class ServiceContainer {
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
+    this.appIdService = new AppIdService(this.storageService, this.logService);
+
+    const customUserAgent =
+      "Bitwarden_CLI/" +
+      this.platformUtilsService.getApplicationVersionSync() +
+      " (" +
+      this.platformUtilsService.getDeviceString().toUpperCase() +
+      ")";
+    this.customUserAgent = customUserAgent;
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
+
+    let managedSettingsService: ManagedSettingsService;
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      managedSettingsService = devManagedSettingsService;
+    } else {
+      // The CLI has no host acquisition code, so nothing pushes a profile here.
+      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    }
+
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      managedSettingsService,
+      this.appIdService,
+      this.logService,
+      customUserAgent,
+    );
+
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
 
     this.tokenService = new TokenService(
@@ -583,15 +630,6 @@ export class ServiceContainer {
       this.logService,
     );
 
-    this.appIdService = new AppIdService(this.storageService, this.logService);
-
-    const customUserAgent =
-      "Bitwarden_CLI/" +
-      this.platformUtilsService.getApplicationVersionSync() +
-      " (" +
-      this.platformUtilsService.getDeviceString().toUpperCase() +
-      ")";
-
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
       this.singleUserStateProvider,
@@ -666,6 +704,7 @@ export class ServiceContainer {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -684,48 +723,9 @@ export class ServiceContainer {
       this.authService,
     );
 
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new CliSdkLoadService();
-
-    let managedSettingsService: ManagedSettingsService;
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      managedSettingsService = devManagedSettingsService;
-    } else {
-      // The CLI has no host acquisition code, so nothing pushes a profile here.
-      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-    }
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      managedSettingsService,
-      this.appIdService,
-      this.logService,
-      customUserAgent,
-    );
 
     this.sendDecryptionService = new SendDecryptionService(
       this.sdkService,
@@ -986,7 +986,6 @@ export class ServiceContainer {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
-      this.configService,
       this.cipherSdkService,
     );
 
@@ -1221,6 +1220,7 @@ export class ServiceContainer {
       this.cipherService,
       this.sdkService,
       this.stateProvider,
+      this.i18nService,
     );
   }
 

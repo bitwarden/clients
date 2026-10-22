@@ -261,7 +261,10 @@ export class MemberActionsService {
     );
   }
 
-  /** Lets the admin retry the failed members. The original outcome is reported either way. */
+  /**
+   * Lets the admin retry the failed members. Members that were retried are reported with their
+   * retry outcome, so the result reflects every invite that was sent.
+   */
   private offerResend(
     organization: Organization,
     users: OrganizationUserView[],
@@ -269,10 +272,19 @@ export class MemberActionsService {
   ): Observable<BulkActionResult> {
     return this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result).pipe(
       take(1),
-      concatMap((resendUsers) =>
-        resendUsers.length > 0 ? this.bulkReinvite(organization, resendUsers) : of(undefined),
-      ),
-      map(() => result),
+      concatMap((resendUsers) => {
+        if (resendUsers.length === 0) {
+          return of(result);
+        }
+
+        const retriedIds = new Set<string>(resendUsers.map((u) => u.id));
+        return this.bulkReinvite(organization, resendUsers).pipe(
+          map((retry): BulkActionResult => ({
+            successful: [...result.successful, ...retry.successful],
+            failed: [...result.failed.filter((f) => !retriedIds.has(f.id)), ...retry.failed],
+          })),
+        );
+      }),
     );
   }
 

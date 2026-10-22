@@ -91,9 +91,7 @@ export enum FeatureFlag {
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
-  PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
@@ -102,7 +100,6 @@ export enum FeatureFlag {
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
-  PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
   PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
@@ -172,9 +169,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
-  [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
@@ -216,7 +211,6 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
-  [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
   [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 

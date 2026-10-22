@@ -1,7 +1,28 @@
-import { computed, inject, provideEnvironmentInitializer, signal } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  importProvidersFrom,
+  inject,
+  OnDestroy,
+  provideEnvironmentInitializer,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  defer,
+  distinctUntilChanged,
+  filter,
+  map,
+  NEVER,
+  of,
+  startWith,
+  timer,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -34,15 +55,18 @@ import {
   CompactModeService,
   DialogService,
   I18nMockService,
+  ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
   MY_VAULT,
   orgIconTile,
   PasswordRepromptService,
   personalIconTile,
+  VAULT_BASE_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
   VaultNavService,
@@ -63,7 +87,9 @@ import {
   VaultSection,
 } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
+import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -245,6 +271,8 @@ type StoryArgs = {
   vfo1Enabled?: boolean;
   /** The vault the page is narrowed to. Defaults to All items. */
   scope?: VaultScope;
+  /** Shared folder filter options. Defaults to {@link COLLECTION_OPTIONS}. */
+  collectionOptions?: typeof COLLECTION_OPTIONS;
 };
 
 // Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
@@ -294,6 +322,57 @@ const COLLECTION_OPTIONS = [
   { value: { id: "col-mkt", name: "Marketing" } as CollectionView, label: "Marketing" },
 ];
 
+// A realistically sized set of Acme Co shared folders, for the full vault page.
+const SHARED_FOLDER_OPTIONS = [
+  "Customer Success",
+  "Design",
+  "DevOps",
+  "Engineering",
+  "Executive",
+  "Facilities",
+  "Finance",
+  "Human Resources",
+  "IT",
+  "Legal",
+  "Marketing",
+  "Product",
+  "Sales",
+  "Security",
+  "Support",
+].map((name) => ({
+  value: new CollectionView({
+    id: `col-${name.toLowerCase().replace(/ /g, "-")}` as CollectionId,
+    organizationId: "org-engineering" as OrganizationId,
+    name,
+  }),
+  label: name,
+}));
+
+/** Place a cipher in Acme Co, inside the given shared folders. */
+const inSharedFolders = (
+  cipher: CipherView,
+  folders: typeof SHARED_FOLDER_OPTIONS,
+): PopupCipherViewLike => {
+  const organization = new Organization();
+  organization.id = "org-engineering" as OrganizationId;
+  organization.productTierType = ProductTierType.Enterprise;
+
+  cipher.organizationId = organization.id;
+  cipher.collectionIds = folders.map((folder) => folder.value.id);
+  const collections = folders.map((folder) => folder.value);
+  return Object.assign(cipher, { organization, collections }) as PopupCipherViewLike;
+};
+
+// Two logins per shared folder, plus a couple that sit in several at once.
+const SHARED_FOLDER_CIPHERS: PopupCipherViewLike[] = [
+  ...SHARED_FOLDER_OPTIONS.flatMap((folder) => [
+    inSharedFolders(makeLogin(), [folder]),
+    inSharedFolders(makeLogin(), [folder]),
+  ]),
+  inSharedFolders(makeCard(), SHARED_FOLDER_OPTIONS.slice(0, 3)),
+  inSharedFolders(makeLogin(), SHARED_FOLDER_OPTIONS.slice(5, 7)),
+];
+
 // Nested to exercise the tree flattening: the child renders as its own option, labeled with only
 // its trailing segment.
 const FOLDER_OPTIONS = [
@@ -311,6 +390,23 @@ const CIPHER_TYPE_OPTIONS = [
   { value: CipherType.Identity, label: "Identity" },
   { value: CipherType.SecureNote, label: "Note" },
 ];
+
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+  startTour: () => Promise.resolve(),
+};
 
 const buildProviders = (args: StoryArgs) => {
   const autoFillCiphers$ = new BehaviorSubject(args.autoFillCiphers);
@@ -373,7 +469,7 @@ const buildProviders = (args: StoryArgs) => {
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         organizationNames$: of(ORGANIZATION_NAMES),
-        collections$: of(COLLECTION_OPTIONS),
+        collections$: of(args.collectionOptions ?? COLLECTION_OPTIONS),
         folders$: of(FOLDER_OPTIONS),
       },
     },
@@ -538,10 +634,17 @@ const buildProviders = (args: StoryArgs) => {
           filters: "Filters",
           filtersSelected: "__$1__ selected",
           removeItem: "Remove __$1__",
+          // The active-filter chip group's "+N" chip and its popover.
+          showMore: "Show more",
+          showMoreCount: "Show __$1__ more",
           clear: "Clear",
           clearAll: "Clear all",
           done: "Done",
           back: "Back",
+          // The tour's coachmarks render their popover templates even when no step is active.
+          learnMore: "Learn more",
+          coachmarkStepsIndicator: "__$1__ of __$2__",
+          next: "Next",
           noMatchingItems: "No matching items",
           noDetailsToCopy: "No details to copy",
           importItems: "Import items",
@@ -595,7 +698,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { restricted$: of([]) },
     },
     { provide: CipherService, useValue: {} },
-    { provide: PasswordRepromptService, useValue: {} },
+    { provide: PasswordRepromptService, useValue: { passwordRepromptCheck: async () => true } },
     { provide: ToastService, useValue: {} },
     { provide: DialogService, useValue: {} },
     { provide: OrganizationService, useValue: { hasOrganizations: () => of(false) } },
@@ -614,11 +717,17 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: EventCollectionService, useValue: {} },
     { provide: TotpService, useValue: {} },
+    { provide: CoachmarkService, useValue: mockCoachmarkService },
+    {
+      provide: VaultPopupTourService,
+      useValue: { sharedFoldersRow: signal(null), filterDialogOpen: signal(false) },
+    },
     {
       provide: BillingAccountProfileStateService,
       useValue: { hasPremiumFromAnySource$: () => of(true) },
     },
     { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+    { provide: VaultPopupScrollPositionService, useValue: { restoresCollapse: () => false } },
     {
       provide: ActivatedRoute,
       useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
@@ -668,9 +777,15 @@ export const VaultPage: Story = {
       providers: buildProviders({
         autoFillCiphers: AUTOFILL_CIPHERS,
         favoriteCiphers: FAVORITE_CIPHERS,
-        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+        filteredCiphers: [
+          ...AUTOFILL_CIPHERS,
+          ...FAVORITE_CIPHERS,
+          ...ALL_ITEM_CIPHERS,
+          ...SHARED_FOLDER_CIPHERS,
+        ],
         loading: false,
         vfo1Enabled: true,
+        collectionOptions: SHARED_FOLDER_OPTIONS,
       }),
     }),
     moduleMetadata({ imports: [PopupPageComponent, PopupHeaderComponent, CalloutModule] }),
@@ -885,4 +1000,98 @@ export const BlockedUri: Story = {
   render: () => ({
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
   }),
+};
+
+/** Attaches the real scroll restore the way `VaultComponent` does: once loaded, onto the live region. */
+@Component({
+  selector: "story-restore-vault-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PopupPageComponent, PopupHeaderComponent, VaultPopupListTableComponent],
+  template: /* HTML */ `
+    <div class="tw-border tw-border-solid tw-border-secondary-300" style="height: 600px">
+      <popup-page [collapseAboveScrollArea]="true">
+        <popup-header slot="header" pageTitle="Vault"></popup-header>
+        <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+          <app-vault-popup-list-table></app-vault-popup-list-table>
+        </div>
+      </popup-page>
+    </div>
+  `,
+})
+class StoryRestoreVaultPageComponent implements OnDestroy {
+  private readonly scrollPosition = inject(VaultPopupScrollPositionService);
+
+  constructor() {
+    combineLatest([
+      inject(ScrollLayoutService).scrollableRef$,
+      inject(VaultPopupLoadingService).loading$,
+    ])
+      .pipe(
+        filter(([ref, loading]) => !!ref?.nativeElement && !loading),
+        map(([ref]) => ref!.nativeElement),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((element) => this.scrollPosition.start(element));
+  }
+
+  ngOnDestroy() {
+    this.scrollPosition.stop();
+  }
+}
+
+@Component({
+  selector: "story-item-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterModule],
+  template: `<a routerLink="/tabs/vault">Back to vault</a>`,
+})
+class StoryItemPageComponent {}
+
+/** Stubs the real scroll restore and router would collide with. */
+const RESTORE_STUBBED = [Router, VaultPopupScrollPositionService];
+
+/**
+ * Scroll down, open an item, then go back: the collapsing regions should arrive collapsed and stay
+ * that way. Each arrival loads for 150ms, as the popup does.
+ */
+export const RestoreScrollPosition: Story = {
+  parameters: { chromatic: { disableSnapshot: true } },
+  decorators: [
+    applicationConfig({
+      providers: [
+        ...buildProviders({
+          autoFillCiphers: AUTOFILL_CIPHERS,
+          favoriteCiphers: FAVORITE_CIPHERS,
+          filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+          loading: false,
+          vfo1Enabled: true,
+        }).filter((provider) => !RESTORE_STUBBED.includes((provider as { provide?: any }).provide)),
+        {
+          provide: VaultPopupLoadingService,
+          useValue: {
+            loading$: defer(() =>
+              timer(150).pipe(
+                map(() => false),
+                startWith(true),
+              ),
+            ),
+          },
+        },
+        { provide: VAULT_BASE_ROUTE, useValue: "/tabs/vault" },
+        importProvidersFrom(
+          RouterModule.forRoot(
+            [
+              { path: "tabs/vault", component: StoryRestoreVaultPageComponent },
+              { path: "view-cipher", component: StoryItemPageComponent },
+              { path: "**", redirectTo: "tabs/vault" },
+            ],
+            { useHash: true },
+          ),
+        ),
+      ],
+    }),
+    moduleMetadata({ imports: [RouterOutlet] }),
+  ],
+  render: () => ({ template: `<router-outlet></router-outlet>` }),
 };

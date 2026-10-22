@@ -856,6 +856,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.previewFailed()) {
+      return;
+    }
+
     if (this.singleOrgPolicyBlock) {
       return;
     }

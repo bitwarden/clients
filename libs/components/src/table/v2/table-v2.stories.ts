@@ -64,7 +64,7 @@ type UsersRow = { id: number; name: string; email: string; starred: boolean };
     <bit-column sortable>
       <bit-header-cell>Status</bit-header-cell>
       <bit-cell *bitCellDef="table().columns.other; let row">
-        <span class="tw-rounded tw-bg-primary-100 tw-px-2 tw-py-0.5 tw-text-xs">
+        <span class="tw-rounded tw-bg-bg-brand-soft tw-px-2 tw-py-0.5 tw-text-xs">
           {{ row.other }}
         </span>
       </bit-cell>
@@ -791,7 +791,7 @@ class DemoSearchableTableComponent {
   ],
   template: `
     <bit-layout>
-      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-main">{{ url() }}</p>
+      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-fg-heading">{{ url() }}</p>
       <bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
@@ -1220,6 +1220,8 @@ export default {
               filters: "Filters",
               done: "Done",
               clearAll: "Clear all",
+              showMore: "Show more",
+              showMoreCount: (count) => `Show ${count} more`,
               filtersSelected: (count) => `${count} selected`,
               previousPage: "Previous page",
               nextPage: "Next page",
@@ -1929,6 +1931,33 @@ export const FillPageResizedViewport: Story = {
 };
 
 /**
+ * A crowded `fill` table keeps a minimum height instead of shrinking, and the frame scrolls to
+ * reach it. The header keeps its full height; the empty state scrolls beneath it.
+ */
+export const FillCrowdedEmpty: Story = {
+  render: () => ({
+    props: { table: emptyTable },
+    template: `
+      <div class="tw-flex tw-flex-col tw-overflow-auto" style="height: 480px">
+        <div class="tw-mb-4 tw-flex tw-h-96 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-secondary">
+          Content above the table
+        </div>
+        <bit-table-v2 [tableDef]="table" height="fill">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      </div>
+    `,
+  }),
+};
+
+/**
  * Filtering with projected filter chips. A radio chip and a toggle chip register
  * with the table automatically when projected in; the table composes their
  * predicates into the rendered rows and shows a "no matching items" state when
@@ -1961,15 +1990,15 @@ async function filterSurface() {
 }
 
 /**
- * Opens the Shared folders filter, whichever surface the viewport is showing: the chip's popover
- * above `md`, or the collapsed trigger's dialog drilled into Shared folders below it. Lets one
+ * Opens the Shared folders filter, whichever surface the toolbar is showing: the chip's popover
+ * when wide, or the collapsed trigger's dialog drilled into Shared folders when narrow. Lets one
  * story snapshot both surfaces across viewports.
  *
  * The names here track the kitchen sink's `placeholderText`, so renaming that chip breaks these
  * queries — anchored so the sibling "My folders" chip can't match instead.
  */
 async function openSharedFoldersFilter(canvasElement: HTMLElement): Promise<void> {
-  // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
+  // A wide toolbar shows the chip; a narrow one collapses the row to one icon trigger. The hidden
   // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
   const trigger = await within(canvasElement).findByRole("button", {
     name: /^(Shared folders|Filters)$/,
@@ -1993,7 +2022,7 @@ async function searchForNothing(): Promise<void> {
 /**
  * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
  * action buttons, and a paginator. Useful for checking the responsive behaviour —
- * below `md` the chip row collapses into the filter dialog and the action buttons
+ * on a narrow toolbar the chip row collapses into the filter dialog and the action buttons
  * take a full-width row of their own, split evenly.
  */
 export const KitchenSink: Story = {
@@ -2004,8 +2033,8 @@ export const KitchenSink: Story = {
 
 /**
  * The Shared folders filter open, nested three levels deep with an icon tile on every row.
- * Snapshotted at two widths: the chip's popover above `md`, and the responsive dialog's drill-in
- * below it.
+ * Snapshotted at two widths: the chip's popover on a wide toolbar, and the responsive dialog's
+ * drill-in on a narrow one.
  */
 export const KitchenSinkFilterOpen: Story = {
   render: () => ({
@@ -2039,7 +2068,7 @@ export const KitchenSinkFilterEmpty: Story = {
 /**
  * Long option names, with a selection already applied. Nothing here can show a name in full,
  * so each surface truncates and carries a tooltip with the whole thing: the chip triggers, and
- * below `md` the dismissible chips on the collapsed toolbar's own row. A multi-select puts one
+ * on a narrow toolbar the dismissible chips on its collapsed row. A multi-select puts one
  * chip on that row per selected option — named for the option alone, led by the filter's icon —
  * so each can be dropped without clearing the rest. Snapshotted at both widths.
  */
@@ -2053,8 +2082,9 @@ export const FilterLongLabelsApplied: Story = {
 };
 
 /**
- * The same filters opened: the popover's rows above `md`, the dialog's row list below it —
- * where a row shows its label, then as many selected names as fit and a `+N` for the rest.
+ * The same filters opened: the popover's rows on a wide toolbar, the dialog's row list on a
+ * narrow one — where a row shows its label, then as many selected names as fit and a `+N` for
+ * the rest.
  * Hovering a row reads out the full text either way.
  */
 export const FilterLongLabelsOpen: Story = {

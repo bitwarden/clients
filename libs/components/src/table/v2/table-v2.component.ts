@@ -237,10 +237,11 @@ type RenderItem<T> =
   host: {
     // In `fill` mode the host becomes a flex column that fills its parent's
     // height, so the table can hand a bounded height down to its scroll region.
+    // The floor stops a crowded parent squeezing it to nothing; the page scrolls instead.
     "[class.tw-flex]": "isFill()",
     "[class.tw-flex-col]": "isFill()",
     "[class.tw-flex-1]": "isFill()",
-    "[class.tw-min-h-0]": "isFill()",
+    "[class.tw-min-h-64]": "isFill()",
   },
 })
 export class BitTableV2Component<T = unknown, S extends string = never, F = Record<string, unknown>>
@@ -394,30 +395,20 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Count for a chip option: rows matching {@link filter} with `key` pinned to
-   * `value` and no other filter applied. `undefined` with no `[filter]`
-   * (server-side) — the chip then shows an explicit `count` instead. Absolute rather
-   * than faceted, so a count doesn't move as unrelated filters change.
+   * Count for a chip option: rows matching {@link filter} with `key` pinned to `value` and every
+   * other active filter applied. `undefined` with no `[filter]` (server-side) — the chip then
+   * shows an explicit `count` instead.
    */
   optionCount(key: string, value: unknown): number | undefined {
     const filter = this.filter();
     if (!filter) {
       return undefined;
     }
-    const values = { ...this.clearedFilterValues(), [key]: value } as F;
+    const values = { ...this.filterValues(), [key]: value } as F;
     return this.tableDef()
       .data()
       .filter((row) => filter(row, values)).length;
   }
-
-  /** Every chip at its cleared value — the baseline {@link optionCount} counts against. */
-  private readonly clearedFilterValues = computed<Record<string, unknown>>(() => {
-    const values: Record<string, unknown> = {};
-    for (const control of this._filters()) {
-      values[control.key()] = control.clearedValue();
-    }
-    return values;
-  });
 
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */
   private readonly seeded = new WeakSet<FilterControl>();
@@ -616,25 +607,27 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /**
    * Header chrome for a group at `level` (0 = top, 1 = subgroup).
    */
-  protected groupHeaderClass(level: number): string {
+  protected groupHeaderClass(level: number, forceHeight: boolean): string {
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
     // Matches the extension's section headers.
     const type =
       level === 0
-        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
-        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-1 tw-pe-1 tw-pb-1";
-    return `tw-flex tw-items-center ${type}`;
+        ? "tw-text-sm tw-text-fg-heading tw-font-medium"
+        : "tw-text-xs tw-text-fg-body-subtle tw-font-medium";
+    // A pinned height already spaces the label; bottom padding would only push it off-center.
+    const bottom = forceHeight ? "" : " tw-pb-1";
+    return `tw-flex tw-items-center tw-px-1 ${type}${bottom}`;
   }
 
   /** Collapsible-header chrome: the base header plus a full-width hover/focus toggle affordance. */
-  protected groupHeaderButtonClass(level: number): string {
+  protected groupHeaderButtonClass(level: number, forceHeight: boolean): string {
     return (
-      this.groupHeaderClass(level) +
+      this.groupHeaderClass(level, forceHeight) +
       " tw-w-full tw-cursor-pointer tw-rounded tw-border-0 tw-bg-transparent tw-text-start" +
       " hover:tw-bg-hover-default focus-visible:tw-outline-none focus-visible:tw-ring-2" +
-      " focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
+      " focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
     );
   }
 
