@@ -59,11 +59,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows, whose sensitive
-   * fields the server suppressed. Only surfaces that render gated rows, such as the vault list,
-   * should use it.
+   * Like {@link cipherListViews$}, but includes restricted ciphers.
+   * Consumers: vault list UIs (web VFO1 `vault-next`, `MyFolders`, `SharedFolders`, the web vault
+   * filter, desktop `vault-v3`). Add a new consumer to this list.
    */
-  abstract cipherListViewsWithPartials$(
+  abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
   /** Not filtered: includes restricted ciphers, as do {@link get} and {@link getAll}. */
@@ -112,10 +112,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
-   * Like {@link getAllDecryptedForIds}, but keeps PAM-gated ("partial") rows, which carry only the
-   * name and, for logins, the URIs. Only for surfaces that must name a gated cipher.
+   * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers.
+   * Named non-list consumers: the PAM access-name resolver (shows names of restricted ciphers).
    */
-  abstract getAllDecryptedForIdsIncludingPartials(
+  abstract getAllDecryptedForIdsIncludingRestricted(
     userId: UserId,
     ids: string[],
   ): Promise<CipherView[]>;
@@ -186,7 +186,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView>;
 
   /**

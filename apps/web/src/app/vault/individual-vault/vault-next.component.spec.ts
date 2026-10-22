@@ -4,14 +4,7 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
   openCollectionDialog: jest.fn(),
 }));
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  NO_ERRORS_SCHEMA,
-  signal,
-  Type,
-  WritableSignal,
-} from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap, Router } from "@angular/router";
@@ -27,7 +20,6 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -80,19 +72,10 @@ import {
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
-import { VAULT_ROW_LEASE_BADGE } from "../components/vault-items/vault-row-lease-badge.token";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { VaultNextComponent } from "./vault-next.component";
-
-/** Stub for the badge a commercial build binds to `VAULT_ROW_LEASE_BADGE`. */
-@Component({
-  selector: "test-lease-badge",
-  template: "",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-class LeaseBadgeStubComponent {}
 
 describe("VaultNextComponent", () => {
   const userId = "user-1" as UserId;
@@ -125,8 +108,6 @@ describe("VaultNextComponent", () => {
   let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let addItemDialogOpen: jest.SpyInstance;
   let addEditFolderDialogOpen: jest.SpyInstance;
-  /** What the `VAULT_ROW_LEASE_BADGE` seam resolves to for the next component built. */
-  let leaseBadge: Type<unknown> | null;
 
   let ciphers$: Subject<CipherView[] | null>;
   let failedCiphers$: BehaviorSubject<CipherView[]>;
@@ -272,8 +253,6 @@ describe("VaultNextComponent", () => {
       showSubscriptionEndedMessaging$,
     );
 
-    leaseBadge = null;
-
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
 
@@ -289,7 +268,7 @@ describe("VaultNextComponent", () => {
     accountService.activeAccount$ = of({ id: userId } as Account);
 
     const cipherService = mock<CipherService>();
-    cipherService.cipherListViewsWithPartials$.mockReturnValue(ciphers$ as never);
+    cipherService.cipherListViewsIncludingRestricted$.mockReturnValue(ciphers$ as never);
     cipherService.failedToDecryptCiphers$.mockReturnValue(failedCiphers$);
 
     const folderService = mock<FolderService>();
@@ -415,9 +394,6 @@ describe("VaultNextComponent", () => {
               }),
             },
             { provide: ToastService, useValue: mock<ToastService>() },
-            // A factory, so the seam is resolved per component built and a test can bind a
-            // badge, then rebuild the page.
-            { provide: VAULT_ROW_LEASE_BADGE, useFactory: () => leaseBadge },
           ],
         },
       })
@@ -1166,64 +1142,6 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
 
       expect(component().copyPresentation()).toBe("expanded");
-    });
-  });
-
-  describe("controlled access badge", () => {
-    const pamOrganization = () =>
-      buildOrganization(organizationId, "Acme corporation", { usePam: true });
-    const plainOrganization = () =>
-      buildOrganization(otherOrganizationId, "Other organization", { usePam: false });
-
-    /**
-     * Rebuilds the page with the badge seam and PAM's flag set. Both are read once at
-     * construction, so neither can change on the standing fixture.
-     */
-    const renderWith = (badge: Type<unknown> | null, pamEnabled: boolean) => {
-      leaseBadge = badge;
-      configService.getFeatureFlag$.mockImplementation((flag) =>
-        of(flag === FeatureFlag.Pam && pamEnabled),
-      );
-      fixture = TestBed.createComponent(VaultNextComponent);
-      fixture.detectChanges();
-    };
-
-    it("has no badge for the table when no seam is provided", () => {
-      organizations$.next([pamOrganization()]);
-      renderWith(null, true);
-
-      expect(component().controlledAccessBadge()).toBeNull();
-    });
-
-    it("has no badge for the table when no organization in view uses PAM", () => {
-      organizations$.next([plainOrganization()]);
-      renderWith(LeaseBadgeStubComponent, true);
-
-      expect(component().controlledAccessBadge()).toBeNull();
-    });
-
-    it("has no badge for the table while the feature flag is off", () => {
-      organizations$.next([pamOrganization()]);
-      renderWith(LeaseBadgeStubComponent, false);
-
-      expect(component().controlledAccessBadge()).toBeNull();
-    });
-
-    it("hands the table the provided badge when an organization in view uses PAM", () => {
-      organizations$.next([plainOrganization(), pamOrganization()]);
-      renderWith(LeaseBadgeStubComponent, true);
-
-      expect(component().controlledAccessBadge()).toBe(LeaseBadgeStubComponent);
-    });
-
-    it("withholds the badge once the page is scoped to a vault without PAM", () => {
-      organizations$.next([pamOrganization(), plainOrganization()]);
-      renderWith(LeaseBadgeStubComponent, true);
-      expect(component().controlledAccessBadge()).toBe(LeaseBadgeStubComponent);
-
-      scopeTo(otherOrganizationId);
-
-      expect(component().controlledAccessBadge()).toBeNull();
     });
   });
 

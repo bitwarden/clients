@@ -6,6 +6,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -50,11 +51,13 @@ function gatedCipher(): CipherView {
   return cipher;
 }
 
-/** Served under a lease: no longer partial, but still PAM-governed. */
+/**
+ * Served under a lease: no longer partial, but still PAM-governed, since the `RevealedCipherService`
+ * stub below holds it.
+ */
 function leasedCipher(): CipherView {
   const cipher = gatedCipher();
   cipher.partial = false;
-  (cipher as unknown as { leaseGated: boolean }).leaseGated = true;
   return cipher;
 }
 
@@ -85,6 +88,10 @@ function pam(
     providers: [
       { provide: ConfigService, useValue: { getFeatureFlag$: () => of(enabled) } },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: RevealedCipherService,
+        useValue: { revealed$: () => of(new Map([["cipher-1", leasedCipher()]])) },
+      },
       {
         provide: OrganizationService,
         useValue: {
