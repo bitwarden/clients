@@ -205,10 +205,8 @@ describe("CollectionOptionsMenuComponent", () => {
     expect(component["showDeleteAction"]()).toBe(false);
   });
 
-  it("opens the collection dialog on the Info tab and emits a non-delete result", async () => {
+  it("opens the collection dialog on the Info tab", async () => {
     await setup();
-    const emitted = jest.fn();
-    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["editCollection"](CollectionDialogTab.Info);
 
@@ -217,17 +215,10 @@ describe("CollectionOptionsMenuComponent", () => {
       collectionId: COLLECTION_ID,
       initialTab: CollectionDialogTab.Info,
     });
-    expect(emitted).toHaveBeenCalledWith({
-      deleted: false,
-      organizationId: ORGANIZATION_ID,
-      collectionId: COLLECTION_ID,
-    });
   });
 
-  it("opens the collection dialog on the Access tab and emits a non-delete result", async () => {
+  it("opens the collection dialog on the Access tab", async () => {
     await setup();
-    const emitted = jest.fn();
-    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["editCollection"](CollectionDialogTab.Access);
 
@@ -236,59 +227,17 @@ describe("CollectionOptionsMenuComponent", () => {
       collectionId: COLLECTION_ID,
       initialTab: CollectionDialogTab.Access,
     });
-    expect(emitted).toHaveBeenCalledWith({
-      deleted: false,
-      organizationId: ORGANIZATION_ID,
-      collectionId: COLLECTION_ID,
-    });
   });
 
-  it("emits a deleted result when editing the Access tab deletes the folder (the member's own self-unassignment)", async () => {
-    await setup();
-    collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Deleted);
-    const emitted = jest.fn();
-    fixture.componentRef.setInput("onActionResult", emitted);
-
-    await component["editCollection"](CollectionDialogTab.Access);
-
-    expect(emitted).toHaveBeenCalledWith({
-      deleted: true,
-      organizationId: ORGANIZATION_ID,
-      collectionId: COLLECTION_ID,
-    });
-  });
-
-  it("opens the bulk delete dialog for just this folder and emits a deleted result", async () => {
+  it("opens the bulk delete dialog for just this folder", async () => {
     const org = organization();
     await setup({ organization: org });
-    const emitted = jest.fn();
-    fixture.componentRef.setInput("onActionResult", emitted);
 
     await component["delete"]();
 
     expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
       organization: org,
       collections: [component.collection()],
-    });
-    expect(emitted).toHaveBeenCalledWith({
-      deleted: true,
-      organizationId: ORGANIZATION_ID,
-      collectionId: COLLECTION_ID,
-    });
-  });
-
-  it("emits a non-delete result when the bulk delete dialog is canceled", async () => {
-    await setup();
-    bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Canceled);
-    const emitted = jest.fn();
-    fixture.componentRef.setInput("onActionResult", emitted);
-
-    await component["delete"]();
-
-    expect(emitted).toHaveBeenCalledWith({
-      deleted: false,
-      organizationId: ORGANIZATION_ID,
-      collectionId: COLLECTION_ID,
     });
   });
 

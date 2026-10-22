@@ -25,7 +25,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -53,7 +53,6 @@ import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
   COLLECTION_DIALOG,
-  CollectionActionResult,
   CollectionOptionsMenuComponent,
   copyPresentation$,
   DecryptionFailureDialogComponent,
@@ -706,28 +705,49 @@ export class VaultNextComponent implements OnInit {
   }
 
   /**
-   * Navigates away whenever the folder is now gone — not just on an explicit delete, since saving
-   * Access can itself drop the member's own assignment. No-ops if the viewer has since moved to a
-   * different folder (e.g. Back/Forward while the dialog was open), since the result is stale.
-   *
-   * Bound as an input on the menu, so it must be a stable reference rather than a method — see
-   * {@link itemAction}. The menu may already be destroyed by the time this runs (its own result
-   * is what can make {@link currentCollection} go null), but that's fine: this doesn't touch the
-   * menu, only the signals and router this component itself owns.
+   * The organization/collection last seen while {@link currentCollection} resolved — so
+   * {@link navigateAwayIfFolderVanishes} can tell "this folder just disappeared" apart from "the
+   * user has since navigated somewhere else entirely" once {@link currentCollection} goes
+   * undefined.
    */
-  protected readonly onCollectionActionResult = async ({
-    deleted,
-    organizationId,
-    collectionId,
-  }: CollectionActionResult): Promise<void> => {
-    if (
-      this.scopedOrganizationId() === organizationId &&
-      this.scopedCollectionId() === collectionId &&
-      (deleted || this.currentCollection() == null)
-    ) {
-      await this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
-    }
-  };
+  private readonly lastViewedFolder = signal<
+    { organizationId: OrganizationId; collectionId: CollectionId } | undefined
+  >(undefined);
+
+  /**
+   * Navigates away once the folder being viewed disappears from the user's own collections — not
+   * just on an explicit delete, since saving Access can itself drop the member's own assignment,
+   * and `CollectionService` reconciles that before the dialog even reports an outcome (see
+   * `CollectionWebDialogAdapter`). Reactive rather than tied to a specific menu action, so it also
+   * catches the folder disappearing for any other reason (e.g. another admin revoking access while
+   * this page is open).
+   */
+  private readonly navigateAwayIfFolderVanishes = effect(() => {
+    const collection = this.currentCollection();
+    const organizationId = this.scopedOrganizationId();
+    const collectionId = this.scopedCollectionId();
+
+    untracked(() => {
+      if (collection != null) {
+        this.lastViewedFolder.set(
+          organizationId != null && collectionId != null
+            ? { organizationId, collectionId }
+            : undefined,
+        );
+        return;
+      }
+
+      const last = this.lastViewedFolder();
+      if (
+        last != null &&
+        last.organizationId === organizationId &&
+        last.collectionId === collectionId
+      ) {
+        this.lastViewedFolder.set(undefined);
+        void this.router.navigate(sharedFoldersCommands(organizationId), { replaceUrl: true });
+      }
+    });
+  });
 
   protected async openImport(): Promise<void> {
     if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {

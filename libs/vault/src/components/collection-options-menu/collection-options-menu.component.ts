@@ -7,29 +7,17 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { IconButtonModule, IconModule, MenuModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
-import {
-  BULK_DELETE_DIALOG,
-  BulkDeleteDialogRef,
-  BulkDeleteDialogResult,
-} from "../../tokens/bulk-delete-dialog.token";
+import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
 import {
   COLLECTION_DIALOG,
-  CollectionDialogOutcome,
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
-
-/** What `editCollection()`/`delete()` did, and which folder it targeted. */
-export type CollectionActionResult = {
-  deleted: boolean;
-  organizationId: OrganizationId;
-  collectionId: CollectionId;
-};
 
 /**
  * Pin/Unpin, Edit info, Edit access, and Delete menu for one shared folder.
@@ -75,11 +63,6 @@ export class CollectionOptionsMenuComponent {
   /** Whether Delete may appear, independent of `BULK_DELETE_DIALOG`'s presence. Desktop's header
    * menu sets this `false` since it already provides that token for an unrelated bulk-select bar. */
   readonly showDelete = input<boolean>(true);
-
-  /** Called with what `editCollection()` or `delete()` did. A plain callback, not `output()`:
-   * an output silently no-ops once its host is destroyed, and the host here can be destroyed by
-   * the very same state change (e.g. a delete) that its own result needs to report. */
-  readonly onActionResult = input<(result: CollectionActionResult) => void>();
 
   /** Exposed so the template can name a tab by member rather than a bare string. */
   protected readonly CollectionDialogTab = CollectionDialogTab;
@@ -141,16 +124,11 @@ export class CollectionOptionsMenuComponent {
 
   protected async editCollection(initialTab: CollectionDialogTab): Promise<void> {
     const collection = this.collection();
-    const organizationId = collection.organizationId;
-    const collectionId = collection.id;
-    const outcome = await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
-    if (outcome != null) {
-      this.onActionResult()?.({
-        deleted: outcome === CollectionDialogOutcome.Deleted,
-        organizationId,
-        collectionId,
-      });
-    }
+    await this.collectionDialog?.open({
+      organizationId: collection.organizationId,
+      collectionId: collection.id,
+      initialTab,
+    });
   }
 
   protected async delete(): Promise<void> {
@@ -159,13 +137,6 @@ export class CollectionOptionsMenuComponent {
     if (organization == null) {
       return;
     }
-    const result = await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
-    if (result != null) {
-      this.onActionResult()?.({
-        deleted: result === BulkDeleteDialogResult.Deleted,
-        organizationId: organization.id,
-        collectionId: collection.id,
-      });
-    }
+    await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
   }
 }

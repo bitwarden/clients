@@ -853,99 +853,47 @@ describe("VaultNextComponent", () => {
           expect(component().currentOrganization()?.id).toBe(organizationId);
         });
 
-        describe("navigating away after a result", () => {
-          it("goes to the organization's shared folders list on a deleted result", async () => {
+        describe("navigating away when the viewed folder disappears", () => {
+          it("goes to the organization's shared folders list once the viewed folder disappears", () => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            await component().onCollectionActionResult({
-              deleted: true,
-              organizationId,
-              collectionId: engineeringId,
-            });
-
-            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
-              replaceUrl: true,
-            });
-          });
-
-          it("stays put when the result isn't a delete and the folder is still there", async () => {
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
-
-            await component().onCollectionActionResult({
-              deleted: false,
-              organizationId,
-              collectionId: engineeringId,
-            });
-
-            expect(router.navigate).not.toHaveBeenCalled();
-          });
-
-          it("goes to the organization's shared folders list when a non-delete result left the folder gone (the member's own self-unassignment)", async () => {
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
             collections$.next([]);
-
-            await component().onCollectionActionResult({
-              deleted: false,
-              organizationId,
-              collectionId: engineeringId,
-            });
+            fixture.detectChanges();
 
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });
           });
 
-          it("does nothing if the viewer has since moved to a different folder (a stale result from a dialog left open through Back/Forward)", async () => {
+          it("stays put while the viewed folder is still there", () => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
-
-            await component().onCollectionActionResult({
-              deleted: true,
-              organizationId,
-              collectionId: designId,
-            });
-            await component().onCollectionActionResult({
-              deleted: true,
-              organizationId: otherOrganizationId,
-              collectionId: engineeringId,
-            });
 
             expect(router.navigate).not.toHaveBeenCalled();
           });
 
-          it("navigates through the real child component, exercising the dialog-close-vs-collections-update interleaving end to end", fakeAsync(() => {
+          it("does nothing once the viewed folder disappears if the viewer has since moved to a different one", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            // Navigated to a different, not-yet-loaded folder before engineeringId disappeared —
+            // `currentCollection()` is undefined for designId too, but that must not be mistaken
+            // for engineeringId (the folder actually tracked as last viewed) disappearing.
+            scopeTo(organizationId, designId);
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("navigates away when editing Access through the real child component leaves the viewer unassigned", fakeAsync(() => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
             collectionDialog.open.mockImplementation(async () => {
-              // Simulates the self-unassignment case: the local store updates before the dialog closes.
-              collections$.next([]);
-              return CollectionDialogOutcome.Saved;
-            });
-
-            // The real child, so the `[onActionResult]` template binding gets exercised too.
-            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
-              .componentInstance as CollectionOptionsMenuComponent;
-            void menu["editCollection"](CollectionDialogTab.Info);
-            tick();
-
-            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
-              replaceUrl: true,
-            });
-          }));
-
-          it("still navigates through the real child's callback even if change detection destroys it mid-dialog", fakeAsync(() => {
-            collections$.next([manageableFolder()]);
-            fixture.detectChanges();
-
-            collectionDialog.open.mockImplementation(async () => {
-              // Unlike the interleaving test above, a real change-detection pass runs here,
-              // destroying the `@if` (and the menu inside it) before this promise resolves —
-              // confirming `onActionResult` still works post-destroy, unlike an `output()`, which
-              // would silently no-op instead of navigating.
+              // Simulates the self-unassignment case: the local store updates before the dialog
+              // closes, so the effect watching `currentCollection()` has already fired by the time
+              // `editCollection()`'s `await` continues — regardless of whether the real child
+              // component survives that long.
               collections$.next([]);
               fixture.detectChanges();
               return CollectionDialogOutcome.Saved;
@@ -956,19 +904,20 @@ describe("VaultNextComponent", () => {
             void menu["editCollection"](CollectionDialogTab.Info);
             tick();
 
-            expect(
-              fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent)),
-            ).toBeNull();
             expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
               replaceUrl: true,
             });
           }));
 
-          it("navigates through the real child component's delete(), not just a synthetic call to the parent's handler", fakeAsync(() => {
+          it("navigates away when deleting through the real child component's delete()", fakeAsync(() => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            bulkDeleteDialog.open.mockResolvedValue(BulkDeleteDialogResult.Deleted);
+            bulkDeleteDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              fixture.detectChanges();
+              return BulkDeleteDialogResult.Deleted;
+            });
 
             const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
               .componentInstance as CollectionOptionsMenuComponent;
