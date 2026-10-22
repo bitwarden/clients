@@ -413,7 +413,7 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
   {
     id: "assign-to-collections",
     label: "Assign to collections",
-    icon: "bwi-collection-shared",
+    icon: "bwi-shared-folder",
     run: () => {},
   },
   {
