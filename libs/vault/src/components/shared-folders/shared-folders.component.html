@@ -151,17 +151,15 @@
     <bit-cell *bitCellDef="table.columns.options; let row">
       <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
            anchoring it to the same position on every row. -->
-      @if (showRowMenu) {
-        <div slot="end">
-          <vault-collection-options-menu
-            [collection]="row.collection"
-            [organization]="organization()"
-            [showPin]="true"
-            triggerIcon="bwi-ellipsis-v"
-            idPrefix="shared-folders"
-          />
-        </div>
-      }
+      <div slot="end">
+        <vault-collection-options-menu
+          [collection]="row.collection"
+          [organization]="organization()"
+          [showPin]="true"
+          triggerIcon="bwi-ellipsis-v"
+          idPrefix="shared-folders"
+        />
+      </div>
     </bit-cell>
   </bit-column>
 </bit-table-v2>
