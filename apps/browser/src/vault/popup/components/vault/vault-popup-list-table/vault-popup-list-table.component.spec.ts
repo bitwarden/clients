@@ -40,6 +40,7 @@ import {
   FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
@@ -251,6 +252,7 @@ describe("VaultPopupListTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: CoachmarkService, useValue: coachmarkService },
         {
           provide: VaultPopupTourService,
