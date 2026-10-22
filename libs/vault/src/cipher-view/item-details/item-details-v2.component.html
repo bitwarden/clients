@@ -17,12 +17,13 @@
       >
         {{ cipher().name }}
       </h2>
-      @if (stateBadgeComponent) {
+      @if (badgeComponent) {
         <ng-container
           *ngComponentOutlet="
-            stateBadgeComponent;
+            badgeComponent;
             inputs: {
               cipher: cipher(),
+              isAdminConsole: isAdminConsole(),
             }
           "
         />

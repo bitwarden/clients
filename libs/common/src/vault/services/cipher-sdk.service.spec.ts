@@ -16,12 +16,21 @@ import {
   OrganizationId,
   CollectionId,
 } from "../../types/guid";
+import { RestrictedCipherWriteError } from "../abstractions/cipher.service";
 import { CipherType } from "../enums/cipher-type";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
 
 import { DefaultCipherSdkService } from "./cipher-sdk.service";
+
+/** An SDK `EditCipherError` with the given variant. */
+function editCipherError(variant: string): Error {
+  const error = new Error(variant) as Error & { variant: string };
+  error.name = "EditCipherError";
+  error.variant = variant;
+  return error;
+}
 
 describe("DefaultCipherSdkService", () => {
   const sdkService = mock<SdkService>();
@@ -305,83 +314,38 @@ describe("DefaultCipherSdkService", () => {
       expect(result).toBeInstanceOf(CipherView);
     });
 
-    it("should route a lease-gated edit to edit_gated with the supplied full original", async () => {
+    it("should never call edit_gated, even with a supplied original", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
-      cipherView.name = "Gated Cipher";
-      cipherView.organizationId = orgId;
+      cipherView.name = "Updated Cipher";
       cipherView.edit = true;
-
-      // The full original revealed under the lease. Local state holds only the partial copy, so
-      // `edit` cannot be used.
       const originalCipherView = new CipherView();
       originalCipherView.id = cipherId;
       originalCipherView.type = CipherType.Login;
-      originalCipherView.name = "Gated Cipher";
-      originalCipherView.organizationId = orgId;
 
-      const mockSdkCipherView = cipherView.toSdkCipherView();
-      mockCiphersSdk.edit_gated.mockResolvedValue(mockSdkCipherView);
+      mockCiphersSdk.edit.mockResolvedValue(cipherView.toSdkCipherView());
 
-      const result = await cipherSdkService.updateWithServer(
-        cipherView,
-        userId,
-        originalCipherView,
-        false,
-        true,
-      );
+      await cipherSdkService.updateWithServer(cipherView, userId, originalCipherView, false);
 
-      expect(mockCiphersSdk.edit_gated).toHaveBeenCalledWith(
-        expect.objectContaining({ id: expect.anything(), name: cipherView.name }),
-        expect.objectContaining({ id: expect.anything() }),
-      );
-      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
-      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
-      expect(result).toBeInstanceOf(CipherView);
-    });
-
-    it("should throw rather than fall back to edit when a lease-gated save has no original", async () => {
-      const cipherView = new CipherView();
-      cipherView.id = cipherId;
-      cipherView.type = CipherType.Login;
-      cipherView.name = "Gated Cipher";
-      cipherView.organizationId = orgId;
-      cipherView.edit = true;
-
-      await expect(
-        cipherSdkService.updateWithServer(cipherView, userId, undefined, false, true),
-      ).rejects.toThrow("Editing a lease-gated cipher requires the original cipher view");
-
-      // Falling through to `edit` would send the partial copy's blanks to the server.
-      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(mockCiphersSdk.edit).toHaveBeenCalled();
       expect(mockCiphersSdk.edit_gated).not.toHaveBeenCalled();
     });
 
-    it("should still use edit_partial for a lease-gated cipher the user cannot edit", async () => {
-      const cipherView = new CipherView();
-      cipherView.id = cipherId;
-      cipherView.type = CipherType.Login;
-      cipherView.name = "Gated View-Only Cipher";
-      cipherView.organizationId = orgId;
-      cipherView.edit = false;
-      cipherView.favorite = true;
+    it.each(["GatedCipher", "PartialOriginal"])(
+      "should map an SDK %s refusal to RestrictedCipherWriteError",
+      async (variant) => {
+        const cipherView = new CipherView();
+        cipherView.id = cipherId;
+        cipherView.type = CipherType.Login;
+        cipherView.edit = true;
+        mockCiphersSdk.edit.mockRejectedValue(editCipherError(variant));
 
-      const mockSdkCipherView = cipherView.toSdkCipherView();
-      mockCiphersSdk.edit_partial.mockResolvedValue(mockSdkCipherView);
-
-      const result = await cipherSdkService.updateWithServer(
-        cipherView,
-        userId,
-        new CipherView(),
-        false,
-        true,
-      );
-
-      expect(mockCiphersSdk.edit_partial).toHaveBeenCalled();
-      expect(mockCiphersSdk.edit_gated).not.toHaveBeenCalled();
-      expect(result).toBeInstanceOf(CipherView);
-    });
+        await expect(
+          cipherSdkService.updateWithServer(cipherView, userId, undefined, false),
+        ).rejects.toThrow(RestrictedCipherWriteError);
+      },
+    );
 
     it("should update cipher using SDK admin API when orgAdmin is true", async () => {
       const cipherView = new CipherView();
@@ -500,6 +464,87 @@ describe("DefaultCipherSdkService", () => {
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to update cipher"),
       );
+    });
+  });
+
+  describe("updateUserFieldsWithServer()", () => {
+    it("should save folder and favorite through edit_partial", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      cipherView.type = CipherType.Login;
+      cipherView.edit = true;
+      cipherView.favorite = true;
+      mockCiphersSdk.edit_partial.mockResolvedValue(cipherView.toSdkCipherView());
+
+      const result = await cipherSdkService.updateUserFieldsWithServer(cipherView, userId);
+
+      expect(mockCiphersSdk.edit_partial).toHaveBeenCalledWith(
+        expect.objectContaining({ id: cipherId, favorite: true }),
+      );
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      const cipherView = new CipherView();
+      cipherView.id = cipherId;
+      mockCiphersSdk.edit_partial.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.updateUserFieldsWithServer(cipherView, userId)).rejects.toThrow(
+        "SDK error",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher"),
+      );
+    });
+  });
+
+  describe("updateWithRevealedOriginal()", () => {
+    const cipherView = new CipherView();
+    cipherView.id = cipherId;
+    cipherView.type = CipherType.Login;
+    cipherView.name = "Updated Cipher";
+    cipherView.edit = true;
+
+    const original = new CipherView();
+    original.id = cipherId;
+    original.type = CipherType.Login;
+    original.name = "Original Cipher";
+
+    it("should edit through edit_gated against the supplied original", async () => {
+      mockCiphersSdk.edit_gated.mockResolvedValue(cipherView.toSdkCipherView());
+
+      const result = await cipherSdkService.updateWithRevealedOriginal(
+        cipherView,
+        original,
+        userId,
+      );
+
+      expect(mockCiphersSdk.edit_gated).toHaveBeenCalledWith(
+        expect.objectContaining({ id: cipherId, name: "Updated Cipher" }),
+        expect.objectContaining({ id: cipherId, name: "Original Cipher" }),
+      );
+      expect(mockCiphersSdk.edit).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it.each(["GatedCipher", "PartialOriginal"])(
+      "should map an SDK %s refusal to RestrictedCipherWriteError",
+      async (variant) => {
+        mockCiphersSdk.edit_gated.mockRejectedValue(editCipherError(variant));
+
+        await expect(
+          cipherSdkService.updateWithRevealedOriginal(cipherView, original, userId),
+        ).rejects.toThrow(RestrictedCipherWriteError);
+      },
+    );
+
+    it("should pass other SDK errors through", async () => {
+      mockCiphersSdk.edit_gated.mockRejectedValue(editCipherError("Api"));
+
+      await expect(
+        cipherSdkService.updateWithRevealedOriginal(cipherView, original, userId),
+      ).rejects.toMatchObject({ name: "EditCipherError", variant: "Api" });
     });
   });
 

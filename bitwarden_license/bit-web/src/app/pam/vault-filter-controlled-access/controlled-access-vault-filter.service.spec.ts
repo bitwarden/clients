@@ -82,9 +82,9 @@ describe("ControlledAccessVaultFilterService", () => {
     });
   });
 
-  describe("tableOptions$", () => {
+  describe("stateOptions$", () => {
     it("offers one option per access state, labelled like its badge", async () => {
-      expect(await firstValueFrom(service.tableOptions$)).toEqual([
+      expect(await firstValueFrom(service.stateOptions$)).toEqual([
         { id: PRIVILEGED_FILTER_ID, name: "pamAccessBadgePrivileged", icon: "bwi-key" },
         { id: PENDING_FILTER_ID, name: "pamAccessBadgePending", icon: "bwi-clock" },
         { id: READY_FILTER_ID, name: "pamAccessBadgeReady", icon: "bwi-check" },
@@ -96,7 +96,7 @@ describe("ControlledAccessVaultFilterService", () => {
     it("offers nothing while the feature flag is off", async () => {
       enabled$.next(false);
 
-      expect(await firstValueFrom(service.tableOptions$)).toEqual([]);
+      expect(await firstValueFrom(service.stateOptions$)).toEqual([]);
     });
   });
 
@@ -231,6 +231,61 @@ describe("ControlledAccessVaultFilterService", () => {
       );
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("matches$", () => {
+    it("maps each state option to the IDs of the rows in that state", async () => {
+      const states: Record<string, unknown> = {
+        privileged: "privileged",
+        pending: "pending",
+        ready: "ready",
+        active: { active: { expiresAt: "2026-08-20T12:00:00.000Z" } },
+      };
+      accessRequestSdkService.getCipherAccessState.mockImplementation((cipherId: string) =>
+        Promise.resolve(accessState(states[cipherId])),
+      );
+      const rows = Object.keys(states).map((id) => cipher(id, PAM_ORG, true));
+
+      const matches = await firstValueFrom(service.matches$(rows));
+
+      expect(matches).toEqual(
+        new Map([
+          [PRIVILEGED_FILTER_ID, new Set(["privileged"])],
+          [PENDING_FILTER_ID, new Set(["pending"])],
+          [READY_FILTER_ID, new Set(["ready"])],
+          [ACTIVE_FILTER_ID, new Set(["active"])],
+          [UNAVAILABLE_FILTER_ID, new Set()],
+        ]),
+      );
+    });
+
+    it("reads each restricted row's state once, shared across every option", async () => {
+      const rows = [cipher("cipher-1", PAM_ORG, true), cipher("cipher-2", PAM_ORG, true)];
+
+      await firstValueFrom(service.matches$(rows));
+
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(rows.length);
+    });
+
+    it("leaves out unrestricted rows, rows outside a PAM organization, and failed reads", async () => {
+      accessRequestSdkService.getCipherAccessState.mockImplementation((cipherId: string) =>
+        cipherId === "failed"
+          ? Promise.reject(new Error("boom"))
+          : Promise.resolve(accessState("privileged")),
+      );
+
+      const matches = await firstValueFrom(
+        service.matches$([
+          cipher("gated", PAM_ORG, true),
+          cipher("ungated", PAM_ORG, false),
+          cipher("elsewhere", PLAIN_ORG, true),
+          cipher("failed", PAM_ORG, true),
+        ]),
+      );
+
+      expect([...matches.values()].flatMap((ids) => [...ids])).toEqual(["gated"]);
+      expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
     });
   });
 

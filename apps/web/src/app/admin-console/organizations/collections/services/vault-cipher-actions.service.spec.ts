@@ -705,7 +705,7 @@ describe("VaultCipherActionsService", () => {
       );
     });
 
-    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+    it("names the reason when a restricted cipher's delete is refused", async () => {
       const cipher = buildCipher();
       (cipher as unknown as { partial: boolean }).partial = true;
       dialogService.openSimpleDialog.mockResolvedValue(true);
@@ -713,7 +713,7 @@ describe("VaultCipherActionsService", () => {
 
       await service.deleteCipher(cipher);
 
-      expect(i18nService.t).toHaveBeenCalledWith("pamDeleteRequiresAccess");
+      expect(i18nService.t).toHaveBeenCalledWith("restrictedItemChangeRefused");
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );

@@ -102,18 +102,12 @@
       [options]="nestedFolders()"
     ></bit-filter-menu>
 
-    @if (controlledAccessOptions().length > 0) {
-      <bit-filter-menu
-        [key]="filterKeys.controlledAccess"
-        [placeholderText]="'controlledAccess' | i18n"
-        multiple
-      >
-        @for (option of controlledAccessOptions(); track option.id) {
-          <bit-filter-option
-            [value]="option.id"
-            [iconTile]="controlledAccessTiles().get(option.id)"
-            >{{ option.name }}</bit-filter-option
-          >
+    @if (itemFilter != null && contributedFilterKey != null && contributedOptions().length > 0) {
+      <bit-filter-menu [key]="contributedFilterKey" [placeholderText]="itemFilter.label" multiple>
+        @for (option of contributedOptions(); track option.id) {
+          <bit-filter-option [value]="option.id" [iconTile]="contributedTiles().get(option.id)">{{
+            option.name
+          }}</bit-filter-option>
         }
       </bit-filter-menu>
     }
@@ -277,18 +271,24 @@
     </bit-cell>
   </bit-column>
 
-  <!-- Controlled access -->
-  @if (controlledAccessBadge(); as badge) {
-    <bit-column sortable [sortFn]="sortByControlledAccess" width="minmax(140px, 200px)">
-      <bit-header-cell>{{ "controlledAccess" | i18n }}</bit-header-cell>
-      <bit-cell
-        *bitCellDef="table.columns.controlledAccess; let row"
-        [class.tw-cursor-pointer]="itemAction() != null"
-        (click)="onCellActivate(row, $event)"
+  <!-- Host-provided column -->
+  @if (itemColumn; as column) {
+    @if (itemColumnKey; as key) {
+      <bit-column
+        [sortable]="column.sortRanks$ != null"
+        [sortFn]="sortByContributed"
+        width="minmax(140px, 200px)"
       >
-        <ng-container *ngComponentOutlet="badge; inputs: { cipher: row }" />
-      </bit-cell>
-    </bit-column>
+        <bit-header-cell>{{ column.label }}</bit-header-cell>
+        <bit-cell
+          *bitCellDef="table.columns[key]; let row"
+          [class.tw-cursor-pointer]="itemAction() != null"
+          (click)="onCellActivate(row, $event)"
+        >
+          <ng-container *ngComponentOutlet="column.component; inputs: { cipher: row }" />
+        </bit-cell>
+      </bit-column>
+    }
   }
 
   <!-- Options -->

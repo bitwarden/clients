@@ -1,6 +1,6 @@
 import { PortalModule } from "@angular/cdk/portal";
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
@@ -39,6 +39,7 @@ import {
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
+import { SHARED_FOLDER_DECORATION } from "../../tokens/shared-folder-decoration.token";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow } from "./shared-folder-rows";
@@ -144,7 +145,19 @@ type SetupOptions = {
     bulkDelete?: boolean;
     bulkEditAccess?: boolean;
   };
+  /** Whether the client provides a `SHARED_FOLDER_DECORATION`. */
+  decoration?: boolean;
 };
+
+/** Stands in for a host-provided folder decoration; renders the collection it received. */
+@Component({
+  selector: "test-shared-folder-decoration",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span>{{ collection().id }}</span>`,
+})
+class TestDecorationComponent {
+  readonly collection = input.required<CollectionView>();
+}
 
 /** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
 @Component({
@@ -190,6 +203,7 @@ describe("SharedFoldersComponent", () => {
       organizations = [organization()],
       vaultId = ORGANIZATION_ID,
       dialogs = {},
+      decoration = false,
     } = options;
     const {
       collection: withCollectionDialog = true,
@@ -224,7 +238,10 @@ describe("SharedFoldersComponent", () => {
           provide: CollectionService,
           useValue: { decryptedCollections$: () => collections$ },
         },
-        { provide: CipherService, useValue: { cipherListViewsWithPartials$: () => ciphers$ } },
+        {
+          provide: CipherService,
+          useValue: { cipherListViewsIncludingRestricted$: () => ciphers$ },
+        },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         ...(withCollectionDialog
           ? [{ provide: COLLECTION_DIALOG, useValue: collectionDialog }]
@@ -234,6 +251,9 @@ describe("SharedFoldersComponent", () => {
           : []),
         ...(withBulkEditAccessDialog
           ? [{ provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG, useValue: bulkEditAccessDialog }]
+          : []),
+        ...(decoration
+          ? [{ provide: SHARED_FOLDER_DECORATION, useValue: TestDecorationComponent }]
           : []),
       ],
     }).compileComponents();
@@ -378,7 +398,7 @@ describe("SharedFoldersComponent", () => {
 
     // A gated folder must not read as empty: the count is what tells the member there is
     // something in there worth requesting access to.
-    it("counts PAM-gated items, which reach it only through cipherListViewsWithPartials$", async () => {
+    it("counts PAM-gated items, which reach it only through cipherListViewsIncludingRestricted$", async () => {
       const withheld = Object.assign(cipher("gated", ["a"]), { partial: true });
 
       await setup({
@@ -390,87 +410,40 @@ describe("SharedFoldersComponent", () => {
       expect(bitTable().filtered()).toEqual([expect.objectContaining({ items: 2 })]);
     });
 
-    describe("the privileged controls indicator", () => {
-      const gatedIcon = (name: string) =>
-        fixture.debugElement
-          .queryAll(By.css("bit-icon.bwi-lock-encrypted"))
-          .find((icon) => icon.nativeElement.closest("bit-row")?.textContent?.includes(name));
+    describe("the folder decoration (SHARED_FOLDER_DECORATION)", () => {
+      const decorations = () =>
+        fixture.debugElement.queryAll(By.directive(TestDecorationComponent));
 
-      it("marks a folder an access rule governs, and labels it", async () => {
-        await setup({
-          collections: [collection({ id: "a", name: "Engineering", gated: true })],
-        });
+      it("renders no decoration when the client provides none", async () => {
+        await setup({ collections: [collection({ id: "a", name: "Engineering", gated: true })] });
         fixture.detectChanges();
 
-        const icon = gatedIcon("Engineering");
-        expect(icon).toBeDefined();
-        expect(icon!.nativeElement.getAttribute("role")).toBe("img");
-        expect(icon!.nativeElement.getAttribute("aria-label")).toBe(
-          "pamSharedFolderPrivilegedControls",
+        expect(decorations()).toHaveLength(0);
+        expect(fixture.debugElement.query(By.css("bit-icon.bwi-lock-encrypted"))).toBeNull();
+      });
+
+      it("renders the decoration once per row, with that row's collection", async () => {
+        const engineering = collection({ id: "a", name: "Engineering", gated: true });
+        const finance = collection({ id: "b", name: "Finance" });
+        await setup({ collections: [engineering, finance], decoration: true });
+        fixture.detectChanges();
+
+        const received = decorations().map(
+          (debug) => (debug.componentInstance as TestDecorationComponent).collection().id,
         );
-      });
-
-      it("leaves an ungoverned folder unmarked", async () => {
-        await setup({ collections: [collection({ id: "a", name: "Engineering" })] });
-        fixture.detectChanges();
-
-        expect(gatedIcon("Engineering")).toBeUndefined();
-      });
-
-      it("marks only the governed folders", async () => {
-        await setup({
-          collections: [
-            collection({ id: "a", name: "Engineering", gated: true }),
-            collection({ id: "b", name: "Finance" }),
-          ],
-        });
-        fixture.detectChanges();
-
-        expect(gatedIcon("Engineering")).toBeDefined();
-        expect(gatedIcon("Finance")).toBeUndefined();
+        expect(received.sort()).toEqual(["a", "b"]);
       });
 
       it("sits next to the folder name, inside the link's own flex row", async () => {
         await setup({
-          collections: [
-            collection({
-              id: "a",
-              name: "Engineering platform and developer experience shared credentials",
-              gated: true,
-            }),
-          ],
+          collections: [collection({ id: "a", name: "Engineering" })],
+          decoration: true,
         });
         fixture.detectChanges();
 
-        const icon = gatedIcon("Engineering platform");
+        const decoration = decorations()[0];
         const link = fixture.debugElement.query(By.css("[id^='shared-folders_link_name-']"));
-
-        expect(icon).toBeDefined();
-        expect(icon!.nativeElement.parentElement).toBe(link.nativeElement.parentElement);
-        expect(icon!.nativeElement.className).toContain("tw-shrink-0");
-      });
-
-      it("holds the indicator while the folder's items arrive whole", async () => {
-        await setup({
-          collections: [collection({ id: "a", name: "Engineering", gated: true })],
-          ciphers: [cipher("readable", ["a"])],
-        });
-        fixture.detectChanges();
-
-        expect(gatedIcon("Engineering")).toBeDefined();
-      });
-
-      it("drops the indicator once the rule is lifted", async () => {
-        await setup({
-          collections: [collection({ id: "a", name: "Engineering", gated: true })],
-        });
-        fixture.detectChanges();
-        expect(gatedIcon("Engineering")).toBeDefined();
-
-        collections$.next([collection({ id: "a", name: "Engineering" })]);
-        fixture.detectChanges();
-
-        expect(gatedIcon("Engineering")).toBeUndefined();
+        expect(decoration.nativeElement.parentElement).toBe(link.nativeElement.parentElement);
       });
     });
 

@@ -110,7 +110,7 @@ export class VaultRowLeaseBadgeComponent {
   private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
     // The SDK marks a gated cipher `partial`. Not gated is a real answer; no id means the lookup
     // couldn't run.
-    if (!CipherViewLikeUtils.isPartial(cipher)) {
+    if (!CipherViewLikeUtils.isRestricted(cipher)) {
       return of("none");
     }
     if (cipher.id == null) {

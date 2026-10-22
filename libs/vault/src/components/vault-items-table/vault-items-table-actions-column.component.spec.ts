@@ -239,6 +239,32 @@ describe("VaultItemsTableActionsColumnComponent", () => {
     });
   });
 
+  describe("an action whose show reads a signal snapshot", () => {
+    it("appears once the signal changes, with no manual change detection", async () => {
+      const allowed = signal(false);
+      host.ciphers.set([loginCipher()]);
+      host.rowActions.set([
+        {
+          id: "cancelRequest",
+          label: "Cancel request",
+          icon: "bwi-close",
+          run: jest.fn(),
+          show: () => allowed(),
+        },
+      ]);
+      // Ticks as the app does: only when Angular schedules change detection.
+      fixture.autoDetectChanges();
+      await fixture.whenStable();
+      expect(menuTriggers()).toHaveLength(0);
+
+      allowed.set(true);
+      await fixture.whenStable();
+
+      expect(menuTriggers()).toHaveLength(1);
+      expect(openMenu(0).map((item) => item.textContent?.trim())).toEqual(["Cancel request"]);
+    });
+  });
+
   describe("premium-gated actions", () => {
     it("prompts for premium instead of running the action", async () => {
       const run = jest.fn();

@@ -3,9 +3,7 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
-  CipherEditRequest,
   CipherListView,
-  CiphersClient,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
@@ -23,16 +21,20 @@ import {
   UserId,
 } from "../../types/guid";
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import { RestrictedCipherWriteError } from "../abstractions/cipher.service";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 
 /**
- * `CiphersClient` plus the PAM `edit_gated` entry point, until the published `sdk-internal`
- * declares it. Same stopgap as the `partial` bridge in `models/view/cipher.view.ts`.
+ * The SDK refuses an edit of a restricted cipher locally (`GatedCipher`) or when the original it
+ * was given is itself restricted (`PartialOriginal`). Vault shows one message for both.
  */
-type CiphersClientWithGatedEdit = CiphersClient & {
-  edit_gated(request: CipherEditRequest, originalCipherView: SdkCipherView): Promise<SdkCipherView>;
-};
+function toRestrictedCipherWriteError(error: unknown): unknown {
+  return isEditCipherError(error) &&
+    (error.variant === "GatedCipher" || error.variant === "PartialOriginal")
+    ? new RestrictedCipherWriteError()
+    : error;
+}
 
 export class DefaultCipherSdkService implements CipherSdkService {
   constructor(
@@ -75,7 +77,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -93,17 +94,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
                 sdkUpdateRequest,
                 originalCipherView?.toSdkCipherView() || new CipherView().toSdkCipherView(),
               );
-          } else if (leaseGated && cipher.edit) {
-            // A PAM-gated cipher is only ever held partial locally, so `edit` (which rebuilds
-            // password history from that copy) refuses it; hand the SDK the full original
-            // revealed under the lease.
-            if (originalCipherView == null) {
-              throw new Error("Editing a lease-gated cipher requires the original cipher view");
-            }
-            result = await (sdkCiphersClient as CiphersClientWithGatedEdit).edit_gated(
-              sdkUpdateRequest,
-              originalCipherView.toSdkCipherView(),
-            );
           } else if (cipher.edit) {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
           } else {
@@ -115,7 +105,54 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to update cipher: ${error}`);
-          throw error;
+          throw toRestrictedCipherWriteError(error);
+        }),
+      ),
+    );
+  }
+
+  // SDK ask: edit_partial persists the write response with no restricted-copy guard. Guard every stored write response at the repository level.
+  async updateUserFieldsWithServer(
+    cipher: CipherView,
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .edit_partial(cipher.toSdkPartialUpdateCipherRequest());
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to update cipher: ${error}`);
+          throw toRestrictedCipherWriteError(error);
+        }),
+      ),
+    );
+  }
+
+  async updateWithRevealedOriginal(
+    cipher: CipherView,
+    original: CipherView,
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          // `edit` builds its original from local state, which holds only the restricted copy.
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .edit_gated(cipher.toSdkUpdateCipherRequest(), original.toSdkCipherView());
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to update cipher: ${error}`);
+          throw toRestrictedCipherWriteError(error);
         }),
       ),
     );

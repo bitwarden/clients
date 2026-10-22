@@ -131,10 +131,23 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
-export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
-export { GATED_CIPHER_RELOADER } from "./tokens/gated-cipher-reloader.token";
-export { ITEM_DETAILS_STATE_BADGE } from "./tokens/item-details-state-badge.token";
-export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";
+export { CIPHER_VIEW_BANNER, type CipherViewBanner } from "./tokens/cipher-view-banner.token";
+export { ITEM_DETAILS_BADGE, type ItemDetailsBadge } from "./tokens/item-details-badge.token";
+export {
+  SHARED_FOLDER_DECORATION,
+  type SharedFolderDecoration,
+} from "./tokens/shared-folder-decoration.token";
+export {
+  VAULT_ITEM_COLUMN,
+  type VaultItemColumn,
+  type VaultItemColumnScope,
+} from "./tokens/vault-item-column.token";
+export {
+  VAULT_ITEM_FILTER,
+  type VaultItemFilter,
+  type VaultItemFilterOption,
+} from "./tokens/vault-item-filter.token";
+export { VAULT_ROW_ACTIONS } from "./tokens/vault-row-actions.token";
 export {
   ACTIVE_FILTER_ID,
   MY_REQUESTS_FILTER_ID,

@@ -10,7 +10,7 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import { ApiService } from "../../abstractions/api.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { CipherId, UserId } from "../../types/guid";
-import { CipherService, GatedCipherWriteError } from "../abstractions/cipher.service";
+import { CipherService } from "../abstractions/cipher.service";
 import {
   CipherBulkArchiveRequest,
   CipherBulkUnarchiveRequest,
@@ -232,15 +232,20 @@ describe("DefaultCipherArchiveService", () => {
       );
     });
 
-    it("refuses a gated cipher before any request", async () => {
-      mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
-
-      await expect(service.archiveWithServer(cipherId, userId)).rejects.toThrow(
-        GatedCipherWriteError,
+    it("archives a restricted cipher, since archive is a user field", async () => {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
       );
 
-      expect(mockCipherService.assertWritable).toHaveBeenCalledWith(cipherId, userId);
-      expect(mockApiService.send).not.toHaveBeenCalled();
+      await service.archiveWithServer(cipherId, userId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/ciphers/archive",
+        expect.any(CipherBulkArchiveRequest),
+        true,
+        true,
+      );
     });
   });
 
@@ -305,14 +310,20 @@ describe("DefaultCipherArchiveService", () => {
       );
     });
 
-    it("refuses a gated cipher before any request", async () => {
-      mockCipherService.assertWritable.mockRejectedValue(new GatedCipherWriteError([cipherId]));
-
-      await expect(service.unarchiveWithServer(cipherId, userId)).rejects.toThrow(
-        GatedCipherWriteError,
+    it("unarchives a restricted cipher, since archive is a user field", async () => {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
       );
 
-      expect(mockApiService.send).not.toHaveBeenCalled();
+      await service.unarchiveWithServer(cipherId, userId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/ciphers/unarchive",
+        expect.any(CipherBulkUnarchiveRequest),
+        true,
+        true,
+      );
     });
   });
 });
