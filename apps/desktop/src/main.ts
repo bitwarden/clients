@@ -374,7 +374,16 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
-    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+    this.sshAgentService = new MainSshAgentService(
+      this.logService,
+      this.messagingService,
+      this.serviceContainer.cipherService,
+      this.serviceContainer.authService,
+      accountService,
+      this.desktopSettingsService,
+      this.i18nService,
+      this.windowMain,
+    );
 
     new EphemeralValueStorageService();
 
@@ -403,6 +412,7 @@ export class Main {
     app.on("will-quit", () => {
       this.mainDesktopAutotypeMvpService.dispose();
       this.mainDesktopAutotypeService.dispose();
+      this.sshAgentService.dispose();
       this.storageService.dispose();
     });
   }
@@ -512,6 +522,10 @@ export class Main {
         this.windowMain.win.on("minimize", () => {
           this.messagingService.send("windowHidden");
         });
+
+        // Main owns the session: the SSH agent, never-lock auto-unlock, biometric unlocks, and the
+        // shared-unlock peer.
+        this.sshAgentService.init();
 
         // Unlock every account with a never-lock ("auto") key, so the renderer re-seeds unlocked.
         const accounts = await firstValueFrom(this.serviceContainer.accountService.accounts$);
