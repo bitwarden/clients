@@ -2,7 +2,7 @@
 
 <bit-bulk-actions-bar>
   <bit-bulk-action
-    [action]="bulkDelete"
+    [action]="confirmDeleteSelected"
     [label]="'delete' | i18n"
     icon="bwi-trash"
   ></bit-bulk-action>
@@ -14,6 +14,7 @@
   [filters]="initialFilters"
   [selection]="selection"
   [loading]="loading()"
+  (selectedChange)="selectedGroups.set($event)"
 >
   <bit-table-toolbar>
     <bit-search
@@ -76,19 +77,32 @@
       <bit-menu #rowMenu>
         <button type="button" bitMenuItem (click)="edit(row)">
           <bit-icon name="bwi-pencil-square" slot="start" />
-          {{ "editInfo" | i18n }}
+          {{ "editGroup" | i18n }}
         </button>
-        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Members)">
-          <bit-icon name="bwi-user" slot="start" />
-          {{ "members" | i18n }}
-        </button>
-        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Collections)">
-          <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
-          {{ "collections" | vfo1I18n: "sharedFolders" }}
+        <button type="button" bitMenuItem variant="danger" (click)="confirmDelete([row])">
+          <bit-icon name="bwi-trash" slot="start" />
+          {{ "delete" | i18n }}
         </button>
       </bit-menu>
     </bit-cell>
   </bit-column>
+
+  @if (hasNoGroups()) {
+    <bit-status-lockup slot="empty">
+      <span slot="title">{{ "noGroupsYet" | i18n }}</span>
+      <span slot="description">{{ "noGroupsYetDesc" | i18n: organizationName() }}</span>
+      <button
+        slot="button"
+        bitButton
+        type="button"
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="add()"
+      >
+        {{ "addGroup" | i18n }}
+      </button>
+    </bit-status-lockup>
+  }
 
   <bit-table-paginator></bit-table-paginator>
 </bit-table-v2>

@@ -5541,6 +5541,45 @@
       }
     }
   },
+  "deleteGroup": {
+    "message": "Delete group"
+  },
+  "deleteGroups": {
+    "message": "Delete $QUANTITY$ groups",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "Once you delete this group, members assigned to the group could lose access to associated shared folders. The members themselves won't be deleted."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "Once you delete these groups, members assigned to the groups could lose access to associated shared folders. The members themselves won't be deleted."
+  },
+  "groupDeleted": {
+    "message": "Group deleted"
+  },
+  "groupsDeleted": {
+    "message": "Groups deleted"
+  },
+  "groupEdited": {
+    "message": "Group edited"
+  },
+  "noGroupsYet": {
+    "message": "No groups yet"
+  },
+  "noGroupsYetDesc": {
+    "message": "Groups will help organize $ORGANIZATIONNAME$ members and give them access to shared folders.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
+      }
+    }
+  },
   "removeUserConfirmation": {
     "message": "Are you sure you want to remove this user?"
   },
