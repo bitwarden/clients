@@ -6170,6 +6170,14 @@ describe("AutofillService", () => {
       expect(result).toBe(true);
     });
 
+    it("returns a true value if the passed field is a `url` input", () => {
+      const field = createAutofillFieldMock({ tagName: "input", type: "url" });
+
+      const result = AutofillService.forCustomFieldsOnly(field);
+
+      expect(result).toBe(true);
+    });
+
     it("returns a false value if the passed field does not have a tag name of `span`", () => {
       const field = createAutofillFieldMock({ tagName: "input" });
 

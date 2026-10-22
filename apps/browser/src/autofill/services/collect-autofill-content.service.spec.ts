@@ -4072,11 +4072,13 @@ describe("CollectAutofillContentService", () => {
         expectGate(mutationForChild(input), true);
       });
 
-      it.each(["text", "email", "password", "number", "tel"])('admits <input type="%s">', (type) =>
-        expectGate(
-          mutationForInput((i) => (i.type = type)),
-          true,
-        ),
+      it.each(["text", "email", "password", "number", "tel", "url"])(
+        'admits <input type="%s">',
+        (type) =>
+          expectGate(
+            mutationForInput((i) => (i.type = type)),
+            true,
+          ),
       );
     });
 
@@ -4106,7 +4108,7 @@ describe("CollectAutofillContentService", () => {
       // Format-restricted text types. Consolidation widened these from admit to reject:
       // the gate now uses the same exclusion set as collection, so the rebuild it used to
       // schedule for these would have produced zero new fields anyway.
-      it.each(["search", "url", "date", "time", "datetime-local", "week", "color", "range"])(
+      it.each(["search", "date", "time", "datetime-local", "week", "color", "range"])(
         'rejects <input type="%s">',
         (type) =>
           expectGate(
