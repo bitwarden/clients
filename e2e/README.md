@@ -46,6 +46,9 @@ Every suite defaults to `local-web`, because the web client's API URLs are baked
 into its build; desktop and browser point their self-hosted setting at it.
 Override with `E2E_ACCOUNT=<section>`.
 
+Multi-account tests sign in a second account from `local-web-2`, on the same server.
+Override with `E2E_SECOND_ACCOUNT=<section>`.
+
 The web suite builds and serves the client itself when `server` is the dev server,
 `https://localhost:8080`. Any other `server` must be a deployed vault:
 
