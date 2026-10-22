@@ -927,6 +927,7 @@ describe("1Password 1Pux Importer", () => {
     expect(result.ciphers).toHaveLength(1);
     expect(result.ciphers[0].type).toEqual(CipherType.Login);
     expect(result.ciphers[0].login.username).toEqual("alias@fastmail.com");
+    expect(result.ciphers[0].fields).not.toContainEqual(expect.objectContaining({ name: "Email" }));
     expect(result.ciphers[0].fields).toContainEqual(
       expect.objectContaining({ name: "Recovery alias", value: "recovery@fastmail.com" }),
     );
@@ -935,7 +936,83 @@ describe("1Password 1Pux Importer", () => {
     );
   });
 
-  it("should not override an existing username with a Fastmail Email alias", async () => {
+  it("should use a username field in a later section over an earlier Fastmail Email alias", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "fastmail-alias-first-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Fastmail Login" },
+                  details: {
+                    loginFields: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                    sections: [
+                      {
+                        title: "Alias",
+                        fields: [
+                          {
+                            title: "Email",
+                            id: "email",
+                            value: {
+                              email: { email_address: "alias@fastmail.com", provider: null },
+                            },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "emailAddress",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        title: "Login",
+                        fields: [
+                          {
+                            title: "username",
+                            id: "username",
+                            value: { string: "real-user" },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "default",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                    ] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers[0].login.username).toEqual("real-user");
+    expect(result.ciphers[0].fields).toContainEqual(
+      expect.objectContaining({ name: "Email", value: "alias@fastmail.com" }),
+    );
+  });
+
+  it("should keep a Fastmail Email alias as a custom field when a username comes first", async () => {
     const data = {
       accounts: [
         {

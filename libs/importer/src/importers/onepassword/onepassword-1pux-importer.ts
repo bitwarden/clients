@@ -284,6 +284,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       return;
     }
 
+    const usernameFieldPresent = sections.some(
+      (section) => section.fields != null && this.hasUsernameField(section.fields),
+    );
+
     sections.forEach((section: SectionsEntity) => {
       if (section.fields == null) {
         return;
@@ -295,7 +299,18 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         cipher,
         section.title,
         useNewDedicatedTypes,
+        usernameFieldPresent,
       );
+    });
+  }
+
+  private hasUsernameField(fields: FieldsEntity[]): boolean {
+    return fields.some((field) => {
+      if (field.title !== "username") {
+        return false;
+      }
+      const value = this.extractValue(field.value, Object.keys(field.value)[0]);
+      return typeof value === "string" && value !== "";
     });
   }
 
@@ -305,6 +320,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     cipher: CipherView,
     sectionTitle: string,
     useNewDedicatedTypes: boolean,
+    usernameFieldPresent: boolean,
   ) {
     fields.forEach((field: FieldsEntity) => {
       const valueKey = Object.keys(field.value)[0];
@@ -322,7 +338,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       const fieldValue = this.extractValue(field.value, valueKey);
 
       if (cipher.type === CipherType.Login) {
-        if (this.fillLogin(field, fieldValue, cipher)) {
+        if (this.fillLogin(field, fieldValue, cipher, usernameFieldPresent)) {
           return;
         }
 
@@ -496,10 +512,16 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return (value as any)[valueKey];
   }
 
-  private fillLogin(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
+  private fillLogin(
+    field: FieldsEntity,
+    fieldValue: string,
+    cipher: CipherView,
+    usernameFieldPresent: boolean,
+  ): boolean {
     const fieldName = this.getFieldName(field.title);
 
     if (
+      !usernameFieldPresent &&
       this.isNullOrWhitespace(cipher.login.username) &&
       fieldName === "Email" &&
       typeof field.value.email?.email_address === "string"
