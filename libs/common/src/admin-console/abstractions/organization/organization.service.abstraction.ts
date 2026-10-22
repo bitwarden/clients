@@ -30,6 +30,16 @@ export function canAccessGroupsTab(org: Organization): boolean {
   return org.canManageGroups;
 }
 
+/** The PAM access-rules tab, which a Custom member can reach on `ManageAccessRules` alone. */
+export function canAccessAccessRulesTab(org: Organization): boolean {
+  return org.canManageAccessRules;
+}
+
+/** The PAM rotation tab, which a Custom member can reach on `ManageRotation` alone. */
+export function canAccessRotationTab(org: Organization): boolean {
+  return org.canManageRotation;
+}
+
 export function canAccessReportingTab(org: Organization): boolean {
   return org.canAccessReports || org.canAccessEventLogs;
 }
@@ -61,7 +71,9 @@ export function canAccessOrgAdmin(org: Organization): boolean {
     canAccessReportingTab(org) ||
     canAccessBillingTab(org) ||
     canAccessSettingsTab(org) ||
-    canAccessVaultTab(org)
+    canAccessVaultTab(org) ||
+    canAccessAccessRulesTab(org) ||
+    canAccessRotationTab(org)
   );
 }
 
