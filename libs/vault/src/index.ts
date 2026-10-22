@@ -131,7 +131,8 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
-export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
+export { CIPHER_VIEW_BANNER, type CipherViewBanner } from "./tokens/cipher-view-banner.token";
+export { ITEM_DETAILS_BADGE, type ItemDetailsBadge } from "./tokens/item-details-badge.token";
 
 export {
   COLLECTION_DIALOG,

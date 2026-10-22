@@ -2091,6 +2091,12 @@
   "deletedItem": {
     "message": "Item sent to trash"
   },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "deletedItems": {
     "message": "Items sent to trash"
   },
