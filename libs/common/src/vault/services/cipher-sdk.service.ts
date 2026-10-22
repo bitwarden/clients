@@ -397,12 +397,17 @@ export class DefaultCipherSdkService implements CipherSdkService {
     cipherId: CipherId,
     request: CreateAttachmentRequest,
     userId: UserId,
+    asAdmin = false,
   ): Promise<CreatedAttachment> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value.vault().attachments().create_attachment(asUuid(cipherId), request);
+          const attachments = ref.value.vault().attachments();
+
+          return asAdmin
+            ? await attachments.admin().create_attachment(asUuid(cipherId), request)
+            : await attachments.create_attachment(asUuid(cipherId), request);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to create attachment: ${error}`);
@@ -648,7 +653,6 @@ export class DefaultCipherSdkService implements CipherSdkService {
             const result = await sdkCiphersClient.update_collection(
               asUuid(cipherId),
               collectionIds.map((id) => asUuid(id)),
-              false,
             );
             return CipherView.fromSdkCipherView(result);
           } catch (e) {
