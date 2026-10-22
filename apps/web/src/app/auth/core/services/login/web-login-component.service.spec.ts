@@ -4,6 +4,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
@@ -118,7 +119,7 @@ describe("WebLoginComponentService", () => {
     ])(
       "returns policies successfully with autoEnrollEnabled=%s and resetPasswordPolicyEnabled=%s",
       async (autoEnrollEnabled, resetPasswordPolicyEnabled) => {
-        const policies: Policy[] = [new Policy()];
+        const policies: Policy[] = [new Policy({} as unknown as PolicyData)];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
@@ -190,7 +191,7 @@ describe("WebLoginComponentService", () => {
       });
 
       it("returns PasswordPolicies", async () => {
-        const policies: Policy[] = [new Policy()];
+        const policies: Policy[] = [new Policy({} as unknown as PolicyData)];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 

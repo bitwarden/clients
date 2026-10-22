@@ -14,6 +14,8 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -38,7 +40,7 @@ const userId = "user-id" as UserId;
 const orgId = "org-id" as OrganizationId;
 
 const buildOrg = (overrides: Partial<Organization> = {}) =>
-  Object.assign(new Organization(), {
+  Object.assign(new Organization({} as OrganizationData), {
     id: orgId,
     name: "Acme",
     userId,
@@ -54,7 +56,7 @@ const buildOrg = (overrides: Partial<Organization> = {}) =>
   });
 
 const resetPasswordPolicy = (overrides: Partial<Policy> = {}) =>
-  Object.assign(new Policy(), {
+  Object.assign(new Policy({} as PolicyData), {
     organizationId: orgId,
     type: PolicyType.ResetPassword,
     enabled: true,

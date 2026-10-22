@@ -271,7 +271,7 @@ export class EditMemberDialogComponent {
     map(
       ([org, allowAdminAccessToAllCollectionItems]) =>
         org.canEditAnyCollection ||
-        (org.permissions.manageUsers && allowAdminAccessToAllCollectionItems),
+        ((org.permissions.manageUsers ?? false) && allowAdminAccessToAllCollectionItems),
     ),
   );
 

@@ -3,6 +3,7 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -813,7 +814,7 @@ describe("EmergencyAccessService", () => {
       it("should map the SDK policies", async () => {
         const client = mockEmergencyAccessClient(mockUserId);
         const sdkPolicy = { id: newGuid() } as unknown as SdkPolicy;
-        const policy = new Policy();
+        const policy = new Policy({} as PolicyData);
         client.get_grantor_policies.mockResolvedValue([sdkPolicy]);
         const fromSdkPolicy = jest.spyOn(Policy, "fromSdkPolicy").mockReturnValue(policy);
 
