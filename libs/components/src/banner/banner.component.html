@@ -39,7 +39,7 @@
             >
               {{ title() }}
             </div>
-            <span bitTypography="body2" class="tw-max-w-[800px]">
+            <span bitTypography="body2" class="tw-max-w-[800px]" data-testid="bit-banner-message">
               <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
             </span>
           </div>
@@ -80,7 +80,7 @@
         @if (icon) {
           <bit-icon-tile [icon]="icon" [variant]="variant()" size="sm" aria-hidden="true" />
         }
-        <span bitTypography="body2" class="tw-mt-0.5 tw-max-w-[800px]">
+        <span bitTypography="body2" class="tw-mt-0.5 tw-max-w-[800px]" data-testid="bit-banner-message">
           <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
         </span>
       </div>
