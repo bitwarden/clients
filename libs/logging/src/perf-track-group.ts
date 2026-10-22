@@ -11,6 +11,7 @@ export const PerfTrackGroup = Object.freeze({
   Search: "Search",
   Sync: "Sync",
   Unlock: "Unlock",
+  Vault: "Vault",
 } as const);
 
 export type PerfTrackGroup = (typeof PerfTrackGroup)[keyof typeof PerfTrackGroup];
