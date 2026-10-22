@@ -1,0 +1,42 @@
+<div class="tw-flex tw-flex-col tw-gap-4">
+  <header class="tw-flex tw-flex-col tw-gap-1">
+    <h1 bitTypography="h1" class="tw-m-0">Access requests</h1>
+    <p bitTypography="body1" class="tw-m-0 tw-text-muted">
+      Approve, monitor, and audit time-limited access to your credentials.
+    </p>
+  </header>
+
+  <bit-tab-group>
+    <bit-tab label="Approvals" [berryValue]="approvalsCount() || undefined">
+      <div class="tw-pt-4">
+        <pam-access-requests-list
+          [requests]="approvals()"
+          context="approvals"
+          (rowClick)="onRowClick('approvals', $event)"
+          (action)="onAction('approvals', $event)"
+        ></pam-access-requests-list>
+      </div>
+    </bit-tab>
+
+    <bit-tab label="My requests" [berryValue]="myRequestsCount() || undefined">
+      <div class="tw-pt-4">
+        <pam-access-requests-list
+          [requests]="myRequests()"
+          context="my-requests"
+          (rowClick)="onRowClick('my-requests', $event)"
+          (action)="onAction('my-requests', $event)"
+        ></pam-access-requests-list>
+      </div>
+    </bit-tab>
+
+    <bit-tab label="History">
+      <div class="tw-pt-4">
+        <pam-access-requests-list
+          [requests]="history()"
+          context="history"
+          (rowClick)="onRowClick('history', $event)"
+        ></pam-access-requests-list>
+      </div>
+    </bit-tab>
+  </bit-tab-group>
+</div>

@@ -1,0 +1,89 @@
+<div
+  class="tw-inline-flex tw-flex-col tw-gap-3 tw-rounded-lg tw-border tw-border-secondary-300 tw-bg-background tw-p-4"
+>
+  <!-- Header: live-announced month label + nav -->
+  <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+    <span
+      id="pam-date-picker-month-label"
+      bitTypography="h4"
+      class="!tw-m-0"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {{ monthLabel() }}
+    </span>
+    <div class="tw-flex tw-items-center tw-gap-1">
+      <button
+        type="button"
+        bitIconButton="bwi-angle-left"
+        size="small"
+        (click)="prevMonth()"
+        label="Previous month"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-angle-right"
+        size="small"
+        (click)="nextMonth()"
+        label="Next month"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Date grid -->
+  <div role="grid" aria-labelledby="pam-date-picker-month-label">
+    <div role="row" class="tw-grid tw-grid-cols-7">
+      @for (dow of daysOfWeek; track dow.full) {
+        <div
+          role="columnheader"
+          [attr.abbr]="dow.full"
+          class="tw-flex tw-size-9 tw-items-center tw-justify-center tw-text-xs tw-font-semibold tw-text-muted"
+        >
+          <span aria-hidden="true">{{ dow.short }}</span>
+          <span class="tw-sr-only">{{ dow.full }}</span>
+        </div>
+      }
+    </div>
+    @for (week of weeks(); track $index) {
+      <div role="row" class="tw-grid tw-grid-cols-7">
+        @for (date of week; track date.getTime()) {
+          <div
+            class="tw-relative tw-flex tw-size-9 tw-items-center tw-justify-center"
+            (mouseenter)="onHover(date)"
+            (mouseleave)="onHover(null)"
+          >
+            @if (isMidRange(date)) {
+              <div class="tw-absolute tw-inset-0 tw-bg-bg-brand-softer"></div>
+            }
+            @if (isStartConnector(date)) {
+              <div
+                class="tw-absolute tw-inset-y-0 tw-left-1/2 tw-right-0 tw-bg-bg-brand-softer"
+              ></div>
+            }
+            @if (isEndConnector(date)) {
+              <div
+                class="tw-absolute tw-inset-y-0 tw-left-0 tw-right-1/2 tw-bg-bg-brand-softer"
+              ></div>
+            }
+            <button
+              #dayBtn
+              type="button"
+              role="gridcell"
+              [attr.data-day-ts]="date.getTime()"
+              [class]="dayButtonClass(date)"
+              [disabled]="!inMonth(date) || isDisabled(date)"
+              [attr.tabindex]="isFocused(date) ? 0 : -1"
+              [attr.aria-label]="dayAriaLabel(date)"
+              [attr.aria-selected]="isSelected(date)"
+              [attr.aria-current]="isToday(date) ? 'date' : null"
+              (click)="onClick(date)"
+              (keydown)="onKeydown($event, date)"
+            >
+              {{ date.getDate() }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

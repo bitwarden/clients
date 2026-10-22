@@ -1,0 +1,51 @@
+<div class="tw-flex tw-flex-wrap tw-items-end tw-gap-2">
+  <bit-form-field class="!tw-mb-0 tw-w-40">
+    <bit-label>Start date</bit-label>
+    <input
+      bitInput
+      type="text"
+      [value]="startDateLabel()"
+      [bitPopoverTriggerFor]="rangePopover"
+      position="below-start"
+      (click)="openForStart()"
+      (keydown)="suppressTyping($event)"
+      [attr.aria-label]="startDateAria()"
+    />
+  </bit-form-field>
+
+  <bit-form-field class="!tw-mb-0 tw-w-32">
+    <bit-label>Start time</bit-label>
+    <input bitInput type="time" [value]="startTimeValue()" (input)="onStartTimeInput($event)" />
+  </bit-form-field>
+
+  <span class="tw-pb-3 tw-text-muted" aria-hidden="true">–</span>
+
+  <bit-form-field class="!tw-mb-0 tw-w-40">
+    <bit-label>End date</bit-label>
+    <input
+      bitInput
+      type="text"
+      [value]="endDateLabel()"
+      [bitPopoverTriggerFor]="rangePopover"
+      position="below-start"
+      (click)="openForEnd()"
+      (keydown)="suppressTyping($event)"
+      [attr.aria-label]="endDateAria()"
+    />
+  </bit-form-field>
+
+  <bit-form-field class="!tw-mb-0 tw-w-32">
+    <bit-label>End time</bit-label>
+    <input bitInput type="time" [value]="endTimeValue()" (input)="onEndTimeInput($event)" />
+  </bit-form-field>
+</div>
+
+<bit-popover #rangePopover (closed)="onPopoverClosed()">
+  <pam-date-range-picker
+    [startDate]="startDate()"
+    [endDate]="endDate()"
+    [editing]="editing()"
+    [autofocus]="pickerOpen()"
+    (rangeChange)="onDatePicked($event)"
+  ></pam-date-range-picker>
+</bit-popover>
