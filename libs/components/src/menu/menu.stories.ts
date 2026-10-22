@@ -161,7 +161,7 @@ export const ActionMenu: Story = {
         </button>
         <button type="button" bitMenuItem>
           <bit-icon name="bwi-shared-folder" slot="start" />
-          Collection
+          Shared folder
         </button>
       </bit-menu>
 
@@ -179,7 +179,7 @@ export const ActionMenu: Story = {
           Clone
         </button>
         <button type="button" bitMenuItem>
-          Assign to collections
+          Add to shared folder
         </button>
         <bit-menu-divider></bit-menu-divider>
         <button type="button" bitMenuItem variant="danger">

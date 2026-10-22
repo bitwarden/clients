@@ -305,7 +305,7 @@ type VaultFilters = {
  *
  * Shows the range of menu content: a radio group (Type), a checkbox group
  * (Vault), a checkbox group with in-menu search + collapsible sections
- * (Collections), and a toggle (Favorites).
+ * (Shared folders), and a toggle (Favorites).
  */
 @Component({
   selector: "demo-filterable-table",
@@ -351,7 +351,7 @@ type VaultFilters = {
           <bit-filter-menu
             icon="bwi-shared-folder"
             key="collection"
-            placeholderText="Collections"
+            placeholderText="Shared folders"
             multiple
           >
             @for (org of collectionOrgs; track org.name) {
@@ -474,7 +474,7 @@ class DemoFilterableTableComponent {
           <bit-filter-menu
             icon="bwi-shared-folder"
             key="collection"
-            placeholderText="Collections"
+            placeholderText="Shared folders"
             multiple
           >
             @for (org of collectionOrgs; track org.name) {
