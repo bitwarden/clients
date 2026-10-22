@@ -120,7 +120,11 @@ export class CollectionOptionsMenuComponent {
   protected async togglePin(): Promise<void> {
     const collection = this.collection();
     const userId = await firstValueFrom(this.userId$);
-    if (this.isPinned()) {
+    // Checked against the snapshotted `collection`, not a live re-read of `this.collection()` —
+    // the input can change mid-await (e.g. CDK virtual-scroll row recycling), which would otherwise
+    // decide pin-vs-unpin for a different folder than the one this call is about to mutate.
+    const pinned = this.pinnedIds().includes(collection.id);
+    if (pinned) {
       await this.pinnedSharedFolders.unpin(userId, collection.id);
       this.toastService.showToast({
         variant: "success",
