@@ -9,9 +9,11 @@ import {
   FakeStateProvider,
   mockAccountServiceWith,
   mockAccountInfoWith,
+  mockManagedSettingsService,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
@@ -32,6 +34,8 @@ class TestSdkLoadService extends SdkLoadService {
 
 describe("DefaultRegisterSdkService", () => {
   describe("userClient$", () => {
+    const appId = "app-id";
+
     let sdkClientFactory!: MockProxy<SdkClientFactory>;
     let environmentService!: MockProxy<EnvironmentService>;
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
@@ -40,6 +44,7 @@ describe("DefaultRegisterSdkService", () => {
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
     let apiService!: MockProxy<ApiService>;
+    let appIdService!: MockProxy<AppIdService>;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
@@ -52,6 +57,8 @@ describe("DefaultRegisterSdkService", () => {
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
       configService = mock<ConfigService>();
+      appIdService = mock<AppIdService>();
+      appIdService.getAppId.mockResolvedValue(appId);
 
       configService.serverConfig$ = new BehaviorSubject(null);
 
@@ -66,6 +73,8 @@ describe("DefaultRegisterSdkService", () => {
         apiService,
         fakeStateProvider,
         configService,
+        mockManagedSettingsService(),
+        appIdService,
       );
     });
 
@@ -94,6 +103,13 @@ describe("DefaultRegisterSdkService", () => {
         await firstValueFrom(service.registerClient$(userId));
 
         expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
+      });
+
+      it("creates the SDK client with the app ID as the device identifier", async () => {
+        await firstValueFrom(service.registerClient$(userId));
+
+        const [, settings] = sdkClientFactory.createSdkClient.mock.calls[0];
+        expect(settings?.deviceIdentifier).toBe(appId);
       });
 
       it("does not create an SDK client when called the second time with same userId", async () => {

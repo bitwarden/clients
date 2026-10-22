@@ -1,0 +1,86 @@
+<div
+  bitOverflowList
+  [gap]="8"
+  #ovf="bitOverflowList"
+  [class.tw-invisible]="!ovf.ready()"
+  class="tw-flex"
+  role="group"
+  [attr.aria-label]="accessibleName() ?? null"
+>
+  <!-- The first chip is pinned so at least one is always visible. -->
+  @for (chip of chips(); track $index) {
+    @if (dismissible()) {
+      <bit-chip
+        #rowChip
+        bitOverflowItem
+        #ovfItem="bitOverflowItem"
+        [pinned]="$first"
+        [size]="size()"
+        [startIcon]="chip.startIcon"
+        [label]="chip.label"
+        [accessibleName]="chip.accessibleName"
+        [bitTooltip]="chip.accessibleName ?? chip.label"
+        [class]="
+          ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
+        "
+        (dismissed)="chipDismiss.emit(chip)"
+      ></bit-chip>
+    } @else {
+      <button
+        type="button"
+        bit-chip-action
+        bitOverflowItem
+        #ovfItem="bitOverflowItem"
+        [pinned]="$first"
+        [variant]="chip.variant ?? 'primary'"
+        [size]="size()"
+        [startIcon]="chip.startIcon"
+        [label]="chip.label"
+        [bitTooltip]="chip.label"
+        [class]="
+          ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
+        "
+        (click)="chipSelect.emit(chip)"
+      ></button>
+    }
+  }
+  <button
+    type="button"
+    bit-chip-action
+    bitOverflowTrigger
+    variant="subtle"
+    [size]="size()"
+    [label]="'+' + overflow().length"
+    [attr.aria-label]="'showMoreCount' | i18n: overflow().length"
+    [bitPopoverTriggerFor]="overflowPopover"
+  ></button>
+</div>
+
+<bit-popover-panel #overflowPopover padding="compact" [accessibleName]="'showMore' | i18n">
+  <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
+    @for (chip of popoverChips(); track chip.id) {
+      @if (dismissible()) {
+        <bit-chip
+          #popoverChip
+          [size]="size()"
+          [startIcon]="chip.startIcon"
+          [label]="chip.label"
+          [accessibleName]="chip.accessibleName"
+          [bitTooltip]="chip.accessibleName ?? chip.label"
+          (dismissed)="dismissOverflowChip(chip)"
+        ></bit-chip>
+      } @else {
+        <button
+          type="button"
+          bit-chip-action
+          [variant]="chip.variant ?? 'primary'"
+          [size]="size()"
+          [startIcon]="chip.startIcon"
+          [label]="chip.label"
+          [bitTooltip]="chip.label"
+          (click)="selectOverflowChip(chip)"
+        ></button>
+      }
+    }
+  </div>
+</bit-popover-panel>

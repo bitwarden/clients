@@ -3,6 +3,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, from } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -12,7 +13,6 @@ import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
@@ -43,7 +43,7 @@ export class ChangeEmailComponent implements OnInit {
     private readonly accountService: AccountService,
     private readonly twoFactorService: TwoFactorService,
     private readonly i18nService: I18nService,
-    private readonly messagingService: MessagingService,
+    private readonly logoutService: LogoutService,
     private readonly formBuilder: FormBuilder,
     private readonly toastService: ToastService,
     private readonly changeEmailService: ChangeEmailService,
@@ -113,7 +113,7 @@ export class ChangeEmailComponent implements OnInit {
           title: this.i18nService.t("emailChanged"),
           message: this.i18nService.t("logBackIn"),
         });
-        this.messagingService.send("logout");
+        await this.logoutService.logout(userId, "emailChanged");
       }
     }
   };

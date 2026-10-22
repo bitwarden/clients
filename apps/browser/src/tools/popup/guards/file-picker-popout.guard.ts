@@ -1,10 +1,15 @@
+import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from "@angular/router";
 
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
 import { BrowserPlatformUtilsService } from "@bitwarden/browser/platform/services/platform-utils/browser-platform-utils.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+
+import { SendPopoutType } from "../utils/send-popout-window";
 
 /**
  * Composite guard that handles file picker popout requirements for all browsers.
@@ -24,8 +29,23 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
  */
 export function filePickerPopoutGuard(): CanActivateFn {
   return async (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    // Injections must happen synchronously, before any `await` — `inject()` only works within
+    // the guard's initial injection context.
+    const configService = inject(ConfigService);
+
     // Text Sends have no file picker — never require a popout regardless of browser
     if (isTextSendRoute(state.url)) {
+      return true;
+    }
+
+    // Angular runs every canActivate guard on a route concurrently, not sequentially — so
+    // importUpgradeRedirectGuard resolving to a redirect away from /import does not stop this
+    // guard from also running. Without this check, enabling the flag would open a popout AND
+    // close the popup AND redirect, on top of the tab importUpgradeRedirectGuard already opened.
+    if (
+      isImportRoute(state.url) &&
+      (await configService.getFeatureFlag(FeatureFlag.ImportUpgrade))
+    ) {
       return true;
     }
 
@@ -58,6 +78,8 @@ export function filePickerPopoutGuard(): CanActivateFn {
     // Chromium on Linux/Mac: needs sidebar OR popout for file picker access
     // All Chromium-based browsers (Chrome, Edge, Opera, Vivaldi)
     // Brave intentionally reports itself as Chrome for compatibility
+    // DuckDuckGo is deliberately absent: it is only Chromium (WebView2) on Windows, where
+    // no popout is required, and its macOS build is WebKit rather than Chromium.
     const isChromiumBased = [
       DeviceType.ChromeExtension,
       DeviceType.EdgeExtension,
@@ -74,8 +96,16 @@ export function filePickerPopoutGuard(): CanActivateFn {
 
     // Open popout if needed
     if (needsPopout) {
-      // Don't add autoClosePopout for file picker scenarios - user should manually close
-      await BrowserPopupUtils.openPopout(`popup/index.html#${state.url}`);
+      // A popout opened here was created for the user in response to a prompt, not popped out by
+      // them. Tagging the Send one lets the created-Send view close the window when the user is
+      // done, instead of stranding them on the Send list inside a window they never asked for.
+      // `forceCloseExistingWindows` keeps that tag from redirecting this navigation into a stale
+      // popout left sitting on the created-Send view; without it `openPopout` would focus that
+      // window and never route to `/add-send`.
+      const popoutOptions = isAddSendRoute(state.url)
+        ? { singleActionKey: SendPopoutType.addFileSend, forceCloseExistingWindows: true }
+        : {};
+      await BrowserPopupUtils.openPopout(`popup/index.html#${state.url}`, popoutOptions);
 
       // Close the original popup window
       BrowserApi.closePopup(window);
@@ -100,6 +130,14 @@ function isTextSendRoute(url: string): boolean {
     return false;
   }
   return new URLSearchParams(url.substring(queryStart + 1)).get("type") === String(SendType.Text);
+}
+
+/**
+ * Returns true when the route creates a Send. Text Sends have already returned above, so a route
+ * reaching the popout branch is always a File Send.
+ */
+function isAddSendRoute(url: string): boolean {
+  return url.includes("/add-send");
 }
 
 function isImportRoute(url: string): boolean {

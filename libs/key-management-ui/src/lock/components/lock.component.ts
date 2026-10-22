@@ -52,7 +52,8 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
-import { UnlockService } from "@bitwarden/unlock";
+import { measured, PerfTrackGroup } from "@bitwarden/logging";
+import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
   UnlockOption,
@@ -81,6 +82,9 @@ type AfterUnlockActions = {
 /// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
+
+const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
+const PERF_TRACK = "Lock Component";
 
 const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
   BiometricsStatus.HardwareUnavailable,
@@ -287,25 +291,34 @@ export class LockComponent implements OnInit, OnDestroy {
       if (!canUseBiometrics) {
         // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
         this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
-        await this.logoutService.logout(activeAccount.id);
+        await this.logoutService.logout(activeAccount.id, "noUnlockOptionsAvailable");
         return;
       }
     }
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
+    // Every unlock of this user continues from here, except
+    // for master password, as a policy evaluation has to be run
+    this.unlockService.unlocked$
+      .pipe(
+        filter(
+          (unlock) =>
+            unlock.userId === activeAccount.id && unlock.method !== UnlockMethod.MasterPassword,
+        ),
+        take(1),
+        takeUntil(this.activeAccountChange$),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.ngZone.run((): void => {
+          void this.continueAfterSettingUserKey();
+        });
+      });
+
     if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled(activeAccount.id);
     }
-
-    this.lockComponentService
-      .getExternalUnlock$(activeAccount.id)
-      .pipe(take(1), takeUntil(this.activeAccountChange$), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.ngZone.run((): void => {
-          void this.doContinue({});
-        });
-      });
   }
 
   private resetDataOnActiveAccountChange() {
@@ -412,7 +425,7 @@ export class LockComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed && this.activeAccount != null) {
-      await this.logoutService.logout(this.activeAccount.id);
+      await this.logoutService.logout(this.activeAccount.id, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }
@@ -436,13 +449,8 @@ export class LockComponent implements OnInit, OnDestroy {
 
       await this.biometricStateService.setUserPromptCancelled(this.activeAccount.id);
 
+      // Throws if the user cancels the biometric prompt.
       await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
-      const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
-
-      // If user cancels biometric prompt, userKey is undefined.
-      if (userKey) {
-        await this.setUserKeyAndContinue(userKey);
-      }
     } catch (e) {
       // Biometrics may fail if the user does not accept or if the desktop app is disconnected.
       this.logService.info("[LockComponent] Failed to unlock via biometrics.", e);
@@ -452,7 +460,15 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
-    await this.setUserKeyAndContinue(userKey);
+    if (this.activeAccount == null) {
+      throw new Error("No active user.");
+    }
+
+    await this.unlockService.unlockWithDecryptedUserKey(
+      this.activeAccount.id,
+      userKey,
+      UnlockMethod.Prf,
+    );
   }
 
   togglePassword() {
@@ -483,8 +499,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     try {
       await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
-      const userKey = await this.keyService.getUserKey(this.activeAccount.id);
-      await this.setUserKeyAndContinue(userKey!);
     } catch {
       // Failure state: invalid PIN or failed decryption
       this.invalidPinAttempts++;
@@ -495,7 +509,7 @@ export class LockComponent implements OnInit, OnDestroy {
           variant: "error",
           message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
-        this.messagingService.send("logout");
+        await this.logoutService.logout(this.activeAccount.id, "tooManyInvalidPinAttempts");
         return;
       }
 
@@ -518,15 +532,20 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.setUserKeyAndContinue(event.userKey, {
+    await this.continueAfterSettingUserKey({
       passwordEvaluation: {
         masterPassword: event.masterPassword,
       },
     });
   }
 
-  protected async setUserKeyAndContinue(
-    key: UserKey,
+  /**
+   * Shared tail of every unlock, run once the user key is set. Reached through
+   * {@link UnlockService.unlocked$} rather than called by each unlock method, so that an unlock
+   * performed elsewhere continues the same way as one performed here.
+   */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
+  protected async continueAfterSettingUserKey(
     afterUnlockActions: AfterUnlockActions = {},
   ): Promise<void> {
     if (this.activeAccount == null) {
@@ -535,8 +554,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // Add a mark to indicate that the user has unlocked their vault. A good starting point for measuring unlock performance.
     this.logService.mark("Vault unlocked");
-
-    await this.keyService.setUserKey(key, this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
@@ -593,23 +610,15 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     if (this.platformUtilsService.getClientType() == ClientType.Web) {
-      const startSync = performance.now();
-
       // Web does not cache vault data and would be in a unusable state when unlocked.
       await this.syncService.fullSync(true);
-
-      this.logService.measure(startSync, "KeyManagement", "LockComponent", "sync complete");
     } else {
       // On non-web clients, we start a sync in the background, but to not block by it
       void this.syncService.fullSync(false);
     }
 
-    const startRegeneration = new Date().getTime();
     // TODO: This should probably not be blocking
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(this.activeAccount.id);
-    this.logService.info(
-      `[LockComponent] Private key regeneration took ${new Date().getTime() - startRegeneration}ms`,
-    );
 
     if (this.clientType === "browser") {
       const previousUrl = this.lockComponentService.getPreviousUrl();

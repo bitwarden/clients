@@ -6,15 +6,19 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey, ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebProviderService } from "./web-provider.service";
@@ -22,6 +26,7 @@ import { WebProviderService } from "./web-provider.service";
 describe("WebProviderService", () => {
   let sut: WebProviderService;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let syncService: MockProxy<SyncService>;
   let apiService: MockProxy<ApiService>;
   let i18nService: MockProxy<I18nService>;
@@ -39,6 +44,7 @@ describe("WebProviderService", () => {
 
   beforeEach(() => {
     keyService = mock();
+    legacyCompatKeyService = mock();
     syncService = mock();
     apiService = mock();
     i18nService = mock();
@@ -48,6 +54,7 @@ describe("WebProviderService", () => {
 
     sut = new WebProviderService(
       keyService,
+      legacyCompatKeyService,
       syncService,
       apiService,
       i18nService,
@@ -113,6 +120,16 @@ describe("WebProviderService", () => {
         sut.addOrganizationToProvider(providerId, organizationId, activeUserId),
       ).rejects.toThrow("Provider key not found");
     });
+
+    it("throws and does not call the API if the encrypted organization key is missing", async () => {
+      encryptService.wrapSymmetricKey.mockResolvedValue({} as EncString);
+
+      await expect(
+        sut.addOrganizationToProvider(providerId, organizationId, activeUserId),
+      ).rejects.toThrow("Encrypted organization key is null or undefined.");
+      expect(providerApiService.addOrganizationToProvider).not.toHaveBeenCalled();
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+    });
   });
 
   describe("createClientOrganization", () => {
@@ -127,8 +144,11 @@ describe("WebProviderService", () => {
     const defaultCollectionTranslation = "Default Collection";
 
     beforeEach(() => {
-      keyService.makeOrgKey.mockResolvedValue([new EncString("mockEncryptedKey"), mockOrgKey]);
-      keyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("mockEncryptedKey"),
+        mockOrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, encryptedPrivateKey]);
       i18nService.t.mockReturnValue(defaultCollectionTranslation);
       encryptService.encryptString.mockResolvedValue(encryptedCollectionName);
       keyService.providerKeys$.mockReturnValue(of(mockProviderKeysById));
@@ -145,8 +165,8 @@ describe("WebProviderService", () => {
         activeUserId,
       );
 
-      expect(keyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
+      expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(activeUserId);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockOrgKey);
       expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
       expect(encryptService.encryptString).toHaveBeenCalledWith(
         defaultCollectionTranslation,
@@ -225,5 +245,33 @@ describe("WebProviderService", () => {
         sut.createClientOrganization(providerId, name, ownerEmail, planType, seats, activeUserId),
       ).rejects.toThrow("Provider key not found");
     });
+
+    it.each([
+      {
+        missing: "Encrypted provider key",
+        arrange: () => encryptService.wrapSymmetricKey.mockResolvedValue({} as EncString),
+      },
+      {
+        missing: "Encrypted private key",
+        arrange: () =>
+          legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, {} as EncString]),
+      },
+      {
+        missing: "Encrypted collection name",
+        arrange: () => encryptService.encryptString.mockResolvedValue({} as EncString),
+      },
+    ])(
+      "throws and does not call the API if the $missing is missing",
+      async ({ missing, arrange }) => {
+        arrange();
+
+        await expect(
+          sut.createClientOrganization(providerId, name, ownerEmail, planType, seats, activeUserId),
+        ).rejects.toThrow(`${missing} is null or undefined.`);
+        expect(providerApiService.createProviderOrganization).not.toHaveBeenCalled();
+        expect(apiService.refreshIdentityToken).not.toHaveBeenCalled();
+        expect(syncService.fullSync).not.toHaveBeenCalled();
+      },
+    );
   });
 });

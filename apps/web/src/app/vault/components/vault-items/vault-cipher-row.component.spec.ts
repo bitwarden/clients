@@ -1,6 +1,7 @@
-import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -21,13 +22,27 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
+import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
 import {
   CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
+  VaultCopyButtonsService,
+  VaultItemCopyActionsComponent,
 } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
+
+/** Stand-in for a host-provided row badge; captures the cipher the slot passes through. */
+@Component({
+  selector: "test-vault-row-lease-badge",
+  template: "<span data-testid='test-badge'></span>",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestLeaseBadgeComponent {
+  readonly cipher = input<CipherViewLike>();
+}
 
 // eslint-disable-next-line no-console
 const originalError = console.error;
@@ -48,7 +63,6 @@ console.error = (...args) => {
 describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -59,9 +73,10 @@ describe("VaultCipherRowComponent", () => {
         MenuModule,
         IconButtonModule,
         JslibModule,
-        CopyCipherFieldDirective,
         OrganizationNameBadgeComponent,
         PremiumBadgeComponent,
+        ShareLinkMenuItemDirective,
+        VaultItemCopyActionsComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -89,16 +104,19 @@ describe("VaultCipherRowComponent", () => {
           provide: PlatformUtilsService,
           useValue: mock<PlatformUtilsService>(),
         },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: { cipherCanBeShared$: () => of(false) },
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VaultCipherRowComponent);
     component = fixture.componentInstance;
-    overlayContainer = TestBed.inject(OverlayContainer);
-  });
-
-  afterEach(() => {
-    overlayContainer?.ngOnDestroy();
   });
 
   afterAll(() => {
@@ -106,111 +124,49 @@ describe("VaultCipherRowComponent", () => {
     console.error = originalError;
   });
 
-  describe("copy password visibility", () => {
-    let loginCipher: CipherView;
+  describe("partial (PAM-gated) row", () => {
+    let cipher: CipherView;
 
     beforeEach(() => {
-      loginCipher = new CipherView();
-      loginCipher.id = "cipher-1";
-      loginCipher.name = "Test Login";
-      loginCipher.type = CipherType.Login;
-      loginCipher.login = new LoginView();
-      loginCipher.login.password = "test-password";
-      loginCipher.organizationId = undefined;
-      loginCipher.deletedDate = null;
-      loginCipher.archivedDate = null;
+      cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Gated";
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.organizationId = undefined;
+      cipher.deletedDate = null;
+      cipher.archivedDate = null;
 
-      component.cipher = loginCipher;
+      component.cipher = cipher;
       component.disabled = false;
     });
 
-    const openMenuAndGetContent = (): string => {
+    it("isPartial reflects the cipher's partial flag", () => {
+      cipher.partial = true;
+      expect(component["isPartial"]).toBe(true);
+
+      cipher.partial = false;
+      expect(component["isPartial"]).toBe(false);
+    });
+
+    it("disables the selection checkbox for a partial row so it cannot be selected (or bulk-acted)", () => {
+      cipher.partial = true;
       fixture.detectChanges();
 
-      const menuTrigger = fixture.nativeElement.querySelector(
-        'button[biticonbutton="bwi-ellipsis-v"]',
-      ) as HTMLButtonElement;
-      expect(menuTrigger).toBeTruthy();
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+      expect(checkbox.disabled).toBe(true);
+    });
 
-      menuTrigger.click();
+    it("leaves the selection checkbox enabled for a normal row", () => {
+      cipher.partial = false;
       fixture.detectChanges();
 
-      return overlayContainer.getContainerElement().innerHTML;
-    };
-
-    it("renders copy password button in menu when viewPassword is true", () => {
-      component.cipher.viewPassword = true;
-
-      const overlayContent = openMenuAndGetContent();
-
-      expect(overlayContent).toContain('appcopyfield="password"');
-      expect(overlayContent).toContain("copyPassword");
-    });
-
-    it("does not render copy password button in menu when viewPassword is false", () => {
-      component.cipher.viewPassword = false;
-
-      const overlayContent = openMenuAndGetContent();
-
-      expect(overlayContent).not.toContain('appcopyfield="password"');
-    });
-
-    it("does not render copy password button in menu when viewPassword is undefined", () => {
-      component.cipher.viewPassword = undefined;
-
-      const overlayContent = openMenuAndGetContent();
-
-      expect(overlayContent).not.toContain('appcopyfield="password"');
-    });
-  });
-
-  describe("hasBankAccountOptions", () => {
-    let bankAccountCipher: CipherView;
-
-    beforeEach(() => {
-      bankAccountCipher = new CipherView();
-      bankAccountCipher.id = "cipher-1";
-      bankAccountCipher.name = "Test Bank Account";
-      bankAccountCipher.type = CipherType.BankAccount;
-      bankAccountCipher.deletedDate = null;
-
-      component.cipher = bankAccountCipher;
-      component.disabled = false;
-    });
-
-    it("returns true when accountNumber is populated", () => {
-      bankAccountCipher.bankAccount.accountNumber = "123456789";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns true when routingNumber is populated", () => {
-      bankAccountCipher.bankAccount.routingNumber = "987654321";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns true when pin is populated", () => {
-      bankAccountCipher.bankAccount.pin = "1234";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns true when iban is populated", () => {
-      bankAccountCipher.bankAccount.iban = "GB29NWBK60161331926819";
-      expect(component["hasBankAccountOptions"]).toBe(true);
-    });
-
-    it("returns false when no bank account fields are populated", () => {
-      expect(component["hasBankAccountOptions"]).toBe(false);
-    });
-
-    it("returns false when cipher is not a bank account type", () => {
-      bankAccountCipher.type = CipherType.Login;
-      expect(component["hasBankAccountOptions"]).toBe(false);
-    });
-
-    it("returns false when cipher is deleted", () => {
-      bankAccountCipher.bankAccount.accountNumber = "123456789";
-      bankAccountCipher.deletedDate = new Date();
-      expect(component["hasBankAccountOptions"]).toBe(false);
+      const checkbox = fixture.nativeElement.querySelector(
+        'input[type="checkbox"]',
+      ) as HTMLInputElement;
+      expect(checkbox.disabled).toBe(false);
     });
   });
 
@@ -252,6 +208,133 @@ describe("VaultCipherRowComponent", () => {
       component.organizations = [];
 
       expect(component["showAssignToCollections"]).toBeFalsy();
+    });
+  });
+
+  describe("showFavorite", () => {
+    let cipher: CipherView;
+
+    beforeEach(() => {
+      cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Test Cipher";
+      cipher.type = CipherType.Login;
+      cipher.deletedDate = null;
+      cipher.archivedDate = null;
+
+      component.cipher = cipher;
+      component.viewingOrgVault = false;
+    });
+
+    it("returns true in the individual vault", () => {
+      expect(component["showFavorite"]).toBe(true);
+    });
+
+    it("returns false when viewing the org vault", () => {
+      component.viewingOrgVault = true;
+
+      expect(component["showFavorite"]).toBe(false);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      cipher.deletedDate = new Date();
+
+      expect(component["showFavorite"]).toBe(false);
+    });
+
+    it("returns false when cipher is archived and user cannot archive", () => {
+      cipher.archivedDate = new Date();
+      component.userCanArchive = false;
+
+      expect(component["showFavorite"]).toBe(false);
+    });
+  });
+
+  describe("lease badge slot (VAULT_ROW_LEASE_BADGE)", () => {
+    async function setupBadge(provideBadge: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        declarations: [VaultCipherRowComponent],
+        imports: [
+          CommonModule,
+          RouterModule.forRoot([]),
+          MenuModule,
+          IconButtonModule,
+          JslibModule,
+          CopyCipherFieldDirective,
+          OrganizationNameBadgeComponent,
+          PremiumBadgeComponent,
+          ShareLinkMenuItemDirective,
+          TestLeaseBadgeComponent,
+          VaultItemCopyActionsComponent,
+        ],
+        providers: [
+          { provide: I18nService, useValue: { t: (key: string) => key } },
+          {
+            provide: EnvironmentService,
+            useValue: { environment$: new BehaviorSubject({}).asObservable() },
+          },
+          {
+            provide: DomainSettingsService,
+            useValue: { showFavicons$: new BehaviorSubject(false).asObservable() },
+          },
+          { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+          { provide: AccountService, useValue: mock<AccountService>() },
+          { provide: CipherService, useValue: mock<CipherService>() },
+          { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mock<BillingAccountProfileStateService>(),
+          },
+          { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+          {
+            provide: ShareLinkService,
+            useValue: { cipherCanBeShared$: () => of(false) },
+          },
+          {
+            provide: VaultCopyButtonsService,
+            useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
+          },
+          ...(provideBadge
+            ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadgeComponent }]
+            : []),
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(VaultCipherRowComponent);
+      component = fixture.componentInstance;
+
+      const cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Test Login";
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      component.cipher = cipher;
+      component.organizations = [];
+      component.collections = [];
+      // vault-items only shows the column when a badge is provided; mirror that here.
+      component.showControlledAccess = provideBadge;
+      fixture.detectChanges();
+    }
+
+    it("injects null and renders no badge when the host provides none", async () => {
+      await setupBadge(false);
+
+      expect(component["leaseBadge"]).toBeNull();
+      expect(fixture.debugElement.query(By.directive(TestLeaseBadgeComponent))).toBeNull();
+    });
+
+    it("renders the host badge in the Controlled access column with the row's cipher", async () => {
+      await setupBadge(true);
+
+      expect(component["leaseBadge"]).toBe(TestLeaseBadgeComponent);
+      const badge = fixture.debugElement.query(By.directive(TestLeaseBadgeComponent));
+      expect(badge).not.toBeNull();
+      expect((badge.componentInstance as TestLeaseBadgeComponent).cipher()).toBe(component.cipher);
     });
   });
 });

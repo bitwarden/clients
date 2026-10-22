@@ -345,6 +345,34 @@ describe("DefaultReportGenerationService", () => {
       expect(report.memberCount).toBe(1);
       expect(report.atRiskMemberCount).toBe(1);
     });
+
+    it("should build iconCipher into report from first cipher available", async () => {
+      const ciphers = [
+        createCipher("c1", ["https://github.com/login"], ["coll-1"]), // u1 has access
+        createCipher("c2", ["https://github.com/some-other-url/test"], ["coll-1"]), // u1 has access
+      ];
+
+      const members = [createMember("u1", "Alice", "alice@example.com")];
+      const collectionAccess = [createCollectionAccess("coll-1", ["u1"], [])];
+      const groupMemberships: GroupMembershipDetails[] = [];
+
+      const healthMap = new Map([["c1", createCipherHealth(false)]]);
+      cipherHealthService.checkCipherHealth.mockReturnValue(of(healthMap));
+
+      const mapping = new Map([["c1", ["u1"]]]);
+      const registry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+      memberCipherMappingService.mapCiphersToMembers$.mockReturnValue(of({ mapping, registry }));
+
+      const result = await firstValueFrom(
+        service.generateReport$(ciphers, members, collectionAccess, groupMemberships),
+      );
+
+      const report = result.reports[0];
+      expect(report.iconCipher).toBeDefined();
+      expect(report.iconCipher?.login.uris[0].uri).toBe("https://github.com/login");
+    });
   });
 
   // ==================== Carry-Over Tests ====================

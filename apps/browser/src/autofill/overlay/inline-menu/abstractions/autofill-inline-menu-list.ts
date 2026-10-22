@@ -31,6 +31,7 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   generatedPassword?: string;
   showSaveLoginMenu?: boolean;
   showAnimations?: boolean;
+  useLitComponents?: boolean;
 };
 
 export type AutofillInlineMenuListWindowMessageHandlers = {

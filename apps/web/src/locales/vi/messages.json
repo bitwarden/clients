@@ -906,6 +906,24 @@
   "editFolder": {
     "message": "Chỉnh sửa thư mục"
   },
+  "editFolderNamed": {
+    "message": "Sửa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Xóa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "editWithName": {
     "message": "Chỉnh sửa $ITEM$: $NAME$",
     "placeholders": {
@@ -1062,11 +1080,21 @@
   "resetSearch": {
     "message": "Đặt lại tìm kiếm"
   },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Tất cả các mục"
   },
+  "allVaultItems": {
+    "message": "Tất cả mục trong kho lưu trữ"
+  },
   "favorites": {
     "message": "Yêu thích"
+  },
+  "favoritesFilterTooltip": {
+    "message": "Đánh dấu các mục là yêu thích để lọc chúng tại đây."
   },
   "taskSummary": {
     "message": "Tóm tắt nhiệm vụ"
@@ -1155,6 +1183,9 @@
   "collections": {
     "message": "Các bộ sưu tập"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "Tên"
   },
@@ -1200,20 +1231,65 @@
   "sharedFolders": {
     "message": "Thư mục chia sẻ"
   },
+  "sharedFoldersInParent": {
+    "message": "Thư mục chia sẻ trong $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nested shared folders",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nested shared folder",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Thư mục của tôi"
   },
   "myFolders": {
     "message": "Thư mục của tôi"
   },
+  "foldersFilterTooltip": {
+    "message": "Thêm thư mục vào các mục để lọc chúng tại đây."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Add items to My items to filter them here."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
-  },
-  "addToSharedFolder": {
-    "message": "Thêm vào thư mục chia sẻ"
-  },
-  "newSharedFolder": {
-    "message": "Thư mục chia sẻ mới"
   },
   "searchSharedFolder": {
     "message": "Tìm kiếm thư mục chia sẻ"
@@ -1254,11 +1330,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Thư mục chia sẻ này sẽ bị xóa vĩnh viễn."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "Thư mục chia sẻ $NAME$ sẽ bị xóa vĩnh viễn.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "Thư mục chia sẻ $NAME$ sẽ bị xóa vĩnh viễn. Các mục trong thư mục sẽ không bị xóa.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1339,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn. Các mục trong các thư mục sẽ không bị xóa."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ thư mục chia sẻ sẽ bị xóa vĩnh viễn.",
@@ -1310,6 +1383,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Bằng cách di chuyển một mục vào thư mục chia sẻ, bạn có thể chia sẻ mục đó một cách an toàn với các thành viên khác trong kho lưu trữ."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Thao tác này sẽ xóa vĩnh viễn tất cả các mục thuộc sở hữu của các thành viên sau. Các mục trong thư mục chia sẻ sẽ không bị ảnh hưởng.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Thao tác này sẽ xóa vĩnh viễn tất cả các mục thuộc sở hữu của $NAME$. Các mục trong thư mục chia sẻ sẽ không bị ảnh hưởng.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Quản lý quyền truy cập tổ chức, tất cả các thư mục chia sẻ, thành viên, báo cáo và cài đặt bảo mật"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Quản lý tất cả các thư mục chia sẻ, thành viên, báo cáo và cài đặt bảo mật"
+  },
+  "userDescSharedFolders": {
+    "message": "Truy cập và thêm mục vào các thư mục chia sẻ được phân công"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Cấp quyền truy cập cho thành viên vào các thư mục chia sẻ bằng cách thêm họ vào 1 hoặc nhiều nhóm."
+  },
+  "manageAllSharedFolders": {
+    "message": "Quản lý tất cả thư mục chia sẻ"
+  },
+  "createNewSharedFolders": {
+    "message": "Tạo các thư mục chia sẻ mới"
+  },
+  "editAnySharedFolder": {
+    "message": "Chỉnh sửa bất kỳ thư mục chia sẻ nào"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Xóa bất kỳ thư mục chia sẻ nào"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Bạn không thể tự thêm chính mình vào các thư mục chia sẻ."
   },
   "attachments": {
     "message": "Đính kèm"
@@ -1368,42 +1482,6 @@
     "message": "Thêm hộ chiếu",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Đăng nhập mới",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Thẻ mới",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Danh tính mới",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Ghi chú mới",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Ghi chú bảo mật mới",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Khóa SSH mới",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Tài khoản ngân hàng mới",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Giấy phép mới",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Hộ chiếu mới",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Văn bản mới",
     "description": "Header for new text send"
@@ -1411,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Tệp mới",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Chỉnh sửa đăng nhập",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Chỉnh sửa thẻ",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Chỉnh sửa danh tính",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Chỉnh sửa ghi chú",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Chỉnh sửa ghi chú bảo mật",
@@ -1535,6 +1597,9 @@
   "item": {
     "message": "Mục"
   },
+  "itemLower": {
+    "message": "mục"
+  },
   "itemDetails": {
     "message": "Chi tiết mục"
   },
@@ -1589,6 +1654,14 @@
   "copyUsername": {
     "message": "Sao chép tên đăng nhập",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Copy external ID",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Copy SSO external ID",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Sao chép số",
@@ -1674,64 +1747,24 @@
   "copyName": {
     "message": "Sao chép tên"
   },
-  "cardNumber": {
-    "message": "số thẻ"
-  },
-  "copyFieldCipherName": {
-    "message": "Sao chép $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyInfoTitle": {
-    "message": "Sao chép thông tin - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Sao chép ghi chú - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Chưa nhập giá trị",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Không có giá trị để sao chép"
+  "noDetailsToCopy": {
+    "message": "Không có chi tiết để sao chép"
   },
-  "launchWebsiteName": {
-    "message": "Khởi chạy trang web $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Mở trang web"
   },
   "me": {
     "message": "Tôi"
   },
   "myItems": {
     "message": "Các mục của tôi"
+  },
+  "myItemsV2": {
+    "message": "My items"
   },
   "myVault": {
     "message": "Kho của tôi"
@@ -1837,6 +1870,42 @@
   "noMatchingItems": {
     "message": "Không có mục nào phù hợp"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "deselectAll": {
     "message": "Bỏ chọn tất cả"
   },
@@ -1888,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Chọn một tập tin."
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file."
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content."
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format."
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read."
   },
   "maxFileSize": {
     "message": "Dung lượng tối đa của tập tin là 500 MB."
@@ -2025,6 +2115,36 @@
   "deletedFolder": {
     "message": "Đã xóa thư mục"
   },
+  "folderEdited": {
+    "message": "Đã sửa thư mục"
+  },
+  "foldersDeleted": {
+    "message": "Đã xóa các thư mục"
+  },
+  "deleteFoldersCount": {
+    "message": "Xóa $COUNT$ thư mục",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Khi bạn xóa thư mục $NAME$, thư mục này sẽ bị xóa khỏi mọi mục đã áp dụng thư mục. Bản thân các mục sẽ không bị xóa.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Khi bạn xóa các thư mục này, chúng sẽ bị xóa khỏi mọi mục đã áp dụng. Bản thân các mục sẽ không bị xóa."
+  },
+  "enterAName": {
+    "message": "Nhập tên."
+  },
   "editInfo": {
     "message": "Chỉnh sửa thông tin"
   },
@@ -2107,7 +2227,7 @@
     "message": "Sử dụng phương thức đăng nhập khác"
   },
   "logInWithPasskey": {
-    "message": "Đăng nhập bằng khóa truy cập"
+    "message": "Đăng nhập bằng mã khoá"
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
@@ -2427,11 +2547,80 @@
   "noItemsInTrashDesc": {
     "message": "Các mục bạn xóa sẽ hiển thị tại đây và bị xóa vĩnh viễn sau 30 ngày"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "Không có mục nào trong kho lưu trữ"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Kho lưu trữ không chỉ bảo vệ mỗi mật khẩu. Bạn có thể lưu trữ an toàn các thông tin đăng nhập, giấy tờ tùy thân, thẻ và ghi chú tại đây."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "Bạn chưa đánh dấu mục nào là mục yêu thích"
@@ -2478,6 +2667,12 @@
   },
   "newVault": {
     "message": "Kho lưu trữ mới"
+  },
+  "addPlan": {
+    "message": "Thêm gói"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "Bạn chưa thuộc tổ chức nào. Tổ chức sẽ cho phép bạn chia sẻ các mục với người dùng khác một cách bảo mật."
@@ -2681,6 +2876,21 @@
   "copyVerificationCode": {
     "message": "Sao chép mã xác thực"
   },
+  "noUsername": {
+    "message": "Không có tên đăng nhập"
+  },
+  "noPassword": {
+    "message": "Không có mật khẩu"
+  },
+  "noVerificationCode": {
+    "message": "Không có mã xác minh"
+  },
+  "noNumber": {
+    "message": "Không có số"
+  },
+  "noSecurityCode": {
+    "message": "Không có mã bảo mật"
+  },
   "copyUuid": {
     "message": "Sao chép UUID"
   },
@@ -2743,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "Mật khẩu chính KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Thêm tệp khóa"
   },
   "keyFileUpload": {
     "message": "Tải lên tệp khóa"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "Tải lên tệp KDBX"
@@ -3047,6 +3290,15 @@
   "purgedOrganizationVault": {
     "message": "Đã xóa kho tổ chức."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Đã xóa sạch kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Kho lưu trữ được truy cập bởi Nhà cung cấp."
   },
@@ -3142,6 +3394,9 @@
   "importFormatError": {
     "message": "Dữ liệu không được định dạng đúng. Vui lòng kiểm tra tập tin nhập và thử lại."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Không có gì được nhập."
   },
@@ -3220,17 +3475,14 @@
   "learnAboutImportOptions": {
     "message": "Tìm hiểu các tuỳ chọn nhập của bạn"
   },
-  "selectImportFolder": {
-    "message": "Chọn thư mục"
-  },
-  "selectImportCollection": {
-    "message": "Chọn bộ sưu tập"
-  },
   "importTargetHintCollection": {
     "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
   "importTargetHintFolder": {
     "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Select this option if you want the imported file contents moved to a shared folder"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -3241,6 +3493,40 @@
   "selectImportFile": {
     "message": "Chọn tập tin nhập"
   },
+  "importSourceBreadcrumb": {
+    "message": "Select source"
+  },
+  "importSourceSelectTitle": {
+    "message": "Select your source"
+  },
+  "importSourceSelectDescription": {
+    "message": "Choose the password manager or browser you are importing from."
+  },
+  "importSourceBrowsers": {
+    "message": "Browsers"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Password managers"
+  },
+  "importSourceShowAll": {
+    "message": "Show all"
+  },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
+  "importSourceStepCount": {
+    "message": "Step $CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Chọn tập tin"
   },
@@ -3249,6 +3535,79 @@
   },
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
+  },
+  "noFileSelected": {
+    "message": "Chưa chọn tệp nào"
+  },
+  "fileChosen": {
+    "message": "Đã chọn tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Đã thêm tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Đã thêm $COUNT$ tệp: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Đã xóa tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Đã tải lên 1 tệp"
+  },
+  "filesUploaded": {
+    "message": "Đã tải lên $COUNT$ tệp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Các tệp đã tải lên"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nhấp để tải lên hoặc kéo và thả"
+  },
+  "chooseFiles": {
+    "message": "Chọn tệp"
+  },
+  "maxFileSizeParam": {
+    "message": "Kích thước tệp tối đa: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "hoặc sao chép/dán nội dung của tập tin nhập"
@@ -3263,8 +3622,346 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Xem hướng dẫn chi tiết về $NAME$ trong",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Trung tâm Trợ giúp"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "Include shared folders"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Quy trình hoàn toàn giống với khi nhập từ Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Trong ứng dụng KeePassX dành cho máy tính, đi tới \"Database\" → \"Export to CSV file\" và lưu tệp CSV."
+  },
+  "importAviraInstructions": {
+    "message": "Trong kho lưu trữ web của Avira, đi tới \"Settings\" → \"My Data\" → \"Export data\" và lưu tệp CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Trong kho lưu trữ web của Blur, nhấp vào tên người dùng của bạn ở phía trên và đi tới \"Settings\" → \"Export Data\", sau đó nhấp vào \"Export CSV\" cho \"Accounts\" của bạn."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Trong ứng dụng SafeInCloud dành cho máy tính, đi tới \"File\" → \"Export\" → \"As XML\" và lưu tệp XML."
+  },
+  "importPadlockInstructions": {
+    "message": "Trong ứng dụng Padlock dành cho máy tính, nhấp vào biểu tượng menu ba gạch ở góc trên bên trái và đi tới nút \"Settings\" → \"Export\", sau đó lưu tệp dưới dạng \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Trong ứng dụng KeePass 2 dành cho máy tính, đi tới \"File\" → \"Export\" và chọn tùy chọn \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "Trong ứng dụng Universal Password Manager dành cho máy tính, đi tới \"Database\" → \"Export\" và lưu tệp CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "Trong tiện ích mở rộng trình duyệt SaferPass, nhấp vào biểu tượng menu ba gạch ở góc trên bên trái và đi tới \"Settings\". Nhấp vào nút \"Export accounts\" để lưu tệp CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Trong kho lưu trữ web của Meldium, đi tới \"Settings\". Tìm chức năng \"Export data\" và nhấp vào \"Show me my data\" để lưu tệp CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Trong ứng dụng Password Dragon dành cho máy tính, đi tới \"File\" → \"Export\" → \"To XML\". Trong hộp thoại bật lên, chọn \"All Rows\" và đánh dấu tất cả các trường. Nhấp vào nút \"Export\" và lưu tệp XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Trong ứng dụng Enpass dành cho máy tính, đi tới \"File\" → \"Export\" → \"As CSV\". Chọn \"OK\" ở cảnh báo và lưu tệp CSV. Lưu ý rằng trình nhập chỉ hỗ trợ các tệp được xuất khi Enpass được đặt sang ngôn ngữ tiếng Anh, vì vậy hãy điều chỉnh cài đặt cho phù hợp."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Trong ứng dụng Enpass 6 dành cho máy tính, nhấp vào nút menu và đi tới \"File\" → \"Export\". Chọn tùy chọn định dạng tệp \".json\" và lưu tệp JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "Trong ứng dụng Password Safe dành cho máy tính, đi tới \"File\" → \"Export To\" → \"XML format...\" và lưu tệp XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Đăng nhập vào Dashlane, nhấp vào \"My Account\" → \"Settings\" → \"Export file\" và chọn \"Export as a CSV file\". Thao tác này sẽ tải xuống một tệp lưu trữ zip chứa nhiều tệp CSV. Giải nén tệp lưu trữ và nhập riêng từng tệp CSV."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane không còn hỗ trợ định dạng JSON. Chỉ sử dụng tùy chọn này nếu bạn đã có tệp JSON để nhập. Hãy sử dụng trình nhập CSV khi tạo bản xuất mới."
+  },
+  "importMsecureInstructions": {
+    "message": "Trong ứng dụng mSecure dành cho máy tính, đi tới \"File\" → \"Export\" → \"CSV File...\" và lưu tệp CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Trong ứng dụng Sticky Password dành cho máy tính, đi tới \"Menu\" (góc trên bên phải) → \"Export\" → \"Export all\". Chọn tùy chọn định dạng XML không mã hóa và lưu tệp XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "Trong ứng dụng True Key dành cho máy tính, nhấp vào biểu tượng bánh răng (góc trên bên phải), sau đó đi tới \"App Settings\". Nhấp vào nút \"Export\", nhập mật khẩu của bạn và lưu tệp CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Đăng nhập vào ứng dụng web Clipperz (clipperz.is/app). Nhấp vào biểu tượng menu ba gạch ở góc trên bên phải để mở rộng thanh điều hướng. Đi tới \"Data\" → \"Export\". Nhấp vào nút \"download HTML+JSON\" để lưu tệp HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "Trong ứng dụng RoboForm Editor dành cho máy tính, đi tới \"RoboForm\" (góc trên bên trái) → \"Options\" → \"Account & Data\" và nhấp vào nút \"Export\". Chọn tất cả dữ liệu của bạn, đổi \"Format\" thành \"CSV file\", sau đó nhấp vào nút \"Export\" để lưu tệp CSV. Lưu ý: RoboForm chỉ cho phép bạn xuất các mục Đăng nhập. Các mục khác sẽ không được xuất."
+  },
+  "importPassboltInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ web Passbolt và đi tới danh sách \"Passwords\". Chọn tất cả mật khẩu bạn muốn xuất và nhấp vào nút \"Export\" ở đầu danh sách. Chọn định dạng xuất \"csv (lastpass)\" và nhấp vào nút \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "Trong ứng dụng Ascendo DataVault dành cho máy tính, đi tới \"Tools\" → \"Export\". Trong hộp thoại bật lên, chọn tùy chọn \"All Items (DVX, CSV)\". Nhấp vào nút \"Ok\" để lưu tệp CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Trong ứng dụng Password Boss dành cho máy tính, đi tới \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" và lưu tệp JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ web Zoho (vault.zoho.com). Đi tới \"Tools\" → \"Export Secrets\". Chọn \"All Secrets\" và nhấp vào nút \"Zoho Vault Format CSV\". Bôi đen và sao chép dữ liệu từ vùng văn bản. Mở trình soạn thảo văn bản như Notepad và dán dữ liệu. Lưu dữ liệu từ trình soạn thảo văn bản dưới dạng",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Trong ứng dụng SplashID Safe dành cho máy tính, nhấp vào biểu tượng khóa màu xanh dương SplashID ở góc trên bên phải. Đi tới \"Export\" → \"Export as CSV\" và lưu tệp CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "Trong ứng dụng di động PassKeep, đi tới \"Backup/Restore\". Tìm phần \"CSV Backup/Restore\" và nhấp vào \"Backup to CSV\" để lưu tệp CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Đảm bảo bạn đã cài đặt python-keyring và python-gnomekeyring. Lưu",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Nhập/Xuất GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "tập lệnh python vào màn hình nền của bạn dưới tên",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Mở terminal và chạy",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "và sau đó",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Sau đó tải lên tệp kết quả",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "tại đây lên Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Trong ứng dụng Password Agent dành cho máy tính, đi tới \"File\" → \"Export\", chọn nút \"Fields to export\" và đánh dấu tất cả các trường, đổi \"Output format\" thành \"CSV\", sau đó nhấp vào nút \"Start\" để lưu tệp CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ trên trang web Passpack và đi tới \"Settings\" → \"Export\", sau đó nhấp vào nút \"Download\" để lưu tệp CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Mở kho lưu trữ Passman của bạn và nhấp vào \"Settings\" ở góc dưới bên trái. Trong cửa sổ \"Settings\", chuyển sang tab \"Export credentials\" và chọn \"JSON\" làm loại xuất. Nhập cụm mật khẩu của kho lưu trữ và nhấp vào nút \"Export\" để lưu tệp JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Mở ứng dụng Avast Passwords dành cho máy tính và đi tới \"Settings\" → \"Import/export data\". Chọn nút \"Export\" cho tùy chọn \"Export to CSV file\" để lưu tệp CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Mở ứng dụng Avast Passwords dành cho máy tính và đi tới \"Settings\" → \"Import/export data\". Chọn nút \"Export\" cho tùy chọn \"Export to JSON file\" để lưu tệp JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Mở ứng dụng F-Secure KEY dành cho máy tính và đi tới \"Settings\" → \"Export Passwords\". Chọn nút \"Export\", nhập mật khẩu chính của bạn và lưu tệp FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Mở ứng dụng Kaspersky Password Manager dành cho máy tính và đi tới \"Settings\" → \"Import/Export\". Tìm phần \"Export to text file\" và chọn nút \"Export\" để lưu tệp TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Mở ứng dụng RememBear dành cho máy tính và đi tới \"Settings\" → \"Account\" → \"Export\". Nhập mật khẩu chính của bạn và chọn nút \"Export Anyway\" để lưu tệp CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Mở ứng dụng PasswordWallet dành cho máy tính và đi tới \"File\" → \"Export\" → \"Visible entries to text file\". Nhập mật khẩu của bạn và chọn nút \"Ok\" để lưu tệp TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Mở tiện ích mở rộng trình duyệt Myki dành cho máy tính và đi tới \"Advanced\" → \"Export Accounts\", sau đó quét mã QR bằng thiết bị di động. Nhiều tệp CSV sẽ được lưu vào thư mục tải xuống trên máy tính của bạn."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Xuất kho mật khẩu SecureSafe của bạn sang tệp CSV với dấu phẩy làm dấu phân cách."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Mở tiện ích mở rộng trình duyệt LogMeOnce, sau đó đi tới \"Open Menu\" → \"Export To\" và chọn \"CSV File\" để lưu tệp CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Mở ứng dụng BlackBerry Password Keeper, sau đó đi tới \"Settings\" → \"Import/Export\". Chọn \"Export Passwords\" và làm theo hướng dẫn trên màn hình để lưu tệp CSV không mã hóa."
+  },
+  "importButtercupInstructions": {
+    "message": "Mở ứng dụng Buttercup dành cho máy tính và mở khóa kho lưu trữ của bạn. Nhấp chuột phải vào biểu tượng kho lưu trữ và chọn \"Export\" để lưu tệp CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Mở ứng dụng Codebook dành cho máy tính và đăng nhập. Đi tới \"File\" → \"Export all\", sau đó nhấp vào \"Yes\" trong hộp thoại và lưu tệp CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Mở phiên bản mới nhất của ứng dụng Encryptr dành cho máy tính và cho phép đồng bộ hóa toàn bộ dữ liệu. Khi dữ liệu đã đồng bộ xong, biểu tượng tải xuống ở góc trên bên phải sẽ chuyển sang màu hồng. Nhấp vào biểu tượng tải xuống và lưu tệp CSV."
+  },
+  "importYotiInstructions": {
+    "message": "Trong tiện ích mở rộng trình duyệt Yoti, nhấp vào \"Settings\", sau đó \"Export Saved Logins\" và lưu tệp CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Đăng nhập vào kho lưu trữ web Psono, nhấp vào danh sách thả xuống \"Signed in as\", chọn \"Others\". Đi tới tab \"Export\", chọn loại xuất json rồi nhấp vào Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Đăng nhập vào \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" trong phần Passky. (\"Backup\" không được hỗ trợ vì đã được mã hóa)."
+  },
+  "importProtonpassInstructions": {
+    "message": "Trong tiện ích mở rộng trình duyệt ProtonPass, đi tới Settings > Export. Xuất mà không mã hóa PGP và lưu tệp zip."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Chọn menu Database → Export to file... → Trong các tùy chọn xuất, đảm bảo Folder names và Column titles đã được chọn. → Nhấn nút Browse... rồi chọn tệp đích và đặt loại tệp thành CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Mở FullClient, đi tới Main Menu và chọn Export. Khởi động trình hướng dẫn xuất mật khẩu và làm theo hướng dẫn để xuất tệp CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Đăng nhập vào NordPass và mở Settings → Cuộn xuống phần Import and Export rồi chọn Export items → Nhập Mật khẩu chính của bạn và chọn Continue. → Lưu tệp CSV trên thiết bị."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "Trong ứng dụng dành cho máy tính, đi tới Tools → Export → Nhập mật khẩu chính của bạn → Chọn XML Format (*.xml) làm định dạng xuất → Nhấp vào next → Chọn các mục cần đưa vào bản xuất → Nhấp vào next để xuất đến vị trí đã chọn trước đó."
+  },
+  "importDelineaInstructions": {
+    "message": "Đăng nhập vào Delinea, tìm “Import/Export” -> chọn “Export” -> Chọn “XML” làm định dạng xuất -> Chọn “QuantumLock” làm loại trình xác thực -> nhập mật khẩu của bạn và chọn “Export” để lưu tệp XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Đăng nhập vào Delinea, tìm “Import/Export” -> chọn “Export” -> Chọn “CSV” làm định dạng xuất -> Chọn “QuantumLock” làm loại trình xác thực -> nhập mật khẩu của bạn và chọn “Export” để lưu tệp CSV."
+  },
   "options": {
     "message": "Tùy chọn"
+  },
+  "moreOptions": {
+    "message": "Tùy chọn khác"
+  },
+  "optionsForItem": {
+    "message": "Tùy chọn cho $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Lọc theo $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Tùy chỉnh"
@@ -3283,6 +3980,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Hiển thị các thao tác sao chép nhanh trong kho lưu trữ"
   },
   "default": {
     "message": "Mặc định"
@@ -3307,9 +4007,6 @@
   },
   "customize": {
     "message": "Tùy biến"
-  },
-  "newCustomDomain": {
-    "message": "Tên miền tùy biến mới"
   },
   "addCustomDomain": {
     "message": "Thêm miền tùy chỉnh"
@@ -3360,11 +4057,15 @@
   "restrictedItemTypePolicy": {
     "message": "Xóa loại mục thẻ"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Không cho phép thành viên tạo loại mục thẻ. Các thẻ hiện có sẽ bị xóa tự động."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Không cho phép thành viên tạo và lưu trữ các mục thẻ tín dụng trong kho lưu trữ của họ. Khi chính sách này được bật, các thẻ hiện có sẽ tự động bị ẩn."
+  },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Không cho phép thành viên tạo và lưu trữ các mục thẻ tín dụng. Khi chính sách này được bật, các thẻ hiện có sẽ tự động bị ẩn.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
+  },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
   },
   "restrictCardTypeImport": {
     "message": "Không thể nhập mục thẻ"
@@ -3656,6 +4357,10 @@
     "message": "Xác định và khắc phục các lỗ hổng bảo mật trong tài khoản của tổ chức bằng cách nhấp vào các báo cáo bên dưới.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
+  "orgsReportsDescV2": {
+    "message": "Xác định và khắc phục các lỗ hổng bảo mật trong kho lưu trữ tổ chức của bạn bằng cách nhấp vào các báo cáo bên dưới.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
   "unsecuredWebsitesReport": {
     "message": "Trang web không an toàn"
   },
@@ -3719,7 +4424,7 @@
     "message": "cách mã khóa hoạt động"
   },
   "passkeyLoginReportAnd": {
-    "message": "và"
+    "message": "và "
   },
   "passkeyLoginReportHowToUse": {
     "message": "cách sử dụng mã khóa trong Bitwarden."
@@ -3727,8 +4432,11 @@
   "passkeyLoginFound": {
     "message": "Thông tin đăng nhập hỗ trợ mã khóa"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory.",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Great news! We found "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ login(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3736,26 +4444,17 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "Chúng tôi đã tìm thấy $COUNT$ thông tin đăng nhập trong các kho lưu trữ của bạn hỗ trợ mã khóa. Để tăng cường bảo mật cho các tài khoản này, hãy cân nhắc thiết lập mã khóa nếu có thể. Dữ liệu được lấy từ passkeys.2fa.directory.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "Không tìm thấy tài khoản nào trong kho lưu trữ của bạn hỗ trợ mã khóa mà chưa được thiết lập."
   },
   "instructions": {
     "message": "Hướng dẫn"
-  },
-  "passwordlessLogin": {
-    "message": "Đăng nhập không cần mật khẩu"
-  },
-  "multifactorAuthentication": {
-    "message": "Xác thực đa yếu tố"
   },
   "exposedPasswordsReport": {
     "message": "Mật khẩu bị rò rỉ"
@@ -3934,6 +4633,14 @@
     "message": "Tín dụng tài khoản",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "Applied balance",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Amount due",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
+  },
   "accountBalance": {
     "message": "Số dư tài khoản",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
@@ -3971,41 +4678,8 @@
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Truy cập khẩn cấp"
-  },
-  "premiumSignUpReports": {
-    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
-  },
-  "premiumSignUpTotp": {
-    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
-  },
-  "premiumSignUpSupport": {
-    "message": "Hỗ trợ khách hàng ưu tiên."
-  },
-  "premiumSignUpFuture": {
-    "message": "Tất cả các tính năng Cao cấp trong tương lai. Nó sẽ sớm xuất hiện!"
-  },
-  "premiumPrice": {
-    "message": "Tất cả chỉ với $PRICE$/năm!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Nâng cấp lên gói Cao cấp chỉ với $PRICE$ /năm, hoặc đăng ký gói Cao cấp cho $FAMILYPLANUSERCOUNT$ người dùng và chia sẻ không giới hạn cho gia đình với một ",
@@ -4168,11 +4842,29 @@
   "pendingCancellation": {
     "message": "Đang chờ hủy"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Bạn sẽ chuyển sang thanh toán hàng năm vào $DATE$. Gói và mức giá hiển thị phản ánh đăng ký hàng năm sắp tới của bạn.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "Gói của bạn sẽ được hủy vào cuối kì thanh toán hiện tại."
   },
   "reinstateSubscription": {
     "message": "Kích hoạt lại gói"
+  },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
   },
   "reinstateConfirmation": {
     "message": "Bạn có chắc muốn bỏ yêu cầu hủy đang chờ duyệt và kích hoạt lại thuê bao?"
@@ -4242,7 +4934,7 @@
     "message": "Hủy gói đăng ký"
   },
   "churnOfferSuccessTitle": {
-    "message": "Bạn đã hoàn tất tất cả!"
+    "message": "Bạn đã hoàn tất!"
   },
   "churnOfferSuccessBody": {
     "message": "Mức giảm giá $DISCOUNT$ đã được áp dụng cho thời gian sử dụng $DURATION$ tiếp theo của bạn.",
@@ -4537,6 +5229,9 @@
   "organizationName": {
     "message": "Tên tổ chức"
   },
+  "vaultName": {
+    "message": "Tên kho lưu trữ"
+  },
   "accountOwnedBusiness": {
     "message": "Tài khoản này thuộc sở hữu của một doanh nghiệp."
   },
@@ -4548,6 +5243,9 @@
   },
   "chooseYourPlan": {
     "message": "Chọn gói của bạn"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "Người dùng"
@@ -4653,6 +5351,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Giới hạn ở $COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Thêm và chia sẻ với tối đa $COUNT$ người dùng",
     "placeholders": {
@@ -4667,6 +5374,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Tạo số lượng bộ sưu tập không giới hạn"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Tạo không giới hạn thư mục chia sẻ"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ dung lượng lưu trữ tệp được mã hóa",
@@ -4813,9 +5523,6 @@
   "groups": {
     "message": "Nhóm"
   },
-  "newGroup": {
-    "message": "Nhóm mới"
-  },
   "addGroup": {
     "message": "Thêm nhóm"
   },
@@ -4871,9 +5578,6 @@
   "readOnly": {
     "message": "Chỉ đọc"
   },
-  "newCollection": {
-    "message": "Bộ sưu tập mới"
-  },
   "addCollection": {
     "message": "Thêm bộ sưu tập"
   },
@@ -4889,10 +5593,6 @@
   },
   "collectionInfo": {
     "message": "Thông tin bộ sưu tập"
-  },
-  "sharedFolderInfo": {
-    "message": "Thông tin thư mục chia sẻ",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
   },
   "deleteCollectionConfirmation": {
     "message": "Bạn có chắc chắn muốn xóa bộ sưu tập này không?"
@@ -4921,6 +5621,10 @@
   },
   "inviteUserDescription": {
     "message": "Mời người dùng mới tham gia tổ chức của bạn bằng cách nhập địa chỉ email của họ bên dưới."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Mời người dùng mới vào kho lưu trữ tổ chức của bạn bằng cách nhập địa chỉ email tài khoản Bitwarden của họ bên dưới. Nếu họ chưa có tài khoản Bitwarden, họ sẽ được yêu cầu tạo tài khoản mới.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Nhập tối đa $COUNT$ email bằng cách phân tách bằng dấu phẩy.",
@@ -5107,8 +5811,26 @@
   "exportedOrganizationVault": {
     "message": "Đã xuất dữ liệu kho tổ chức."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Đã xuất kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Đã chỉnh sửa cài đặt tổ chức."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Đã chỉnh sửa các cài đặt kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Đã tạo mục $ID$.",
@@ -5303,6 +6025,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Đã di chuyển mục $ID$ sang kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5537,6 +6272,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Đã tạo bộ sưu tập $ID$.",
     "placeholders": {
@@ -5687,6 +6431,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập kho lưu trữ $ORGNAME$ của $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Đã thêm người dùng staged $ID$.",
     "placeholders": {
@@ -5723,12 +6480,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập kho lưu trữ $ORGNAME$ của $ID$ do không tuân thủ chính sách đăng nhập xác thực hai yếu tố.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Đã thu hồi quyền truy cập tổ chức của $ID$ vì không tuân thủ chính sách một tổ chức duy nhất.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập kho lưu trữ $ORGNAME$ của $ID$ do không tuân thủ chính sách chỉ tham gia một tổ chức.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +6524,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Đã thu hồi quyền truy cập của $ID$ do từ chối chuyển quyền sở hữu kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Đã khôi phục quyền truy cập tổ chức của $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Đã khôi phục quyền truy cập kho lưu trữ $ORGNAME$ cho $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +6595,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Đã chỉnh sửa các thư mục chia sẻ cho mục $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Đã chấp nhận chuyển quyền sở hữu cho tổ chức."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Đã chấp nhận chuyển quyền sở hữu kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Đã mời người dùng $ID$.",
@@ -5855,12 +6682,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Đã tạo $ID$ trong kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Đã thêm tổ chức $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Đã thêm $ID$ vào kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6726,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Đã xóa $ID$ khỏi kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Đã truy cập kho lưu trữ của tổ chức $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Đã truy cập $ID$ trong kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6021,11 +6900,26 @@
   "resendInvitation": {
     "message": "Gửi lại lời mời"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "Gửi lại email"
   },
   "hasBeenReinvited": {
     "message": "$USER$ đã được mời lại",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6187,6 +7081,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Nhấp vào đây để thêm phương thức thanh toán."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Contact your Bitwarden sales representative to set up billing."
+  },
   "joinOrganization": {
     "message": "Tham gia tổ chức"
   },
@@ -6198,6 +7095,24 @@
         "example": "My Org Name"
       }
     }
+  },
+  "unableToJoinOrganizationName": {
+    "message": "Không thể tham gia $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Liên kết mời không còn hợp lệ."
+  },
+  "returnToLogin": {
+    "message": "Quay lại đăng nhập"
+  },
+  "returnToRegistration": {
+    "message": "Quay lại đăng ký"
   },
   "joinOrganizationDesc": {
     "message": "Bạn đã được mời tham gia tổ chức bên trên. Để chấp nhận lời mời, bạn cần đăng nhập hoặc tạo tài khoản Bitwarden mới."
@@ -6225,6 +7140,78 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Không thể chấp nhận lời mời. Hãy yêu cầu quản trị viên tổ chức gửi một liên kết mời mới."
+  },
+  "cannotAcceptInvitation": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Bạn đã là thành viên của tổ chức này."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Các email khớp với $DOMAIN$ không được phép trong tổ chức này.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Bạn không thể tham gia tổ chức này vì bạn đã là quản trị viên của một tổ chức miễn phí."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Quyền truy cập của bạn vào tổ chức này đã bị thu hồi. Hãy liên hệ với quản trị viên của bạn để lấy lại quyền truy cập."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Người dùng nhà cung cấp dịch vụ không được tham gia bằng liên kết mời này."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Một tổ chức mà bạn đã là thành viên chỉ cho phép các thành viên của mình thuộc về một tổ chức."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Tổ chức mà bạn đã là thành viên chỉ cho phép thành viên truy cập một kho lưu trữ chia sẻ."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép thành viên truy cập một kho lưu trữ chia sẻ."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép các thành viên của mình thuộc về một tổ chức."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Bạn phải thiết lập đăng nhập hai bước để tham gia tổ chức này."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Bạn phải xác minh địa chỉ email của mình trước khi tham gia một tổ chức."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Không thể chấp nhận lời mời của bạn vì không còn ghế khả dụng."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Tên miền này không được tổ chức này chấp nhận. Hãy thử một địa chỉ email khác."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Không thể chấp nhận lời mời"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Không thể giải mã lời mời tham gia tổ chức. Hãy thử lại bằng cách sử dụng cùng một trình duyệt để bắt đầu và hoàn tất quá trình đăng ký."
+  },
+  "goToLogin": {
+    "message": "Đi tới đăng nhập"
+  },
+  "goToVault": {
+    "message": "Đi tới kho lưu trữ"
   },
   "rememberEmail": {
     "message": "Ghi nhớ email"
@@ -6674,6 +7661,9 @@
   "inviteLink": {
     "message": "Liên kết mời"
   },
+  "transferAndAdd": {
+    "message": "Chuyển và thêm"
+  },
   "lastGenerated": {
     "message": "Tạo lần cuối: $DATE$",
     "placeholders": {
@@ -6687,6 +7677,9 @@
   },
   "inviteLinkRegenerated": {
     "message": "Đã tạo lại liên kết mời"
+  },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Invite link updated"
   },
   "regenerateInviteLink": {
     "message": "Tạo lại liên kết mời"
@@ -6709,8 +7702,56 @@
   "deactivateLink": {
     "message": "Hủy kích hoạt liên kết"
   },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "An admin must manually approve new members before they’re added to the organization vault."
+  },
+  "setYourAllowedDomains": {
+    "message": "Set your allowed domains"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+  },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
+  "adjustTheLink": {
+    "message": "Adjust the link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Share the link anywhere"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "View Bitwarden onboarding guide"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Finish"
+  },
   "inviteByLinkDesc": {
     "message": "Mời các thành viên tham gia tổ chức của bạn bằng một liên kết. Nếu chưa chỉ định vai trò nào, họ sẽ được thêm làm người dùng mặc định."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Bằng cách tiếp tục, bạn đồng ý với"
@@ -6729,6 +7770,21 @@
         "example": "Acme Inc"
       }
     }
+  },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Kiểm tra email của bạn để hoàn tất tham gia $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Đã gửi lời mời tới email"
   },
   "acceptPolicies": {
     "message": "Bằng cách chọn ô này, bạn đồng ý với điều sau:"
@@ -6999,20 +8055,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Yêu cầu thành viên thiết lập đăng nhập hai bước. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Các thành viên tổ chức không phải là chủ sở hữu hoặc quản trị viên và không có cài đặt đăng nhập hai bước cho tài khoản của mình sẽ bị loại khỏi tổ chức và sẽ nhận được email thông báo về thay đổi này."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Bật chính sách này sẽ thu hồi quyền của bất kỳ người dùng nào không bật đăng nhập hai bước trên tài khoản của họ. Những người dùng bị ảnh hưởng sẽ được thông báo qua email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Bạn là thành viên của một tổ chức yêu cầu phải thiết lập xác thực hai bước cho tài khoản người dùng của bạn. Nếu bạn tắt tất cả các nhà cung cấp xác thực hai bước, bạn sẽ tự động bị loại khỏi tổ chức này."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Đặt yêu cầu cho trình tạo mật khẩu."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Chọn một bộ các yêu cầu tối thiểu cho bất kỳ mật khẩu nào do thành viên tạo."
+  },
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Set minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
     "message": "Mật khẩu đã tạo"
@@ -7065,8 +8118,8 @@
   "minimumNumberOfWords": {
     "message": "Số từ tối thiểu"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Loại mật khẩu",
+  "overridePasswordTypePolicyV2": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -7262,14 +8315,22 @@
   "singleOrg": {
     "message": "Một tổ chức"
   },
+  "singleOrgVfo1": {
+    "message": "Tư cách thành viên một tổ chức",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "Hạn chế thành viên tham gia các tổ chức khác."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Hạn chế thành viên tham gia các tổ chức khác. Chính sách này là bắt buộc đối với các tổ chức đã bật xác minh tên miền."
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Members cannot join other organization vaults."
   },
   "singleOrgPolicyDescV2": {
     "message": "Các thành viên của tổ chức này không thể tham gia các tổ chức khác. Những thành viên hiện tại thuộc các tổ chức khác sẽ bị thu hồi quyền truy cập khi chính sách này được bật. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên."
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Thành viên không thể tham gia các kho lưu trữ tổ chức khác. Thành viên hiện tại thuộc các tổ chức khác sẽ bị thu hồi quyền truy cập khi chính sách này được bật. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "Tổ chức hiện tại của bạn có chính sách không cho phép bạn tham gia nhiều hơn một tổ chức. Vui lòng liên hệ với quản trị viên tổ chức của bạn hoặc đăng ký bằng một tài khoản Bitwarden khác."
@@ -7280,8 +8341,13 @@
   "requireSso": {
     "message": "Yêu cầu xác thực đăng nhập một lần"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Yêu cầu thành viên đăng nhập bằng phương thức đăng nhập một lần cho doanh nghiệp."
+  "requireSsoVfo1": {
+    "message": "Yêu cầu SSO",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Require members to log in using SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Yêu cầu đăng nhập một lần (SSO)"
@@ -7292,11 +8358,19 @@
   "prerequisite": {
     "message": "Điều kiện tiên quyết"
   },
-  "requireSsoPolicyReq": {
-    "message": "Chính sách Doanh nghiệp cho một tổ chức phải được bật trước khi kích hoạt chính sách này."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Bạn phải bật chính sách một tổ chức duy nhất trước khi bật chính sách này."
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "Bạn phải bật chính sách tư cách thành viên một tổ chức trước khi bật chính sách này.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Chính sách một tổ chức chưa được thiết lập."
@@ -7532,6 +8606,10 @@
     "message": "Không tìm thấy tập tin liên quan đến Send này.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Chưa có Send nào.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7684,8 +8762,15 @@
   "centralizeDataOwnership": {
     "message": "Tập trung quyền sở hữu của tổ chức"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Tập trung quyền sở hữu của tổ chức",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "Tất cả các mục của thành viên sẽ thuộc sở hữu và được quản lý bởi tổ chức. Quản trị viên và chủ sở hữu được miễn trừ. "
+  },
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "All member items will be owned and managed by the organization."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Tìm hiểu thêm về quyền sở hữu tập trung",
@@ -7700,9 +8785,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Dễ dàng chuyển các mục trong quá trình dừng làm việc của thành viên và bàn giao công việc, đảm bảo không có khoảng trống truy cập."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Cung cấp cho tất cả người dùng một không gian \"Mục của tôi\" dành riêng để quản lý thông tin đăng nhập của chính họ."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Nhắc nhở thành viên chuyển các mục của họ"
   },
@@ -7712,20 +8794,29 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Tìm hiểu thêm về việc chuyển dữ liệu"
   },
-  "promptUsersToMoveItems": {
-    "message": "Nhắc người dùng chuyển các mục kho lưu trữ cá nhân sang tổ chức"
-  },
   "promptUsersToMoveItemsCallout": {
     "message": "Thành viên sẽ được nhắc nhở chuyển các mục của họ sang tổ chức hoặc rời đi. Nếu họ rời đi, quyền truy cập của họ sẽ bị thu hồi nhưng có thể được khôi phục bất cứ lúc nào."
   },
   "centralizeDataOwnershipDescV2": {
     "message": "Tất cả các mục của thành viên sẽ thuộc sở hữu và được quản lý bởi tổ chức. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên. Tìm hiểu thêm về "
   },
+  "centralizeDataOwnershipDescV3": {
+    "message": "Tất cả các mục của thành viên sẽ thuộc sở hữu và được quản lý bởi tổ chức. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên. ",
+    "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
+  },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Cung cấp cho tất cả người dùng một không gian “Mục của tôi” dành riêng để quản lý thông tin đăng nhập của chính họ."
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Cung cấp cho tất cả người dùng một không gian Mục của tôi dành riêng để quản lý thông tin đăng nhập của chính họ.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "Nhắc người dùng chuyển các mục kho lưu trữ của họ sang tổ chức"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Nhắc người dùng chuyển các mục trong Kho lưu trữ của tôi sang tổ chức",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "Thực thi quyền sở hữu dữ liệu của tổ chức"
@@ -7771,6 +8862,10 @@
     "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "Người dùng mới được mời vào kho lưu trữ tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên được mở khóa.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "Cách bật xác nhận người dùng tự động"
   },
@@ -7792,6 +8887,10 @@
     "message": "Người dùng mới được mời vào tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên đang mở khóa. Trước khi bật chính sách này, hãy đọc kỹ và đồng ý với các điều sau: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "Người dùng mới được mời vào kho lưu trữ tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên được mở khóa. Trước khi bật chính sách này, hãy xem lại và đồng ý với nội dung sau: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Nguy cơ bảo mật tiềm ẩn. "
   },
@@ -7805,11 +8904,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Chính sách một tổ chức là bắt buộc. "
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Bắt buộc có chính sách kho lưu trữ một tổ chức. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Tất cả thành viên chỉ phải thuộc tổ chức này để kích hoạt tự động hóa này."
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "Tất cả thành viên chỉ được thuộc kho lưu trữ tổ chức này để kích hoạt tự động hóa.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "Chính sách một tổ chức sẽ áp dụng cho tất cả các vai trò. "
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Chính sách kho lưu trữ một tổ chức sẽ áp dụng cho tất cả các vai trò. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "Không có quyền truy cập khẩn cấp. "
@@ -7856,6 +8967,23 @@
       }
     }
   },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Tính năng yêu cầu quản trị viên phê duyệt đối với liên kết mời đã bị tắt",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Tính năng yêu cầu quản trị viên phê duyệt đối với liên kết mời đã được bật",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Thành viên $ID$ đã được xác nhận thông qua liên kết mời",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Hệ thống"
   },
@@ -7877,12 +9005,11 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Cài đặt mặc định tự động nhập trên máy tính để bàn"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Bật Tự động gõ phím trên Máy tính mặc định cho thành viên. Thành viên có thể tắt Tự động gõ phím thủ công trong ứng dụng máy tính để bàn.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Bật tính năng tự động nhập trên máy tính để bàn cho các thành viên. Các thành viên sẽ có thể tắt tính năng tự động nhập theo cách thủ công trong phần mềm máy tính để bàn."
+  },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Enable desktop autotype for members."
   },
   "disableSend": {
     "message": "Xóa Send"
@@ -7928,17 +9055,21 @@
   "sendControls": {
     "message": "Kiểm soát Send"
   },
-  "manageSend": {
-    "message": "Quản lý Send",
+  "manageSendV2": {
+    "message": "Manage Send and share",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Đặt các tùy chọn để tạo và chỉnh sửa các Send, bao gồm khả năng xóa các Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Quản lý cách thành viên sử dụng Send. Chính sách này sẽ áp dụng cho các Send được tạo sau khi bạn bật chính sách. Quản trị viên và chủ sở hữu không bị áp dụng.",
+  "sendControlsPolicyDescV5": {
+    "message": "Manage how members use Send and share Vault items. This policy won't be enforced for owners and admins.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Manage how members use Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Tùy chọn Send",
@@ -7958,8 +9089,9 @@
   "uriMatchDetectionPolicy": {
     "message": "Phát hiện khớp URI mặc định"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Xác định thời điểm nên đề xuất tự động điền thông tin đăng nhập. Quản trị viên và chủ sở hữu không bị ràng buộc bởi chính sách này."
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Đặt tính năng phát hiện khớp URI mặc định cho tất cả các mục do thành viên tạo.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "Đặt mặc định những phần nào của địa chỉ trang web (URI) cần khớp để Bitwarden đề xuất mục đăng nhập khi tự động điền. Chính sách này sẽ không được áp dụng cho chủ sở hữu và quản trị viên."
@@ -7970,6 +9102,49 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Vui lòng chọn một tùy chọn phát hiện khớp URI hợp lệ.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Kích hoạt hỗ trợ điền",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyV2": {
+    "message": "Enable fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Bật hỗ trợ điền theo mặc định cho tất cả thành viên. Tính năng này sử dụng các hướng dẫn dành riêng cho từng trang web đã được xem xét để cải thiện độ chính xác của tính năng tự động điền trên những trang web được biết là khó tự động điền."
+  },
+  "fillAssistRuleSource": {
+    "message": "Autofill rule set"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Default"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Use the Bitwarden-reviewed autofill rule set."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Custom"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Enter your own custom rule set."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Bộ quy tắc tự động điền tùy chỉnh"
+  },
+  "fillAssistRulesUrlV2": {
+    "message": "Custom rule set"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Learn more about custom rules"
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Nhập URL hợp lệ",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Enter a valid URL for a custom rule set.",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Chính sách $ID$ đã được điều chỉnh.",
@@ -7985,6 +9160,9 @@
   },
   "estimatedTax": {
     "message": "Thuế dự kiến"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "Tùy chỉnh"
@@ -8374,11 +9552,18 @@
   "accountRecoveryPolicy": {
     "message": "Quản lý khôi phục tài khoản"
   },
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Allow admins to help members regain access to their accounts."
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Chính sách Doanh nghiệp của tổ chức duy nhất phải được bật trước khi kích hoạt chính sách này."
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "Bạn phải bật chính sách một tổ chức duy nhất trước khi bật chính sách này."
+  },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "Bạn phải bật chính sách tư cách thành viên một tổ chức trước khi bật chính sách này.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "Cho phép quản trị viên giúp thành viên lấy lại quyền truy cập vào tài khoản của họ khi họ đã tham gia vào "
@@ -8576,16 +9761,25 @@
   "decryptionError": {
     "message": "Lỗi giải mã"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden không thể giải mã các mục trong kho lưu trữ được liệt kê bên dưới."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Liên hệ hỗ trợ khách hàng thành công",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "để tránh mất mát thêm dữ liệu.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Item ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Item IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Copy ID"
+  },
+  "copyAllIds": {
+    "message": "Copy all IDs"
   },
   "accountRecoveryManageUsers": {
     "message": "Người quản lý người dùng cũng phải được cấp quyền quản lý khôi phục tài khoản"
@@ -8745,11 +9939,12 @@
   "automaticAppLoginWithSSO": {
     "message": "Tự động đăng nhập bằng SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Mở rộng tính năng đăng nhập một lần (SSO) để bảo mật và tiện lợi hơn cho các ứng dụng ngoài hệ thống. Khi người dùng mở một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập sẽ được tự động điền và gửi đi, giúp họ truy cập an toàn chỉ với một lần nhấp."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Khi người dùng khởi chạy một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập của họ sẽ được tự động điền và gửi, tạo ra trải nghiệm đăng nhập an toàn chỉ với một lần nhấn."
+  },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Biểu mẫu đăng nhập sẽ tự động được điền và gửi đối với các ứng dụng được khởi chạy từ nhà cung cấp danh tính mà bạn đã cấu hình.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Máy chủ nhà cung cấp định danh"
@@ -8765,6 +9960,9 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Đặt thời gian chờ phiên tối đa cho tất cả thành viên ngoại trừ chủ sở hữu."
+  },
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Set a maximum session timeout for members."
   },
   "maximumAllowedTimeout": {
     "message": "Thời gian chờ tối đa được phép"
@@ -8875,11 +10073,16 @@
   "disableExport": {
     "message": "Xóa xuất"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Không cho phép thành viên xuất dữ liệu từ kho lưu trữ cá nhân của họ."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Không cho phép thành viên xuất dữ liệu từ kho lưu trữ cá nhân của họ. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên."
+  },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Không cho phép thành viên xuất dữ liệu kho lưu trữ của họ. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
+  },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Không cho phép thành viên xuất dữ liệu kho lưu trữ của họ.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
     "message": "Đã hủy xuất kho"
@@ -8887,17 +10090,20 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Các chính sách của tổ chức ngăn cản bạn xuất kho lưu trữ cá nhân của mình."
   },
-  "activateAutofillPolicy": {
-    "message": "Kích hoạt tự động điền"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Bật tự động điền khi tải trang"
   },
   "activateAutofillPolicyDescription": {
     "message": "Kích hoạt cài đặt tự động điền khi tải trang trên tiện ích mở rộng trình duyệt cho tất cả thành viên hiện tại và thành viên mới."
   },
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Enable autofill on page load setting in the browser extension for all members."
+  },
   "activateAutofillPolicyDescV2": {
     "message": "Bật cài đặt tự động điền khi tải trang trong tiện ích mở rộng trình duyệt cho tất cả thành viên hiện tại và thành viên mới. Hãy lưu ý rằng các trang web bị xâm nhập hoặc không đáng tin có thể"
+  },
+  "activateAutofillPolicyDescV3": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Once this policy is on, members must adjust their personal settings to turn on autofill. Be aware that compromised or untrustworthy websites can"
   },
   "exploitAutofillOnPageLoad": {
     "message": "khai thác tính năng tự động điền khi tải trang"
@@ -9034,14 +10240,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Gói Bitwarden Gia đình được tài trợ"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Lượt quy đổi của người không phải thành viên"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Không có gói gia đình được tài trợ nào"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Chưa có lượt quy đổi nào"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Các gói Gia đình dành cho người không phải thành viên được tài trợ sẽ hiển thị tại đây"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Chưa có người không phải thành viên nào quy đổi Gói Bitwarden Gia đình Được tài trợ."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Thành viên tổ chức của bạn đủ điều kiện sử dụng gói Bitwarden Gia đình miễn phí. Bạn có thể tài trợ Bitwarden Gia đình miễn phí cho nhân viên không thuộc tổ chức Bitwarden của bạn. Việc tài trợ cho người không phải thành viên yêu cầu có chỗ trống trong tổ chức của bạn."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Các thành viên của bạn đủ điều kiện quy đổi Gói Bitwarden Gia đình Được tài trợ. Bạn có thể tài trợ một gói Gia đình cho những nhân viên không phải là thành viên trong tổ chức Bitwarden của bạn, nhưng điều này sẽ yêu cầu số ghế khả dụng trong tổ chức của bạn."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Khi bạn hủy tài trợ đang hoạt động, một ghế trong tổ chức của bạn sẽ khả dụng sau ngày gia hạn của tổ chức được tài trợ."
@@ -9049,10 +10267,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Bạn và gia đình đủ điều kiện nhận Gói Bitwarden Gia đình miễn phí. Hãy kích hoạt bằng email cá nhân để giữ dữ liệu của bạn an toàn ngay cả khi không ở nơi làm việc."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Bạn và gia đình đủ điều kiện nhận Gói Bitwarden Gia đình Được tài trợ mà không mất thêm chi phí. Quy đổi gói này bằng email cá nhân của bạn để giữ cho dữ liệu an toàn và tách biệt khỏi tài khoản Bitwarden công việc của bạn."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Hãy nhận Gói Bitwarden Gia đình miễn phí của bạn ngay hôm nay để bảo vệ dữ liệu an toàn ngay cả khi bạn không ở nơi làm việc."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "Gói Bitwarden Gia đình bao gồm"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "Gói Bitwarden Gia đình bao gồm"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9060,6 +10284,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Các bộ sưu tập được chia sẻ cho các thành viên trong gia đình"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Thư mục chia sẻ cho các thành viên gia đình"
   },
   "memberFamilies": {
     "message": "Thành viên gia đình"
@@ -9094,6 +10321,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Chọn tổ chức bạn muốn được tài trợ"
   },
+  "selectAFamilyVault": {
+    "message": "Select a family vault"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Bạn muốn đổi ưu đãi Gói Gia đình miễn phí nào?"
   },
@@ -9105,6 +10335,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Chấp nhận ưu đãi cho một tổ chức hiện có hoặc tạo tổ chức Gia đình mới."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ has sponsored a free Bitwarden Families plan for you! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "You've been sponsored a free Bitwarden Families plan! You can apply your complimentary plan to an existing family vault or create a new one.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Bạn đã được tặng một tổ chức gói Bitwarden Gia đình miễn phí. Để tiếp tục, bạn cần đăng nhập vào tài khoản đã nhận ưu đãi này."
@@ -9123,6 +10367,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Chấp nhận Gói Bitwarden Gia đình miễn phí"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Accept Sponsored Families Plan"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Sponsored plan details"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Ưu đãi Gói Bitwarden Gia đình miễn phí đã được đổi thành công"
@@ -9292,14 +10542,24 @@
   "paymentSponsored": {
     "message": "Vui lòng cung cấp phương thức thanh toán để liên kết với tổ chức. Đừng lo, chúng tôi sẽ không tính phí trừ khi bạn chọn thêm tính năng hoặc khi gói tài trợ của bạn hết hạn. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Please provide a payment method to associate with your family vault. Don't worry, we won't charge you anything unless you select additional features or your sponsorship expires.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Ưu đãi tài trợ đã hết hạn. Bạn có thể xóa tổ chức mà bạn đã tạo để tránh bị tính phí khi kết thúc 7 ngày dùng thử. Nếu không, bạn có thể đóng thông báo này để giữ tổ chức và chịu trách nhiệm thanh toán."
   },
   "newFamiliesOrganization": {
     "message": "Tổ chức Gia đình mới"
   },
+  "createVault": {
+    "message": "Create vault"
+  },
   "acceptOffer": {
     "message": "Chấp nhận ưu đãi"
+  },
+  "applySponsorship": {
+    "message": "Apply sponsorship"
   },
   "sponsoringOrg": {
     "message": "Tổ chức tài trợ"
@@ -9542,9 +10802,6 @@
   "billingHistory": {
     "message": "Lịch sử thanh toán"
   },
-  "backToReports": {
-    "message": "Quay lại báo cáo"
-  },
   "organizationPicker": {
     "message": "Trình chọn tổ chức"
   },
@@ -9645,6 +10902,10 @@
   "random": {
     "message": "Ngẫu nhiên",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Website name",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Từ ngẫu nhiên"
@@ -9857,6 +11118,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Đã xảy ra lỗi không xác định từ $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -9931,18 +11216,6 @@
   "scimLearnMore": {
     "message": "Tìm hiểu thêm về SCIM"
   },
-  "scimIntegrationDescription": {
-    "message": "Tự động cung cấp người dùng và nhóm với nhà cung cấp danh tính bạn chọn thông qua SCIM provisioning. Tìm các tích hợp được hỗ trợ",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "Bật SCIM",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Thiết lập nhà cung cấp danh tính bạn chọn bằng cách cấu hình URL và SCIM API Key",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
   "scimApiKeyHelperText": {
     "message": "Khóa API này có quyền quản lý người dùng trong tổ chức của bạn. Hãy giữ bí mật khóa này."
   },
@@ -9961,7 +11234,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
-    "message": "Sao chép khóa API SCIM vào bảng nhớ tạm",
+    "message": "Sao chép khóa API SCIM vào bộ nhớ tạm",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "viewScimApiKey": {
@@ -9984,7 +11257,7 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "copyScimUrl": {
-    "message": "Sao chép URL endpoint SCIM vào bảng nhớ tạm của bạn",
+    "message": "Sao chép URL endpoint SCIM vào bộ nhớ tạm",
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimUrl": {
@@ -10103,6 +11376,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -10280,6 +11562,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Xóa vĩnh viễn các bí mật"
+  },
+  "currentVersion": {
+    "message": "Current version",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Modified by: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Secret value copied",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Secret restored to selected version",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Restore secret version",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Are you sure you want to restore this secret to the selected version? The current value will be replaced.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Previous versions",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Version history",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "No version history",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Chọn các dự án mà bí mật sẽ được liên kết. Chỉ những người dùng trong tổ chức có quyền truy cập các dự án này mới có thể xem bí mật.",
@@ -10620,7 +11944,7 @@
     "description": "Error message indicating that an expiration date for the access token must be set."
   },
   "accessTokenCreatedAndCopied": {
-    "message": "Token truy cập đã được tạo và sao chép vào bảng nhớ tạm",
+    "message": "Token truy cập đã được tạo và sao chép vào bộ nhớ tạm",
     "description": "Notification to inform the user that the access token has been created and copied to the clipboard."
   },
   "revokeAccessToken": {
@@ -10671,17 +11995,29 @@
   "editGroupMembersDesc": {
     "message": "Cấp quyền cho thành viên truy cập vào các bộ sưu tập được gán cho nhóm."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Cấp cho các thành viên quyền truy cập vào các thư mục chia sẻ được phân công của nhóm."
+  },
   "editGroupCollectionsDesc": {
     "message": "Cấp quyền truy cập vào bộ sưu tập bằng cách thêm chúng vào nhóm này."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Cấp quyền truy cập vào các thư mục chia sẻ bằng cách thêm chúng vào nhóm này."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Bạn chỉ có thể gán các bộ sưu tập mà bạn quản lý."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Bạn chỉ có thể phân công các thư mục chia sẻ mà bạn quản lý."
   },
   "selectMembers": {
     "message": "Chọn thành viên"
   },
   "selectCollections": {
     "message": "Chọn bộ sưu tập"
+  },
+  "selectSharedFolders": {
+    "message": "Chọn thư mục chia sẻ"
   },
   "role": {
     "message": "Role"
@@ -10711,6 +12047,12 @@
   "noCollectionsAdded": {
     "message": "Chưa thêm bộ sưu tập nào"
   },
+  "noSharedFoldersAdded": {
+    "message": "Chưa có thư mục chia sẻ nào được thêm"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "noMembersAdded": {
     "message": "Chưa thêm thành viên nào"
   },
@@ -10722,9 +12064,6 @@
   },
   "domainVerification": {
     "message": "Xác minh tên miền"
-  },
-  "newDomain": {
-    "message": "Tên miền mới"
   },
   "addDomain": {
     "message": "Thêm miền"
@@ -10918,35 +12257,8 @@
   "switchProducts": {
     "message": "Chuyển đổi sản phẩm"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Tổ chức miễn phí có thể có tối đa $SEATCOUNT$ thành viên. Nâng cấp lên gói trả phí để mời thêm thành viên.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Tổ chức miễn phí có thể có tối đa $SEATCOUNT$ thành viên. Liên hệ với chủ sở hữu tổ chức của bạn để nâng cấp.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Gói Teams Starter có thể có tối đa $SEATCOUNT$ thành viên. Nâng cấp gói của bạn để mời thêm thành viên.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Gói Teams Starter có thể có tối đa $SEATCOUNT$ thành viên. Liên hệ với chủ sở hữu tổ chức của bạn để nâng cấp gói và mời thêm thành viên.",
+  "seatLimitReachedContactOwner": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11122,9 +12434,6 @@
   "groupSlashUser": {
     "message": "Nhóm/Người dùng"
   },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Tiếp tục sẽ đăng xuất bạn khỏi tất cả các phiên hoạt động. Bạn sẽ cần đăng nhập lại và hoàn tất đăng nhập hai bước (nếu có). Chúng tôi khuyến nghị xuất kho mật khẩu của bạn trước khi thay đổi cài đặt mã hóa để tránh mất dữ liệu."
-  },
   "secretsManager": {
     "message": "Trình quản lý Bí mật"
   },
@@ -11136,6 +12445,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "Người dùng này có thể truy cập Trình quản lý Bí mật"
+  },
+  "privilegedControls": {
+    "message": "Kiểm soát đặc quyền",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Kích hoạt quyền truy cập của người dùng vào Kiểm soát đặc quyền.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Người dùng này có thể truy cập Kiểm soát đặc quyền",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "Quan trọng:"
@@ -11458,6 +12779,9 @@
   "restoreSecretsPrompt": {
     "message": "Bạn có chắc chắn muốn khôi phục các bí mật này không?"
   },
+  "restoreThisVersion": {
+    "message": "Restore this version"
+  },
   "secretRestoredSuccessToast": {
     "message": "Đã khôi phục bí mật"
   },
@@ -11596,6 +12920,30 @@
     "message": "tổ chức đơn lẻ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "kho lưu trữ tổ chức duy nhất",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "Yêu cầu SSO",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", và",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Quản lý khôi phục tài khoản",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "các chính sách sẽ tự động được bật.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "chính sách,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11680,6 +13028,10 @@
     "message": "Đã kích hoạt quyền truy cập Trình quản lý Bí mật",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Đã kích hoạt quyền truy cập vào Kiểm soát đặc quyền",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Kích hoạt quyền truy cập"
   },
@@ -11687,8 +13039,16 @@
     "message": "Cấp quyền truy cập Trình quản lý Bí mật cho các thành viên sau. Vai trò được cấp trong Trình quản lý Mật khẩu sẽ áp dụng cho Trình quản lý Bí mật.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Cấp cho các thành viên sau quyền truy cập vào Kiểm soát đặc quyền.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Kích hoạt Trình quản lý Bí mật"
+  },
+  "activatePrivilegedControls": {
+    "message": "Kích hoạt Kiểm soát đặc quyền",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Cụm từ xác thực của tổ chức bạn",
@@ -11856,6 +13216,9 @@
   "free2PersonOrganization": {
     "message": "Miễn phí cho 2 người của tổ chức"
   },
+  "freePlanWithSharedVault": {
+    "message": "Gói miễn phí có kho lưu trữ chia sẻ"
+  },
   "unlimitedSecrets": {
     "message": "Bí mật không giới hạn"
   },
@@ -11919,17 +13282,38 @@
   "collectionManagement": {
     "message": "Quản lý bộ sưu tập"
   },
+  "sharedFolderManagement": {
+    "message": "Cài đặt thư mục chia sẻ"
+  },
   "collectionManagementDescription": {
     "message": "Cấu hình hành vi bộ sưu tập cho tổ chức"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Định cấu hình cách hoạt động của các thư mục chia sẻ trong kho lưu trữ của tổ chức."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Tìm hiểu thêm về các bộ sưu tập"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Tìm hiểu thêm về các thư mục chia sẻ"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục từ Bảng điều khiển quản trị"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Cho phép chủ sở hữu và quản trị viên quản lý tất cả các thư mục chia sẻ và các mục từ Bảng điều khiển quản trị"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Hạn chế tạo bộ sưu tập cho chủ sở hữu và quản trị viên"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Giới hạn quyền tạo thư mục chia sẻ chỉ cho chủ sở hữu và quản trị viên"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Hạn chế xóa bộ sưu tập cho chủ sở hữu và quản trị viên"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Giới hạn quyền xóa thư mục chia sẻ chỉ cho chủ sở hữu và quản trị viên"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Hạn chế xóa mục cho thành viên có ",
@@ -11941,6 +13325,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Đã cập nhật cài đặt quản lý bộ sưu tập"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Đã cập nhật cài đặt quản lý thư mục chia sẻ"
   },
   "passwordManagerPlanPrice": {
     "message": "Giá gói Trình quản lý Mật khẩu"
@@ -12033,8 +13420,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Đã thay đổi cài đặt quản lý thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Đã bật cài đặt Hạn chế tạo bộ sưu tập $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Đã bật cài đặt Hạn chế tạo thư mục chia sẻ $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +13456,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Đã tắt cài đặt Hạn chế tạo thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Đã bật cài đặt Hạn chế xóa bộ sưu tập $ID$.",
     "placeholders": {
@@ -12060,8 +13474,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Đã bật cài đặt Hạn chế xóa thư mục chia sẻ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Đã tắt cài đặt Hạn chế xóa bộ sưu tập $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Đã tắt cài đặt Hạn chế xóa thư mục chia sẻ $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,6 +13528,15 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Đã bật cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các thư mục chia sẻ và mục $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Đã tắt cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các bộ sưu tập và mục $ID$.",
     "placeholders": {
@@ -12105,9 +13546,14 @@
       }
     }
   },
-  "seeDetailedInstructions": {
-    "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
-    "description": "This is followed a by a hyperlink to the help website."
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Đã tắt cài đặt Cho phép chủ sở hữu và quản trị viên quản lý tất cả các thư mục chia sẻ và mục $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
   },
   "getStartedWithYourVault": {
     "message": "Bắt đầu với kho lưu trữ của bạn"
@@ -12148,14 +13594,14 @@
   "unexpectedErrorSend": {
     "message": "Đã xảy ra lỗi khi tải mục Gửi này. Hãy thử lại sau."
   },
-  "seatLimitReached": {
-    "message": "Đã đạt giới hạn số lượng người dùng"
-  },
-  "contactYourProvider": {
-    "message": "Liên hệ nhà cung cấp của bạn để mua thêm suất."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Đã đạt đến giới hạn số lượng người dùng. Liên hệ nhà cung cấp của bạn để mua thêm suất."
+  "seatLimitReachedContactProvider": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your provider to purchase additional seats.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Quyền truy cập bộ sưu tập bị hạn chế"
@@ -12339,6 +13785,36 @@
     "message": "Tái cấu trúc, sáp nhập, thay đổi ưu tiên hoặc không còn cần trình quản lý mật khẩu.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Chuyển sang thanh toán hàng năm và tiết kiệm $SAVINGS$ mỗi năm",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Chi phí hiện tại (thanh toán hàng tháng)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Chi phí thanh toán hàng năm",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Giá hiển thị chưa bao gồm các khoản thuế áp dụng. Việc chuyển đổi có hiệu lực vào ngày gia hạn tiếp theo của bạn.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Chuyển sang thanh toán hàng năm",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Đăng ký của bạn sẽ được chuyển sang thanh toán hàng năm vào ngày gia hạn tiếp theo của bạn.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Dịch vụ chăm sóc khách hàng kém",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12393,14 +13869,23 @@
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
   },
+  "addToSharedFolder": {
+    "message": "Thêm vào thư mục chia sẻ"
+  },
   "assignToTheseCollections": {
     "message": "Gán vào các bộ sưu tập này"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy mục này."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy các mục này."
   },
   "selectCollectionsToAssign": {
     "message": "Chọn bộ sưu tập để gán"
@@ -12411,17 +13896,32 @@
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Đã thêm thành công các thư mục chia sẻ"
+  },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Đã thêm mục vào thư mục chia sẻ"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Đã thêm mục vào các thư mục chia sẻ"
+  },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Đã thêm các mục vào thư mục chia sẻ"
+  },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Đã thêm các mục vào các thư mục chia sẻ"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"
@@ -12450,6 +13950,9 @@
   },
   "items": {
     "message": "Mục"
+  },
+  "itemsLower": {
+    "message": "các mục"
   },
   "assignedSeats": {
     "message": "Ghế đã gán"
@@ -12546,10 +14049,6 @@
   "machineAccounts": {
     "message": "Tài khoản máy",
     "description": "The title for the section that deals with machine accounts."
-  },
-  "newMachineAccount": {
-    "message": "Tài khoản máy mới",
-    "description": "Title for creating a new machine account."
   },
   "addMachineAccount": {
     "message": "Thêm tài khoản máy",
@@ -13020,6 +14519,9 @@
   "organizationOptionsMenu": {
     "message": "Chuyển đổi Menu Tổ chức"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Chọn mục trong kho"
   },
@@ -13139,6 +14641,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Bảo vệ hạ tầng của bạn"
   },
@@ -13178,6 +14683,40 @@
   "billingPreviewInvoiceError": {
     "message": "Đã xảy ra lỗi khi xem trước hóa đơn. Vui lòng thử lại sau."
   },
+  "billingPreviewInvalidAddressError": {
+    "message": "Please check your billing details and try again."
+  },
+  "planChangeTrialIncluded": {
+    "message": "This upgrade includes a $DAYS$-day trial. The total above is what you will be charged at the end of the trial.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "You have 1 day left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "You have $DAYS$ days left in your trial. You will be charged the total above on $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
   "unverified": {
     "message": "Chưa xác minh"
   },
@@ -13214,6 +14753,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Kiểm tra quyền truy cập của thành viên tổ chức trên các nhóm, bộ sưu tập và mục trong bộ sưu tập. Tệp CSV xuất ra cung cấp bảng phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền của bộ sưu tập và cấu hình tài khoản."
+  },
+  "memberAccessReportPageDescV3": {
+    "message": "Kiểm tra quyền truy cập của thành viên trên các nhóm, thư mục chia sẻ và mục. Tệp CSV xuất ra cung cấp bảng phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền và cấu hình tài khoản."
   },
   "memberAccessReportNoCollection": {
     "message": "(Không có Bố sưu tập)"
@@ -13333,8 +14875,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13469,24 +15023,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "Xác thực SSO"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Gói Bitwarden Gia đình có thể có tối đa $SEATCOUNT$ thành viên. Nâng cấp lên gói trả phí để mời thêm thành viên.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Gói Bitwarden Gia đình có thể có tối đa $SEATCOUNT$ thành viên. Liên hệ chủ sở hữu tổ chức để nâng cấp.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Gói gia đình chỉ được có tối đa $SEATCOUNT$ thành viên. Nâng cấp lên gói trả phí để khôi phục quyền truy cập của thành viên này.",
     "placeholders": {
@@ -13582,6 +15118,9 @@
   },
   "unlimitedCollections": {
     "message": "Bộ sưu tập không giới hạn"
+  },
+  "unlimitedSharedFolders": {
+    "message": "Thư mục chia sẻ không giới hạn"
   },
   "secureDataSharing": {
     "message": "Chia sẻ dữ liệu an toàn"
@@ -13763,6 +15302,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Người dùng $ID$ đã rời khỏi kho lưu trữ $ORGNAME$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Người dùng $ID$ đã tự thu hồi quyền khỏi tổ chức.",
     "placeholders": {
@@ -13774,6 +15326,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Bị thu hồi quyền vì từ chối chuyển sang quyền sở hữu của tổ chức."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Đã thu hồi do từ chối chuyển quyền sở hữu kho lưu trữ $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "Tổ chức $ORGANIZATION$ bị tạm ngưng",
@@ -13805,11 +15366,23 @@
   "freeFamiliesSponsorshipPolicyTitleV2": {
     "message": "Loại bỏ gói Gói Bitwarden Gia đình được tài trợ"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Không cho phép thành viên đổi gói Gia đình thông qua tổ chức này."
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Xóa Gói Gia đình được tài trợ",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Xóa Gói Bitwarden Gia đình được tài trợ",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Không cho phép thành viên quy đổi gói Gói Bitwarden Gia đình được tài trợ bởi tổ chức của bạn."
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Xóa tùy chọn cho phép thành viên đổi Gói Gia đình miễn phí.",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Thanh toán bằng tài khoản ngân hàng chỉ khả dụng cho khách hàng ở Hoa Kỳ. Bạn sẽ được yêu cầu xác minh tài khoản ngân hàng của mình. Chúng tôi sẽ thực hiện một khoản tiền gửi nhỏ trong vòng 1-2 ngày làm việc tới. Nhập mã mô tả sao kê từ khoản tiền gửi này trên trang thanh toán của tổ chức để xác minh tài khoản ngân hàng. Việc không xác minh tài khoản ngân hàng sẽ dẫn đến thanh toán bị bỏ lỡ và đăng ký của bạn bị tạm ngưng."
@@ -13824,6 +15397,15 @@
     "message": "Bạn không thể xóa các bộ sưu tập chỉ có quyền Xem: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Bạn không thể xóa các thư mục chia sẻ có quyền Chỉ xem: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14019,7 +15601,7 @@
     "message": "Loại khóa SSH không được hỗ trợ"
   },
   "importSshKeyFromClipboard": {
-    "message": "Nhập khóa từ bảng nhớ tạm"
+    "message": "Nhập khóa từ bộ nhớ tạm"
   },
   "sshKeyImported": {
     "message": "Khóa SSH được nhập thành công"
@@ -14234,26 +15816,17 @@
   "atRiskPassword": {
     "message": "Mật khẩu có rủi ro"
   },
-  "changeAtRiskPassword": {
-    "message": "Thay đổi mật khẩu có rủi ro"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Mục đăng nhập này có nguy cơ bị lộ và thiếu trang web. Thêm trang web và thay đổi mật khẩu để tăng cường bảo mật."
-  },
   "vulnerablePassword": {
     "message": "Mật khẩu dễ bị tấn công."
   },
   "changeNow": {
     "message": "Thay đổi ngay"
   },
-  "missingWebsite": {
-    "message": "Thiếu trang web"
-  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Xóa Mở khóa bằng mã PIN"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Không cho phép thành viên mở khóa tài khoản của họ bằng mã PIN."
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Remove unlock with PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Thành viên sẽ không được phép mở khóa tài khoản của họ bằng mã PIN."
@@ -14530,6 +16103,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Thêm 3 nút sao chép nhanh bên cạnh các mục để sao chép tên đăng nhập, mật khẩu hoặc mã xác minh vào bộ nhớ tạm."
+  },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"
   },
@@ -14639,8 +16215,20 @@
   "providersubCanceledmessage": {
     "message": "Để đăng ký lại, hãy liên hệ Bộ phận Hỗ trợ khách hàng của Bitwarden."
   },
+  "showAll": {
+    "message": "Hiển thị tất cả"
+  },
   "showMore": {
     "message": "Hiển thị thêm"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Hiển thị bớt"
@@ -14686,16 +16274,21 @@
   "checkInputFormat": {
     "message": "Kiểm tra định dạng nhập để tránh lỗi chính tả."
   },
-  "exampleTaxIdFormat": {
-    "message": "Ví dụ định dạng $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Ví dụ về định dạng mã số thuế: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Định dạng được nhận dạng: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -14783,6 +16376,9 @@
   "familiesUnlimitedCollections": {
     "message": "Bộ sưu tập gia đình không giới hạn"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Thư mục chia sẻ gia đình không giới hạn"
+  },
   "familiesSharedStorage": {
     "message": "Bộ nhớ được chia sẻ cho thông tin gia đình quan trọng"
   },
@@ -14797,6 +16393,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Tối đa $COUNT$ bộ sưu tập",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Tối đa $COUNT$ thư mục chia sẻ",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14888,6 +16493,9 @@
   "upgradeNow": {
     "message": "Nâng cấp ngay"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Hoàn tất biểu mẫu này sẽ tạo một tổ chức Gia đình mới. Bạn có thể nâng cấp tổ chức Miễn phí của mình từ Bảng điều khiển quản trị."
   },
@@ -14939,14 +16547,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Chặn tạo tài khoản cho các tên miền đã xác nhận quyền sở hữu"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Ngăn người dùng tạo tài khoản bên ngoài tổ chức của bạn bằng địa chỉ email từ các tên miền đã xác nhận."
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Ngăn tạo tài khoản từ các tên miền đã xác nhận.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Chặn các thành viên sử dụng miền đã được xác nhận chủ sở hữu của bạn để tạo tài khoản Bitwarden bên ngoài tổ chức của bạn."
   },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Cần phải xác nhận tên miền trước khi kích hoạt chính sách này."
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Chặn thành viên sử dụng tên miền đã xác nhận của bạn để tạo tài khoản Bitwarden bên ngoài kho lưu trữ tổ chức của bạn.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Trước khi bật chính sách này, bạn phải xác nhận chủ sở hữu một miền."
@@ -15068,6 +16678,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Đang xác minh tính toàn vẹn của thư mục"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Đang xác minh tính toàn vẹn của tệp đính kèm"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ mục có tệp đính kèm sử dụng mã hóa cũ. Mở một mục bên dưới và đi tới Tệp đính kèm để khắc phục.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Khôi phục Dữ liệu và Chẩn đoán"
@@ -15214,6 +16836,12 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Mở trang đăng ký trên tài khoản đám mây Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải nó lên bên dưới."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Mở trang đăng ký trên tài khoản Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải tệp lên bên dưới."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "Trong môi trường đám mây của bạn, đăng nhập vào tài khoản Bitwarden, mở trang đăng ký và tải xuống tệp giấy phép. Sau đó, quay lại màn hình này và tải tệp lên."
   },
   "viewAllPlans": {
     "message": "Xem tất cả các gói"
@@ -15399,6 +17027,9 @@
   "premiumSubscriptionCredit": {
     "message": "Tiền thưởng đăng ký gói Cao cấp"
   },
+  "appliedProrationCredits": {
+    "message": "Applied proration credit"
+  },
   "enterpriseMembership": {
     "message": "Thành viên gói Doanh nghiệp"
   },
@@ -15506,7 +17137,7 @@
     "message": "Khác"
   },
   "newBankAccountNudgeTitle": {
-    "message": "Lưu trữ an toàn thông tin ngân hàng của bạn."
+    "message": "Lưu trữ an toàn thông tin ngân hàng của bạn"
   },
   "newBankAccountNudgeBody": {
     "message": "Lưu thông tin tài khoản ngân hàng của bạn để truy cập dễ dàng và bảo mật trên tất cả các thiết bị của bạn."
@@ -15562,6 +17193,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Giữ cho tính bảo mật của các mục trong kho lưu trữ của bạn luôn mạnh mẽ bằng cách kiểm tra các báo cáo để tìm lỗ hổng."
   },
+  "whatsNew": {
+    "message": "What's new"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Giám sát hoạt động bảo mật"
   },
@@ -15592,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Cập nhật các báo cáo và thông tin chuyên sâu thường xuyên để phát hiện các rủi ro mới và xem các số liệu mới nhất khi tổ chức của bạn phát triển."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ trên tổng số $TOTAL$",
     "placeholders": {
@@ -15617,6 +17278,72 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "Email Keeper"
@@ -15868,6 +17595,9 @@
   "singleOrgPrerequisite": {
     "message": "Chính sách một tổ chức duy nhất phải được bật trước khi kích hoạt chính sách này."
   },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "The single organization membership policy must be turned on before activating this policy."
+  },
   "enableBanner": {
     "message": "Bật thanh thông báo"
   },
@@ -16067,6 +17797,452 @@
   "copy": {
     "message": "Sao chép"
   },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
+  },
+  "pamAccessRules": {
+    "message": "Quy tắc truy cập"
+  },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Đã bật"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Khi bị tắt, quy tắc sẽ không hoạt động và không hạn chế quyền truy cập."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Bật quy tắc"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Tắt quy tắc"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Đã bật quy tắc truy cập."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Đã tắt quy tắc truy cập."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Không tìm thấy quy tắc truy cập."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Thiết lập các quy tắc để kiểm soát ai có thể yêu cầu truy cập vào thông tin xác thực nhạy cảm, trong điều kiện nào và trong bao lâu."
+  },
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
+  },
+  "pamAccessRuleNew": {
+    "message": "Quy tắc mới"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Quy tắc truy cập mới"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Chỉnh sửa quy tắc truy cập"
+  },
+  "pamAccessRuleName": {
+    "message": "Tên"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "Ví dụ: VPN + giờ làm việc"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Thông tin chung"
+  },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Thời lượng truy cập"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Điều kiện tùy chọn"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Chọn bộ sưu tập"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Quy tắc truy cập này sẽ áp dụng cho tất cả các bộ sưu tập được chọn."
+  },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Không thể tải các bộ sưu tập. Hãy làm mới trang để thử lại."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Thời lượng này sẽ được điền sẵn trong các yêu cầu truy cập."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Mô tả"
+  },
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Default duration"
+  },
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximum duration"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Không giới hạn"
+  },
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 phút"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 phút"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 giờ"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 giờ"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 giờ"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 giờ"
+  },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 giờ"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 ngày"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Tại một thời điểm chỉ có một người dùng có thể giữ quyền truy cập tạm thời đang hoạt động"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Các yêu cầu mới sẽ được đưa vào hàng đợi cho đến khi lượt truy cập hiện tại kết thúc hoặc bị thu hồi."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Cho phép gia hạn thời gian truy cập"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Thành viên có thể gia hạn thời hạn cấp quyền đang hoạt động một lần mà không cần phê duyệt mới, lên đến mức thời gian tối đa dưới đây."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Thời gian gia hạn tối đa"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "Thời gian tối đa cho một lần gia hạn."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Hạn chế theo địa chỉ IP"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Người phê duyệt"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Quản lý bộ sưu tập"
+  },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
+  "pamAccessRuleCreated": {
+    "message": "Đã tạo quy tắc truy cập."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Đã cập nhật quy tắc truy cập."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Xóa quy tắc truy cập?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Xóa \"$NAME$\"? Bất kỳ bộ sưu tập nào sử dụng quy tắc này sẽ bị tắt tính năng cấp quyền truy cập tạm thời.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Chưa có quy tắc truy cập nào"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Tạo quy tắc để bổ sung thêm lớp bảo vệ cho các bộ sưu tập nhạy cảm."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Tạo quy tắc tùy chỉnh"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Bắt đầu từ một mẫu"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Sử dụng mẫu"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just in time"
+  },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Tự động phê duyệt • Hết hạn sau 1 giờ • Được ghi nhật ký kiểm toán"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Truy cập kịp thời (Just-in-time)"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Con người phê duyệt • Yêu cầu 1 người phê duyệt • Được ghi nhật ký kiểm toán"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "Hạn chế theo IP"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Tự động phê duyệt • Danh sách IP cho phép • Được ghi nhật ký kiểm toán"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "Truy cập hạn chế theo IP"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Bộ sưu tập"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Chưa được phân công"
+  },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamSearchRules": {
+    "message": "Tìm kiếm quy tắc"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Áp dụng cho"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Điều kiện"
+  },
+  "pamAccessWindow": {
+    "message": "Khung thời gian truy cập"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Sửa đổi lần cuối"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Tự động phê duyệt"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Yêu cầu phê duyệt"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "Hạn chế IP"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Không có quy tắc truy cập nào khớp với bộ lọc của bạn."
+  },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Bật"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Tắt"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Đã cập nhật các quy tắc truy cập."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Đã xóa các quy tắc truy cập."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Xóa các quy tắc truy cập?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ quy tắc truy cập sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Chỉ các yêu cầu bắt nguồn từ các dải IP này mới được cho phép."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "Dải CIDR"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "Ví dụ: 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Thêm dải CIDR"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Xóa dải CIDR"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Thêm ít nhất một dải CIDR."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Nhập một dải CIDR hợp lệ."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Dải CIDR này đã được thêm vào rồi."
+  },
   "paymentSuccessful": {
     "message": "Thanh toán thành công"
   },
@@ -16112,5 +18288,192 @@
         "example": "Login"
       }
     }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Invite your whole team with a single link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Invite members dialog preview showing the new by-link tab"
+  },
+  "showMeHow": {
+    "message": "Show me how"
+  },
+  "shareVerb": {
+    "message": "Share"
+  },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Expires",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ has shared the following item with you.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "additional service accounts"
+  },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
+  "membersLower": {
+    "message": "members"
+  },
+  "memberLower": {
+    "message": "member"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Keep and reactivate"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Password Manager prorated charge"
+  },
+  "storageProratedCharge": {
+    "message": "Storage prorated charge"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Secrets Manager prorated charge"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Service accounts prorated charge"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

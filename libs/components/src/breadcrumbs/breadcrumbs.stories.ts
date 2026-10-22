@@ -6,6 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
 import { I18nMockService } from "../utils";
@@ -28,7 +29,14 @@ export default {
   component: BreadcrumbsComponent,
   decorators: [
     moduleMetadata({
-      imports: [LinkModule, MenuModule, IconButtonModule, RouterModule, BreadcrumbComponent],
+      imports: [
+        LinkModule,
+        MenuModule,
+        IconButtonModule,
+        RouterModule,
+        BreadcrumbComponent,
+        IconTileComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -76,7 +84,6 @@ export default {
   args: {
     size: "base",
     showTrailingArrow: false,
-    show: 4,
   },
   argTypes: {
     breadcrumbs: {
@@ -88,9 +95,6 @@ export default {
     },
     showTrailingArrow: {
       control: { type: "boolean" },
-    },
-    show: {
-      control: { type: "number" },
     },
   },
 } as Meta;
@@ -114,6 +118,40 @@ export const Default: Story = {
 
 export const Small: Story = {
   ...Default,
+  args: {
+    size: "small",
+  },
+};
+
+export const WithStartSlot: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb route="/vault">
+        <bit-icon-tile slot="start" icon="bwi-vault" />
+        Vault
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/acme-corp">
+        <bit-icon-tile slot="start" icon="bwi-business" variant="success" />
+        ACME Corp
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/groups">
+        <bit-icon-tile slot="start" icon="bwi-users" variant="warning" />
+        Groups
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/members">
+        <bit-icon-tile slot="start" icon="bwi-user" variant="danger" />
+        Members
+      </bit-breadcrumb>
+    </bit-breadcrumbs>
+    <router-outlet />
+    `,
+  }),
+};
+
+export const WithStartSlotSmall: Story = {
+  ...WithStartSlot,
   args: {
     size: "small",
   },
@@ -191,4 +229,23 @@ export const WithTrailingArrow: Story = {
   args: {
     showTrailingArrow: true,
   },
+};
+
+export const ResponsiveOverflow: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-resize-x tw-overflow-auto tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-3" style="width: 600px; max-width: 100%;">
+        <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+          <bit-breadcrumb route="/vault">Single sign-on</bit-breadcrumb>
+          <bit-breadcrumb route="/acme-corp">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/groups">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/members">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/items">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/settings">Configure single sign-on for your enterprise organization</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </div>
+      <router-outlet/>
+    `,
+  }),
 };

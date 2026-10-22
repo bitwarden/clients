@@ -1,9 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { newGuid } from "@bitwarden/guid";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -11,11 +15,8 @@ import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
 import {
@@ -30,7 +31,7 @@ import { OrganizationBillingService } from "./organization-billing.service";
 describe("OrganizationBillingService", () => {
   let apiService: jest.Mocked<ApiService>;
   let billingApiService: jest.Mocked<BillingApiServiceAbstraction>;
-  let keyService: jest.Mocked<KeyService>;
+  let legacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
   let encryptService: jest.Mocked<EncryptService>;
   let i18nService: jest.Mocked<I18nService>;
   let organizationApiService: jest.Mocked<OrganizationApiService>;
@@ -44,7 +45,7 @@ describe("OrganizationBillingService", () => {
   beforeEach(() => {
     apiService = mock<ApiService>();
     billingApiService = mock<BillingApiServiceAbstraction>();
-    keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     organizationApiService = mock<OrganizationApiService>();
@@ -54,7 +55,7 @@ describe("OrganizationBillingService", () => {
     sut = new OrganizationBillingService(
       apiService,
       billingApiService,
-      keyService,
+      legacyCompatKeyService,
       encryptService,
       i18nService,
       organizationApiService,
@@ -86,8 +87,11 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("encrypted-key"),
+        {} as OrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       //Act
@@ -110,8 +114,11 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       organizationApiService.create.mockRejectedValue(new Error("Failed to create organization"));
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("encrypted-key"),
+        {} as OrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       // Act & Assert
@@ -131,7 +138,7 @@ describe("OrganizationBillingService", () => {
         },
       } as SubscriptionInformation;
 
-      keyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
+      legacyCompatKeyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
 
       // Act & Assert
       await expect(sut.purchaseSubscription(subscriptionInformation, mockUserId)).rejects.toThrow(
@@ -170,8 +177,11 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.createWithoutPayment.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("encrypted-key"),
+        {} as OrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       //Act
@@ -192,8 +202,11 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       organizationApiService.createWithoutPayment.mockRejectedValue(new Error("Creation failed"));
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("encrypted-key"),
+        {} as OrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       await expect(
@@ -207,8 +220,8 @@ describe("OrganizationBillingService", () => {
         plan: { type: PlanType.EnterpriseAnnually2023 },
       } as SubscriptionInformation;
 
-      keyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
 
       await expect(
         sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation, mockUserId),
@@ -230,8 +243,11 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("encrypted-key"),
+        {} as OrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       //Act
@@ -248,8 +264,8 @@ describe("OrganizationBillingService", () => {
         plan: { type: PlanType.Free },
       } as SubscriptionInformation;
 
-      keyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
 
       await expect(sut.startFree(subscriptionInformation, mockUserId)).rejects.toThrow(
         "Key generation failed",
@@ -264,8 +280,11 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       organizationApiService.create.mockRejectedValue(new Error("Failed to create organization"));
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        new EncString("encrypted-key"),
+        {} as OrgKey,
+      ]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
       // Act & Assert
       await expect(sut.startFree(subscriptionInformation, mockUserId)).rejects.toThrow(
@@ -313,11 +332,11 @@ describe("OrganizationBillingService", () => {
     };
 
     beforeEach(() => {
-      keyService.makeOrgKey.mockResolvedValue([
+      legacyCompatKeyService.makeOrgKey.mockResolvedValue([
         organizationKeys.publicKeyEncapsulatedOrgKey,
         organizationKeys.orgKey,
       ]);
-      keyService.makeKeyPair.mockResolvedValue([
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue([
         organizationKeys.publicKey,
         organizationKeys.encryptedPrivateKey,
       ]);
@@ -341,8 +360,8 @@ describe("OrganizationBillingService", () => {
         } as SubscriptionInformation;
         const result = await sut.purchaseSubscription(subscriptionWithPayment, mockUserId);
 
-        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
         expect(encryptService.encryptString).toHaveBeenCalledWith(
           "Default Collection",
           organizationKeys.orgKey,
@@ -444,8 +463,8 @@ describe("OrganizationBillingService", () => {
 
         const result = await sut.purchaseSubscriptionNoPaymentMethod(mockSubscription, mockUserId);
 
-        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
         expect(encryptService.encryptString).toHaveBeenCalledWith(
           "Default Collection",
           organizationKeys.orgKey,
@@ -463,8 +482,8 @@ describe("OrganizationBillingService", () => {
       it("sets the correct organization keys on the organization creation request", async () => {
         const result = await sut.startFree(mockSubscription, mockUserId);
 
-        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
         expect(encryptService.encryptString).toHaveBeenCalledWith(
           "Default Collection",
           organizationKeys.orgKey,
@@ -493,8 +512,8 @@ describe("OrganizationBillingService", () => {
 
         await sut.restartSubscription("org-id", subscriptionWithPayment, mockUserId);
 
-        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
         expect(encryptService.encryptString).toHaveBeenCalledWith(
           "Default Collection",
           organizationKeys.orgKey,

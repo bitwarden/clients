@@ -20,6 +20,7 @@ export class ServiceContainer extends OssServiceContainer {
     this.organizationAuthRequestService = new OrganizationAuthRequestService(
       this.organizationAuthRequestApiService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.organizationUserApiService,
       this.accountService,

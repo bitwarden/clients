@@ -8,14 +8,57 @@ const builder = require("electron-builder");
 const fse = require("fs-extra");
 exports.default = run;
 
+const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS == "true";
+
+/// The native messaging proxy's entitlements, per app ID. The browser launches the proxy rather
+/// than the app, so it inherits nothing and has to name the App Group itself -- and the group is
+/// named after the app, so each channel needs its own.
+const PROXY_ENTITLEMENTS = {
+  "com.bitwarden.desktop": "entitlements.desktop_proxy.plist",
+  "com.bitwarden.beta.desktop": "entitlements.desktop_proxy.beta.plist",
+};
+
 /**
  *
  * @param {builder.AfterPackContext} context
  */
 async function run(context) {
+  if (IS_GITHUB_ACTIONS) {
+    console.log(`::group::After Pack (${builder.Arch[context.arch]})`);
+  }
   console.log("## After pack");
   // console.log(context);
+  try {
+    await doBuild(context);
+  } catch (error) {
+    console.error("### Error occurred during after-pack phase:", error.stack);
+    throw error;
+  } finally {
+    if (IS_GITHUB_ACTIONS) {
+      console.log(`::endgroup::`);
+    }
+  }
+}
 
+async function doBuild(context) {
+  const isMacOsBuild = ["darwin", "mas"].includes(context.electronPlatformName);
+
+  let isTargetArch;
+  if (!isMacOsBuild) {
+    isTargetArch = true;
+  } else {
+    // When running a universal macOS build, afterPack is called once per arch:
+    // x64, arm64, and then finally for universal. For an explicit single-arch
+    // build (--x64 / --arm64) it is called only once, for that arch.
+    //
+    // To determine whether this is the target arch, we need to compare the
+    // packager's configured targets with the current target.
+    const requestedArchs = context.packager.info.options.targets?.get(context.packager.platform);
+    const isUniversalRequested = requestedArchs?.has(builder.Arch.universal) ?? false;
+    isTargetArch = isUniversalRequested ? context.arch === builder.Arch.universal : true;
+  }
+
+  // TODO: Update this to isTargetArch, and remove resetAdHocDarwinSignature parameter below.
   if (context.packager.platform.nodeName !== "darwin" || context.arch === builder.Arch.universal) {
     await addElectronFuses(context);
   }
@@ -35,7 +78,12 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
-  if (["darwin", "mas"].includes(context.electronPlatformName)) {
+  if (isMacOsBuild) {
+    if (isTargetArch) {
+      console.log("[macOS] Copying extensions...");
+      copyMacOsAutofillExtension(context);
+      copySafariExtension(context);
+    }
     const is_mas = context.electronPlatformName === "mas";
 
     let id;
@@ -69,35 +117,35 @@ async function run(context) {
 
     const packageId = context.packager.appInfo.id;
 
-    if (is_mas) {
-      const entitlementsName = "entitlements.desktop_proxy.plist";
-      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
-      );
-
-      const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
-      const inheritEntitlementsPath = path.join(
-        __dirname,
-        "..",
-        "resources",
-        inheritEntitlementsName,
-      );
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
-      );
-    } else {
-      // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
-      // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
-      const entitlementsName = "entitlements.mac.inherit.plist";
-      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
-      );
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
-      );
+    // Sandbox the proxy and scope it to the App Group on Developer ID builds as well as App Store
+    // ones, so both reach the same shared container the app listens on. Without the group the
+    // proxy resolves its socket to its own cache directory, which the app cannot see.
+    const entitlementsName = PROXY_ENTITLEMENTS[packageId];
+    if (entitlementsName === undefined) {
+      throw new Error(`No desktop_proxy entitlements for app ID '${packageId}'`);
     }
+    const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+    child_process.execSync(
+      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
+    );
+
+    // The App Store build spawns the inherit helper as a child of the sandboxed app, so it takes
+    // the app's sandbox -- and its App Group membership -- through the inherit entitlement. For
+    // non-Appstore builds, we don't need the inherit binary as they are not sandboxed, but we sign
+    // and include it anyway for consistency. It should be removed once DDG supports the proxy
+    // directly.
+    const inheritEntitlementsName = is_mas
+      ? "entitlements.desktop_proxy.inherit.plist"
+      : "entitlements.mac.inherit.plist";
+    const inheritEntitlementsPath = path.join(
+      __dirname,
+      "..",
+      "resources",
+      inheritEntitlementsName,
+    );
+    child_process.execSync(
+      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
+    );
   }
 }
 
@@ -188,4 +236,59 @@ async function addElectronFuses(context) {
     // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
     [FuseV1Options.WasmTrapHandlers]: true,
   });
+}
+
+function copyMacOsAutofillExtension(context) {
+  const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+  // Every macOS build ships the extension, so a missing one is a broken build rather than a
+  // configuration that leaves it out.
+  if (!fse.existsSync(extensionPath)) {
+    throw new Error(
+      `Autofill extension not found at ${extensionPath}; macOS builds must include it. Build it first with one of the "build:macos-extension:*" npm scripts.`,
+    );
+  }
+  copyMacOsPlugin(context, "Autofill extension", extensionPath);
+}
+
+function copySafariExtension(context) {
+  const plugIn = path.join(__dirname, "../PlugIns", "safari.appex");
+  copyMacOsPlugin(context, "Safari Extension", plugIn);
+}
+
+function copyMacOsPlugin(context, targetName, extensionPath) {
+  // Pre-signed macOS extensions are copied here in after-pack.js, before electron-builder signs the app, so that
+  // the app's own signature seals it.
+  //
+  // Copying it in after signing leaves the outer bundle invalid ("a sealed
+  // resource is missing or invalid") and notarization rejects it unless the
+  // whole package is signed a second time. electron-builder never signs
+  // anything under Contents/PlugIns, so the extension keeps the signature and
+  // entitlements XCode gave it.
+  //
+  // We cannot use extraFiles because it modifies the extension's .plist and makes it invalid. Cf.
+  // https://github.com/electron-userland/electron-builder/issues/5552.
+
+  if (!["darwin", "mas"].includes(context.electronPlatformName)) {
+    // not a macOS build, skipping.
+    console.log(`### ${targetName}: Not macOS build. Skipping.`);
+    return;
+  }
+
+  if (!fse.existsSync(extensionPath)) {
+    console.log(`### ${targetName}: ${extensionPath} not found - skipping`);
+    return;
+  }
+
+  console.log(`### ${targetName}: Copying plugin...`);
+
+  // Make PlugIns directory.
+  const appName = context.packager.appInfo.productFilename;
+  const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
+  fse.mkdirSync(plugInsPath, { recursive: true });
+
+  // Copy extension
+  const name = path.basename(extensionPath);
+  const output = path.join(plugInsPath, name);
+  fse.copySync(extensionPath, output);
+  console.log(`### ${targetName}: Copied ${extensionPath} to ${output}.`);
 }

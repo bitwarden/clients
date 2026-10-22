@@ -1,6 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 export class ProviderAddOrganizationRequest {
   organizationId: string;
   key: string;
+
+  constructor(c: { organizationId: string; key: string }) {
+    this.organizationId = c.organizationId;
+    this.key = c.key;
+  }
 }

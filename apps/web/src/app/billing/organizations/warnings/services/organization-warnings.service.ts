@@ -97,36 +97,28 @@ export class OrganizationWarningsService {
           return null;
         }
 
-        const { remainingTrialDays } = warning;
+        const { remainingTrialDays, isSalesAssisted } = warning;
 
+        let message: string;
         if (remainingTrialDays >= 2) {
-          return {
-            organization,
-            message: includeOrganizationNameInMessaging
-              ? this.i18nService.t(
-                  "freeTrialEndPromptMultipleDays",
-                  organization.name,
-                  remainingTrialDays,
-                )
-              : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays),
-          };
-        }
-
-        if (remainingTrialDays == 1) {
-          return {
-            organization,
-            message: includeOrganizationNameInMessaging
-              ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
-              : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName"),
-          };
-        }
-
-        return {
-          organization,
-          message: includeOrganizationNameInMessaging
+          message = includeOrganizationNameInMessaging
+            ? this.i18nService.t(
+                "freeTrialEndPromptMultipleDays",
+                organization.name,
+                remainingTrialDays,
+              )
+            : this.i18nService.t("freeTrialEndPromptCount", remainingTrialDays);
+        } else if (remainingTrialDays === 1) {
+          message = includeOrganizationNameInMessaging
+            ? this.i18nService.t("freeTrialEndPromptTomorrow", organization.name)
+            : this.i18nService.t("freeTrialEndPromptTomorrowNoOrgName");
+        } else {
+          message = includeOrganizationNameInMessaging
             ? this.i18nService.t("freeTrialEndPromptToday", organization.name)
-            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName"),
-        };
+            : this.i18nService.t("freeTrialEndingTodayWithoutOrgName");
+        }
+
+        return { organization, message, isSalesAssisted };
       }),
     );
 
@@ -261,7 +253,9 @@ export class OrganizationWarningsService {
 
   showSubscribeBeforeFreeTrialEndsDialog$ = (organization: Organization): Observable<void> =>
     this.getWarning$(organization, (response) => response.freeTrial).pipe(
-      filter((warning) => warning !== null),
+      // Sales-assisted trials are invoiced through the customer's sales representative,
+      // so the self-serve payment modal does not apply.
+      filter((warning) => warning !== null && !warning.isSalesAssisted),
       switchMap(async () => {
         const account = await firstValueFrom(this.accountService.activeAccount$);
         if (!account) {

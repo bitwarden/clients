@@ -1,10 +1,12 @@
 import { Observable } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { OtherDeviceKeysUpdateRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 
 export abstract class DeviceTrustServiceAbstraction {
   /**

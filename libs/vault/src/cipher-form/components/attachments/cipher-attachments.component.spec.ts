@@ -16,7 +16,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -61,9 +60,7 @@ describe("CipherAttachmentsComponent", () => {
     edit: true,
   } as CipherView;
 
-  const cipherDomain = {
-    decrypt: () => cipherView,
-  };
+  const cipherDomain = {};
 
   const organization = new Organization();
   organization.id = "org-123" as OrganizationId;
@@ -93,7 +90,6 @@ describe("CipherAttachmentsComponent", () => {
             organization,
             get: cipherServiceGet,
             saveAttachmentWithServer,
-            getKeyForCipherKeyDecryption: () => Promise.resolve(null),
             decrypt: cipherServiceDecrypt,
           },
         },
@@ -105,7 +101,6 @@ describe("CipherAttachmentsComponent", () => {
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         {
           provide: AccountService,
@@ -214,16 +209,9 @@ describe("CipherAttachmentsComponent", () => {
       submitBtnFixture.componentInstance.disabled.set(undefined as unknown as boolean);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
-      const inputElement = fixture.debugElement.query(By.css("input[type=file]"));
-
-      // Set the file value of the input element
-      Object.defineProperty(inputElement.nativeElement, "files", {
-        value: [file],
-        writable: false,
-      });
-
-      // Trigger change event, for event listeners
-      inputElement.nativeElement.dispatchEvent(new InputEvent("change"));
+      // Set the file via the reactive form control (CVA writes it back to bit-file-upload)
+      component.attachmentForm.controls.file.setValue(file);
+      fixture.detectChanges();
     });
 
     it("sets value of `file` control when input changes", () => {
@@ -374,7 +362,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           false,
-          undefined,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
         );
       });
 
@@ -389,19 +377,16 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           true,
-          undefined,
+          expect.objectContaining({ onProgress: expect.any(Function) }),
         );
       });
 
-      it("resets form and input values", async () => {
+      it("resets form control value after upload", async () => {
         await setupWithOrganization(true);
 
         await component.submit();
 
-        const fileInput = fixture.debugElement.query(By.css("input[type=file]"));
-
-        expect(fileInput.nativeElement.value).toEqual("");
-        expect(component.attachmentForm.controls.file.value).toEqual(null);
+        expect(component.attachmentForm.controls.file.value).toBeNull();
       });
 
       it("shows success toast", async () => {
@@ -428,9 +413,6 @@ describe("CipherAttachmentsComponent", () => {
 
     describe("uploadProgress", () => {
       beforeEach(async () => {
-        const configService = TestBed.inject(ConfigService);
-        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
-
         fixture = TestBed.createComponent(CipherAttachmentsComponent);
         component = fixture.componentInstance;
         fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);

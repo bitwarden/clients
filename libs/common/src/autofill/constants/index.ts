@@ -181,6 +181,28 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 );
 
 /**
+ * Client-side sentinel meaning "use the default fill assist rules." The policy
+ * edit UI stores this value when the admin selects "Default"; the
+ * `effectiveFillAssistRulesUrl$` resolver in `DomainSettingsService` treats a
+ * match as "fall through to server config" (the region-specific CDN from
+ * `appsettings.fillAssistRules`).
+ *
+ * Changing this constant requires either a data migration or adding the old
+ * value to LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS below — otherwise existing
+ * "Default" policies silently flip to "Custom" pointing at the retired URL.
+ */
+export const DEFAULT_FILL_ASSIST_RULES_URL = "https://fillassist.bitwarden.com";
+
+/**
+ * Historical values of DEFAULT_FILL_ASSIST_RULES_URL. Policies saved before
+ * the current constant was adopted must still be recognized as "Default" by
+ * the edit UI and resolver. Add previous values here when the constant changes.
+ */
+export const LEGACY_DEFAULT_FILL_ASSIST_RULES_URLS = Object.freeze(
+  new Set<string>(["https://github.com/bitwarden/map-the-web/releases/latest/download"]),
+);
+
+/**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in
  * the Forms Map schema.
  */

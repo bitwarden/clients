@@ -15,11 +15,61 @@ import jest from "eslint-plugin-jest";
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
 
+/// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
+/// SDK
+const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
+  group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
+  message:
+    "@bitwarden/legacy-crypto holds crypto primitives that are being retired in favour of the SDK. " +
+    "Do not add new imports if possible — implement the operation in the SDK and contact the Key Management team.",
+};
+
+// Common is at the base level - should not import from other libs except shared
+const COMMON_FORBIDDEN_PACKAGES = [
+  "@bitwarden/admin-console",
+  "@bitwarden/angular",
+  "@bitwarden/auth",
+  "@bitwarden/billing",
+  "@bitwarden/components",
+  "@bitwarden/importer",
+  "@bitwarden/key-management",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/node",
+  "@bitwarden/platform",
+  "@bitwarden/tools",
+  "@bitwarden/ui",
+  "@bitwarden/vault",
+];
+
+// Key management can depend on common, node, angular, components, eslint, platform, ui
+const KEY_MANAGEMENT_FORBIDDEN_PACKAGES = [
+  "@bitwarden/auth",
+  "@bitwarden/admin-console",
+  "@bitwarden/billing",
+  "@bitwarden/importer",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/tools",
+  "@bitwarden/vault",
+];
+
+// Node can depend on common, shared, auth
+const NODE_FORBIDDEN_PACKAGES = [
+  "@bitwarden/admin-console",
+  "@bitwarden/angular",
+  "@bitwarden/components",
+  "@bitwarden/importer",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/platform",
+  "@bitwarden/tools",
+  "@bitwarden/ui",
+  "@bitwarden/vault",
+];
+
 export default tseslint.config(
   ...storybook.configs["flat/recommended"],
   {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
-    files: ["**/*.ts", "**/*.js"],
+    files: ["**/*.ts", "**/*.mts", "**/*.js"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -239,6 +289,7 @@ export default tseslint.config(
       "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
       "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
       "apps/browser/src/platform/background.ts",
+      "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
     rules: {
       "no-restricted-syntax": [
@@ -257,6 +308,24 @@ export default tseslint.config(
           selector:
             "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']",
         },
+        // This block owns the non-background browser files; the background block below covers the rest, so
+        // together they follow these methods everywhere without a third, colliding `no-restricted-syntax` block.
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+      ],
+    },
+  },
+  {
+    files: ["apps/browser/src/**/background/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
+      "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
       ],
     },
   },
@@ -398,22 +467,7 @@ export default tseslint.config(
   {
     files: ["libs/common/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Common is at the base level - should not import from other libs except shared
-        "@bitwarden/admin-console",
-        "@bitwarden/angular",
-        "@bitwarden/auth",
-        "@bitwarden/billing",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/node",
-        "@bitwarden/platform",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES),
     },
   },
   {
@@ -457,16 +511,7 @@ export default tseslint.config(
   {
     files: ["libs/key-management/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Key management can depend on common, node, angular, components, eslint, platform, ui
-        "@bitwarden/auth",
-        "@bitwarden/admin-console",
-        "@bitwarden/billing",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/tools",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(KEY_MANAGEMENT_FORBIDDEN_PACKAGES),
     },
   },
   {
@@ -625,18 +670,31 @@ export default tseslint.config(
   {
     files: ["libs/node/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Node can depend on common, shared, auth
-        "@bitwarden/admin-console",
-        "@bitwarden/angular",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/platform",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(NODE_FORBIDDEN_PACKAGES),
+    },
+  },
+  {
+    files: ["libs/legacy-crypto/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(
+        [
+          // Legacy crypto can only depend on common, logging, key-management
+          "@bitwarden/admin-console",
+          "@bitwarden/angular",
+          "@bitwarden/auth",
+          "@bitwarden/billing",
+          "@bitwarden/components",
+          "@bitwarden/importer",
+          "@bitwarden/key-management-ui",
+          "@bitwarden/node",
+          "@bitwarden/platform",
+          "@bitwarden/tools",
+          "@bitwarden/ui",
+          "@bitwarden/vault",
+        ],
+        false,
+        true,
+      ),
     },
   },
 
@@ -707,6 +765,16 @@ export default tseslint.config(
     },
   },
 
+  // Playwright fixtures
+  {
+    files: ["e2e/**/*.ts"],
+    rules: {
+      // Playwright requires a destructuring pattern as the first fixture argument, so a
+      // fixture that depends on nothing has to be declared as `async ({}, use)`.
+      "no-empty-pattern": "off",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
@@ -714,6 +782,7 @@ export default tseslint.config(
       "**/dist/",
       "**/coverage/",
       ".angular/",
+      ".debug/",
       "storybook-static/",
 
       "**/node_modules/",
@@ -738,6 +807,9 @@ export default tseslint.config(
 
       "scripts/*.js",
       "jest.preset.js",
+
+      // Agent configuration and its tooling, not shipped code.
+      ".claude/",
     ],
   },
 );
@@ -745,9 +817,15 @@ export default tseslint.config(
 /**
  * // Helper function for building no-restricted-imports rule
  * @param {string[]} additionalForbiddenPatterns
+ * @param {boolean} skipPlatform
+ * @param {boolean} allowLegacyCrypto Only the re-export shims listed above may set this.
  * @returns {any}
  */
-function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform = false) {
+function buildNoRestrictedImports(
+  additionalForbiddenPatterns = [],
+  skipPlatform = false,
+  allowLegacyCrypto = false,
+) {
   return [
     "error",
     {
@@ -757,10 +835,44 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
           message: "Use @bitwarden/sdk-internal instead.",
         },
       ],
+      // Object form rather than plain strings so the legacy-crypto group can carry its own message.
+      // ESLint requires every entry in `patterns` to be the same shape.
       patterns: [
-        ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
-        "**/src/**/*", // Prevent relative imports across libs.
-      ].concat(additionalForbiddenPatterns),
+        ...(skipPlatform
+          ? []
+          : [{ group: ["**/platform/**/internal", "**/platform/messaging/**"] }]),
+        { group: ["**/src/**/*"], message: "Prevent relative imports across libs." },
+        ...(additionalForbiddenPatterns.length > 0 ? [{ group: additionalForbiddenPatterns }] : []),
+        ...(allowLegacyCrypto ? [] : [LEGACY_CRYPTO_RESTRICTED_PATTERN]),
+      ],
     },
   ];
+}
+
+/**
+ * A `no-restricted-syntax` entry that flags direct calls to the `AutofillService.doAutoFill*`
+ * methods.
+ * @returns {any}
+ */
+function doAutoFillSyntaxRule() {
+  return {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.name=/^doAutoFill(ActiveTab|OnTab)?$/]",
+    message:
+      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestrator.design.md for additional information.",
+  };
+}
+
+/**
+ * A `no-restricted-syntax` entry that flags every call to
+ * `AutofillOrchestrator.unsafeAutofillTabWithCipher`.
+ * @returns {any}
+ */
+function unsafeAutofillTabWithCipherSyntaxRule() {
+  return {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.name='unsafeAutofillTabWithCipher']",
+    message:
+      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
+  };
 }

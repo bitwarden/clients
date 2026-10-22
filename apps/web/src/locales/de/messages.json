@@ -906,6 +906,24 @@
   "editFolder": {
     "message": "Ordner bearbeiten"
   },
+  "editFolderNamed": {
+    "message": "$NAME$ bearbeiten",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "$NAME$ löschen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "editWithName": {
     "message": "$ITEM$: $NAME$ bearbeiten",
     "placeholders": {
@@ -1062,11 +1080,21 @@
   "resetSearch": {
     "message": "Suche zurücksetzen"
   },
+  "clearSearchTooltip": {
+    "message": "Löschen durch Klicken hier oder Drücken von Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Alle Einträge"
   },
+  "allVaultItems": {
+    "message": "Alle Tresor-Einträge"
+  },
   "favorites": {
     "message": "Favoriten"
+  },
+  "favoritesFilterTooltip": {
+    "message": "Markiere Einträge als Favoriten, um sie hier zu filtern."
   },
   "taskSummary": {
     "message": "Aufgaben-Übersicht"
@@ -1155,6 +1183,9 @@
   "collections": {
     "message": "Sammlungen"
   },
+  "controlledAccess": {
+    "message": "Kontrollierter Zugriff"
+  },
   "firstName": {
     "message": "Vorname"
   },
@@ -1200,26 +1231,71 @@
   "sharedFolders": {
     "message": "Geteilte Ordner"
   },
+  "sharedFoldersInParent": {
+    "message": "Geteilte Ordner $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ geteilte Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ geteilter Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ nested shared folders",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 nested shared folder",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Mein Ordner"
   },
   "myFolders": {
     "message": "Meine Ordner"
   },
+  "foldersFilterTooltip": {
+    "message": "Füge Ordner zu Einträgen hinzu, um sie hier zu filtern."
+  },
+  "myItemsFilterTooltip": {
+    "message": "Füge Einträge zu \"Meine Einträge\" hinzu, um sie hier zu filtern."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Füge Einträge zu einem geteiltem Ordner hinzu, um hier zu filtern."
+  },
   "addSharedFolder": {
-    "message": "Geteilten Ordner erstellen"
-  },
-  "addToSharedFolder": {
-    "message": "Zu einem geteilten Ordner hinzufügen"
-  },
-  "newSharedFolder": {
     "message": "Geteilten Ordner erstellen"
   },
   "searchSharedFolder": {
     "message": "Nach geteiltem Ordner suchen"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Meine Ordner durchsuchen"
   },
   "addToMyFolder": {
     "message": "Zu meinem Ordner hinzufügen"
@@ -1237,7 +1313,7 @@
     }
   },
   "sharedFolderAdminConsoleManaged": {
-    "message": "Dieser geteilte Ordner ist nur über die Admin-Konsole zugänglich"
+    "message": "Auf diesen geteilten Ordner kann nur über die Administrator-Konsole zugegriffen werden"
   },
   "editSharedFolder": {
     "message": "Geteilten Ordner bearbeiten"
@@ -1254,11 +1330,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Dieser geteilte Ordner wird dauerhaft gelöscht."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "Der geteilte Ordner $NAME$ wird dauerhaft gelöscht.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "Der geteilte Ordner $NAME$ wird dauerhaft gelöscht. Die Einträge im Ordner werden nicht gelöscht.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1339,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Diese geteilten Ordner werden dauerhaft gelöscht."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Diese geteilten Ordner werden dauerhaft gelöscht. Die Einträge in den Ordnern werden nicht gelöscht."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ geteilte(r) Ordner wird dauerhaft gelöscht.",
@@ -1288,10 +1361,10 @@
     "message": "Geteilte Ordner gelöscht"
   },
   "deletedSharedFolders": {
-    "message": "Deleted shared folders"
+    "message": "Geteilte Ordner gelöscht"
   },
   "freeOrgMaxSharedFolderReachedManageBilling": {
-    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Upgrade to a paid plan to add more shared folders.",
+    "message": "Kostenlose Organisationen können bis zu $COLLECTIONCOUNT$ geteilte Ordner haben. Upgrade auf einen kostenpflichtigen Tarif, um mehr geteilte Ordner hinzufügen.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -1300,7 +1373,7 @@
     }
   },
   "freeOrgMaxSharedFolderReachedNoManageBilling": {
-    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Contact your organization owner to upgrade.",
+    "message": "Kostenlose Organisationen können bis zu $COLLECTIONCOUNT$ geteilte Ordner haben. Kontaktiere deinen Organisationseigentümer zum Upgraden.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -1310,6 +1383,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Wenn du einen Eintrag in einen geteilten Ordner verschiebst, kannst du ihn sicher mit anderen Tresormitgliedern teilen."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Dadurch werden alle Einträge, die den folgenden Mitgliedern gehören, endgültig gelöscht. Einträge in geteilten Ordnern sind davon nicht betroffen.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Dadurch werden alle Einträge, die $NAME$ gehören, endgültig gelöscht. Einträge in geteilten Ordnern sind davon nicht betroffen.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Den Zugriff auf die Organisation, alle geteilten Ordner, Mitglieder, Berichte und Sicherheitseinstellungen verwalten"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Alle geteilten Ordner, Mitglieder, Berichte und Sicherheitseinstellungen verwalten"
+  },
+  "userDescSharedFolders": {
+    "message": "Auf zugewiesene geteilte Ordner zugreifen und Einträge hinzufügen"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Gewähre Mitgliedern Zugriff auf geteilte Ordner, indem du sie einer oder mehreren Gruppen hinzufügst."
+  },
+  "manageAllSharedFolders": {
+    "message": "Alle geteilten Ordner verwalten"
+  },
+  "createNewSharedFolders": {
+    "message": "Neue geteilte Ordner erstellen"
+  },
+  "editAnySharedFolder": {
+    "message": "Alle geteilten Ordner bearbeiten"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Alle geteilten Ordner löschen"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Du kannst dich nicht selbst zu geteilten Ordnern hinzufügen."
   },
   "attachments": {
     "message": "Anhänge"
@@ -1368,42 +1482,6 @@
     "message": "Reisepass hinzufügen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Neue Zugangsdaten",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Neue Karte",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Neue Identität",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Neue Notiz",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Neue sichere Notiz",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Neuer SSH-Schlüssel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Neues Bankkonto",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Neuer Führerschein",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Neuer Reisepass",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Neuer Text",
     "description": "Header for new text send"
@@ -1411,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Neue Datei",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Zugangsdaten bearbeiten",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Karte bearbeiten",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identität bearbeiten",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notiz bearbeiten",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Sichere Notiz bearbeiten",
@@ -1535,6 +1597,9 @@
   "item": {
     "message": "Eintrag"
   },
+  "itemLower": {
+    "message": "Eintrag"
+  },
   "itemDetails": {
     "message": "Eintrag-Details"
   },
@@ -1589,6 +1654,14 @@
   "copyUsername": {
     "message": "Benutzername kopieren",
     "description": "Copy username to clipboard"
+  },
+  "copyExternalId": {
+    "message": "Externe ID kopieren",
+    "description": "Copy external ID to clipboard"
+  },
+  "copySsoExternalId": {
+    "message": "Externe SSO-ID kopieren",
+    "description": "Copy SSO external ID to clipboard"
   },
   "copyNumber": {
     "message": "Nummer kopieren",
@@ -1674,63 +1747,23 @@
   "copyName": {
     "message": "Name kopieren"
   },
-  "cardNumber": {
-    "message": "Kartennummer"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ kopieren",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyInfoTitle": {
-    "message": "Information kopieren - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Notiz kopieren - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Kein Wert eingegeben",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Keine Werte zum Kopieren"
+  "noDetailsToCopy": {
+    "message": "Keine Details zum Kopieren"
   },
-  "launchWebsiteName": {
-    "message": "Website aufrufen: $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Website öffnen"
   },
   "me": {
     "message": "Ich"
   },
   "myItems": {
+    "message": "Meine Einträge"
+  },
+  "myItemsV2": {
     "message": "Meine Einträge"
   },
   "myVault": {
@@ -1767,7 +1800,7 @@
     "message": "Zeile auswählen"
   },
   "showingItemRange": {
-    "message": "Zeige $START$ - $END$ von $TOTAL$",
+    "message": "Es werden $START$ - $END$ von $TOTAL$ angezeigt",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -1826,7 +1859,7 @@
     "message": "Zur Seite gehen"
   },
   "ofPageCount": {
-    "message": "Von $COUNT$",
+    "message": "von $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1836,6 +1869,42 @@
   },
   "noMatchingItems": {
     "message": "Keine passenden Einträge"
+  },
+  "noFiltersMatch": {
+    "message": "Keine Filter stimmen mit \"$SEARCH$\" überein",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 Ergebnis",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ Ergebnisse",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Keine Filter stimmen mit \"$SEARCH$\" überein",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Suche löschen"
   },
   "deselectAll": {
     "message": "Alles abwählen"
@@ -1888,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Wähle eine Datei."
+  },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file."
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content."
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format."
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read."
   },
   "maxFileSize": {
     "message": "Die maximale Dateigröße beträgt 500 MB."
@@ -2024,6 +2114,36 @@
   },
   "deletedFolder": {
     "message": "Ordner gelöscht"
+  },
+  "folderEdited": {
+    "message": "Ordner bearbeitet"
+  },
+  "foldersDeleted": {
+    "message": "Ordner gelöscht"
+  },
+  "deleteFoldersCount": {
+    "message": "$COUNT$ Ordner löschen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Wenn du den Ordner „$NAME$“ löscht, wird er aus allen Einträgen entfernt, mit denen er verknüpft ist. Die Einträge selbst werden dabei nicht gelöscht.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Wenn du diese Ordner löscht, werde sie aus allen Einträgen entfernt, mit denen sie verknüpft sind. Die Einträge selbst werden dabei nicht gelöscht."
+  },
+  "enterAName": {
+    "message": "Einen Namen eingeben."
   },
   "editInfo": {
     "message": "Informationen bearbeiten"
@@ -2427,11 +2547,80 @@
   "noItemsInTrashDesc": {
     "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht"
   },
+  "noItemsInTrashDescription": {
+    "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht."
+  },
   "noItemsInVault": {
     "message": "Keine Einträge im Tresor"
   },
+  "noItemsInMyVault": {
+    "message": "Keine Einträge in \"Mein Tresor\""
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Keine Einträge in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Keine Einträge in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Keine Einträge in \"Meine Einträge\""
+  },
+  "noItemsInVaults": {
+    "message": "Deine Tresore sind leer"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Es wurden keine Einträge gefunden, die den ausgewählten Filtern entsprechen"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Es wurden keine Einträge gefunden, die mit „$SEARCH_TERM$“ übereinstimmen",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sichere Zugangsdaten, Identitäten, Karten und Notizen."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Füge Einträge zu diesem geteilten Ordner hinzu und gewähre anschließend anderen Mitgliedern von $VAULT_NAME$ Zugriff darauf.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Meine Einträge“ ist dein privater Bereich zum Speichern von Einträgen, die weiterhin Eigentum von $VAULT_NAME$ sind, aber für andere Mitglieder nicht sichtbar sind.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "Du hast keine Ordner"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Verwende Ordner, um Tresor-Einträge zu organisieren. Diese sind nur für dich bestimmt. Niemand sonst kann sie sehen oder nutzen."
+  },
+  "emptyVaultsDescription": {
+    "message": "Füge Zugangsdaten, Identitäten, Karten und andere Einträge hinzu, um loszulegen."
   },
   "emptyFavorites": {
     "message": "Du hast keine Einträge zu Favoriten hinzugefügt"
@@ -2452,7 +2641,7 @@
     "message": "Du hast keine Berechtigung für diese Sammlung"
   },
   "youDoNotHavePermissionsSharedFolder": {
-    "message": "You do not have permissions to this shared folder",
+    "message": "Du hast keine Berechtigung für diesen geteilten Ordner",
     "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
@@ -2478,6 +2667,12 @@
   },
   "newVault": {
     "message": "Neuer Tresor"
+  },
+  "addPlan": {
+    "message": "Tarif hinzufügen"
+  },
+  "addPlanDesc": {
+    "message": "Du kannst kostenlos einen neuen geteilten Tresor mit einer weiteren Person erstellen. Wenn du Einträge speichern, verwalten und mit weiteren Personen teilen möchtest, musst du zuerst einen neuen Tarif abschließen. Bitte beachte, dass für einige Optionen möglicherweise eine Änderung der Abrechnungsdaten erforderlich ist."
   },
   "noOrganizationsList": {
     "message": "Du gehörst keiner Organisation an. Organisationen erlauben es dir, Passwörter sicher mit anderen zu teilen."
@@ -2681,6 +2876,21 @@
   "copyVerificationCode": {
     "message": "Verifizierungscode kopieren"
   },
+  "noUsername": {
+    "message": "Kein Benutzername"
+  },
+  "noPassword": {
+    "message": "Kein Passwort"
+  },
+  "noVerificationCode": {
+    "message": "Kein Verifizierungscode"
+  },
+  "noNumber": {
+    "message": "Keine Nummer"
+  },
+  "noSecurityCode": {
+    "message": "Kein Sicherheitscode"
+  },
   "copyUuid": {
     "message": "UUID kopieren"
   },
@@ -2743,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "KeePass-Master-Passwort"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Passwort ist erforderlich."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Gib ein gültiges Passwort ein"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "Schlüsseldatei hinzufügen"
   },
   "keyFileUpload": {
     "message": "Schlüsseldatei hochladen"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "KDBX-Datei hochladen"
@@ -3047,6 +3290,15 @@
   "purgedOrganizationVault": {
     "message": "Organisations-Tresor geleert."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "$ORGNAME$-Tresor geleert.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Zugriff auf Tresor durch Anbieter"
   },
@@ -3142,6 +3394,9 @@
   "importFormatError": {
     "message": "Die Daten sind nicht richtig formatiert. Kontrollieren Sie bitte Ihre Import-Datei und versuchen Sie es erneut."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Es wurde nichts importiert."
   },
@@ -3170,7 +3425,7 @@
     "message": "Dieser SSH-Schlüssel konnte nicht importiert werden"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Dateiformat wird nicht unterstützt"
+    "message": "Das Dateiformat wird nicht unterstützt"
   },
   "importSkipReasonGeneric": {
     "message": "Dieser Eintrag konnte nicht importiert werden"
@@ -3220,17 +3475,14 @@
   "learnAboutImportOptions": {
     "message": "Erfahre mehr über deine Importoptionen"
   },
-  "selectImportFolder": {
-    "message": "Ordner auswählen"
-  },
-  "selectImportCollection": {
-    "message": "Sammlung auswählen"
-  },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn die Inhalte der Import-Datei in eine Sammlung verschoben werden sollen"
   },
   "importTargetHintFolder": {
     "message": "Wähle diese Option, wenn die Inhalte der Import-Datei in einen Ordner verschoben werden sollen"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in einen geteilten Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -3241,6 +3493,40 @@
   "selectImportFile": {
     "message": "Wählen Sie die Import-Datei"
   },
+  "importSourceBreadcrumb": {
+    "message": "Quelle auswählen"
+  },
+  "importSourceSelectTitle": {
+    "message": "Wähle deine Quelle aus"
+  },
+  "importSourceSelectDescription": {
+    "message": "Wählen den Passwort-Manager oder den Browser, aus dem du importierst."
+  },
+  "importSourceBrowsers": {
+    "message": "Browser"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Passwort-Manager"
+  },
+  "importSourceShowAll": {
+    "message": "Alles anzeigen"
+  },
+  "importSourceShowLess": {
+    "message": "Weniger anzeigen"
+  },
+  "importSourceStepCount": {
+    "message": "Schritt $CURRENT$ von $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
   "chooseFile": {
     "message": "Datei auswählen"
   },
@@ -3249,6 +3535,79 @@
   },
   "noFileChosen": {
     "message": "Keine Datei ausgewählt"
+  },
+  "noFileSelected": {
+    "message": "Keine Datei ausgewählt"
+  },
+  "fileChosen": {
+    "message": "Datei ausgewählt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Datei hinzugefügt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ Dateien hinzugefügt: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Datei entfernt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 Datei hochgeladen"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ Dateien hochgeladen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Hochgeladene Dateien"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Zum Hochladen klicken oder per Drag & Drop hier ablegen"
+  },
+  "chooseFiles": {
+    "message": "Dateien auswählen"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. Dateigröße: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "oder fügen Sie den Inhalt Ihrer Datei hier ein"
@@ -3263,8 +3622,346 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Ausführliche Anleitungen zu $NAME$ findest du in unserem",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Hilfezentrum"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "lastPassEmail": {
+    "message": "LastPass Email"
+  },
+  "includeSharedFolders": {
+    "message": "Include shared folders"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Der Vorgang ist genau derselbe wie beim Import aus Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Geh in der KeePassX-Desktop-Anwendung zu \"Datenbank\" → \"Als CSV-Datei exportieren\" und speicher die CSV-Datei."
+  },
+  "importAviraInstructions": {
+    "message": "Geh im Avira Webtresor zu \"Einstellungen\" → \"Meine Daten\" → \"Daten exportieren\" und speicher die CSV-Datei."
+  },
+  "importBlurInstructions": {
+    "message": "Klick im Blur-Webtrresor oben auf deinen Benutzernamen und gehe zu \"Einstellungen\" → \"Daten exportieren\". Klick anschließend unter \"Konten\" auf \"Als CSV exportieren\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Geh in der SafeInCloud-Desktopanwendung zu \"Datei\" → \"Exportieren\" → \"Als XML\" und speicher die XML-Datei."
+  },
+  "importPadlockInstructions": {
+    "message": "Klick in der Padlock-Desktop-Anwendung auf das Hamburger-Symbol in der oberen linken Ecke, gehe zu \"Einstellungen\" → \"Exportieren\" und speicher die Datei \"als CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Geh in der KeePass 2-Desktopanwendung zu \"Datei\" → \"Exportieren\" und wähle die Option \"KeePass XML (2.x)\" aus."
+  },
+  "importUpmInstructions": {
+    "message": "Geh in der Universal Password Manager-Desktop-Anwendung zu \"Datenbank\" → \"Exportieren\" und speicher die CSV-Datei."
+  },
+  "importSaferpassInstructions": {
+    "message": "Klick in der SaferPass-Browsererweiterung auf das Hamburger-Symbol in der oberen linken Ecke und gehe zu \"Einstellungen\". Klick auf \"Konten exportieren\", um die CSV-Datei zu speichern."
+  },
+  "importMeldiumInstructions": {
+    "message": "Geh im Meldium-Webtresor zu \"Einstellungen\". Suche die Funktion \"Daten exportieren\" und klick auf \"Meine Daten anzeigen\", um die CSV-Datei zu speichern."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Geh in der Password Dragon-Desktopanwendung zu \"Datei\" → \"Exportieren\" → \"Als XML\". Wähle im daraufhin angezeigten Dialogfeld \"Alle Zeilen\" aus und aktiviere alle Felder. Klick auf \"Exportieren\" und speicher die XML-Datei."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Geh in der Enpass-Desktop-Anwendung zu \"Datei\" → \"Exportieren\" → \"Als CSV\". Klick auf \"OK\", um die Warnmeldung zu bestätigen, und speicher die CSV-Datei. Beachte, dass der Importer nur Dateien unterstützt, die exportiert wurden, während Enpass auf Englisch eingestellt war. Passe deine Einstellungen daher entsprechend an."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Klick in der Enpass 6-Desktop-Anwendung auf den Menü-Button und geh zu \"Datei\" → \"Exportieren\". Wähle das Dateiformat „.json“ aus und speicher die JSON-Datei."
+  },
+  "importPwsafeInstructions": {
+    "message": "Geh in der Password Safe-Desktopanwendung zu \"Datei\" → \"Exportieren als\" → \"XML-Format...\" und speicher die XML-Datei."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Melde dich bei Dashlane an, klick auf \"Mein Konto\" → \"Einstellungen\" → \"Datei exportieren\" und wähle „Als CSV-Datei exportieren“. Daraufhin wird ein ZIP-Archiv mit verschiedenen CSV-Dateien heruntergeladen. Entpacke das Archiv und importiere jede CSV-Datei einzeln."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane unterstützt das JSON-Format nicht mehr. Verwende dieses Format nur, wenn du bereits eine JSON-Datei zum Importieren hast. Verwende den CSV-Importer, wenn du neue Exporte erstellst."
+  },
+  "importMsecureInstructions": {
+    "message": "Geh in der mSecure-Desktop-Anwendung zu \"Datei\" → \"Exportieren\" → \"CSV-Datei…\" und speicher die CSV-Datei."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Öffne die Sticky Password-Desktop-Anwendung und geh zu \"Menü\" (oben rechts) → \"Exportieren\" → \"Alles exportieren\". Wähle das unverschlüsselte XML-Format aus und speicher die XML-Datei."
+  },
+  "importTruekeyInstructions": {
+    "message": "Klick in der True Key-Desktop-Anwendung auf das Zahnrad-Symbol (oben rechts) und geh dann zu \"App-Einstellungen\". Klick auf \"Exportieren\", gib dein Passwort ein und speicher die CSV-Datei."
+  },
+  "importClipperzInstructions": {
+    "message": "Melde dich bei der Clipperz-Webanwendung (clipperz.is/app) an. Klick oben rechts auf das Hamburger-Menü-Symbol, um die Navigationsleiste zu erweitern. Geh zu \"Daten\" → \"Exportieren\". Klick auf \"HTML+JSON herunterladen\", um die HTML-Datei zu speichern."
+  },
+  "importRoboformInstructions": {
+    "message": "Geh in der RoboForm-Editor-Desktop-Anwendung zu \"RoboForm\" (oben links) → \"Optionen\" → \"Konto & Daten\" und klick auf \"Exportieren\". Wähle alle deine Daten aus, ändere \"Format\" zu \"CSV-Datei\" und klicke anschließend auf \"Exportieren\", um die CSV-Datei zu speichern. Hinweis: Mit RoboForm kannst du nur Zugangsdaten exportieren. Andere Einträge werden nicht exportiert."
+  },
+  "importPassboltInstructions": {
+    "message": "Melde dich beim Passbolt-Webtresor an und geh zur Liste \"Passwörter\". Wähle alle Passwörter aus, die du exportieren möchtest, und klick oben in der Liste auf \"Exportieren\". Wähle das Exportformat \"csv (lastpass)\" aus und klick auf \"Exportieren\"."
+  },
+  "importAscendoInstructions": {
+    "message": "Geh in der Ascendo DataVault-Desktopanwendung zu „Werkzeuge“ → „Exportieren“. Wähle im daraufhin angezeigten Dialogfeld die Option „Alle Einträge (DVX, CSV)“ aus. Klick auf „OK“, um die CSV-Datei zu speichern."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Geh in der Password Boss-Desktopanwendung zu \"Datei\" → \"Daten exportieren\" → \"Password Boss JSON – unverschlüsselt\" und speicher die JSON-Datei."
+  },
+  "importZohoInstructions": {
+    "message": "Melde dich beim Zoho Webtresor (vault.zoho.com) an. Gehe zu „Werkzeuge“ → „Geheimnisse exportieren“. Wähle „Alle Geheimnisse“ aus und klick auf „Zoho Tresorformat CSV“. Markiere und kopiere die Daten im Textfeld. Öffne einen Texteditor wie Notepad und füge die Daten ein. Speicher die Daten aus dem Texteditor als",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Klick in der SplashID Safe-Desktop-Anwendung auf das blaue SplashID-Schloss-Logo in der oberen rechten Ecke. Geh dann zu \"Exportieren\" → \"Als CSV exportieren\" und speicher die CSV-Datei."
+  },
+  "importPasskeepInstructions": {
+    "message": "Geh in der PassKeep-App zu „Sichern/Wiederherstellen“. Suche den Abschnitt „CSV-Sicherung/Wiederherstellung“ und klicke auf „Als CSV sichern“, um die CSV-Datei zu speichern."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Stelle sicher, dass „python-keyring“ und „python-gnomekeyring“ installiert sind. Speicher das",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME-Schlüsselbund Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "-Python-Skript auf deinem Desktop unter dem Namen",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Öffne das Terminal und führe zuerst den Befehl",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "aus und anschließend",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": "Lade anschließend die dabei erstellte",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "-Datei hier bei Bitwarden hoch.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Klick in den Password Agent Desktop-Anwendung auf \"Datei\" → \"Exportieren\", wähle den \"Zu exportierende Felder\" Buttons aus, aktiviere alle Felder, ändere \"Ausgabeformat\" in \"CSV\" und klicke anschließend auf \"Start\", um die CSV-Datei zu speichern."
+  },
+  "importPasspackInstructions": {
+    "message": "Melde dich beim Passpack-Website-Tresor an, gehe zu \"Einstellungen\" → \"Exportieren\" und klick anschließend auf „Herunterladen“, um die CSV-Datei zu speichern."
+  },
+  "importPassmanInstructions": {
+    "message": "Öffne deinen Passman-Tresor und klick unten links auf \"Einstellungen\". Wechsel im Fenster \"Einstellungen\" zum Tab \"Zugangsdaten exportieren\" und wähle \"JSON\" als Exportformat aus. Gib die Passphrase deines Tresors ein und klick auf \"Exportieren\", um die JSON-Datei zu speichern."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Öffne die Avast Passwords-Desktop-Anwendung und gehe zu „Einstellungen“ → „Daten importieren/exportieren“. Klicke auf den \"Export\"-Button bei der Option „Als CSV-Datei exportieren“, um die CSV-Datei zu speichern."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Öffne die Avast Passwords-Desktop-Anwendung und gehe zu „Einstellungen“ → „Daten importieren/exportieren“. Klicke auf den \"Export\"-Button bei der Option „Als JSON-Datei exportieren“, um die JSON-Datei zu speichern."
+  },
+  "importFsecureInstructions": {
+    "message": "Öffne die F-Secure KEY-Desktop-Anwendung und gehe zu \"Einstellungen\" → \"Passwörter exportieren\". Klick auf \"Exportieren\", gib dein Master-Passwort ein und speicher die FSK-Datei."
+  },
+  "importKasperskyInstructions": {
+    "message": "Öffne die Kaspersky Password Manager-Desktopanwendung und gehe zu \"Einstellungen\" → \"Importieren/Exportieren\". Suche den Abschnitt \"Als Textdatei exportieren\" und klicke auf den \"Exportieren\"-Button, um die TXT-Datei zu speichern."
+  },
+  "importRemembearInstructions": {
+    "message": "Öffne die RememBear-Desktop-Anwendung und gehe zu „Einstellungen“ → „Konto“ → „Export“. Gib deine Master-Passwort ein und klicke auf „Trotzdem exportieren“, um die CSV-Datei zu speichern."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Öffne die PasswordWallet-Desktop-Anwendung und gehe zu \"Datei\" → \"Exportieren\" → \"Sichtbare Einträge als Textdatei\". Gib dein Passwort ein und klick auf \"OK\", um die TXT-Datei zu speichern."
+  },
+  "importMykiInstructions": {
+    "message": "Öffne die Myki Browsererweiterung auf dem Desktop, geh zu \"Erweitert\" → \"Konten exportieren\" und scanne anschließend den QR-Code mit deinem Mobilgerät. Daraufhin werden verschiedene CSV-Dateien im Download-Ordner deines Computers gespeichert."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exportiere deinen SecureSafe-Passwort-Tresor als CSV-Datei mit Komma-Trennzeichen."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Öffne die LogMeOnce-Browsererweiterung, gehe dann zu „Menü öffnen“ → „Exportieren als“ und wähle „CSV-Datei“ aus, um die CSV-Datei zu speichern."
+  },
+  "importBlackberryInstructions": {
+    "message": "Öffne die BlackBerry Password Keeper App und gehe zu \"Einstellungen\" → \"Importieren/Exportieren\". Wähle \"Passwörter exportieren\" aus und folge den Anweisungen auf dem Bildschirm, um die unverschlüsselte CSV-Datei zu speichern."
+  },
+  "importButtercupInstructions": {
+    "message": "Öffne die Buttercup-Desktop-Anwendung und entsperre deinen Tresor. Klick mit der rechten Maustaste auf das Symbol deines Tresors und wähle \"Exportieren\" aus, um die CSV-Datei zu speichern."
+  },
+  "importCodebookInstructions": {
+    "message": "Öffne die Codebook-Desktop-Anwendung und melde dich an. Klicke auf \"Datei\" → \"Alles exportieren\", bestätige danach das Dialogfenster mit \"Ja\" und speicher die CSV-Datei."
+  },
+  "importEncryptrInstructions": {
+    "message": "Öffne die neueste Version der Encryptr-Desktop-Anwendung und synchronisiere alle deine Daten. Sobald die Synchronisierung deiner Daten abgeschlossen ist, färbt sich das Download-Symbol in der oberen rechten Ecke rosa. Klick auf das Download-Symbol und speicher die CSV-Datei."
+  },
+  "importYotiInstructions": {
+    "message": "Klick in der Yoti-Browsererweiterung auf \"Einstellungen\", dann auf \"Gespeicherte Zugangsdaten exportieren\" und speicher die CSV-Datei."
+  },
+  "importPsonoInstructions": {
+    "message": "Melde dich beim Psono-Webtresor an, klick auf das Dropdown-Menü \"Angemeldet als\" und wähle \"Andere\" aus. Wechsel zum \"Exportieren\"-Tab, wähle \"JSON-Export\" aus und klick anschließend auf \"Exportieren\"."
+  },
+  "importPasskyInstructions": {
+    "message": "Melde dich bei \"https://vault.passky.org\" an → Klick auf \"Import & Export\" und \"Export\" im Passky-Bereich. (\"Backup\" wird nicht unterstützt, da dieses verschlüsselt ist.)."
+  },
+  "importProtonpassInstructions": {
+    "message": "Gehe in der ProtonPass-Browsererweiterung zu \"Einstellungen\" > \"Exportieren\". Exportiere die Daten ohne PGP-Verschlüsselung und speicher die ZIP-Datei."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Klicke auf „Datenbank“ → \"Als Datei exportieren...\"→ Stelle sicher, dass in den Exportoptionen das Kontrollkästchen „Ordnernamen und Spaltenüberschriften“ aktiviert ist. Klicke auf \"Durchsuchen...\", wähle die Zieldatei aus und den Dateityp \"CSV-Datei\"."
+  },
+  "importNetwrixInstructions": {
+    "message": "Öffne den Full-Client, gehe zum Hauptmenü und wähle \"Exportieren\". Starte den Passwort-Export-Assistenten und folge den Anweisungen, um eine CSV-Datei zu exportieren."
+  },
+  "importNordpassInstructions": {
+    "message": "Melde dich bei NordPass an und öffne \"Einstellungen\" → Scrolle nach unten zum Abschnitt \"Importieren und Exportieren\" und wähle \"Einträge exportieren\" aus → Gib dein Master-Passwort ein und klick auf \"Weiter\" → Speicher die CSV-Datei auf deinem Gerät."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "Gehe in der Desktop-Anwendung zu \"Werkzeuge\" → \"Exportieren\" → Gib dein Master-Passwort ein → Wähle \"XML-Format (*.xml)\" als Exportformat aus → Klick auf \"Weiter\" → Wähle aus, welche Einträge in den Export eingeschlossen werden sollen → Klick auf \"Weiter\", um den Export zum zuvor ausgewählten Ort zu starten."
+  },
+  "importDelineaInstructions": {
+    "message": "Melde dich bei Delinea an, suche nach \"Import/Export\" -> wähle \"Export\" -> wähle \"XML\" als Exportformat -> wähle \"QuantumLock\" als Authenticator-Typ -> gib dein Passwort ein und wähle \"Export\", um die XML-Datei zu speichern."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Melde dich bei Delinea an, suche nach \"Import/Export\" -> wähle \"Export\" -> wähle \"CSV\" als Exportformat -> wähle \"QuantumLock\" als Authenticator-Typ -> gib dein Passwort ein und wähle \"Export\", um die CSV-Datei zu speichern."
+  },
   "options": {
     "message": "Optionen"
+  },
+  "moreOptions": {
+    "message": "Weitere Optionen"
+  },
+  "optionsForItem": {
+    "message": "Optionen für $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Nach $NAME$ filtern",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Einstellungen"
@@ -3283,6 +3980,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Schnellkopier-Aktionen im Tresor anzeigen"
   },
   "default": {
     "message": "Standard"
@@ -3307,9 +4007,6 @@
   },
   "customize": {
     "message": "Anpassen"
-  },
-  "newCustomDomain": {
-    "message": "Neue benutzerdefinierte Domain"
   },
   "addCustomDomain": {
     "message": "Benutzerdefinierte Domain hinzufügen"
@@ -3360,11 +4057,15 @@
   "restrictedItemTypePolicy": {
     "message": "Karten-Eintragstyp entfernen"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Mitgliedern nicht erlauben, Karten-Eintragstypen zu erstellen. Vorhandene Karten werden automatisch entfernt."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Mitgliedern nicht erlauben, Kreditkarten-Einträge in ihren Tresoren anzulegen und zu speichern. Wenn diese Richtlinie aktiviert ist, werden vorhandene Karten automatisch ausgeblendet."
+  },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Mitgliedern nicht erlauben, Kreditkarten-Einträge anzulegen und zu speichern. Wenn diese Richtlinie aktiviert ist, werden vorhandene Karten automatisch ausgeblendet.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
+  },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Erlaube Mitgliedern nicht, Karten-Einträge zu erstellen und zu speichern. Vorhandene Karten werden ausgeblendet."
   },
   "restrictCardTypeImport": {
     "message": "Karten-Eintragstypen können nicht importiert werden"
@@ -3656,6 +4357,10 @@
     "message": "Identifiziere und schließe Sicherheitslücken in den Konten deiner Organisation, indem du auf die folgenden Berichte klickst.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
+  "orgsReportsDescV2": {
+    "message": "Identifiziere und schließe Sicherheitslücken im Tresor deiner Organisation, indem du auf die folgenden Berichte klickst.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
   "unsecuredWebsitesReport": {
     "message": "Ungesicherte Websites"
   },
@@ -3727,8 +4432,11 @@
   "passkeyLoginFound": {
     "message": "Zugangsdaten, die Passkeys unterstützen"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "Wir haben $COUNT$ Zugangsdaten in deinem Tresor gefunden, die Passkeys unterstützen. Um diese Konten noch besser zu schützen, solltest du in Betracht ziehen, einen Passkey einzurichten, sofern dies möglich ist. Abgerufen von: passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Tolle Neuigkeiten! Wir haben "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ Zugangsdaten",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3736,26 +4444,17 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "Wir haben $COUNT$ Zugangsdaten in deinen Tresoren gefunden, die Passkeys unterstützen. Um diese Konten noch besser zu schützen, solltest du in Betracht ziehen, einen Passkey einzurichten, sofern dies möglich ist. Abgerufen von: passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " in deinem Tresor gefunden, die Passkeys unterstützten. Um diese Konten zusätzlich zu schützen, solltest du die Erstellung eines Passkeys in Betracht ziehen. Quelle: passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " in deinen Tresoren gefunden, die Passkeys unterstützten. Um diese Konten zusätzlich zu schützen, solltest du die Erstellung eines Passkeys in Betracht ziehen. Quelle: passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "Es wurden keine Konten in deinem Tresor gefunden, die Passkeys unterstützen, ohne dass ein solcher konfiguriert wurde."
   },
   "instructions": {
     "message": "Anleitung"
-  },
-  "passwordlessLogin": {
-    "message": "Passwortlose Anmeldung"
-  },
-  "multifactorAuthentication": {
-    "message": "Multi-Faktor-Authentifizierung"
   },
   "exposedPasswordsReport": {
     "message": "Kompromittierte Passwörter"
@@ -3934,6 +4633,14 @@
     "message": "Kontoguthaben",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
+  "appliedBalance": {
+    "message": "Verrechnetes Guthaben",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Fälliger Betrag",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
+  },
   "accountBalance": {
     "message": "Kontostand",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
@@ -3971,41 +4678,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ verschlüsselter Speicher für Dateianhänge.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Notfallzugriff"
-  },
-  "premiumSignUpReports": {
-    "message": "Berichte über Passwort-Hygiene, Kontostatus und Datendiebstähle, um deinen Tresor sicher zu halten."
-  },
-  "premiumSignUpTotp": {
-    "message": "TOTP Verifizierungscode-Generator (2FA) für Zugangsdaten in deinem Tresor."
-  },
-  "premiumSignUpSupport": {
-    "message": "Vorrangiger Kundenservice."
-  },
-  "premiumSignUpFuture": {
-    "message": "Alle zukünftigen Premium-Funktionen. Mehr in Kürze!"
-  },
-  "premiumPrice": {
-    "message": "Alles für nur $PRICE$ pro Jahr!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Wechsle zu Premium für nur $PRICE$ /Jahr oder erhalte Premium-Konten für $FAMILYPLANUSERCOUNT$ Benutzer und eine unbegrenzte Familienfreigabe mit einem ",
@@ -4151,7 +4825,7 @@
     "message": "Abonnement kündigen"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "Kündigung abschließen"
   },
   "helpUsImprove": {
     "message": "Hilf uns, besser zu werden. Warum kündigst du?"
@@ -4168,11 +4842,29 @@
   "pendingCancellation": {
     "message": "Ausstehende Kündigung"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Am $DATE$ wechselst du zur jährlichen Abrechnung. Der angezeigte Tarif und die Preise beziehen sich auf dein bevorstehendes Jahresabonnement.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "Das Abo wurde zum Ende des aktuellen Abrechnungszeitraums zur Kündigung vorgemerkt."
   },
   "reinstateSubscription": {
     "message": "Abonnement wiederherstellen"
+  },
+  "keepSubscription": {
+    "message": "Abonnement behalten"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Dein Abonnement ist überfällig und wird pausiert."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Dein Abonnement ist überfällig und wurde pausiert."
   },
   "reinstateConfirmation": {
     "message": "Sind Sie sicher, dass Sie den ausstehenden Kündigungsantrag löschen und das Abo wieder aufnehmen möchten?"
@@ -4537,6 +5229,9 @@
   "organizationName": {
     "message": "Name der Organisation"
   },
+  "vaultName": {
+    "message": "Tresorname"
+  },
   "accountOwnedBusiness": {
     "message": "Dieses Konto gehört einem Unternehmen."
   },
@@ -4548,6 +5243,9 @@
   },
   "chooseYourPlan": {
     "message": "Wähle dein Abonnement"
+  },
+  "choosePlan": {
+    "message": "Tarif auswählen"
   },
   "users": {
     "message": "Benutzer"
@@ -4653,6 +5351,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Begrenzt auf $COUNT$ geteilte Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Hinzufügen und Teilen mit bis zu $COUNT$ Benutzern",
     "placeholders": {
@@ -4667,6 +5374,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Erstelle eine unbegrenzte Anzahl von Sammlungen"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Erstelle eine unbegrenzte Anzahl von geteilten Ordnern"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ verschlüsselter Datenspeicher",
@@ -4775,7 +5485,7 @@
     "message": "Standardsammlung"
   },
   "defaultSharedFolder": {
-    "message": "Default shared folder"
+    "message": "Standard geteilter Ordner"
   },
   "getHelp": {
     "message": "Hilfe erhalten"
@@ -4812,9 +5522,6 @@
   },
   "groups": {
     "message": "Gruppen"
-  },
-  "newGroup": {
-    "message": "Neue Gruppe"
   },
   "addGroup": {
     "message": "Gruppe hinzufügen"
@@ -4862,7 +5569,7 @@
     "message": "Sammlung verschachteln unter"
   },
   "nestSharedFolderUnder": {
-    "message": "Nest shared folder under",
+    "message": "Geteilten Ordner verschachteln unter",
     "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
   },
   "accessControl": {
@@ -4870,9 +5577,6 @@
   },
   "readOnly": {
     "message": "Schreibgeschützt"
-  },
-  "newCollection": {
-    "message": "Neue Sammlung"
   },
   "addCollection": {
     "message": "Sammlung hinzufügen"
@@ -4884,21 +5588,17 @@
     "message": "Sammlung anzeigen"
   },
   "viewSharedFolder": {
-    "message": "View shared folder",
+    "message": "Geteilten Ordner anzeigen",
     "description": "VFO1 terminology feature flag variant of viewCollection"
   },
   "collectionInfo": {
     "message": "Sammlungsinformationen"
   },
-  "sharedFolderInfo": {
-    "message": "Shared folder info",
-    "description": "VFO1 terminology feature flag variant of collectionInfo"
-  },
   "deleteCollectionConfirmation": {
     "message": "Möchten Sie diese Sammlung wirklich löschen?"
   },
   "deleteSharedFolderConfirmation": {
-    "message": "Are you sure you want to delete this shared folder?",
+    "message": "Bist du sicher, dass du diesen geteilten Ordner löschen möchtest?",
     "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
@@ -4921,6 +5621,10 @@
   },
   "inviteUserDescription": {
     "message": "Lade neue Benutzer in deine Organisation ein, indem du unten deren E-Mail-Adresse eingibst."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Lade einen neuen Benutzer zu deinem Organisations-Tresor ein, indem du deren Bitwarden Konto-E-Mail-Adresse unten eingibst. Falls dieser noch kein Bitwarden-Konto besitzt, wird er zur Erstellung eines neuen Kontos aufgefordert.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Gib bis zu $COUNT$ E-Mail-Adressen mit Komma getrennt ein.",
@@ -5107,8 +5811,26 @@
   "exportedOrganizationVault": {
     "message": "Tresor der Organisation exportiert."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "$ORGNAME$-Tresor exportiert.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Organisationseinstellungen bearbeitet."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Die Tresor-Einstellungen von $ORGNAME$ wurden bearbeitet.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Eintrag $ID$ erstellt.",
@@ -5303,6 +6025,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Eintrag $ID$ in den $ORGNAME$-Tresor verschoben.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5537,6 +6272,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Answered an HTTP authentication request with item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Sammlung $ID$ erstellt.",
     "placeholders": {
@@ -5547,7 +6291,7 @@
     }
   },
   "createdSharedFolderId": {
-    "message": "Created shared folder $ID$.",
+    "message": "Geteilter Ordner $ID$ erstellt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5566,7 +6310,7 @@
     }
   },
   "editedSharedFolderId": {
-    "message": "Edited shared folder $ID$.",
+    "message": "Geteilter Ordner $ID$ bearbeitet.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5594,7 +6338,7 @@
     }
   },
   "deletedSharedFolderId": {
-    "message": "Deleted shared folder $ID$.",
+    "message": "Geteilter Ordner $ID$ gelöscht.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5687,6 +6431,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Der Zugriff auf den $ORGNAME$-Tresor wurde für $ID$ widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Vorbereiteter Benutzer $ID$ hinzugefügt.",
     "placeholders": {
@@ -5723,12 +6480,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Der Zugriff auf den $ORGNAME$-Tresor wurde für $ID$ aufgrund der Nichteinhaltung der Richtlinien zur Zwei-Faktor-Authentifizierung widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Der Organisationszugang für $ID$ wurde aufgrund der Nichteinhaltung der Richtlinie für einzelne Organisationen widerrufen.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Der Zugriff auf den $ORGNAME$-Tresor wurde für $ID$ aufgrund der Nichteinhaltung der Richtlinie zur Mitgliedschaft in nur einer Organisation widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +6524,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Zugriff für $ID$ wurde widerrufen, da die Übertragung des Eigentums zum Tresor von $ORGNAME$ abgelehnt wurde.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Zugriff auf $ORGNAME$-Tresor für $ID$ wiederhergestellt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +6595,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Geteilte Ordner für Eintrag $ID$ bearbeitet.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Eigentumsübertragung an die Organisation akzeptiert."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Übertragung des Eigentums an den $ORGNAME$-Tresor akzeptiert.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Benutzer $ID$ eingeladen.",
@@ -5855,12 +6682,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "$ORGNAME$-Tresor $ID$ erstellt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Organisation $ID$ hinzugefügt.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "$ORGNAME$-Tresor $ID$ hinzugefügt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6726,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "$ORGNAME$-Tresor $ID$ gelöscht.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Auf den $ID$ Organisations-Tresor zugegriffen.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Auf $ID$ im $ORGNAME$-Tresor zugegriffen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6021,11 +6900,26 @@
   "resendInvitation": {
     "message": "Einladung erneut versenden"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "E-Mail erneut senden"
   },
   "hasBeenReinvited": {
     "message": "$USER$ wurde erneut eingeladen",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6187,6 +7081,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Klick hier, um eine Zahlungsmethode hinzuzufügen."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "Wende dich an deinen Bitwarden-Vertriebsmitarbeiter, um die Rechnungsstellung einzurichten."
+  },
   "joinOrganization": {
     "message": "Organisation beitreten"
   },
@@ -6198,6 +7095,24 @@
         "example": "My Org Name"
       }
     }
+  },
+  "unableToJoinOrganizationName": {
+    "message": "Der Beitritt zu $ORGANIZATIONNAME$ ist nicht möglich",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Der Einladungslink ist nicht mehr gültig."
+  },
+  "returnToLogin": {
+    "message": "Zurück zur Anmeldung"
+  },
+  "returnToRegistration": {
+    "message": "Zurück zur Registrierung"
   },
   "joinOrganizationDesc": {
     "message": "Du wurdest eingeladen, dem oben genannten Organisation beizutreten. Um die Einladung anzunehmen, musst du ein Bitwarden-Konto erstellen oder dich mit deinem bestehenden Bitwarden-Konto anmelden."
@@ -6225,6 +7140,78 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Die Einladung kann nicht angenommen werden. Bitte einen Organisations-Administrator, dir einen neuen Einladungslink zu senden."
+  },
+  "cannotAcceptInvitation": {
+    "message": "Die Einladung kann nicht angenommen werden"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Du bist bereits Mitglied dieser Organisation."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "E-Mail-Adressen mit einer $DOMAIN$-Domain sind in dieser Organisation nicht erlaubt.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Du kannst dieser Organisation nicht beitreten, da du bereits der Administrator einer kostenlosen Organisation bist."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Du wurdest von dieser Organisation widerrufen. Kontaktiere deinen Administrator, um den Zugriff wieder herzustellen."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Benutzer eines Anbieters dürfen nicht mit diesem Einladungslink beitreten."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Etwas ist schiefgelaufen. Bitte lade die Seite neu, um es erneut zu versuchen."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Eine Organisation, der du bereits angehörst, erlaubt es ihren Mitgliedern nur, einer einzigen Organisation anzugehören."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Die Organisation, der du bereits angehörst, gewährt ihren Mitgliedern nur Zugriff auf einen gemeinsamen Tresor."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Die Organisation, der du beitreten möchtest, gewährt ihren Mitgliedern nur Zugriff auf einen gemeinsamen Tresor."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Die Organisation, der du beitreten möchtest, erlaubt es ihren Mitgliedern nur, einer einzigen Organisation anzugehören."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Du musst die Zwei-Faktor-Authentifizierung einrichten, um dieser Organisation beizutreten."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Du musst deine E-Mail-Adresse verifizieren, bevor du einer Organisation beitreten kannst."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Etwas ist schiefgelaufen. Bitte lade die Seite neu, um es erneut zu versuchen."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Deine Einladung konnte nicht angenommen werden, da kein freier Benutzerplatz verfügbar ist."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Etwas ist schiefgelaufen. Bitte lade die Seite neu, um es erneut zu versuchen."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Diese Domain wird von dieser Organisation nicht akzeptiert. Versuche es mit einer anderen E-Mail-Adresse."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Einladung konnte nicht angenommen werden"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Die Einladung der Organisation konnte nicht entschlüsselt werden. Versuche es erneut mit demselben Browser, um den Anmeldevorgang von Anfang bis Ende durchzuführen."
+  },
+  "goToLogin": {
+    "message": "Zur Anmeldung gehen"
+  },
+  "goToVault": {
+    "message": "Zum Tresor gehen"
   },
   "rememberEmail": {
     "message": "E-Mail-Adresse merken"
@@ -6674,6 +7661,9 @@
   "inviteLink": {
     "message": "Einladungslink"
   },
+  "transferAndAdd": {
+    "message": "Übertragen und hinzufügen"
+  },
   "lastGenerated": {
     "message": "Zuletzt generiert: $DATE$",
     "placeholders": {
@@ -6687,6 +7677,9 @@
   },
   "inviteLinkRegenerated": {
     "message": "Einladungslink neu generiert"
+  },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Einladungslink aktualisiert"
   },
   "regenerateInviteLink": {
     "message": "Einladungslink neu generieren"
@@ -6709,8 +7702,56 @@
   "deactivateLink": {
     "message": "Link deaktivieren"
   },
+  "requireAdminConfirmation": {
+    "message": "Administrator-Bestätigung verlangen"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "Ein Administrator muss neue Mitglieder manuell genehmigen, bevor sie zum Organisations-Tresor hinzugefügt werden."
+  },
+  "setYourAllowedDomains": {
+    "message": "Lege deine erlaubten Domains fest"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Füge erlaubte E-Mail-Domains hinzu (z. B. acme.com), damit nur Benutzer mit übereinstimenden E-Mail-Adressen diesen Einladungslink verwenden können. Du kannst diese Einstellung jederzeit aktualisieren."
+  },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "You're in tour preview, so these domains are only examples."
+  },
+  "adjustTheLink": {
+    "message": "Link anpassen"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Deine Bedürfnisse ändern sich und der Link kann sich mit dir anpassen. <strong>Regeneriere</strong> den Link, um den alten Link ungültig zu machen und einen neuen zu erstellen."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Teile den Link überall"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Kopiere den Link und füge ihn dort ein, wo dein Team ihn finden kann: In deiner Onboarding-Checkliste, im Slack-Kanal #new-joiners, in Notion-Dokumenten oder in einer E-Mail-Vorlage."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "Bitwarden Onboarding-Anleitung anzeigen"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ von $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Fertig"
+  },
   "inviteByLinkDesc": {
     "message": "Lade Mitglieder über einen Link in deine Organisation ein. Wenn noch keine Rolle festgelegt wurde, werden sie als Standardbenutzer hinzugefügt."
+  },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Die Verwendung eines Einladungslinks könnte in deiner selbst gehosteten Umgebung ein Sicherheitsrisiko darstellen, da die Benutzer ihre E-Mail-Adressen nicht verifizieren müssen."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Indem du fortfährst, stimmst du den"
@@ -6729,6 +7770,21 @@
         "example": "Acme Inc"
       }
     }
+  },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Überprüfe deine E-Mails, um die Anmeldung bei $ORGANIZATION_NAME$ abzuschließen.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Diese Organisation kann derzeit keine neuen Mitglieder aufnehmen. Kontaktiere deinen Administrator für Hilfe."
+  },
+  "inviteSentToEmail": {
+    "message": "Einladung an E-Mail-Adresse gesendet"
   },
   "acceptPolicies": {
     "message": "Durch Anwählen dieses Kästchens erklärst du dich mit Folgendem einverstanden:"
@@ -6999,20 +8055,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Von Mitgliedern verlangen, die Zwei-Faktor-Authentifizierung einzurichten. Diese Richtlinie gilt nicht für Eigentümer und Administratoren."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Organisationsmitglieder, die keine Zwei-Faktor-Authentifizierung für ihr persönliches Konto aktiviert haben, werden aus der Organisation entfernt und erhalten eine E-Mail, die sie über die Änderung benachrichtigt."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Durch die Aktivierung dieser Richtlinie werden alle Benutzer widerrufen, bei denen die Zwei-Faktor-Authentifizierung für ihr Konto nicht aktiviert ist. Die betroffenen Benutzer werden per E-Mail benachrichtigt."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Du bist Mitglied einer Organisation, die eine Zwei-Faktor-Authentifizierung für dein Benutzerkonto verlangt. Wenn du alle Zwei-Faktor-Authentifizierungsanbieter deaktivierst, wirst du automatisch aus diesen Organisationen entfernt."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Mindestanforderungen für den Passwort-Generator festlegen."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Lege eine Reihe von Mindestanforderungen für alle von Mitgliedern generierten Passwörter fest."
+  },
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Lege Mindestanforderungen für alle von Mitgliedern erstellten Passwörter fest."
   },
   "generatedPassword": {
     "message": "Passwort generiert"
@@ -7065,7 +8118,7 @@
   "minimumNumberOfWords": {
     "message": "Mindestanzahl an Wörtern"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Passworttyp",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7262,14 +8315,22 @@
   "singleOrg": {
     "message": "Einzelne Organisation"
   },
+  "singleOrgVfo1": {
+    "message": "Mitgliedschaft in einer einzelnen Organisation",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "Benutzern verbieten, anderen Organisationen beizutreten."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Verbiete Mitgliedern den Beitritt zu anderen Organisationen. Diese Richtlinie ist für Organisationen erforderlich, die die Domain-Verifizierung aktiviert haben."
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Mitglieder können keinen anderen Organisations-Tresoren beitreten."
   },
   "singleOrgPolicyDescV2": {
     "message": "Mitglieder dieser Organisation dürfen keiner anderen Organisation beitreten. Bestehenden Mitgliedern, die anderen Organisationen angehören, wird der Zugriff widerrufen, sobald diese Richtlinie aktiviert wird. Für Eigentümer und Administratoren gilt diese Richtlinie nicht."
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Mitglieder können keinen anderen Organisationstresoren beitreten. Bestehenden Mitgliedern, die anderen Organisationen angehören, wird der Zugriff entzogen, sobald diese Richtlinie aktiviert wird. Diese Richtlinie gilt nicht für Eigentümer und Administratoren.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "Deine aktuelle Organisation hat eine Richtlinie, die es dir nicht erlaubt, mehr als einer Organisation beizutreten. Bitte kontaktiere die Administratoren deiner Organisation oder melden dich mit einem anderen Bitwarden-Konto an."
@@ -7280,8 +8341,13 @@
   "requireSso": {
     "message": "Single Sign-on-Authentifizierung erfordern"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Mitglieder müssen sich per Enterprise Single-Sign-on anmelden."
+  "requireSsoVfo1": {
+    "message": "SSO voraussetzen",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Von den Mitgliedern verlangen, sich über SSO anzumelden.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Single Sign-On (SSO) verlangen"
@@ -7292,11 +8358,19 @@
   "prerequisite": {
     "message": "Voraussetzung"
   },
-  "requireSsoPolicyReq": {
-    "message": "Die Unternehmensrichtlinie für eine einzelne Organisation muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Du musst die Richtlinie für eine einzelne Organisation aktivieren, bevor du diese Richtlinie aktivieren kannst."
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "Du musst die Richtlinie zur Mitgliedschaft in nur einer Organisation aktivieren, bevor du diese aktivieren kannst.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Du musst die Richtlinie für eine einzelne Organisation aktivieren, bevor du diese Richtlinie aktivieren kannst."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Du musst die Richtlinie zur Mitgliedschaft in nur einer Organisation aktivieren, bevor du diese aktivieren kannst.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Richtlinie für eine einzelne Organisation nicht aktiviert."
@@ -7532,6 +8606,10 @@
     "message": "Die mit diesem Send verbundene Datei konnte nicht gefunden werden.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Keine Sends gefunden.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7684,8 +8762,15 @@
   "centralizeDataOwnership": {
     "message": "Zentralisierung der Eigentumsrechte an Organisationen"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Zentralisierte Organisations-Eigentümerschaft",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "Alle Mitgliedereinträge gehen in den Besitz der Organisation über und werden von dieser verwaltet. Administratoren und Eigentümer sind davon ausgenommen. "
+  },
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "Alle Einträge von Mitgliedern befinden sich im Eigentum der Organisation und werden von ihr verwaltet."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Erfahre mehr über zentralisierte Eigentumsrechte",
@@ -7700,9 +8785,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Übertrage Einträge bei Austritt und Ablösung von Mitgliedern ganz einfach und sorge dafür, dass keine Zugriffslücken entstehen."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Stelle allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Mitglieder auffordern, ihre Einträge zu übertragen"
   },
@@ -7712,20 +8794,29 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Erfahre mehr über die Übertragung"
   },
-  "promptUsersToMoveItems": {
-    "message": "Benutzer auffordern, einzelne Tresoreinträge in die Organisation zu verschieben"
-  },
   "promptUsersToMoveItemsCallout": {
     "message": "Mitglieder werden aufgefordert, ihre Einträge entweder an die Organisation zu übertragen oder sie zu verlassen. Wenn sie gehen, wird ihr Zugang deaktiviert, kann aber jederzeit wiederhergestellt werden."
   },
   "centralizeDataOwnershipDescV2": {
     "message": "Alle Einträge der Mitglieder werden Eigentum der Organisation sein und von ihr verwaltet. Diese Richtlinie gilt nicht für Eigentümer und Administratoren. Erfahre mehr über "
   },
+  "centralizeDataOwnershipDescV3": {
+    "message": "Alle Einträge von Mitgliedern sind Eigentum der Organisation und werden von ihr verwaltet. Diese Richtlinie gilt nicht für Eigentümer und Administratoren. ",
+    "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
+  },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung stellen."
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung stellen.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "Benutzer auffordern, ihre Tresor-Einträge in die Organisation zu verschieben"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Benutzer auffordern, ihre \"Mein Tresor\"-Einträge in die Organisation zu verschieben",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
@@ -7771,6 +8862,10 @@
     "message": "Neue Benutzer, die in die Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "Neue Benutzer, die zum Organisationstresor eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "So aktivierst du die automatische Benutzerbestätigung"
   },
@@ -7792,6 +8887,10 @@
     "message": "Neue Benutzer, die zur Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird. Bevor du diese Richtlinie aktivierst, lies bitte Folgendes durch und stimme zu: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "Neue Benutzer, die zum Organisationstresor eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird. Bevor du diese Richtlinie aktivierst, lies bitte Folgendes durch und stimme zu: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Potenzielles Sicherheitsrisiko. "
   },
@@ -7805,11 +8904,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Richtlinie einer einzelnen Organisation erforderlich. "
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Die Richtlinie für einzelne Organisationstresore ist erforderlich. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Alle Mitglieder dürfen nur dieser Organisation angehören, um diese Automatisierung zu aktivieren."
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "Alle Mitglieder dürfen nur diesem Organisationstresor angehören, um diese Automatisierung zu aktivieren.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "Die Richtlinie für einzelne Organisationen wird für alle Rollen gelten. "
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Die Richtlinie für einzelne Organisationstresore gilt für alle Rollen. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "Kein Notfallzugriff. "
@@ -7856,6 +8967,23 @@
       }
     }
   },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "\"Administrator-Genehmigung für Einladungslinks verlangen\" ist deaktiviert",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "\"Administrator-Genehmigung für Einladungslinks verlangen\" ist aktiviert",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Das Mitglied $ID$ wurde durch einen Einladungslink bestätigt",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
@@ -7877,12 +9005,11 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Desktop-Autotype-Standard­einstellung"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Aktiviere Desktop-Autotype standardmäßig für Mitglieder. Mitglieder können Autotype im Desktop-Client manuell deaktivieren.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Desktop-Autotype für Mitglieder aktivieren. Mitglieder können Autotype manuell im Desktop-Client deaktivieren."
+  },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Desktop-Autotype für Mitglieder aktivieren."
   },
   "disableSend": {
     "message": "Send entfernen"
@@ -7928,17 +9055,21 @@
   "sendControls": {
     "message": "Send-Einstellungen"
   },
-  "manageSend": {
-    "message": "Sends verwalten",
+  "manageSendV2": {
+    "message": "Send und Teilen verwalten",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Lege Optionen für das Erstellen und Bearbeiten von Sends fest, einschließlich der Möglichkeit, Sends zu entfernen.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV4": {
-    "message": "Verwalte, wie Mitglieder Send nutzen dürfen. Diese Richtlinie gilt für Sends, die nach der Aktivierung dieser Richtlinie erstellt werden. Administratoren und Eigentümer sind davon ausgenommen.",
+  "sendControlsPolicyDescV5": {
+    "message": "Verwalte, wie Mitglieder Send verwenden und Tresor-Einträge teilen dürfen. Diese Richtlinie gilt nicht für Eigentümer und Administratoren.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Verwalte, wie Mitglieder Send verwenden.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send Einstellungen",
@@ -7958,8 +9089,9 @@
   "uriMatchDetectionPolicy": {
     "message": "Standard URI-Übereinstimmungserkennung"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Lege fest, wann Zugangsdaten für Auto-Ausfüllen vorgeschlagen werden. Administratoren und Eigentümer sind von dieser Richtlinie ausgenommen."
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Die Standard-URI-Übereinstimmungserkennung für alle von Mitgliedern erstellten Einträge festlegen.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "Leg fest, welche Teile einer Website-Adresse (URI) übereinstimmen müssen, damit Bitwarden Zugangsdaten zum automatischen Ausfüllen anzeigt. Diese Richtlinie gilt nicht für Eigentümer und Administratoren."
@@ -7970,6 +9102,49 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Bitte wähle eine gültige URI-Übereinstimmungserkennungs-Option aus.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Fill Assist aktivieren",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyV2": {
+    "message": "Fill Assist aktivieren",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Fill Assist standardmäßig für alle Mitglieder aktivieren. Diese Funktion nutzt geprüfte, Website-spezifische Anweisungen, um die Genauigkeit von Auto-Ausfüllen auf Websites zu verbessern, die bekanntermaßen schwer automatisch auszufüllen sind."
+  },
+  "fillAssistRuleSource": {
+    "message": "Regelsatz für Auto-Ausfüllen"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Standard"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Verwende den von Bitwarden geprüften Regelsatz für Auto-Ausfüllen."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Benutzerdefiniert"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Gib deinen persönlichen eigenen Regelsatz ein."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Eigener Regelsatz für Auto-Ausfüllen"
+  },
+  "fillAssistRulesUrlV2": {
+    "message": "Eigener Regelsatz"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Erfahre mehr über eigene Regeln"
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Gib eine gültige URL ein",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Gib eine gültige URL für einen eigenen Regelsatz ein.",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Richtlinie $ID$ geändert.",
@@ -7985,6 +9160,9 @@
   },
   "estimatedTax": {
     "message": "Voraussichtliche Steuern"
+  },
+  "subtotal": {
+    "message": "Zwischensumme"
   },
   "custom": {
     "message": "Benutzerdefiniert"
@@ -8374,11 +9552,18 @@
   "accountRecoveryPolicy": {
     "message": "Kontowiederherstellungsverwaltung"
   },
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Erlaube Administratoren, Mitgliedern dabei zu helfen wieder Zugriff auf ihren Konten zu erhalten."
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Die Unternehmensrichtlinie für eine einzelne Organisation muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "Du musst die Richtlinie für eine einzelne Organisation aktivieren, bevor du diese Richtlinie aktivieren kannst."
+  },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "Du musst die Richtlinie zur Mitgliedschaft in nur einer Organisation aktivieren, bevor du diese aktivieren kannst.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "Administratoren erlauben, Mitgliedern dabei zu helfen, wieder Zugriff auf ihre Konten zu erhalten, bei eingerichteter"
@@ -8576,16 +9761,25 @@
   "decryptionError": {
     "message": "Entschlüsselungsfehler"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden konnte den unten aufgeführten Tresor-Eintrag nicht entschlüsseln. Wende dich an den Bitwarden-Kundensupport und gib die unten aufgeführte Eintrag-ID an, um zu prüfen, ob diese wiederhergestellt werden kann."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktiere unser Customer Success Team",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden konnte die unten aufgeführten Tresor-Einträge nicht entschlüsseln. Wende dich an den Bitwarden-Kundensupport und gib die unten aufgeführten Eintrags-IDs an, um zu prüfen, ob diese wiederhergestellt werden können."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "Eintrag-ID",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "Eintrags-IDs",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "ID kopieren"
+  },
+  "copyAllIds": {
+    "message": "Alle IDs kopieren"
   },
   "accountRecoveryManageUsers": {
     "message": "\"Benutzer verwalten\" muss zusammen mit der \"Kontowiederherstellung verwalten\"-Berechtigung erteilt werden"
@@ -8745,11 +9939,12 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatische Anmeldung mit SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Erweitere die Sicherheit und den Komfort von SSO auf nicht verwaltete Anwendungen. Wenn Benutzer eine Anwendung über Ihren Identitätsanbieter starten, werden deren Anmeldedaten automatisch ausgefüllt und übermittelt, sodass ein sicherer Ablauf mit nur einem Klick vom Identitätsanbieter zur Anwendung entsteht."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Wenn Benutzer eine App über deinen Identitätsanbieter starten, werden ihre Zugangsdaten automatisch ausgefüllt und übermittelt, sodass eine sichere Anmeldung mit nur einem Klick möglich ist."
+  },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Anmeldeformulare von Apps, die über deinen konfigurierten Identitätsanbieter gestartet wurden, werden automatisch ausgefüllt und abgesendet.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
     "message": "Identitätsanbieter Host"
@@ -8765,6 +9960,9 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Lege ein maximales Sitzungs-Timeout für alle Mitglieder außer für Eigentümer fest."
+  },
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Lege ein maximales Sitzungs-Timeout für Mitglieder fest."
   },
   "maximumAllowedTimeout": {
     "message": "Maximal zulässiges Timeout"
@@ -8875,11 +10073,16 @@
   "disableExport": {
     "message": "Export entfernen"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Mitgliedern nicht erlauben, Daten aus ihrem persönlichen Tresor zu exportieren."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Mitgliedern nicht erlauben, Daten aus ihren persönlichen Tresoren zu exportieren. Diese Richtlinie gilt nicht für Eigentümer und Administratoren."
+  },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Mitgliedern nicht erlauben, ihre Tresor-Daten zu exportieren. Diese Richtlinie gilt nicht für Eigentümer und Administratoren.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
+  },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Mitgliedern nicht erlauben, ihre Tresor-Daten zu exportieren.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
     "message": "Tresor-Export entfernt"
@@ -8887,17 +10090,20 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Eine oder mehrere Unternehmensrichtlinien verhindern es, dass du deinen persönlichen Tresor exportieren kannst."
   },
-  "activateAutofillPolicy": {
-    "message": "Auto-Ausfüllen aktivieren"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite aktivieren"
   },
   "activateAutofillPolicyDescription": {
     "message": "Aktiviere die Einstellung \"Auto-Ausfüllen beim Laden einer Seite\" in der Browser-Erweiterung für alle bestehenden und neuen Mitglieder."
   },
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Aktiviere die Einstellung „Auto-Ausfüllen beim Laden der Seite“ in der Browser-Erweiterung für alle Mitglieder."
+  },
   "activateAutofillPolicyDescV2": {
     "message": "Aktiviere die Option \"Auto-Ausfüllen beim Laden einer Seite\" in der Browser-Erweiterung für alle bestehenden und neuen Mitglieder. Beachte, dass kompromittierte oder nicht vertrauenswürdige Websites"
+  },
+  "activateAutofillPolicyDescV3": {
+    "message": "Aktiviere in der Browser-Erweiterung die Einstellung „Auto-Ausfüllen beim Laden der Seite“ für alle bestehenden und neuen Mitglieder. Sobald diese Richtlinie aktiviert ist, müssen die Mitglieder ihre persönlichen Einstellungen anpassen, um Auto-Ausfüllen zu aktivieren. Beachte, dass kompromittierte oder nicht vertrauenswürdige Websites folgendes können:"
   },
   "exploitAutofillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden der Seite ausnutzen können"
@@ -9034,14 +10240,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Gesponserte Familien"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Einlösungen von Nicht-Mitgliedern"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Keine gesponserten Familien"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Noch keine Einlösungen"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Gesponserte Families-Tarife von Nicht-Mitgliedern werden hier angezeigt"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Keine Nicht-Mitglieder haben den gesponserten Familientarif eingelöst."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Mitglieder deiner Organisation sind für den kostenlosen Bitwarden Families-Tarif berechtigt. Du kannst kostenlose Bitwarden Families-Tarife für Mitarbeiter sponsern, die kein Mitglied deiner Bitwarden Organisation sind. Das Sponsoring eines Nicht-Mitglieds erfordert einen verfügbaren Benutzerplatz in deiner Organisation."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Deine Mitglieder sind berechtigt, einen gesponserten Families-Tarif in Anspruch zu nehmen. Du kannst einen Families-Tarif für Mitarbeiter sponsern, die keine Mitglieder deiner Bitwarden-Organisation sind. Hierfür müssen jedoch freie Benutzerplätze in deiner Organisation verfügbar sein."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Wenn du ein aktives Sponsoring entfernst, steht dir nach dem Verlängerungsdatum der gesponserten Organisation ein Benutzerplatz in deiner Organisation zur Verfügung."
@@ -9049,10 +10267,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Du und deine Familie haben Anspruch auf Free Bitwarden Families. Mit deiner persönlichen E-Mail-Adresse einlösen, um deine Daten zu schützen, auch wenn du nicht am Arbeitsplatz bist."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Du und deine Familie haben Anspruch auf einen gesponserten Families-Tarif, der für dich mit keinen zusätzlichen Kosten verbunden ist. Löse diesen Tarif mit deiner privaten E-Mail-Adresse ein, um deine Daten sicher und getrennt von deinem Bitwarden-Arbeitskonto aufzubewahren."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Löse deinen Free Bitwarden Families-Tarif heute ein, um deine Daten zu schützen, auch wenn du nicht am Arbeitsplatz bist."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "Der Bitwarden Families-Tarif beinhaltet"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "Der Bitwarden Families-Tarif beinhaltet"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9060,6 +10284,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Geteilte Sammlungen für Familienmitglieder"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Geteilte Ordner für Familienmitglieder"
   },
   "memberFamilies": {
     "message": "Mitgliederfamilien"
@@ -9094,6 +10321,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Wähle die Organisation aus, die du gerne sponsern möchtest"
   },
+  "selectAFamilyVault": {
+    "message": "Wähle einen Familientresor aus"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Welches Free Families-Angebot möchtest du einlösen?"
   },
@@ -9105,6 +10335,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Angebot für eine bestehende Organisation akzeptieren oder eine neue Families-Organisation erstellen."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ hat dir einen kostenlosen Bitwarden-Familien-Tarif gesponsert! Du kannst diesen kostenlosen Tarif für einen bestehenden Familien-Tresor anwenden oder einen neuen erstellen.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Dir wurde ein kostenloser Bitwarden-Familien-Tarif gesponsert! Du kannst diesen kostenlosen Tarif für einen bestehenden Familien-Tresor anwenden oder einen neuen erstellen.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Dir wurde ein kostenloser Bitwarden Families-Organisationstarif angeboten. Um fortzufahren, musst du dich bei dem Konto anmelden, das das Angebot erhalten hat."
@@ -9123,6 +10367,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Free Bitwarden Families akzeptieren"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Gesponsorten Families-Tarif annehmen"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Details des gesponserten Tarifs"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Free Bitwarden Families-Angebot erfolgreich eingelöst"
@@ -9292,14 +10542,24 @@
   "paymentSponsored": {
     "message": "Bitte gib eine Zahlungsmethode an, die mit der Organisation verbunden wird. Keine Sorge, wir werden dir nichts berechnen, es sei denn, du wählst zusätzliche Funktionen aus oder dein Sponsoring läuft ab. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Bitte gib eine Zahlungsmethode an, die mit deinem Familientresor verbunden wird. Keine Sorge, wir werden dir nichts berechnen, es sei denn, du wählst zusätzliche Funktionen aus oder dein Sponsoring läuft ab. ",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "Das Sponsoringangebot ist abgelaufen. Du kannst die Organisation, die du erstellt hast, löschen, um eine Gebühr am Ende deiner 7-Tage-Testversion zu vermeiden. Andernfalls kannst du diese Meldung schließen, um die Organisation zu behalten und die Rechnungsverantwortung zu übernehmen."
   },
   "newFamiliesOrganization": {
     "message": "Neue Families-Organisation"
   },
+  "createVault": {
+    "message": "Tresor erstellen"
+  },
   "acceptOffer": {
     "message": "Angebot annehmen"
+  },
+  "applySponsorship": {
+    "message": "Sponsoring beantragen"
   },
   "sponsoringOrg": {
     "message": "Sponsoring-Organisation"
@@ -9542,9 +10802,6 @@
   "billingHistory": {
     "message": "Rechnungsverlauf"
   },
-  "backToReports": {
-    "message": "Zurück zu den Berichten"
-  },
   "organizationPicker": {
     "message": "Organisationsauswahl"
   },
@@ -9645,6 +10902,10 @@
   "random": {
     "message": "Zufällig",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Websitename",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Zufälliges Wort"
@@ -9857,6 +11118,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Unbekannter $SERVICENAME$-Fehler aufgetreten.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -9878,11 +11163,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Webseiten Präfix hinzufügen",
+    "message": "Website-Präfix hinzufügen",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Wenn diese Option aktiviert ist, wird die Domain der aktuellen Website als Präfix für die generierte E-Mail-Adresse verwendet",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -9930,18 +11215,6 @@
   },
   "scimLearnMore": {
     "message": "Mehr über SCIM erfahren"
-  },
-  "scimIntegrationDescription": {
-    "message": "Automatische Bereitstellung von Benutzern und Gruppen mit deinem bevorzugten Identitätsanbieter über SCIM-Bereitstellung. Suche nach unterstützten Integrationen",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDesc": {
-    "message": "SCIM aktivieren",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
-  },
-  "scimEnabledCheckboxDescHelpText": {
-    "message": "Richte deinen bevorzugten Identitätsanbieter ein, indem du die URL und den SCIM API-Schlüssel konfigurierst",
-    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
     "message": "Dieser API-Schlüssel hat Zugriff auf die Verwaltung von Benutzern innerhalb deiner Organisation. Er sollte geheim gehalten werden."
@@ -10103,6 +11376,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Es sind nur noch $COUNT$ Benutzerplätze verfügbar. Entferne eine E-Mail-Adresse oder upgrade deinen Tarif.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -10280,6 +11562,48 @@
   },
   "hardDeleteSecrets": {
     "message": "Geheimnisse dauerhaft löschen"
+  },
+  "currentVersion": {
+    "message": "Aktuelle Version",
+    "description": "Label for the current version section in the secret version history."
+  },
+  "modifiedBy": {
+    "message": "Geändert von: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "secretValueCopied": {
+    "message": "Geheimnis-Wert kopiert",
+    "description": "Message displayed when a secret value has been copied to the clipboard."
+  },
+  "secretVersionRestored": {
+    "message": "Geheimnis auf ausgewählte Version wiederhergestellt",
+    "description": "Message displayed when a secret has been restored to a previous version."
+  },
+  "restoreVersionConfirmTitle": {
+    "message": "Geheimnis-Version wiederherstellen",
+    "description": "Title for the confirmation dialog when restoring a secret to a previous version."
+  },
+  "restoreVersionConfirmMessage": {
+    "message": "Möchtest du dieses Geheimnis wirklich auf die ausgewählte Version wiederherstellen? Der aktuelle Wert wird dabei überschrieben.",
+    "description": "Message displayed in the confirmation dialog when restoring a secret to a previous version."
+  },
+  "previousVersions": {
+    "message": "Vorherige Versionen",
+    "description": "Section header for previous versions of a secret in the version history."
+  },
+  "versionHistory": {
+    "message": "Versionsverlauf",
+    "description": "Menu option to view the version history of a secret."
+  },
+  "noVersionHistory": {
+    "message": "Kein Versionsverlauf",
+    "description": "Empty state shown when a secret has no previous versions."
   },
   "secretProjectAssociationDescription": {
     "message": "Wähle Projekte aus, denen das Geheimnis zugeordnet werden soll. Nur Organisationsbenutzer mit Zugriff auf diese Projekte können das Geheimnis sehen.",
@@ -10671,17 +11995,29 @@
   "editGroupMembersDesc": {
     "message": "Gewähre Mitgliedern Zugriff auf die zugewiesenen Sammlungen der Gruppe."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Gewähre Mitgliedern Zugriff auf die der Gruppe zugewiesenen geteilten Ordnern."
+  },
   "editGroupCollectionsDesc": {
     "message": "Gewähre Zugriff auf Sammlungen, indem du diese zu dieser Gruppe hinzufügst."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Gewähre Zugriff auf geteilte Ordner, indem du diese zu dieser Gruppe hinzufügst."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Du kannst nur von dir verwaltete Sammlungen zuweisen."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Du kannst nur geteilte Ordner zuweisen, die du verwaltest."
   },
   "selectMembers": {
     "message": "Mitglieder auswählen"
   },
   "selectCollections": {
     "message": "Sammlungen auswählen"
+  },
+  "selectSharedFolders": {
+    "message": "Geteilte Ordner auswählen"
   },
   "role": {
     "message": "Rolle"
@@ -10705,11 +12041,17 @@
     "message": "Keine Sammlung"
   },
   "noSharedFolder": {
-    "message": "No shared folder",
+    "message": "Kein geteilter Ordner",
     "description": "VFO1 terminology feature flag variant of noCollection"
   },
   "noCollectionsAdded": {
     "message": "Keine Sammlungen hinzugefügt"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Keine geteilten Ordner hinzugefügt"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Füge einen geteilten Ordner hinzu, um Tresor-Einträge sicher mit anderen Mitgliedern zu teilen."
   },
   "noMembersAdded": {
     "message": "Keine Mitglieder hinzugefügt"
@@ -10722,9 +12064,6 @@
   },
   "domainVerification": {
     "message": "Domain-Verifizierung"
-  },
-  "newDomain": {
-    "message": "Neue Domain"
   },
   "addDomain": {
     "message": "Domain hinzufügen"
@@ -10880,19 +12219,19 @@
     "message": "Die E-Mail-Adresse wird beim Speichern aktualisiert"
   },
   "emailNotClaimedHint": {
-    "message": "This member does not have a claimed account. Contact the member to update their email address."
+    "message": "Dieses Mitglied hat kein beanspruchtes Benutzerkonto. Kontaktiere das Mitglied, um seine E-Mail-Adresse zu aktualisieren."
   },
   "emailHasMasterPasswordHint": {
-    "message": "This member has a master password. Contact the member to update their email address."
+    "message": "Dieses Mitglied verwendet ein Master-Passwort. Kontaktiere das Mitglied, um seine E-Mail-Adresse zu aktualisieren."
   },
   "emailErrorNotClaimedDomain": {
-    "message": "The new email must match a domain claimed by your organization."
+    "message": "Die neue E-Mail-Adresse muss zu einer von deiner Organisation beanspruchten Domain gehören."
   },
   "emailErrorAlreadyInUse": {
-    "message": "Email is already in use by a member of your organization."
+    "message": "Die E-Mail-Adresse wird bereits von einem Mitglied deiner Organisation verwendet."
   },
   "emailErrorClaimedByOrg": {
-    "message": "Email is already in use. You can invite them to your organization instead."
+    "message": "Die E-Mail-Adresse wird bereits verwendet. Du kannst das Mitglied stattdessen in deine Organisation einladen."
   },
   "emailErrorHasMasterPassword": {
     "message": "Die E-Mail-Adresse eines Mitglieds, das ein Master-Passwort hat, kann nicht geändert werden."
@@ -10901,10 +12240,10 @@
     "message": "Änderung der E-Mail-Adresse fehlgeschlagen, bitte versuche es erneut."
   },
   "nameErrorNotClaimed": {
-    "message": "Cannot change the name of a member who is not claimed by the organization."
+    "message": "Der Name eines Mitglieds, das nicht von der Organisation beansprucht wird, kann nicht geändert werden."
   },
   "nameNotClaimedHint": {
-    "message": "This member does not have a claimed account. Contact the member to update their name."
+    "message": "Dieses Mitglied hat kein beanspruchtes Konto. Kontaktiere das Mitglied, um seinen Namen zu aktualisieren."
   },
   "createdDate": {
     "message": "Erstellungsdatum"
@@ -10918,35 +12257,8 @@
   "switchProducts": {
     "message": "Produkte wechseln"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Kostenlose Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Wechsle auf ein kostenpflichtiges Abonnement, um mehr Mitglieder einzuladen.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Kostenlose Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer zum Upgraden.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter-Abonnements können bis zu $SEATCOUNT$ Mitglieder enthalten. Upgrade, um mehr Mitglieder einzuladen.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter-Abonnements können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer, um dein Abonnement zu aktualisieren und mehr Mitglieder einzuladen.",
+  "seatLimitReachedContactOwner": {
+    "message": "Das Benutzerplatzlimit von $SEATCOUNT$ Mitgliedern wurde erreicht. Wende dich an den Eigentümer deiner Organisation, um den Tarif zu upgraden.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11122,9 +12434,6 @@
   "groupSlashUser": {
     "message": "Gruppe/Benutzer"
   },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Wenn du fortfährst, wirst du von allen aktiven Sitzungen abgemeldet. Du musst dich erneut anmelden und, falls eingerichtet, die Zwei-Faktor-Authentifizierung durchführen. Wir empfehlen, deinen Tresor zu exportieren, bevor du deine Verschlüsselungseinstellungen änderst, um Datenverluste zu vermeiden."
-  },
   "secretsManager": {
     "message": "Secrets Manager"
   },
@@ -11136,6 +12445,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "Dieser Benutzer kann auf Secrets Manager zugreifen."
+  },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Benutzerzugriff auf Privileged Controls aktivieren.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Dieser Benutzer kann auf Privileged Controls zugreifen",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "Wichtig:"
@@ -11458,6 +12779,9 @@
   "restoreSecretsPrompt": {
     "message": "Bist du sicher, dass du diese Geheimnisse wiederherstellen möchtest?"
   },
+  "restoreThisVersion": {
+    "message": "Diese Version wiederherstellen"
+  },
   "secretRestoredSuccessToast": {
     "message": "Geheimnis wiederhergestellt"
   },
@@ -11596,6 +12920,30 @@
     "message": "einzelne Organisation",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "Tresor einer einzelnen Organisation",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "Verlangen einer SSO-Authentifizierung",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": "und",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Kontowiederherstellungsverwaltung",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "-Richtlinien werden automatisch aktiviert.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": ", die Richtlinie zum",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11680,6 +13028,10 @@
     "message": "Zugriff zum Secrets Manager aktiviert",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Zugriff auf Privileged Controls aktiviert",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Zugriff aktivieren"
   },
@@ -11687,8 +13039,16 @@
     "message": "Den folgenden Mitgliedern Zugriff auf Secrets Manager gewähren. Die im Passwort-Manager zugewiesene Rolle wird auf Secrets Manager angewendet.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Gewähre den folgenden Mitgliedern Zugriff auf Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Secrets Manager aktivieren"
+  },
+  "activatePrivilegedControls": {
+    "message": "Privileged Controls aktivieren",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Fingerabdruck-Phrase deiner Organisation",
@@ -11856,6 +13216,9 @@
   "free2PersonOrganization": {
     "message": "Kostenlose Organisationen mit 2 Personen"
   },
+  "freePlanWithSharedVault": {
+    "message": "Kostenloser Tarif mit geteiltem Tresor"
+  },
   "unlimitedSecrets": {
     "message": "Unbegrenzte Geheimnisse"
   },
@@ -11919,17 +13282,38 @@
   "collectionManagement": {
     "message": "Verwaltung der Sammlungen"
   },
+  "sharedFolderManagement": {
+    "message": "Einstellungen für geteilte Ordner"
+  },
   "collectionManagementDescription": {
     "message": "Konfiguriere das Sammlungs-Verhalten für die Organisation"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Konfiguriere das Verhalten von geteilten Ordnern im Organisations-Tresor."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Mehr über Sammlungen erfahren"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Mehr über geteilte Ordner erfahren"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Erlaube Besitzern und Administratoren, alle Sammlungen und Einträge über die Admin-Konsole zu verwalten"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Eigentümern und Administratoren die Verwaltung aller geteilten Ordner und Einträge über die Administrator-Konsole ermöglichen"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Beschränke die Erstellung von Sammlungen auf Besitzer und Administratoren"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Die Erstellung von geteilten Ordnern auf Eigentümer und Administratoren beschränken"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Beschränke das Löschen von Sammlungen auf Besitzer und Administratoren"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Das Löschen von geteilten Ordnern auf Eigentümer und Administratoren beschränken"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Beschränke das Löschen von Einträgen auf Mitglieder mit der ",
@@ -11941,6 +13325,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Einstellung für die Verwaltung der Sammlungen aktualisiert"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Einstellung für die Verwaltung von geteilte Ordner aktualisiert"
   },
   "passwordManagerPlanPrice": {
     "message": "Passwort-Manager Abonnementpreis"
@@ -11973,7 +13360,7 @@
     "message": "Sammlungszugriff zuweisen"
   },
   "assignSharedFolderAccess": {
-    "message": "Assign access",
+    "message": "Zugriff zuweisen",
     "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
   },
   "editedCollections": {
@@ -11986,14 +13373,14 @@
     "message": "Sammlung bearbeitet"
   },
   "sharedFolderEdited": {
-    "message": "Shared folder edited",
+    "message": "Freigegebener Ordner bearbeitet",
     "description": "VFO1 terminology feature flag variant of collectionEdited"
   },
   "collectionsEdited": {
     "message": "Sammlungen bearbeitet"
   },
   "sharedFoldersEdited": {
-    "message": "Shared folders edited",
+    "message": "Freigegebene Ordner bearbeitet",
     "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
@@ -12033,8 +13420,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Die Einstellung zur Verwaltung von geteilten Ordnern wurde bearbeitet $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Die Einstellung Sammlungs-Erstellung einschränken wurde für $ID$ aktiviert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Die Einstellung \"Die Erstellung von geteilten Ordnern beschränken\" wurde aktiviert $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +13456,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Die Einstellung \"Die Erstellung von geteilten Ordnern beschränken\" wurde deaktiviert $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Die Einstellung Sammlungs-Löschung einschränken wurde für $ID$ aktiviert.",
     "placeholders": {
@@ -12060,8 +13474,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Die Einstellung \"Löschen von geteilten Ordnern einschränken\" wurde aktiviert $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Die Einstellung Sammlungs-Löschung einschränken wurde für $ID$ deaktiviert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Die Einstellung \"Löschen von geteilten Ordnern einschränken\" wurde deaktiviert $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,6 +13528,15 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Die Einstellung „Eigentümern und Administratoren die Verwaltung aller geteilten Ordner und Einträge über die Administrator-Konsole ermöglichen“ wurde aktiviert $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Die Einstellung Besitzern und Administratoren erlauben, alle Sammlungen und Einträge zu verwalten wurde für $ID$ deaktiviert.",
     "placeholders": {
@@ -12105,9 +13546,14 @@
       }
     }
   },
-  "seeDetailedInstructions": {
-    "message": "Detaillierte Anleitungen auf unserer Hilfeseite unter",
-    "description": "This is followed a by a hyperlink to the help website."
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Die Einstellung „Eigentümern und Administratoren die Verwaltung aller geteilten Ordner und Einträge über die Administrator-Konsole ermöglichen“ wurde deaktiviert $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
   },
   "getStartedWithYourVault": {
     "message": "Erste Schritte mit deinem Tresor"
@@ -12148,14 +13594,14 @@
   "unexpectedErrorSend": {
     "message": "Beim Laden dieses Sends ist ein unerwarteter Fehler aufgetreten. Versuche es später erneut."
   },
-  "seatLimitReached": {
-    "message": "Benutzerplatzlimit wurde erreicht"
-  },
-  "contactYourProvider": {
-    "message": "Kontaktiere deinen Anbieter, um zusätzliche Benutzerplätze zu erwerben."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Das Benutzerplatzlimit wurde erreicht. Kontaktiere deinen Anbieter, um zusätzliche Benutzerplätze zu erwerben."
+  "seatLimitReachedContactProvider": {
+    "message": "Das Benutzerplatzlimit von $SEATCOUNT$ Mitgliedern wurde erreicht. Wende dich an deinen Anbieter, um weitere Benutzerplätze zu erwerben.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Zugriff auf Sammlungen ist eingeschränkt"
@@ -12164,42 +13610,42 @@
     "message": "Du hast keinen Zugriff zur Verwaltung dieser Sammlung."
   },
   "readOnlySharedFolderAccess": {
-    "message": "You do not have access to manage this shared folder.",
+    "message": "Du hast keinen Zugriff, um diesen geteilten Ordner zu verwalten.",
     "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
   },
   "grantManageCollectionWarningTitle": {
     "message": "Berechtigungen zur Verwaltung von Sammlungen fehlen"
   },
   "grantManagePermissionsWarningTitle": {
-    "message": "Missing Manage Permissions",
+    "message": "Fehlende Verwaltungs-Berechtigung",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Berechtigungen zur Verwaltung von Sammlungen gewähren, um die vollständige Verwaltung von Sammlungen, einschließlich der Löschung von Sammlungen, zu erlauben."
   },
   "grantManagePermissionsWarning": {
-    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "message": "Berechtugung zur Verwaltung gewähren, um die vollständige Verwaltung von geteilten Ordnern einschließlich des Löschens zu ermöglichen.",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantCollectionAccess": {
     "message": "Gewähre Gruppen oder Mitgliedern Zugriff auf diese Sammlung."
   },
   "grantSharedFolderAccess": {
-    "message": "Grant groups or members access to this shared folder.",
+    "message": "Gruppen oder Mitgliedern Zugriff auf diesen geteilten Ordner gewähren.",
     "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Gewähre Mitgliedern Zugriff auf diese Sammlung."
   },
   "grantSharedFolderAccessMembersOnly": {
-    "message": "Grant members access to this shared folder.",
+    "message": "Mitgliedern Zugriff auf diesen geteilten Ordner gewähren.",
     "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
   },
   "adminCollectionAccess": {
     "message": "Administratoren können auf Sammlungen zugreifen und diese verwalten."
   },
   "adminSharedFolderAccess": {
-    "message": "Administrators can access and manage shared folders.",
+    "message": "Administratoren können auf geteilte Ordner zugreifen und diese verwalten.",
     "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
@@ -12304,7 +13750,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "Etwas, das wir brauchten, war nicht verfügbar.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12312,11 +13758,11 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "Das Onboarding, die Administration oder die tägliche Nutzung waren zu kompliziert.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Es war zu teuer",
+    "message": "Die Kosten waren zu hoch",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
@@ -12328,7 +13774,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "Wir konnten kaum jemanden dazu bekommen, Bitwarden zu benutzen.",
+    "message": "Wir konnten die Benutzer nicht dazu bewegen, Bitwarden tatsächlich zu nutzen.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12336,11 +13782,41 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "Umstrukturierung, Übernahme, veränderte Prioritäten oder wir brauchen keinen Passwort-Manager mehr.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Wechsel zur jährlichen Abrechnung und spare $SAVINGS$ pro Jahr",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Aktuelle Kosten (monatliche Abrechnung)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Jährliche Abrechnungskosten",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Die angegebenen Preise enthalten keine Steuern. Die Änderung tritt zum nächsten Verlängerungstermin in Kraft.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Zur jährlichen Abrechnung wechseln",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Dein Abonnement wird zum nächsten Verlängerungstermin auf eine jährliche Abrechnung umgestellt.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Schlechter Kundenservice",
+    "message": "Schlechter Kundensupport",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
@@ -12393,14 +13869,23 @@
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
   },
+  "addToSharedFolder": {
+    "message": "Zu einem geteilten Ordner hinzufügen"
+  },
   "assignToTheseCollections": {
     "message": "Diesen Sammlungen zuweisen"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf diese geteilten Ordner können den Eintrag sehen."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf die geteilten Ordner können diese Einträge sehen."
   },
   "selectCollectionsToAssign": {
     "message": "Zu zuweisende Sammlungen auswählen"
@@ -12411,17 +13896,32 @@
   "successfullyAssignedCollections": {
     "message": "Sammlungen erfolgreich zugewiesen"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Geteilte Ordner erfolgreich hinzugefügt"
+  },
   "itemMovedToCollection": {
     "message": "Eintrag in Sammlung verschoben"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Eintrag zu geteiltem Ordner hinzugefügt"
   },
   "itemMovedToCollections": {
     "message": "Eintrag in Sammlungen verschoben"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Eintrag zu geteilten Ordnern hinzugefügt"
+  },
   "itemsMovedToCollection": {
     "message": "Einträge in Sammlung verschoben"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Einträge zu geteiltem Ordner hinzugefügt"
+  },
   "itemsMovedToCollections": {
     "message": "Einträge in Sammlungen verschoben"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Einträge zu geteilten Ordnern hinzugefügt"
   },
   "itemAssignedToCollections": {
     "message": "Zu Sammlungen zugewiesener Eintrag"
@@ -12449,6 +13949,9 @@
     "message": "Feld bearbeiten"
   },
   "items": {
+    "message": "Einträge"
+  },
+  "itemsLower": {
     "message": "Einträge"
   },
   "assignedSeats": {
@@ -12546,10 +14049,6 @@
   "machineAccounts": {
     "message": "Gerätekonten",
     "description": "The title for the section that deals with machine accounts."
-  },
-  "newMachineAccount": {
-    "message": "Neues Gerätekonto",
-    "description": "Title for creating a new machine account."
   },
   "addMachineAccount": {
     "message": "Gerätekonto hinzufügen",
@@ -13020,6 +14519,9 @@
   "organizationOptionsMenu": {
     "message": "Organisationsmenü umschalten"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Tresor-Eintrag auswählen"
   },
@@ -13100,7 +14602,7 @@
     "message": "Du hast keine Sammlungen ausgewählt."
   },
   "noSharedFoldersSelected": {
-    "message": "You have not selected any shared folders.",
+    "message": "Du hast keine geteilten Ordner ausgewählt.",
     "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
   },
   "updateName": {
@@ -13138,6 +14640,9 @@
         "example": "$15.00"
       }
     }
+  },
+  "getSecretsManager": {
+    "message": "Secrets Manager verwenden"
   },
   "secureYourInfrastructure": {
     "message": "Sichere deine Infrastruktur"
@@ -13178,6 +14683,40 @@
   "billingPreviewInvoiceError": {
     "message": "Bei der Vorschau der Rechnung ist ein Fehler aufgetreten. Bitte versuche es später erneut."
   },
+  "billingPreviewInvalidAddressError": {
+    "message": "Bitte überprüfe deine Rechnungsdaten und versuche es erneut."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Dieses Upgrade umfasst eine Testversion von $DAYS$ Tagen. Der oben angegebene Gesamtbetrag wird dir am Ende der Testphase in Rechnung gestellt.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Du hast noch 1 Tag deiner Testversion übrig. Der oben genannte Gesamtbetrag wird dir am $DATE$ in Rechnung gestellt.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Du hast noch $DAYS$ Tage deiner Testversion übrig. Der oben genannte Gesamtbetrag wird dir am $DATE$ in Rechnung gestellt.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
   "unverified": {
     "message": "Nicht verifiziert"
   },
@@ -13214,6 +14753,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Kontrolliere den Zugriff von Organisationsmitgliedern auf Gruppen, Sammlungen und Sammlungseinträgen. Der CSV-Export bietet eine detaillierte Aufschlüsselung pro Mitglied, einschließlich Informationen über Sammlungsberechtigungen und Kontenkonfigurationen."
+  },
+  "memberAccessReportPageDescV3": {
+    "message": "Überprüfe die Zugriffsrechte der Mitglieder auf Gruppen, geteilte Ordner und Einträge. Der CSV-Export liefert eine detaillierte Aufschlüsselung pro Mitglied, einschließlich Informationen zu Berechtigungen und Kontoeinstellungen."
   },
   "memberAccessReportNoCollection": {
     "message": "(Keine Sammlung)"
@@ -13333,8 +14875,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 Eintrag wird dauerhaft an die ausgewählte Organisation übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 Eintrag wird dauerhaft an den ausgewählten Tresor übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an die ausgewählte Organisation übertragen. Du wirst diese Einträge nicht mehr besitzen.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an den ausgewählten Tresor übertragen. Du wirst diese Einträge nicht mehr besitzen.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13469,24 +15023,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "SSO-Authentifizierung"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Upgrade auf einen kostenpflichtigen Tarif, um mehr Mitglieder einzuladen.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer zum Upgraden.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Families-Organisationen können bis zu $SEATCOUNT$ Mitglieder haben. Upgrade auf einen kostenpflichtigen Tarif, um den Zugriff dieses Mitglieds wiederherzustellen.",
     "placeholders": {
@@ -13582,6 +15118,9 @@
   },
   "unlimitedCollections": {
     "message": "Unbegrenzte Sammlungen"
+  },
+  "unlimitedSharedFolders": {
+    "message": "Unbegrenzte Anzahl geteilte Ordner"
   },
   "secureDataSharing": {
     "message": "Sicherer Datenaustausch"
@@ -13763,6 +15302,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Benutzer $ID$ hat den $ORGNAME$-Tresor verlassen",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Benutzer $ID$ hat sich selbst aus Organisation widerrufen.",
     "placeholders": {
@@ -13774,6 +15326,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Widerrufen, da die Übertragung des Eigentums an den Tresor von $ORGNAME$ abgelehnt wurde.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ ist gesperrt",
@@ -13805,10 +15366,22 @@
   "freeFamiliesSponsorshipPolicyTitleV2": {
     "message": "Gesponserten Families-Tarif entfernen"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Erlaube Mitgliedern nicht, einen Families-Tarif über diese Organisation einzulösen."
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Gesponserten Family-Tarif entfernen",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Gesponserten Families-Tarif entfernen",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Erlaube Mitgliedern nicht, einen von deiner Organisation gesponserten Families-Tarif in Anspruch zu nehmen."
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Für Mitglieder die Option entfernen, einen kostenlosen Families-Tarif einzulösen.",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
     "message": "Erlaube Mitgliedern nicht, einen von deiner Organisation gesponserten Families-Tarif in Anspruch zu nehmen."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
@@ -13824,6 +15397,15 @@
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Geteilte Ordner mit Leseberechtigung können nicht gelöscht werden: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14234,26 +15816,17 @@
   "atRiskPassword": {
     "message": "Gefährdetes Passwort"
   },
-  "changeAtRiskPassword": {
-    "message": "Gefährdetes Passwort ändern"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Diese Zugangsdaten sind gefährdet und es fehlt eine Website. Füge eine Website hinzu und ändere das Passwort für mehr Sicherheit."
-  },
   "vulnerablePassword": {
     "message": "Gefährdetes Passwort."
   },
   "changeNow": {
     "message": "Jetzt ändern"
   },
-  "missingWebsite": {
-    "message": "Fehlende Webseite"
-  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Entsperren mit PIN entfernen"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Entsperren mit PIN entfernen"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Mitglieder dürfen ihr Konto nicht mit einer PIN entsperren."
@@ -14274,7 +15847,7 @@
     "message": "Kostenlose Organisationen können bis zu 2 Sammlungen haben. Upgrade auf ein kostenpflichtiges Abo, um mehr Sammlungen hinzuzufügen."
   },
   "cannotCreateSharedFolder": {
-    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "message": "Kostenlose Organisationen können bis zu 2 geteilte Ordner haben. Upgrade auf einen kostenpflichtigen Tarif durch, um weitere geteilte Ordner hinzuzufügen.",
     "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
@@ -14530,6 +16103,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden verwendet gespeicherte Zugangsdaten-URIs, um zu bestimmen, welches Symbol oder welche Passwort-Ändern-URL verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Neben Einträgen 3 Schnellkopier-Buttons hinzufügen, um deinen Benutzernamen, Passwort oder Verifizierungscode in die Zwischenablage zu kopieren."
+  },
   "billingAddress": {
     "message": "Rechnungsadresse"
   },
@@ -14639,8 +16215,20 @@
   "providersubCanceledmessage": {
     "message": "Kontaktiere den Bitwarden Kundensupport, um erneut zu abonnieren."
   },
+  "showAll": {
+    "message": "Alles anzeigen"
+  },
   "showMore": {
     "message": "Mehr anzeigen"
+  },
+  "showMoreCount": {
+    "message": "$COUNT$ mehr anzeigen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Weniger anzeigen"
@@ -14686,16 +16274,21 @@
   "checkInputFormat": {
     "message": "Überprüfe das Eingabeformat auf Tippfehler."
   },
-  "exampleTaxIdFormat": {
-    "message": "Beispiel $CODE$-Format: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Beispiel für das Format einer Steuernummer: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Erkanntes Format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -14783,6 +16376,9 @@
   "familiesUnlimitedCollections": {
     "message": "Unbegrenzte Familiensammlungen"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Unbegrenzte Anzahl geteilter Ordner für Familien"
+  },
   "familiesSharedStorage": {
     "message": "Gemeinsamer Speicher für wichtige Familieninformationen"
   },
@@ -14797,6 +16393,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Bis zu $COUNT$ Sammlungen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Bis zu $COUNT$ geteilte Ordner",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14888,6 +16493,9 @@
   "upgradeNow": {
     "message": "Jetzt upgraden"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Erhalte mit Bitwarden Premium erweiterte Online-Sicherheit."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Durch das Ausfüllen dieses Formulars wird eine neue Families-Organisation erstellt. Du kannst deine kostenlose Organisation über die Administrator-Konsole upgraden."
   },
@@ -14939,14 +16547,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Erstellung von Konten für beanspruchte Domains blockieren"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Verhindere, dass Benutzer außerhalb deiner Organisation Konten mit E-Mail-Adressen aus beanspruchten Domains erstellen."
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Die Kontoerstellung von beanspruchten Domains verhindern.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Verhindere, dass Mitglieder deine beanspruchte Domain verwenden, um Bitwarden-Konten außerhalb deiner Organisation anzulegen."
   },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Vor der Aktivierung dieser Richtlinie muss eine Domain beansprucht werden."
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Verhindere, dass Mitglieder deine beanspruchte Domain verwenden, um Bitwarden-Konten außerhalb deines Organisationstresors anzulegen.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Bevor du diese Richtlinie aktivierst, musst du eine Domain beanspruchen."
@@ -15068,6 +16678,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Ordnerintegrität wird verifiziert"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Die Integrität von Anhängen wird überprüft"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ Eintrag/Einträge enthält/enthalten Dateianhänge mit alter Verschlüsselung. Öffne einen der unten aufgeführten Einträge und gehe zu „Anhänge“, um das Problem zu beheben.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Datenwiederherstellung und Diagnose"
@@ -15214,6 +16836,12 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Öffne die Abonnementseite in deinem Bitwarden Cloud-Konto und lade deine Lizenzdatei herunter. Gehe dann zu dieser Seite zurück und lade sie unten hoch."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Öffne die Abonnementseite in deinem Bitwarden-Konto und lade deine Lizenzdatei herunter. Gehe dann zu dieser Seite zurück und lade sie unten hoch."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "Melde dich in deiner Cloud-Umgebung bei deinem Bitwarden-Konto an, öffne die Abonnementseite und lade deine Lizenzdatei herunter. Kehre anschließend zu dieser Seite zurück und lade die Datei hoch."
   },
   "viewAllPlans": {
     "message": "Alle Tarife anzeigen"
@@ -15399,6 +17027,9 @@
   "premiumSubscriptionCredit": {
     "message": "Premium-Abonnement-Guthaben"
   },
+  "appliedProrationCredits": {
+    "message": "Angewandte anteilige Gutschrift"
+  },
   "enterpriseMembership": {
     "message": "Enterprise-Mitgliedschaft"
   },
@@ -15562,6 +17193,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Sorge für die Sicherheit deiner Tresor-Einträge, indem du Berichte auf Schwachstellen überprüfst."
   },
+  "whatsNew": {
+    "message": "What's new"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "With updated navigation and design, it's easier than ever to find what you need."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Switch between products"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "All your vaults in one place"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Personal, family, and business vaults are listed here now."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Sicherheitsaktivität überwachen"
   },
@@ -15592,6 +17247,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Aktualisiere Berichte und Analysen regelmäßig, um neue Risiken zu erkennen und die aktuellen Metriken im Zuge des Wachstums deiner Organisation im Blick zu behalten."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Filter mischen und abgleichen"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Wählen Sie mehrere Filter auf einmal, um sich auf genau die gewünschten Ergebnisse zu beschränken. Sie werden auch dann angewendet werden, wenn Sie weg sind."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ von $TOTAL$",
     "placeholders": {
@@ -15617,6 +17278,72 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
+  },
+  "secretKey": {
+    "message": "Geheimer Schlüssel"
+  },
+  "secretKeyAndPassword": {
+    "message": "Geheimer Schlüssel und Passwort"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -15868,6 +17595,9 @@
   "singleOrgPrerequisite": {
     "message": "Die Richtlinie für eine einzelne Organisation muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
   },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "Die Richtlinie zur Mitgliedschaft in nur einer Organisation muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
+  },
   "enableBanner": {
     "message": "Banner aktivieren"
   },
@@ -16067,6 +17797,452 @@
   "copy": {
     "message": "Kopieren"
   },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Zugriffsanforderungen"
+  },
+  "pamAccessRules": {
+    "message": "Zugriffsregeln"
+  },
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Aktiviert"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Wenn die Regel deaktiviert ist, ist sie inaktiv und schränkt den Zugriff nicht ein."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Regel aktivieren"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Regel deaktivieren"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Zugriffsregel aktiviert."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Zugriffsregel deaktiviert."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Zugriffsregel nicht gefunden."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Lege Regeln fest, um zu steuern, wer unter welchen Bedingungen und für welchen Zeitraum Zugriff auf vertrauliche Zugangsdaten anfragen darf."
+  },
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
+  },
+  "pamAccessRuleNew": {
+    "message": "Neue Regel"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Neue Zugriffsregel"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Zutrittsregel bearbeiten"
+  },
+  "pamAccessRuleName": {
+    "message": "Name"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "z.B. VPN + Geschäftszeiten"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Allgemeine Informationen"
+  },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Zugriffsdauer"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Optionale Bedingungen"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Sammlungen auswählen"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Diese Zugriffsregel gilt für alle ausgewählten Sammlungen."
+  },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Sammlungen konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Diese Dauer wird in Zugangsanfragen vorab ausgefüllt."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Beschreibung"
+  },
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Default duration"
+  },
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximum duration"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Keine Begrenzung"
+  },
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 Minuten"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 Minuten"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 Stunde"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 Stunden"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 Stunden"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 Stunden"
+  },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 Stunden"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 Tage"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Allow access extensions"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Es kann jeweils nur ein Benutzer über eine aktive Leasingvereinbarung verfügen"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Neue Anfragen werden in die Warteschlange gestellt, bis der aktuelle Leasingzeitraum endet oder widerrufen wird."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Leasing-Verlängerungen erlauben"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Mitglieder können einen laufende Leasingzeitraum einmalig ohne erneute Genehmigung bis zur unten angegebenen maximalen Laufzeit verlängern."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximale Verlängerung"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "Die maximale Länge, die eine einzelne Verlängerung dauern darf."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Genehmigung verlangen"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Einschränkung nach IP-Adresse"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Genehmiger"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Sammlungs-Verwalter"
+  },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
+  "pamAccessRuleCreated": {
+    "message": "Zugriffsregel erstellt."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Zugriffsregel aktualisiert."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Zugriffsregel löschen?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "„$NAME$“ löschen? Bei allen Sammlungen, für die diese Regel verwendet wird, wird Leasing deaktiviert.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Noch keine Zugriffsregeln"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Erstelle eine Regel, um sensible Sammlungen zusätzlich zu schützen."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Eigene Regel erstellen"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Mit einer Vorlage beginnen"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Vorlage verwenden"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just in Time"
+  },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Automatisch genehmigt • Läuft nach 1h ab • In Protokoll erfasst"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Just-in-Time-Zugriff"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Genehmigung erforderlich"
+  },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Genehmigung durch menschliche Person • 1 Genehmiger erforderlich • In Protokoll erfasst"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Genehmigung erforderlich"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP-beschränkt"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Automatisch genehmigt • Liste zugelassener IP-Adressen • In Protokoll erfasst"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP-beschränkter Zugriff"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Sammlungen"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Nicht zugewiesen"
+  },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamSearchRules": {
+    "message": "Suchregeln"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Gilt für"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Bedingungen"
+  },
+  "pamAccessWindow": {
+    "message": "Zugriffsfenster"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Zuletzt geändert"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Automatisch genehmigt"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Genehmigung erforderlich"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP nicht erlaubt"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Es wurden keine Zugriffsregeln gefunden, die deinen Filtern entsprechen."
+  },
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Aktivieren"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Deaktivieren"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Zugriffsregeln aktualisiert."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Zugriffsregeln gelöscht."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Zugriffsregeln löschen?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ Zugriffsregeln werden dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Es werden nur Anfragen zugelassen, die aus diesen IP-Bereichen stammen."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR-Bereich"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "z.B. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "CIDR-Bereich hinzufügen"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "CIDR-Bereich entfernen"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Füge mindestens einen CIDR-Bereich hinzu."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Gib einen gültigen CIDR-Bereich ein."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Dieser CIDR-Bereich wurde bereits hinzugefügt."
+  },
   "paymentSuccessful": {
     "message": "Zahlung erfolgreich"
   },
@@ -16112,5 +18288,192 @@
         "example": "Login"
       }
     }
+  },
+  "login": {
+    "message": "Zugangsdaten"
+  },
+  "orgNameVault": {
+    "message": "Tresor von $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Lade dein gesamtes Team mit einem einzigen Link ein"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Jeder, der über eine Firmen-E-Mail-Adresse verfügt, kann über den Einladungslink deiner Organisation beitreten. Füge den Link in die Onboarding-Materialien ein, damit neue Mitarbeiter beitreten können, sobald sie dazu bereit sind."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "The tour uses sample data. Nothing in your organization will change."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Vorschau des Dialogs zum Einladen von Mitgliedern mit dem neuen \"Per Link\"-Tab"
+  },
+  "showMeHow": {
+    "message": "Zeig mir wie"
+  },
+  "shareVerb": {
+    "message": "Teilen"
+  },
+  "peopleWhoCanView": {
+    "message": "Personen, die das sehen können",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Nachdem dieser Link geteilt wurde, müssen die Empfänger ihre E-Mail-Adresse mit einem Code verifizieren, um den Eintrag anzusehen.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Dieser Link läuft nach diesem Datum ab, jedoch können Empfänger zuvor freigegebene Informationen weiterhin speichern. Regeneriere die Berechtigung, um den Zugriff zu widerrufen.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Link läuft ab am",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Einmaliges Teilen",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktive Links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link in die Zwischenablage kopiert",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Geteilter Link kann nicht erstellt werden",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link gespeichert und in die Zwischenablage kopiert",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Fehler beim Kopieren des geteilten Links in die Zwischenablage",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Geteilter Link gelöscht",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Der geteilte Link konnte nicht gelöscht werden",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Als Link teilen",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Für den Tresor-Eintrag $ITEM$ teilen",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareLinkExpires": {
+    "message": "Läuft ab",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "sendAccessItemSubtitle": {
+    "message": "$SENDER_NAME$ hat folgenden Eintrag mit dir geteilt.",
+    "placeholders": {
+      "sender_name": {
+        "content": "$1",
+        "example": "user@example.com"
+      }
+    }
+  },
+  "additionalServiceAccountsLower": {
+    "message": "Zusätzliche Dienstkonten"
+  },
+  "additionalStorageGbLower": {
+    "message": "Zusätzlicher Speicher GB"
+  },
+  "membersLower": {
+    "message": "Mitglieder"
+  },
+  "memberLower": {
+    "message": "Mitglied"
+  },
+  "annualLower": {
+    "message": "jährlich"
+  },
+  "monthlyLower": {
+    "message": "monatlich"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ Abonnement",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Behalten und reaktivieren"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Abonnement ist jetzt aktiv"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "Dadurch wird deine Kündigungs-Anfrage widerrufen und dein Abonnement reaktiviert."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Die Abonnementdetails werden nicht geladen"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Unser Abrechnungsdienst ist derzeit nicht verfügbar, daher können wir dein Abonnement und die Preise momentan nicht anzeigen. Dein Abonnement selbst ist davon nicht betroffen."
+  },
+  "passwordManagerProratedCharge": {
+    "message": "Anteilig berechnete Gebühr für Passwort-Manager"
+  },
+  "storageProratedCharge": {
+    "message": "Anteilig berechnete Gebühr für Speicher"
+  },
+  "secretsManagerProratedCharge": {
+    "message": "Anteilig berechnete Gebühr für Secrets Manager"
+  },
+  "serviceAccountsProratedCharge": {
+    "message": "Anteilig berechnete Gebühr für Dienstkonten"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

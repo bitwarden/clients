@@ -5,10 +5,12 @@ import {
   ElementRef,
   inject,
   input,
+  signal,
 } from "@angular/core";
 
 import { IconComponent } from "../icon";
 import { BitwardenIcon } from "../shared/icon";
+import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 /**
  * @deprecated Use 'primary' instead. This variant will be removed in a future version.
@@ -94,22 +96,33 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
 @Component({
   selector: "span[bitBadge], bit-badge",
   imports: [IconComponent],
+  hostDirectives: [
+    {
+      directive: TooltipDirective,
+      // Override the default badge tooltip content by providing content to [bitTooltip] directly
+      inputs: ["tooltipPosition", "bitTooltip", "addTooltipToDescribedby"],
+    },
+  ],
+
   templateUrl: "badge.component.html",
   host: {
     "[class]": "classList()",
-    "[attr.title]": "titleContent()",
+    // The badge's text is projected content, so it can change without any signal this component
+    // reads changing. Resolve it on the events that show the tooltip rather than caching it.
+    "(mouseenter)": "syncDefaultTooltipContent()",
+    "(focusin)": "syncDefaultTooltipContent()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeComponent {
-  private readonly el = inject(ElementRef<HTMLElement>);
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly tooltip = inject(TooltipDirective);
 
   /**
-   * Optional override for the tooltip content when content overflows.
-   * When overflow is detected and this is not provided, the badge will automatically
-   * use its text content as the tooltip.
+   * The tooltip content this badge last generated from its own text, used to tell content the
+   * badge owns apart from content the consumer supplied via `[bitTooltip]`.
    */
-  readonly title = input<string>();
+  private readonly autoTooltipContent = signal("");
 
   /**
    * Visual variant that determines the badge's color scheme.
@@ -123,7 +136,7 @@ export class BadgeComponent {
 
   /**
    * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
-   * When enabled, a title attribute is automatically added for accessibility.
+   * When enabled, a tooltip with the full text is automatically shown.
    */
   readonly truncate = input(true);
 
@@ -163,15 +176,19 @@ export class BadgeComponent {
   ]);
 
   /**
-   * Computed title content - only shows when content is overflowing
+   * Point the tooltip at the badge's current text, so a truncated badge shows its full value.
+   * Content the consumer provided via `[bitTooltip]` always wins and is never overwritten.
    */
-  protected readonly titleContent = computed(() => {
-    // Use custom title if provided, otherwise use text content
-    const customTitle = this.title();
-    if (customTitle !== undefined) {
-      return customTitle;
+  protected syncDefaultTooltipContent() {
+    const currentContent = this.tooltip.tooltipContent();
+
+    if (currentContent.length > 0 && currentContent !== this.autoTooltipContent()) {
+      return;
     }
 
-    return this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : undefined;
-  });
+    const content = this.truncate() ? this.el.nativeElement?.textContent?.trim() || "" : "";
+
+    this.autoTooltipContent.set(content);
+    this.tooltip.tooltipContent.set(content);
+  }
 }

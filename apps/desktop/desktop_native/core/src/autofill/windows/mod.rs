@@ -1,12 +1,23 @@
+mod context;
+mod settings;
 mod status;
 mod sync;
+mod user_verification;
 
 use std::{fs::File, io::Read, path::PathBuf, sync::OnceLock};
 
 use anyhow::{anyhow, Context, Result};
+pub use context::{create_context_string, parse_context_string};
 use serde::{Deserialize, Serialize};
+use settings::{
+    handle_open_settings_request, handle_request_enable_request, OpenSettingsResponse,
+    RequestEnableResponse,
+};
 use status::{handle_status_request, StatusResponse};
 use sync::{handle_sync_request, SyncParameters, SyncResponse};
+use user_verification::{
+    handle_user_verification_request, UserVerificationParameters, UserVerificationResponse,
+};
 use win_webauthn::plugin::Clsid;
 use windows::{
     core::HRESULT, ApplicationModel::Package, Win32::Foundation::APPMODEL_ERROR_NO_PACKAGE,
@@ -33,6 +44,11 @@ async fn dispatch_command(value: String) -> Result<CommandResponse> {
     tokio::task::spawn_blocking(move || match request.command {
         RunCommand::Status(_) => handle_status_request().map(CommandResponse::from),
         RunCommand::Sync(params) => handle_sync_request(params).map(CommandResponse::from),
+        RunCommand::UserVerification(params) => {
+            handle_user_verification_request(params).map(CommandResponse::from)
+        }
+        RunCommand::RequestEnable(_) => handle_request_enable_request().map(CommandResponse::from),
+        RunCommand::OpenSettings(_) => handle_open_settings_request().map(CommandResponse::from),
     })
     .await
     .context("Autofill command task failed")?
@@ -52,6 +68,9 @@ struct RunCommandRequest {
 enum RunCommand {
     Status(()),
     Sync(SyncParameters),
+    UserVerification(UserVerificationParameters),
+    RequestEnable(()),
+    OpenSettings(()),
 }
 
 #[derive(Serialize)]
@@ -77,6 +96,9 @@ impl From<anyhow::Result<CommandResponse>> for CommandResult {
 enum CommandResponse {
     Status(StatusResponse),
     Sync(SyncResponse),
+    UserVerification(UserVerificationResponse),
+    RequestEnable(RequestEnableResponse),
+    OpenSettings(OpenSettingsResponse),
 }
 
 impl From<StatusResponse> for CommandResponse {
@@ -130,18 +152,27 @@ fn parse_config(config_file: impl Read) -> Result<ConfigFile> {
     serde_json::from_reader(config_file).context("Could not parse authenticator config file")
 }
 
-/// Reads logo SVG file stored in Appx package.
+/// Reads the light and dark logo SVG variants file stored in Appx package.
 ///
 /// Unlike [`read_plugin_config_file`], a missing package is an error rather than `Ok(None)`: the
 /// logo is only read once the config file has already established that this build is packaged.
-pub fn read_plugin_logo() -> Result<String> {
+pub fn read_plugin_logos() -> Result<(String, String)> {
+    let light_logo = read_plugin_logo("light")?;
+    let dark_logo = read_plugin_logo("dark")?;
+
+    Ok((light_logo, dark_logo))
+}
+
+fn read_plugin_logo(variant: &str) -> Result<String> {
     // This is set in apps/desktop/electron-builder*.json.
-    let logo_path = get_resource_path("plugin_authenticator_logo.svg")?
+    let logo_path = get_resource_path(&format!("plugin_authenticator_logo_{variant}.svg"))?
         .context("Not running from an Appx package")?;
 
     let mut logo = String::new();
-    File::open(logo_path)
-        .context("Could not open authenticator logo file")?
+    File::open(&logo_path)
+        .context(format!(
+            "Could not open authenticator logo path: {logo_path:?}"
+        ))?
         .read_to_string(&mut logo)
         .context("Could not read logo file")?;
     Ok(logo)

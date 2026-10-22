@@ -1,7 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -10,12 +9,20 @@ import { ProviderUserInviteRequest } from "@bitwarden/common/admin-console/model
 import { ProviderUserUpdateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  A11yTitleDirective,
+  AsyncActionsModule,
+  ButtonModule,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  RadioButtonModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 export type AddEditMemberDialogParams = {
@@ -34,8 +41,20 @@ export enum AddEditMemberDialogResultType {
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "add-edit-member-dialog",
   templateUrl: "add-edit-member-dialog.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DialogModule,
+    FormFieldModule,
+    RadioButtonModule,
+    ButtonModule,
+    IconButtonModule,
+    AsyncActionsModule,
+    A11yTitleDirective,
+    I18nPipe,
+  ],
 })
 export class AddEditMemberDialogComponent {
   editing = false;
@@ -73,11 +92,12 @@ export class AddEditMemberDialogComponent {
   }
 
   delete = async (): Promise<void> => {
-    if (!this.editing) {
+    if (!this.editing || this.dialogParams.user == null) {
       return;
     }
 
-    const userName = this.userNamePipe.transform(this.dialogParams.user);
+    const user = this.dialogParams.user;
+    const userName = this.userNamePipe.transform(user);
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: userName,
@@ -89,14 +109,11 @@ export class AddEditMemberDialogComponent {
       return;
     }
 
-    await this.apiService.deleteProviderUser(
-      this.dialogParams.providerId,
-      this.dialogParams.user.id,
-    );
+    await this.apiService.deleteProviderUser(this.dialogParams.providerId, user.id);
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("removedUserId", userName),
     });
 
@@ -104,18 +121,30 @@ export class AddEditMemberDialogComponent {
   };
 
   submit = async (): Promise<void> => {
+    const type = this.formGroup.value.type;
+    if (type == null) {
+      return;
+    }
+
     if (this.editing) {
-      const request = new ProviderUserUpdateRequest();
-      request.type = this.formGroup.value.type;
+      if (this.dialogParams.user == null) {
+        return;
+      }
+      const request = new ProviderUserUpdateRequest({ type });
       await this.apiService.putProviderUser(
         this.dialogParams.providerId,
         this.dialogParams.user.id,
         request,
       );
     } else {
-      const request = new ProviderUserInviteRequest();
-      request.emails = this.formGroup.value.emails.trim().split(/\s*,\s*/);
-      request.type = this.formGroup.value.type;
+      const emails = this.formGroup.value.emails;
+      if (emails == null) {
+        return;
+      }
+      const request = new ProviderUserInviteRequest({
+        emails: emails.trim().split(/\s*,\s*/),
+        type,
+      });
       await this.apiService.postProviderUserInvite(this.dialogParams.providerId, request);
     }
 
@@ -123,7 +152,7 @@ export class AddEditMemberDialogComponent {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t(this.editing ? "editedUserId" : "invitedUsers", userName),
     });
 

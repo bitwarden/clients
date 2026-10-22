@@ -234,39 +234,9 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
 
 **Note**: Use `ossPolicyEditRegister` for open-source policies and `bitPolicyEditRegister` for Bitwarden Licensed policies.
 
-#### Policy with the Badge/Drawer UI Pattern
-
-Policies that use `MultiStepPolicyEditDialogComponent` and also define a `v2` component
-automatically get an enhanced appearance, but **only** when the dialog is actually opened as a
-drawer (i.e. the `PolicyDrawers` feature flag is on for that user). This is determined internally
-by `MultiStepPolicyEditDialogComponent` via `dialogRef.isDrawer` - there is nothing to configure
-per-policy beyond defining `component`, `v2.component`, and `editDialogComponent`. When the flag is
-off, the dialog renders exactly like a standard policy dialog (`component`, "Edit policy" title,
-Cancel button, badge hidden), so the v2 look never leaks into the flag-off experience:
-
-- The dialog title becomes the policy name (instead of "Edit policy")
-- An **On/Off** badge appears in the header reflecting the saved policy state
-- The **Cancel** button is hidden
-- The v2 component is loaded in place of the standard `component`
-
-```typescript
-import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
-
-export class YourNewPolicy extends BasePolicyEditDefinition {
-  // ...
-  component = YourNewPolicyComponent;
-  showDescription = false;
-  editDialogComponent = MultiStepPolicyEditDialogComponent;
-  v2 = {
-    component: YourNewPolicyV2Component,
-  };
-}
-```
-
-Note `showDescription` should still be `false` if either `component` or `v2.component` renders its
-own description inline (as is typical for this dialog) - it is not toggled based on drawer state.
-
-The `policySteps` property on `BasePolicyEditComponent` defaults to a single step that saves the policy, so no override is needed for simple policies.
+The drawer header always shows an **On/Off** badge reflecting the saved policy state alongside
+the policy name as the title. The `policySteps` property on `BasePolicyEditComponent` defaults to
+a single step that saves the policy, so no override is needed for simple policies.
 
 #### Multi-Step Policy Workflow
 

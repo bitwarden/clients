@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
 import {
+  AnnualUpgradeOfferResponseModel,
   ChurnMitigationOfferResponseModel,
   OrganizationBillingClient,
 } from "./organization-billing.client";
@@ -92,6 +93,69 @@ describe("OrganizationBillingClient", () => {
       mockApiService.send.mockRejectedValue(serverError);
 
       await expect(sut.redeemChurnOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
+  describe("getAnnualUpgradeOffer", () => {
+    it("calls the correct route and deserializes the response", async () => {
+      const raw = {
+        CurrentAnnualCost: 60,
+        NewAnnualCost: 48,
+        Savings: 12,
+      };
+      mockApiService.send.mockResolvedValue(raw);
+
+      const result = await sut.getAnnualUpgradeOffer(orgId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/organizations/${orgId}/billing/vnext/annual-upgrade-offer`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AnnualUpgradeOfferResponseModel);
+      expect(result!.currentAnnualCost).toBe(60);
+      expect(result!.newAnnualCost).toBe(48);
+      expect(result!.savings).toBe(12);
+    });
+
+    it("returns null when the API returns an empty body (ineligible org)", async () => {
+      mockApiService.send.mockResolvedValue(null);
+
+      const result = await sut.getAnnualUpgradeOffer(orgId);
+
+      expect(result).toBeNull();
+    });
+
+    it("propagates errors from the API", async () => {
+      const serverError = new ErrorResponse(null, 500);
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(sut.getAnnualUpgradeOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
+    });
+  });
+
+  describe("redeemAnnualUpgradeOffer", () => {
+    it("calls the correct route", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      await sut.redeemAnnualUpgradeOffer(orgId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/organizations/${orgId}/billing/vnext/annual-upgrade-offer/redeem`,
+        null,
+        true,
+        false,
+      );
+    });
+
+    it("propagates errors from the API", async () => {
+      const serverError = new ErrorResponse(null, 422);
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(sut.redeemAnnualUpgradeOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
     });
   });
 });

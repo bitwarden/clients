@@ -1,3 +1,5 @@
+export { InlineMenuAction } from "./action";
+export type { InlineMenuActionI18n, InlineMenuActionProps } from "./action";
 export { InlineMenuContainer } from "./container";
 export type { InlineMenuContainerProps } from "./container";
 export { InlineMenuPrompt } from "./prompt";
@@ -5,7 +7,7 @@ export type { InlineMenuPromptI18n, InlineMenuPromptProps } from "./prompt";
 export { InlineMenuCipherItem } from "./cipher-item";
 export type { InlineMenuCipherItemProps } from "./cipher-item";
 export { InlineMenuCipherList } from "./cipher-list";
-export type { InlineMenuCipherListProps } from "./cipher-list";
+export type { InlineMenuCipherListProps, InlineMenuCipherListNewItem } from "./cipher-list";
 export { CipherDetails } from "./cipher-details";
 export type { CipherDetailsProps } from "./cipher-details";
 export { TotpCountdown } from "./totp-countdown";

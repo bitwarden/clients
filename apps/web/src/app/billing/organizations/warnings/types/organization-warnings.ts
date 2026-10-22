@@ -3,8 +3,9 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { TaxIdWarningResponse } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 export type OrganizationFreeTrialWarning = {
-  organization: Pick<Organization, "id" & "name">;
+  organization: Pick<Organization, "id" | "name">;
   message: string;
+  isSalesAssisted: boolean;
 };
 
 export type OrganizationResellerRenewalWarning = {
@@ -56,10 +57,13 @@ export class OrganizationWarningsResponse extends BaseResponse {
 
 class FreeTrialWarningResponse extends BaseResponse {
   remainingTrialDays: number;
+  isSalesAssisted: boolean;
 
   constructor(response: any) {
     super(response);
     this.remainingTrialDays = this.getResponseProperty("RemainingTrialDays");
+    // Omitted by servers that predate PM-38574; false is the safe default (payment prompt shown).
+    this.isSalesAssisted = this.getResponseProperty("IsSalesAssisted") ?? false;
   }
 }
 

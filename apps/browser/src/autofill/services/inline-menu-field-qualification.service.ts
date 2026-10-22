@@ -17,6 +17,7 @@ import {
   AutoFillConstants,
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
+  SshKeyAutoFillConstants,
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
@@ -50,6 +51,9 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       ...CreditCardAutoFillConstants.CardBrandFieldNames,
     ]),
   ];
+  private sshKeyPublicKeyFieldKeywords = [...SshKeyAutoFillConstants.PublicKeyFieldNames];
+  private sshKeyAlgorithmKeywords = [...SshKeyAutoFillConstants.PublicKeyAlgorithmPrefixes];
+  private sshKeyTitleFieldKeywords = [...SshKeyAutoFillConstants.TitleFieldNames];
   private creditCardNameAutocompleteValues = new Set([
     "cc-name",
     "cc-given-name,",
@@ -312,6 +316,72 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       // Recognize explicit identity email fields (like id="new-email")
       this.isFieldForIdentityEmail(field) ||
       this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for an SSH key form (e.g. GitHub/GitLab "add SSH
+   * key" forms). Qualifies the public key textarea directly, and the title input only when a
+   * public key field is co-present on the same form/page (to avoid matching generic title
+   * inputs on unrelated forms).
+   *
+   * @param field - The field to validate
+   * @param pageDetails - The details of the page that the field is on.
+   */
+  isFieldForSshKeyForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (this.isFieldForSshPublicKey(field)) {
+      return true;
+    }
+
+    if (this.isFieldForSshKeyTitle(field)) {
+      const fieldsToCheck = field.form
+        ? pageDetails.fields.filter((pageField) => pageField.form === field.form)
+        : pageDetails.fields;
+
+      return fieldsToCheck.some((pageField) => this.isFieldForSshPublicKey(pageField));
+    }
+
+    return false;
+  }
+
+  /**
+   * Validates the provided field as an SSH public key field. Requires a textarea (the shape
+   * used by SSH key forms) combined with an algorithm signal (e.g. "ssh-rsa") or a key
+   * keyword. Requiring the textarea avoids matching single-line inputs such as `api_key`.
+   *
+   * @param field - The field to validate
+   */
+  private isFieldForSshPublicKey(field: AutofillField): boolean {
+    if (field.tagName !== "textarea") {
+      return false;
+    }
+
+    if (fieldContainsKeyword(field, this.sshKeyAlgorithmKeywords)) {
+      return true;
+    }
+
+    return fieldContainsKeyword(
+      field,
+      this.sshKeyPublicKeyFieldKeywords,
+      KeywordMatchMode.MatchesToken,
+    );
+  }
+
+  /**
+   * Validates the provided field as an SSH key title field. Limited to non-textarea inputs
+   * whose keywords match a title field name.
+   *
+   * @param field - The field to validate
+   */
+  private isFieldForSshKeyTitle(field: AutofillField): boolean {
+    if (field.tagName === "textarea") {
+      return false;
+    }
+
+    return fieldContainsKeyword(
+      field,
+      this.sshKeyTitleFieldKeywords,
+      KeywordMatchMode.MatchesToken,
     );
   }
 
@@ -1036,11 +1106,33 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    const testedValues = [field.htmlID, field.htmlName, field.placeholder];
+    // WHATWG autofill tokens. Catches sites with a show password toggle
+    // that flips the type to text while preserving autocomplete.
+    if (
+      AutofillService.autoCompleteTypeIncludesToken(
+        field.autoCompleteType,
+        AutoFillConstants.AutocompleteCurrentPassword,
+      ) ||
+      AutofillService.autoCompleteTypeIncludesToken(
+        field.autoCompleteType,
+        AutoFillConstants.AutocompleteNewPassword,
+      )
+    ) {
+      return true;
+    }
+
+    const testedValues = [
+      field.htmlID,
+      field.htmlName,
+      field.placeholder,
+      field["label-aria"],
+      field["label-tag"],
+      field["label-top"],
+    ];
     for (let i = 0; i < testedValues.length; i++) {
       const attributeValueToMatch = testedValues[i];
 
-      if (!attributeValueToMatch) {
+      if (typeof attributeValueToMatch !== "string" || !attributeValueToMatch) {
         continue;
       }
 
@@ -1064,7 +1156,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     // Removes all whitespace, _ and - characters
     const cleanedValue = value.toLowerCase().replace(/[\s_-]/g, "");
 
-    if (cleanedValue.indexOf("password") < 0) {
+    if (!AutoFillConstants.PasswordFieldNameTokens.some((t) => cleanedValue.indexOf(t) > -1)) {
       return false;
     }
 

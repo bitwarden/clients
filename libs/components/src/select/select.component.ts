@@ -1,10 +1,11 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   afterRenderEffect,
+  booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   contentChildren,
-  HostBinding,
-  Input,
   output,
   computed,
   effect,
@@ -13,6 +14,7 @@ import {
   Signal,
   model,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { ControlValueAccessor, NgControl, ReactiveFormsModule, FormsModule } from "@angular/forms";
@@ -22,15 +24,48 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BitFormFieldControlDirective } from "../form-field";
 import { IconComponent } from "../icon";
+import {
+  IconTileComponent,
+  IconTileOptions,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../icon-tile";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+function sameIconTile(a: IconTileOptions | undefined, b: IconTileOptions | undefined): boolean {
+  return (
+    a === b ||
+    (a != null &&
+      b != null &&
+      a.icon === b.icon &&
+      a.variant === b.variant &&
+      a.color === b.color &&
+      a.emphasis === b.emphasis)
+  );
+}
+
+function sameOptions<T>(a: Option<T>[] | undefined, b: Option<T>[]): boolean {
+  if (a == null || a.length !== b.length) {
+    return false;
+  }
+  return a.every(
+    (prev, i) =>
+      prev.icon === b[i].icon &&
+      sameIconTile(prev.iconTile, b[i].iconTile) &&
+      prev.value === b[i].value &&
+      prev.label === b[i].label &&
+      prev.description === b[i].description &&
+      prev.disabled === b[i].disabled,
+  );
+}
+
 @Component({
   selector: "bit-select",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "select.component.html",
   hostDirectives: [
     {
@@ -38,11 +73,20 @@ import { OptionComponent } from "./option.component";
       inputs: ["required", "id"],
     },
   ],
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, TypographyDirective, IconComponent],
+  imports: [
+    NgTemplateOutlet,
+    NgSelectModule,
+    ReactiveFormsModule,
+    FormsModule,
+    TypographyDirective,
+    IconComponent,
+    IconTileComponent,
+  ],
   host: {
     class: "tw-block tw-w-full tw-h-full",
     "[id]": "formFieldControl.id()",
     "[attr.required]": "formFieldControl.required() || null",
+    "[attr.disabled]": "disabled() || null",
   },
 })
 export class SelectComponent<T> implements ControlValueAccessor {
@@ -65,8 +109,10 @@ export class SelectComponent<T> implements ControlValueAccessor {
   );
   protected readonly searchInputId = computed(() => `${this.formFieldControl.id()}-search`);
 
-  private notifyOnChange?: (value?: T | null) => void;
-  private notifyOnTouched?: () => void;
+  /**Implemented as part of NG_VALUE_ACCESSOR */
+  private readonly notifyOnChange = signal<((value?: T | null) => void) | undefined>(undefined);
+  /**Implemented as part of NG_VALUE_ACCESSOR */
+  private readonly notifyOnTouched = signal<(() => void) | undefined>(undefined);
 
   constructor() {
     if (this.ngControl != null) {
@@ -87,38 +133,28 @@ export class SelectComponent<T> implements ControlValueAccessor {
         if (opts.length === 0) {
           return;
         }
-        this.items.set(
-          opts.map((option) => ({
-            icon: option.icon(),
-            value: option.value(),
-            label: option.label(),
-            description: option.description(),
-            disabled: option.disabled(),
-          })),
-        );
+        const mapped = opts.map((option) => ({
+          icon: option.icon(),
+          iconTile: option.iconTile(),
+          value: option.value(),
+          label: option.label(),
+          description: option.description(),
+          disabled: option.disabled(),
+        }));
+        if (!sameOptions(untracked(this.items), mapped)) {
+          this.items.set(mapped);
+        }
       },
     });
   }
 
   private readonly options = contentChildren(OptionComponent);
 
-  // Usings a separate getter for the HostBinding to get around an unexplained angular error
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    return this.disabled || null;
-  }
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get disabled() {
-    return this._disabled ?? this.ngControl?.disabled ?? false;
-  }
-  set disabled(value: any) {
-    this._disabled = value != null && value !== false;
-  }
-  private _disabled?: boolean;
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
+  private readonly disabledFromCva = signal(false);
+
+  /** Disabled either explicitly by the consumer or by the form control this is bound to. */
+  readonly disabled = computed(() => this.disabledInput() || this.disabledFromCva());
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: T): void {
@@ -127,37 +163,36 @@ export class SelectComponent<T> implements ControlValueAccessor {
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   registerOnChange(fn: (value?: T | null) => void): void {
-    this.notifyOnChange = fn;
+    this.notifyOnChange.set(fn);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   registerOnTouched(fn: any): void {
-    this.notifyOnTouched = fn;
+    this.notifyOnTouched.set(fn);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabledFromCva.set(isDisabled);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onChange(option: Option<T> | null) {
     this.selectedValue.set(option?.value);
-
-    if (!this.notifyOnChange) {
-      return;
-    }
-
-    this.notifyOnChange(option?.value);
+    this.notifyOnChange()?.(option?.value);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onBlur() {
-    if (!this.notifyOnTouched) {
-      return;
-    }
+    this.notifyOnTouched()?.();
+  }
 
-    this.notifyOnTouched();
+  protected tileVariant(option: Option<T>): IconTileVariant {
+    return resolveIconTileVariant(option.iconTile, option.disabled);
+  }
+
+  protected tileColor(option: Option<T>): string | undefined {
+    return resolveIconTileColor(option.iconTile, option.disabled);
   }
 
   private findSelectedOption(
@@ -180,7 +215,7 @@ export class SelectComponent<T> implements ControlValueAccessor {
    *
    * Needs to be arrow function to retain `this` scope.
    */
-  protected onKeyDown = (event: KeyboardEvent) => {
+  protected readonly onKeyDown = (event: KeyboardEvent) => {
     if (this.select().isOpen() && event.key === "Escape" && !hasModifierKey(event)) {
       event.stopPropagation();
     }

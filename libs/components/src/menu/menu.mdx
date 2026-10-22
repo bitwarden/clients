@@ -53,6 +53,26 @@ Example code:
 </button>
 ```
 
+#### Icon tiles
+
+`slot="start"` also accepts a `bit-icon-tile` when the leading visual should carry a color to
+distinguish categories of items.
+
+```html
+<button type="button" bitMenuItem>
+  <bit-icon-tile icon="bwi-globe" variant="brand" size="xs" slot="start" />
+  Menu item with an icon tile
+</button>
+```
+
+Usage guidelines:
+
+- Always use `size="xs"`, so menu items and select options share the same leading-visual footprint.
+- Use a tile for every item in the menu, or for none of them.
+- Leave `ariaLabel` unset. The tile is decorative — the menu item text carries the meaning.
+
+<Canvas of={stories.IconTileMenu} />
+
 ## Use cases
 
 To categorize different use cases for menus, we use the following terminology:

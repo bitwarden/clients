@@ -14,10 +14,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import {
-  AutomaticAppLoginPolicyComponent,
-  AutomaticAppLoginPolicyV2Component,
-} from "./automatic-app-login.component";
+import { AutomaticAppLoginPolicyComponent } from "./automatic-app-login.component";
 
 const ORG_ID = "org1" as OrganizationId;
 const USER_ID = "user1" as UserId;
@@ -31,11 +28,7 @@ function makePolicyResponse(enabled: boolean, data: object | null = null) {
   });
 }
 
-describe.each`
-  description                             | componentClass
-  ${"AutomaticAppLoginPolicyComponent"}   | ${AutomaticAppLoginPolicyComponent}
-  ${"AutomaticAppLoginPolicyV2Component"} | ${AutomaticAppLoginPolicyV2Component}
-`("$description", ({ componentClass }) => {
+describe("AutomaticAppLoginPolicyComponent", () => {
   let component: AutomaticAppLoginPolicyComponent;
   let fixture: ComponentFixture<AutomaticAppLoginPolicyComponent>;
   let accountService: FakeAccountService;
@@ -55,7 +48,7 @@ describe.each`
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(componentClass);
+    fixture = TestBed.createComponent(AutomaticAppLoginPolicyComponent);
     component = fixture.componentInstance;
   });
 

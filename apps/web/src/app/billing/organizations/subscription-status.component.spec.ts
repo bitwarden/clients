@@ -111,4 +111,25 @@ describe("SubscriptionStatusComponent", () => {
       expect(component.status).toBe("incomplete_expired");
     });
   });
+
+  describe("planName getter", () => {
+    it("uses the response plan name when there is no pending annual upgrade", () => {
+      component.organizationSubscriptionResponse = {
+        ...makeOrgResponse(makeSubscription()),
+        plan: { name: "Teams (Monthly)" },
+      } as any;
+
+      expect(component.planName).toBe("Teams (Monthly)");
+    });
+
+    it("uses the pending annual upgrade plan name when present", () => {
+      component.organizationSubscriptionResponse = {
+        ...makeOrgResponse(makeSubscription()),
+        plan: { name: "Teams (Monthly)" },
+        pendingAnnualUpgrade: { plan: { name: "Teams (Annually)" } },
+      } as any;
+
+      expect(component.planName).toBe("Teams (Annually)");
+    });
+  });
 });

@@ -1,5 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { Utils } from "../../misc/utils";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
 
 export class BitwardenFileUploadService {
   async upload(

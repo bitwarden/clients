@@ -1,0 +1,22 @@
+@if (!dismissed()) {
+  <bit-callout
+    class="[&_aside]:!tw-m-0"
+    type="info"
+    icon="bwi-premium"
+    [title]="'upgradeYourPlan' | i18n"
+    (dismiss)="dismiss()"
+  >
+    {{ "getAdvancedOnlineSecurityWithBitwardenPremium" | i18n }}
+    <button
+      slot="end"
+      id="upgrade-callout_button_upgrade"
+      type="button"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-arrow-right"
+      (click)="upgrade()"
+    >
+      {{ "upgradeNow" | i18n }}
+    </button>
+  </bit-callout>
+}

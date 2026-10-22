@@ -1,20 +1,21 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
 import {
   canAccessOrgAdmin,
+  canAccessAccessRulesTab,
   canAccessGroupsTab,
   canAccessMembersTab,
   canAccessVaultTab,
   canAccessReportingTab,
+  canAccessRotationTab,
   canAccessSettingsTab,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { deepLinkGuard } from "../../auth/guards/deep-link/deep-link.guard";
+import { PAM_ORG_ADMIN_ROUTE } from "../../pam/pam-org-admin-route.token";
 
 import { VaultModule } from "./collections/vault.module";
 import { organizationPermissionsGuard } from "./guards/org-permissions.guard";
@@ -41,13 +42,13 @@ const routes: Routes = [
       {
         path: "settings",
         loadChildren: () =>
-          import("./settings/organization-settings.module").then(
-            (m) => m.OrganizationSettingsModule,
+          import("./settings/organization-settings.routes").then(
+            (m) => m.organizationSettingsRoutes,
           ),
       },
       {
         path: "members",
-        loadChildren: () => import("./members").then((m) => m.MembersModule),
+        loadChildren: () => import("./members").then((m) => m.membersRoutes),
       },
       {
         component: GroupsComponent,
@@ -60,8 +61,8 @@ const routes: Routes = [
       {
         path: "reporting",
         loadChildren: () =>
-          import("../organizations/reporting/organization-reporting.module").then(
-            (m) => m.OrganizationReportingModule,
+          import("../organizations/reporting/organization-reporting.routes").then(
+            (m) => m.organizationReportingRoutes,
           ),
       },
       {
@@ -75,7 +76,11 @@ const routes: Routes = [
   },
 ];
 
-function getOrganizationRoute(organization: Organization): string {
+/**
+ * The Admin Console section to land a member on, checked most central first. Must be called in an
+ * injection context.
+ */
+export function getOrganizationRoute(organization: Organization): string | undefined {
   if (canAccessVaultTab(organization)) {
     return "vault";
   }
@@ -90,6 +95,15 @@ function getOrganizationRoute(organization: Organization): string {
   }
   if (canAccessSettingsTab(organization)) {
     return "settings";
+  }
+  // Unprovided in OSS-only builds, which mount no PAM pages. Annotated because `inject` infers
+  // `unknown` from a SafeInjectionToken.
+  const pamRoute: string | null = inject(PAM_ORG_ADMIN_ROUTE, { optional: true });
+  if (
+    pamRoute != null &&
+    (canAccessAccessRulesTab(organization) || canAccessRotationTab(organization))
+  ) {
+    return pamRoute;
   }
   return undefined;
 }

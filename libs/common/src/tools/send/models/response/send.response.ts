@@ -4,6 +4,7 @@ import { BaseResponse } from "../../../../models/response/base.response";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
+import { SendItemApi } from "../api/send-item.api";
 import { SendTextApi } from "../api/send-text.api";
 
 export class SendResponse extends BaseResponse {
@@ -14,6 +15,7 @@ export class SendResponse extends BaseResponse {
   notes: string;
   file: SendFileApi;
   text: SendTextApi;
+  data: SendItemApi;
   key: string;
   maxAccessCount?: number;
   accessCount: number;
@@ -54,6 +56,11 @@ export class SendResponse extends BaseResponse {
     const file = this.getResponseProperty("File");
     if (file != null) {
       this.file = new SendFileApi(file);
+    }
+
+    const data = this.getResponseProperty("Data");
+    if (data != null) {
+      this.data = new SendItemApi(data);
     }
   }
 }

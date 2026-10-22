@@ -4,26 +4,52 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { SendTokenService, SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  SendTokenService,
+  SendAccessToken,
+  passwordHashB64Required,
+} from "@bitwarden/common/auth/send-access";
+import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
-import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import {
+  CloudEnvironment,
+  PRODUCTION_REGIONS,
+} from "@bitwarden/common/platform/services/default-environment.service";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
+import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { SendReceiveClient, SendType as SdkSendType } from "@bitwarden/sdk-internal";
 
 import { Response } from "../../../models/response";
 
 import { SendReceiveCommand } from "./receive.command";
 
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  SendReceiveClient: jest.fn(),
+}));
+
 describe("SendReceiveCommand", () => {
   let command: SendReceiveCommand;
 
-  const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const encryptService = mock<EncryptService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const platformUtilsService = mock<PlatformUtilsService>();
@@ -31,30 +57,35 @@ describe("SendReceiveCommand", () => {
   const sendApiService = mock<SendApiService>();
   const apiService = mock<ApiService>();
   const sendTokenService = mock<SendTokenService>();
+  const configService = mock<ConfigService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
+  const appIdService = mock<AppIdService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
+  const testAppId = "test-app-id";
+  const testUserAgent = "Bitwarden_CLI/2026.10.0 (MACOS)";
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    environmentService.environment$ = of({
-      getUrls: () => ({
-        api: "https://api.bitwarden.com",
-        webVault: "https://vault.bitwarden.com",
-      }),
-    } as any);
+    environmentService.environment$ = of(
+      new CloudEnvironment(PRODUCTION_REGIONS.find((r) => r.key === Region.US)),
+    );
 
     environmentService.availableRegions.mockReturnValue(PRODUCTION_REGIONS);
 
     platformUtilsService.isDev.mockReturnValue(false);
 
-    keyService.makeSendKey.mockResolvedValue({} as any);
+    legacyCompatKeyService.makeSendKey.mockResolvedValue({} as any);
 
     cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    appIdService.getAppId.mockResolvedValue(testAppId);
+
     command = new SendReceiveCommand(
-      keyService,
       encryptService,
       cryptoFunctionService,
       platformUtilsService,
@@ -62,6 +93,10 @@ describe("SendReceiveCommand", () => {
       sendApiService,
       apiService,
       sendTokenService,
+      sendDecryptionService,
+      appIdService,
+      configService,
+      testUserAgent,
     );
   });
 
@@ -71,6 +106,18 @@ describe("SendReceiveCommand", () => {
 
       expect(response.success).toBe(false);
       expect(response.message).toContain("Failed to parse");
+    });
+
+    it("should refuse a mismatched domain in non-interactive mode", async () => {
+      process.env.BW_NOINTERACTION = "true";
+
+      const response = await command.run("https://send.example.com/#/send/abc123/key456", {});
+
+      expect(response.success).toBe(false);
+      expect(response.message).toContain("does not match the configured domain");
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+
+      delete process.env.BW_NOINTERACTION;
     });
 
     it("should return error when URL is missing send ID or key", async () => {
@@ -313,12 +360,15 @@ describe("SendReceiveCommand", () => {
           file: {
             id: "file-123",
             fileName: "test.pdf",
-            size: 1024,
+            size: "1024",
           },
-        };
+        } as SendAccessView;
 
         sendApiService.postSendAccess.mockResolvedValue({} as any);
-        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
         sendApiService.getSendFileDownloadData.mockResolvedValue({
           url: "https://example.com/download",
         } as any);
@@ -347,12 +397,15 @@ describe("SendReceiveCommand", () => {
           file: {
             id: "file-123",
             fileName: `../../${fileName}`,
-            size: 1024,
+            size: "1024",
           },
-        };
+        } as SendAccessView;
 
         sendApiService.postSendAccess.mockResolvedValue({} as any);
-        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
         const fileDownloadUrl = "https://example.com/download";
         sendApiService.getSendFileDownloadData.mockResolvedValue({
           url: fileDownloadUrl,
@@ -371,6 +424,113 @@ describe("SendReceiveCommand", () => {
           expect.any(Function),
           undefined,
         );
+      });
+
+      it("should block a download url that isn't https and never call saveAttachmentToFile", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "http://example.com/download",
+        } as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("security check");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+      });
+
+      it("should block a download url that targets a restricted host and never call saveAttachmentToFile", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "https://169.254.169.254/download",
+        } as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("security check");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not block a download url on the same origin as the trusted api, even over http", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: "test.pdf",
+            size: "1024",
+          },
+        } as SendAccessView;
+
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
+          url: "http://bw.internal/download",
+        } as any);
+        encryptService.decryptFileData.mockResolvedValue(new ArrayBuffer(1024) as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        // A self-hosted server whose download url shares the api's own (non-https, private) origin.
+        const receiver = (command as any).legacyReceiver(
+          {
+            apiUrl: "http://bw.internal/api",
+            identityUrl: "http://bw.internal/identity",
+            trusted: true,
+            isConfiguredServer: true,
+          },
+          new Uint8Array(32),
+        );
+        const response = await (command as any).accessSendWithToken(mockToken, receiver, {});
+
+        expect(response.success).toBe(true);
+        expect(saveAttachmentToFileSpy).toHaveBeenCalled();
       });
     });
 
@@ -456,8 +616,9 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      const { apiUrl, identityUrl } = await (command as any).resolveSendServer(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
     });
 
     it("should resolve send.bitwarden.eu to api.bitwarden.eu", async () => {
@@ -468,20 +629,838 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      const { apiUrl, identityUrl } = await (command as any).resolveSendServer(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.eu");
+      expect(identityUrl).toBe("https://identity.bitwarden.eu");
     });
 
     it("should handle custom domain URLs", async () => {
-      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
-      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
-      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
-
       const customUrl = "https://custom.example.com/#/send/abc123/key456";
-      await command.run(customUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(customUrl));
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL(customUrl));
+
       expect(apiUrl).toBe("https://custom.example.com/api");
+      expect(identityUrl).toBe("https://custom.example.com/identity");
+      expect(trusted).toBe(false);
+      expect(isConfiguredServer).toBe(false);
+    });
+
+    it("treats the configured region as its own minting authority", async () => {
+      const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
+
+      const { trusted, isConfiguredServer } = await (command as any).resolveSendServer(
+        new URL(sendUrl),
+      );
+
+      expect(trusted).toBe(true);
+      expect(isConfiguredServer).toBe(true);
+    });
+
+    // send.bitwarden.com is a vanity host; the link a recipient actually copies out of their
+    // browser is the web vault origin, which is not any region's urls.send.
+    it("trusts a cloud web vault origin from a differently-configured CLI", async () => {
+      environmentService.environment$ = of(
+        new CloudEnvironment(PRODUCTION_REGIONS.find((r) => r.key === Region.EU)),
+      );
+
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL("https://vault.bitwarden.com/#/send/abc123/key456"));
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
+      expect(isConfiguredServer).toBe(false);
+    });
+
+    it("trusts a Gov web vault origin from a differently-configured CLI", async () => {
+      const { apiUrl, identityUrl, trusted } = await (command as any).resolveSendServer(
+        new URL("https://vault.bitwarden-gov.com/#/send/abc123/key456"),
+      );
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden-gov.com");
+      expect(identityUrl).toBe("https://identity.bitwarden-gov.com");
+    });
+
+    it("still resolves the configured region's own web vault origin", async () => {
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL("https://vault.bitwarden.com/#/send/abc123/key456"));
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
+      expect(isConfiguredServer).toBe(true);
+    });
+
+    it("trusts another Bitwarden region but does not treat it as the configured server", async () => {
+      // Configured for US cloud; this link is EU. No trust prompt is warranted, but the token must
+      // still be minted at EU's identity server rather than at api.bitwarden.eu with a US token.
+      const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
+
+      const { identityUrl, trusted, isConfiguredServer } = await (command as any).resolveSendServer(
+        new URL(sendUrl),
+      );
+
+      expect(identityUrl).toBe("https://identity.bitwarden.eu");
+      expect(trusted).toBe(true);
+      expect(isConfiguredServer).toBe(false);
+    });
+  });
+
+  describe("Token minting authority", () => {
+    const foreignServer = {
+      apiUrl: "https://custom.example.com/api",
+      identityUrl: "https://custom.example.com/identity",
+      trusted: false,
+      isConfiguredServer: false,
+    };
+
+    /** Parses the form-encoded body of the mint request the command issued. */
+    const mintedFields = async (): Promise<Record<string, string>> => {
+      const request = apiService.nativeFetch.mock.calls[0][0] as Request;
+      return Object.fromEntries(new URLSearchParams(await request.text()).entries());
+    };
+
+    const respondWith = (status: number, body: unknown) =>
+      apiService.nativeFetch.mockResolvedValue({
+        status,
+        headers: { get: () => "application/json" },
+        json: async () => body,
+      } as any);
+
+    // Ties resolveSendServer to requestToken through run(). The unit tests below hand requestToken a
+    // SendServer directly, so without this a regression that marked another region as the configured
+    // server would leave every other test passing.
+    it("mints and spends a cross-region Send at that region, end to end", async () => {
+      // beforeEach configures US cloud; this link is EU.
+      respondWith(200, { access_token: "eu-token", expires_in: 3600 });
+      sendApiService.postSendAccess.mockResolvedValue({} as any);
+
+      sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+        { type: SendType.Text, text: { text: "secret" } } as any,
+        new SymmetricCryptoKey(new Uint8Array(64)),
+      ]);
+      const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+      const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
+
+      expect(response.success).toBe(true);
+
+      // Minted at EU's identity server, never at the configured US one.
+      expect((apiService.nativeFetch.mock.calls[0][0] as Request).url).toBe(
+        "https://identity.bitwarden.eu/connect/token",
+      );
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+      expect(sendTokenService.getSendAccessToken$).not.toHaveBeenCalled();
+
+      // ...and spent at that same region's API.
+      expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
+        expect.objectContaining({ token: "eu-token" }),
+        "https://api.bitwarden.eu",
+      );
+
+      stdoutSpy.mockRestore();
+    });
+
+    it("mints a foreign-origin Send at that origin, never the configured server", async () => {
+      respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+
+      const result = await (command as any).requestToken(foreignServer, testSendId);
+
+      expect(result).toBeInstanceOf(SendAccessToken);
+      expect(result.token).toBe("foreign-token");
+      // The configured server must not be asked to mint a token for a Send it does not host.
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+      expect(sendTokenService.getSendAccessToken$).not.toHaveBeenCalled();
+
+      const request = apiService.nativeFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe("https://custom.example.com/identity/connect/token");
+    });
+
+    it("routes the configured server through the shared token service", async () => {
+      const mockToken = new SendAccessToken("configured-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+      const result = await (command as any).requestToken(
+        {
+          apiUrl: "https://api.bitwarden.com",
+          identityUrl: "https://identity.bitwarden.com",
+          trusted: true,
+          isConfiguredServer: true,
+        },
+        testSendId,
+      );
+
+      expect(result).toBe(mockToken);
+      expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId);
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
+    });
+
+    it("refuses to send credentials to a non-https server", async () => {
+      const result = await (command as any).requestToken(
+        { ...foreignServer, identityUrl: "http://custom.example.com/identity" },
+        testSendId,
+        { kind: "password", passwordHashB64: "hash" },
+      );
+
+      expect(result.kind).toBe("unknown");
+      expect(result.error).toContain("https");
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
+    });
+
+    it("rejects a token response with no usable expiry", async () => {
+      respondWith(200, { access_token: "foreign-token" });
+
+      const result = await (command as any).requestToken(foreignServer, testSendId);
+
+      expect(result.kind).toBe("unknown");
+      expect(result.error).toContain("expires_in");
+    });
+
+    describe("grant request body", () => {
+      beforeEach(() => {
+        respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+      });
+
+      it("sends the send_access grant with no credentials", async () => {
+        await (command as any).requestToken(foreignServer, testSendId);
+
+        expect(await mintedFields()).toEqual({
+          grant_type: "send_access",
+          client_id: "send",
+          scope: "api.send.access",
+          send_id: testSendId,
+        });
+      });
+
+      it("sends the password hash verbatim", async () => {
+        await (command as any).requestToken(foreignServer, testSendId, {
+          kind: "password",
+          passwordHashB64: "aGFzaCt3aXRoL3NwZWNpYWxzPQ==",
+        });
+
+        expect((await mintedFields()).password_hash_b64).toBe("aGFzaCt3aXRoL3NwZWNpYWxzPQ==");
+      });
+
+      it("sends the email for the email grant", async () => {
+        await (command as any).requestToken(foreignServer, testSendId, {
+          kind: "email",
+          email: "user+tag@example.com",
+        });
+
+        const fields = await mintedFields();
+        expect(fields.email).toBe("user+tag@example.com");
+        expect(fields.otp).toBeUndefined();
+      });
+
+      it("sends email and otp for the email_otp grant", async () => {
+        await (command as any).requestToken(foreignServer, testSendId, {
+          kind: "email_otp",
+          email: "user+tag@example.com",
+          otp: "012345" as any,
+        });
+
+        expect(await mintedFields()).toMatchObject({
+          email: "user+tag@example.com",
+          otp: "012345",
+        });
+      });
+    });
+
+    describe("device identifier", () => {
+      const deviceIdentifierOf = (call: number): string | null =>
+        (apiService.nativeFetch.mock.calls[call][0] as Request).headers.get("Device-Identifier");
+
+      it.each([
+        ["no credentials", undefined],
+        ["password", { kind: "password", passwordHashB64: "hash" }],
+        ["email", { kind: "email", email: "user@example.com" }],
+        ["email_otp", { kind: "email_otp", email: "user@example.com", otp: "012345" }],
+      ])("sends the app id as the Device-Identifier with %s", async (_, credentials) => {
+        respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+
+        await (command as any).requestToken(foreignServer, testSendId, credentials);
+
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+      });
+
+      it("sends the app id as the Device-Identifier when a cross-region Send is received", async () => {
+        // beforeEach configures US cloud; this link is EU.
+        respondWith(200, { access_token: "eu-token", expires_in: 3600 });
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          { type: SendType.Text, text: { text: "secret" } } as any,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+        const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+        const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
+
+        expect(response.success).toBe(true);
+        expect(apiService.nativeFetch).toHaveBeenCalledTimes(1);
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+
+        stdoutSpy.mockRestore();
+      });
+
+      it("sends the same Device-Identifier on the email and email + OTP requests", async () => {
+        jest.spyOn(command as any, "promptForEmail").mockResolvedValue("user@example.com");
+        jest.spyOn(command as any, "promptForOtp").mockResolvedValue("012345");
+        jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+        apiService.nativeFetch
+          .mockResolvedValueOnce({
+            status: 400,
+            headers: { get: () => "application/json" },
+            json: async () => ({
+              error: "invalid_request",
+              send_access_error_type: "email_and_otp_required",
+            }),
+          } as any)
+          .mockResolvedValueOnce({
+            status: 200,
+            headers: { get: () => "application/json" },
+            json: async () => ({ access_token: "foreign-token", expires_in: 3600 }),
+          } as any);
+
+        const response = await (command as any).handleEmailOtpAuth(
+          testSendId,
+          (command as any).legacyReceiver(foreignServer, new Uint8Array(64)),
+          {},
+        );
+
+        expect(response.success).toBe(true);
+        expect(apiService.nativeFetch).toHaveBeenCalledTimes(2);
+        expect(deviceIdentifierOf(0)).toBe(testAppId);
+        expect(deviceIdentifierOf(1)).toBe(testAppId);
+      });
+    });
+
+    describe("error shape mapping", () => {
+      it.each([
+        ["invalid_request", "password_hash_b64_required"],
+        ["invalid_request", "email_required"],
+        ["invalid_request", "email_and_otp_required"],
+        ["invalid_grant", "password_hash_b64_invalid"],
+        ["invalid_grant", "send_id_invalid"],
+      ])("preserves %s / %s for callers to branch on", async (error, sendAccessErrorType) => {
+        respondWith(400, { error, send_access_error_type: sendAccessErrorType });
+
+        const result = await (command as any).requestToken(foreignServer, testSendId);
+
+        expect(result.kind).toBe("expected_server");
+        expect(result.error.error).toBe(error);
+        expect(result.error.send_access_error_type).toBe(sendAccessErrorType);
+      });
+
+      it("matches the predicate callers actually use", async () => {
+        respondWith(400, {
+          error: "invalid_request",
+          send_access_error_type: "password_hash_b64_required",
+        });
+
+        const result = await (command as any).requestToken(foreignServer, testSendId);
+
+        expect(passwordHashB64Required(result.error)).toBe(true);
+      });
+    });
+  });
+
+  describe("Cross-instance receive through the SDK", () => {
+    const keyArray = new Uint8Array(16).fill(1);
+    /** `keyArray` in the url-safe base64 form the SDK takes. */
+    const keyB64 = "AQEBAQEBAQEBAQEBAQEBAQ";
+    const accessToken = new SendAccessToken("foreign-token", Date.now() + 3600000);
+    /** beforeEach configures US cloud; this link is EU, so it is trusted but cross-instance. */
+    const euSendUrl = `https://vault.bitwarden.eu/#/send/${testSendId}/${keyB64}`;
+
+    const foreignServer = {
+      apiUrl: "https://custom.example.com/api",
+      identityUrl: "https://custom.example.com/identity",
+      trusted: false,
+      isConfiguredServer: false,
+    };
+
+    const sdkAccessResponse = { id: "access-id" } as any;
+    const sdkToken = { token: "sdk-token", expiresAt: Date.now() + 3600000 };
+    const receiveClient = {
+      request_send_access_token: jest.fn(),
+      hash_send_password: jest.fn(),
+      access_send: jest.fn(),
+      get_file_download_data: jest.fn(),
+      decrypt_send_access: jest.fn(),
+      decrypt_send_access_file: jest.fn(),
+      [Symbol.dispose]: jest.fn(),
+    };
+
+    /** The SDK's SendAccessTokenError for a 400 the identity server explains. */
+    const expectedTokenError = (error: string, sendAccessErrorType: string) => ({
+      kind: "expected",
+      data: { error, send_access_error_type: sendAccessErrorType },
+    });
+
+    const enableSdkSends = (enabled: boolean) =>
+      configService.getFeatureFlag.mockImplementation(async (flag) =>
+        flag === FeatureFlag.Pm30110SdkSendsApi ? enabled : false,
+      );
+
+    const sdkReceiver = (server: typeof foreignServer = foreignServer) =>
+      (command as any).sdkReceiver(receiveClient, server, keyArray);
+
+    const accessSendWithToken = (options = {}) =>
+      (command as any).accessSendWithToken(accessToken, sdkReceiver(), options);
+
+    const decryptsToText = (text: string) =>
+      receiveClient.decrypt_send_access.mockReturnValue({
+        id: "access-id",
+        type: SdkSendType.Text,
+        text: { text, hidden: false },
+      });
+
+    /** Asserts nothing about the receive went through the signed-in instance's services. */
+    const expectNothingOnTheSignedInInstance = () => {
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+      expect(sendTokenService.getSendAccessToken$).not.toHaveBeenCalled();
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
+      expect(cryptoFunctionService.pbkdf2).not.toHaveBeenCalled();
+      expect(sendApiService.postSendAccess).not.toHaveBeenCalled();
+      expect(sendDecryptionService.decryptSendAccess).not.toHaveBeenCalled();
+    };
+
+    let stdoutSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      // SdkLoadService.Ready only resolves once the wasm module is loaded, which never happens here.
+      Object.defineProperty(SdkLoadService, "Ready", {
+        value: Promise.resolve(),
+        configurable: true,
+      });
+    });
+
+    beforeEach(() => {
+      enableSdkSends(true);
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsCLI);
+      platformUtilsService.getApplicationVersionNumber.mockResolvedValue("2026.10.0");
+      (SendReceiveClient as unknown as jest.Mock).mockImplementation(() => receiveClient);
+      receiveClient.request_send_access_token.mockResolvedValue(sdkToken);
+      receiveClient.hash_send_password.mockReturnValue("sdk-hash");
+      receiveClient.access_send.mockResolvedValue(sdkAccessResponse);
+      decryptsToText("secret message");
+      stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
+    });
+
+    afterEach(() => {
+      stdoutSpy.mockRestore();
+      delete process.env.BW_NOINTERACTION;
+    });
+
+    describe("end to end", () => {
+      it("builds one client against the Send's own server, identified as this CLI", async () => {
+        await command.run(euSendUrl, {});
+
+        expect(SendReceiveClient).toHaveBeenCalledTimes(1);
+        expect(SendReceiveClient).toHaveBeenCalledWith({
+          apiUrl: "https://api.bitwarden.eu",
+          identityUrl: "https://identity.bitwarden.eu",
+          userAgent: testUserAgent,
+          deviceType: "MacOsCLI",
+          deviceIdentifier: testAppId,
+          bitwardenClientVersion: "2026.10.0",
+        });
+      });
+
+      it("mints, accesses, and decrypts an unprotected Send entirely through the SDK", async () => {
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(true);
+        expect(receiveClient.request_send_access_token).toHaveBeenCalledWith({
+          sendId: testSendId,
+          sendAccessCredentials: undefined,
+        });
+        expect(receiveClient.access_send).toHaveBeenCalledWith("sdk-token");
+        expect(receiveClient.decrypt_send_access).toHaveBeenCalledWith(keyB64, sdkAccessResponse);
+        expect(stdoutSpy).toHaveBeenCalledWith("secret message");
+        expectNothingOnTheSignedInInstance();
+      });
+
+      it("hashes the password in the SDK and mints with it", async () => {
+        receiveClient.request_send_access_token
+          .mockRejectedValueOnce(
+            expectedTokenError("invalid_request", "password_hash_b64_required"),
+          )
+          .mockResolvedValueOnce(sdkToken);
+
+        const response = await command.run(euSendUrl, { password: "hunter2" });
+
+        expect(response.success).toBe(true);
+        expect(receiveClient.hash_send_password).toHaveBeenCalledWith(keyB64, "hunter2");
+        expect(receiveClient.request_send_access_token).toHaveBeenLastCalledWith({
+          sendId: testSendId,
+          sendAccessCredentials: { passwordHashB64: "sdk-hash" },
+        });
+        expect(receiveClient.access_send).toHaveBeenCalledWith("sdk-token");
+        expectNothingOnTheSignedInInstance();
+      });
+
+      it("reports a rejected password", async () => {
+        process.env.BW_NOINTERACTION = "true";
+        receiveClient.request_send_access_token
+          .mockRejectedValueOnce(
+            expectedTokenError("invalid_request", "password_hash_b64_required"),
+          )
+          .mockRejectedValueOnce(expectedTokenError("invalid_grant", "password_hash_b64_invalid"));
+
+        const response = await command.run(euSendUrl, { password: "wrong" });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Invalid password");
+        expect(receiveClient.access_send).not.toHaveBeenCalled();
+      });
+
+      it("requires a password when none is given non-interactively", async () => {
+        process.env.BW_NOINTERACTION = "true";
+        receiveClient.request_send_access_token.mockRejectedValueOnce(
+          expectedTokenError("invalid_request", "password_hash_b64_required"),
+        );
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Password required");
+        expect(receiveClient.hash_send_password).not.toHaveBeenCalled();
+      });
+
+      it("runs the email and OTP exchange through the SDK", async () => {
+        jest.spyOn(command as any, "promptForEmail").mockResolvedValue("user@example.com");
+        jest.spyOn(command as any, "promptForOtp").mockResolvedValue("012345");
+        receiveClient.request_send_access_token
+          .mockRejectedValueOnce(expectedTokenError("invalid_request", "email_required"))
+          .mockRejectedValueOnce(expectedTokenError("invalid_request", "email_and_otp_required"))
+          .mockResolvedValueOnce(sdkToken);
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(true);
+        expect(receiveClient.request_send_access_token.mock.calls.map(([r]) => r)).toEqual([
+          { sendId: testSendId, sendAccessCredentials: undefined },
+          { sendId: testSendId, sendAccessCredentials: { email: "user@example.com" } },
+          {
+            sendId: testSendId,
+            sendAccessCredentials: { email: "user@example.com", otp: "012345" },
+          },
+        ]);
+        expect(receiveClient.access_send).toHaveBeenCalledWith("sdk-token");
+        expectNothingOnTheSignedInInstance();
+      });
+
+      it("reports a rejected verification code", async () => {
+        jest.spyOn(command as any, "promptForEmail").mockResolvedValue("user@example.com");
+        jest.spyOn(command as any, "promptForOtp").mockResolvedValue("000000");
+        receiveClient.request_send_access_token
+          .mockRejectedValueOnce(expectedTokenError("invalid_request", "email_required"))
+          .mockRejectedValue(expectedTokenError("invalid_request", "email_and_otp_required"));
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Invalid email or verification code");
+      });
+
+      it("refuses the email flow non-interactively", async () => {
+        process.env.BW_NOINTERACTION = "true";
+        receiveClient.request_send_access_token.mockRejectedValueOnce(
+          expectedTokenError("invalid_request", "email_required"),
+        );
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("Email verification required");
+      });
+
+      it("maps an unknown Send id to not found", async () => {
+        receiveClient.request_send_access_token.mockRejectedValueOnce(
+          expectedTokenError("invalid_grant", "send_id_invalid"),
+        );
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Not found.");
+      });
+
+      it("reports an unexpected identity failure as a server error", async () => {
+        receiveClient.request_send_access_token.mockRejectedValueOnce({
+          kind: "unexpected",
+          data: "Received response status 500 Internal Server Error",
+        });
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe(
+          'Server error: "Received response status 500 Internal Server Error"',
+        );
+      });
+
+      it("releases the client once the Send has been received", async () => {
+        await command.run(euSendUrl, {});
+
+        expect(receiveClient[Symbol.dispose]).toHaveBeenCalledTimes(1);
+      });
+
+      it("releases the client when the receive fails", async () => {
+        receiveClient.request_send_access_token.mockRejectedValueOnce(new Error("network down"));
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe('Error: "network down"');
+        expect(receiveClient[Symbol.dispose]).toHaveBeenCalledTimes(1);
+      });
+
+      it("reports a client that cannot be built as an error", async () => {
+        (SendReceiveClient as unknown as jest.Mock).mockImplementation(() => {
+          throw new Error("bad settings");
+        });
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("bad settings");
+      });
+
+      it("keeps a Send on the configured server on the shared services", async () => {
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(accessToken));
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          { type: SendType.Text, text: { text: "secret" } } as any,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+
+        const response = await command.run(testUrl, {});
+
+        expect(response.success).toBe(true);
+        expect(SendReceiveClient).not.toHaveBeenCalled();
+        expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId);
+        expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
+          accessToken,
+          "https://api.bitwarden.com",
+        );
+      });
+
+      it("keeps a cross-instance Send on the legacy path while the SDK Sends flag is off", async () => {
+        enableSdkSends(false);
+        apiService.nativeFetch.mockResolvedValue({
+          status: 200,
+          headers: { get: () => "application/json" },
+          json: async () => ({ access_token: "eu-token", expires_in: 3600 }),
+        } as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          { type: SendType.Text, text: { text: "secret" } } as any,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
+
+        const response = await command.run(euSendUrl, {});
+
+        expect(response.success).toBe(true);
+        expect(SendReceiveClient).not.toHaveBeenCalled();
+        expect((apiService.nativeFetch.mock.calls[0][0] as Request).url).toBe(
+          "https://identity.bitwarden.eu/connect/token",
+        );
+        expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
+          expect.objectContaining({ token: "eu-token" }),
+          "https://api.bitwarden.eu",
+        );
+      });
+    });
+
+    describe("token requests", () => {
+      it("returns the SDK's token as a SendAccessToken", async () => {
+        const result = await sdkReceiver().requestToken(testSendId);
+
+        expect(result).toBeInstanceOf(SendAccessToken);
+        expect(result).toEqual(new SendAccessToken(sdkToken.token, sdkToken.expiresAt));
+      });
+
+      it.each([
+        ["password", { kind: "password", passwordHashB64: "hash" }, { passwordHashB64: "hash" }],
+        ["email", { kind: "email", email: "user@example.com" }, { email: "user@example.com" }],
+        [
+          "email_otp",
+          { kind: "email_otp", email: "user@example.com", otp: "012345" },
+          { email: "user@example.com", otp: "012345" },
+        ],
+      ])("maps %s credentials to the SDK shape", async (_, credentials, sdkCredentials) => {
+        await sdkReceiver().requestToken(testSendId, credentials);
+
+        expect(receiveClient.request_send_access_token).toHaveBeenCalledWith({
+          sendId: testSendId,
+          sendAccessCredentials: sdkCredentials,
+        });
+      });
+
+      it("keeps the expected-server error for callers' predicates", async () => {
+        receiveClient.request_send_access_token.mockRejectedValue(
+          expectedTokenError("invalid_request", "password_hash_b64_required"),
+        );
+
+        const result = await sdkReceiver().requestToken(testSendId);
+
+        expect(result.kind).toBe("expected_server");
+        expect(passwordHashB64Required(result.error)).toBe(true);
+      });
+
+      it("refuses to send credentials to a non-https server", async () => {
+        const result = await sdkReceiver({
+          ...foreignServer,
+          identityUrl: "http://custom.example.com/identity",
+        }).requestToken(testSendId, { kind: "password", passwordHashB64: "hash" });
+
+        expect(result.kind).toBe("unknown");
+        expect(result.error).toBe(
+          "Send access requires https, but the url was http://custom.example.com/identity",
+        );
+        expect(receiveClient.request_send_access_token).not.toHaveBeenCalled();
+      });
+
+      it("hashes passwords with the Send key from the url", async () => {
+        await expect(sdkReceiver().hashPassword("hunter2")).resolves.toBe("sdk-hash");
+        expect(receiveClient.hash_send_password).toHaveBeenCalledWith(keyB64, "hunter2");
+      });
+    });
+
+    describe("access", () => {
+      it("accesses and decrypts a text Send", async () => {
+        const response = await accessSendWithToken();
+
+        expect(response.success).toBe(true);
+        expect(receiveClient.access_send).toHaveBeenCalledWith("foreign-token");
+        expect(receiveClient.decrypt_send_access).toHaveBeenCalledWith(keyB64, sdkAccessResponse);
+        expect(stdoutSpy).toHaveBeenCalledWith("secret message");
+        expect(sendApiService.postSendAccess).not.toHaveBeenCalled();
+        expect(sendDecryptionService.decryptSendAccess).not.toHaveBeenCalled();
+      });
+
+      it("downloads and decrypts a file Send", async () => {
+        receiveClient.decrypt_send_access.mockReturnValue({
+          id: "access-id",
+          type: SdkSendType.File,
+          file: { id: "file-123", fileName: "../../report.pdf" },
+        });
+        receiveClient.get_file_download_data.mockResolvedValue({
+          id: "file-123",
+          url: "https://custom.example.com/download",
+        });
+        const decrypted = new Uint8Array([4, 5, 6]);
+        receiveClient.decrypt_send_access_file.mockReturnValue(decrypted);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        const response = await accessSendWithToken({ output: "./out.pdf" });
+
+        expect(response.success).toBe(true);
+        expect(receiveClient.get_file_download_data).toHaveBeenCalledWith(
+          "foreign-token",
+          "file-123",
+        );
+        expect(sendApiService.getSendFileDownloadData).not.toHaveBeenCalled();
+        expect(saveAttachmentToFileSpy).toHaveBeenCalledWith(
+          "https://custom.example.com/download",
+          "report.pdf",
+          expect.any(Function),
+          "./out.pdf",
+        );
+
+        const decryptFn = saveAttachmentToFileSpy.mock.calls[0][2] as (
+          resp: globalThis.Response,
+        ) => Promise<Uint8Array>;
+        const encrypted = new Uint8Array([1, 2, 3]);
+        await expect(decryptFn(new globalThis.Response(encrypted))).resolves.toBe(decrypted);
+        expect(receiveClient.decrypt_send_access_file).toHaveBeenCalledWith(keyB64, encrypted);
+        expect(encryptService.decryptFileData).not.toHaveBeenCalled();
+      });
+
+      it("blocks a file download url that fails the url safety check", async () => {
+        receiveClient.decrypt_send_access.mockReturnValue({
+          id: "access-id",
+          type: SdkSendType.File,
+          file: { id: "file-123", fileName: "report.pdf" },
+        });
+        receiveClient.get_file_download_data.mockResolvedValue({
+          id: "file-123",
+          url: "https://169.254.169.254/latest/meta-data",
+        });
+        const saveAttachmentToFileSpy = jest.spyOn(command as any, "saveAttachmentToFile");
+
+        const response = await accessSendWithToken({ output: "./out.pdf" });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Download blocked: the file url failed a security check.");
+        expect(saveAttachmentToFileSpy).not.toHaveBeenCalled();
+        expect(receiveClient.decrypt_send_access_file).not.toHaveBeenCalled();
+      });
+
+      it("refuses to spend the token at a non-https server", async () => {
+        const response = await (command as any).accessSendWithToken(
+          accessToken,
+          sdkReceiver({ ...foreignServer, apiUrl: "http://custom.example.com/api" }),
+          {},
+        );
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain("Insecure URL not allowed");
+        expect(receiveClient.access_send).not.toHaveBeenCalled();
+      });
+
+      /** A flat wasm SDK error, as the SDK's generated type guards recognize it. */
+      const sdkError = (name: string, variant: string, message = "") =>
+        Object.assign(new Error(message), { name, variant });
+
+      it("maps the SDK's NotFound access error to not found", async () => {
+        receiveClient.access_send.mockRejectedValue(sdkError("AccessSendError", "NotFound"));
+
+        const response = await accessSendWithToken();
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Not found.");
+      });
+
+      it("maps the SDK's NotFound file download data error to not found", async () => {
+        receiveClient.decrypt_send_access.mockReturnValue({
+          id: "access-id",
+          type: SdkSendType.File,
+          file: { id: "file-123", fileName: "report.pdf" },
+        });
+        receiveClient.get_file_download_data.mockRejectedValue(
+          sdkError("GetFileDownloadDataError", "NotFound"),
+        );
+
+        const response = await accessSendWithToken();
+
+        expect(response.success).toBe(false);
+        expect(response.message).toBe("Not found.");
+      });
+
+      it("reports other SDK API errors as errors", async () => {
+        receiveClient.access_send.mockRejectedValue(
+          sdkError(
+            "AccessSendError",
+            "Api",
+            "error in response: status code 500 Internal Server Error: {}",
+          ),
+        );
+
+        const response = await accessSendWithToken();
+
+        expect(response.success).toBe(false);
+        expect(response.message).not.toBe("Not found.");
+      });
     });
   });
 });

@@ -1,13 +1,14 @@
-import { A11yModule } from "@angular/cdk/a11y";
 import {
   ChangeDetectionStrategy,
   Component,
-  TemplateRef,
   computed,
   contentChild,
   input,
   output,
+  TemplateRef,
   viewChild,
+  ViewContainerRef,
+  inject,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -15,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { IconButtonModule } from "../icon-button/icon-button.module";
 import { TypographyModule } from "../typography";
 
+import { PopoverBaseComponent } from "./popover-base.component";
 import { PopoverHeaderComponent } from "./popover-header.component";
 
 /**
@@ -23,7 +25,7 @@ import { PopoverHeaderComponent } from "./popover-header.component";
  */
 @Component({
   selector: "bit-popover",
-  imports: [A11yModule, I18nPipe, IconButtonModule, TypographyModule],
+  imports: [I18nPipe, IconButtonModule, TypographyModule, PopoverBaseComponent],
   templateUrl: "./popover.component.html",
   exportAs: "popoverComponent",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,9 +34,11 @@ export class PopoverComponent {
   /** Reference to the popover content template */
   readonly templateRef = viewChild.required(TemplateRef);
 
-  /** Optional title displayed in the popover header */
-  readonly title = input("");
+  /** Where `PopoverService` renders the content by default. */
+  readonly viewContainerRef = inject(ViewContainerRef);
 
+  /** Title displayed in the popover header */
+  readonly title = input("");
   /** Emitted when the close button is clicked */
   readonly closed = output();
 

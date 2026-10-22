@@ -9,6 +9,9 @@ function transformMaxItems(value: number | undefined) {
 }
 
 /**
+ * @deprecated Use `bit-badge-group` instead. This component remains for
+ * backwards compatibility; new usages should adopt `bit-badge-group`.
+ *
  * Displays a collection of badges in a horizontal, wrapping layout.
  *
  * The component automatically handles overflow by showing a limited number of badges

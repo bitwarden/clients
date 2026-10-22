@@ -91,13 +91,9 @@
             ((filter.type === undefined && filter.collectionId === undefined) ||
               filter.collectionId !== undefined)
           "
-          [showPremiumFeatures]="organization?.useTotp"
-          [showBulkMove]="false"
-          [showBulkTrashOptions]="filter.type === 'trash'"
           [useEvents]="organization?.canAccessEventLogs"
           [showAdminActions]="true"
           (onEvent)="onVaultItemsEvent($event)"
-          [showBulkEditCollectionAccess]="true"
           [showBulkAddToCollections]="true"
           [viewingOrgVault]="true"
           [addAccessStatus]="collectionService.addAccessStatus$ | async"
@@ -110,8 +106,9 @@
       @let showCollectionAccessRestricted = showCollectionAccessRestricted$ | async;
       @if (!refreshing && (isEmpty$ | async)) {
         @if (!showCollectionAccessRestricted) {
-          <bit-no-items>
-            <span slot="title" class="tw-mt-4 tw-block">{{ "noItemsInList" | i18n }}</span>
+          <bit-status-lockup>
+            <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
+            <span slot="title" class="tw-block">{{ "noItemsInList" | i18n }}</span>
 
             @if (
               filter &&
@@ -123,18 +120,17 @@
                 slot="button"
                 bitButton
                 (click)="addCipher()"
-                [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+                buttonType="secondary"
                 type="button"
-                [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
                 [disabled]="organization && !organization.enabled"
                 [bitTooltip]="
                   organization && !organization.enabled ? ('organizationIsSuspended' | i18n) : ''
                 "
               >
-                {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
+                {{ "addItem" | i18n }}
               </button>
             }
-          </bit-no-items>
+          </bit-status-lockup>
         } @else {
           <collection-access-restricted
             [canEditCollection]="selectedCollection?.node?.canEdit(organization)"
@@ -160,6 +156,4 @@
   </div>
 }
 
-@if (vaultBatchBarFeatureFlag()) {
-  <bit-vault-batch-action />
-}
+<bit-vault-batch-action />

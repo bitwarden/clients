@@ -9,6 +9,10 @@
     "message": "Bitwarden – správca hesiel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden – správca hesiel (Beta)",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -118,6 +122,9 @@
   },
   "vault": {
     "message": "Trezor"
+  },
+  "vaults": {
+    "message": "Trezory"
   },
   "myVault": {
     "message": "Môj trezor"
@@ -444,6 +451,9 @@
   "noFolders": {
     "message": "V zozname sa nenachádzajú žiadne priečinky."
   },
+  "noFoldersFilter": {
+    "message": "Žiadne priečinky"
+  },
   "helpFeedback": {
     "message": "Pomoc a spätná väzba"
   },
@@ -504,6 +514,87 @@
   },
   "options": {
     "message": "Možnosti"
+  },
+  "optionsForItem": {
+    "message": "Možnosti pre $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Žiadny zdieľaný priečinok"
+  },
+  "filterByName": {
+    "message": "Filtrovať podľa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Označte položky ako obľúbené a filtrujte ich tu."
+  },
+  "foldersFilterTooltip": {
+    "message": "Pridajte priečinky k položkám a filtrujte ich tu."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Ak tu chcete filtrovať, pridajte položky do zdieľaného priečinka."
+  },
+  "editItemWithName": {
+    "message": "Upraviť položku – $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "V trezore nie sú žiadne položky"
+  },
+  "noItemsInMyVault": {
+    "message": "Môj trezor je prázdny"
+  },
+  "emptyMyItems": {
+    "message": "Moje položky sú prázdne"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Trezor $VAULT_NAME$ je prázdny",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Trezor $VAULT_NAME$ je prázdny",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Vaše trezory sú prázdne"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Žiadne položky nezodpovedajú zvoleným filtrom"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Žiadny filter nezodpovedá výrazu \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Dĺžka"
@@ -572,6 +663,10 @@
   },
   "resetSearch": {
     "message": "Resetovať vyhľadávanie"
+  },
+  "clearSearchTooltip": {
+    "message": "Na vymazanie kliknite sem alebo stlačte kláves Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "Archív",
@@ -709,8 +804,8 @@
   "launchWebsite": {
     "message": "Otvoriť stránku"
   },
-  "launchWebsiteName": {
-    "message": "Otvoriť stránku $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Otvoriť stránku pre $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1055,6 +1150,12 @@
   "addedFolder": {
     "message": "Priečinok bol pridaný"
   },
+  "folderEdited": {
+    "message": "Priečinok bol upravený"
+  },
+  "enterAName": {
+    "message": "Zadajte názov."
+  },
   "twoStepLoginConfirmation": {
     "message": "Dvojstupňové prihlásenie zvyšuje bezpečnosť vášho účtu tým, že vyžaduje overenie prihlásenia pomocou iného zariadenia, napríklad bezpečnostného kľúča, overovacej aplikácie, SMS, telefonického hovoru alebo e-mailu. Dvojstupňové prihlásenie môžete nastaviť na bitwarden.com. Chcete stránku navštíviť teraz?"
   },
@@ -1193,9 +1294,6 @@
   },
   "clickToAutofillOnVault": {
     "message": "Kliknutím na položky v trezore automaticky vyplniť"
-  },
-  "clickToAutofill": {
-    "message": "Kliknutím na položky v ponuke automatického vypĺňania vyplniť"
   },
   "clearClipboard": {
     "message": "Vymazať schránku",
@@ -1367,17 +1465,40 @@
   "additionalOptions": {
     "message": "Ďalšie možnosti"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "Automatické vypĺňanie na tejto stránke využíva pomoc pri vypĺňaní."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Zapnúť pomoc pri vypĺňaní"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných stránkach pomocou pravidiel špecifických pre danú stránku. Pri používaní tejto funkcie sa nezhromažďujú ani neukladajú žiadne údaje."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Info o pomoci pri vypĺňaní"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Povoliť webovým stránkam vylúčiť polia z automatického vypĺňania"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Preskočiť polia, ktoré webová stránka označuje atribútom `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Povoliť webovým stránkam pridávať polia na automatické vypĺňanie"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Použiť všetky prvky typu span, ktoré webová stránka označuje atribútom `data-bwautofill`."
+  },
+  "enableBasicAuthResponseLabel": {
+    "message": "Automatické vyplňovanie prihlasovacích údajov v prehliadači",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Reaguje na výzvy na základné HTTP overenie, keď sa položka prihlásenia vo vašom trezore zhoduje s webovou stránkou."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Webstránky môžu tieto výzvy spúšťať bez vášho vedomia, čo môže viesť k prezradeniu vašich prihlasovacích údajov.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
@@ -1430,6 +1551,46 @@
   "importVerb": {
     "message": "Importovať",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Vybrať zdroj"
+  },
+  "importData": {
+    "message": "Import údajov"
+  },
+  "importSourceSelectTitle": {
+    "message": "Vyberte zdroj"
+  },
+  "importSourceSelectDescription": {
+    "message": "Vyberte správcu hesiel alebo prehliadač, z ktorého chcete importovať."
+  },
+  "importSourceBrowsers": {
+    "message": "Prehliadače"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Správcovia hesiel"
+  },
+  "importSourceShowAll": {
+    "message": "Zobraziť všetko"
+  },
+  "importSourceShowLess": {
+    "message": "Zobraziť menej"
+  },
+  "importSourceStepCount": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "importItems": {
+    "message": "Importovať položky"
   },
   "fileFormat": {
     "message": "Formát súboru"
@@ -1499,9 +1660,6 @@
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
   },
-  "newSharedFolder": {
-    "message": "Nový zdieľaný priečinok"
-  },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pre podniky vám umožňuje zdieľať položky trezoru s ostatnými pomocou organizácie. Viac informácií nájdete na webovej stránke bitwarden.com."
   },
@@ -1557,6 +1715,21 @@
   "copyVerificationCode": {
     "message": "Kopírovať overovací kód"
   },
+  "noUsername": {
+    "message": "Žiadne používateľské meno"
+  },
+  "noPassword": {
+    "message": "Žiadne heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žiadny overovací kód"
+  },
+  "noNumber": {
+    "message": "Žiadne číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žiadny bezpečnostný kód"
+  },
   "attachments": {
     "message": "Prílohy"
   },
@@ -1602,6 +1775,27 @@
   "selectFile": {
     "message": "Vyberte súbor"
   },
+  "selectFileUnsupportedType": {
+    "message": "Tento typ súboru nie je pre tento zdroj povolený. Vyberte iný súbor"
+  },
+  "pasteContentRequired": {
+    "message": "Vložte exportovaný obsah"
+  },
+  "fileTypeNotSupported": {
+    "message": "Tento typ súboru nie je podporovaný. Vyberte súbor typu $TYPES$",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Vložený obsah nezodpovedá zvolenému formátu"
+  },
+  "errorReadingFile": {
+    "message": "Vybraný súbor sa nepodarilo prečítať"
+  },
   "itemsTransferred": {
     "message": "Položky boli prenesené"
   },
@@ -1625,12 +1819,6 @@
   },
   "premiumRefresh": {
     "message": "Obnoviť členstvo"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Momentálne nie ste prémiovým členom."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Zaregistrujte sa na prémiové členstvo a získajte:"
   },
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska na prílohy."
@@ -1676,12 +1864,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Ste prémiovým členom!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Ďakujeme, že podporujete Bitwarden."
   },
   "premiumFeatures": {
     "message": "Inovujte na prémium a získajte:"
@@ -1950,6 +2132,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Zobrazovať karty ako návrhy"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Zobraziť kľúče SSH ako návrhy"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Zobraziť návrhy, keď je vybratá ikona"
   },
@@ -2152,9 +2337,6 @@
   },
   "securityCode": {
     "message": "Bezpečnostný kód"
-  },
-  "cardNumber": {
-    "message": "číslo karty"
   },
   "ex": {
     "message": "napr."
@@ -2402,42 +2584,6 @@
     "message": "Pridať pas",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Nové prihlásenie",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Nová karta",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Nová identita",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Nová poznámka",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Nová zabezpečená poznámka",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Nový kľúč SSH",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Nový bankový účet",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Nový pas",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Nový text",
     "description": "Header for new text send"
@@ -2445,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Nový súbor",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Upraviť prihlásenie",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Upraviť kartu",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Upraviť identitu",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Upraviť poznámku",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Upraviť zabezpečenú poznámku",
@@ -2565,6 +2695,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ zbierok",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "Zdieľané priečinky: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2685,6 +2824,42 @@
   },
   "noMatchingItems": {
     "message": "Žiadne zodpovedajúce položky"
+  },
+  "noFiltersMatch": {
+    "message": "Žiadny filter nezodpovedá výrazu „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "1 výsledok",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "Výsledky: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Žiadny filter nezodpovedá výrazu \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "Vymazať vyhľadávanie"
   },
   "selected": {
     "message": "Vybrané"
@@ -3034,7 +3209,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "Táto stránka narúša zážitok zo Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
+    "message": "Táto stránka narúša zážitok z Bitwardenu. Inline ponuka Bitwardenu bola dočasne vypnutá ako bezpečnostné opatrenie."
   },
   "setMasterPassword": {
     "message": "Nastaviť hlavné heslo"
@@ -3131,12 +3306,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Nenašiel sa žiadny token obnovenia ani kľúče API. Skúste sa odhlásiť a znova prihlásiť."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Overenie synchronizácie desktopu"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Prosím, overte, že desktopová aplikácia zobrazuje tento odtlačok: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Integrácia v prehliadači nie je povolená"
@@ -3908,16 +4077,25 @@
   "errorGettingAutoFillData": {
     "message": "Chyba pri získavaní údajov automatického vypĺňania"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  "couldNotDecryptVaultItem": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedenú položku v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položky, aby sa zistilo, či je možné ju obnoviť."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktujte zákaznícku podporu,",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky v trezore. Obráťte sa na zákaznícku podporu Bitwarden a uveďte nižšie uvedené ID položiek, aby sa zistilo, či je možné ich obnoviť."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "aby ste predišli ďalším stratám údajov.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "ID položky",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "ID položiek",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "Kopírovať ID"
+  },
+  "copyAllIds": {
+    "message": "Kopírovať všetky ID"
   },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
@@ -4103,6 +4281,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "Táto URL adresa nie je povolená. Musí používať protokol https a nesmie smerovať na adresu v lokálnej alebo súkromnej sieti.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Zadajte platnú URL adresu",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Zistená nebezpečná URL adresa",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Táto URL adresa môže byť nezabezpečená alebo smerovať do súkromnej siete. Jej použitie môže viesť k úniku súkromných údajov. Pokračujte len vtedy, ak tomuto serveru dôverujete.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Dôveryhodná URL adresa",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Táto URL adresa bola označená ako dôveryhodná. Môžete ju kedykoľvek upraviť.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "Vyskytla sa neznáma chyba $SERVICENAME$.",
@@ -4891,6 +5093,9 @@
   "importFormatError": {
     "message": "Dáta nie sú správne formátované. Prosím, overte importovaný súbor a skúste to znova."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Tento súbor používa nepodporované nastavenia šifrovania a nie je možné ho importovať."
+  },
   "importNothingError": {
     "message": "Nič sa neimportovalo."
   },
@@ -4972,17 +5177,14 @@
   "learnAboutImportOptions": {
     "message": "Zistiť viac o možnostiach importu"
   },
-  "selectImportFolder": {
-    "message": "Vyberte priečinok"
-  },
-  "selectImportCollection": {
-    "message": "Vyberte zbierku"
-  },
   "importTargetHintCollection": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
   },
   "importTargetHintFolder": {
     "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "Túto možnosť vyberte, ak chcete obsah importovaného súboru presunúť do zdieľaného priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -5002,6 +5204,79 @@
   "noFileChosen": {
     "message": "Nebol vybratý žiadny súbor"
   },
+  "noFileSelected": {
+    "message": "Nie je vybraný žiadny súbor"
+  },
+  "fileChosen": {
+    "message": "Vybraný súbor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Pridaný súbor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Pridané súbory ($COUNT$): $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Súbor bol odstránený: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Bol nahraný 1 súbor"
+  },
+  "filesUploaded": {
+    "message": "Počet nahraných súborov: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané súbory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nahrajte kliknutím alebo pretiahnutím"
+  },
+  "chooseFiles": {
+    "message": "Vybrať súbory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. veľkosť súboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "alebo kopírujte/vložte obsah súboru"
   },
@@ -5015,6 +5290,317 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Podrobné pokyny pre produkt $NAME$ nájdete v našom",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Centre pomoci"
+  },
+  "uploadFile": {
+    "message": "Nahrať súbor"
+  },
+  "pasteAsPlainText": {
+    "message": "Vložiť ako obyčajný text"
+  },
+  "plainText": {
+    "message": "Obyčajný text"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "importManuallyInstead": {
+    "message": "Namiesto toho importovať ručne"
+  },
+  "directlyImportInstead": {
+    "message": "Namiesto toho importovať priamo"
+  },
+  "fastest": {
+    "message": "Najrýchlejšie"
+  },
+  "importDataTitle": {
+    "message": "Importovať svoje údaje"
+  },
+  "importDataDirectTitle": {
+    "message": "Importujte svoje údaje za pár minút"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importujte svoje položky priamo z",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "a získajte všetky svoje údaje.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importujte z $VENDOR$ alebo skopírujte a vložte obsah exportu.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Vyberte profil, z ktorého chcete importovať heslá."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Nenašli sa žiadne profily prehliadača"
+  },
+  "importDataLoginTitle": {
+    "message": "Prihláste sa do $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Vaše prihlasovacie údaje sú počas prenosu šifrované a nikdy sa neukladajú."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Bezpečnosť už v návrhu"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Odovzdávanie údajov je šifrované end-to-end. Bitwarden nikdy nevidí vaše prihlasovacie údaje z $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Požiadame vás o prihlasovacie údaje"
+  },
+  "importDataLoginInfoBody": {
+    "message": "V ďalšom kroku sa prihláste do svojho účtu $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Prenesie sa všetko"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Prihlasovacie údaje, karty, identity, zabezpečené poznámky a TOTP kódy so zachovanou štruktúrou priečinkov."
+  },
+  "importAcceptedFormats": {
+    "message": "Podporované: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "Typ súboru $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Postup je úplne rovnaký ako pri importe z prehliadača Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "V počítačovej aplikácii KeePassX prejdite do ponuky \"Databáza\" → \"Exportovať do súboru CSV\" a uložte súbor CSV."
+  },
+  "importAviraInstructions": {
+    "message": "V webovom trezore Avira prejdite do \"Nastavenia\" → \"Moje údaje\" → \"Exportovať údaje\" a uložte súbor CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Vo webovom trezore Blur kliknite hore na svoje používateľské meno a prejdite do \"Nastavenia\" → \"Exportovať údaje\", potom kliknite na \"Exportovať CSV\" pri položke \"Účty“."
+  },
+  "importSafeincloudInstructions": {
+    "message": "V počítačovej aplikácii SafeInCloud prejdite do \"Súbor\" → \"Exportovať\" → \"Ako XML\" a uložte súbor XML."
+  },
+  "importPadlockInstructions": {
+    "message": "V počítačovej aplikácii Padlock kliknite na ikonu ponuky v ľavom hornom rohu, prejdite na \"Nastavenia\" → tlačidlo \"Exportovať\" a uložte súbor \"ako CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "V počítačovej aplikácii KeePass 2 prejdite do ponuky \"Súbor\" → \"Exportovať\" a vyberte možnosť \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "V počítačovej aplikácii Universal Password Manager prejdite do \"Databáza\" → \"Exportovať\" a uložte súbor CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "V počítačovej aplikácii Universal Password Manager prejdite do \"Databáza\" → \"Exportovať\" a uložte súbor CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Vo webovom trezore Meldium prejdite do \"Nastavenia\". Vyhľadajte funkciu \"Exportovať údaje\" a kliknutím na \"Zobraziť moje údaje\" uložte súbor CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "V počítačovej aplikácii Password Dragon prejdite do ponuky \"Súbor\" → \"Exportovať\" → \"Do XML\". V dialógovom okne vyberte možnosť \"Všetky riadky\" a začiarknite všetky polia. Kliknite na tlačidlo \"Exportovať\" a uložte súbor XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "V počítačovej aplikácii Enpass prejdite do ponuky \"Súbor\" → \"Exportovať\" → \"Ako CSV\". V okne s upozornením kliknite na \"OK\" a uložte súbor CSV. Upozorňujeme, že nástroj na importovanie podporuje iba súbory, ktoré boli exportované v aplikácii Enpass s nastaveným anglickým jazykom, preto si príslušne upravte nastavenia."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "V počítačovej aplikácii Enpass 6 kliknite na tlačidlo ponuky a prejdite na \"Súbor\" → \"Exportovať\". Vyberte možnosť formátu súboru \".json\" a uložte súbor JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "V počítačovej aplikácii Password Safe prejdite do ponuky \"Súbor\" → \"Exportovať do\" → \"Formát XML…\" a uložte súbor XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "V počítačovej aplikácii Password Safe prejdite do ponuky \"Súbor\" → \"Exportovať do\" → \"Formát XML…\" a uložte súbor XML. Prihláste sa do Dashlane, kliknite na \"Môj účet\" → \"Nastavenia\" → \"Exportovať súbor\" a vyberte možnosť \"Exportovať ako súbor CSV\". Týmto sa stiahne archív vo formáte ZIP obsahujúci rôzne súbory CSV. Rozbaľte archív a každý súbor CSV importujte samostatne."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane už nepodporuje formát JSON. Túto možnosť používajte len v prípade, že máte k dispozícii existujúci súbor JSON na import. Pri vytváraní nových exportov používajte nástroj na import z CSV."
+  },
+  "importMsecureInstructions": {
+    "message": "V počítačovej aplikácii mSecure prejdite do ponuky \"Súbor\" → \"Exportovať\" → \"Súbor CSV…\" a uložte súbor CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "V počítačovej aplikácii Sticky Password prejdite do ponuky (v pravom hornom rohu) → \"Export\" → \"Exportovať všetko\". Zvoľte možnosť nešifrovaný XML a uložte súbor XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "V počítačovej aplikácii True Key kliknite na ikonu ozubeného kolesa (vpravo hore), a potom prejdite do \"Nastavenia aplikácie\". Kliknite na tlačidlo \"Exportovať\", zadajte heslo a uložte súbor CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Prihláste sa do webovej aplikácie Clipperz (clipperz.is/app). Kliknite na ikonu ponuky v pravom hornom rohu, aby sa rozbalil navigačný panel. Prejdite na \"Údaje\" → \"Export\". Kliknite na tlačidlo \"Stiahnuť HTML+JSON\", aby ste uložili súbor HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "V počítačovej aplikácii RoboForm Editor prejdite do \"RoboForm\" (vľavo hore) → \"Možnosti\" → \"Účet a údaje\" a kliknite na tlačidlo \"Exportovať\". Vyberte všetky svoje údaje, zmeňte \"Formát\" na \"Súbor CSV\", a potom kliknite na tlačidlo \"Exportovať\", aby ste uložili súbor CSV. Poznámka: RoboForm umožňuje exportovať iba prihlasovacie údaje. Ostatné položky nebudú exportované."
+  },
+  "importPassboltInstructions": {
+    "message": "Prihláste sa do webového trezora Passbolt a prejdite do zoznamu \"Heslá\". Vyberte všetky heslá, ktoré chcete exportovať, a kliknite na tlačidlo \"Exportovať\" v hornej časti zoznamu. Zvoľte formát exportu \"csv (lastpass)\" a kliknite na tlačidlo \"Exportovať\"."
+  },
+  "importAscendoInstructions": {
+    "message": "V počítačovej aplikácii Ascendo DataVault prejdite do ponuky \"Nástroje\" → \"Exportovať\". V dialógovom okne, ktoré sa zobrazí, vyberte možnosť \"Všetky položky (DVX, CSV)\". Kliknutím na tlačidlo \"OK\" uložte súbor CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "V počítačovej aplikácii Password Boss prejdite do ponuky \"Súbor\" → \"Exportovať údaje\" → \"Password Boss JSON – nezašifrované\" a uložte súbor JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Prihláste sa do webového trezora Zoho (vault.zoho.com). Prejdite do sekcie \"Nástroje\" → \"Exportovať tajné údaje\". Vyberte možnosť \"Všetky tajné údaje\" a kliknite na tlačidlo \"CSV vo formáte Zoho Vault\". Zvýraznite a skopírujte údaje z textového poľa. Otvorte textový editor, napríklad Poznámkový blok, a vložte do neho údaje. Uložte údaje z textového editora ako",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "V počítačovej aplikácii SplashID Safe kliknite na modré logo SplashID v podobe zámku v pravom hornom rohu. Prejdite na \"Export\" → \"Exportovať ako CSV\" a uložte súbor CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "V mobilnej aplikácii PassKeep prejdite do \"Zálohovať/Obnoviť\". Vyhľadajte \"Zálohovať/Obnoviť do CSV\" a kliknite na \"Zálohovať do CSV\", na uloženie súboru CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Uistite sa, že máte nainštalované balíky python-keyring a python-gnomekeyring. Uložte",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Import/export kľúčenky GNOME"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "pythonový skript na plochu ako",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Otvorte terminál a spustite",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "a potom",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Potom nahrajte výsledný súbor",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "sem do Bitwardenu.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "V desktopovej aplikácii Password Agent prejdite do ponuky \"Súbor\" → \"Exportovať\", kliknite na tlačidlo \"Polia na export\" a začiarknite všetky polia, zmeňte \"Výstupný formát\" na \"CSV\", a potom kliknite na tlačidlo \"Štart\", aby ste uložili súbor CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Prihláste sa do trezora webového trezora Passpack, prejdite do \"Nastavenia\" → \"Export\", a potom kliknite na tlačidlo \"Stiahnuť\", aby ste uložili súbor CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Otvorte trezor Passman a v ľavom dolnom rohu kliknite na \"Nastavenia\". V okne \"Nastavenia\" prejdite na kartu \"Exportovať prihlasovacie údaje\" a ako typ exportu vyberte \"JSON\". Zadajte heslo k trezoru a kliknutím na tlačidlo \"Exportovať\" uložte súbor JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Otvorte počítačovú aplikáciu Avast Passwords a prejdite do \"Nastavenia\" → \"Import/export údajov\". Kliknite na tlačidlo \"Exportovať\" pri možnosti \"Exportovať do súboru CSV\", na uloženie súboru CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Otvorte počítačovú aplikáciu Avast Passwords a prejdite do \"Nastavenia\" → \"Import/export údajov\". Kliknite na tlačidlo \"Exportovať\" pri možnosti \"Exportovať do súboru JSON\", na uloženie súboru JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Otvorte počítačovú aplikáciu F-Secure KEY a prejdite do \"Nastavenia\" → \"Exportovať heslá\". Kliknite na tlačidlo \"Exportovať\", zadajte svoje hlavné heslo a uložte súbor FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Otvorte počítačovú aplikáciu Kaspersky Password Manager a prejdite do \"Nastavenia\" → \"Import/Export\". Vyhľadajte \"Exportovať do textového súboru\" a kliknutím na tlačidlo \"Exportovať\" uložte súbor TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Otvorte počítačovú aplikáciu RememBear a prejdite do \"Nastavenia\" → \"Účet\" → \"Exportovať\". Zadajte svoje hlavné heslo a kliknutím na tlačidlo \"Exportovať aj tak\" uložte súbor CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Otvorte počítačovú aplikáciu PasswordWallet a prejdite do ponuky \"Súbor\" → \"Exportovať\" → \"Viditeľné položky do textového súboru\". Zadajte heslo a kliknutím na tlačidlo \"OK\" uložte súbor TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Otvorte rozšírenie Myki a prejdite do \"Pokročilé\" → \"Exportovať účty\" a následne naskenujte QR kód pomocou svojho mobilného zariadenia. Do priečinka so stiahnutými súbormi v počítači sa následne uložia rôzne súbory CSV."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exportujte svoj trezor hesiel SecureSafe do súboru CSV s čiarkou ako oddeľovačom."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Otvorte rozšírenie LogMeOnce, potom prejdite na \"Otvoriť ponuku\" → \"Exportovať do\" a vyberte \"Súbor CSV\", na uloženie súboru CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Otvorte aplikáciu BlackBerry Password Keeper a prejdite do \"Nastavenia\" → \"Import/Export\". Zvoľte možnosť \"Exportovať heslá\" a postupujte podľa pokynov na obrazovke, na uloženie nezašifrovaného súboru CSV."
+  },
+  "importButtercupInstructions": {
+    "message": "Spustite počítačovú aplikáciu Buttercup a odomknite svoj trezor. Kliknite pravým tlačidlom myši na ikonu trezora a vyberte možnosť „Exportovať“, na uloženie súboru CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Otvorte počítačovú aplikáciu Codebook a prihláste sa. Prejdite do ponuky \"Súbor\" → \"Exportovať všetko\", potom v dialógovom okne kliknite na \"Áno\" a uložte súbor CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Otvorte najnovšiu verziu počítačovej aplikácie Encryptr a nechajte synchronizovať všetky vaše údaje. Akonáhle sa synchronizácia údajov dokončí, ikona sťahovania v pravom hornom rohu zmení farbu na ružovú. Kliknite na ikonu sťahovania a uložte súbor CSV."
+  },
+  "importYotiInstructions": {
+    "message": "V rozšírení Yoti kliknite na \"Nastavenia\", potom na \"Exportovať uložené prihlásenia\" a uložte súbor CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Prihláste sa do webového trezora Psono, kliknite na rozbaľovaciu ponuku \"Prihlásený ako\" a vyberte možnosť \"Ostatné\". Prejdite na kartu \"Export\", vyberte export vo formáte JSON a potom kliknite na tlačidlo Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Prihláste sa do \"https://vault.passky.org\" → \"Import a export\" → \"Export\" v časti Passky. (Funkcia \"Zálohovanie\" nie je podporovaná, pretože je šifrovaná)."
+  },
+  "importProtonpassInstructions": {
+    "message": "V rozšírení ProtonPass prejdite do Nastavenia > Exportovať. Exportujte bez šifrovania PGP a uložte súbor ZIP."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Vyberte Databáza → Exportovať do súboru… → V nastaveniach exportu sa uistite, že je začiarknutá možnosť názvy priečinkov a názvy stĺpcov. → Stlačte tlačidlo Prehľadávať… a vyberte cieľový súbor, pričom nastavte jeho typ na súbor CSV."
+  },
+  "importNetwrixInstructions": {
+    "message": "Spustite program FullClient, prejdite do hlavnej ponuka a vyberte položku „Export“. Spustite sprievodcu exportom hesiel a postupujte podľa pokynov na export súboru CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Prihláste sa do NordPassu a otvorte Nastavenia → Prejdite nadol do sekcie Import a export a vyberte možnosť Exportovať položky → Zadajte svoje hlavné heslo a vyberte možnosť Pokračovať. → Uložte súbor CSV do svojho zariadenia."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "V počítačovej aplikácii prejdite do ponuky Nástroje → Export → Zadajte hlavné heslo → Ako formát exportu vyberte formát XML (*.xml) → Kliknite na Ďalej → Vyberte, ktoré záznamy majú byť zahrnuté do exportu → Kliknite na Ďalej, aby ste exportovali do predtým zvoleného umiestnenia."
+  },
+  "importDelineaInstructions": {
+    "message": "Prihláste sa do Delinea, vyhľadajte \"Import/Export\" -> vyberte \"Export\" -> ako formát exportu vyberte \"XML\" -> ako typ overenia vyberte \"QuantumLock\" -> zadajte heslo a kliknite na \"Export\", na uloženie súboru XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Prihláste sa do Delinea, vyhľadajte \"Import/Export\" -> vyberte \"Export\" -> ako formát exportu vyberte \"CSV\" -> ako typ overenia vyberte \"QuantumLock\" -> zadajte heslo a kliknite na \"Export\", na uloženie súboru CSV."
+  },
   "confirmVaultImport": {
     "message": "Potvrdiť import trezoru"
   },
@@ -5027,11 +5613,44 @@
   "keePassMasterPassword": {
     "message": "Hlavné heslo pre KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "Heslo $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "filePasswordRequired": {
+    "message": "Vyžaduje sa heslo súboru"
+  },
+  "filePasswordInvalid": {
+    "message": "Zadajte platné heslo k súboru."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Nahraný súbor je chránený heslom. Zadajte heslo na pokračovanie."
+  },
+  "selectProfile": {
+    "message": "Vyberte profil"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Zadajte platné heslo"
+  },
+  "importAccountMismatchError": {
+    "message": "Tento súbor je možné importovať iba do účtu, z ktorého bol exportovaný."
+  },
   "addKeyFile": {
     "message": "Pridať súbor s kľúčom"
   },
   "keyFileUpload": {
     "message": "Nahrať súbor s kľúčom"
+  },
+  "keyFileUploadV2": {
+    "message": "Súbor s kľúčom"
   },
   "kdbxFileUpload": {
     "message": "Nahrať súbor KDBX"
@@ -5186,10 +5805,6 @@
   "awaitingSSODesc": {
     "message": "Pokračujte v prihlasovaní pomocou prihlasovacích údajov svojej spoločnosti."
   },
-  "seeDetailedInstructions": {
-    "message": "Podrobné pokyny nájdete na našej stránke pomoci na adrese",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "Importovať priamo z LastPass"
   },
@@ -5204,6 +5819,72 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
+  },
+  "onePasswordPartialImport": {
+    "message": "Niektoré položky ($COUNT$) alebo trezory 1Password sa nepodarilo načítať",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Vyskytla sa chyba. Skontrolujte svoje prihlasovacie údaje a skúste to znova."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Podporované je iba prihlásenie pomocou hesla."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Podporované je iba prihlásenie pomocou hesla. Skúste to znovu alebo použite iný spôsob importu."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Zadajte platnú e-mailovú adresu alebo použite iný spôsob importu."
+  },
+  "onePasswordImportError": {
+    "message": "Vyskytla sa chyba. Skúste to znova alebo použite iný spôsob importu."
+  },
+  "emailIsRequired": {
+    "message": "E-mailová adresa je povinná."
+  },
+  "enterValidEmailAddress": {
+    "message": "Zadajte platnú e-mailovú adresu."
+  },
+  "signInAddressIsRequired": {
+    "message": "Vyžaduje sa prihlasovacia adresa."
+  },
+  "enterValidSignInAddress": {
+    "message": "Zadajte platnú prihlasovaciu adresu."
+  },
+  "secretKeyIsRequired": {
+    "message": "Vyžaduje sa tajný kľúč."
+  },
+  "enterValidSecretKey": {
+    "message": "Zadajte platný tajný kľúč."
+  },
+  "passwordIsRequired": {
+    "message": "Vyžaduje sa heslo."
+  },
+  "enterValidVerificationCode": {
+    "message": "Zadajte platný overovací kód."
+  },
+  "signInAddress": {
+    "message": "Prihlasovacia adresa"
+  },
+  "onePasswordEmail": {
+    "message": "E-mail do 1Password"
+  },
+  "onePasswordEmailHint": {
+    "message": "Zadajte e-mailovú adresu, ktorú používate na prihlásenie do 1Password"
+  },
+  "secretKey": {
+    "message": "Tajný kľúč"
+  },
+  "secretKeyAndPassword": {
+    "message": "Tajný kľúč a heslo"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Váš účet je zabezpečený tajným kľúčom a heslom. Ak chcete pokračovať, budete musieť zadať obe."
   },
   "keeperEmail": {
     "message": "E-mail pre Keeper"
@@ -5399,6 +6080,9 @@
   },
   "switchAccounts": {
     "message": "Prepnúť účty"
+  },
+  "switchVault": {
+    "message": "Prepnúť trezor"
   },
   "switchToAccount": {
     "message": "Prepnúť na účet"
@@ -5618,25 +6302,11 @@
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
-  "copyInfoTitle": {
-    "message": "Skopírovať info - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
+  "noSharedFoldersAdded": {
+    "message": "Neboli pridané žiadne zdieľané priečinky"
   },
-  "copyNoteTitle": {
-    "message": "Skopírovať poznámku - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+  "noSharedFoldersAddedDescription": {
+    "message": "Pridajte zdieľaný priečinok na bezpečné zdieľanie položiek trezoru s ostatnými členmi."
   },
   "moreOptionsLabel": {
     "message": "Ďalšie možnosti, $ITEMNAME$",
@@ -5709,29 +6379,21 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Hodnota nie je zadaná",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Nie je čo kopírovať"
+  "noDetailsToCopy": {
+    "message": "Nie sú žiadne podrobnosti na skopírovanie"
   },
   "assignToCollections": {
     "message": "Priradiť ku zbierkam"
+  },
+  "addToSharedFolder": {
+    "message": "Pridať do zdieľaného priečinka"
+  },
+  "transferAndAdd": {
+    "message": "Presunúť a pridať"
   },
   "copyEmail": {
     "message": "Skopírovať e-mail"
@@ -6200,8 +6862,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Položku si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Položku si budú môcť pozrieť len členovia trezora s prístupom k týmto zdieľaným priečinkom."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Položky si budú môcť pozrieť len členovia trezora s prístupom k týmto zdieľaným priečinkom."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali ste položky ($TOTAL_COUNT$). Nemôžete aktualizovať $READONLY_COUNT$ položky(-iek), pretože nemáte oprávnenie na úpravu.",
@@ -6307,8 +6975,20 @@
   "personalItemTransferWarningSingular": {
     "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybraného trezora. Už ju nebudete vlastniť."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "Do vybranej organizácie sa natrvalo presunú $PERSONAL_ITEMS_COUNT$. Tieto položky už nebudete vlastniť.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybraný trezor. Tieto položky už nebudú vo vašom vlastníctve.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +7021,32 @@
   "successfullyAssignedCollections": {
     "message": "Zbierky boli úspešne priradené"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Zdieľané priečinky boli úspešne pridané"
+  },
   "itemMovedToCollection": {
     "message": "Položka bola presunutá do zbierky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka bola pridaná do zdieľaného priečinka"
   },
   "itemMovedToCollections": {
     "message": "Položka bola presunutá do zbierok"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka bola pridaná do zdieľaných priečinkov"
+  },
   "itemsMovedToCollection": {
     "message": "Položky blli presunuté do zbierky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky pridané do zdieľaného priečinka"
+  },
   "itemsMovedToCollections": {
     "message": "Položky boli presunuté do zbierok"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky pridané do zdieľaných priečinkov"
   },
   "itemAssignedToCollections": {
     "message": "Položka bola priradená do zbierok"
@@ -6401,10 +7096,16 @@
     "message": "Umiestnenie položky"
   },
   "fileSends": {
-    "message": "Sendy so súborom"
+    "message": "Sendy so súborom",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Textové Sendy"
+    "message": "Textové Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Položky Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Operácie s účtom"
@@ -6424,8 +7125,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Zobraziť akcie rýchleho kopírovania v trezore"
+  "showQuickCopyActionsInVault": {
+    "message": "Zobraziť v trezore rýchle akcie kopírovania"
   },
   "systemDefault": {
     "message": "Predvolené systémom"
@@ -6480,6 +7181,9 @@
   },
   "noItemsInTrashDesc": {
     "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo"
+  },
+  "noItemsInTrashDescription": {
+    "message": "Položky, ktoré odstránite, sa zobrazia tu a po 30 dňoch sa odstránia natrvalo."
   },
   "trashWarning": {
     "message": "Položky, ktoré boli v koši viac ako 30 dní budú automaticky odstránené"
@@ -6688,9 +7392,6 @@
   "compactMode": {
     "message": "Kompaktný režim"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Šírka rozšírenia"
   },
@@ -6739,17 +7440,14 @@
       }
     }
   },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Aktualizujte desktopovú aplikáciu"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
-  },
-  "changeAtRiskPassword": {
-    "message": "Zmeniť rizikové heslá"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemôžete odstrániť zdieľané priečinky s povoleniami len na zobrazenie: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "vulnerablePassword": {
     "message": "Zraniteľné heslo."
@@ -6757,14 +7455,38 @@
   "changeNow": {
     "message": "Zmeniť teraz"
   },
-  "missingWebsite": {
-    "message": "Chýbajúca webová stránka"
-  },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"
   },
   "emptyVaultDescription": {
     "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
+  "emptyVaultsDescription": {
+    "message": "Ak chcete začať, pridajte prihlasovacie údaje, preukazy, karty a ďalšie položky."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Pridajte položky do tohto zdieľaného priečinka a potom poskytnite prístup ďalším členom $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Moje položky je váš súkromný priestor na ukladanie položiek, ktoré zostávajú vo vlastníctve $VAULT_NAME$, ale nie sú viditeľné pre ostatných členov.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "Nemáte žiadne priečinky"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Použite priečinky na usporiadanie položiek trezoru. Sú len pre vás. Nikto iný ich neuvidí ani nepoužije."
   },
   "introCarouselLabel": {
     "message": "Vitajte v Bitwardene"
@@ -6921,6 +7643,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Vedľa položiek pridá 3 tlačidlá na rýchle kopírovanie, pomocou ktorých môžete skopírovať používateľské meno, heslo alebo overovací kód do schránky."
+  },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
   },
@@ -6930,6 +7655,15 @@
   },
   "showMore": {
     "message": "Zobraziť viac"
+  },
+  "showMoreCount": {
+    "message": "Zobraziť ďalšie: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Zobraziť menej"
@@ -7207,17 +7941,17 @@
   "sharedUnlock": {
     "message": "Zdieľané odomknutie"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Zdieľať odomknutie s počítačom"
+  "syncUnlockWithDesktop": {
+    "message": "Synchronizovať odomknutie s desktopovou aplikáciou"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s aplikáciou Bitwarden Desktop."
+  "syncUnlockWithDesktopDescription": {
+    "message": "Rozšírenie Bitwarden pre prehliadač a desktopová aplikácia sa zamykajú a odomykajú spoločne."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Zdieľať odomknutie s webovým trezorom"
+  "syncUnlockWithWeb": {
+    "message": "Synchronizovať odomknutie s webovou aplikáciou"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s webovým trezorom."
+  "syncUnlockWithWebDescription": {
+    "message": "Rozšírenie Bitwarden pre prehliadač a webová aplikácia sa zamykajú a odomykajú spoločne."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Funkcia zdieľaného odomknutia nie je k dispozícii, pretože ste sa rozhodli nezapamätať si toto zariadenie. Ak chcete túto funkciu aktivovať, skúste sa prihlásiť znova."
@@ -7431,5 +8165,317 @@
   },
   "health": {
     "message": "Zdravie"
+  },
+  "scanMyVault": {
+    "message": "Skontrolovať môj trezor"
+  },
+  "introducingHealth": {
+    "message": "Predstavujeme Zdravie"
+  },
+  "healthIntroDescription": {
+    "message": "Sledujte a zlepšujte stav svojho trezoru tým, že opravíte heslá, ktoré sú vystavené riziku, slabé alebo sa opakovane používajú."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Váš trezor je v poriadku",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Ohrozenie vášho trezoru je vysoké",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ hesiel z $TOTAL$ je potrebné opraviť",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Žiadne uniknuté heslá",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 uniknuté heslo",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "Uniknuté heslá: $COUNT$",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Kompromitované v dôsledku úniku údajov",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Žiadne z vašich hesiel sa nenašlo v uniknutých údajoch",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Žiadne slabé heslá",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 slabé heslo",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "Slabé heslá: $COUNT$",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Príliš krátke alebo jednoduché",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Všetky vaše heslá sú bezpečné",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Žiadne opakovane používané heslá",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 opakovane použité heslo",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "Opakovane používané heslá: $COUNT$",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Použité pre viacero prihlásení",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Všetky vaše heslá sú jedinečné",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Zistené riziká",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "upgradeToViewPasswords": {
+    "message": "Upgradujte, aby ste videli heslá"
+  },
+  "categoryHealthy": {
+    "message": "Žiadne položky si nevyžadujú pozornosť",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Skenovanie trezoru",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Kontrola uniknutých, slabých a opakovane používaných hesiel.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Prebieha",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Niečo sa pokazilo",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Kontrola trezoru sa nedokončila pre neočakávanú chybu.",
+    "description": "Explains that the vault health scan did not complete."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Uniknuté heslá"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Heslá k týmto prihláseniam boli zverejnené v reportoch o úniku dát. Okamžite ich zmeňte, aby ste ochránili svoje účty."
+  },
+  "weakPasswordsTitle": {
+    "message": "Slabé heslá"
+  },
+  "weakPasswordsDescription": {
+    "message": "Tieto heslá sa dajú ľahko uhádnuť, pretože sú príliš krátke alebo jednoduché. Zvýšte ich bezpečnosť tým, že ich urobíte zložitejšími."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Opakovane použité heslá"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Tieto prihlásenia používajú rovnaké heslo. Vytvorte pre každý účet jedinečné heslo, aby ste zabránili tomu, že sa niekto dostane k viacerým účtom pomocou jedného hesla."
+  },
+  "deleteAtRiskItemDesc": {
+    "message": "Najprv si nezabudnite zmeniť heslo. Odstránením sa vymaže iba položka z vášho trezora, riziko to však neodstráni."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Toto heslo so sebou prináša ďalšie riziká:"
+  },
+  "reused": {
+    "message": "Opakovane použité",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$-krát",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Žiadne z vašich hesiel sa nenašlo v uniknutých údajoch."
+  },
+  "weakPasswordEmpty": {
+    "message": "Všetky vaše heslá sú bezpečné."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Všetky vaše heslá sú jedinečné."
+  },
+  "youreAllSet": {
+    "message": "Všetko je hotové!"
+  },
+  "permissions": {
+    "message": "Povolenia"
+  },
+  "viewItems": {
+    "message": "Zobraziť položky"
+  },
+  "viewItemsHidePass": {
+    "message": "Zobraziť položky, skryté heslá"
+  },
+  "editItems": {
+    "message": "Upraviť položky"
+  },
+  "editItemsHidePass": {
+    "message": "Upraviť položky, skryté heslá"
+  },
+  "shareVerb": {
+    "message": "Zdieľať"
+  },
+  "peopleWhoCanView": {
+    "message": "Ľudia, ktorí môžu zobraziť položky",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "Po zdieľaní tohto odkazu budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tejto položky.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "Tento odkaz exspiruje po tomto dátume, príjemcovia si však môžu ponechať informácie, ktoré im boli predtým zdieľané. Ak chcete zrušiť prístup, vygenerujte nové prihlasovacie údaje.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "Odkaz exspiruje po",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "Jednorazové zdieľanie",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Aktívne odkazy",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Odkaz bol skopírovaný do schránky",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Odkaz bol uložený a skopírovaný do schránky",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Nepodarilo sa skopírovať odkaz na zdieľanie do schránky",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Odkaz na zdieľanie bol odstránený",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Nepodarilo sa odstrániť odkaz na zdieľanie",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "Zdieľať cez odkaz",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "Zdieľať položku v trezore $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "Zdieľať",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "Exspiruje",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "Exspiruje",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "Neznáma položka, možno budete musieť požiadať o povolenie na prístup k tejto položke."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden má nový vzhľad",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Lepší používateľský zážitok, rovnaká spoľahlivá bezpečnosť. Trezor Bitwarden bol na základe vašich pripomienok prepracovaný, takže v ňom ľahšie nájdete, čo hľadáte, a všetko funguje tak, ako by ste očakávali.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Ukážka prepracovaného trezoru Bitwarden.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Preskúmať nový trezor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Prispôsobiť"
+  },
+  "customizeYourView": {
+    "message": "Prispôsobte si zobrazenie"
+  },
+  "showColumns": {
+    "message": "Zobraziť stĺpce"
+  },
+  "resetToDefault": {
+    "message": "Obnoviť na predvolené"
   }
 }

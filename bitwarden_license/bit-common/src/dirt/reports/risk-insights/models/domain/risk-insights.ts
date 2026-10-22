@@ -1,6 +1,7 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { RiskInsightsData } from "../data/risk-insights.data";
 

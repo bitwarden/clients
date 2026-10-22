@@ -174,16 +174,10 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).title()).toBe("Special");
     });
 
-    it("returns '<OrgName> shared folders' when the VFO1 flag is on", () => {
+    it("titles the page with the shared folders term alone when the VFO1 flag is on", () => {
       vfo1Enabled = true;
       setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
-      expect((component as any).title()).toBe("Acme Corp shared folders");
-    });
-
-    it("returns 'Shared folders' when the VFO1 flag is on and org has no name", () => {
-      vfo1Enabled = true;
-      setInputs({ organization: makeOrg({ name: "" }) });
-      expect((component as any).title()).toBe("Shared folders");
+      expect((component as any).title()).toBe(mockI18nService.t("sharedFolders"));
     });
   });
 
@@ -193,9 +187,9 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).icon()).toBe("bwi-collection-shared");
     });
 
-    it("returns empty string when no collectionId is set", () => {
+    it("returns undefined when no collectionId is set", () => {
       setInputs({ filter: { organizationId: orgId } });
-      expect((component as any).icon()).toBe("");
+      expect((component as any).icon()).toBe(undefined);
     });
   });
 

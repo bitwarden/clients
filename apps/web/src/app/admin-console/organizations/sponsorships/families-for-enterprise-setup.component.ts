@@ -1,9 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 import { first, map, takeUntil } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -20,9 +19,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { OrganizationPlansComponent } from "../../../billing";
+import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 import {
   DeleteOrganizationDialogResult,
@@ -33,7 +34,13 @@ import {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "families-for-enterprise-setup.component.html",
-  imports: [SharedModule, OrganizationPlansComponent],
+  imports: [
+    SharedModule,
+    OrganizationPlansComponent,
+    BreadcrumbsModule,
+    HeaderModule,
+    Vfo1I18nPipe,
+  ],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   loading = true;
@@ -46,8 +53,12 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
 
+  protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+  private readonly vfo1Enabled$ = toObservable(this.vfo1Enabled);
+  protected sponsoringOrganizationName?: string;
+
   private _destroy = new Subject<void>();
-  protected familyPlan: PlanType;
+  protected familyPlan!: PlanType;
   protected readonly familyProductTier = ProductTierType.Families;
   protected readonly planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
 
@@ -79,7 +90,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         this.logService.warning("[Sponsorship] No token found in query params");
         this.toastService.showToast({
           variant: "error",
-          title: null,
+          title: undefined,
           message: this.i18nService.t("sponsoredFamiliesAcceptFailed"),
           timeout: 10000,
         });
@@ -119,6 +130,9 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
 
       this.familyPlan = PlanType.FamiliesAnnually;
 
+      this.sponsoringOrganizationName =
+        this.preValidateSponsorshipResponse.sponsoringOrganizationName;
+
       this.loading = false;
     });
 
@@ -135,14 +149,21 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         ),
       );
 
-    this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
-      if (orgs.length === 0) {
-        this.selectedFamilyOrganizationId = "createNew";
-      }
-    });
     this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
-      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId;
+      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId!;
     });
+    // Both inputs are async state; re-evaluate the default whenever either settles.
+    combineLatest([this.existingFamilyOrganizations$, this.vfo1Enabled$])
+      .pipe(takeUntil(this._destroy))
+      .subscribe(([orgs, vfo1Enabled]) => {
+        if (vfo1Enabled) {
+          if (!this.formGroup.value.selectedFamilyOrganizationId) {
+            this.formGroup.patchValue({ selectedFamilyOrganizationId: "createNew" });
+          }
+        } else if (orgs.length === 0) {
+          this.selectedFamilyOrganizationId = "createNew";
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -169,16 +190,17 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     );
 
     try {
-      const request = new OrganizationSponsorshipRedeemRequest();
-      request.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
-      request.sponsoredOrganizationId = organizationId;
+      const request = new OrganizationSponsorshipRedeemRequest({
+        planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
+        sponsoredOrganizationId: organizationId,
+      });
 
       await this.apiService.postRedeemSponsorship(this.token, request);
 
       this.logService.info("[Sponsorship] Redeem succeeded");
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("sponsoredFamiliesOfferRedeemed"),
       });
       await this.syncService.fullSync(true);

@@ -73,7 +73,7 @@ describe("VaultGeneratorDialogComponent", () => {
 
   it("should show password generator title", () => {
     const header = fixture.debugElement.query(By.css("popup-header")).componentInstance;
-    expect(header.pageTitle).toBe("passwordGenerator");
+    expect(header.pageTitle()).toBe("passwordGenerator");
   });
 
   it("should pass type to cipher form generator", () => {
@@ -140,7 +140,7 @@ describe("VaultGeneratorDialogComponent", () => {
   });
 
   it("should close with canceled action when dismissed", () => {
-    fixture.debugElement.query(By.css("popup-header")).componentInstance.backAction();
+    fixture.debugElement.query(By.css("popup-header")).componentInstance.backAction()();
     expect(mockDialogRef.close).toHaveBeenCalledWith({
       action: GeneratorDialogAction.Canceled,
     });

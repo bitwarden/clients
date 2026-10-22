@@ -11,7 +11,12 @@ import { observe$PerUserId, optionsToRandomAsciiRequest, sharedStateByUserId } f
 
 import { PASSWORD_SETTINGS } from "./storage";
 
-/** Generates passwords composed of random characters */
+/**
+ * Generates passwords composed of random characters.
+ *
+ * @deprecated Legacy TS strategy. Generate passwords through the SDK-backed
+ * {@link CredentialGeneratorService.generate$} instead.
+ */
 export class PasswordGeneratorStrategy implements GeneratorStrategy<
   PasswordGenerationOptions,
   PasswordGeneratorPolicy

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
@@ -30,6 +28,7 @@ export class OrganizationData {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -74,16 +73,12 @@ export class OrganizationData {
   useInviteLinks: boolean;
 
   constructor(
-    response?: ProfileOrganizationResponse,
-    options?: {
+    response: ProfileOrganizationResponse,
+    options: {
       isMember: boolean;
       isProviderUser: boolean;
     },
   ) {
-    if (response == null) {
-      return;
-    }
-
     this.id = response.id;
     this.name = response.name;
     this.status = response.status;
@@ -105,6 +100,7 @@ export class OrganizationData {
     this.useSecretsManager = response.useSecretsManager;
     this.usePasswordManager = response.usePasswordManager;
     this.usePam = response.usePam;
+    this.accessPam = response.accessPam;
     this.useActivateAutofillPolicy = response.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = response.useAutomaticUserConfirmation;
     this.selfHost = response.selfHost;
@@ -150,8 +146,10 @@ export class OrganizationData {
     this.isProviderUser = options.isProviderUser;
   }
 
-  static fromJSON(obj: Jsonify<OrganizationData> & { userIsManagedByOrganization?: boolean }) {
-    return Object.assign(new OrganizationData(), obj, {
+  static fromJSON(
+    obj: Jsonify<OrganizationData> & { userIsManagedByOrganization?: boolean },
+  ): OrganizationData {
+    return Object.assign(Object.create(OrganizationData.prototype) as OrganizationData, obj, {
       userIsClaimedByOrganization:
         obj.userIsClaimedByOrganization ?? obj.userIsManagedByOrganization,
       familySponsorshipLastSyncDate:

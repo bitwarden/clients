@@ -132,7 +132,10 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
       this.dialogParams.subscription ??
       (await this.organizationApiService.getSubscription(this.dialogParams.organizationId));
     this.organizationId = this.dialogParams.organizationId;
-    this.currentPlan = this.sub?.plan;
+    if (this.sub?.plan == null) {
+      throw new Error("Subscription plan is required");
+    }
+    this.currentPlan = this.sub.plan;
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
       throw new Error("User ID is required");

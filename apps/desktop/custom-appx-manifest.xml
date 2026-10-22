@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--suppress XmlUnusedNamespaceDeclaration -->
+<!--
+    Appx manifest template for scripts/appx-cross-build.ps1, which packages the Appx
+    without electron-builder (electron-builder can't cross-build one from macOS).
+
+    It mirrors electron-builder's own template so both paths produce the same package;
+    keep the two in sync when either changes. The customExtensions macro is filled from
+    the channel's appx.customExtensionsPath, so the COM server is declared in one place.
+-->
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-    xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
     xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
     <Identity Name="${identityName}"
@@ -81,18 +88,17 @@
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <!-- MinVersion 10.0.14393.0 = Windows 10 Anniversary Update (1607), required for com:Extension -->
         <TargetDeviceFamily Name="Windows.Desktop"
-          MinVersion="10.0.14393.0" MaxVersionTested="10.0.14393.0" />
+          MinVersion="${minVersion}" MaxVersionTested="${maxVersionTested}" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
     </Capabilities>
     <Applications>
-        <Application Id="bitwardendesktop" Executable="${executable}"
+        <Application Id="${applicationId}" Executable="${executable}"
             EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements
-                BackgroundColor="#175DDC"
+                BackgroundColor="${backgroundColor}"
                 DisplayName="${displayName}"
                 Square150x150Logo="assets\Square150x150Logo.png"
                 Square44x44Logo="assets\Square44x44Logo.png"
@@ -106,16 +112,7 @@
                         <uap:DisplayName>Bitwarden</uap:DisplayName>
                     </uap:Protocol>
                 </uap:Extension>
-                <com:Extension Category="windows.comServer">
-                    <com:ComServer>
-                        <com:ExeServer Executable="app\bitwarden_plugin_authenticator.exe"
-                            Arguments="serve"
-                            DisplayName="${displayName} Passkey Manager">
-                            <com:Class Id="0f7dc5d9-69ce-4652-8572-6877fd695062"
-                                DisplayName="${displayName} Passkey Manager" />
-                        </com:ExeServer>
-                    </com:ComServer>
-                </com:Extension>
+${customExtensions}
             </Extensions>
         </Application>
     </Applications>

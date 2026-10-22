@@ -4,6 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent } from "@bitwarden/components";
 
@@ -25,6 +26,9 @@ describe("DesktopHeaderComponent", () => {
       data: of({}),
     };
 
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [DesktopHeaderComponent, HeaderComponent],
       providers: [
@@ -35,6 +39,10 @@ describe("DesktopHeaderComponent", () => {
         {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     })

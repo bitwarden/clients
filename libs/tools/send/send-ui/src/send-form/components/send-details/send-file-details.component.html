@@ -16,31 +16,9 @@
       </div>
     </div>
   } @else {
-    <bit-form-field>
-      <bit-label for="file">{{ "fileToShare" | i18n }}</bit-label>
-      <div class="tw-flex tw-mt-2 tw-mb-1">
-        <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-          {{ "chooseFile" | i18n }}
-        </button>
-        <span
-          class="tw-flex tw-items-center tw-pl-3"
-          [class.tw-text-main]="fileName()"
-          [class.tw-text-muted]="!fileName()"
-        >
-          {{ fileName() || ("noFileChosen" | i18n) }}</span
-        >
-      </div>
-      <input
-        bitInput
-        #fileSelector
-        type="file"
-        formControlName="file"
-        hidden
-        (change)="onFileSelected($event)"
-      />
-      <bit-hint>
-        {{ "maxFileSize" | i18n }}
-      </bit-hint>
-    </bit-form-field>
+    <bit-file-upload formControlName="file">
+      <bit-label>{{ "fileToShare" | i18n }}</bit-label>
+      <bit-hint>{{ "maxFileSize" | i18n }}</bit-hint>
+    </bit-file-upload>
   }
 </bit-section>

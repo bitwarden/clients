@@ -6,6 +6,14 @@ import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 
+import {
+  AUTOMATION_BIOMETRIC_CHANNEL,
+  AUTOMATION_BIOMETRIC_REQUEST_CHANNEL,
+  AutomationBiometricAction,
+  AutomationBiometricMessage,
+  AutomationBiometricRequest,
+} from "./biometrics/automation-biometric-message";
+
 const biometric = {
   authenticateWithBiometrics: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
@@ -63,6 +71,35 @@ const biometric = {
     } satisfies BiometricMessage),
 };
 
+// Automation-only surface, controlled by the renderer automation driver (dev mode only).
+const automation = {
+  biometrics: {
+    setStatus: (status: BiometricsStatus): Promise<void> =>
+      ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
+        action: AutomationBiometricAction.SetStatus,
+        status: status,
+      } satisfies AutomationBiometricMessage),
+    listPending: (): Promise<AutomationBiometricRequest[]> =>
+      ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
+        action: AutomationBiometricAction.ListPending,
+      } satisfies AutomationBiometricMessage),
+    approve: (id?: string): Promise<AutomationBiometricRequest[]> =>
+      ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
+        action: AutomationBiometricAction.Approve,
+        id: id,
+      } satisfies AutomationBiometricMessage),
+    deny: (id?: string): Promise<AutomationBiometricRequest[]> =>
+      ipcRenderer.invoke(AUTOMATION_BIOMETRIC_CHANNEL, {
+        action: AutomationBiometricAction.Deny,
+        id: id,
+      } satisfies AutomationBiometricMessage),
+    onRequest: (callback: (request: AutomationBiometricRequest) => void) => {
+      ipcRenderer.on(AUTOMATION_BIOMETRIC_REQUEST_CHANNEL, (_event, request) => callback(request));
+    },
+  },
+};
+
 export default {
   biometric,
+  automation,
 };

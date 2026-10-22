@@ -1,7 +1,10 @@
+import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
+import { app, session } from "electron";
 import { mock } from "jest-mock-extended";
+import { NEVER } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -34,7 +37,8 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
 }));
 
-import { WindowMain } from "./window.main";
+import { isSnapStore } from "./platform-utils.main";
+import { isConfinedSnap, WindowMain } from "./window.main";
 
 describe("WindowMain", () => {
   describe("isLocalBundleUrl", () => {
@@ -105,5 +109,176 @@ describe("WindowMain", () => {
     it("returns false for an unparseable string without throwing", () => {
       expect(isLocalBundleUrl("not a url")).toBe(false);
     });
+  });
+
+  describe("init", () => {
+    let sut: WindowMain;
+    let createWindow: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Development mode skips process isolation, which is not under test here.
+      (global as any).BIT_ENVIRONMENT = "development";
+
+      // `on` never emits, so `ready` behaves as if it fired before `init()` was called.
+      Object.assign(app, {
+        requestSingleInstanceLock: jest.fn().mockReturnValue(true),
+        on: jest.fn(),
+        whenReady: jest.fn().mockResolvedValue(undefined),
+      });
+      Object.assign(session, { fromPartition: jest.fn() });
+
+      const desktopSettingsService = mock<DesktopSettingsService>();
+      Object.assign(desktopSettingsService, { modalMode$: NEVER, preventScreenshots$: NEVER });
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        desktopSettingsService,
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+
+      jest.spyOn(sut as any, "setupAppProtocol").mockImplementation(() => {});
+      createWindow = jest.spyOn(sut, "createWindow").mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      delete (global as any).BIT_ENVIRONMENT;
+    });
+
+    it("creates the window when the ready event has already fired", async () => {
+      await sut.init(true);
+
+      expect(createWindow).toHaveBeenCalledWith("full-app", true);
+    });
+  });
+});
+
+describe("isConfinedSnap", () => {
+  const originalPlatform = process.platform;
+  const originalExecPath = process.execPath;
+  const originalSnap = process.env.SNAP;
+  const originalSnapName = process.env.SNAP_NAME;
+
+  const setPlatform = (platform: NodeJS.Platform) => {
+    Object.defineProperty(process, "platform", { value: platform, configurable: true });
+  };
+
+  const setExecPath = (execPath: string) => {
+    Object.defineProperty(process, "execPath", { value: execPath, configurable: true });
+  };
+
+  // Spied rather than module-mocked: this spec's import graph reaches the SDK, which reads its
+  // WASM binary through fs at import time, so `jest.mock("fs")` breaks the whole suite.
+  let readFileSync: jest.SpyInstance;
+
+  const setCgroup = (contents: string) => {
+    readFileSync.mockReturnValue(contents);
+  };
+
+  const setCgroupUnreadable = () => {
+    readFileSync.mockImplementation(() => {
+      throw new Error("ENOENT: no such file or directory, open '/proc/self/cgroup'");
+    });
+  };
+
+  // A confined snap's cgroup path contains snap.<snap-name>.<app-name>
+  const confinedCgroup = (snapName: string) =>
+    `0::/user.slice/user-1000.slice/user@1000.service/app.slice/snap.${snapName}.${snapName}.f0e1d2c3.scope\n`;
+
+  beforeEach(() => {
+    readFileSync = jest.spyOn(fs, "readFileSync");
+    setPlatform("linux");
+    // Only the stable snap path is a valid default; each test sets what it needs.
+    setExecPath("/snap/bitwarden/x1/opt/Bitwarden/bitwarden");
+    setCgroup(confinedCgroup("bitwarden"));
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    Object.defineProperty(process, "platform", { value: originalPlatform, configurable: true });
+    Object.defineProperty(process, "execPath", { value: originalExecPath, configurable: true });
+    if (originalSnap === undefined) {
+      delete process.env.SNAP;
+    } else {
+      process.env.SNAP = originalSnap;
+    }
+    if (originalSnapName === undefined) {
+      delete process.env.SNAP_NAME;
+    } else {
+      process.env.SNAP_NAME = originalSnapName;
+    }
+  });
+
+  it("returns true for the stable snap", () => {
+    setExecPath("/snap/bitwarden/x1/opt/Bitwarden/bitwarden");
+    setCgroup(confinedCgroup("bitwarden"));
+    expect(isConfinedSnap()).toBe(true);
+  });
+
+  it("returns true for the beta snap", () => {
+    setExecPath("/snap/bitwarden-beta/x1/opt/Bitwarden Beta/bitwarden");
+    setCgroup(confinedCgroup("bitwarden-beta"));
+    expect(isConfinedSnap()).toBe(true);
+  });
+
+  // Fedora, Arch and openSUSE mount snaps at /var/lib/snapd/snap; execPath is canonicalized, so
+  // it carries that root rather than the /snap compatibility symlink.
+  it("returns true on distros that mount snaps outside /snap", () => {
+    setExecPath("/var/lib/snapd/snap/bitwarden/x1/opt/Bitwarden/bitwarden");
+    setCgroup(confinedCgroup("bitwarden"));
+    expect(isConfinedSnap()).toBe(true);
+  });
+
+  it("returns false when execPath is outside a snap mount", () => {
+    setExecPath("/opt/Bitwarden/bitwarden");
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  // snapd's per-user data dir is user-writable, so a copy planted there must not pass as confined.
+  it("returns false for a snap-lookalike path under the user's home", () => {
+    setExecPath("/home/user/snap/bitwarden/current/opt/Bitwarden/bitwarden");
+    setCgroup(confinedCgroup("bitwarden"));
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  it("returns false when execPath belongs to another snap", () => {
+    setExecPath("/snap/some-terminal/x1/usr/bin/some-terminal");
+    setCgroup(confinedCgroup("some-terminal"));
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  it("does not read the cgroup when execPath already rules out a snap", () => {
+    setExecPath("/opt/Bitwarden/bitwarden");
+    isConfinedSnap();
+    expect(readFileSync).not.toHaveBeenCalled();
+  });
+
+  it("returns false when the cgroup does not name a bitwarden snap", () => {
+    setCgroup("0::/user.slice/user-1000.slice/session-2.scope\n");
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  it("returns false when the cgroup cannot be read", () => {
+    setCgroupUnreadable();
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  it("returns false on non-Linux platforms", () => {
+    setPlatform("darwin");
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  it("is not fooled by snap env vars alone, unlike isSnapStore", () => {
+    setExecPath("/opt/Bitwarden/bitwarden");
+    process.env.SNAP = "/snap/bitwarden/x1";
+    process.env.SNAP_NAME = "bitwarden";
+
+    expect(isConfinedSnap()).toBe(false);
+    expect(isSnapStore()).toBe(true);
   });
 });

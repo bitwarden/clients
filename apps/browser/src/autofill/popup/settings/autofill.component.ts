@@ -9,6 +9,7 @@ import {
   firstValueFrom,
   map,
   Observable,
+  of,
   pairwise,
   shareReplay,
   startWith,
@@ -66,6 +67,7 @@ import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { devFlagEnabled } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -134,16 +136,32 @@ export class AutofillComponent implements OnInit {
   protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
     FeatureFlag.FillAssistTargetingRules,
   );
+  /** Safari cannot answer HTTP auth challenges from an extension, so the setting is never offered there. */
+  protected basicAuthResponseSettingIsAvailable$: Observable<boolean> =
+    this.platformUtilsService.isSafari()
+      ? of(false)
+      : this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse);
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
     defaultAutofill: new FormControl(),
   });
 
+  /**
+   * Gates the settings UI for controlling if `data-bwignore` and
+   * `data-bwautofill` attributes should be honored by autofill heuristics.
+   */
+  protected bitwardenAutofillAttributesSettingsAreAvailable = devFlagEnabled(
+    "useBitwardenAutofillAttributes",
+  );
+
   protected additionalOptionsForm = new FormGroup({
     enableFillAssist: new FormControl(),
+    honorBitwardenIgnoreAttribute: new FormControl(),
+    honorBitwardenAutofillAttribute: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
+    enableBasicAuthResponse: new FormControl(),
     clearClipboard: new FormControl(),
     defaultUriMatch: new FormControl(),
   });
@@ -156,6 +174,7 @@ export class AutofillComponent implements OnInit {
   enableInlineMenuOnIconSelect: boolean = false;
   showInlineMenuIdentities: boolean = true;
   showInlineMenuCards: boolean = true;
+  showInlineMenuSshKeys: boolean = true;
   autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
@@ -254,6 +273,10 @@ export class AutofillComponent implements OnInit {
       this.autofillSettingsService.showInlineMenuCards$,
     );
 
+    this.showInlineMenuSshKeys = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuSshKeys$,
+    );
+
     this.enableInlineMenuOnIconSelect =
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick;
 
@@ -306,7 +329,11 @@ export class AutofillComponent implements OnInit {
 
     /** Additional options form */
 
-    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+    // Seed from the resolved state so the checkbox reflects effective behavior
+    // — a pristine member whose org enables the fill assist policy sees "on"
+    const enableFillAssist = await firstValueFrom(
+      this.domainSettingsService.resolvedEnableFillAssist$,
+    );
 
     this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
       emitEvent: false,
@@ -316,6 +343,36 @@ export class AutofillComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         void this.domainSettingsService.setEnableFillAssist(value);
+      });
+
+    const honorBitwardenIgnoreAttribute = await firstValueFrom(
+      this.autofillSettingsService.honorBitwardenIgnoreAttribute$,
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenIgnoreAttribute.patchValue(
+      honorBitwardenIgnoreAttribute,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenIgnoreAttribute.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setHonorBitwardenIgnoreAttribute(value);
+      });
+
+    const honorBitwardenAutofillAttribute = await firstValueFrom(
+      this.autofillSettingsService.honorBitwardenAutofillAttribute$,
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenAutofillAttribute.patchValue(
+      honorBitwardenAutofillAttribute,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenAutofillAttribute.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setHonorBitwardenAutofillAttribute(value);
       });
 
     this.enableContextMenuItem = await firstValueFrom(
@@ -332,6 +389,21 @@ export class AutofillComponent implements OnInit {
     this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
       emitEvent: false,
     });
+
+    const enableBasicAuthResponse = await firstValueFrom(
+      this.autofillSettingsService.enableBasicAuthResponse$,
+    );
+
+    this.additionalOptionsForm.controls.enableBasicAuthResponse.patchValue(
+      enableBasicAuthResponse,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.enableBasicAuthResponse.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setEnableBasicAuthResponse(value);
+      });
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
 
@@ -644,6 +716,10 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  async updateShowInlineMenuSshKeys() {
+    await this.autofillSettingsService.setShowInlineMenuSshKeys(this.showInlineMenuSshKeys);
   }
 
   getMatchHints() {

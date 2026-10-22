@@ -5,14 +5,11 @@ import { ScrollingModule } from "@angular/cdk/scrolling";
 import { AsyncPipe, NgClass } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, Observable, of, switchMap } from "rxjs";
-import { map } from "rxjs/operators";
+import { Observable, of, switchMap } from "rxjs";
 
 import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -31,12 +28,18 @@ import {
   MenuModule,
   ButtonModule,
   IconButtonModule,
-  NoItemsModule,
+  StatusLockupComponent,
   CalloutComponent,
   CheckboxModule,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { NewCipherMenuComponent, VaultBatchBarService, VaultItem } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  VaultBatchBarService,
+  VaultCopyButtonsService,
+  VaultItem,
+} from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-items/vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-items/vault-collection-row.component";
@@ -45,6 +48,35 @@ import { VaultItemEvent } from "./vault-items/vault-item-event";
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 76.5;
 export const RowHeightClass = `tw-h-[76.5px]`;
+
+/**
+ * Width of the Options column, sized to the widest action strip a row can draw.
+ *
+ * The strip is icon buttons, so its width doesn't scale with the window — but a fractional column
+ * width does. Under `table-layout: fixed` a px width holds even once the rest of the table has to
+ * give, whereas a fraction keeps shrinking past what the buttons need. The cell is
+ * `whitespace-nowrap`, so once it's too narrow the strip overflows to the right rather than
+ * wrapping, and the overflow menu trigger lands past the table's edge, off screen.
+ *
+ * Budget is 40px each for the launch and overflow triggers (`bitIconButton` at its default size),
+ * 32px per quick-copy icon (`size="small"`), ~4px per collapsed whitespace gap between them, and
+ * 12px of cell padding each side. Both cases round up to the next step on the spacing scale:
+ * - quick copy — launch + 3 copy icons + trigger: `40 + 3*32 + 40 + 2*4 + 24` ≈ 209 → `w-56`.
+ * - collapsed — launch + one combined copy button + trigger: `40 + 32 + 40 + 2*4 + 24` ≈ 145 → `w-40`.
+ */
+export const optionsColumnWidthClass = (showQuickCopyActions: boolean): string =>
+  showQuickCopyActions ? "tw-w-56" : "tw-w-40";
+
+/**
+ * Width of the Owner column, sized to hold its badge.
+ *
+ * The badge is a chip truncated to 13 characters, which runs to ~120px — wider than a fraction of
+ * a narrow table leaves it. Sized as a px column for the same reason as
+ * {@link optionsColumnWidthClass}: otherwise the chip overflows into the Options column and the
+ * action buttons render on top of it.
+ */
+export const OWNER_COLUMN_WIDTH_CLASS = "tw-w-40";
+
 type EmptyStateItem = {
   title: string;
   description: string;
@@ -67,10 +99,11 @@ type EmptyStateItem = {
     IconButtonModule,
     VaultCollectionRowComponent,
     VaultCipherRowComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     NewCipherMenuComponent,
     CalloutComponent,
     CheckboxModule,
+    SvgComponent,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {
@@ -78,7 +111,6 @@ export class VaultListComponent<C extends CipherViewLike> {
 
   protected readonly disabled = input<boolean>();
   protected readonly showOwner = input<boolean>();
-  protected readonly showPremiumFeatures = input<boolean>();
   protected readonly allOrganizations = input<Organization[]>([]);
   protected readonly allCollections = input<CollectionView[]>([]);
   protected readonly userCanArchive = input<boolean>();
@@ -99,33 +131,31 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
-  private configService = inject(ConfigService);
-  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
-    optional: true,
-  });
+  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService);
+  private vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
-  protected readonly showBatchBar = toSignal(
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
-    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
+  /**
+   * Whether copy actions render as an icon per copyable field rather than a single combined menu.
+   * Mirrors {@link VaultCipherRowComponent}'s own check, so the column reserves what the rows draw.
+   */
+  private readonly showQuickCopyActions = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
     { initialValue: false },
   );
 
-  protected readonly barVisible = computed(
-    () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
+  protected readonly optionsColumnWidthClass = computed(() =>
+    optionsColumnWidthClass(this.showQuickCopyActions()),
   );
 
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
+  protected readonly ownerColumnWidthClass = OWNER_COLUMN_WIDTH_CLASS;
+
+  protected readonly barVisible = computed(() => this.batchBarService.selectedCount() > 0);
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private restrictedTypes: RestrictedCipherType[] = [];
 
   get selection(): SelectionModel<VaultItem<C>> {
-    return this.batchBarService?.selection;
+    return this.batchBarService.selection;
   }
 
   get isAllSelected(): boolean {
@@ -155,8 +185,6 @@ export class VaultListComponent<C extends CipherViewLike> {
       this.refreshItems();
     });
   }
-
-  protected readonly showExtraColumn = computed(() => this.showOwner());
 
   protected event(event: VaultItemEvent<C>) {
     this.onEvent.emit(event);

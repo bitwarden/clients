@@ -7,7 +7,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
+  CredentialKind,
   Importer,
+  ImportOption,
   ImportRecordError,
   ImportRecordErrorReason,
   ImportResult,
@@ -47,6 +49,18 @@ describe("ImportCommand", () => {
     collections: 0,
   });
 
+  const kdbxOption = (): ImportOption => ({
+    id: "keepasskdbx",
+    name: "KeePass (kdbx)",
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["kdbx"],
+    pasteFormats: [],
+    hasDirectImporter: false,
+    loaders: [],
+    sdk: { fileTypes: ["kdbx"], credentialKind: CredentialKind.passwordWithKeyFile },
+  });
+
   beforeEach(() => {
     importService = mock<ImportServiceAbstraction>();
     organizationService = mock<OrganizationService>();
@@ -64,8 +78,9 @@ describe("ImportCommand", () => {
     );
 
     // KDBX is an SDK importer requiring a password + optional key file.
-    importService.isSdkImporter.mockImplementation((format) => format === "keepasskdbx");
-    importService.credentialKindFor.mockReturnValue("passwordWithKeyFile");
+    importService.getImportOption.mockImplementation((id) =>
+      id === "keepasskdbx" ? kdbxOption() : undefined,
+    );
     importService.sdkErrorMessageKey.mockReturnValue(undefined);
     importService.importWithSdk.mockResolvedValue(summary());
 
@@ -159,6 +174,41 @@ describe("ImportCommand", () => {
       const response = await command.run("keepasskdbx", "db.kdbx", {});
 
       expect(response.success).toBe(false);
+    });
+  });
+
+  describe("direct-only formats", () => {
+    const directOption = (): ImportOption => ({
+      id: "onepassword",
+      name: "1Password (direct)",
+      featuredImporter: true,
+      isBrowser: false,
+      acceptedFileTypes: [],
+      pasteFormats: [],
+      hasDirectImporter: true,
+      loaders: [],
+    });
+
+    it("rejects one before asking for a file", async () => {
+      importService.getImportOption.mockImplementation((id) =>
+        id === "onepassword" ? directOption() : undefined,
+      );
+      i18nService.t.mockImplementation((key, ...args) => [key, ...args].join(": "));
+
+      const response = await command.run("onepassword", undefined, {});
+
+      expect(response.success).toBe(false);
+      expect(response.message).toBe("importDirectOnlyError: 1Password (direct)");
+      expect(importService.getImporter).not.toHaveBeenCalled();
+      expect(importService.importWithSdk).not.toHaveBeenCalled();
+    });
+
+    it("leaves them out of the supported formats", async () => {
+      importService.getImportOptions.mockReturnValue([kdbxOption(), directOption()]);
+
+      const response = await command.run(undefined, undefined, { formats: true });
+
+      expect((response.data as MessageResponse).raw).toBe("keepasskdbx");
     });
   });
 

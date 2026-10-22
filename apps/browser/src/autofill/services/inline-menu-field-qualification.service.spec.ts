@@ -313,6 +313,86 @@ describe("InlineMenuFieldQualificationService", () => {
           );
         });
 
+        it("has a type of `text` with an autoCompleteType of `current-password`", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "something-else",
+            placeholder: "something-else",
+            autoCompleteType: "current-password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
+        it("has a type of `text` with a space-separated autoCompleteType including `current-password`", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "something-else",
+            placeholder: "something-else",
+            autoCompleteType: "current-password webauthn",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
+        it.each(["label-aria", "label-tag", "label-top"])(
+          "has a type of `text` with the word `password` in %s",
+          (attr) => {
+            const field = mock<AutofillField>({
+              type: "text",
+              htmlID: null,
+              htmlName: "something-else",
+              placeholder: "something-else",
+              autoCompleteType: "",
+              [attr]: "Password",
+            });
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          },
+        );
+
+        it("has a type of `text` with an htmlName matching the `passwd` token", () => {
+          // Gmail-style name attribute. Catches the Gmail case without
+          // relying on the English-language aria-label signal.
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "Passwd",
+            placeholder: "",
+            autoCompleteType: "",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
+        it("qualifies a Gmail-shaped password input with Show-password checked", () => {
+          // Gmail's password input with "Show password" checked: type flips
+          // to text and autocomplete goes to "off", but aria-label and
+          // name="Passwd" are stable signals.
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "Passwd",
+            placeholder: "",
+            autoCompleteType: "off",
+            "label-aria": "Enter your password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
         describe("does not have a parent form element", () => {
           it("is the only password field on the page, has one username field on the page, and has a non-disabled `autocompleteType` value", () => {
             pageDetails.forms = {};
@@ -1146,6 +1226,98 @@ describe("InlineMenuFieldQualificationService", () => {
           ).toBe(true);
         });
       });
+    });
+  });
+
+  describe("isFieldForSshKeyForm", () => {
+    it("qualifies a GitHub-shaped public key textarea via algorithm placeholder", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "ssh_key[key]",
+        htmlID: "ssh_key_key",
+        placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        true,
+      );
+    });
+
+    it("qualifies a GitLab-shaped public key textarea via data-supported-algorithms", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "key[key]",
+        htmlID: "key_key",
+        dataSetValues: 'supportedAlgorithms: ["ssh-rsa","ssh-ed25519"]',
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        true,
+      );
+    });
+
+    it("qualifies a title input when a public key field is present on the page", () => {
+      const publicKeyField = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "ssh_key[key]",
+        placeholder: "Begins with 'ssh-rsa'",
+        form: "validFormId",
+      });
+      const titleField = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "ssh_key[title]",
+        form: "validFormId",
+      });
+      pageDetails.fields = [publicKeyField, titleField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForSshKeyForm(titleField, pageDetails),
+      ).toBe(true);
+    });
+
+    it("does not qualify a title input when no public key field is present", () => {
+      const titleField = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "ssh_key[title]",
+        form: "validFormId",
+      });
+      pageDetails.fields = [titleField];
+
+      expect(
+        inlineMenuFieldQualificationService.isFieldForSshKeyForm(titleField, pageDetails),
+      ).toBe(false);
+    });
+
+    it("does not qualify a single-line api_key input", () => {
+      const field = mock<AutofillField>({
+        tagName: "input",
+        type: "text",
+        htmlName: "api_key",
+        htmlID: "api_key",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        false,
+      );
+    });
+
+    it("does not qualify a generic comment textarea", () => {
+      const field = mock<AutofillField>({
+        tagName: "textarea",
+        htmlName: "comment",
+        htmlID: "comment",
+        placeholder: "Leave a comment",
+      });
+      pageDetails.fields = [field];
+
+      expect(inlineMenuFieldQualificationService.isFieldForSshKeyForm(field, pageDetails)).toBe(
+        false,
+      );
     });
   });
 

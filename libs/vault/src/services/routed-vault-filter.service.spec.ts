@@ -18,7 +18,20 @@ describe("RoutedVaultFilterService", () => {
       providers: [
         RoutedVaultFilterService,
         { provide: ActivatedRoute, useValue: { paramMap, queryParamMap } },
-        { provide: Vfo1TerminologyService, useValue: { enabled: () => flagEnabled } },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            enabled: () => flagEnabled,
+            collectionQueryParams: (
+              collectionId: string | null | undefined,
+            ): { collectionId: string | null; sharedFolderId: string | null } => {
+              const value = collectionId ?? null;
+              return flagEnabled
+                ? { sharedFolderId: value, collectionId: null }
+                : { collectionId: value, sharedFolderId: null };
+            },
+          },
+        },
       ],
     });
 

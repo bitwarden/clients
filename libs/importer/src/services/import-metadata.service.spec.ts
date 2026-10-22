@@ -5,10 +5,24 @@ import { ClientType } from "@bitwarden/client-type";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 
-import { ImporterMetadata, ImportersMetadata, Instructions, Loader } from "../metadata";
-import { ImportType } from "../models";
+import { Loader } from "../metadata";
+import { ImportOption, ImportType } from "../models";
 
 import { DefaultImportMetadataService } from "./default-import-metadata.service";
+import { ImporterCapabilities } from "./import-metadata.service.abstraction";
+
+function mockImportOption(id: ImportType, loaders: ImportOption["loaders"]): ImportOption {
+  return {
+    id,
+    name: id,
+    featuredImporter: false,
+    isBrowser: false,
+    acceptedFileTypes: ["csv"],
+    pasteFormats: ["csv"],
+    hasDirectImporter: false,
+    loaders,
+  };
+}
 
 describe("ImportMetadataService", () => {
   let sut: DefaultImportMetadataService;
@@ -47,22 +61,10 @@ describe("ImportMetadataService", () => {
 
       // Set up importers to include bravecsv and chromecsv with chromium loader
       sut["importers"] = {
-        chromecsv: {
-          type: "chromecsv",
-          loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
-        },
-        bravecsv: {
-          type: "bravecsv",
-          loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
-        },
-        edgecsv: {
-          type: "edgecsv",
-          loaders: [Loader.file, Loader.chromium],
-          instructions: Instructions.chromium,
-        },
-      } as ImportersMetadata;
+        chromecsv: mockImportOption("chromecsv", [Loader.file, Loader.chromium]),
+        bravecsv: mockImportOption("bravecsv", [Loader.file, Loader.chromium]),
+        edgecsv: mockImportOption("edgecsv", [Loader.file, Loader.chromium]),
+      } as Record<ImportType, ImportOption>;
     });
 
     afterEach(() => {
@@ -80,13 +82,12 @@ describe("ImportMetadataService", () => {
       expect(result).toEqual({
         type: testType,
         loaders: expect.any(Array),
-        instructions: Instructions.chromium,
       });
       expect(result.type).toBe(testType);
     });
 
     it("should update when type$ changes", async () => {
-      const emissions: ImporterMetadata[] = [];
+      const emissions: ImporterCapabilities[] = [];
       const subscription = sut.metadata$(typeSubject).subscribe((metadata) => {
         emissions.push(metadata);
       });

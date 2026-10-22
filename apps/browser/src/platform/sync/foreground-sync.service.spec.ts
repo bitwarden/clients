@@ -5,7 +5,9 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
@@ -36,6 +38,8 @@ describe("ForegroundSyncService", () => {
   const sendApiService = mock<SendApiService>();
   const messageListener = mock<MessageListener>();
   const stateProvider = new FakeStateProvider(accountService);
+  const configService = mock<ConfigService>();
+  const sdkService = mock<SdkService>();
 
   const sut = new ForegroundSyncService(
     tokenService,
@@ -52,6 +56,8 @@ describe("ForegroundSyncService", () => {
     sendApiService,
     messageListener,
     stateProvider,
+    configService,
+    sdkService,
   );
 
   beforeEach(() => {

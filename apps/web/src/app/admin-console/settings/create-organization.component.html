@@ -1,7 +1,18 @@
-<app-header></app-header>
+<app-header>
+  @if (showBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb [route]="['/settings']" icon="bwi-cog">{{
+        "settings" | i18n
+      }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
+        "addPlan" | i18n
+      }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  }
+</app-header>
 
 <bit-container>
-  <p>{{ "newOrganizationDesc" | i18n }}</p>
+  <p>{{ "newOrganizationDesc" | vfo1I18n: "addPlanDesc" }}</p>
   <app-organization-plans
     [enableSecretsManagerByDefault]="secretsManager"
     [initialPlan]="plan"

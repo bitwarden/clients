@@ -29,9 +29,22 @@ const statusIndicators = [
     usage:
       "Indicates that the action is loading. Should only be used in nested components that require their own component-level loading state such as buttons.",
   },
+  {
+    id: "bwi-encrypted",
+    usage: "Indicates that the item is encrypted",
+  },
 ];
 
 const bitwardenObjects = [
+  {
+    id: "bwi-access-connector",
+    usage:
+      "Indicates an access connector — a daemon running inside a customer's network that performs credential rotation against target systems in the Privileged Controls rotation flows.",
+  },
+  {
+    id: "bwi-admin-console",
+    usage: "Admin console icon",
+  },
   {
     id: "bwi-bank",
     usage: "Indicates a bank account item type.",
@@ -79,6 +92,11 @@ const bitwardenObjects = [
     usage: "Indicates an identity item type.",
   },
   {
+    id: "bwi-managed-credential",
+    usage:
+      "Indicates a managed credential — a vault item configured for scheduled or on-demand rotation in Privileged Controls.",
+  },
+  {
     id: "bwi-passport",
     usage: "Indicates a passport item type.",
   },
@@ -94,6 +112,11 @@ const bitwardenObjects = [
   {
     id: "bwi-sticky-note",
     usage: "Indicates a secure note item type.",
+  },
+  {
+    id: "bwi-target-system",
+    usage:
+      "Indicates a target system — the external system (Entra, SQL Server, custom script, etc.) where a managed credential's password lives and is rotated.",
   },
   {
     id: "bwi-users",
@@ -190,6 +213,11 @@ const actions = [
       "Remove, subtract, or delete action. This outlined version should primarily be placed in a component with a transparent background, such as a link or tertiary button. If using in a filled or outline button or FAB, prefer the standard subtract button.",
   },
   {
+    id: "bwi-pause-circle",
+    usage:
+      "Pause action. Used for pausing scheduled or recurring work such as credential rotations, subscriptions, or background jobs.",
+  },
+  {
     id: "bwi-pencil-square",
     usage: "Edit action.",
   },
@@ -212,12 +240,21 @@ const actions = [
     usage: "Refresh action. Reloads selected screen or element.",
   },
   {
+    id: "bwi-resume",
+    usage:
+      "Resume action. Restarts paused scheduled or recurring work. Pairs with the pause-circle icon.",
+  },
+  {
     id: "bwi-search",
     usage: "Search action",
   },
   {
     id: "bwi-share",
     usage: "Share action. Typically opens a share sheet or menu with share options.",
+  },
+  {
+    id: "bwi-share-link",
+    usage: "Creates or copies a shareable link.",
   },
   {
     id: "bwi-sign-in",
@@ -274,6 +311,10 @@ const directionalMenuIndicators = [
     usage: "If used in collapse/expand section, indicates expanded state.",
   },
   {
+    id: "bwi-collapse-nav",
+    usage: "Used in side nav to show section is collapsible",
+  },
+  {
     id: "bwi-down-solid",
     usage: "Expanded selection. Click to collapse the associated section.",
   },
@@ -290,6 +331,10 @@ const directionalMenuIndicators = [
     id: "bwi-ellipsis-v",
     usage:
       "More options. Use the vertical version for menus that effect groups of items, content, or data, or full pages.",
+  },
+  {
+    id: "bwi-expand-nav",
+    usage: "Used in side nav to show section is expandable",
   },
   {
     id: "bwi-grid",
@@ -338,6 +383,10 @@ const miscObjects = [
   {
     id: "bwi-bug",
     usage: "Indicates a test or debug action.",
+  },
+  {
+    id: "bwi-calendar",
+    usage: "Used for date-based actions or views, like scheduling or picking a date.",
   },
   {
     id: "bwi-camera",
@@ -396,12 +445,20 @@ const miscObjects = [
     usage: "Edit action.",
   },
   {
+    id: "bwi-pin",
+    usage: "Pin action.",
+  },
+  {
     id: "bwi-provider",
     usage: "Can be used to indicate an item or action related to a provider.",
   },
   {
     id: "bwi-puzzle",
     usage: "Indicates the browser extension client.",
+  },
+  {
+    id: "bwi-rocket",
+    usage: "Indicates a tour, launch, or new feature.",
   },
   {
     id: "bwi-shield",
@@ -418,6 +475,10 @@ const miscObjects = [
   {
     id: "bwi-universal-access",
     usage: "Indicates accessbility-related settings and actions.",
+  },
+  {
+    id: "bwi-unpin",
+    usage: "Unpin action.",
   },
   {
     id: "bwi-user",

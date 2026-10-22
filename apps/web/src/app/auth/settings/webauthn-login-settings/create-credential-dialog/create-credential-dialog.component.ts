@@ -4,10 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import {
-  TwoFactorAuthSecurityKeyFailedIcon,
-  TwoFactorAuthSecurityKeyIcon,
-} from "@bitwarden/assets/svg";
+import { SecurityKeyWarningIcon, SecurityKeyIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
@@ -40,8 +37,8 @@ export class CreateCredentialDialogComponent implements OnInit {
   protected readonly NameMaxCharacters = 50;
   protected readonly CreateCredentialDialogResult = CreateCredentialDialogResult;
   protected readonly Icons = {
-    TwoFactorAuthSecurityKeyIcon,
-    TwoFactorAuthSecurityKeyFailedIcon,
+    SecurityKeyIcon,
+    SecurityKeyWarningIcon,
   };
 
   protected currentStep: Step = "userVerification";

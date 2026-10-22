@@ -124,49 +124,48 @@
     <value>Дома, на працы ці ў дарозе Bitwarden лёгка абараняе ўсе вашы паролі, ключы доступу і канфідэнцыяльную інфармацыю.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Прызнаны найлепшым менеджэрам пароляў па версіі PCMag, WIRED, The Verge, CNET, G2 і іншых!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+АБАРАНІЦЕ СВАЁ ЛІЧБАВАЕ ЖЫЦЦЁ
+Абараніце сваё лічбавае жыццё і абараніцеся ад уцечак даных, генераваўшы і захоўваючы унікальныя, моцныя паролі для кожнага ўліковага запісу. Захоўвайце ўсё ў зашыфраваным ад канца да канца сховішчы пароляў, да якога доступ ёсць толькі ў вас.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+АТРЫМЛІВАЙЦЕ ДОСТУП ДА СВАІХ ДАНЫХ ДЗЕ ЗАЎГОДНА, КАЛІ ЗАЎГОДНА, НА ЛЮБОЙ ПРЫЛАДЗЕ
+Лёгка кіруйце, захоўвайце, абараняйце і дзяліцеся неабмежаванай колькасцю пароляў на неабмежаванай колькасці прылад без абмежаванняў.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+КОЖНЫ ПАВІНЕН МЕЦЬ ІНСТРУМЕНТЫ, КАБ ЗАСТАВАЦЦА Ў БЯСПЕЦЫ Ў ІНТЭРНЭЦЕ
+Выкарыстоўвайце Bitwarden бясплатна без рэкламы і продажу даных. Bitwarden лічыць, што кожны павінен мець магчымасць заставацца ў бяспецы ў інтэрнэце. Прэміум-планы прапануюць доступ да пашыраных функцый.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+УМОЦНІЦЕ СВАЕ КАМАНДЫ З BITWARDEN
+Планы для каманд і прадпрыемстваў пастаўляюцца з прафесійнымі бізнес-функцыямі. Некаторыя прыклады ўключаюць інтэграцыю SSO, самастойнае размяшчэнне, інтэграцыю з каталогам і забеспячэнне SCIM, глабальныя палітыкі, доступ да API, журналы падзей і многае іншае.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Выкарыстоўвайце Bitwarden, каб абараніць сваю рабочую сілу і дзяліцца канфідэнцыйнай інфармацыяй з калегамі.
 
 
-More reasons to choose Bitwarden:
+Больш прычын выбраць Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Шыфраванне сусветнага класа
+Паролі абаронены з дапамогай пашыранага шыфравання ад канца да канца (AES-256 біт, саляное хэшаванне і PBKDF2 SHA-256), каб вашы даныя заставаліся бяспечнымі і прыватнымі.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Аўдыты трэціх бакоў
+Bitwarden рэгулярна праводзіць комплексныя аўдыты бяспекі трэціх бакоў з вядомымі фірмамі па бяспецы. Гэтыя штогадовыя аўдыты ўключаюць ацэнкі зыходнага коду і тэставанне на пранікненне па ўсіх IP-адрасах, серверах і вэб-праграмах Bitwarden.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Пашыраная 2FA
+Абараніце свой уваход з дапамогай аўтэнтыфікатара трэцяга боку, кодаў па электроннай пошце або ўліковых даных FIDO2 WebAuthn, такіх як апаратны ключ бяспекі або ключ доступу.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Перадавайце даныя непасрэдна іншым, захоўваючы бяспеку шыфравання ад канца да канца і абмяжоўваючы ўздзеянне.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Убудаваны генератар
+Стварайце доўгія, складаныя і розныя паролі і унікальныя імёны карыстальнікаў для кожнага сайта, які вы наведваеце. Інтэгруйце з пастаўшчыкамі псеўданімаў электроннай пошты для дадатковай прыватнасці.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Глабальныя пераклады
+Пераклады Bitwarden існуюць больш чым для 60 моў, перакладзеныя сусветнай супольнасцю праз Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Кросплатформавыя праграмы
+Абараняйце і дзяліцеся канфідэнцыйнымі данымі ў вашым сховішчы Bitwarden з любога браўзера, мабільнай прылады або АС працоўнага стала і многае іншае.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden абараняе не толькі паролі
+Рашэнні для кіравання ўліковымі данымі з шыфраваннем ад канца да канца ад Bitwarden даюць арганізацыям магчымасць абараніць усё, уключаючы сакрэты распрацоўшчыкаў і вопыт ключоў доступу. Наведайце Bitwarden.com, каб даведацца больш пра Bitwarden Secrets Manager і Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>Дома, на працы ці ў дарозе Bitwarden лёгка абараняе ўсе вашы паролі, ключы доступу і канфідэнцыяльную інфармацыю.</value>

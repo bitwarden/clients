@@ -1,6 +1,12 @@
 export { LogService } from "./log.service";
 export { LogLevel } from "./log-level";
+export { Measurement } from "./measurement";
+export { measured } from "./measured";
+export { PerfTrackGroup } from "./perf-track-group";
 export { ConsoleLogService } from "./console-log.service";
+export { LogRecorder } from "./log-recorder";
+export { safeStringify } from "./safe-stringify";
 export { FlightRecorder } from "./flight-recorder";
+export { FlightRecorderLogRecorder } from "./flight-recorder-log-recorder";
 export { buildFlightRecorderCsvExport } from "./flight-recorder-export";
 export type { FlightRecorderEvent } from "@bitwarden/sdk-internal";

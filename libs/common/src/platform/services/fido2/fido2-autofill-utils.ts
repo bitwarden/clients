@@ -28,7 +28,11 @@ export async function getCredentialsForAutofill(
         credentialId: credId,
         rpId: credential.rpId,
         userHandle: credential.userHandle!,
-        userName: credential.userName!,
+        userName:
+          credential.userName ||
+          credential.userDisplayName ||
+          cipher.login.username ||
+          cipher.name!,
       } satisfies Fido2CredentialAutofillView;
     });
 }

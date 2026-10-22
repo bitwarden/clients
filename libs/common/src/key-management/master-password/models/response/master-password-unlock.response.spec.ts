@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { MasterPasswordUnlockResponse } from "./master-password-unlock.response";
 

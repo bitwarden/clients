@@ -5,11 +5,9 @@ import { FakeStateProvider } from "@bitwarden/state-test-utils";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ACCOUNT_CRYPTOGRAPHIC_STATE } from "../state-definitions";
 
-import {
-  ACCOUNT_CRYPTOGRAPHIC_STATE,
-  DefaultAccountCryptographicStateService,
-} from "./default-account-cryptographic-state.service";
+import { DefaultAccountCryptographicStateService } from "./default-account-cryptographic-state.service";
 
 describe("DefaultAccountCryptographicStateService", () => {
   let service: DefaultAccountCryptographicStateService;
@@ -83,6 +81,25 @@ describe("DefaultAccountCryptographicStateService", () => {
     });
   });
 
+  describe("accountCryptographicState$ deduplication", () => {
+    it("does not re-emit when identical state is written again", async () => {
+      // Sync rewrites unchanged state; each emission makes consumers decrypt the whole vault.
+      const state = (): WrappedAccountCryptographicState => ({
+        V1: { private_key: "test-state" as any },
+      });
+      await stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, state(), mockUserId);
+
+      const results: (WrappedAccountCryptographicState | null)[] = [];
+      const subscription = service
+        .accountCryptographicState$(mockUserId)
+        .subscribe((s) => results.push(s));
+      await stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, state(), mockUserId);
+
+      subscription.unsubscribe();
+      expect(results).toHaveLength(1);
+    });
+  });
+
   describe("setAccountCryptographicState", () => {
     it("sets the account cryptographic state", async () => {
       const mockState: WrappedAccountCryptographicState = {
@@ -116,18 +133,6 @@ describe("DefaultAccountCryptographicStateService", () => {
       const result = await firstValueFrom(service.accountCryptographicState$(mockUserId));
 
       expect(result).toEqual(mockState2);
-    });
-  });
-
-  describe("ACCOUNT_CRYPTOGRAPHIC_STATE key definition", () => {
-    it("deserializer returns object as-is", () => {
-      const mockState: any = {
-        V1: {
-          private_key: "test" as any,
-        },
-      };
-      const result = ACCOUNT_CRYPTOGRAPHIC_STATE.deserializer(mockState);
-      expect(result).toBe(mockState);
     });
   });
 });

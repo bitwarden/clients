@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { Meta, StoryObj } from "@storybook/angular";
 
@@ -26,9 +24,9 @@ const fb = new FormBuilder();
 
 const render: Story["render"] = (args) => ({
   props: {
-    items: [],
     onSubmit: actionsData.onSubmit,
     ...args,
+    items: args.items ?? [],
   },
   template: `
     <form [formGroup]="formObj" (ngSubmit)="onSubmit(formObj.controls.formItems.value)">
@@ -52,7 +50,11 @@ const sampleGroups = itemsFactory(6, AccessItemType.Group);
 
 export const ReactiveForm: Story = {
   args: {
-    formObj: fb.group({ formItems: [[{ id: "1g", type: AccessItemType.Group }]] }),
+    formObj: fb.group({
+      formItems: new FormControl<AccessItemValue[]>([{ id: "1g", type: AccessItemType.Group }], {
+        nonNullable: true,
+      }),
+    }),
     permissionMode: PermissionMode.Edit,
     showMemberRoles: false,
     columnHeader: "Groups/Members",

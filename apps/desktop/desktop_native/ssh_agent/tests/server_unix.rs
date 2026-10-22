@@ -110,42 +110,6 @@ async fn test_server_can_restart() {
 
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
-async fn test_stop_clears_keys() {
-    setup();
-    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
-    agent.start().unwrap();
-
-    // Verify a key is visible before stop
-    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
-    stream
-        .write_all(&framed_request_identities())
-        .await
-        .unwrap();
-    let response = read_framed_response(&mut stream).await;
-    assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
-
-    // Stop clears keys; restart to re-open the socket for a new connection
-    agent.stop();
-    agent.start().unwrap();
-
-    // New connection sees an empty keystore
-    let mut stream2 = UnixStream::connect(test_socket_path()).await.unwrap();
-    stream2
-        .write_all(&framed_request_identities())
-        .await
-        .unwrap();
-    let response2 = read_framed_response(&mut stream2).await;
-    assert_eq!(
-        u32::from_be_bytes(response2[1..5].try_into().unwrap()),
-        0,
-        "stop() must clear the keystore"
-    );
-
-    agent.stop();
-}
-
-#[serial]
-#[tokio::test(flavor = "multi_thread")]
 async fn test_list_keys_returns_empty_when_no_keys_set() {
     setup();
     let mut agent = always_approving_agent();

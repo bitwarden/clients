@@ -9,6 +9,10 @@
     "message": "Bitwarden مدير كلمات المرور",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden مدير كلمات المرور بيتا",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "في المنزل، في العمل، أو في أثناء التنقل، يقوم Bitwarden بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -118,6 +122,9 @@
   },
   "vault": {
     "message": "خزنة"
+  },
+  "vaults": {
+    "message": "الخزائن"
   },
   "myVault": {
     "message": "خزانتي"
@@ -444,6 +451,9 @@
   "noFolders": {
     "message": "لا توجد مجلدات لعرضها."
   },
+  "noFoldersFilter": {
+    "message": "لا توجد مجلدات"
+  },
   "helpFeedback": {
     "message": "المساعدة والتعليقات"
   },
@@ -504,6 +514,87 @@
   },
   "options": {
     "message": "الخيارات"
+  },
+  "optionsForItem": {
+    "message": "خيارات $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "لا يوجد مجلد مشترك"
+  },
+  "filterByName": {
+    "message": "تصفية حسب $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "ضع علامة على العناصر كمفضلة لتصفيتها هنا."
+  },
+  "foldersFilterTooltip": {
+    "message": "أضف مجلدات إلى العناصر لتصفيتها هنا."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "أضف عناصر إلى مجلد مشترك للتصفية هنا."
+  },
+  "editItemWithName": {
+    "message": "تحرير العنصر - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "لا توجد عناصر في الخزنة"
+  },
+  "noItemsInMyVault": {
+    "message": "لا توجد عناصر في خزنتي"
+  },
+  "emptyMyItems": {
+    "message": "لا توجد عناصر في عناصري"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "لا توجد عناصر في $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "لا توجد عناصر في $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "خزائنك فارغة"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "لا توجد عناصر تطابق عوامل التصفية المحددة"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "لا توجد عناصر تطابق \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "الطول"
@@ -572,6 +663,10 @@
   },
   "resetSearch": {
     "message": "إعادة ضبط البحث"
+  },
+  "clearSearchTooltip": {
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
     "message": "أرشيف",
@@ -709,8 +804,8 @@
   "launchWebsite": {
     "message": "تشغيل الموقع"
   },
-  "launchWebsiteName": {
-    "message": "انتقل إلى موقع $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "فتح موقع الويب لـ $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1055,6 +1150,12 @@
   "addedFolder": {
     "message": "تمت إضافة المجلد"
   },
+  "folderEdited": {
+    "message": "تم تحرير المجلد"
+  },
+  "enterAName": {
+    "message": "أدخل اسمًا."
+  },
   "twoStepLoginConfirmation": {
     "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا بواسطة مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزنة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
   },
@@ -1193,9 +1294,6 @@
   },
   "clickToAutofillOnVault": {
     "message": "انقر على العناصر للملء التلقائي في تبويب الخزنة"
-  },
-  "clickToAutofill": {
-    "message": "انقر على العناصر في اقتراح الملء التلقائي للملء"
   },
   "clearClipboard": {
     "message": "مسح الحافظة",
@@ -1367,17 +1465,40 @@
   "additionalOptions": {
     "message": "خيارات إضافية"
   },
-  "fillAssistActiveNotice": {
-    "message": "Autofill is using Fill Assist on this page."
+  "fillAssistActiveNoticeV2": {
+    "message": "الملء التلقائي يستخدم مساعد الملء في هذه الصفحة."
   },
-  "activateFillAssist": {
-    "message": "Turn on Fill Assist"
+  "activateFillAssistV2": {
+    "message": "تشغيل مساعد الملء"
   },
-  "activateFillAssistDescription": {
-    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescriptionV2": {
+    "message": "يحسّن مساعد الملء دقة الملء التلقائي في المواقع المدعومة باستخدام قواعد خاصة بالموقع. لا يتم جمع أي بيانات أو حفظها عند استخدام هذه الميزة."
   },
-  "aboutFillAssistLabel": {
-    "message": "About Fill Assist"
+  "aboutFillAssistLabelV2": {
+    "message": "حول مساعد الملء"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "السماح للمواقع باستبعاد الحقول من الملء التلقائي"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "تخطَّ الحقول التي تحددها المواقع باستخدام السمة `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "السماح للمواقع بإضافة حقول إلى الملء التلقائي"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "استخدم أي عناصر span تحددها المواقع باستخدام السمة `data-bwautofill`."
+  },
+  "enableBasicAuthResponseLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "إظهار خيارات قائمة السياق"
@@ -1430,6 +1551,46 @@
   "importVerb": {
     "message": "استيراد",
     "description": "The verb form of the word Import"
+  },
+  "importSourceBreadcrumb": {
+    "message": "تحديد المصدر"
+  },
+  "importData": {
+    "message": "Import data"
+  },
+  "importSourceSelectTitle": {
+    "message": "حدد مصدرك"
+  },
+  "importSourceSelectDescription": {
+    "message": "اختر مدير كلمات المرور أو المتصفح الذي تستورد منه."
+  },
+  "importSourceBrowsers": {
+    "message": "المتصفحات"
+  },
+  "importSourcePasswordManagers": {
+    "message": "مديرو كلمات المرور"
+  },
+  "importSourceShowAll": {
+    "message": "عرض الكل"
+  },
+  "importSourceShowLess": {
+    "message": "عرض أقل"
+  },
+  "importSourceStepCount": {
+    "message": "الخطوة $CURRENT$ من $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "importItems": {
+    "message": "استيراد العناصر"
   },
   "fileFormat": {
     "message": "صيغة الملف"
@@ -1497,10 +1658,7 @@
     "message": "مجلداتي"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
-  },
-  "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "إضافة مجلد مشترك"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "يتيح لك Bitwarden for Business مشاركة عناصر خزنتك مع الآخرين بواسطة إنشاء منظمة. تعرف على المزيد على موقع bitwarden.com."
@@ -1557,6 +1715,21 @@
   "copyVerificationCode": {
     "message": "نسخ رمز التحقق"
   },
+  "noUsername": {
+    "message": "لا يوجد اسم مستخدم"
+  },
+  "noPassword": {
+    "message": "لا توجد كلمة مرور"
+  },
+  "noVerificationCode": {
+    "message": "لا يوجد رمز تحقق"
+  },
+  "noNumber": {
+    "message": "لا يوجد رقم"
+  },
+  "noSecurityCode": {
+    "message": "لا يوجد رمز أمان"
+  },
   "attachments": {
     "message": "المرفقات"
   },
@@ -1602,6 +1775,27 @@
   "selectFile": {
     "message": "تحديد ملف"
   },
+  "selectFileUnsupportedType": {
+    "message": "That file type isn't accepted for this source. Choose a different file"
+  },
+  "pasteContentRequired": {
+    "message": "Paste the exported content"
+  },
+  "fileTypeNotSupported": {
+    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "The pasted content doesn't match the selected format"
+  },
+  "errorReadingFile": {
+    "message": "The selected file could not be read"
+  },
   "itemsTransferred": {
     "message": "تم نقل العناصر"
   },
@@ -1625,12 +1819,6 @@
   },
   "premiumRefresh": {
     "message": "تحديث حالة العضوية"
-  },
-  "premiumNotCurrentMember": {
-    "message": "أنت لست مشتركا في الباقة Premium حاليا."
-  },
-  "premiumSignUpAndGet": {
-    "message": "أنشئ حسابا لعضوية باقة Premium واحصل على:"
   },
   "premiumSignUpStorage": {
     "message": "مساحة تخزين مشفرة بمقدار 1 جيغابايت لمرفقات الملفات."
@@ -1676,12 +1864,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "يمكنك شراء باقة Premium من إعدادات حسابك على تطبيق الويب لـ Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "أنت مشترك في الباقة Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "شكرا لك على دعم Bitwarden."
   },
   "premiumFeatures": {
     "message": "لترقية إلى الباقة Premium والحصول على:"
@@ -1950,6 +2132,9 @@
   "showInlineMenuCardsLabel": {
     "message": "عرض البطاقات كاقتراحات"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "عرض مفاتيح SSH كاقتراحات"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "عرض الاقتراحات عند تحديد الأيقونة"
   },
@@ -2152,9 +2337,6 @@
   },
   "securityCode": {
     "message": "رمز الأمان"
-  },
-  "cardNumber": {
-    "message": "رقم البطاقة"
   },
   "ex": {
     "message": "مثال."
@@ -2402,42 +2584,6 @@
     "message": "إضافة جواز سفر",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "تسجيل دخول جديد",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "بطاقة جديدة",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "هوية جديدة",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "ملاحظة جديدة",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "ملاحظة آمنة جديدة",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "مفتاح SSH جديد",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "حساب بنكي جديد",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "ترخيص جديد",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "جواز سفر جديد",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "نص جديد",
     "description": "Header for new text send"
@@ -2445,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "ملف جديد",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "تعديل تسجيل الدخول",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "تعديل البطاقة",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "تعديل الهوية",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "تعديل الملاحظة",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "تعديل الملاحظة الآمنة",
@@ -2572,6 +2702,15 @@
       }
     }
   },
+  "nSharedFolders": {
+    "message": "$COUNT$ مجلدات مشتركة",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "favorites": {
     "message": "المفضلات"
   },
@@ -2601,13 +2740,13 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "تحديد كل الصفوف"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "تحديد صف"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "عرض $START$ - $END$ من $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2624,10 +2763,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "صفوف لكل صفحة"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ صفوف لكل صفحة",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2636,7 +2775,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ عناصر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2645,19 +2784,19 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "الكل"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "مسح الكل"
   },
   "done": {
-    "message": "Done"
+    "message": "تم"
   },
   "filter": {
-    "message": "Filter"
+    "message": "تصفية"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ محدد",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2666,16 +2805,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "الصفحة السابقة"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "الصفحة التالية"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "الانتقال إلى الصفحة"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "من $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2684,7 +2823,43 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "لا توجد عناصر مطابقة"
+  },
+  "noFiltersMatch": {
+    "message": "لا توجد عوامل تصفية تطابق \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "oneFilterResult": {
+    "message": "نتيجة واحدة",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ نتائج",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "لا توجد عوامل تصفية تطابق “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
+  "clearSearch": {
+    "message": "مسح البحث"
   },
   "selected": {
     "message": "محددة"
@@ -3132,12 +3307,6 @@
   "errorRefreshingAccessTokenDesc": {
     "message": "لم يتم العثور على رمز تحديث أو مفاتيح API. الرجاء محاولة تسجيل الخروج وتسجيل الدخول مرة أخرى."
   },
-  "desktopSyncVerificationTitle": {
-    "message": "التحقق من مزامنة سطح المكتب"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "يرجى التحقق من أن تطبيق سطح المكتب يظهر بصمة الأصبع هذه: "
-  },
   "desktopIntegrationDisabledTitle": {
     "message": "تكامل المتصفح غير مفعّل"
   },
@@ -3279,7 +3448,7 @@
     "message": "كلمات المرور المعرضة للخطر"
   },
   "atRisk": {
-    "message": "at risk",
+    "message": "معرض للخطر",
     "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
@@ -3908,16 +4077,25 @@
   "errorGettingAutoFillData": {
     "message": "خطأ في الحصول على بيانات الملء التلقائي"
   },
-  "couldNotDecryptVaultItemsBelow": {
-    "message": "تعذر على Bitwarden فك تشفير العناصر المدرجة أدناه."
+  "couldNotDecryptVaultItem": {
+    "message": "تعذّر على Bitwarden فك تشفير عنصر الخزنة المدرج أدناه. اتصل بدعم عملاء Bitwarden وقدم معرّف العنصر أدناه لمعرفة ما إذا كان يمكن استرداده."
   },
-  "contactCSToAvoidDataLossPart1": {
-    "message": "فريق دعم العملاء",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "couldNotDecryptVaultItems": {
+    "message": "تعذّر على Bitwarden فك تشفير عناصر الخزنة المدرجة أدناه. اتصل بدعم عملاء Bitwarden وقدم معرّفات العناصر أدناه لمعرفة ما إذا كان يمكن استردادها."
   },
-  "contactCSToAvoidDataLossPart2": {
-    "message": "لتجنب فقدان إضافي للبيانات.",
-    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  "itemId": {
+    "message": "معرّف العنصر",
+    "description": "Label for a field listing the unique identifier of a single vault item."
+  },
+  "itemIds": {
+    "message": "معرّفات العناصر",
+    "description": "Label for a field listing the unique identifiers of multiple vault items."
+  },
+  "copyId": {
+    "message": "نسخ المعرّف"
+  },
+  "copyAllIds": {
+    "message": "نسخ كل المعرّفات"
   },
   "generateUsername": {
     "message": "توليد اسم المستخدم"
@@ -4104,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a valid URL",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsafe URL detected",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Trust URL",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "حدث خطأ غير معروف في $SERVICENAME$.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -4125,11 +4327,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "إضافة بادئة موقع الويب",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "عند التمكين، سيُستخدم نطاق موقع الويب الحالي كبادئة لعنوان البريد الإلكتروني المُنشأ",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4891,6 +5093,9 @@
   "importFormatError": {
     "message": "البيانات غير منسقة بشكل صحيح. يرجى التحقق من ملف الاستيراد والمحاولة مرة أخرى."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "لم يتم استيراد أي شيء."
   },
@@ -4904,7 +5109,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "سيتم تخطي $COUNT$ عنصر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4916,16 +5121,16 @@
     "message": "تعذر قراءة العناصر التالية ولن يتم تضمينها في عملية الاستيراد الخاصة بك:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "تعذّر استيراد مفتاح SSH هذا"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "نوع عنصر غير مدعوم"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "تعذّر استيراد هذا العنصر"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "المعرّف"
   },
   "contact": {
     "message": "جهة اتصال"
@@ -4972,17 +5177,14 @@
   "learnAboutImportOptions": {
     "message": "تعرف على خيارات الاستيراد الخاصة بك"
   },
-  "selectImportFolder": {
-    "message": "تحديد المجلد"
-  },
-  "selectImportCollection": {
-    "message": "اختر مجموعة"
-  },
   "importTargetHintCollection": {
     "message": "حدد هذا الخيار إذا أردت نقل محتويات الملف المستورد إلى مجموعة"
   },
   "importTargetHintFolder": {
     "message": "حدد هذا الخيار إذا أردت نقل محتويات الملف المستورد إلى مجلد"
+  },
+  "importTargetHintSharedFolder": {
+    "message": "حدد هذا الخيار إذا كنت تريد نقل محتويات الملف المستورد إلى مجلد مشترك"
   },
   "importUnassignedItemsError": {
     "message": "الملف يحتوي على عناصر غير معينة."
@@ -5002,6 +5204,79 @@
   "noFileChosen": {
     "message": "لم يتم اختيار ملف"
   },
+  "noFileSelected": {
+    "message": "لم يتم تحديد أي ملف"
+  },
+  "fileChosen": {
+    "message": "تم اختيار الملف: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "تمت إضافة الملف: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "تمت إضافة $COUNT$ ملفات: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "تمت إزالة الملف: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "تم رفع ملف واحد"
+  },
+  "filesUploaded": {
+    "message": "تم رفع $COUNT$ ملفات",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "الملفات المرفوعة"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "انقر للرفع أو اسحب وأفلت"
+  },
+  "chooseFiles": {
+    "message": "اختيار الملفات"
+  },
+  "maxFileSizeParam": {
+    "message": "الحد الأقصى لحجم الملف: $SIZE$ ميغابايت",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "أو انسخ/الصق محتويات ملف الاستيراد"
   },
@@ -5015,6 +5290,317 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "راجع إرشادات $NAME$ التفصيلية في",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "مركز المساعدة"
+  },
+  "uploadFile": {
+    "message": "Upload file"
+  },
+  "pasteAsPlainText": {
+    "message": "Paste as plain text"
+  },
+  "plainText": {
+    "message": "Plain text"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "importManuallyInstead": {
+    "message": "Import manually instead"
+  },
+  "directlyImportInstead": {
+    "message": "Directly import instead"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "importDataTitle": {
+    "message": "Import your data"
+  },
+  "importDataDirectTitle": {
+    "message": "Import your data in minutes"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Import your items directly from",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "to get all your data.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Select the profile you wish to import passwords from."
+  },
+  "noBrowserProfilesFound": {
+    "message": "No browser profiles were found"
+  },
+  "importDataLoginTitle": {
+    "message": "Log in to $VENDOR$",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Your credentials are encrypted in transit and never stored."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Secure by design"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "We'll ask for your login info"
+  },
+  "importDataLoginInfoBody": {
+    "message": "In the next step, log in to your $VENDOR$ account.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Everything transfers"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importAcceptedFormats": {
+    "message": "Accepted: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ file type",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "importChromiumAliasPreamble": {
+    "message": "العملية مماثلة تمامًا للاستيراد من Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "باستخدام تطبيق KeePassX لسطح المكتب، انتقل إلى \"Database\" → \"Export to CSV file\" واحفظ ملف CSV."
+  },
+  "importAviraInstructions": {
+    "message": "في خزنة Avira على الويب، انتقل إلى \"Settings\" → \"My Data\" → \"Export data\" واحفظ ملف CSV."
+  },
+  "importBlurInstructions": {
+    "message": "في خزنة Blur على الويب، انقر على اسم المستخدم في الأعلى وانتقل إلى \"Settings\" → \"Export Data\"، ثم انقر على \"Export CSV\" لحساباتك \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "باستخدام تطبيق SafeInCloud لسطح المكتب، انتقل إلى \"File\" → \"Export\" → \"As XML\" واحفظ ملف XML."
+  },
+  "importPadlockInstructions": {
+    "message": "باستخدام تطبيق Padlock لسطح المكتب، انقر على أيقونة القائمة في الزاوية العلوية اليسرى وانتقل إلى \"Settings\" → زر \"Export\" واحفظ الملف \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "باستخدام تطبيق KeePass 2 لسطح المكتب، انتقل إلى \"File\" → \"Export\" وحدد خيار \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "باستخدام تطبيق Universal Password Manager لسطح المكتب، انتقل إلى \"Database\" → \"Export\" واحفظ ملف CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "باستخدام إضافة SaferPass للمتصفح، انقر على أيقونة القائمة في الزاوية العلوية اليسرى وانتقل إلى \"Settings\". انقر على زر \"Export accounts\" لحفظ ملف CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "باستخدام خزنة Meldium على الويب، انتقل إلى \"Settings\". ابحث عن وظيفة \"Export data\" وانقر على \"Show me my data\" لحفظ ملف CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "باستخدام تطبيق Password Dragon لسطح المكتب، انتقل إلى \"File\" → \"Export\" → \"To XML\". في مربع الحوار المنبثق، حدد \"All Rows\" وحدد كل الحقول. انقر على زر \"Export\" واحفظ ملف XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "باستخدام تطبيق Enpass لسطح المكتب، انتقل إلى \"File\" → \"Export\" → \"As CSV\". حدد \"OK\" لتنبيه التحذير واحفظ ملف CSV. لاحظ أن المستورد يدعم فقط الملفات المصدَّرة بينما يكون Enpass مضبوطًا على اللغة الإنجليزية، لذا اضبط إعداداتك وفقًا لذلك."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "باستخدام تطبيق Enpass 6 لسطح المكتب، انقر على زر القائمة وانتقل إلى \"File\" → \"Export\". حدد خيار تنسيق الملف \".json\" واحفظ ملف JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "باستخدام تطبيق Password Safe لسطح المكتب، انتقل إلى \"File\" → \"Export To\" → \"XML format...\" واحفظ ملف XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "سجّل الدخول إلى Dashlane، وانقر على \"My Account\" → \"Settings\" → \"Export file\" وحدد \"Export as a CSV file\". سيؤدي هذا إلى تنزيل أرشيف ZIP يحتوي على ملفات CSV متعددة. فُك ضغط الأرشيف واستورد كل ملف CSV على حدة."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "لم يعد Dashlane يدعم تنسيق JSON. استخدم هذا فقط إذا كان لديك ملف JSON موجود للاستيراد. استخدم مستورد CSV عند إنشاء صادرات جديدة."
+  },
+  "importMsecureInstructions": {
+    "message": "باستخدام تطبيق mSecure لسطح المكتب، انتقل إلى \"File\" → \"Export\" → \"CSV File...\" واحفظ ملف CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "باستخدام تطبيق Sticky Password لسطح المكتب، انتقل إلى \"Menu\" (أعلى اليمين) → \"Export\" → \"Export all\". حدد خيار تنسيق XML غير المشفر واحفظ ملف XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "باستخدام تطبيق True Key لسطح المكتب، انقر على أيقونة الترس (أعلى اليمين) ثم انتقل إلى \"App Settings\". انقر على زر \"Export\"، وأدخل كلمة المرور واحفظ ملف CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "سجّل الدخول إلى تطبيق Clipperz على الويب (clipperz.is/app). انقر على أيقونة قائمة الهامبرغر في أعلى اليمين لتوسيع شريط التنقل. انتقل إلى \"Data\" → \"Export\". انقر على زر \"download HTML+JSON\" لحفظ ملف HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "باستخدام تطبيق RoboForm Editor لسطح المكتب، انتقل إلى \"RoboForm\" (أعلى اليسار) → \"Options\" → \"Account & Data\" وانقر على زر \"Export\". حدد كل بياناتك، وغيّر \"Format\" إلى \"CSV file\" ثم انقر على زر \"Export\" لحفظ ملف CSV. ملاحظة: يسمح RoboForm فقط بتصدير عمليات تسجيل الدخول. لن يتم تصدير العناصر الأخرى."
+  },
+  "importPassboltInstructions": {
+    "message": "سجّل الدخول إلى خزنة Passbolt على الويب وانتقل إلى قائمة \"Passwords\". حدد كل كلمات المرور التي تريد تصديرها وانقر على زر \"Export\" في أعلى القائمة. اختر تنسيق التصدير \"csv (lastpass)\" وانقر على زر \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "باستخدام تطبيق Ascendo DataVault لسطح المكتب، انتقل إلى \"Tools\" → \"Export\". في مربع الحوار المنبثق، حدد خيار \"All Items (DVX, CSV)\". انقر على زر \"Ok\" لحفظ ملف CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "باستخدام تطبيق Password Boss لسطح المكتب، انتقل إلى \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" واحفظ ملف JSON."
+  },
+  "importZohoInstructions": {
+    "message": "سجّل الدخول إلى خزنة Zoho على الويب (vault.zoho.com). انتقل إلى \"Tools\" → \"Export Secrets\". حدد \"All Secrets\" وانقر على زر \"Zoho Vault Format CSV\". ظلّل البيانات وانسخها من منطقة النص. افتح محرر نصوص مثل Notepad والصق البيانات. احفظ البيانات من محرر النصوص باسم",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "باستخدام تطبيق SplashID Safe لسطح المكتب، انقر على شعار القفل الأزرق لـ SplashID في الزاوية العلوية اليمنى. انتقل إلى \"Export\" → \"Export as CSV\" واحفظ ملف CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "باستخدام تطبيق PassKeep للجوال، انتقل إلى \"Backup/Restore\". ابحث عن قسم \"CSV Backup/Restore\" وانقر على \"Backup to CSV\" لحفظ ملف CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "تأكد من تثبيت python-keyring و python-gnomekeyring. احفظ",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "استيراد/تصدير GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "نص python البرمجي على سطح المكتب باسم",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". افتح الطرفية وشغّل",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "ثم",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". ثم ارفع الملف الناتج",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "هنا إلى Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "باستخدام تطبيق Password Agent لسطح المكتب، انتقل إلى \"File\" → \"Export\"، وحدد زر \"Fields to export\" وحدد كل الحقول، وغيّر \"Output format\" إلى \"CSV\"، ثم انقر على زر \"Start\" لحفظ ملف CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "سجّل الدخول إلى خزنة موقع Passpack وانتقل إلى \"Settings\" → \"Export\"، ثم انقر على زر \"Download\" لحفظ ملف CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "افتح خزنة Passman وانقر على \"Settings\" في الزاوية السفلية اليسرى. في نافذة \"Settings\"، انتقل إلى علامة التبويب \"Export credentials\" واختر \"JSON\" كنوع التصدير. أدخل عبارة مرور خزنتك وانقر على زر \"Export\" لحفظ ملف JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "افتح تطبيق Avast Passwords لسطح المكتب وانتقل إلى \"Settings\" → \"Import/export data\". حدد زر \"Export\" لخيار \"Export to CSV file\" لحفظ ملف CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "افتح تطبيق Avast Passwords لسطح المكتب وانتقل إلى \"Settings\" → \"Import/export data\". حدد زر \"Export\" لخيار \"Export to JSON file\" لحفظ ملف JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "افتح تطبيق F-Secure KEY لسطح المكتب وانتقل إلى \"Settings\" → \"Export Passwords\". حدد زر \"Export\"، وأدخل كلمة المرور الرئيسية، واحفظ ملف FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "افتح تطبيق Kaspersky Password Manager لسطح المكتب وانتقل إلى \"Settings\" → \"Import/Export\". ابحث عن قسم \"Export to text file\" وحدد زر \"Export\" لحفظ ملف TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "افتح تطبيق RememBear لسطح المكتب وانتقل إلى \"Settings\" → \"Account\" → \"Export\". أدخل كلمة المرور الرئيسية وحدد زر \"Export Anyway\" لحفظ ملف CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "افتح تطبيق PasswordWallet لسطح المكتب وانتقل إلى \"File\" → \"Export\" → \"Visible entries to text file\". أدخل كلمة المرور وحدد زر \"Ok\" لحفظ ملف TXT."
+  },
+  "importMykiInstructions": {
+    "message": "افتح إضافة Myki لمتصفح سطح المكتب وانتقل إلى \"Advanced\" → \"Export Accounts\" ثم امسح رمز QR باستخدام جهازك المحمول. سيتم بعد ذلك حفظ ملفات CSV متعددة في مجلد التنزيلات على جهاز الكمبيوتر."
+  },
+  "importSecuresafeInstructions": {
+    "message": "صدّر خزنة كلمات مرور SecureSafe إلى ملف CSV بفاصل فاصلة."
+  },
+  "importLogmeonceInstructions": {
+    "message": "افتح إضافة LogMeOnce للمتصفح، ثم انتقل إلى \"Open Menu\" → \"Export To\" وحدد \"CSV File\" لحفظ ملف CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "افتح تطبيق BlackBerry Password Keeper، ثم انتقل إلى \"Settings\" → \"Import/Export\". حدد \"Export Passwords\" واتبع الإرشادات على الشاشة لحفظ ملف CSV غير المشفر."
+  },
+  "importButtercupInstructions": {
+    "message": "افتح تطبيق Buttercup لسطح المكتب وافتح قفل خزنتك. انقر بزر الماوس الأيمن على أيقونة خزنتك وحدد \"Export\" لحفظ ملف CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "افتح تطبيق Codebook لسطح المكتب وسجّل الدخول. انتقل إلى \"File\" → \"Export all\"، ثم انقر على \"Yes\" في مربع الحوار واحفظ ملف CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "افتح أحدث إصدار من تطبيق Encryptr لسطح المكتب واسمح بمزامنة كل بياناتك. بمجرد اكتمال مزامنة بياناتك، سيتحول رمز التنزيل في الزاوية العلوية اليمنى إلى اللون الوردي. انقر على رمز التنزيل واحفظ ملف CSV."
+  },
+  "importYotiInstructions": {
+    "message": "من إضافة Yoti للمتصفح، انقر على \"Settings\"، ثم \"Export Saved Logins\" واحفظ ملف CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "سجّل الدخول إلى خزنة Psono على الويب، وانقر على القائمة المنسدلة \"Signed in as\"، وحدد \"Others\". انتقل إلى علامة التبويب \"Export\" وحدد التصدير من نوع json ثم انقر على Export."
+  },
+  "importPasskyInstructions": {
+    "message": "سجّل الدخول إلى \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" في قسم Passky. (\"Backup\" غير مدعوم لأنه مشفر)."
+  },
+  "importProtonpassInstructions": {
+    "message": "في إضافة ProtonPass للمتصفح، انتقل إلى Settings > Export. صدّر دون تشفير PGP واحفظ ملف zip."
+  },
+  "importPasswordxpInstructions": {
+    "message": "حدد Database → قائمة Export to file.... → ضمن خيارات التصدير، تأكد من تحديد Folder names و Column titles. → اضغط على زر Browse... واختر الملف الهدف واضبط نوعه على CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "افتح FullClient، وانتقل إلى القائمة الرئيسية وحدد Export. ابدأ معالج تصدير كلمات المرور واتبع الإرشادات لتصدير ملف CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "سجّل الدخول إلى NordPass وافتح Settings → مرّر لأسفل إلى قسم Import and Export وحدد Export items → أدخل كلمة المرور الرئيسية وحدد Continue. → احفظ ملف CSV على جهازك."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "في تطبيق سطح المكتب، انتقل إلى Tools → Export → أدخل كلمة المرور الرئيسية → حدد XML Format (*.xml) كتنسيق Export → انقر على next → اختر الإدخالات التي يجب تضمينها في التصدير → انقر على next للتصدير إلى الموقع المختار سابقًا."
+  },
+  "importDelineaInstructions": {
+    "message": "سجّل الدخول إلى Delinea، وابحث عن “Import/Export” -> حدد “Export” -> حدد “XML” كتنسيق Export -> حدد “QuantumLock” كنوع Authenticator -> أدخل كلمة المرور وحدد “Export” لحفظ ملف XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "سجّل الدخول إلى Delinea، وابحث عن “Import/Export” -> حدد “Export” -> حدد “CSV” كتنسيق Export -> حدد “QuantumLock” كنوع Authenticator -> أدخل كلمة المرور وحدد “Export” لحفظ ملف CSV."
+  },
   "confirmVaultImport": {
     "message": "تأكيد استيراد الخزنة"
   },
@@ -5027,11 +5613,44 @@
   "keePassMasterPassword": {
     "message": "كلمة المرور الرئيسية لـ KeePass"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ password",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Password is required."
+  },
+  "filePasswordRequired": {
+    "message": "File password is required"
+  },
+  "filePasswordInvalid": {
+    "message": "Enter a valid file password."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "The file uploaded is password protected. Enter the password to continue."
+  },
+  "selectProfile": {
+    "message": "Select profile"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "importAccountMismatchError": {
+    "message": "This file can only be imported into the account it was exported from."
+  },
   "addKeyFile": {
     "message": "إضافة ملف مفتاح"
   },
   "keyFileUpload": {
     "message": "تحميل ملف المفتاح"
+  },
+  "keyFileUploadV2": {
+    "message": "Key file"
   },
   "kdbxFileUpload": {
     "message": "تحميل ملف KDBX"
@@ -5186,10 +5805,6 @@
   "awaitingSSODesc": {
     "message": "الرجاء الاستمرار في تسجيل الدخول باستخدام بيانات حساب الشركة الخاصة بك."
   },
-  "seeDetailedInstructions": {
-    "message": "راجع التعليمات المفصلة في موقع المساعدة الخاص بنا في",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "استيراد مباشرة من LastPass"
   },
@@ -5204,6 +5819,72 @@
   },
   "lastPassYubikeyDesc": {
     "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB بجهاز الكمبيوتر، ثم اضغط على زره."
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "An error has occurred. Check your credentials and try again."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Only login with password is supported."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Only login with password is supported. Try again or use a different import method."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Enter a valid email address or use a different import method."
+  },
+  "onePasswordImportError": {
+    "message": "An error has occurred. Try again or use a different import method."
+  },
+  "emailIsRequired": {
+    "message": "Email is required."
+  },
+  "enterValidEmailAddress": {
+    "message": "Enter a valid email address."
+  },
+  "signInAddressIsRequired": {
+    "message": "Sign-in address is required."
+  },
+  "enterValidSignInAddress": {
+    "message": "Enter a valid sign-in address."
+  },
+  "secretKeyIsRequired": {
+    "message": "Secret key is required."
+  },
+  "enterValidSecretKey": {
+    "message": "Enter a valid secret key."
+  },
+  "passwordIsRequired": {
+    "message": "Password is required."
+  },
+  "enterValidVerificationCode": {
+    "message": "Enter a valid verification code."
+  },
+  "signInAddress": {
+    "message": "Sign-in address"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email"
+  },
+  "onePasswordEmailHint": {
+    "message": "Enter the email you use to log in to 1Password"
+  },
+  "secretKey": {
+    "message": "Secret key"
+  },
+  "secretKeyAndPassword": {
+    "message": "Secret key and password"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
   "keeperEmail": {
     "message": "البريد الإلكتروني لـ Keeper"
@@ -5400,6 +6081,9 @@
   "switchAccounts": {
     "message": "تبديل الحسابات"
   },
+  "switchVault": {
+    "message": "تبديل الخزنة"
+  },
   "switchToAccount": {
     "message": "التبديل إلى حساب"
   },
@@ -5592,10 +6276,10 @@
     "message": "إزالة مفتاح المرور"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "حذف مفتاح المرور"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "سيتم حذف مفتاح المرور هذا نهائيًا من عنصر تسجيل الدخول الخاص بك. لا يمكن التراجع عن ذلك."
   },
   "passkeyRemoved": {
     "message": "تمت إزالة مفتاح المرور"
@@ -5618,25 +6302,11 @@
   "clearFiltersOrTryAnother": {
     "message": "امسح خيارات التصفية أو جرب عبارة بحث أخرى"
   },
-  "copyInfoTitle": {
-    "message": "نسخ معلومات - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
+  "noSharedFoldersAdded": {
+    "message": "لم تتم إضافة مجلدات مشتركة"
   },
-  "copyNoteTitle": {
-    "message": "نسخ ملاحظة - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+  "noSharedFoldersAddedDescription": {
+    "message": "أضف مجلدًا مشتركًا لمشاركة عناصر الخزنة بأمان مع الأعضاء الآخرين."
   },
   "moreOptionsLabel": {
     "message": "المزيد من الخيارات، $ITEMNAME$",
@@ -5709,29 +6379,21 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "نسخ $CIPHERNAME$,$FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "لم يتم إدخال أي قيمة",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "لا توجد قيم لنسخها"
+  "noDetailsToCopy": {
+    "message": "لا توجد تفاصيل لنسخها"
   },
   "assignToCollections": {
     "message": "تعيين إلى المجموعات"
+  },
+  "addToSharedFolder": {
+    "message": "إضافة إلى مجلد مشترك"
+  },
+  "transferAndAdd": {
+    "message": "نقل وإضافة"
   },
   "copyEmail": {
     "message": "نسخ البريد الإلكتروني"
@@ -5877,7 +6539,7 @@
     "message": "المالك"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "مجلد مشترك $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5886,7 +6548,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "مجموعة $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5895,7 +6557,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "مجلدي $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5904,7 +6566,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "مجلد $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5913,7 +6575,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "المالك $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5922,7 +6584,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "خزنة $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6200,8 +6862,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العنصر."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "فقط أعضاء الخزنة الذين لديهم وصول إلى هذه المجلدات المشتركة سيتمكنون من رؤية العنصر."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العنصر."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "فقط أعضاء الخزنة الذين لديهم وصول إلى هذه المجلدات المشتركة سيتمكنون من رؤية العناصر."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "لقد حددت $TOTAL_COUNT$ عنصرا. لا يمكنك تحديث $READONLY_COUNT$ من العناصر لأنك لا تملك صلاحيات التعديل.",
@@ -6307,8 +6975,20 @@
   "personalItemTransferWarningSingular": {
     "message": "سيتم نقل عنصر 1 بشكل دائم إلى المنظمة المحددة. لن تكون مالكا لهذا العنصر بعد الآن."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "سيتم نقل عنصر واحد نهائيًا إلى الخزنة المحددة. لن تمتلك هذا العنصر بعد الآن."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "سيتم نقل عناصر $PERSONAL_ITEMS_COUNT$ بشكل دائم إلى المنظمة المحددة. لن تكون مالكا لهذه العناصر بعد الآن.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "سيتم نقل $PERSONAL_ITEMS_COUNT$ عنصرًا نهائيًا إلى الخزنة المحددة. لن تمتلك هذه العناصر بعد الآن.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +7021,32 @@
   "successfullyAssignedCollections": {
     "message": "تم تخصيص المجموعات بنجاح"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "تمت إضافة المجلدات المشتركة بنجاح"
+  },
   "itemMovedToCollection": {
     "message": "تم نقل العنصر إلى المجموعة"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "تمت إضافة العنصر إلى المجلد المشترك"
   },
   "itemMovedToCollections": {
     "message": "تم نقل العنصر إلى المجموعات"
   },
+  "itemAddedToSharedFolders": {
+    "message": "تمت إضافة العنصر إلى المجلدات المشتركة"
+  },
   "itemsMovedToCollection": {
     "message": "تم نقل العناصر إلى المجموعة"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "تمت إضافة العناصر إلى المجلد المشترك"
+  },
   "itemsMovedToCollections": {
     "message": "تم نقل العناصر إلى المجموعات"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "تمت إضافة العناصر إلى المجلدات المشتركة"
   },
   "itemAssignedToCollections": {
     "message": "تم إدراج العنصر في المجموعات"
@@ -6401,10 +7096,16 @@
     "message": "موقع العنصر"
   },
   "fileSends": {
-    "message": "ملف Sends"
+    "message": "ملف Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "نص Sends"
+    "message": "نص Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "إرسالات العناصر",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "إجراءات الحساب"
@@ -6424,7 +7125,7 @@
       }
     }
   },
-  "showQuickCopyActions": {
+  "showQuickCopyActionsInVault": {
     "message": "إظهار إجراءات النسخ السريع في الخزنة"
   },
   "systemDefault": {
@@ -6480,6 +7181,9 @@
   },
   "noItemsInTrashDesc": {
     "message": "العناصر التي تحذفها ستظهر هنا وستحذف نهائيا بعد 30 يوما"
+  },
+  "noItemsInTrashDescription": {
+    "message": "ستظهر العناصر التي تحذفها هنا وستُحذف نهائيًا بعد 30 يومًا."
   },
   "trashWarning": {
     "message": "سيتم حذف العناصر الموجودة في سلة المهملات منذ أكثر من 30 يوما تلقائيا"
@@ -6688,9 +7392,6 @@
   "compactMode": {
     "message": "الوضع المضغوط"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "عرض الإضافة"
   },
@@ -6739,17 +7440,14 @@
       }
     }
   },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "الرجاء تحديث تطبيق سطح المكتب الخاص بك"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "لاستخدام فتح القفل بالمصادقة البيومترية، يرجى تحديث تطبيق سطح المكتب، أو تعطيل فتح القفل ببصمة الإصبع في إعدادات سطح المكتب."
-  },
-  "changeAtRiskPassword": {
-    "message": "تغيير كلمة المرور المعرضة للخطر"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "حساب الدخول هذا معرض للخطر ولا يرتبط بأي موقع إلكتروني. أضف موقعا إلكترونيا و استبدل كلمة المرور لتعزيز الأمان."
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "لا يمكنك إزالة المجلدات المشتركة ذات أذونات العرض فقط: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "vulnerablePassword": {
     "message": "كلمة مرور ضعيفة."
@@ -6757,14 +7455,38 @@
   "changeNow": {
     "message": "تغيير الآن"
   },
-  "missingWebsite": {
-    "message": "ينقص موقع ويب"
-  },
   "settingsVaultOptions": {
     "message": "خيارات الخزنة"
   },
   "emptyVaultDescription": {
     "message": "تحمي الخزنة أكثر من مجرد كلمات مرورك. خزن تسجيلات الدخول والهويات والبطاقات والملاحظات بأمان هنا."
+  },
+  "emptyVaultsDescription": {
+    "message": "أضف عمليات تسجيل الدخول والهويات والبطاقات والعناصر الأخرى للبدء."
+  },
+  "emptySharedFolderDescription": {
+    "message": "أضف عناصر إلى هذا المجلد المشترك، ثم امنح الوصول إلى أعضاء $VAULT_NAME$ الآخرين.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "عناصري هي مساحتك الخاصة لتخزين العناصر التي تظل مملوكة لـ $VAULT_NAME$ ولكنها غير مرئية للأعضاء الآخرين.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFoldersV2": {
+    "message": "You have no folders"
+  },
+  "emptyFoldersDescriptionV2": {
+    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "مرحبا بكم في Bitwarden"
@@ -6921,6 +7643,9 @@
   "permitCipherDetailsDescription": {
     "message": "سيستخدم Bitwarden عناوين URI المحفوظة لتسجيل الدخول لتحديد الأيقونة المناسبة أو رابط تغيير كلمة المرور لتحسين تجربتك. لا يتم جمع أي معلومات أو حفظها عند استخدام هذه الخدمة."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "أضف 3 أزرار نسخ سريع بجانب العناصر لنسخ اسم المستخدم أو كلمة المرور أو رمز التحقق إلى الحافظة."
+  },
   "noPermissionsViewPage": {
     "message": "ليس لديك صلاحيات لعرض هذه الصفحة. جرب تسجيل الدخول بحساب آخر."
   },
@@ -6930,6 +7655,15 @@
   },
   "showMore": {
     "message": "عرض المزيد"
+  },
+  "showMoreCount": {
+    "message": "عرض $COUNT$ المزيد",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "عرض أقل"
@@ -7207,20 +7941,20 @@
   "sharedUnlock": {
     "message": "فتح القفل المشترك"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "مشاركة حالة إلغاء القفل مع تطبيق سطح المكتب"
+  "syncUnlockWithDesktop": {
+    "message": "Sync unlock with desktop app"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "عند التفعيل، سيتم مشاركة حالة إلغاء القفل مع تطبيق سطح المكتب لـ Bitwarden."
+  "syncUnlockWithDesktopDescription": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
   },
-  "sharedUnlockWithWeb": {
-    "message": "مشاركة حالة إلغاء القفل مع خزنة الويب"
+  "syncUnlockWithWeb": {
+    "message": "Sync unlock with web app"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "عند التفعيل، سيتم مشاركة حالة إلغاء القفل مع خزنات الويب لـ Bitwarden."
+  "syncUnlockWithWebDescription": {
+    "message": "The Bitwarden browser extension and web app lock and unlock together."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
-    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+    "message": "الفتح المشترك غير متاح لأنك اخترت عدم تذكر هذا الجهاز. لتمكين هذا الإعداد، حاول تسجيل الدخول مرة أخرى."
   },
   "newPermissionNeeded": {
     "message": "مطلوب إذن جديد"
@@ -7430,6 +8164,318 @@
     }
   },
   "health": {
-    "message": "Health"
+    "message": "الصحة"
+  },
+  "scanMyVault": {
+    "message": "فحص خزنتي"
+  },
+  "introducingHealth": {
+    "message": "تقديم الصحة"
+  },
+  "healthIntroDescription": {
+    "message": "راقب وحسّن صحة خزنتك عبر إصلاح كلمات المرور المكشوفة والضعيفة والمعاد استخدامها."
+  },
+  "yourVaultIsHealthy": {
+    "message": "خزنتك سليمة",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "مخاطر خزنتك مرتفعة",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ من $TOTAL$ كلمة مرور بحاجة إلى إصلاح",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "لا توجد كلمات مرور مكشوفة",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "كلمة مرور مكشوفة واحدة",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ كلمات مرور مكشوفة",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "مكشوفة في خروقات البيانات",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "لم يتم العثور على أي من كلمات مرورك في خروقات البيانات",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "لا توجد كلمات مرور ضعيفة",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "كلمة مرور ضعيفة واحدة",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ كلمات مرور ضعيفة",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "قصيرة جدًا أو بسيطة",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "كل كلمات مرورك قوية",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "لا توجد كلمات مرور معاد استخدامها",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "كلمة مرور معاد استخدامها واحدة",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ كلمات مرور معاد استخدامها",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "معاد استخدامها لعدة عمليات تسجيل دخول",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "كل كلمات مرورك فريدة",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "المخاطر المحددة",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "upgradeToViewPasswords": {
+    "message": "قم بالترقية لعرض كلمات المرور"
+  },
+  "categoryHealthy": {
+    "message": "لا توجد عناصر تحتاج إلى انتباه",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "جارٍ فحص خزنتك",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "التحقق من كلمات المرور المكشوفة والضعيفة والمعاد استخدامها.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "قيد التقدم",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "حدث خطأ ما",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "لم يكتمل فحص خزنتك بسبب خطأ غير متوقع.",
+    "description": "Explains that the vault health scan did not complete."
+  },
+  "exposedPasswordsTitle": {
+    "message": "كلمات المرور المكشوفة"
+  },
+  "exposedPasswordsDescription": {
+    "message": "تم كشف كلمات المرور الخاصة بعمليات تسجيل الدخول هذه في خروقات البيانات. غيّرها فورًا لحماية حساباتك."
+  },
+  "weakPasswordsTitle": {
+    "message": "كلمات المرور الضعيفة"
+  },
+  "weakPasswordsDescription": {
+    "message": "يمكن تخمين كلمات المرور هذه بسهولة لأنها قصيرة جدًا أو بسيطة. قوّها بجعلها أكثر تعقيدًا."
+  },
+  "reusedPasswordsTitle": {
+    "message": "كلمات المرور المعاد استخدامها"
+  },
+  "reusedPasswordsDescription": {
+    "message": "عمليات تسجيل الدخول هذه تستخدم كلمة مرور معاد استخدامها. أنشئ كلمة مرور فريدة لكل حساب لمنع أي شخص من الوصول إلى حسابات متعددة بكلمة مرور واحدة."
+  },
+  "deleteAtRiskItemDesc": {
+    "message": "تأكد من تغيير كلمة المرور أولاً. الحذف يزيل العنصر من خزنتك فقط، ولا يعالج الخطر."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "كلمة المرور هذه لها مخاطر إضافية:"
+  },
+  "reused": {
+    "message": "معاد استخدامها",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ مرات",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "لم يتم العثور على أي من كلمات مرورك في خروقات البيانات."
+  },
+  "weakPasswordEmpty": {
+    "message": "كل كلمات مرورك قوية."
+  },
+  "reusedPasswordEmpty": {
+    "message": "كل كلمات مرورك فريدة."
+  },
+  "youreAllSet": {
+    "message": "أنت جاهز تمامًا!"
+  },
+  "permissions": {
+    "message": "الأذونات"
+  },
+  "viewItems": {
+    "message": "عرض العناصر"
+  },
+  "viewItemsHidePass": {
+    "message": "عرض العناصر، كلمات المرور مخفية"
+  },
+  "editItems": {
+    "message": "تحرير العناصر"
+  },
+  "editItemsHidePass": {
+    "message": "تحرير العناصر، كلمات المرور مخفية"
+  },
+  "shareVerb": {
+    "message": "مشاركة"
+  },
+  "peopleWhoCanView": {
+    "message": "الأشخاص الذين يمكنهم العرض",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "بعد مشاركة هذا الرابط، سيحتاج المستلمون إلى التحقق من بريدهم الإلكتروني برمز لعرض العنصر.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "تنتهي صلاحية هذا الرابط بعد هذا التاريخ، لكن قد يحتفظ المستلمون بالمعلومات التي تمت مشاركتها سابقًا. أعد إنشاء بيانات الاعتماد لإلغاء الوصول.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
+  "linkExpiresAfter": {
+    "message": "تنتهي صلاحية الرابط بعد",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "مشاركة لمرة واحدة",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "الروابط النشطة",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "تم نسخ الرابط إلى الحافظة",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "تعذّر إنشاء رابط المشاركة",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "تم حفظ الرابط ونسخه إلى الحافظة",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "فشل نسخ رابط المشاركة إلى الحافظة",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "تم حذف رابط المشاركة",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "فشل حذف رابط المشاركة",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "shareViaLink": {
+    "message": "مشاركة عبر رابط",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "itemSendTitle": {
+    "message": "مشاركة لعنصر الخزنة $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "share": {
+    "message": "مشاركة",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareLinkExpires": {
+    "message": "تنتهي",
+    "description": "Label preceding the expiration date of an active share link."
+  },
+  "expires": {
+    "message": "تنتهي",
+    "description": "Label for the expiration date of an access token."
+  },
+  "unknownCipher": {
+    "message": "عنصر غير معروف، قد تحتاج إلى طلب إذن للوصول إلى هذا العنصر."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden has a new look",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Better experience, same trusted security. The Bitwarden vault has been redesigned based on your feedback, so things are easier to find and work like you'd expect.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "A preview of the redesigned Bitwarden vault.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Explore the new vault",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customize": {
+    "message": "Customize"
+  },
+  "customizeYourView": {
+    "message": "Customize your view"
+  },
+  "showColumns": {
+    "message": "Show columns"
+  },
+  "resetToDefault": {
+    "message": "Reset to default"
   }
 }

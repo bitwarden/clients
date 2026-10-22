@@ -2,12 +2,47 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  // Don't install dependencies to node_modules. It causes incomplete
+  // lockfile updates, and CI already runs npm ci to assert builds
+  skipInstalls: true,
+  // Renovate's current default Rust (1.99) ignores
+  // registry.global-min-publish-age in .cargo/config.toml. Remove once
+  // Renovate installs Rust 1.100+ This should be in stable 2026-11-12,
+  // but double check before removing this line.
+  constraints: { rust: "nightly-2026-09-25" },
   customManagers: [
     {
+      // Pinned binary cargo tools declared in [workspace.metadata.bin]. These are
+      // not real dependency tables, so Renovate's native cargo manager ignores
+      // them. The `locked = true` field is the discriminator that keeps this regex
+      // from also matching [workspace.dependencies] entries of the same shape.
       customType: "regex",
-      fileMatch: ["apps/desktop/desktop_native/cargo-tool-versions"],
-      matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
+      fileMatch: ["apps/desktop/desktop_native/Cargo\\.toml$"],
+      matchStrings: [
+        '(?<depName>[a-z][a-z0-9_-]*)\\s*=\\s*\\{\\s*version\\s*=\\s*"=?(?<currentValue>\\d+\\.\\d+\\.\\d+)"\\s*,\\s*locked\\s*=\\s*true',
+      ],
       datasourceTemplate: "crate",
+      versioningTemplate: "cargo",
+    },
+    {
+      // Bootstrap pin for cargo-run-bin across the CI workflows,
+      // scripts/prepare-env-rust.mjs, and the devcontainer. Keep these in sync.
+      // build.js is deliberately absent: it invokes cargo-xwin directly rather than
+      // through `cargo bin`, so it pins no cargo-run-bin version.
+      customType: "regex",
+      fileMatch: [
+        "^\\.github/workflows/.*\\.ya?ml$",
+        "scripts/prepare-env-rust\\.mjs$",
+        "\\.devcontainer/common/post-create-command\\.sh$",
+      ],
+      matchStrings: [
+        "cargo install (?<depName>cargo-run-bin) --locked --version (?<currentValue>\\d+\\.\\d+\\.\\d+)",
+        // JS const form: const CARGO_RUN_BIN_VERSION = "x" (in scripts/prepare-env-rust.mjs).
+        'CARGO_RUN_BIN_VERSION\\s*=\\s*"(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
+      ],
+      depNameTemplate: "cargo-run-bin",
+      datasourceTemplate: "crate",
+      versioningTemplate: "cargo",
     },
     {
       // Keep electronVersion in electron-builder.json in sync with the electron package.
@@ -85,6 +120,7 @@
         "eslint",
         "husky",
         "lint-staged",
+        "prettier",
         "typescript-eslint",
       ],
       description: "Architecture owned dependencies",
@@ -95,29 +131,19 @@
       matchPackageNames: [
         "@emotion/css",
         "@webcomponents/custom-elements",
-        "concurrently",
-        "cross-env",
-        "del",
         "lit",
         "@lit-labs/signals",
-        "patch-package",
-        "prettier",
-        "prettier-plugin-tailwindcss",
-        "rimraf",
-        "ssh-encoding",
-        "ssh-key",
         "@storybook/web-components-vite",
         "tabbable",
         "tldts",
-        "wait-on",
       ],
       description: "Autofill owned dependencies",
       commitMessagePrefix: "[deps] Autofill:",
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["mockall", "serial_test"],
-      description: "Autofill-Desktop owned dependencies",
+      matchPackageNames: ["mockall", "serial_test", "ssh-key"],
+      description: "Desktop Native owned dependencies",
       commitMessagePrefix: "[deps] Desktop Native:",
       reviewers: ["team:team-desktop-native-dev"],
     },
@@ -161,8 +187,10 @@
         "browserslist",
         "byteorder",
         "bytes",
+        "concurrently",
         "core-foundation",
         "copy-webpack-plugin",
+        "cross-env",
         "css-loader",
         "ctor",
         "dirs",
@@ -195,17 +223,14 @@
         "napi",
         "napi-build",
         "napi-derive",
+        "napi-derive-backend",
         "node-ipc",
         "nx",
         "oo7",
         "oslog",
-        "pin-project",
         "pkg",
-        "postcss",
-        "postcss-loader",
+        "rimraf",
         "rxjs",
-        "sass",
-        "sass-loader",
         "scopeguard",
         "secmem-proc",
         "security-framework",
@@ -227,10 +252,10 @@
         "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
-        "typenum",
         "typescript",
         "typescript-strict-plugin",
         "uniffi",
+        "wait-on",
         "webpack",
         "webpack-cli",
         "webpack-dev-server",
@@ -266,6 +291,7 @@
         "@angular/core",
         "@angular/forms",
         "@angular/platform-browser",
+        "@angular/platform-browser-dynamic",
         "@angular/platform",
         "@angular/router",
         "axe-playwright",
@@ -285,9 +311,14 @@
         "fantasticon",
         "ngx-toastr",
         "path-browserify",
+        "postcss",
+        "postcss-loader",
+        "prettier-plugin-tailwindcss",
         "react",
         "react-dom",
         "remark-gfm",
+        "sass",
+        "sass-loader",
         "storybook",
         "svgo",
         "tailwindcss",
@@ -367,7 +398,6 @@
         "rand",
         "rand_core",
         "rsa",
-        "russh-cryptovec",
         "sha2",
       ],
       description: "Key Management owned dependencies",
@@ -410,7 +440,7 @@
     {
       // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+      matchPackageNames: ["napi", "napi-build", "napi-derive", "napi-derive-backend", "napi-sys"],
     },
     {
       // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
@@ -431,6 +461,11 @@
       // We need to group all tokio-related packages together to avoid build errors caused by version incompatibilities.
       groupName: "tokio",
       matchPackageNames: ["bytes", "tokio", "tokio-util"],
+    },
+    {
+      // We need to group all serde-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "serde",
+      matchPackageNames: ["serde", "serde_json", "serde_with"],
     },
     {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
@@ -550,7 +585,6 @@
         "nx",
         "oo7",
         "oslog",
-        "pin-project",
         "pkg",
         "postcss",
         "postcss-loader",
@@ -564,6 +598,7 @@
         "semver",
         "serde",
         "serde_json",
+        "serde_with",
         "simplelog",
         "style-loader",
         "sysinfo",
@@ -577,7 +612,6 @@
         "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
-        "typenum",
         "typescript-strict-plugin",
         "uniffi",
         "webpack-cli",
@@ -623,6 +657,5 @@
     "node-ipc",
     "@bitwarden/sdk-internal",
     "@bitwarden/commercial-sdk-internal",
-    "bitwarden-russh",
   ],
 }

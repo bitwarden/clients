@@ -11,6 +11,10 @@ pub(super) const NONCE_SIZE: usize = 12;
 /// being swapped to disk via mlock.
 pub(super) struct MemoryEncryptionKey(NonNull<[u8]>);
 
+// SAFETY: The allocation is fully owned by this value, is never exposed or cloned, and is cleaned
+// up on drop. Moving the value to another thread transfers ownership of the allocation.
+unsafe impl Send for MemoryEncryptionKey {}
+
 /// An encrypted memory blob that must be decrypted using the same key that it was encrypted with.
 pub struct EncryptedMemory {
     nonce: [u8; NONCE_SIZE],

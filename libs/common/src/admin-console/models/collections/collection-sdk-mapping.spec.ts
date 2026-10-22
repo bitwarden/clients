@@ -1,10 +1,11 @@
+// eslint-disable-next-line no-restricted-imports
+import { DECRYPT_ERROR, EncString } from "@bitwarden/legacy-crypto";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
   EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { CollectionId, OrganizationId } from "../../../types/guid";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
@@ -184,6 +185,26 @@ describe("CollectionView SDK mapping", () => {
       expect(result.assigned).toBe(true);
     });
 
+    describe("hasEnabledAccessRule preservation (privileged-access badge)", () => {
+      it("copies hasEnabledAccessRule from the source collection", () => {
+        const result = CollectionView.fromSdkCollectionView(
+          makeSdkCollectionView(),
+          makeCollection({ hasEnabledAccessRule: true }),
+        );
+
+        expect(result.hasEnabledAccessRule).toBe(true);
+      });
+
+      it("leaves hasEnabledAccessRule false for an ungoverned collection", () => {
+        const result = CollectionView.fromSdkCollectionView(
+          makeSdkCollectionView(),
+          makeCollection(),
+        );
+
+        expect(result.hasEnabledAccessRule).toBe(false);
+      });
+    });
+
     describe("defaultUserCollectionEmail preservation (canEditName security invariant)", () => {
       it("copies defaultUserCollectionEmail from the source collection, not the SDK view", () => {
         const email = "offboarded-user@example.com";
@@ -239,6 +260,63 @@ describe("CollectionView SDK mapping", () => {
         const mockOrg: any = { id: orgId, canManageAllCollections: true };
         expect(sdkPathResult.canEditName(mockOrg)).toBe(false);
       });
+    });
+  });
+
+  describe("CollectionView.fromFailedDecryption", () => {
+    it("falls back to the decrypt-error placeholder for the name and flags the failure", () => {
+      const source = makeCollection();
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      expect(result.decryptionFailure).toBe(true);
+      expect(result.name).toBe(DECRYPT_ERROR);
+    });
+
+    it("preserves identity and permission fields so the row stays actionable", () => {
+      const source = makeCollection({ manage: true, readOnly: false, hidePasswords: false });
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      expect(result.id).toBe(collectionId);
+      expect(result.organizationId).toBe(orgId);
+      expect(result.manage).toBe(true);
+      expect(result.readOnly).toBe(false);
+      expect(result.hidePasswords).toBe(false);
+      expect(result.assigned).toBe(true);
+      expect(result.type).toBe(CollectionTypes.SharedCollection);
+    });
+
+    it("still allows the name to be edited so the user can repair the collection", () => {
+      const source = makeCollection({ manage: true });
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      const mockOrg: any = { id: orgId };
+      expect(result.canEditName(mockOrg)).toBe(true);
+    });
+
+    it("keeps defaultUserCollectionEmail so canEditName stays restricted for offboarded users", () => {
+      const email = "offboarded@example.com";
+      const source = makeCollection({
+        defaultUserCollectionEmail: email,
+        type: CollectionTypes.DefaultUserCollection,
+        manage: true,
+      });
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      expect(result.defaultUserCollectionEmail).toBe(email);
+      const mockOrg: any = { id: orgId };
+      expect(result.canEditName(mockOrg)).toBe(false);
+    });
+
+    it("keeps hasEnabledAccessRule so a governed collection still reads as governed", () => {
+      const source = makeCollection({ hasEnabledAccessRule: true });
+
+      const result = CollectionView.fromFailedDecryption(source);
+
+      expect(result.hasEnabledAccessRule).toBe(true);
     });
   });
 

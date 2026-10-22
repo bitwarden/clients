@@ -6,14 +6,15 @@ import { Subject, firstValueFrom, switchMap, map, filter } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  DECRYPT_ERROR,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DECRYPT_ERROR,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretListView } from "../models/view/secret-list.view";
@@ -113,13 +114,26 @@ export class SecretService {
     organizationId: string,
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
+    valueChanged: boolean = false,
   ) {
     const request = await this.getSecretRequest(
       organizationId,
       secretView,
       secretAccessPoliciesView,
+      valueChanged,
     );
     const r = await this.apiService.send("PUT", "/secrets/" + secretView.id, request, true, true);
+    this._secret.next(await this.createSecretView(new SecretResponse(r)));
+  }
+
+  async restoreVersion(secretId: string, versionId: string): Promise<void> {
+    const r = await this.apiService.send(
+      "PUT",
+      `/secrets/${secretId}/versions/restore`,
+      { versionId },
+      true,
+      true,
+    );
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
 
@@ -177,6 +191,7 @@ export class SecretService {
     organizationId: string,
     secretView: SecretView,
     secretAccessPoliciesView: SecretAccessPoliciesView,
+    valueChanged: boolean = false,
   ): Promise<SecretRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = new SecretRequest();
@@ -189,6 +204,7 @@ export class SecretService {
     request.value = value.encryptedString;
     request.note = note.encryptedString;
     request.projectIds = [];
+    request.valueChanged = valueChanged;
 
     secretView.projects?.forEach((e) => request.projectIds.push(e.id));
 

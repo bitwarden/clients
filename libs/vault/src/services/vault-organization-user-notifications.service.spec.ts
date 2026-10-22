@@ -13,7 +13,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -62,7 +61,6 @@ describe("VaultOrganizationUserNotificationsService", () => {
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
   let policyService: MockProxy<PolicyService>;
-  let configService: MockProxy<ConfigService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
 
   let dismissedState: FakeSingleUserState<Date>;
@@ -72,7 +70,6 @@ describe("VaultOrganizationUserNotificationsService", () => {
     accountService = mockAccountServiceWith(mockUserId);
     stateProvider = new FakeStateProvider(accountService);
     policyService = mock<PolicyService>();
-    configService = mock<ConfigService>();
     eventCollectionService = mock<EventCollectionService>();
 
     TestBed.configureTestingModule({
@@ -80,7 +77,6 @@ describe("VaultOrganizationUserNotificationsService", () => {
         VaultOrganizationUserNotificationsService,
         { provide: AccountService, useValue: accountService },
         { provide: PolicyService, useValue: policyService },
-        { provide: ConfigService, useValue: configService },
         { provide: StateProvider, useValue: stateProvider },
         { provide: EventCollectionService, useValue: eventCollectionService },
       ],
@@ -178,15 +174,6 @@ describe("VaultOrganizationUserNotificationsService", () => {
   describe("showNotificationBanner$", () => {
     beforeEach(() => {
       policyService.policiesByType$.mockReturnValue(of([makePolicy()]));
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-    });
-
-    it("returns false when the feature flag is disabled", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-
-      const result = await firstValueFrom(service.showNotificationBanner$);
-
-      expect(result).toBe(false);
     });
 
     it("returns false when there is no notification data", async () => {

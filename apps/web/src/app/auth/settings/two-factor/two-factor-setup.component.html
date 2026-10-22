@@ -1,4 +1,17 @@
-<app-header *ngIf="organizationId != null"></app-header>
+@if (organizationId != null) {
+  <app-header>
+    @if (showBreadcrumbs()) {
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb [route]="['/organizations', organizationId, 'settings']" icon="bwi-cog">{{
+          "settings" | i18n
+        }}</bit-breadcrumb>
+        <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
+          "twoStepLogin" | i18n
+        }}</bit-breadcrumb>
+      </bit-breadcrumbs>
+    }
+  </app-header>
+}
 
 <bit-container>
   <div class="tw-mt-6 tw-mb-2 tw-pb-2.5" *ngIf="organizationId == null">

@@ -1,7 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ProviderUserType } from "../../../enums";
 
 export class ProviderUserUpdateRequest {
   type: ProviderUserType;
+
+  constructor(c: { type: ProviderUserType }) {
+    this.type = c.type;
+  }
 }

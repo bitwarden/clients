@@ -4,7 +4,7 @@ import ElectronStore from "electron-store";
 
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { isWindowsPortable } from "../../../utils";
+import { isWindowsPortable } from "../../../main/platform-utils.main";
 
 import { StorageBackend } from "./storage-backend";
 

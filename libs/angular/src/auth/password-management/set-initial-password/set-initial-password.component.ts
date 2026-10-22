@@ -27,7 +27,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -39,7 +38,8 @@ import {
   IconModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -86,11 +86,10 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private messagingService: MessagingService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
@@ -130,25 +129,34 @@ export class SetInitialPasswordComponent implements OnInit {
           return;
         }
 
-        /**
-         * Assuming the KM flag above is off, this JIT_PROVISIONED_MP_ORG_USER case still relies on us making
-         * `newMasterKey` and `newServerMasterKeyHash` here in the component. This is a temporary state. This
-         * flow will be updated to use the new `MasterPasswordAuthenticationData` and `MasterPasswordUnlockData`
-         * as part of https://bitwarden.atlassian.net/browse/PM-32526
-         */
+        // ============================================================
+        // PM-42990 — ROLLBACK NOTE
+        // ============================================================
+        // This code computes a master key and a password hash. It runs here because
+        // the set-password endpoint needs the old request shape for 3 releases
+        // to maintain backwards compatibility with self hosted servers.
+        //
+        // BUILD: Move this computation into DefaultSetInitialPasswordService. Put
+        // it next to the other master password logic there.
+        //
+        // DELETE: Remove this block. Remove the injected LegacyCompatKeyService.
+        // Remove the code that sets newMasterKey and newServerMasterKeyHash on
+        // passwordInputResult. See https://github.com/bitwarden/clients/pull/20643
+        // for initial pass at this refactor.
+        // ============================================================
 
         const ctx = "Could not set initial password.";
         assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
         assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
         assertTruthy(this.email, "email", ctx);
 
-        const newMasterKey = await this.keyService.makeMasterKey(
+        const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
           passwordInputResult.newPassword,
           this.email.trim().toLowerCase(),
           passwordInputResult.kdfConfig,
         );
 
-        const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+        const newServerMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
           passwordInputResult.newPassword,
           newMasterKey,
         );
@@ -181,8 +189,8 @@ export class SetInitialPasswordComponent implements OnInit {
       type: "warning",
     });
 
-    if (confirmed) {
-      this.messagingService.send("logout");
+    if (confirmed && this.userId != null) {
+      await this.logoutService.logout(this.userId, "userInitiated");
     }
   }
 
@@ -421,7 +429,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.showSuccessToastByUserType();
 
       // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-      await this.logoutService.logout(this.userId);
+      await this.logoutService.logout(this.userId, "setInitialPassword");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     } catch (e) {

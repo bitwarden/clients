@@ -8,5 +8,6 @@ export class PendingWebauthnLoginCredentialView {
     readonly createOptions: CredentialCreateOptionsView,
     readonly deviceResponse: PublicKeyCredential,
     readonly supportsPrf: boolean,
+    readonly prfResult: BufferSource | undefined,
   ) {}
 }

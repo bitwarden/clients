@@ -37,7 +37,13 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
   },
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
-export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
+export const ORGANIZATION_INVITE_LINK_MEMORY = new StateDefinition(
+  "organizationInviteLink",
+  "memory",
+);
+export const INVITE_LINK_CALLOUT_DISK = new StateDefinition("inviteLinkCallout", "disk", {
+  web: "disk-local",
+});
 export const SCIM_BANNER = new StateDefinition("scimBanner", "disk", {
   web: "disk-local",
 });
@@ -67,7 +73,6 @@ export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
 export const LOGIN_EMAIL_MEMORY = new StateDefinition("loginEmail", "memory");
 export const LOGIN_STRATEGY_MEMORY = new StateDefinition("loginStrategy", "memory");
 export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
-export const MASTER_PASSWORD_MEMORY = new StateDefinition("masterPassword", "memory");
 export const MASTER_PASSWORD_UNLOCK_DISK = new StateDefinition("masterPasswordUnlock", "disk");
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
@@ -80,7 +85,13 @@ export const TOKEN_MEMORY = new StateDefinition("token", "memory");
 export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
+/**
+ * Shared disk (session on web) storage for both organization-invite variants (direct and open).
+ */
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
+export const OPEN_ORG_INVITE_DISK_LOCAL = new StateDefinition("openOrgInvite", "disk", {
+  web: "disk-local",
+});
 export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
   "vaultTimeoutSettings",
   "disk",
@@ -103,6 +114,7 @@ export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "d
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {
   web: "disk-local",
 });
+export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 
@@ -112,6 +124,9 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
   web: "disk-local",
 });
 export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
+export const TABLE_COLUMN_PREFERENCES_DISK = new StateDefinition("tableColumnPreferences", "disk", {
+  web: "disk-local",
+});
 
 // DIRT
 
@@ -123,7 +138,7 @@ export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
-export const HEALTH_TAB_VIEWED_DISK = new StateDefinition("healthTabViewed", "disk", {
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
   web: "disk-local",
 });
 
@@ -222,7 +237,9 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
+  web: "disk-local",
+});
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
@@ -255,6 +272,11 @@ export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
   "disk",
   { web: "disk-local" },
 );
+export const VAULT_PINNED_SHARED_FOLDERS_DISK = new StateDefinition(
+  "vaultPinnedSharedFolders",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
   "disk",
@@ -274,3 +296,4 @@ export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const SHARED_UNLOCK_SETTINGS_DISK = new StateDefinition("sharedUnlockSettings", "disk");
+export const SHARED_UNLOCK_DISK = new StateDefinition("sharedUnlock", "disk");

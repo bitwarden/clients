@@ -14,7 +14,6 @@ import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   AutofillTargetingRuleTypes,
@@ -35,6 +34,7 @@ import {
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -52,16 +52,21 @@ import { getWebExtSender } from "../../platform/utils/web-ext-sender";
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
-import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
+import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result";
+import {
+  fieldContainsKeyword,
+  isNonLoginUsernameField,
+  KeywordMatchMode,
+} from "../utils/qualification";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
-  AutoFillResult,
   AutofillService as AutofillServiceInterface,
   COLLECT_PAGE_DETAILS_RESPONSE_COMMAND,
   FormData,
@@ -73,6 +78,7 @@ import {
   CardExpiryDateFormat,
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
+  SshKeyAutoFillConstants,
 } from "./autofill-constants";
 
 /**
@@ -441,22 +447,43 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Autofill a given tab with a given login item
-   * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
-   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
-   * of the successfully autofilled login, if any. A no-fill is reported as `{ didAutofill: false }`
-   * rather than a thrown exception.
-   * @throws Rejects when an unexpected error occurs during the fill; a no-fill is not an error and
-   * resolves to `{ didAutofill: false }`.
+   * Reports an outcome together with the cipher's TOTP code and whether the user's preference
+   * permits copying it.
+   *
+   * NOTE: This method does not check subscription level; it returns the TOTP unconditionally.
+   *
+   * @param outcome How the attempt concluded.
+   * @param cipher The cipher whose code is under consideration.
    */
-  async doAutoFill(options: AutoFillOptions): Promise<AutoFillResult> {
+  private async fillOutcomeWithTotp(
+    outcome: typeof AutofillOutcome.Filled | typeof AutofillOutcome.Absent,
+    cipher: CipherView,
+  ): Promise<FillOccurred> {
+    if (cipher.type !== CipherType.Login || !cipher.login?.totp) {
+      return Object.freeze({ outcome });
+    }
+
+    const canAutoCopyTotp = await this.getShouldAutoCopyTotp();
+    const totp = (await firstValueFrom(this.totpService.getCode$(cipher.login.totp))).code;
+
+    return Object.freeze({ outcome, totp: totp ?? undefined, canAutoCopyTotp });
+  }
+
+  /**
+   * Autofill a given tab with a given login item.
+   *
+   * @param options Instructions about the autofill operation, including tab and login item
+   * @returns A refused frame reports `denied` and terminates the request. A fill that placed
+   * nothing reports `absent`, which the caller may mitigate. See `autofill.design.md`, "Outcomes".
+   * @throws Rejects when an unexpected error occurs during the fill. Failing to fill is **not** an
+   * error.
+   */
+  async doAutoFill(options: AutoFillOptions): Promise<FillResult> {
     const tab = options.tab;
     const tabUrl = tab?.url;
     if (!tabUrl || !options.cipher || !options.pageDetails || !options.pageDetails.length) {
-      return { didAutofill: false };
+      return AUTOFILL_DENIED;
     }
-
-    let totp: string | null = null;
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     let canAccessPremium = false;
@@ -467,16 +494,14 @@ export default class AutofillService implements AutofillServiceInterface {
     }
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
 
-    if (!canAccessPremium) {
-      options.cipher.login.totp = undefined;
-    }
+    // check for premium subscription entitlement or organizational policy
+    const canUseTotp = canAccessPremium || options.cipher.organizationUseTotp;
 
-    let didAutofill = false;
-    await Promise.all(
-      options.pageDetails.map(async (pd) => {
-        // make sure we're still on correct tab
+    const outcomes = await Promise.all(
+      options.pageDetails.map(async (pd): Promise<AutofillOutcome> => {
+        // security: deny fills across tabs or when a navigation occurred
         if (pd.tab.id !== tab.id || pd.tab.url !== tab.url) {
-          return;
+          return AutofillOutcome.Denied;
         }
 
         // If we have a focused form, filter the page details to only include fields from that form
@@ -494,6 +519,7 @@ export default class AutofillService implements AutofillServiceInterface {
           allowTotpAutofill: options.allowTotpAutofill || false,
           autoSubmitLogin: options.autoSubmitLogin || false,
           cipher: options.cipher,
+          canAccessTotp: canUseTotp,
           tabUrl,
           defaultUriMatch: defaultUriMatch,
           focusedFieldOpid: options.focusedFieldOpid,
@@ -501,7 +527,7 @@ export default class AutofillService implements AutofillServiceInterface {
         });
 
         if (!fillScript || !fillScript.script || !fillScript.script.length) {
-          return;
+          return AutofillOutcome.Absent;
         }
 
         if (
@@ -510,13 +536,12 @@ export default class AutofillService implements AutofillServiceInterface {
           !options.allowUntrustedIframe
         ) {
           this.logService.info("Autofill on page load was blocked due to an untrusted iframe.");
-          return;
+          return AutofillOutcome.Denied;
         }
 
         // Add a small delay between operations
         fillScript.properties.delay_between_operations = 20;
 
-        didAutofill = true;
         if (!options.skipLastUsed && activeAccount?.id) {
           await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
@@ -536,115 +561,37 @@ export default class AutofillService implements AutofillServiceInterface {
           { frameId: pd.frameId },
         );
 
-        // Skip getting the TOTP code for clipboard in these cases
-        if (
-          options.cipher.type !== CipherType.Login ||
-          totp !== null ||
-          !options.cipher.login.totp ||
-          (!canAccessPremium && !options.cipher.organizationUseTotp)
-        ) {
-          return;
-        }
-
-        const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
-
-        totp = shouldAutoCopyTotp
-          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
-          : null;
+        return AutofillOutcome.Filled;
       }),
     );
 
-    if (didAutofill) {
+    // A placed credential outranks a refusal in another frame, and a refusal outranks a frame that
+    // simply had nothing to take.
+    let outcome: AutofillOutcome = AutofillOutcome.Absent;
+    if (outcomes.includes(AutofillOutcome.Denied)) {
+      outcome = AutofillOutcome.Denied;
+    }
+    if (outcomes.includes(AutofillOutcome.Filled)) {
+      outcome = AutofillOutcome.Filled;
+    }
+
+    // A refusal terminates the request, so the code is never resolved for it.
+    if (outcome === AutofillOutcome.Denied) {
+      return AUTOFILL_DENIED;
+    }
+
+    if (outcome === AutofillOutcome.Filled) {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientAutofilled,
         options.cipher.id,
       );
-      // Map the internal `null` (no TOTP) to the outcome's optional `totp`.
-      return { didAutofill: true, totp: totp ?? undefined };
-    } else {
-      return { didAutofill: false };
-    }
-  }
-
-  /**
-   * Autofill the specified tab with the next login item from the cache
-   * @param {PageDetail[]} pageDetails The data scraped from the page
-   * @param {chrome.tabs.Tab} tab The tab to be autofilled
-   * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
-   * @param {boolean} autoSubmitLogin Whether the autofill is for an auto-submit login
-   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
-   * of the successfully autofilled login, if any
-   */
-  async doAutoFillOnTab(
-    pageDetails: PageDetail[],
-    tab: chrome.tabs.Tab,
-    fromCommand: boolean,
-    autoSubmitLogin = false,
-  ): Promise<AutoFillResult> {
-    let cipher: CipherView;
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId == null) {
-      return { didAutofill: false };
     }
 
-    if (!tab.url) {
-      return { didAutofill: false };
-    }
-    const tabUrl = tab.url;
-    if (fromCommand) {
-      cipher = await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId);
-    } else {
-      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
-        tabUrl,
-        activeUserId,
-        true,
-      );
-      const lastLaunched = lastLaunchedCipher?.localData?.lastLaunched;
-      if (
-        lastLaunchedCipher &&
-        lastLaunched &&
-        Date.now().valueOf() - lastLaunched.valueOf() < 30000
-      ) {
-        cipher = lastLaunchedCipher;
-      } else {
-        cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, true);
-      }
+    if (canUseTotp) {
+      return await this.fillOutcomeWithTotp(outcome, options.cipher);
     }
 
-    if (cipher == null || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
-      return { didAutofill: false };
-    }
-
-    if (await this.isPasswordRepromptRequired(cipher, tab)) {
-      if (fromCommand) {
-        this.cipherService.updateLastUsedIndexForUrl(tabUrl);
-      }
-
-      return { didAutofill: false };
-    }
-
-    const result = await this.doAutoFill({
-      tab: tab,
-      cipher: cipher,
-      pageDetails: pageDetails,
-      skipLastUsed: !fromCommand,
-      skipUsernameOnlyFill: !fromCommand,
-      onlyEmptyFields: !fromCommand,
-      fillNewPassword: fromCommand,
-      allowUntrustedIframe: fromCommand,
-      allowTotpAutofill: fromCommand,
-      autoSubmitLogin,
-    });
-
-    // Update last used index as autofill has succeeded
-    if (fromCommand && result.didAutofill) {
-      this.cipherService.updateLastUsedIndexForUrl(tabUrl);
-    }
-
-    return result;
+    return Object.freeze({ outcome });
   }
 
   /**
@@ -675,81 +622,6 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Autofill the active tab with the next cipher from the cache
-   * @param {PageDetail[]} pageDetails The data scraped from the page
-   * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
-   * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
-   * of the successfully autofilled login, if any
-   */
-  async doAutoFillActiveTab(
-    pageDetails: PageDetail[],
-    fromCommand: boolean,
-    cipherType?: CipherType,
-  ): Promise<AutoFillResult> {
-    if (!pageDetails[0]?.details?.fields?.length) {
-      return { didAutofill: false };
-    }
-
-    const tab = await this.getActiveTab();
-
-    if (!tab || !tab.url) {
-      return { didAutofill: false };
-    }
-
-    if (!cipherType || cipherType === CipherType.Login) {
-      return await this.doAutoFillOnTab(pageDetails, tab, fromCommand);
-    }
-
-    let cipher: CipherView;
-    let cacheKey = "";
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-    if (activeUserId == null) {
-      return { didAutofill: false };
-    }
-
-    if (cipherType === CipherType.Card) {
-      cacheKey = "cardCiphers";
-      cipher = await this.cipherService.getNextCardCipher(activeUserId);
-    } else {
-      cacheKey = "identityCiphers";
-      cipher = await this.cipherService.getNextIdentityCipher(activeUserId);
-    }
-
-    if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
-      return { didAutofill: false };
-    }
-
-    if (await this.isPasswordRepromptRequired(cipher, tab)) {
-      if (fromCommand) {
-        this.cipherService.updateLastUsedIndexForUrl(cacheKey);
-      }
-
-      return { didAutofill: false };
-    }
-
-    const result = await this.doAutoFill({
-      tab: tab,
-      cipher: cipher,
-      pageDetails: pageDetails,
-      skipLastUsed: !fromCommand,
-      skipUsernameOnlyFill: !fromCommand,
-      onlyEmptyFields: !fromCommand,
-      fillNewPassword: false,
-      allowUntrustedIframe: fromCommand,
-      allowTotpAutofill: false,
-    });
-
-    if (fromCommand && result.didAutofill) {
-      this.cipherService.updateLastUsedIndexForUrl(cacheKey);
-    }
-
-    return result;
-  }
-
-  /**
    * Activates the autofill on page load org policy.
    */
   async setAutoFillOnPageLoadOrgPolicy(): Promise<void> {
@@ -760,21 +632,6 @@ export default class AutofillService implements AutofillServiceInterface {
     if (autofillOnPageLoadOrgPolicy) {
       await this.autofillSettingsService.setAutofillOnPageLoad(true);
     }
-  }
-
-  /**
-   * Gets the active tab from the current window.
-   * Throws an error if no tab is found.
-   * @returns {Promise<chrome.tabs.Tab>}
-   * @private
-   */
-  private async getActiveTab(): Promise<chrome.tabs.Tab> {
-    const tab = await BrowserApi.getTabFromCurrentWindow();
-    if (!tab) {
-      throw new Error("No tab found.");
-    }
-
-    return tab;
   }
 
   /**
@@ -887,6 +744,9 @@ export default class AutofillService implements AutofillServiceInterface {
           options,
         );
         break;
+      case CipherType.SshKey:
+        result = this.generateSshKeyFillScript(fillScript, pageDetails, filledFields, options);
+        break;
       default:
         return null;
     }
@@ -908,17 +768,24 @@ export default class AutofillService implements AutofillServiceInterface {
     const isPasswordGeneration =
       options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
 
-    fillScript.savedUrls =
-      cipher.login?.uris
-        ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
-        .map((u) => u.uri!) ?? [];
+    fillScript.requiresInsecurePageConfirmation = await this.requiresInsecurePageConfirmation(
+      pageDetails.url,
+      options,
+    );
 
-    // Note, targeted fields intentionally skip the untrusted iframe check. The
-    // presence of targeting rules represents explicit expectations of the target
+    const isLoginCipher = cipher.type === CipherType.Login;
+
+    // Targeting rules vet only the frame's hostname, so run the heuristic path's
+    // origin check. Skip only the transient cipher from `buildLoginCipherView`
+    // (no id, nothing stored at risk). Check `cipher.id`, not `inlineMenuFillType`:
+    // a saved cipher can reach here with `PasswordGeneration` set.
+    const isGeneratedPasswordCipher = isPasswordGeneration && !cipher.id;
+    if (isLoginCipher && !isGeneratedPasswordCipher) {
+      fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
+    }
 
     // For a Login cipher, `login.username` fills only the single highest-priority
     // identifier field present in an `account-login` form (see the priority list).
-    const isLoginCipher = cipher.type === CipherType.Login;
     const loginIdentifierQualifier = isLoginCipher
       ? this.resolveLoginIdentifierQualifier(pageDetails)
       : null;
@@ -1112,13 +979,11 @@ export default class AutofillService implements AutofillServiceInterface {
     let username: AutofillField | null = null;
     let totp: AutofillField | null = null;
     const login = options.cipher.login;
-    const loginURIs = login?.uris ?? [];
-    fillScript.savedUrls = loginURIs.reduce<string[]>((acc, savedURI) => {
-      if (savedURI.match != UriMatchStrategy.Never && savedURI.uri != null) {
-        acc.push(savedURI.uri);
-      }
-      return acc;
-    }, []);
+    const totpToFill = options.allowTotpAutofill && options.canAccessTotp ? login?.totp : undefined;
+    fillScript.requiresInsecurePageConfirmation = await this.requiresInsecurePageConfirmation(
+      pageDetails.url,
+      options,
+    );
 
     fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
 
@@ -1164,26 +1029,42 @@ export default class AutofillService implements AutofillServiceInterface {
         focusedField.autoCompleteType === "one-time-code") &&
       !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
+    // If the heuristic flagged this field as a password, do not treat it
+    // as a username candidate. A show password toggle can set type="text"
+    // on the real password input.
+    const focusedFieldIsPassword =
+      focusedField != null && passwordFields.some((pf) => pf.opid === focusedField.opid);
+
     const focusedUsernameField =
       focusedField &&
       !isFocusedTotpField &&
+      !focusedFieldIsPassword &&
       login.username &&
       (focusedField.type === "text" ||
         focusedField.type === "email" ||
         focusedField.type === "tel") &&
       focusedField;
 
-    const passwordMatchesFocused = (pf: AutofillField): boolean =>
-      !focusedField
-        ? true
-        : focusedForm != null
-          ? pf.form === focusedForm
-          : !!(
-              focusedUsernameField &&
-              pf.form == null &&
-              this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
-                focusedUsernameField.opid
-            );
+    const passwordMatchesFocused = (pf: AutofillField): boolean => {
+      if (!focusedField) {
+        return true;
+      }
+      // Match when the focused field is this password field. Needed when
+      // the page has no form, where neither form membership nor username
+      // equivalence would otherwise match.
+      if (pf.opid === focusedField.opid) {
+        return true;
+      }
+      if (focusedForm != null) {
+        return pf.form === focusedForm;
+      }
+      return !!(
+        focusedUsernameField &&
+        pf.form == null &&
+        this.findUsernameField(pageDetails, pf, false, false, true)?.opid ===
+          focusedUsernameField.opid
+      );
+    };
 
     const getUsernameForPassword = (
       pf: AutofillField,
@@ -1207,8 +1088,9 @@ export default class AutofillService implements AutofillServiceInterface {
         if (usernameVal != null) {
           AutofillService.fillByOpid(fillScript, focusedUsernameField, usernameVal);
         }
-        if (options.autoSubmitLogin && focusedUsernameField.form) {
-          fillScript.autosubmit = [focusedUsernameField.form];
+        if (options.autoSubmitLogin) {
+          const form = focusedUsernameField.form;
+          fillScript.autosubmit = form == null ? [null] : [form];
         }
         return AutofillService.setFillScriptForFocus(
           { [focusedUsernameField.opid]: focusedUsernameField },
@@ -1235,7 +1117,7 @@ export default class AutofillService implements AutofillServiceInterface {
         }
       }
 
-      if (options.allowTotpAutofill && login.totp) {
+      if (totpToFill) {
         totp =
           isFocusedTotpField && passwordMatchesFocused(passField)
             ? focusedField
@@ -1290,7 +1172,7 @@ export default class AutofillService implements AutofillServiceInterface {
           }
         }
 
-        if (options.allowTotpAutofill && login.totp && firstPasswordField.elementNumber > 0) {
+        if (totpToFill && firstPasswordField.elementNumber > 0) {
           totp =
             isFocusedTotpField && passwordMatchesFocused(firstPasswordField)
               ? focusedField
@@ -1320,21 +1202,41 @@ export default class AutofillService implements AutofillServiceInterface {
           (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
 
+        const isAbbreviatedTotpField =
+          isTotpCandidate &&
+          fieldContainsKeyword(
+            field,
+            AutoFillConstants.AbbreviatedTotpFieldNames,
+            KeywordMatchMode.MatchesToken,
+          );
+
         const maybeTotpField =
           isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
-        const isUsernameField =
+        const maybeUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
           !isNonLoginUsernameField(field, pageDetails);
 
-        // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
+        const isUsernameField =
+          maybeUsernameField &&
+          fieldContainsKeyword(field, AutoFillConstants.UnambiguousUsernameFieldNames);
+
+        // Classify by signal strength: reliable TOTP, then unambiguous username, then a whole-token
+        // TOTP abbreviation (e.g. name="2fa"), then ambiguous username (e.g. "login"), then
+        // ambiguous TOTP.
         switch (true) {
           case isTotpField:
             totps.push(field);
             return;
           case isUsernameField:
+            usernames.set(field.opid, field);
+            return;
+          case isAbbreviatedTotpField:
+            totps.push(field);
+            return;
+          case maybeUsernameField:
             usernames.set(field.opid, field);
             return;
           case maybeTotpField:
@@ -1347,6 +1249,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     const formElementsSet = new Set<string>();
+    let loginFieldFilled = false;
     const usernamesToFill = focusedUsernameField ? [focusedUsernameField] : [...usernames.values()];
 
     usernamesToFill.forEach((u) => {
@@ -1359,6 +1262,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[uOpid] = u;
+      loginFieldFilled = true;
       const usernameVal = login.username;
       if (usernameVal != null) {
         AutofillService.fillByOpid(fillScript, u, usernameVal);
@@ -1379,6 +1283,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       filledFields[pOpid] = p;
+      loginFieldFilled = true;
       if (login.password != null) {
         AutofillService.fillByOpid(fillScript, p, login.password);
       }
@@ -1387,12 +1292,11 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     });
 
-    if (options.autoSubmitLogin && formElementsSet.size) {
-      fillScript.autosubmit = Array.from(formElementsSet);
+    if (options.autoSubmitLogin && loginFieldFilled) {
+      fillScript.autosubmit = formElementsSet.size ? Array.from(formElementsSet) : [null];
     }
 
-    const loginTotp = login?.totp;
-    if (options.allowTotpAutofill && typeof loginTotp === "string") {
+    if (typeof totpToFill === "string") {
       await Promise.all(
         totps.map(async (t, i) => {
           if (t.opid == null) {
@@ -1405,7 +1309,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
           filledFields[t.opid] = t;
 
-          const totpResponse = await firstValueFrom(this.totpService.getCode$(loginTotp));
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(totpToFill));
           const totpValue = totpResponse.code;
           if (totpValue == null) {
             return;
@@ -1664,6 +1568,51 @@ export default class AutofillService implements AutofillServiceInterface {
       options.defaultUriMatch,
     );
     return !matchesUri;
+  }
+
+  /**
+   * Determines whether filling the page requires the user to confirm an insecure fill. This is
+   * the case when the page is served over HTTP and the cipher holds an HTTPS URI that applies to
+   * the HTTPS version of the page, either under the URI's match strategy or by sharing the page's
+   * hostname. Hostnames are compared in their parsed (lowercase, punycode) form so that
+   * equivalent spellings of a saved URI (e.g. unicode IDNs, uppercase hosts) are treated alike.
+   * @param {string} pageUrl The url of the page/iframe, usually from AutofillPageDetails
+   * @param {GenerateFillScriptOptions} options The GenerateFillScript options
+   * @returns {boolean} `true` if the user should confirm the fill, `false` otherwise
+   * @private
+   */
+  private async requiresInsecurePageConfirmation(
+    pageUrl: string,
+    options: GenerateFillScriptOptions,
+  ): Promise<boolean> {
+    const parsedPageUrl = Utils.getUrl(pageUrl);
+
+    if (parsedPageUrl?.protocol !== "http:") {
+      return false;
+    }
+
+    const secureUris =
+      options.cipher.login?.uris?.filter(
+        (loginUri) =>
+          loginUri.match !== UriMatchStrategy.Never &&
+          Utils.getUrl(loginUri.uri)?.protocol === "https:",
+      ) ?? [];
+
+    if (!secureUris.length) {
+      return false;
+    }
+
+    const securePageUrl = new URL(parsedPageUrl.href);
+    securePageUrl.protocol = "https:";
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(securePageUrl.href),
+    );
+
+    return secureUris.some(
+      (loginUri) =>
+        Utils.getUrl(loginUri.uri)?.hostname === parsedPageUrl.hostname ||
+        loginUri.matchesUri(securePageUrl.href, equivalentDomains, options.defaultUriMatch),
+    );
   }
 
   /**
@@ -1950,6 +1899,163 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fillScript;
+  }
+
+  /**
+   * Generates the autofill script for an SSH key cipher. Fills the SSH public key into the
+   * key field (a textarea on "add SSH key" forms such as GitHub and GitLab) and the cipher
+   * name into the title field. The title is only filled when a public key field is present on
+   * the page, to avoid matching generic "title"/"name" inputs on unrelated forms.
+   *
+   * @param fillScript - The autofill script to add to
+   * @param pageDetails - The collected page details
+   * @param filledFields - The fields that have already been filled
+   * @param options - The fill script generation options
+   */
+  private generateSshKeyFillScript(
+    fillScript: AutofillScript,
+    pageDetails: AutofillPageDetails,
+    filledFields: { [id: string]: AutofillField },
+    options: GenerateFillScriptOptions,
+  ): AutofillScript | null {
+    const sshKey = options.cipher.sshKey;
+    if (!sshKey) {
+      return null;
+    }
+
+    const hasPublicKeyField = pageDetails.fields.some((field) => this.isSshPublicKeyField(field));
+
+    let publicKeyFilled = false;
+    let titleFilled = false;
+    for (let fieldsIndex = 0; fieldsIndex < pageDetails.fields.length; fieldsIndex++) {
+      const field = pageDetails.fields[fieldsIndex];
+      if (this.excludeFieldFromSshKeyFill(field)) {
+        continue;
+      }
+
+      if (!publicKeyFilled && this.isSshPublicKeyField(field)) {
+        publicKeyFilled = true;
+        this.makeScriptActionWithValue(fillScript, sshKey.publicKey, field, filledFields);
+        continue;
+      }
+
+      if (hasPublicKeyField && !titleFilled && this.isSshTitleField(field)) {
+        titleFilled = true;
+        this.makeScriptActionWithValue(fillScript, options.cipher.name, field, filledFields);
+        continue;
+      }
+    }
+
+    return fillScript;
+  }
+
+  /**
+   * Identifies if the current field should be excluded from triggering autofill of the SSH
+   * key cipher. Unlike the identity check, textareas are NOT excluded since the SSH public
+   * key field is itself a textarea.
+   *
+   * @param field - The field to check
+   */
+  private excludeFieldFromSshKeyFill(field: AutofillField): boolean {
+    return (
+      AutofillService.isExcludedFieldType(field, [
+        "password",
+        ...AutoFillConstants.ExcludedAutofillTypes,
+      ]) || !field.viewable
+    );
+  }
+
+  /**
+   * Gathers all unique keyword identifiers from a field that can be used to determine which
+   * SSH key value should be filled.
+   *
+   * @param field - The field to gather keywords from
+   */
+  private getSshKeyAutofillFieldKeywords(field: AutofillField): string[] {
+    const keywords: Set<string> = new Set();
+    for (let index = 0; index < SshKeyAutoFillConstants.SshKeyAttributes.length; index++) {
+      const attribute = SshKeyAutoFillConstants.SshKeyAttributes[index];
+      const value = field[attribute];
+      if (value != null && typeof value === "string") {
+        keywords.add(
+          value
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/gi, ""),
+        );
+      }
+    }
+
+    return Array.from(keywords);
+  }
+
+  /**
+   * Identifies if a field is the SSH public key field. Requires a textarea (the shape used by
+   * GitHub/GitLab) combined with a strong SSH signal: an algorithm prefix in the placeholder
+   * or value (e.g. "ssh-rsa"), GitLab's `data-supported-algorithms` attribute, or a "key"
+   * keyword. Requiring the textarea avoids matching single-line inputs such as `api_key`.
+   *
+   * @param field - The field to check
+   */
+  private isSshPublicKeyField(field: AutofillField): boolean {
+    if (field.tagName !== "textarea") {
+      return false;
+    }
+
+    if (this.sshFieldHasAlgorithmSignal(field)) {
+      return true;
+    }
+
+    const keywords = this.getSshKeyAutofillFieldKeywords(field);
+    return keywords.some((keyword) =>
+      AutofillService.isFieldMatch(keyword, SshKeyAutoFillConstants.PublicKeyFieldNames),
+    );
+  }
+
+  /**
+   * Identifies if a field exposes an SSH algorithm signal, either an algorithm prefix in the
+   * placeholder/value/labels or the `data-supported-algorithms` attribute.
+   *
+   * @param field - The field to check
+   */
+  private sshFieldHasAlgorithmSignal(field: AutofillField): boolean {
+    const haystack = [
+      field.placeholder,
+      field.value,
+      field.dataSetValues,
+      field["label-tag"],
+      field["label-top"],
+      field["label-left"],
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .join(" ")
+      .toLowerCase();
+
+    if (haystack.includes(SshKeyAutoFillConstants.SupportedAlgorithmsAttribute)) {
+      return true;
+    }
+
+    return SshKeyAutoFillConstants.PublicKeyAlgorithmPrefixes.some((prefix) =>
+      haystack.includes(prefix),
+    );
+  }
+
+  /**
+   * Identifies if a field is the SSH key title field. Limited to non-textarea inputs whose
+   * keywords match a title field name. Callers should additionally confirm a public key field
+   * is present before filling.
+   *
+   * @param field - The field to check
+   */
+  private isSshTitleField(field: AutofillField): boolean {
+    if (field.tagName === "textarea" || this.isSshPublicKeyField(field)) {
+      return false;
+    }
+
+    const keywords = this.getSshKeyAutofillFieldKeywords(field);
+    return keywords.some((keyword) =>
+      AutofillService.isFieldMatch(keyword, SshKeyAutoFillConstants.TitleFieldNames),
+    );
   }
 
   /**
@@ -2597,7 +2703,7 @@ export default class AutofillService implements AutofillServiceInterface {
     // Removes all whitespace, _ and - characters
     const cleanedValue = value.toLowerCase().replace(/[\s_-]/g, "");
 
-    if (cleanedValue.indexOf("password") < 0) {
+    if (!AutoFillConstants.PasswordFieldNameTokens.some((t) => cleanedValue.indexOf(t) > -1)) {
       return false;
     }
 
@@ -2708,7 +2814,30 @@ export default class AutofillService implements AutofillServiceInterface {
           return false;
         }
 
-        const testedValues = [f.htmlID, f.htmlName, f.placeholder];
+        // WHATWG autofill tokens. Catches sites with a show password toggle
+        // that flips the type to text while preserving autocomplete. The
+        // downstream fillNewPassword guard still filters new-password fields.
+        if (
+          AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ) ||
+          AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteNewPassword,
+          )
+        ) {
+          return true;
+        }
+
+        const testedValues = [
+          f.htmlID,
+          f.htmlName,
+          f.placeholder,
+          f["label-aria"],
+          f["label-tag"],
+          f["label-top"],
+        ];
         for (let i = 0; i < testedValues.length; i++) {
           const value = testedValues[i];
           if (value != null && AutofillService.valueIsLikePassword(value)) {

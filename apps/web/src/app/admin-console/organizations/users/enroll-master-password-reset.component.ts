@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import {
@@ -52,7 +50,11 @@ export class EnrollMasterPasswordReset {
       verificationType: {
         type: "custom",
         verificationFn: async (secret: VerificationWithSecret) => {
-          const activeUserId = (await firstValueFrom(accountService.activeAccount$)).id;
+          const activeAccount = await firstValueFrom(accountService.activeAccount$);
+          if (activeAccount == null) {
+            throw new Error("No active account found");
+          }
+          const activeUserId = activeAccount.id;
 
           const publicKey = Utils.fromB64ToArray(
             (await organizationApiService.getKeys(data.organization.id)).publicKey,
@@ -74,6 +76,9 @@ export class EnrollMasterPasswordReset {
 
           const trustedOrgPublicKeys = [publicKey];
           const userKey = await firstValueFrom(keyService.userKey$(activeUserId));
+          if (userKey == null) {
+            throw new Error("No user key found");
+          }
 
           request.resetPasswordKey = await resetPasswordService.buildRecoveryKey(
             data.organization.id,
@@ -107,7 +112,6 @@ export class EnrollMasterPasswordReset {
     try {
       toastService.showToast({
         variant: "success",
-        title: null,
         message: i18nService.t("enrollPasswordResetSuccess"),
       });
       await syncService.fullSync(true);

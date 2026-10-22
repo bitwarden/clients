@@ -191,6 +191,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.totpService,
           this.serviceContainer.auditService,
           this.serviceContainer.keyService,
+          this.serviceContainer.legacyCompatKeyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.searchService,
           this.serviceContainer.apiService,

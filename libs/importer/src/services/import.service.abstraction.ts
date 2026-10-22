@@ -6,12 +6,21 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { Importer } from "../importers/importer";
 import { ImportOption, ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
-import { CredentialKind, SdkImportCredentials, SdkImportSummary } from "../sdk";
+import {
+  OnePasswordImportRequest,
+  OnePasswordImportSummary,
+  OnePasswordSignInAddress,
+  OnePasswordSignInMethods,
+  SdkImportCredentials,
+  SdkImportSummary,
+} from "../sdk";
 
 export abstract class ImportServiceAbstraction {
-  featuredImportOptions: readonly ImportOption[];
-  regularImportOptions: readonly ImportOption[];
+  /** Every supported importer. See `ImportOption.featuredImporter` to split featured/regular. */
+  importOptions: readonly ImportOption[];
   getImportOptions: () => ImportOption[];
+  /** The metadata record for a single format, or `undefined` if `id` isn't a known format. */
+  getImportOption: (id: ImportType) => ImportOption | undefined;
 
   import: (
     importer: Importer,
@@ -26,12 +35,6 @@ export abstract class ImportServiceAbstraction {
     organizationId: string,
   ) => Importer;
 
-  /** True when the format is handled by an SDK importer (use {@link importWithSdk}). */
-  isSdkImporter: (format: ImportType) => boolean;
-  /** The credentials an SDK importer requires, for generic collection by the caller. */
-  credentialKindFor: (format: ImportType) => CredentialKind | undefined;
-  /** Optional file-picker `accept` hint declared by an SDK importer. */
-  sdkFileTypeHint: (format: ImportType) => string | undefined;
   /** Maps an SDK importer error to a localization key, or `undefined` for the raw error. */
   sdkErrorMessageKey: (format: ImportType, error: unknown) => string | undefined;
   importWithSdk: (
@@ -42,6 +45,20 @@ export abstract class ImportServiceAbstraction {
     selectedImportTarget?: FolderView | CollectionView,
     canAccessImportExport?: boolean,
   ) => Promise<SdkImportSummary>;
+
+  /** Signs in to 1Password through the SDK and imports the account; no file is involved. */
+  importOnePassword: (
+    request: OnePasswordImportRequest,
+    organizationId?: string,
+    selectedImportTarget?: FolderView | CollectionView,
+    canAccessImportExport?: boolean,
+  ) => Promise<OnePasswordImportSummary>;
+
+  /** Asks 1Password how the account signs in, before anything but its email is asked for. */
+  onePasswordSignInMethods: (
+    username: string,
+    signInAddress: OnePasswordSignInAddress,
+  ) => Promise<OnePasswordSignInMethods>;
 
   // Import an already-parsed ImportResult directly.
   importImportResult: (

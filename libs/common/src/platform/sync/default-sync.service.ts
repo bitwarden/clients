@@ -7,16 +7,12 @@ import { firstValueFrom, map } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
+import { KeyService } from "@bitwarden/key-management";
+import { PerfTrackGroup } from "@bitwarden/logging";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  UserDecryptionOptions,
-  WebAuthnPrfUserDecryptionOption,
-} from "../../../../auth/src/common";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
@@ -40,12 +36,10 @@ import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-passw
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
-import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
-import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -62,12 +56,16 @@ import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
 import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
+
+const PERF_TRACK_GROUP = PerfTrackGroup.Sync;
+const PERF_TRACK = "Full Sync";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
@@ -107,11 +105,8 @@ export class DefaultSyncService extends CoreSyncService {
     tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
-    private securityStateService: SecurityStateService,
-    private kdfConfigService: KdfConfigService,
-    private accountCryptographicStateService: AccountCryptographicStateService,
-    private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
-    private configService: ConfigService,
+    configService: ConfigService,
+    sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -127,6 +122,8 @@ export class DefaultSyncService extends CoreSyncService {
       sendService,
       sendApiService,
       stateProvider,
+      configService,
+      sdkService,
     );
   }
 
@@ -146,6 +143,7 @@ export class DefaultSyncService extends CoreSyncService {
       return this.syncCompleted(false, userId);
     }
 
+    const syncMeasurement = this.logService.startMeasurement(PERF_TRACK_GROUP, PERF_TRACK, "total");
     const now = new Date();
     let needsSync = false;
     let needsSyncSucceeded = true;
@@ -185,21 +183,41 @@ export class DefaultSyncService extends CoreSyncService {
         );
       }
 
+      const getSyncMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "getSync",
+      );
       const response = await this.inFlightApiCalls.sync;
+      getSyncMeasurement.finish();
 
-      await this.cipherService.clear(response.profile.id);
+      const processMeasurement = this.logService.startMeasurement(
+        PERF_TRACK_GROUP,
+        PERF_TRACK,
+        "processResponse",
+      );
 
-      await this.syncUserDecryption(response.profile.id, response.userDecryption);
+      // The crypto sync handler *MUST* be the first sync handler to run. It reserves
+      // the option to reject a sync, should the data be inconsitent. In this case, it will throw.
+      await this.runCryptoSyncHandler(
+        response.profile.id,
+        response.profile,
+        response.userDecryption,
+      );
+
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
+      await this.retryPendingSendDeletions(response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
+      processMeasurement.finish([["Ciphers", response.ciphers?.length ?? 0]]);
 
       await this.setLastSync(now, userId);
+      syncMeasurement.finish([["Forced", forceSync]]);
       return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
@@ -246,27 +264,6 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    // Users with no master password will not have a key.
-    if (response?.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
-    }
-
-    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
-    if (response.accountKeys != null) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeys.toWrappedAccountCryptographicState(),
-        response.id,
-      );
-    } else {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        {
-          V1: {
-            private_key: response.privateKey as SdkEncString,
-          },
-        },
-        response.id,
-      );
-    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
@@ -397,6 +394,7 @@ export class DefaultSyncService extends CoreSyncService {
   }
 
   private async syncCiphers(response: CipherResponse[], userId: UserId) {
+    await this.cipherService.clear(userId);
     const ciphers: { [id: string]: CipherData } = {};
     response.forEach((c) => {
       ciphers[c.id] = new CipherData(c);
@@ -444,10 +442,10 @@ export class DefaultSyncService extends CoreSyncService {
     fallback: PolicyResponse[] | undefined,
     userId: UserId,
   ) {
-    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
-    // feature flag is off) so the new service is always seeded with data.
+    // Fall back to `policies` when `policiesNew` is absent or empty, so the new service
+    // is always seeded with data on servers that do not send `policiesNew`.
     const source = response != null && response.length > 0 ? response : fallback;
-    if (source == null || source.length === 0) {
+    if (source == null) {
       return;
     }
     const policies: { [id: string]: PolicyData } = {};
@@ -457,68 +455,42 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.newPolicyService.replace(policies, userId);
   }
 
-  private async syncUserDecryption(
+  /**
+   * Runs the SDK's crypto sync handler.
+   *
+   * Hands the handler the crypto parts of the sync response and lets it decide what to do
+   * with each. Failures propagate: the handler reserves the option to reject a sync when the data
+   * is inconsistent, in which case no further sync handlers run.
+   */
+  private async runCryptoSyncHandler(
     userId: UserId,
+    profile: ProfileResponse,
     userDecryption: UserDecryptionResponse | undefined,
   ) {
-    if (userDecryption == null) {
+    await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+      sdk.crypto_sync_handler().on_sync({
+        userDecryption: userDecryption?.toSdk(),
+        accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
+      }),
+    );
+  }
+
+  /**
+   * Retries any file Send deletes that were durably queued after a failed create rollback.
+   *
+   * Best-effort cleanup: failures are logged and swallowed so they never block or fail the sync.
+   */
+  private async retryPendingSendDeletions(userId: UserId) {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
       return;
     }
-    if (userDecryption.masterPasswordUnlock != null) {
-      const masterPasswordUnlockData =
-        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
-      await this.masterPasswordService.setMasterPasswordUnlockData(
-        masterPasswordUnlockData,
-        userId,
+
+    try {
+      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+        sdk.sends().retry_pending_deletions(),
       );
-      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
-    }
-
-    // Update WebAuthn PRF options if present
-    if (userDecryption.webAuthnPrfOptions != null && userDecryption.webAuthnPrfOptions.length > 0) {
-      try {
-        // Only update if this is the active user, since setUserDecryptionOptions()
-        // operates on the active user's state
-        const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-        if (activeAccount?.id !== userId) {
-          return;
-        }
-
-        // Get current options without blocking if they don't exist yet
-        const currentUserDecryptionOptions = await firstValueFrom(
-          this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-        ).catch((): UserDecryptionOptions | null => {
-          return null;
-        });
-
-        if (currentUserDecryptionOptions != null) {
-          // Update the PRF options while preserving other decryption options
-          const updatedOptions = Object.assign(
-            new UserDecryptionOptions(),
-            currentUserDecryptionOptions,
-          );
-          updatedOptions.webAuthnPrfOptions = userDecryption.webAuthnPrfOptions
-            .map((option) => WebAuthnPrfUserDecryptionOption.fromResponse(option))
-            .filter((option) => option !== undefined);
-
-          await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
-            activeAccount.id,
-            updatedOptions,
-          );
-        }
-      } catch (error) {
-        this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
-      }
-    }
-
-    if (userDecryption.v2UpgradeToken != null) {
-      await this.v2UpgradeTokenStateService.setV2UpgradeToken(
-        userDecryption.v2UpgradeToken.toV2UpgradeToken(),
-        userId,
-      );
-    } else {
-      await this.v2UpgradeTokenStateService.clearV2UpgradeToken(userId);
+    } catch (e) {
+      this.logService.error("Sync: Failed to retry pending Send deletions.", e);
     }
   }
 }

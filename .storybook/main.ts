@@ -24,6 +24,8 @@ const config: StorybookConfig = {
     "../libs/tools/send/send-ui/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/vault/src/**/*.mdx",
     "../libs/vault/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/importer/src/**/*.mdx",
+    "../libs/importer/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/components/src/**/*.mdx",
     "../libs/components/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../apps/web/src/**/*.mdx",
@@ -76,7 +78,14 @@ const config: StorybookConfig = {
     return config;
   },
   docs: {},
-  staticDirs: ["../apps/web/src/images"],
+  staticDirs: [
+    "../apps/web/src/images",
+    // Component templates reference images via relative paths like `../../../images/foo.png`,
+    // which the browser resolves against the iframe's root URL as `/images/foo.png`. The entry
+    // above only serves these files at the root (e.g. `/foo.png`), so this second entry mirrors
+    // the same directory under `/images` too.
+    { from: "../apps/web/src/images", to: "/images" },
+  ],
   refs: (config, { configType }) => {
     if (configType === "PRODUCTION") {
       const autofillUrl = process.env.AUTOFILL_CHROMATIC_URL;

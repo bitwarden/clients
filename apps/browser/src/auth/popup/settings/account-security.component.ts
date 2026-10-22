@@ -20,7 +20,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
-import { LockService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -58,6 +58,9 @@ import {
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import {
   NativeMessagingPermissionDialogComponent,
@@ -155,6 +158,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
@@ -163,6 +167,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private logoutService: LogoutService,
   ) {
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
@@ -430,7 +435,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
-      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 
@@ -542,7 +546,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+    const fingerprint = await this.legacyCompatKeyService.getFingerprint(activeUserId, publicKey);
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
       fingerprint,
@@ -553,7 +557,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   async lock() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await this.lockService.lock(activeUserId);
+    await this.lockService.lock(activeUserId, LockSource.Manual);
   }
 
   async logOut() {
@@ -564,8 +568,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     });
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    if (confirmed) {
-      this.messagingService.send("logout", { userId: userId });
+    if (confirmed && userId != null) {
+      await this.logoutService.logout(userId, "userInitiated");
     }
   }
 

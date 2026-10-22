@@ -1,4 +1,8 @@
 <bit-header [title]="resolvedTitle()" [icon]="icon()">
+  <ng-container slot="title-prefix">
+    <ng-content select="[slot=title-prefix]" />
+  </ng-container>
+
   <ng-container slot="breadcrumbs">
     <ng-content select="[slot=breadcrumbs]" />
   </ng-container>
@@ -9,6 +13,10 @@
     <ng-content select="[slot=title-suffix]" />
   </ng-container>
 
+  <ng-container slot="subtitle">
+    <ng-content select="[slot=subtitle]"></ng-content>
+  </ng-container>
+
   <ng-container slot="secondary">
     <ng-content select="[slot=secondary]" />
   </ng-container>
@@ -17,5 +25,7 @@
     <ng-content select="[slot=tabs]" />
   </ng-container>
 
-  <app-account-switcher-v2 />
+  @if (!vfo1FoundationEnabled()) {
+    <app-account-switcher-v2 />
+  }
 </bit-header>

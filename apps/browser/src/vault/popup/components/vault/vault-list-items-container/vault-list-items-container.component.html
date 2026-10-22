@@ -94,13 +94,7 @@
       }
 
       <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-        <bit-item
-          *cdkVirtualFor="let cipher of group.ciphers"
-          class="tw-group/vault-item"
-          [ngClass]="{
-            'hover:tw-bg-hover-default hover:tw-cursor-pointer': showFillTextOnHover(),
-          }"
-        >
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers" class="tw-group/vault-item">
           <button
             bit-item-content
             type="button"
@@ -117,11 +111,11 @@
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
             <div slot="default-trailing" class="tw-flex tw-gap-1.5">
-              @if (cipher.organizationId) {
+              @if (cipher.organization; as organization) {
                 <i
                   slot="default-trailing"
                   appOrgIcon
-                  [tierType]="cipher.organization!.productTierType"
+                  [tierType]="organization.productTierType"
                   [size]="'small'"
                   [appA11yTitle]="orgIconTooltip(cipher)"
                 ></i>
@@ -150,19 +144,6 @@
                 </button>
               </bit-item-action>
             }
-            @if (showAutofillBadge()) {
-              <bit-item-action>
-                <button
-                  type="button"
-                  bit-chip-action
-                  variant="primary"
-                  (click)="doAutofill(cipher)"
-                  [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
-                  [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
-                  [label]="'fill' | i18n"
-                ></button>
-              </bit-item-action>
-            }
             @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {
               <bit-item-action>
                 <button
@@ -170,7 +151,7 @@
                   bitIconButton="bwi-external-link"
                   size="small"
                   (click)="launchCipher(cipher)"
-                  [label]="'launchWebsiteName' | i18n: cipher.name"
+                  [label]="'launchWebsite' | i18n"
                 ></button>
               </bit-item-action>
             }

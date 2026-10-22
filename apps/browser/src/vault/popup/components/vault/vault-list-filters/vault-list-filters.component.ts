@@ -5,7 +5,7 @@ import { combineLatest, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ChipFilterComponent } from "@bitwarden/components";
-import { Vfo1IconPipe } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 
@@ -14,7 +14,14 @@ import { VaultPopupListFiltersService } from "../../../services/vault-popup-list
 @Component({
   selector: "app-vault-list-filters",
   templateUrl: "./vault-list-filters.component.html",
-  imports: [CommonModule, JslibModule, ChipFilterComponent, ReactiveFormsModule, Vfo1IconPipe],
+  imports: [
+    CommonModule,
+    JslibModule,
+    ChipFilterComponent,
+    ReactiveFormsModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
+  ],
 })
 export class VaultListFiltersComponent {
   protected filterForm = this.vaultPopupListFiltersService.filterForm;

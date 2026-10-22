@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of, BehaviorSubject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { NudgesService } from "@bitwarden/angular/vault";
-import { LockService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -36,6 +36,9 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { NativeMessagingPermissionDialogComponent } from "../../../key-management/shared-unlock/popup/native-messaging-permission-dialog.component";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -76,6 +79,7 @@ describe("AccountSecurityComponent", () => {
   const configService = mock<ConfigService>();
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const lockService = mock<LockService>();
   const policyService = mock<PolicyService>();
   const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
@@ -114,8 +118,10 @@ describe("AccountSecurityComponent", () => {
         { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
+        { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
         { provide: LockService, useValue: lockService },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: LogoutService, useValue: mock<LogoutService>() },
         { provide: MessageSender, useValue: mock<MessageSender>() },
         { provide: NudgesService, useValue: vaultNudgesService },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
@@ -373,7 +379,6 @@ describe("AccountSecurityComponent", () => {
           false,
           mockUserId,
         );
-        expect(biometricStateService.setFingerprintValidated).toHaveBeenCalledWith(false);
       });
     });
 
@@ -565,6 +570,26 @@ describe("AccountSecurityComponent", () => {
 
       expect(component.form.controls.allowSharingUnlockStateWithDesktop.disabled).toBe(false);
       expect(component.form.controls.allowSharingUnlockStateWithWeb.disabled).toBe(false);
+    });
+  });
+
+  describe("logOut", () => {
+    it("calls LogoutService.logout with the active user and userInitiated reason when confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      const logoutService = TestBed.inject(LogoutService) as MockProxy<LogoutService>;
+
+      await component.logOut();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "userInitiated");
+    });
+
+    it("does not call LogoutService.logout when the dialog is cancelled", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      const logoutService = TestBed.inject(LogoutService) as MockProxy<LogoutService>;
+
+      await component.logOut();
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 });

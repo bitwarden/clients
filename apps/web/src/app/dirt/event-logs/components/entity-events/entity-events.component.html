@@ -5,7 +5,7 @@
   </span>
   <div bitDialogContent>
     <form [formGroup]="filterFormGroup" [bitSubmit]="refreshEvents">
-      <div class="tw-flex tw-items-center tw-space-x-2">
+      <div class="tw-flex tw-items-start tw-space-x-2">
         <bit-form-field>
           <bit-label>{{ "from" | i18n }}</bit-label>
           <input
@@ -16,7 +16,7 @@
             formControlName="start"
           />
         </bit-form-field>
-        <span class="tw-mx-2">-</span>
+        <span class="tw-mx-2 tw-mt-7 tw-flex tw-h-10 tw-items-center">-</span>
         <bit-form-field>
           <bit-label>{{ "to" | i18n }}</bit-label>
           <input
@@ -27,7 +27,14 @@
             formControlName="end"
           />
         </bit-form-field>
-        <button type="submit" bitButton buttonType="primary" startIcon="bwi-refresh" bitFormButton>
+        <button
+          class="tw-mt-7"
+          type="submit"
+          bitButton
+          buttonType="primary"
+          startIcon="bwi-refresh"
+          bitFormButton
+        >
           {{ "refresh" | i18n }}
         </button>
       </div>

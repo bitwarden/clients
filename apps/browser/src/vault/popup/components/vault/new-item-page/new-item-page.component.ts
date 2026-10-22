@@ -8,7 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
 import {
@@ -46,8 +46,8 @@ export class NewItemPageComponent {
     { initialValue: undefined },
   );
 
-  protected readonly collectionId = toSignal<CollectionId | undefined>(
-    this.route.queryParams.pipe(switchMap(async (p) => p["collectionId"])),
+  protected readonly collectionIds = toSignal<string | undefined>(
+    this.route.queryParams.pipe(switchMap(async (p) => p["collectionIds"])),
     { initialValue: undefined },
   );
 
@@ -108,7 +108,7 @@ export class NewItemPageComponent {
       type: item.cipherType.toString(),
       folderId: this.folderId(),
       organizationId: this.organizationId(),
-      collectionId: this.collectionId(),
+      collectionIds: this.collectionIds(),
     };
 
     if (!poppedOut && item.cipherType === CipherType.Login) {

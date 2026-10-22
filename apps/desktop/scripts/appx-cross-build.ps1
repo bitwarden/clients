@@ -91,13 +91,6 @@ if (!(Get-Command osslsigncode -ErrorAction SilentlyContinue)) {
     Exit 1
 }
 
-if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
-    Write-Error "The `cargo-xwin` tool is required to cross-compile Windows native code."
-    Write-Error "You can install with cargo:"
-    Write-Error "  cargo install --version 0.23.0 --locked cargo-xwin"
-    Exit 1
-}
-
 try {
 
 # Resolve certificate file before we change directories.
@@ -114,7 +107,7 @@ else {
 
 $builderConfig = Get-Content $electronConfigFile | ConvertFrom-Json
 $packageConfig = Get-Content package.json | ConvertFrom-Json
-$manifestTemplate = Get-Content ($builderConfig.appx.customManifestPath ?? "custom-appx-manifest.xml")
+$manifestTemplate = Get-Content -Raw "custom-appx-manifest.xml"
 
 $srcDir = Get-Location
 $assetsDir = Get-Item $builderConfig.directories.buildResources
@@ -173,20 +166,34 @@ Copy-Item $srcDir/resources/appx/* $outDir/appx/assets/
 
 if ($Beta) {
     Copy-Item $srcDir/resources/windows_plugin_authenticator_config.beta.json $outDir/appx/app/resources/plugin_authenticator_config.json
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_light.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo_light.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_dark.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo_dark.svg
 }
 else {
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.json $outDir/appx/app/resources/plugin_authenticator_config.json
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.stable.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_light.stable.svg $outDir/appx/app/resources/plugin_authenticator_logo_light.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_dark.stable.svg $outDir/appx/app/resources/plugin_authenticator_logo_dark.svg
 }
 
 Write-Host "Building Appx manifest"
+# electron-builder resolves appx.customExtensionsPath against directories.app, so we do too.
+$customExtensions = ""
+if ($builderConfig.appx.customExtensionsPath) {
+    $customExtensions = Get-Content -Raw (Join-Path $srcDir $builderConfig.directories.app $builderConfig.appx.customExtensionsPath)
+}
+
+# electron-builder's defaults when appx.minVersion is unset.
+$minVersion = $builderConfig.appx.minVersion ?? ($arch -eq "arm64" ? "10.0.16299.0" : "10.0.14316.0")
 $translationMap = @{
     'arch' = $arch
     'applicationId' = $builderConfig.appx.applicationId
+    'backgroundColor' = $builderConfig.appx.backgroundColor
+    'customExtensions' = $customExtensions
     'displayName' = $productName
     'executable' = "app\${productName}.exe"
     'identityName' = $builderConfig.appx.identityName
+    'maxVersionTested' = $builderConfig.appx.maxVersionTested ?? $minVersion
+    'minVersion' = $minVersion
     'publisher' = $builderConfig.appx.publisher
     'publisherDisplayName' = $builderConfig.appx.publisherDisplayName
     'version' = $version
@@ -197,19 +204,11 @@ $translationMap.Keys | ForEach-Object {
     $manifest = $manifest.Replace("`${$_}", $translationMap[$_])
 }
 
-# Manual Fixups for Beta
-# electron-builder can't template these variables, so we substitute known values with the ones we want:
-if ($Beta) {
-    # Update color
-    $manifest = $manifest.Replace("#175DDC", "#FDC700")
-
-    # Update COM ID
-    $PluginStableConfig = Get-Content $srcDir/resources/windows_plugin_authenticator_config.json | ConvertFrom-Json
-    $PluginBetaConfig = Get-Content $srcDir/resources/windows_plugin_authenticator_config.beta.json | ConvertFrom-Json
-    $manifest = $manifest.Replace($PluginStableConfig.clsid, $PluginBetaConfig.clsid)
-}
-
 $manifest | Out-File appx/AppxManifest.xml
+
+# Apply the same fixups electron-builder applies for CI builds through its appxManifestCreated hook.
+$manifestHook = Join-Path $srcDir scripts appx-manifest-created.js
+node -e "require(process.argv[1]).default(process.argv[2])" $manifestHook (Resolve-Path appx/AppxManifest.xml)
 $unsignedArtifactpath = [System.IO.Path]::GetFileNameWithoutExtension($artifactName) + "-unsigned.$ext"
 Write-Host "Creating unsigned Appx"
 makemsix pack -d appx -p $unsignedArtifactpath

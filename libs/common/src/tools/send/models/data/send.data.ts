@@ -5,6 +5,7 @@ import { SendType } from "../../types/send-type";
 import { SendResponse } from "../response/send.response";
 
 import { SendFileData } from "./send-file.data";
+import { SendItemData } from "./send-item.data";
 import { SendTextData } from "./send-text.data";
 
 export class SendData {
@@ -15,6 +16,7 @@ export class SendData {
   notes: string;
   file: SendFileData;
   text: SendTextData;
+  data: SendItemData;
   key: string;
   maxAccessCount?: number;
   accessCount: number;
@@ -56,6 +58,9 @@ export class SendData {
         break;
       case SendType.File:
         this.file = new SendFileData(response.file);
+        break;
+      case SendType.Item:
+        this.data = new SendItemData(response.data);
         break;
       default:
         break;

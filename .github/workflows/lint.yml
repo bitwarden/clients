@@ -27,11 +27,11 @@ permissions:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint TypeScript
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -64,7 +64,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -83,33 +83,62 @@ jobs:
         run: npm run lint
 
   rust:
-    name: Run Rust lint on ${{ matrix.os }}
+    name: Rust ${{ matrix.check.name }} (${{ matrix.os }})
     runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-24.04
           - macos-14
           - windows-2022
+        # Each check maps to `scripts/lint-rust.mjs --only <name>`. `nightly` pulls
+        # in the nightly toolchain (fmt, udeps); `cargo_bin` bootstraps cargo-run-bin
+        # and caches the tools it builds (sort, udeps, deny). The RustSec advisory
+        # check runs in the separate `rust-advisories` job.
+        check:
+          - { name: fmt, nightly: true }
+          - { name: clippy }
+          - { name: sort, cargo_bin: true }
+          - { name: udeps, nightly: true, cargo_bin: true }
+          - { name: deny, cargo_bin: true }
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      # Both toolchains come from desktop_native/rust-toolchain.toml so a Renovate
+      # bump can't leave a stale literal in this workflow. Read via Node rather
+      # than the `grep -oP` bitwarden/sdk-internal uses, because this job also runs
+      # on macos-14, whose BSD grep has no -P.
+      #
+      # Assign to variables before echoing: with `bash -e`, an assignment adopts the
+      # command substitution's exit status, so a failing reader fails the step.
+      # Inlining `$(...)` into `echo` would make the status `tee`'s instead, quietly
+      # emitting an empty toolchain.
+      - name: Resolve Rust toolchains
+        id: toolchain
+        run: |
+          RUST_TOOLCHAIN="$(node scripts/rust-toolchain.mjs)"
+          RUST_NIGHTLY_TOOLCHAIN="$(node scripts/rust-toolchain.mjs --nightly)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+          echo "RUST_NIGHTLY_TOOLCHAIN=${RUST_NIGHTLY_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
+
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
-          toolchain: 1.96.0
+          toolchain: ${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}
           components: rustfmt, clippy
 
       - name: Install Rust nightly
         id: rust-nightly
-        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        if: matrix.check.nightly
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
-          toolchain: nightly-2026-06-29
+          toolchain: ${{ steps.toolchain.outputs.RUST_NIGHTLY_TOOLCHAIN }}
           components: rustfmt
 
       - name: Check Rust version
@@ -118,35 +147,85 @@ jobs:
       - name: Cache cargo registry
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
 
-      - name: Run cargo fmt
-        working-directory: ./apps/desktop/desktop_native
-        # Use the exact toolchain installed above (Renovate manages the version
-        # via the `with: toolchain:` input) so the invoked toolchain can never
-        # drift from the installed one. Passed through env rather than
-        # interpolated into the run script to satisfy the template-injection rule.
+      # Cache cargo-run-bin's built tools (.bin) separately from rust-cache. The
+      # tools depend only on their pinned versions (Cargo.toml) and the toolchain,
+      # not on Cargo.lock, so this key avoids rust-cache's lockfile rotation. Keyed
+      # per check so each one caches only the tools it builds.
+      - name: Cache cargo-run-bin tools
+        if: matrix.check.cargo_bin
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: apps/desktop/desktop_native/.bin
+          key: cargo-bin-${{ runner.os }}-${{ matrix.check.name }}-${{ hashFiles('apps/desktop/desktop_native/Cargo.toml', 'apps/desktop/desktop_native/rust-toolchain.toml') }}
+          restore-keys: |
+            cargo-bin-${{ runner.os }}-${{ matrix.check.name }}-
+
+      - name: Install cargo-run-bin
+        if: matrix.check.cargo_bin
+        run: cargo install cargo-run-bin --locked --version 1.7.4
+
+      # lint-rust.mjs runs the cargo-binstall guard (check-no-binstall.mjs) itself
+      # before any `cargo bin` invocation, so no separate step is needed here.
+      - name: Run lint --only ${{ matrix.check.name }}
+        # RUST_NIGHTLY_TOOLCHAIN pins the nightly invocations (fmt, udeps) to the
+        # toolchain actually installed above, so it can never drift from the
+        # resolved one. Passed through env rather than interpolated into the run
+        # script to satisfy the template-injection rule. Empty for the checks that
+        # don't need nightly; lint-rust.mjs then falls back to rust-toolchain.toml.
         env:
-          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
-        run: cargo +"$RUST_NIGHTLY" fmt --check
+          RUST_NIGHTLY_TOOLCHAIN: ${{ steps.rust-nightly.outputs.name }}
+        run: node scripts/lint-rust.mjs --only ${{ matrix.check.name }}
 
-      - name: Run Clippy
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo clippy --all-features --tests
-        env:
-          RUSTFLAGS: "-D warnings"
+  # Fan-in for every blocking lint job. Branch protection requires the `Lint`
+  # check, so every job listed in `needs` blocks merging.
+  lint-gate:
+    name: Lint
+    runs-on: ubuntu-24.04
+    needs:
+      - lint
+      - rust
+    if: always()
+    steps:
+      - name: Verify all lint checks passed
+        if: ${{ needs.lint.result != 'success' || needs.rust.result != 'success' }}
+        run: exit 1
 
-      - name: Install cargo tool dependencies
-        run: ./scripts/prepare-env-unix-rust.sh
+  # RustSec advisories can start failing on an unchanged tree when a new advisory
+  # is published, so this job is kept out of the `lint-gate` fan-in. It runs once
+  # rather than per OS because cargo-deny resolves the lockfile for all targets.
+  rust-advisories:
+    name: Rust advisories
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Cargo sort
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo sort --workspace --check
+      - name: Resolve Rust toolchain
+        id: toolchain
+        run: |
+          RUST_TOOLCHAIN="$(node scripts/rust-toolchain.mjs)"
+          echo "RUST_TOOLCHAIN=${RUST_TOOLCHAIN}" | tee -a "${GITHUB_OUTPUT}"
 
-      - name: Cargo udeps
-        working-directory: ./apps/desktop/desktop_native
-        env:
-          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
-        run: cargo +"$RUST_NIGHTLY" udeps --workspace --all-features --all-targets
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: ${{ steps.toolchain.outputs.RUST_TOOLCHAIN }}
 
-      - name: Run cargo deny
-        working-directory: ./apps/desktop/desktop_native
-        run: cargo deny --log-level error --all-features check all
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+
+      - name: Cache cargo-run-bin tools
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: apps/desktop/desktop_native/.bin
+          key: cargo-bin-${{ runner.os }}-advisories-${{ hashFiles('apps/desktop/desktop_native/Cargo.toml', 'apps/desktop/desktop_native/rust-toolchain.toml') }}
+          restore-keys: |
+            cargo-bin-${{ runner.os }}-advisories-
+
+      - name: Install cargo-run-bin
+        run: cargo install cargo-run-bin --locked --version 1.7.4
+
+      - name: Run lint --only advisories
+        run: node scripts/lint-rust.mjs --only advisories

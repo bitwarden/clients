@@ -10,11 +10,8 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -24,6 +21,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { newGuid } from "@bitwarden/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import {
   BitwardenCsvOrgExportType,
@@ -166,6 +165,8 @@ export class OrganizationVaultExportService
                 exportPromises.push(
                   this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
                     if (
+                      // Gated ("partial") rows have no sensitive fields to export.
+                      !decCipher.partial &&
                       !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
                     ) {
                       decCiphers.push(decCipher);
@@ -216,7 +217,11 @@ export class OrganizationVaultExportService
         .filter((c) => c.deletedDate === null)
         .forEach((c) => {
           const cipher = new Cipher(new CipherData(c));
-          if (!this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
+          if (
+            // Gated ("partial") rows have no sensitive fields; they would export as blanks.
+            !cipher.isPartial &&
+            !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)
+          ) {
             ciphers.push(cipher);
           }
         });
@@ -295,6 +300,8 @@ export class OrganizationVaultExportService
 
     encCiphers = allCiphers.filter(
       (f) =>
+        // Gated ("partial") rows have no sensitive fields; they would export as blanks.
+        !f.isPartial &&
         f.deletedDate == null &&
         f.organizationId == organizationId &&
         encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&

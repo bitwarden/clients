@@ -11,8 +11,6 @@ import {
   ScrollLayoutDirective,
   SearchModule,
 } from "@bitwarden/components";
-import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
-import { MemberDialogManagerService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-dialog-manager/member-dialog-manager.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import {
@@ -29,24 +27,12 @@ import { ProviderSubscriptionStatusComponent } from "../../billing/providers/sub
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 import { EventsComponent } from "../../dirt/provider-events/events.component";
 
-import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
-import { CreateClientDialogComponent } from "./clients/create-client-dialog.component";
-import { ManageClientNameDialogComponent } from "./clients/manage-client-name-dialog.component";
-import { ManageClientSubscriptionDialogComponent } from "./clients/manage-client-subscription-dialog.component";
-import { AcceptProviderComponent } from "./manage/accept-provider.component";
-import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
-import { MembersComponent } from "./manage/members.component";
 import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
-import { ProvidersComponent } from "./providers.component";
 import { WebProviderService } from "./services/web-provider.service";
-import { AccountComponent } from "./settings/account.component";
-import { SetupProviderComponent } from "./setup/setup-provider.component";
-import { SetupComponent } from "./setup/setup.component";
-import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-provider.component";
 
 @NgModule({
   imports: [
@@ -70,31 +56,14 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     BulkRemoveDialogComponent,
   ],
   declarations: [
-    AcceptProviderComponent,
-    AccountComponent,
     EventsComponent,
-    MembersComponent,
-    SetupComponent,
-    SetupProviderComponent,
-    AddEditMemberDialogComponent,
-    AddExistingOrganizationDialogComponent,
-    CreateClientDialogComponent,
     InvoicesComponent,
-    ManageClientNameDialogComponent,
-    ManageClientSubscriptionDialogComponent,
     NoInvoicesComponent,
     ProviderBillingHistoryComponent,
     ProviderSubscriptionComponent,
     ProviderSubscriptionStatusComponent,
-    ProvidersComponent,
-    VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
-  providers: [
-    WebProviderService,
-    ProviderActionsService,
-    MemberActionsService,
-    MemberDialogManagerService,
-  ],
+  providers: [WebProviderService, ProviderActionsService],
 })
 export class ProvidersModule {}

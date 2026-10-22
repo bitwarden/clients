@@ -14,7 +14,7 @@ import {
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import { AuthRequestServiceAbstraction, LockService, LogoutService } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -36,6 +36,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -51,6 +52,8 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogRef, DialogService, ScrollLayoutService, ToastService } from "@bitwarden/components";
 import { MessageListener } from "@bitwarden/messaging";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { LockService } from "@bitwarden/unlock";
 import {
   ASSIGN_COLLECTIONS_DIALOG,
   AssignCollectionsDialogRef,
@@ -63,6 +66,7 @@ import {
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
   VaultBatchBarService,
+  VaultCopyButtonsService,
   VaultFilter,
   VaultFilterServiceAbstraction,
   VaultItem,
@@ -111,6 +115,7 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
+    cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
 
@@ -141,6 +146,9 @@ describe("VaultComponent", () => {
       imports: [VaultComponent],
       providers: [
         provideRouter([]),
+        // The coachmark tour opens the side nav for its nav-anchored steps, so CoachmarkService
+        // resolves SideNavService, which reads its width from global state.
+        { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: BroadcasterService, useValue: mock<BroadcasterService>() },
@@ -303,6 +311,10 @@ describe("VaultComponent", () => {
               useValue: mock<VaultItemsTransferService>(),
             },
             {
+              provide: VaultCopyButtonsService,
+              useValue: { showQuickCopyActions$: of(false) },
+            },
+            {
               provide: VaultBatchBarService,
               useValue: {
                 completed$: EMPTY,
@@ -314,7 +326,6 @@ describe("VaultComponent", () => {
                 bulkDelete: jest.fn(),
                 bulkMoveToFolder: jest.fn(),
                 bulkAssignToCollections: jest.fn(),
-                enabled: signal(false),
                 barVisible: signal(false),
               },
             },
@@ -444,6 +455,22 @@ describe("VaultComponent", () => {
           });
         });
       });
+    });
+  });
+
+  describe("viewCipherById", () => {
+    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes.
+    async function openAndFlush(): Promise<void> {
+      void component.viewCipherById(TEST_CIPHER_ID);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    it("opens the cipher from local state", async () => {
+      await openAndFlush();
+
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+      const params = openVaultItemDialogSpy.mock.lastCall[1];
+      expect(params.formConfig.originalCipher).toBe(mockCipher);
     });
   });
 

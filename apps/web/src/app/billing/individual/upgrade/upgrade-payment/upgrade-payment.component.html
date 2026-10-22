@@ -27,7 +27,7 @@
         }
         <div class="tw-pb-4">
           <bit-form-field class="!tw-mb-0">
-            <bit-label>{{ "organizationName" | i18n }}</bit-label>
+            <bit-label>{{ "organizationName" | vfo1I18n: "vaultName" }}</bit-label>
             <input bitInput type="text" formControlName="organizationName" required />
             <bit-hint bitTypography="helper" class="tw-text-muted">
               {{ "organizationNameDescription" | i18n }}
@@ -55,12 +55,18 @@
     </section>
 
     <section>
+      @if (previewFailed()) {
+        <bit-callout type="danger" data-testid="invoice-preview-error">
+          {{ "invoicePreviewErrorMessage" | i18n }}
+        </bit-callout>
+      }
       <billing-cart-summary
         #cartSummaryComponent
         [cart]="cart()"
         [showDiscountBadges]="true"
+        [class.tw-hidden]="previewFailed()"
       ></billing-cart-summary>
-      @if (isFamiliesPlan()) {
+      @if (isFamiliesPlan() && !previewFailed()) {
         <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
           {{ "paymentChargedWithTrialSpecificLength" | i18n: defaultTrialDays }}
         </p>
@@ -73,7 +79,9 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading() || !isFormValid() || !(hasEnoughAccountCredit$ | async)"
+      [disabled]="
+        loading() || !isFormValid() || previewFailed() || !(hasEnoughAccountCredit$ | async)
+      "
       type="submit"
     >
       {{ "upgrade" | i18n }}

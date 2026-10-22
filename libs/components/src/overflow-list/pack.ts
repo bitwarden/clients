@@ -86,3 +86,71 @@ export function pack(
   }
   return { displayed, overflow };
 }
+
+/**
+ * "Collapse the middle" pack — the breadcrumb pattern. Keeps the ends anchored and
+ * overflows the middle, so a long trail renders as `first … lastFewThatFit current`.
+ *
+ * Priority when space runs out is `last > first > trailing-middle`:
+ * - The last item (the current page) is mandatory and never overflows; when nothing
+ *   else fits it is displayed on its own rather than dropped.
+ * - The first item (the root) is preferred but droppable — kept only when it fits
+ *   alongside the last item. At very small widths it collapses into the overflow too.
+ * - Remaining space is filled by the items nearest the last one, walking backward, so
+ *   the current page's closest ancestors survive.
+ *
+ * `containerWidth` is the space left for items *after* the caller has reserved the
+ * overflow trigger's width, mirroring how `pack` is called for the trailing strategy.
+ *
+ * @param itemWidths     Natural widths of each item in DOM order, in pixels.
+ * @param containerWidth Available width for the row, in pixels.
+ * @param gap            Horizontal gap between adjacent items, in pixels.
+ */
+export function packMiddle(
+  itemWidths: readonly number[],
+  containerWidth: number,
+  gap: number,
+): PackedItems {
+  const count = itemWidths.length;
+  const all = Array.from({ length: count }, (_, i) => i);
+
+  // Not measured, or a single item that can't collapse against itself.
+  if (containerWidth <= 0 || count <= 1) {
+    return { displayed: all, overflow: [] };
+  }
+
+  const totalWidth = itemWidths.reduce((sum, w, i) => sum + w + (i > 0 ? gap : 0), 0);
+  if (totalWidth <= containerWidth) {
+    return { displayed: all, overflow: [] };
+  }
+
+  const last = count - 1;
+
+  // (1) The last item (current page) is always kept.
+  let used = itemWidths[last];
+
+  // (2) Keep the first item (root) only when it fits alongside the last.
+  const keepFirst = itemWidths[0] + gap + used <= containerWidth;
+  if (keepFirst) {
+    used += itemWidths[0] + gap;
+  }
+
+  // (3) Fill the middle from the end backward — the current page's nearest ancestors
+  // win. Stop at the first one that doesn't fit; the run is contiguous.
+  const survivors: number[] = [];
+  for (let i = last - 1; i >= (keepFirst ? 1 : 0); i--) {
+    const w = itemWidths[i] + gap;
+    if (used + w > containerWidth) {
+      break;
+    }
+    used += w;
+    survivors.push(i);
+  }
+  survivors.sort((a, b) => a - b);
+
+  const displayed = [...(keepFirst ? [0] : []), ...survivors, last];
+  const displayedSet = new Set(displayed);
+  const overflow = all.filter((i) => !displayedSet.has(i));
+
+  return { displayed, overflow };
+}

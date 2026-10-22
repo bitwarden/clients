@@ -240,11 +240,13 @@ export abstract class CipherSdkService {
    * @param cipherId The cipher to attach the new file to
    * @param request Encrypted attachment metadata (key, fileName, fileSize, lastKnownRevisionDate)
    * @param userId The user ID to use for SDK client
+   * @param asAdmin Whether to use the admin endpoint, which does not update local state
    */
   abstract createAttachment(
     cipherId: CipherId,
     request: CreateAttachmentRequest,
     userId: UserId,
+    asAdmin?: boolean,
   ): Promise<CreatedAttachment>;
 
   /**
@@ -308,6 +310,19 @@ export abstract class CipherSdkService {
     organizationId: string,
     userId: UserId,
   ): Promise<[Cipher[], CipherListView[]]>;
+
+  /**
+   * Fetches all Login ciphers for an organization, including those in default user collections,
+   * and decrypts them using the SDK.
+   *
+   * @param organizationId The organization ID to fetch ciphers for
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the decrypted ciphers and the ciphers that failed to decrypt
+   */
+  abstract getOrganizationLoginCiphers(
+    organizationId: string,
+    userId: UserId,
+  ): Promise<DecryptAllCiphersResult>;
 
   /**
    * Bulk update collections for many ciphers using the SDK.

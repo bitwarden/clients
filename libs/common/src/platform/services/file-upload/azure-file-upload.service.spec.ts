@@ -1,10 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
-import { ConfigService } from "../../abstractions/config/config.service";
 import { UploadOptions } from "../../abstractions/file-upload/file-upload.service";
 import { LogService } from "../../abstractions/log.service";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
 
 import { AzureFileUploadService } from "./azure-file-upload.service";
 
@@ -61,7 +62,6 @@ function makeFakeBlockUploadData(): EncArrayBuffer {
 describe("AzureFileUploadService", () => {
   let logService: MockProxy<LogService>;
   let apiService: MockProxy<ApiService>;
-  let configService: MockProxy<ConfigService>;
   let service: AzureFileUploadService;
 
   const makeOkResponse = () => ({ status: 201 }) as Response;
@@ -69,8 +69,7 @@ describe("AzureFileUploadService", () => {
   beforeEach(() => {
     logService = mock<LogService>();
     apiService = mock<ApiService>();
-    configService = mock<ConfigService>();
-    service = new AzureFileUploadService(logService, apiService, configService);
+    service = new AzureFileUploadService(logService, apiService);
   });
 
   it("calls onProgress for each block via XMLHttpRequest", async () => {
@@ -78,8 +77,6 @@ describe("AzureFileUploadService", () => {
     const url = makeUrl();
     const renewalCallback = jest.fn().mockResolvedValue(url);
     const progressValues: number[] = [];
-
-    configService.getFeatureFlag.mockResolvedValue(true);
 
     // In browser mode, each block PUT uses nativeXMLHttpRequest which calls onProgress
     apiService.nativeXMLHttpRequest.mockImplementation(

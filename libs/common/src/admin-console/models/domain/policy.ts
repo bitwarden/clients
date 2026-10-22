@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { PolicyView as SdkPolicyView } from "@bitwarden/sdk-internal";
+import { Policy as SdkPolicy } from "@bitwarden/sdk-internal";
 
 import { ListResponse } from "../../../models/response/list.response";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
@@ -46,7 +46,7 @@ export class Policy extends Domain {
     return response.data.map((d) => Policy.fromResponse(d));
   }
 
-  static fromSdkPolicyView(obj: SdkPolicyView): Policy {
+  static fromSdkPolicy(obj: SdkPolicy): Policy {
     const policy = new Policy();
     policy.id = uuidAsString(obj.id) as PolicyId;
     policy.organizationId = uuidAsString(obj.organizationId) as OrganizationId;
@@ -57,7 +57,7 @@ export class Policy extends Domain {
     return policy;
   }
 
-  toSdkPolicyView(): SdkPolicyView {
+  toSdkPolicy(): SdkPolicy {
     return {
       id: asUuid(this.id),
       organizationId: asUuid(this.organizationId),

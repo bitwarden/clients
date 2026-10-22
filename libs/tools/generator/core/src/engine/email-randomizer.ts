@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 
 import { Type } from "../metadata";
@@ -13,6 +14,7 @@ import {
 
 import { Randomizer } from "./abstractions";
 import { SUBADDRESS_PARSER } from "./data";
+import { EmailCalculator } from "./email-calculator";
 
 /** Generation algorithms that produce randomized email addresses */
 export class EmailRandomizer
@@ -20,6 +22,8 @@ export class EmailRandomizer
     CredentialGenerator<CatchallGenerationOptions>,
     CredentialGenerator<SubaddressGenerationOptions>
 {
+  private readonly emailCalculator = new EmailCalculator();
+
   /** Instantiates the email randomizer
    *  @param random data source for random data
    */
@@ -125,6 +129,19 @@ export class EmailRandomizer
     settings: CatchallGenerationOptions | SubaddressGenerationOptions,
   ) {
     if (isCatchallGenerationOptions(settings)) {
+      if (settings.catchallType === "website-name") {
+        const website = Utils.getHostname(request.website) ?? request.website;
+        const email = this.emailCalculator.concatenate(website, settings.catchallDomain);
+
+        return new GeneratedCredential(
+          email,
+          Type.email,
+          Date.now(),
+          request.source,
+          request.website,
+        );
+      }
+
       const email = await this.randomAsciiCatchall(settings.catchallDomain);
 
       return new GeneratedCredential(

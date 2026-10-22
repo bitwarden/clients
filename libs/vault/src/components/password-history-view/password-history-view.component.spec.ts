@@ -26,13 +26,11 @@ describe("PasswordHistoryViewComponent", () => {
 
   const activeAccount$ = new BehaviorSubject<{ id: string }>({ id: "666-444-444" });
   const mockCipherService = {
-    get: jest.fn().mockResolvedValue({ decrypt: jest.fn().mockResolvedValue(mockCipher) }),
-    getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
+    get: jest.fn().mockResolvedValue({}),
   };
 
   beforeEach(async () => {
     mockCipherService.get.mockClear();
-    mockCipherService.getKeyForCipherKeyDecryption.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [ItemModule, ColorPasswordModule, JslibModule],

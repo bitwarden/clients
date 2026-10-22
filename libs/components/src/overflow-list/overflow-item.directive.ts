@@ -25,9 +25,10 @@ export class OverflowItemDirective {
 
   /**
    * Set by the parent `bitOverflowList` — true when this is the only displayed item
-   * alongside overflowed items. Consumers gate truncation/shrink styling on this so
-   * the lone fitting item only gets `flex-shrink` permission *after* JS has decided
-   * to hide its siblings, avoiding CSS shrinking it before they get hidden.
+   * in the row (whether or not other items were packed into the overflow affordance).
+   * Consumers gate truncation/shrink styling on this so the lone item only gets
+   * `flex-shrink` permission *after* JS has decided which siblings to hide, avoiding
+   * CSS shrinking it before they get hidden.
    */
   readonly shouldShrink = signal(false);
 }

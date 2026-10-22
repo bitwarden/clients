@@ -1,4 +1,4 @@
-import { KeyRotationMethod } from "@bitwarden/sdk-internal";
+import { KeyRotationMethod, UpgradeTokenAction } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 import {
   TrustVerificationResult,
@@ -21,13 +21,16 @@ export class CliUserKeyRotationService extends UserKeyRotationServiceAbstraction
 
   rotateUserKey(
     _keyRotationMethod: KeyRotationMethod,
-    _upgradeTokenAction: "CreateIfNeeded" | "Skip",
+    _upgradeTokenAction: UpgradeTokenAction,
     _userId: UserId,
   ): Promise<boolean> {
     throw new Error("User key rotation is not supported on the CLI.");
   }
 
-  verifyTrust(_userId: UserId): Promise<TrustVerificationResult> {
+  verifyTrust(
+    _userId: UserId,
+    _upgradeTokenAction: UpgradeTokenAction,
+  ): Promise<TrustVerificationResult> {
     throw new Error("User key rotation trust verification is not supported on the CLI.");
   }
 }

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
@@ -88,16 +86,14 @@ export enum DeleteOrganizationDialogResult {
 export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  loaded: boolean;
+  loaded!: boolean;
   deleteOrganizationRequestType: "InvalidFamiliesForEnterprise" | "RegularDelete" = "RegularDelete";
-  organization: Organization;
+  organization!: Organization;
   organizationContentSummary: OrganizationContentSummary = new OrganizationContentSummary();
-  secret: Verification;
 
   protected formGroup = this.formBuilder.group({
-    secret: new FormControl<Verification>(null, [Validators.required]),
+    secret: new FormControl<Verification | null>(null, [Validators.required]),
   });
-  formPromise: Promise<void>;
 
   constructor(
     @Inject(DIALOG_DATA) private params: DeleteOrganizationDialogParams,
@@ -130,7 +126,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([organization, ciphers]) => {
-        this.organization = organization;
+        this.organization = organization!;
         this.organizationContentSummary = this.buildOrganizationContentSummary(ciphers);
         this.loaded = true;
       });
@@ -138,7 +134,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
 
   protected submit = async () => {
     await this.userVerificationService
-      .buildRequest(this.formGroup.value.secret)
+      .buildRequest(this.formGroup.value.secret!)
       .then((request) => this.organizationApiService.delete(this.organization.id, request));
 
     this.toastService.showToast({
@@ -164,7 +160,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
         organizationContentSummary.itemCountByType.push(
           new OrganizationContentSummaryItem(
             count,
-            this.getOrganizationItemLocalizationKeysByType(toCipherTypeName(cipherType)),
+            this.getOrganizationItemLocalizationKeysByType(toCipherTypeName(cipherType)!),
           ),
         );
       }

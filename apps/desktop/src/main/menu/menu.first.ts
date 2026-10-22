@@ -3,7 +3,7 @@ import { BrowserWindow, dialog, MenuItem, MenuItemConstructorOptions } from "ele
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
+import { isMacAppStore, isSnapStore, isWindowsStore } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { MenuAccount } from "./menu.updater";
@@ -131,7 +131,12 @@ export class FirstMenu {
             noLink: true,
           });
           if (result.response === 0) {
-            this.sendMessage("logout", { userId: this._accounts[userId].userId });
+            // Electron main process cannot use LogoutService (Angular DI). Send the reason
+            // on the message so the renderer's logout handler surfaces it.
+            this.sendMessage("logout", {
+              userId: this._accounts[userId].userId,
+              logoutReason: "userInitiated",
+            });
           }
         },
         visible: this._accounts[userId].isAuthenticated,

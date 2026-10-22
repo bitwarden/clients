@@ -50,6 +50,7 @@ describe("DefaultCipherSdkService", () => {
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
       list_assigned_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      list_org_login_ciphers: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
     };
@@ -66,7 +67,6 @@ describe("DefaultCipherSdkService", () => {
       share_cipher: jest.fn(),
       share_ciphers_bulk: jest.fn(),
       decrypt_fido2_credentials: jest.fn(),
-      decrypt_fido2_private_key: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn(),
@@ -75,6 +75,7 @@ describe("DefaultCipherSdkService", () => {
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockAttachmentsAdminSdk = {
+      create_attachment: jest.fn(),
       delete_attachment: jest.fn().mockResolvedValue(undefined),
       get_attachment_download_url: jest.fn(),
     };
@@ -192,14 +193,13 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.name).toBe(cipherView.name);
     });
 
-    it("should decrypt FIDO2 credentials from create response", async () => {
+    it("should pass sdkCipherView with FIDO2 credentials to fromSdkCipherView", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
       cipherView.name = "Test Cipher";
       cipherView.organizationId = orgId;
 
-      // Build an SDK response that includes encrypted FIDO2 credentials
       const mockSdkResponse = {
         ...cipherView.toSdkCipherView(),
         login: {
@@ -209,22 +209,14 @@ describe("DefaultCipherSdkService", () => {
       } as unknown as SdkCipherView;
       mockCiphersSdk.create.mockResolvedValue(mockSdkResponse);
 
-      // Mock FIDO2 decryption
-      const mockDecryptedFido2 = [{ credentialId: "decrypted-cred-id" }];
-      mockCiphersSdk.decrypt_fido2_credentials.mockReturnValue(mockDecryptedFido2);
-      mockCiphersSdk.decrypt_fido2_private_key.mockReturnValue("decrypted-key-value");
-
       const mockFido2View = new Fido2CredentialView();
-      mockFido2View.credentialId = "decrypted-cred-id";
+      mockFido2View.credentialId = "encrypted-cred-id";
       jest.spyOn(Fido2CredentialView, "fromSdkFido2CredentialView").mockReturnValue(mockFido2View);
 
       const result = await cipherSdkService.createWithServer(cipherView, userId, false);
 
-      expect(mockCiphersSdk.decrypt_fido2_credentials).toHaveBeenCalledWith(mockSdkResponse);
-      expect(mockCiphersSdk.decrypt_fido2_private_key).toHaveBeenCalledWith(mockSdkResponse);
       expect(result?.login?.fido2Credentials).toHaveLength(1);
-      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("decrypted-cred-id");
-      expect(result?.login?.fido2Credentials?.[0].keyValue).toBe("decrypted-key-value");
+      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("encrypted-cred-id");
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -373,7 +365,7 @@ describe("DefaultCipherSdkService", () => {
       expect(result.name).toBe(cipherView.name);
     });
 
-    it("should decrypt FIDO2 credentials from edit response", async () => {
+    it("should pass sdkCipherView with FIDO2 credentials to fromSdkCipherView", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
@@ -381,7 +373,6 @@ describe("DefaultCipherSdkService", () => {
       cipherView.organizationId = orgId;
       cipherView.edit = true;
 
-      // Build an SDK response that includes encrypted FIDO2 credentials
       const mockSdkResponse = {
         ...cipherView.toSdkCipherView(),
         login: {
@@ -391,22 +382,14 @@ describe("DefaultCipherSdkService", () => {
       } as unknown as SdkCipherView;
       mockCiphersSdk.edit.mockResolvedValue(mockSdkResponse);
 
-      // Mock FIDO2 decryption
-      const mockDecryptedFido2 = [{ credentialId: "decrypted-cred-id" }];
-      mockCiphersSdk.decrypt_fido2_credentials.mockReturnValue(mockDecryptedFido2);
-      mockCiphersSdk.decrypt_fido2_private_key.mockReturnValue("decrypted-key-value");
-
       const mockFido2View = new Fido2CredentialView();
-      mockFido2View.credentialId = "decrypted-cred-id";
+      mockFido2View.credentialId = "encrypted-cred-id";
       jest.spyOn(Fido2CredentialView, "fromSdkFido2CredentialView").mockReturnValue(mockFido2View);
 
       const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
 
-      expect(mockCiphersSdk.decrypt_fido2_credentials).toHaveBeenCalledWith(mockSdkResponse);
-      expect(mockCiphersSdk.decrypt_fido2_private_key).toHaveBeenCalledWith(mockSdkResponse);
       expect(result?.login?.fido2Credentials).toHaveLength(1);
-      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("decrypted-cred-id");
-      expect(result?.login?.fido2Credentials?.[0].keyValue).toBe("decrypted-key-value");
+      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("encrypted-cred-id");
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -976,7 +959,6 @@ describe("DefaultCipherSdkService", () => {
       fileName: "2.encryptedFileName" as unknown as EncString,
       fileSize: 65,
       lastKnownRevisionDate: "2024-05-31T11:20:58.456Z",
-      asAdmin: false,
     };
     const created = {
       attachmentId: "newatt9999999999999999999999999",
@@ -992,6 +974,18 @@ describe("DefaultCipherSdkService", () => {
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.attachments).toHaveBeenCalled();
       expect(mockAttachmentsSdk.create_attachment).toHaveBeenCalledWith(testCipherId, request);
+      expect(mockAttachmentsSdk.admin).not.toHaveBeenCalled();
+      expect(result).toBe(created);
+    });
+
+    it("delegates to SDK attachments.admin().create_attachment when asAdmin is true", async () => {
+      mockAttachmentsAdminSdk.create_attachment.mockResolvedValue(created);
+
+      const result = await cipherSdkService.createAttachment(testCipherId, request, userId, true);
+
+      expect(mockAttachmentsSdk.admin).toHaveBeenCalled();
+      expect(mockAttachmentsAdminSdk.create_attachment).toHaveBeenCalledWith(testCipherId, request);
+      expect(mockAttachmentsSdk.create_attachment).not.toHaveBeenCalled();
       expect(result).toBe(created);
     });
 
@@ -1263,9 +1257,25 @@ describe("DefaultCipherSdkService", () => {
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
       expect(mockVaultSdk.ciphers).toHaveBeenCalled();
-      expect(mockCiphersSdk.update_collection).toHaveBeenCalledWith(cipherId, collectionIds, false);
+      expect(mockCiphersSdk.update_collection).toHaveBeenCalledWith(cipherId, collectionIds);
       expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should return undefined when the SDK reports a MissingField error", async () => {
+      const error = new Error("Missing field `cipher`") as Error & { variant: string };
+      error.name = "EditCipherError";
+      error.variant = "MissingField";
+      mockCiphersSdk.update_collection.mockRejectedValue(error);
+
+      const result = await cipherSdkService.saveCollectionsWithServer(
+        cipherId,
+        [collectionId1],
+        userId,
+      );
+
+      expect(result).toBeUndefined();
+      expect(logService.error).not.toHaveBeenCalled();
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -1350,6 +1360,79 @@ describe("DefaultCipherSdkService", () => {
       await expect(cipherSdkService.getManyFromApiForOrganization(orgId, userId)).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list assigned organization ciphers"),
+      );
+    });
+  });
+
+  describe("getOrganizationLoginCiphers()", () => {
+    const mockFailedCipher: any = {
+      id: cipherId,
+      name: "2.encryptedName|iv|data",
+      type: CipherType.Login,
+      organizationId: orgId,
+      folderId: null,
+      favorite: false,
+      edit: true,
+      viewPassword: true,
+      organizationUseTotp: false,
+      revisionDate: new Date().toISOString(),
+      creationDate: new Date().toISOString(),
+      collectionIds: [],
+      deletedDate: null,
+      reprompt: 0,
+      key: null,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      notes: null,
+      login: null,
+      secureNote: null,
+      card: null,
+      identity: null,
+      sshKey: null,
+      permissions: null,
+    };
+
+    it("should list and decrypt organization login ciphers using SDK admin API", async () => {
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockSdkCipherView.name = "Org Login";
+      mockAdminSdk.list_org_login_ciphers.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
+      });
+
+      const result = await cipherSdkService.getOrganizationLoginCiphers(orgId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.list_org_login_ciphers).toHaveBeenCalledWith(orgId);
+      expect(result.successes).toHaveLength(1);
+      expect(result.successes[0]).toBeInstanceOf(CipherView);
+      expect(result.successes[0].name).toBe("Org Login");
+      expect(result.failures).toHaveLength(0);
+    });
+
+    it("should return failures with decryptionFailure flag set", async () => {
+      mockAdminSdk.list_org_login_ciphers.mockResolvedValue({
+        successes: [],
+        failures: [mockFailedCipher],
+      });
+
+      const result = await cipherSdkService.getOrganizationLoginCiphers(orgId, userId);
+
+      expect(result.successes).toHaveLength(0);
+      expect(result.failures).toHaveLength(1);
+      expect(result.failures[0].id).toBe(cipherId);
+      expect(result.failures[0].decryptionFailure).toBe(true);
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.list_org_login_ciphers.mockRejectedValue(new Error("SDK error"));
+
+      await expect(cipherSdkService.getOrganizationLoginCiphers(orgId, userId)).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to list organization login ciphers"),
       );
     });
   });

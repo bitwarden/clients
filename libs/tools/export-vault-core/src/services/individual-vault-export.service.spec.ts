@@ -3,12 +3,6 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -33,13 +27,17 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KeyService,
+  EncryptedString,
+  EncryptService,
+  EncString,
   KdfType,
-} from "@bitwarden/key-management";
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -252,6 +250,27 @@ describe("VaultExportService", () => {
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 1), exportedData.data);
+  });
+
+  it("exports the sealed data of blob ciphers in encrypted json", async () => {
+    const sealedData = '{"format_version":1,"wrapped_cek":"2.a|b|c","envelope":"g1hH"}';
+    const blobCipher = generateCipherDomain(false);
+    blobCipher.name = undefined;
+    blobCipher.login = undefined;
+    blobCipher.data = sealedData;
+    blobCipher.key = new EncString("CIPHER_KEY");
+    cipherService.getAll.mockResolvedValue([blobCipher]);
+
+    const actual = (await exportService.getExport(
+      userId,
+      "encrypted_json",
+    )) as ExportedVaultAsString;
+
+    const [item] = JSON.parse(actual.data).items;
+    expect(item.data).toBe(sealedData);
+    expect(item.name).toBeUndefined();
+    expect(item.login).toBeUndefined();
+    expect(item.key).toBe("CIPHER_KEY");
   });
 
   it("does not unencrypted export trashed user items", async () => {

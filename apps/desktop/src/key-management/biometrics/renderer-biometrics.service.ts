@@ -7,9 +7,10 @@ import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CryptoClient,
   ipcRegisterBiometricsHandlers,
@@ -18,7 +19,7 @@ import {
   BiometricsUnlock,
   BiometricsStatus as SdkBiometricsStatus,
 } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
@@ -51,7 +52,11 @@ class BiometricsUnlockDriver implements BiometricsUnlock {
     }
 
     if (SET_USERKEY_UNLOCK) {
-      await this.unlockService.unlockWithDecryptedUserKey(fromSdkUserId(user_id), key);
+      await this.unlockService.unlockWithDecryptedUserKey(
+        fromSdkUserId(user_id),
+        key,
+        UnlockMethod.Biometrics,
+      );
     }
     return key.toSdk();
   }
@@ -138,15 +143,8 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
     await SdkLoadService.Ready;
-    const keyId = CryptoClient.get_key_id_for_symmetric_key(key.toEncoded());
-    if (keyId != null) {
-      await this.biometricStateService.setBiometricEnrolledKeyId(
-        userId,
-        Utils.fromBufferToB64(keyId),
-      );
-    } else {
-      await this.biometricStateService.setBiometricEnrolledKeyId(userId, null);
-    }
+    const keyId = CryptoClient.get_key_id_for_symmetric_key(key.toEncoded())!;
+    await this.biometricStateService.setBiometricEnrolledKeyId(userId, Utils.fromArrayToHex(keyId));
   }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {

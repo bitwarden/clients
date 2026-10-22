@@ -23,6 +23,10 @@ export class OrganizationUserView {
    * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
    */
   accessSecretsManager: boolean = false;
+  /**
+   * True if this organization user has been granted access to Privileged Controls, false otherwise.
+   */
+  accessPam: boolean = false;
   claimedByOrganization: boolean = false;
 
   collections: CollectionAccessSelectionView[] = [];
@@ -33,10 +37,10 @@ export class OrganizationUserView {
 
   readonly canConfirm: boolean;
   readonly canReinvite: boolean;
+  readonly canSendInvite: boolean;
   readonly canRestore: boolean;
   readonly canRevoke: boolean;
   readonly canRemove: boolean;
-  readonly canManageMember: boolean;
 
   constructor(c: {
     id: Guid;
@@ -63,10 +67,10 @@ export class OrganizationUserView {
 
     this.canConfirm = this.status === OrganizationUserStatusType.Accepted;
     this.canReinvite = this.status === OrganizationUserStatusType.Invited;
+    this.canSendInvite = this.status === OrganizationUserStatusType.Staged;
     this.canRestore = this.status === OrganizationUserStatusType.Revoked;
     this.canRevoke = this.status !== OrganizationUserStatusType.Revoked;
     this.canRemove = !this.claimedByOrganization;
-    this.canManageMember = this.status !== OrganizationUserStatusType.Staged;
   }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {
@@ -88,6 +92,7 @@ export class OrganizationUserView {
     view.usesKeyConnector = response.usesKeyConnector;
     view.hasMasterPassword = response.hasMasterPassword;
     view.accessSecretsManager = response.accessSecretsManager;
+    view.accessPam = response.accessPam;
 
     if (response.collections != undefined) {
       view.collections = response.collections.map((c) => new CollectionAccessSelectionView(c));

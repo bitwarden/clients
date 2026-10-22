@@ -10,11 +10,11 @@ import { ClientType } from "@bitwarden/client-type";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
+  BUTTON_SPINNER_DELAY_MS,
   ButtonModule,
   DialogService,
   FormFieldModule,
@@ -22,6 +22,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UnlockService } from "@bitwarden/unlock";
@@ -467,6 +469,41 @@ describe("MasterPasswordLockComponent", () => {
   });
 
   describe("submit", () => {
+    let requestAnimationFrameSpy: jest.SpyInstance | undefined;
+
+    afterEach(() => {
+      requestAnimationFrameSpy?.mockRestore();
+    });
+
+    it("waits for the button spinner to render before unlocking", async () => {
+      let renderFrame: FrameRequestCallback | undefined;
+      requestAnimationFrameSpy = jest
+        .spyOn(window, "requestAnimationFrame")
+        .mockImplementation((callback) => {
+          renderFrame = callback;
+          return 0;
+        });
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+      keyService.userKey$.mockReturnValue(of(mockUserKey));
+      accountService.activeAccount$ = of(activeAccount);
+      component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
+
+      const submitPromise = component.submit();
+      // Allow the component's spinner delay to elapse; the frame itself is still held back.
+      await new Promise((resolve) => setTimeout(resolve, BUTTON_SPINNER_DELAY_MS * 2));
+
+      expect(renderFrame).toBeDefined();
+      expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+
+      renderFrame!(0);
+      await submitPromise;
+
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+    });
+
     test.each([null, undefined as unknown as string, ""])(
       "won't unlock and show password invalid toast when master password is %s",
       async (value) => {

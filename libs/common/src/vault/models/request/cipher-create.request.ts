@@ -6,8 +6,8 @@ export class CipherCreateRequest {
   cipher: CipherRequest;
   collectionIds: string[];
 
-  constructor({ cipher, encryptedFor }: EncryptionContext) {
-    this.cipher = new CipherRequest({ cipher, encryptedFor });
-    this.collectionIds = cipher.collectionIds;
+  constructor(context: EncryptionContext) {
+    this.cipher = new CipherRequest(context);
+    this.collectionIds = context.cipher.collectionIds;
   }
 }

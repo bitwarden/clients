@@ -3,18 +3,24 @@ import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angula
 import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { BerryComponent } from "../berry";
 import { ChipActionComponent } from "../chips";
+import { HoverRevealContainerDirective, HoverRevealDirective } from "../hover-reveal";
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 import { LayoutComponent } from "../layout";
+import { MenuModule } from "../menu";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
+import { FVW_RING_CLASSES } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";
 
 @Component({
@@ -38,6 +44,10 @@ export default {
         IconButtonModule,
         BerryComponent,
         ChipActionComponent,
+        IconTileComponent,
+        HoverRevealContainerDirective,
+        HoverRevealDirective,
+        MenuModule,
       ],
       providers: [
         {
@@ -108,6 +118,11 @@ export const Default: StoryObj<NavGroupComponent> = {
   }),
 };
 
+export const DefaultVfo1: StoryObj<NavGroupComponent> = {
+  ...Default,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const HideEmptyGroups: StoryObj<NavGroupComponent & { renderChildren: boolean }> = {
   args: {
     hideIfEmpty: true,
@@ -165,6 +180,11 @@ export const Secondary: StoryObj<NavGroupComponent> = {
   }),
 };
 
+export const SecondaryVfo1: StoryObj<NavGroupComponent> = {
+  ...Secondary,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const NestedGroups: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,
@@ -187,6 +207,11 @@ export const NestedGroups: StoryObj<NavGroupComponent> = {
       </bit-side-nav>
     `,
   }),
+};
+
+export const NestedGroupsVfo1: StoryObj<NavGroupComponent> = {
+  ...NestedGroups,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const ForcedActive: StoryObj<NavGroupComponent> = {
@@ -245,6 +270,65 @@ export const WithTrailingElements: StoryObj<NavGroupComponent> = {
           <bit-nav-item text="Child A" route="fa"></bit-nav-item>
           <bit-nav-item text="Child B" route="fb"></bit-nav-item>
           <span slot="end"> 12 </span>
+        </bit-nav-group>
+      </bit-side-nav>
+    `,
+  }),
+};
+
+export const WithHoverReveal: StoryObj<NavGroupComponent> = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="Shared folder" icon="bwi-folder" [open]="true" bitHoverRevealContainer>
+          <button
+            type="button"
+            slot="end"
+            bitHoverReveal
+            bitIconButton="bwi-ellipsis-v"
+            buttonType="side-nav"
+            size="xsmall"
+            label="Options"
+            [bitMenuTriggerFor]="menu"
+          ></button>
+          <bit-nav-item text="Child A" icon="bwi-folder"></bit-nav-item>
+          <bit-nav-item text="Child B" icon="bwi-folder"></bit-nav-item>
+        </bit-nav-group>
+      </bit-side-nav>
+      <bit-menu #menu>
+        <button type="button" bitMenuItem>Rename</button>
+        <button type="button" bitMenuItem>Unpin</button>
+      </bit-menu>
+    `,
+  }),
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
+};
+
+export const WithHoverRevealVfo1: StoryObj<NavGroupComponent> = {
+  ...WithHoverReveal,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+/**
+ * A `bit-icon-tile` projected into a top-level nav group becomes its leading glyph — no `slot`
+ * attribute needed, the tile is matched by its own selector. (Other leading content still uses
+ * `slot="start"`.) This is only available for v2 top-level groups (this story enables the
+ * VFO1Foundation flag) — the collapse toggle owns the leading position for v1 groups and v2
+ * nested groups.
+ */
+export const WithStartSlot: StoryObj<NavGroupComponent> = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-side-nav>
+        <bit-nav-group text="With Icon Tile" [route]="['a']">
+          <bit-icon-tile icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
+          <bit-nav-item text="Child A" route="aa"></bit-nav-item>
+          <bit-nav-item text="Child B" route="ab"></bit-nav-item>
         </bit-nav-group>
       </bit-side-nav>
     `,
@@ -359,5 +443,31 @@ export const InteractionStates: StoryObj<NavGroupComponent> = {
         dark: { theme: "dark" },
       },
     },
+  },
+};
+
+export const InteractionStatesVfo1: StoryObj<NavGroupComponent> = {
+  ...InteractionStates,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  // Unlike v1, the collapse arrow is a decorative icon for v2 top-level groups — the nav-item row
+  // is the interactive surface. Force the states on the row container instead.
+  play: async ({ canvas }) => {
+    const hoverNavGroups = await canvas.findAllByTestId("nav-group-hover");
+    const focusNavGroups = await canvas.findAllByTestId("nav-group-focus");
+
+    // make sure everything is rendered before we try to add test classes
+    await canvas.findAllByTestId("nav-group-collapse-arrow");
+
+    hoverNavGroups.forEach((navGroup) => {
+      const container = navGroup.querySelector('[data-testid="nav-item-container"]');
+      container?.classList.add("tw-test-hover");
+    });
+
+    focusNavGroups.forEach((navGroup) => {
+      const container = navGroup.querySelector('[data-testid="nav-item-container"]');
+      // focus-visible-within is JS-driven (see `fvwStyles`), so there is no CSS variant to force —
+      // apply the shared fvw ring utilities directly to mirror the focused state.
+      container?.classList.add(...FVW_RING_CLASSES.split(" "));
+    });
   },
 };
