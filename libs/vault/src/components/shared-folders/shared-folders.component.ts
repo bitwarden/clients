@@ -41,12 +41,9 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
-  IconButtonModule,
-  IconModule,
   IconTileComponent,
   LayoutFooterService,
   LinkModule,
-  MenuModule,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -64,11 +61,8 @@ import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkEditCollectionAccessDialogRef,
 } from "../../tokens/bulk-edit-collection-access-dialog.token";
-import {
-  COLLECTION_DIALOG,
-  CollectionDialogRef,
-  CollectionDialogTab,
-} from "../../tokens/collection-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 import {
   BULK_BAR_CLEARANCE,
   VAULT_TABLE_MIN_HEIGHT,
@@ -133,8 +127,8 @@ export type SharedFoldersTableFilters = {
  *
  * Every write goes through a dialog the client supplies as a token, so a client that provides none
  * lists its folders read-only and offers no action it can't carry out — see {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. `COLLECTION_DIALOG`
- * gates the single-folder actions as a set: without it the Options column is dropped altogether.
+ * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. The Options column
+ * needs either `COLLECTION_DIALOG` or `BULK_DELETE_DIALOG` — see {@link showOptions}.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  */
@@ -160,13 +154,11 @@ export type SharedFoldersTableFilters = {
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
+    CollectionOptionsMenuComponent,
     FilterMenuModule,
     I18nPipe,
-    IconButtonModule,
-    IconModule,
     IconTileComponent,
     LinkModule,
-    MenuModule,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
@@ -223,7 +215,7 @@ export class SharedFoldersComponent {
 
   protected readonly loading = computed(() => this.loaded() === undefined);
 
-  private readonly organization = computed<Organization | undefined>(() =>
+  protected readonly organization = computed<Organization | undefined>(() =>
     this.loaded()?.organizations.find((organization) => organization.id === this.organizationId()),
   );
 
@@ -267,21 +259,33 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * Whether the Options column is offered at all. Gated on the client having a collection dialog
-   * rather than on what each row allows, so filtering can't make the column come and go and resize
-   * every other column with it.
+   * Whether the Options column is offered at all — true if either dialog is supplied. Gated on
+   * tokens rather than per-row permissions, so filtering can't resize the column.
    */
-  protected readonly showOptions = this.collectionDialog != null;
+  protected readonly showOptions = this.collectionDialog != null || this.bulkDeleteDialog != null;
 
   /**
    * Whether the toolbar offers its Add button, on the organization's own collection creation
    * permission — so this page and the organization vault's Add agree on who may add a folder.
    * `false` while the organization list loads, and for a `:vaultId` that resolves to nothing:
-   * either way the dialog would have no organization to save to.
+   * either way the dialog would have no organization to save to. Gated on `collectionDialog`
+   * specifically, not `showOptions`: creating a folder always needs the collection dialog.
    */
   protected readonly canAdd = computed(
-    () => this.showOptions && (this.organization()?.canCreateNewCollections ?? false),
+    () => this.collectionDialog != null && (this.organization()?.canCreateNewCollections ?? false),
   );
+
+  /**
+   * Whether a row's menu shows anything. The template needs this itself, not just the menu
+   * component: an always-present but internally-empty host element defeats the cell's CSS collapse
+   * (`empty:tw-hidden` in `bit-cell.component.html`).
+   */
+  protected showRowMenu(row: SharedFolderRow): boolean {
+    return (
+      (this.collectionDialog != null && row.canEdit) ||
+      (this.bulkDeleteDialog != null && row.canDelete)
+    );
+  }
 
   /**
    * Whether the bulk actions bar offers Edit access. Left out entirely when the member can edit
@@ -412,34 +416,6 @@ export class SharedFoldersComponent {
     }
 
     await this.collectionDialog?.open({ organizationId });
-  }
-
-  protected async editSharedFolder(row: SharedFolderRow): Promise<void> {
-    await this.openSharedFolder(row, CollectionDialogTab.Info);
-  }
-
-  protected async editSharedFolderAccess(row: SharedFolderRow): Promise<void> {
-    await this.openSharedFolder(row, CollectionDialogTab.Access);
-  }
-
-  private async openSharedFolder(
-    row: SharedFolderRow,
-    initialTab: CollectionDialogTab,
-  ): Promise<void> {
-    await this.collectionDialog?.open({
-      organizationId: row.organizationId,
-      collectionId: row.id,
-      initialTab,
-    });
-  }
-
-  /**
-   * Deletes one folder through the shared bulk delete dialog, which owns the whole sequence —
-   * confirmation, requests, resync, and toast. It clears the deleted folder from
-   * `CollectionService`, so the table's stream re-emits without it.
-   */
-  protected async deleteSharedFolder(row: SharedFolderRow): Promise<void> {
-    await this.deleteSharedFolders([row.collection]);
   }
 
   /**
