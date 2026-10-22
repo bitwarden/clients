@@ -507,6 +507,15 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       }
     }
 
+    if (
+      this.isNullOrWhitespace(cipher.login.username) &&
+      fieldName === "Email" &&
+      typeof field.value.email?.email_address === "string"
+    ) {
+      cipher.login.username = field.value.email.email_address;
+      return true;
+    }
+
     if (typeof fieldValue !== "string") {
       return false;
     }

@@ -36,8 +36,8 @@ export const FastmailAliasSectionData: ExportData = {
                     title: "Login",
                     fields: [
                       {
-                        title: "username",
-                        id: "username",
+                        title: "Email",
+                        id: "email",
                         value: {
                           email: {
                             email_address: "alias@fastmail.com",

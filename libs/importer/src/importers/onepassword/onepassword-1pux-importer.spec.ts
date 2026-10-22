@@ -935,7 +935,78 @@ describe("1Password 1Pux Importer", () => {
     );
   });
 
-  it("should ignore an unrepresentable structured login field value", async () => {
+  it("should not override an existing username with a Fastmail Email alias", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "fastmail-username-precedence-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Fastmail Login" },
+                  details: {
+                    loginFields: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                    sections: [
+                      {
+                        title: "Login",
+                        fields: [
+                          {
+                            title: "username",
+                            id: "username",
+                            value: { string: "real-user" },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "default",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                          {
+                            title: "Email",
+                            id: "email",
+                            value: {
+                              email: { email_address: "alias@fastmail.com", provider: null },
+                            },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "emailAddress",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                    ] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers[0].login.username).toEqual("real-user");
+    expect(result.ciphers[0].fields).toContainEqual(
+      expect.objectContaining({ name: "Email", value: "alias@fastmail.com" }),
+    );
+  });
+
+  it("should ignore null and unrepresentable structured login field values", async () => {
     const data = {
       accounts: [
         {
@@ -955,6 +1026,12 @@ describe("1Password 1Pux Importer", () => {
                         value: { unknownShape: { nested: true } },
                         name: "username",
                         fieldType: "T",
+                      },
+                      {
+                        designation: "password",
+                        value: null as string | null,
+                        name: "password",
+                        fieldType: "P",
                       },
                     ],
                     passwordHistory: [] as unknown[],
@@ -993,6 +1070,12 @@ describe("1Password 1Pux Importer", () => {
     expect(result.success).toBe(true);
     expect(result.errors.length).toBe(0);
     expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ name: "username" }),
+    );
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ name: "password" }),
+    );
     expect(result.ciphers[0].fields).not.toContainEqual(
       expect.objectContaining({ value: "[object Object]" }),
     );
