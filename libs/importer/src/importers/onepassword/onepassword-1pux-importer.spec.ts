@@ -1070,6 +1070,7 @@ describe("1Password 1Pux Importer", () => {
     expect(result.success).toBe(true);
     expect(result.errors.length).toBe(0);
     expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].type).not.toEqual(CipherType.Login);
     expect(result.ciphers[0].fields).not.toContainEqual(
       expect.objectContaining({ name: "username" }),
     );

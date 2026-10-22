@@ -310,15 +310,16 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       const valueKey = Object.keys(field.value)[0];
       const anyField = field as any;
 
-      if (anyField.value == null || anyField.value[valueKey] === "") {
+      if (
+        anyField.value == null ||
+        anyField.value[valueKey] == null ||
+        anyField.value[valueKey] === ""
+      ) {
         return;
       }
 
       const fieldName = this.getFieldName(field.title, sectionTitle);
       const fieldValue = this.extractValue(field.value, valueKey);
-      if (fieldValue == null) {
-        return;
-      }
 
       if (cipher.type === CipherType.Login) {
         if (this.fillLogin(field, fieldValue, cipher)) {
@@ -485,11 +486,11 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
   private extractValue(value: Value, valueKey: string): string {
     if (valueKey === "date") {
-      return typeof value.date === "number" ? new Date(value.date * 1000).toUTCString() : null;
+      return new Date(value.date * 1000).toUTCString();
     }
 
     if (valueKey === "monthYear") {
-      return typeof value.monthYear === "number" ? value.monthYear.toString() : null;
+      return value.monthYear.toString();
     }
 
     return (value as any)[valueKey];
@@ -497,15 +498,6 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
   private fillLogin(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
     const fieldName = this.getFieldName(field.title);
-
-    if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
-      const username =
-        typeof fieldValue === "string" ? fieldValue : field.value.email?.email_address;
-      if (typeof username === "string") {
-        cipher.login.username = username;
-        return true;
-      }
-    }
 
     if (
       this.isNullOrWhitespace(cipher.login.username) &&
@@ -518,6 +510,11 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
     if (typeof fieldValue !== "string") {
       return false;
+    }
+
+    if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
+      cipher.login.username = fieldValue;
+      return true;
     }
 
     if (this.isNullOrWhitespace(cipher.login.password) && fieldName === "password") {
