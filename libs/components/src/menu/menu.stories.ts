@@ -160,7 +160,7 @@ export const ActionMenu: Story = {
           Folder
         </button>
         <button type="button" bitMenuItem>
-          <bit-icon name="bwi-collection" slot="start" />
+          <bit-icon name="bwi-shared-folder" slot="start" />
           Collection
         </button>
       </bit-menu>

@@ -349,7 +349,7 @@ type VaultFilters = {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
             placeholderText="Collections"
             multiple
@@ -472,7 +472,7 @@ class DemoFilterableTableComponent {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
             placeholderText="Collections"
             multiple
@@ -604,7 +604,7 @@ class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
             placeholderText="Shared folders"
             multiple
@@ -694,7 +694,7 @@ class DemoKitchenSinkTableComponent {
   protected readonly folders = FOLDERS;
 
   protected readonly collectionTile: FilterOptionIconTile = {
-    icon: "bwi-collection-shared",
+    icon: "bwi-shared-folder",
     variant: "brand",
   };
 
