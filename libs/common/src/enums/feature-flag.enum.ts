@@ -14,6 +14,7 @@ export enum FeatureFlag {
   CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  GroupsComponentRefactor = "pm-43419-groups-table-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -131,6 +132,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
