@@ -168,6 +168,36 @@ describe("UriOptionComponent", () => {
       expect(component.validate()).toBeNull();
     });
 
+    it("validates URIs on Default when the default strategy is regular expression", () => {
+      component.writeValue({ uri: "a", matchDetection: null });
+      rejectWith("UnsupportedLookaround");
+
+      component.defaultMatchDetection = UriMatchStrategy.RegularExpression;
+      component["uriForm"].controls.uri.setValue("x(?!.*logout)");
+
+      expect(component.validate()).toEqual({ invalidRegex: { message: "uriRegexLookaround" } });
+    });
+
+    it("warns for an unchanged saved pattern on Default when the default is regular expression", () => {
+      rejectWith("UnsupportedLookaround");
+      component.defaultMatchDetection = UriMatchStrategy.RegularExpression;
+
+      component.writeValue({ uri: "x(?!.*logout)", matchDetection: null });
+
+      expect(component.validate()).toBeNull();
+      expect(component["savedRegexWarning"]).toBe("uriRegexSavedLookaround");
+    });
+
+    it("does not validate URIs on Default when the default strategy isn't regular expression", () => {
+      rejectWith("InvalidPattern");
+      component.defaultMatchDetection = UriMatchStrategy.Domain;
+
+      component.writeValue({ uri: "(", matchDetection: null });
+
+      expect(validateRegex).not.toHaveBeenCalled();
+      expect(component.validate()).toBeNull();
+    });
+
     it("skips validation when the SDK fails to load", async () => {
       const onUnhandledError = jest.fn();
       config.onUnhandledError = onUnhandledError;

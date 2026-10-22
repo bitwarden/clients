@@ -106,6 +106,7 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
 
   private regexMatcher?: SdkUriRegexMatcher;
   private savedValue?: { uri: string; matchDetection: UriMatchStrategySetting | null };
+  private resolvedDefaultMatchDetection: UriMatchStrategySetting | null = null;
 
   /** Why an already-saved pattern won't match; shown as a warning so the item stays saveable. */
   protected savedRegexWarning: string | null = null;
@@ -158,6 +159,10 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true })
   set defaultMatchDetection(value: UriMatchStrategySetting) {
+    // URIs left on "Default" are evaluated with this strategy at autofill time.
+    this.resolvedDefaultMatchDetection = value;
+    this.revalidateUri();
+
     // The default selection has a value of `null` avoid showing "Default (Default)"
     if (value === null) {
       return;
@@ -346,7 +351,7 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
 
   /** Rejects new or edited regular expressions the SDK won't evaluate, so they can't be saved. */
   private validateRegex(pattern: string | null): ValidationErrors | null {
-    const strategy = this.uriForm?.controls.matchDetection.value;
+    const strategy = this.effectiveStrategy(this.uriForm?.controls.matchDetection.value);
     this.savedRegexWarning = null;
     if (strategy !== UriMatchStrategy.RegularExpression || !pattern || !this.regexMatcher) {
       return null;
@@ -370,9 +375,17 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
 
   private isUnchangedSavedRegex(pattern: string): boolean {
     return (
-      this.savedValue?.matchDetection === UriMatchStrategy.RegularExpression &&
+      this.savedValue != null &&
+      this.effectiveStrategy(this.savedValue.matchDetection) ===
+        UriMatchStrategy.RegularExpression &&
       this.savedValue.uri === pattern
     );
+  }
+
+  private effectiveStrategy(
+    strategy: UriMatchStrategySetting | null | undefined,
+  ): UriMatchStrategySetting | null {
+    return strategy ?? this.resolvedDefaultMatchDetection;
   }
 
   private revalidateUri() {
