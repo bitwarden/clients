@@ -347,6 +347,10 @@ import {
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
+import {
+  FillAssistEventReceiver,
+  NoopFillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
@@ -601,6 +605,7 @@ export default class MainBackground {
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
   private runtimeBackground: RuntimeBackground;
+  private fillAssistEventReceiver: FillAssistEventReceiver;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
 
@@ -1597,6 +1602,11 @@ export default class MainBackground {
       logoutService,
     );
 
+    // TODO: Update or remove this temporary note during fill assist M6. This receiver
+    // is an M3.5 placeholder. M6 will replace this with the real consumer. The emitter,
+    // message shape, and receiver interface stay stable across the swap.
+    this.fillAssistEventReceiver = new NoopFillAssistEventReceiver(this.logService);
+
     this.runtimeBackground = new RuntimeBackground(
       this,
       this.autofillService,
@@ -1615,6 +1625,7 @@ export default class MainBackground {
       this.defaultPasswordManagerPromptStateAccessor,
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
+      this.fillAssistEventReceiver,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.encryptService,
