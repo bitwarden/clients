@@ -189,9 +189,10 @@ export class AccessRequestDetailDialogComponent {
         // the user ends up blocked for the same reason: no approval came through.
         return { variant: "danger", label: "Expired", icon: "bwi-lock" };
       case "revoked":
-        // Approver cut a live lease short — distinct from a natural session end so
-        // the history reads correctly.
-        return { variant: "subtle", label: "Revoked", icon: "bwi-lock" };
+        // Danger variant: an approver-interrupted lease is a disruptive outcome
+        // for the requester, so it reads at the same weight as Denied / Expired
+        // rather than blending into the subtle "Session ended" track.
+        return { variant: "danger", label: "Revoked", icon: "bwi-lock" };
       case "sessionEnded":
         // Lease ran out naturally OR the requester ended their own session; both
         // read as a neutral end-of-lease.

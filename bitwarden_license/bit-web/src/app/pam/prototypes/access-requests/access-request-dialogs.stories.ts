@@ -15,11 +15,16 @@ import { enabledFlags } from "@bitwarden/storybook";
 import { AccessRequestDetailDialogComponent } from "./access-request-detail-dialog.component";
 import {
   amexEndingSoon,
+  datadogSessionEnded,
   deniedRequest,
   expiredRequest,
+  figmaCanceled,
   githubPending,
+  oktaRevoked,
+  pagerdutyExpired,
   salesforceActive,
   shopifyReadyToUse,
+  stripeDenied,
 } from "./access-request-fixtures";
 import { AccessRequestContext, AccessRequestDetailView } from "./access-request.model";
 
@@ -195,9 +200,9 @@ ${parts.acceptanceCriteria.map((c) => `- ${c}`).join("\n")}
 const COMPONENT_DESCRIPTION = `
 A single dialog shell used for every access-request state across three contexts:
 
-- **Approvals** — approver's point of view, deciding on or managing a request they own.
-- **My requests** — requester's point of view, tracking or acting on their own request.
-- **History** — read-only audit view, available to anyone who can see the record.
+- **Approvals**: approver's point of view, deciding on or managing a request they own.
+- **My requests**: requester's point of view, tracking or acting on their own request.
+- **History**: read-only audit view, available to anyone who can see the record.
 
 Each story below captures the user story, job to be done, and acceptance
 criteria for one state × context so we can confirm the dialog is doing the
@@ -260,7 +265,7 @@ export const ApprovalsPending: Story = {
       description: {
         story: userStory({
           userStory:
-            "As an approver, I want to review a pending request with full context — who is asking, what they want, why, and for how long — so that I can confidently approve or deny.",
+            "As an approver, I want to review a pending request with full context (who is asking, what they want, why, and for how long) so that I can confidently approve or deny.",
           jobToBeDone: "Decide whether to grant a teammate access to a specific vault item.",
           acceptanceCriteria: [
             "Requester identity, requested item, justification, and requested access window are all visible without scrolling past them.",
@@ -295,7 +300,7 @@ export const ApprovalsApproved: Story = {
           acceptanceCriteria: [
             "Decision summary (who approved, when, for how long) is visible.",
             "Withdraw approval action is available as the primary footer action.",
-            "No approve/deny controls — the decision has already been made.",
+            "No approve/deny controls. The decision has already been made.",
           ],
         }),
       },
@@ -320,7 +325,7 @@ export const ApprovalsDenied: Story = {
         story: userStory({
           userStory:
             "As an approver, I want a read-only view of a denial I made so that I can reference it later for compliance or follow-up without any risk of changing the decision.",
-          jobToBeDone: "Recall what I denied and why — treat the record as closed.",
+          jobToBeDone: "Recall what I denied and why. Treat the record as closed.",
           acceptanceCriteria: [
             "No actions available in the footer (Close only).",
             "Denial reason is visible if one was captured.",
@@ -506,7 +511,7 @@ export const MyRequestsApproved: Story = {
           acceptanceCriteria: [
             "Start session is the primary action.",
             "Approved time window and who approved are visible.",
-            "No countdown has started yet — the clock begins at activation.",
+            "No countdown has started yet. The clock begins at activation.",
           ],
         }),
       },
@@ -675,26 +680,26 @@ export const MyRequestsEndingSoon: Story = {
  * History (read-only, no actions)
  * ============================================================ */
 
-export const HistoryApproved: Story = {
+export const HistorySessionEnded: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
   parameters: {
     docs: {
       description: {
         story: userStory({
           userStory:
-            "As anyone reviewing history, I want a read-only view of a past approval so that I can audit what happened without any risk of changing the record.",
-          jobToBeDone: "Reference a historical approval during an audit or follow-up.",
+            "As anyone reviewing history, I want a read-only view of a completed session so that I can audit what happened without any risk of changing the record.",
+          jobToBeDone: "Reference a lease that ran to completion during an audit or follow-up.",
           acceptanceCriteria: [
             "No action buttons in the footer (Close only).",
             "Full decision context (requester, approver, item, window, outcome) is visible.",
-            "Status badge reflects the terminal state of the request.",
+            'Status badge reads "Session ended" using the subtle variant.',
           ],
         }),
       },
     },
   },
   render: () => ({
-    props: { request: approvedRequest, context: "history" },
+    props: { request: datadogSessionEnded, context: "history" },
     template: /* HTML */ `
       <pam-access-request-detail-dialog
         [request]="request"
@@ -723,7 +728,95 @@ export const HistoryDenied: Story = {
     },
   },
   render: () => ({
-    props: { request: deniedRequest, context: "history" },
+    props: { request: stripeDenied, context: "history" },
+    template: /* HTML */ `
+      <pam-access-request-detail-dialog
+        [request]="request"
+        [context]="context"
+      ></pam-access-request-detail-dialog>
+    `,
+  }),
+};
+
+export const HistoryRevoked: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    docs: {
+      description: {
+        story: userStory({
+          userStory:
+            "As anyone reviewing history, I want to see when an approver cut a live session short so that I can tell an interrupted lease apart from one that ended on its own.",
+          jobToBeDone: "Audit a lease that was ended early by the approver mid-session.",
+          acceptanceCriteria: [
+            "No action buttons in the footer (Close only).",
+            "Decision cluster shows who approved and includes the withdraw reason.",
+            'Status badge reads "Revoked" using the danger variant so an approver-interrupted lease reads at the same weight as Denied or Expired.',
+          ],
+        }),
+      },
+    },
+  },
+  render: () => ({
+    props: { request: oktaRevoked, context: "history" },
+    template: /* HTML */ `
+      <pam-access-request-detail-dialog
+        [request]="request"
+        [context]="context"
+      ></pam-access-request-detail-dialog>
+    `,
+  }),
+};
+
+export const HistoryCanceled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    docs: {
+      description: {
+        story: userStory({
+          userStory:
+            "As anyone reviewing history, I want to see when the requester pulled their own request so that I can tell self-canceled asks apart from denials.",
+          jobToBeDone: "Audit a request the requester withdrew before any decision was recorded.",
+          acceptanceCriteria: [
+            "No action buttons in the footer (Close only).",
+            "No decision cluster is rendered. No approve or deny ever happened.",
+            'Status badge reads "Canceled" using the subtle variant.',
+          ],
+        }),
+      },
+    },
+  },
+  render: () => ({
+    props: { request: figmaCanceled, context: "history" },
+    template: /* HTML */ `
+      <pam-access-request-detail-dialog
+        [request]="request"
+        [context]="context"
+      ></pam-access-request-detail-dialog>
+    `,
+  }),
+};
+
+export const HistoryExpired: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    docs: {
+      description: {
+        story: userStory({
+          userStory:
+            "As anyone reviewing history, I want a read-only view of a request that expired without a decision so that I can see when approvers didn't act in time.",
+          jobToBeDone:
+            "Audit a request that timed out of its approval window with no lease ever issued.",
+          acceptanceCriteria: [
+            "No action buttons in the footer (Close only).",
+            "No decision cluster is rendered. No decision was recorded before the window closed.",
+            'Status badge reads "Expired" using the danger variant.',
+          ],
+        }),
+      },
+    },
+  },
+  render: () => ({
+    props: { request: pagerdutyExpired, context: "history" },
     template: /* HTML */ `
       <pam-access-request-detail-dialog
         [request]="request"
@@ -751,7 +844,7 @@ export const WithdrawApprovalConfirm: Story = {
             "As an approver, I want to provide a reason when I withdraw an approval so that the requester understands why the decision changed and I'm forced to be deliberate about a destructive action.",
           jobToBeDone: "Confirm a withdrawal with a short note that the requester will see.",
           acceptanceCriteria: [
-            "Reason field is required — Withdraw approval stays disabled until a reason is entered.",
+            "Reason field is required. Withdraw approval stays disabled until a reason is entered.",
             'Primary action is labeled "Withdraw approval" and uses the destructive style.',
             "Back arrow in the header returns to the detail view without discarding the typed reason.",
             "Cancel is available as a secondary action.",
