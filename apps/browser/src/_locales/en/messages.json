@@ -5987,7 +5987,7 @@
     "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection uses a backreference, which isn't supported."
   },
   "uriRegexSavedLookaround": {
-    "message": "Only negative lookarounds are allowed, such as ^https://(?!admin\\.). This regular expression won't be used for autofill until it's updated.",
+    "message": "Only negative lookaheads are allowed, such as ^https://(?!admin\\.). This regular expression won't be used for autofill until it's updated.",
     "description": "Warning shown when an already-saved website URI using the 'regular expression' match detection uses a lookaround other than a negative lookahead right after a fixed start."
   },
   "startsWithAdvancedOptionWarning": {
