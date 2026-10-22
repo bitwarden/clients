@@ -23,12 +23,8 @@ export function withoutAppTokens(userAgent: string): string {
   return userAgent.replace(/\s(?:Bitwarden[\w-]*|Electron)\/\S+/g, "");
 }
 
-function parseUrl(address: unknown): URL | undefined {
-  try {
-    return new URL(String(address));
-  } catch {
-    return undefined;
-  }
+function parseUrl(address: unknown): URL | null {
+  return URL.parse(String(address));
 }
 
 /** Filters out links that are not https, like `file:` or `mailto:`. */
