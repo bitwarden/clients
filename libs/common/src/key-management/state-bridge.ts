@@ -86,8 +86,8 @@ async function deleteAtomic<T>(
 
 export class JsWasmStateBridge implements WasmStateBridge {
   constructor(
-    private stateProvider: StateProvider,
-    private userId: UserId,
+    protected stateProvider: StateProvider,
+    protected userId: UserId,
   ) {}
 
   async set_v2_upgrade_token(value: V2UpgradeToken): Promise<void> {
