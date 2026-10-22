@@ -15,6 +15,7 @@ import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
 
 import { CipherViewLikeUtils } from "./cipher-view-like-utils";
+import { NO_REGEX_MATCHES } from "./uri-regex-matcher";
 
 describe("CipherViewLikeUtils", () => {
   const createCipherView = (type: CipherType = CipherType.Login): CipherView => {
@@ -583,9 +584,14 @@ describe("CipherViewLikeUtils", () => {
     it("returns false when the cipher is not a login", () => {
       const cipherView = createCipherView(CipherType.SecureNote);
 
-      expect(CipherViewLikeUtils.matchesUri(cipherView, "https://example.com", emptySet)).toBe(
-        false,
-      );
+      expect(
+        CipherViewLikeUtils.matchesUri(
+          cipherView,
+          "https://example.com",
+          emptySet,
+          NO_REGEX_MATCHES,
+        ),
+      ).toBe(false);
     });
 
     describe("CipherView", () => {
@@ -596,9 +602,14 @@ describe("CipherViewLikeUtils", () => {
         uri.uri = "https://example.com";
         cipherView.login.uris = [uri];
 
-        expect(CipherViewLikeUtils.matchesUri(cipherView, "https://example.com", emptySet)).toBe(
-          true,
-        );
+        expect(
+          CipherViewLikeUtils.matchesUri(
+            cipherView,
+            "https://example.com",
+            emptySet,
+            NO_REGEX_MATCHES,
+          ),
+        ).toBe(true);
       });
 
       it("returns false when the URI does not match", () => {
@@ -609,7 +620,12 @@ describe("CipherViewLikeUtils", () => {
         cipherView.login.uris = [uri];
 
         expect(
-          CipherViewLikeUtils.matchesUri(cipherView, "https://www.another.com", emptySet),
+          CipherViewLikeUtils.matchesUri(
+            cipherView,
+            "https://www.another.com",
+            emptySet,
+            NO_REGEX_MATCHES,
+          ),
         ).toBe(false);
       });
     });
@@ -621,7 +637,12 @@ describe("CipherViewLikeUtils", () => {
         } as CipherListView;
 
         expect(
-          CipherViewLikeUtils.matchesUri(cipherListView, "https://example.com", emptySet),
+          CipherViewLikeUtils.matchesUri(
+            cipherListView,
+            "https://example.com",
+            emptySet,
+            NO_REGEX_MATCHES,
+          ),
         ).toBe(true);
       });
 
@@ -631,9 +652,90 @@ describe("CipherViewLikeUtils", () => {
         } as CipherListView;
 
         expect(
-          CipherViewLikeUtils.matchesUri(cipherListView, "https://another.com", emptySet),
+          CipherViewLikeUtils.matchesUri(
+            cipherListView,
+            "https://another.com",
+            emptySet,
+            NO_REGEX_MATCHES,
+          ),
         ).toBe(false);
       });
+    });
+  });
+
+  describe("matchesUri with regular expressions", () => {
+    const emptySet = new Set<string>();
+    const regexMatcher = { matches: jest.fn<boolean, [string, string]>() };
+
+    beforeEach(() => {
+      regexMatcher.matches.mockReset().mockReturnValue(true);
+    });
+
+    it("passes CipherView regex URIs to the regex matcher", () => {
+      const cipherView = createCipherView(CipherType.Login);
+      cipherView.login = new LoginView();
+      const uri = new LoginUriView();
+      uri.uri = "^https://example\\.com/";
+      uri.match = UriMatchStrategy.RegularExpression;
+      cipherView.login.uris = [uri];
+
+      expect(
+        CipherViewLikeUtils.matchesUri(cipherView, "https://example.com/", emptySet, regexMatcher),
+      ).toBe(true);
+      expect(regexMatcher.matches).toHaveBeenCalledWith(
+        "^https://example\\.com/",
+        "https://example.com/",
+      );
+    });
+
+    it("passes CipherListView URIs to the regex matcher when regex is the default", () => {
+      const cipherListView = {
+        type: { login: { uris: [{ uri: "^https://example\\.com/" }] } },
+      } as CipherListView;
+
+      expect(
+        CipherViewLikeUtils.matchesUri(
+          cipherListView,
+          "https://example.com/",
+          emptySet,
+          regexMatcher,
+          UriMatchStrategy.RegularExpression,
+        ),
+      ).toBe(true);
+      expect(regexMatcher.matches).toHaveBeenCalledWith(
+        "^https://example\\.com/",
+        "https://example.com/",
+      );
+    });
+  });
+
+  describe("getRegexUriPatterns", () => {
+    it("returns only regex URIs, applying the default match strategy", () => {
+      const cipherListView = {
+        type: {
+          login: {
+            uris: [
+              { uri: "^a", match: UriMatchStrategy.RegularExpression },
+              { uri: "https://example.com", match: UriMatchStrategy.Domain },
+              { uri: "^b" },
+              { uri: undefined, match: UriMatchStrategy.RegularExpression },
+            ] as LoginListUriView[],
+          },
+        },
+      } as CipherListView;
+
+      expect(CipherViewLikeUtils.getRegexUriPatterns(cipherListView)).toEqual(["^a"]);
+      expect(
+        CipherViewLikeUtils.getRegexUriPatterns(cipherListView, UriMatchStrategy.RegularExpression),
+      ).toEqual(["^a", "^b"]);
+    });
+
+    it("returns nothing for non-login ciphers", () => {
+      const cipherView = createCipherView(CipherType.SecureNote);
+
+      expect(
+        CipherViewLikeUtils.getRegexUriPatterns(cipherView, UriMatchStrategy.RegularExpression),
+      ).toEqual([]);
     });
   });
 

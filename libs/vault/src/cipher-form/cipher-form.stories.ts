@@ -9,7 +9,7 @@ import {
   moduleMetadata,
   StoryObj,
 } from "@storybook/angular";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, NEVER, of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -28,6 +28,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
@@ -290,6 +291,10 @@ export default {
           useValue: {
             archiveWithServer: () => Promise.resolve(),
           },
+        },
+        {
+          provide: SdkService,
+          useValue: { client$: NEVER },
         },
       ],
     }),

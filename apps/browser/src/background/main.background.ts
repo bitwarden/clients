@@ -1215,6 +1215,7 @@ export default class MainBackground {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
+      this.sdkService,
     );
     this.folderService = new FolderService(
       this.keyService,
