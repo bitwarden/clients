@@ -39,6 +39,7 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  deleteFailureMessageKey,
 } from "@bitwarden/vault";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
@@ -406,6 +407,10 @@ export class VaultCipherActionsService {
       return true;
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(deleteFailureMessageKey(c)),
+      });
       return false;
     }
   }

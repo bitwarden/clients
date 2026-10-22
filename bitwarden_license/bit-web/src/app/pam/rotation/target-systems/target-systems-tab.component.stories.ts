@@ -1,0 +1,148 @@
+import { importProvidersFrom } from "@angular/core";
+import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+  StoryObj,
+} from "@storybook/angular";
+import { of } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { featureFlagModes } from "@bitwarden/storybook";
+import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
+
+import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
+import { AccessConnector, TargetSystemView } from "../rotation";
+import {
+  ORGANIZATION_ID,
+  pendingTargetSystem,
+  sysId,
+  targetSystem,
+  targetSystemSealedFields,
+  unverifiableTargetSystem,
+} from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
+
+import { TargetSystemsTabComponent } from "./target-systems-tab.component";
+import { TargetSystemsService } from "./target-systems.service";
+
+/** Every method, kind, status and seal state the chips and columns can offer. */
+const SYSTEMS: TargetSystemView[] = [
+  targetSystem({
+    id: sysId("1"),
+    name: "Prod Entra",
+    sealed: targetSystemSealedFields({ kind: "entra" }),
+  }),
+  targetSystem({
+    id: sysId("3"),
+    name: "Billing rotation script",
+    sealed: targetSystemSealedFields({ kind: "custom_script" }),
+  }),
+  targetSystem({
+    id: sysId("4"),
+    name: "Retired Entra sandbox",
+    sealed: targetSystemSealedFields({ kind: "entra" }),
+    status: "disabled",
+  }),
+  targetSystem({
+    id: sysId("5"),
+    name: "Legacy mainframe",
+    method: "manual",
+    sealed: undefined,
+  }),
+  pendingTargetSystem({ id: sysId("6"), name: "Staging Entra (setup incomplete)" }),
+  unverifiableTargetSystem({ id: sysId("7"), name: "Finance SQL (integrity check failed)" }),
+];
+
+function rotationServices(systems: TargetSystemView[]) {
+  return moduleMetadata({
+    imports: [RouterOutlet],
+    providers: [
+      {
+        provide: TargetSystemsService,
+        useValue: {
+          loading$: of(false),
+          loadError$: of(null),
+          systems$: of(systems),
+          systemById$: of(new Map(systems.map((s) => [s.id, s] as const))),
+          automaticSystems$: of(systems.filter((s) => s.status === "active")),
+          load: () => Promise.resolve(),
+          setEnabled: () => Promise.resolve(),
+          delete: () => Promise.resolve(),
+        },
+      },
+      {
+        provide: AccessConnectorsService,
+        useValue: {
+          accessConnectors$: of([] as AccessConnector[]),
+          loading$: of(false),
+          loadError$: of(null),
+          load: () => Promise.resolve(),
+          forgetTargetSystem: () => {},
+          assign: () => Promise.resolve(),
+        },
+      },
+    ],
+  });
+}
+
+/** Mirrors `rotation.routes.ts`, minus its guards, since the component declares no selector. */
+const routes: Routes = [
+  {
+    path: "organizations/:organizationId/pam/rotation",
+    children: [{ path: "target-systems", component: TargetSystemsTabComponent }],
+  },
+];
+
+export default {
+  title: "Web/PAM/Rotation/Target Systems Tab",
+  component: TargetSystemsTabComponent,
+  render: () => ({ template: `<router-outlet></router-outlet>` }),
+  decorators: [
+    componentWrapperDecorator((story) => `<div class="tw-p-6">${story}</div>`),
+    atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems`),
+    applicationConfig({
+      providers: [
+        importProvidersFrom(PreloadedEnglishI18nModule),
+        {
+          provide: PlatformUtilsService,
+          useValue: { copyToClipboard: (): void => undefined },
+        },
+        provideRouter(routes, withHashLocation()),
+        { provide: ToastService, useValue: { showToast: () => {} } },
+        { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
+      ],
+    }),
+  ],
+} as Meta<TargetSystemsTabComponent>;
+
+type Story = StoryObj<TargetSystemsTabComponent>;
+
+/** The full toolbar, with search and the Method, Type and Status chips, each with options. */
+export const Default: Story = {
+  decorators: [rotationServices(SYSTEMS)],
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+  },
+};
+
+/** {@link Default} with the VFO1 flag on, which draws the list with `bit-table-v2`. */
+export const FlagOn: Story = {
+  decorators: [rotationServices(SYSTEMS)],
+  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
+};
+
+/** No row offers "Add managed credential". */
+export const AllDisabled: Story = {
+  decorators: [
+    rotationServices(SYSTEMS.map((system) => targetSystem({ ...system, status: "disabled" }))),
+  ],
+};
+
+export const Empty: Story = {
+  decorators: [rotationServices([])],
+};

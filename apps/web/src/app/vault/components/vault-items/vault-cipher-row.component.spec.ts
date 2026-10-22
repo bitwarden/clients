@@ -1,3 +1,4 @@
+import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -19,12 +20,12 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
 import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
 import {
-  CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
   VaultCopyButtonsService,
@@ -63,6 +64,7 @@ console.error = (...args) => {
 describe("VaultCipherRowComponent", () => {
   let component: VaultCipherRowComponent<CipherViewLike>;
   let fixture: ComponentFixture<VaultCipherRowComponent<CipherViewLike>>;
+  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -117,6 +119,11 @@ describe("VaultCipherRowComponent", () => {
 
     fixture = TestBed.createComponent(VaultCipherRowComponent);
     component = fixture.componentInstance;
+    overlayContainer = TestBed.inject(OverlayContainer);
+  });
+
+  afterEach(() => {
+    overlayContainer?.ngOnDestroy();
   });
 
   afterAll(() => {
@@ -140,6 +147,27 @@ describe("VaultCipherRowComponent", () => {
       component.cipher = cipher;
       component.disabled = false;
     });
+
+    const menuTrigger = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector('button[biticonbutton="bwi-ellipsis-v"]');
+
+    const openMenuAndGetContent = (): string => {
+      fixture.detectChanges();
+
+      const trigger = menuTrigger();
+      expect(trigger).toBeTruthy();
+
+      trigger!.click();
+      fixture.detectChanges();
+
+      return overlayContainer.getContainerElement().innerHTML;
+    };
+
+    const withLaunchableUri = () => {
+      const uri = new LoginUriView();
+      uri.uri = "https://example.com";
+      cipher.login.uris = [uri];
+    };
 
     it("isPartial reflects the cipher's partial flag", () => {
       cipher.partial = true;
@@ -167,6 +195,33 @@ describe("VaultCipherRowComponent", () => {
         'input[type="checkbox"]',
       ) as HTMLInputElement;
       expect(checkbox.disabled).toBe(false);
+    });
+
+    it("offers launch and nothing else on a partial row", () => {
+      cipher.partial = true;
+      cipher.viewPassword = true;
+      withLaunchableUri();
+
+      const overlayContent = openMenuAndGetContent();
+
+      expect(overlayContent).toContain("launch");
+      expect(overlayContent).not.toContain("appcopyfield");
+      expect(overlayContent).not.toContain("bit-menu-divider");
+      expect(overlayContent).not.toContain("favorite");
+    });
+
+    it("withholds the overflow trigger when a partial row has nothing to offer", () => {
+      cipher.partial = true;
+      fixture.detectChanges();
+
+      expect(menuTrigger()).toBeNull();
+    });
+
+    it("keeps the overflow trigger on a normal row with no launchable uri", () => {
+      cipher.partial = false;
+      fixture.detectChanges();
+
+      expect(menuTrigger()).not.toBeNull();
     });
   });
 
@@ -261,7 +316,6 @@ describe("VaultCipherRowComponent", () => {
           MenuModule,
           IconButtonModule,
           JslibModule,
-          CopyCipherFieldDirective,
           OrganizationNameBadgeComponent,
           PremiumBadgeComponent,
           ShareLinkMenuItemDirective,
@@ -299,6 +353,10 @@ describe("VaultCipherRowComponent", () => {
             provide: VaultCopyButtonsService,
             useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
           },
+          {
+            provide: ShareLinkService,
+            useValue: { cipherCanBeShared$: () => of(false) },
+          },
           ...(provideBadge
             ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadgeComponent }]
             : []),
@@ -316,7 +374,8 @@ describe("VaultCipherRowComponent", () => {
       component.cipher = cipher;
       component.organizations = [];
       component.collections = [];
-      // vault-items only shows the column when a badge is provided; mirror that here.
+      // The badge lives in the Controlled access column, which the table shows only when the
+      // seam is provided.
       component.showControlledAccess = provideBadge;
       fixture.detectChanges();
     }

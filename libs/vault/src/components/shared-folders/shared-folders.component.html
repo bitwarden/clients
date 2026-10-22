@@ -39,6 +39,14 @@
         }
       </bit-filter-menu>
     }
+
+    @if (showControlledAccess()) {
+      <bit-filter-toggle
+        key="controlledAccess"
+        [label]="'controlledAccess' | i18n"
+        icon="bwi-lock-encrypted"
+      ></bit-filter-toggle>
+    }
   </bit-table-toolbar>
 
   <bit-status-lockup slot="empty">
@@ -70,22 +78,28 @@
     <bit-cell *bitCellDef="table.columns.name; let row">
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
-      <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
-      <a
-        bitLink
-        truncate
-        [bitTooltip]="row.name"
-        [attr.id]="'shared-folders_link_name-' + row.id"
-        [routerLink]="
-          vaultScopeCommands({
-            type: VaultScopeType.Organization,
-            organizationId: row.organizationId,
-            collectionId: row.id,
-          })
-        "
-      >
-        {{ row.name }}
-      </a>
+      <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
+        <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
+        <a
+          bitLink
+          truncate
+          [bitTooltip]="row.name"
+          [attr.id]="'shared-folders_link_name-' + row.id"
+          [routerLink]="
+            vaultScopeCommands({
+              type: VaultScopeType.Organization,
+              organizationId: row.organizationId,
+              collectionId: row.id,
+            })
+          "
+        >
+          {{ row.name }}
+        </a>
+
+        @if (decoration) {
+          <ng-container *ngComponentOutlet="decoration; inputs: { collection: row.collection }" />
+        }
+      </div>
       @if (row.nestedSharedFolders > 0) {
         <span slot="secondary">
           {{

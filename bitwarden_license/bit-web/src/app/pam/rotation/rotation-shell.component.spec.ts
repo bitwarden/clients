@@ -1,0 +1,412 @@
+import { ChangeDetectionStrategy, Component, NO_ERRORS_SCHEMA } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { ActivatedRoute, provideRouter, Router, Routes } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
+import { mock } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
+
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
+
+import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
+import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
+import { RotationShellComponent } from "./rotation-shell.component";
+import { rotationRoutes } from "./rotation.routes";
+import { TargetSystemsService } from "./target-systems/target-systems.service";
+import { configId } from "./testing/rotation-builders";
+
+// JSDOM has no ResizeObserver; the tab nav bar's overflow list constructs one.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(global as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
+
+function vfo1ConfigService(
+  enabled$: BehaviorSubject<boolean>,
+): ReturnType<typeof mock<ConfigService>> {
+  const configService = mock<ConfigService>();
+  configService.getFeatureFlag$.mockReturnValue(enabled$);
+  return configService;
+}
+
+/** The ids the three per-tab create buttons carry, wherever they are rendered. */
+const CREATE_BUTTON_ID = {
+  "access-connectors": "rotation-shell_button_new-access-connector",
+  "target-systems": "rotation-shell_button_new-target-system",
+  "managed-credentials": "rotation-shell_button_new-managed-credential",
+} as const;
+
+describe("RotationShellComponent", () => {
+  let fixture: ComponentFixture<RotationShellComponent>;
+  let awaitingManualCount$: BehaviorSubject<number>;
+  let configs$: BehaviorSubject<unknown[]>;
+  let loadMock: jest.Mock;
+  let accessConnectors$: BehaviorSubject<unknown[]>;
+  let accessConnectorsService: {
+    accessConnectors$: BehaviorSubject<unknown[]>;
+    registerCompleted: jest.Mock;
+  };
+  let targetSystemsService: { systems$: BehaviorSubject<unknown[]> };
+  let dialogService: ReturnType<typeof mock<DialogService>>;
+  let toastService: ReturnType<typeof mock<ToastService>>;
+  let vfo1$: BehaviorSubject<boolean>;
+
+  const ORG_ID = "org-abc-123";
+
+  beforeEach(async () => {
+    vfo1$ = new BehaviorSubject(false);
+    awaitingManualCount$ = new BehaviorSubject<number>(0);
+    configs$ = new BehaviorSubject<unknown[]>([]);
+    loadMock = jest.fn().mockResolvedValue(undefined);
+    accessConnectors$ = new BehaviorSubject<unknown[]>([]);
+    accessConnectorsService = {
+      accessConnectors$,
+      registerCompleted: jest.fn().mockResolvedValue(undefined),
+    };
+    targetSystemsService = { systems$: new BehaviorSubject<unknown[]>([]) };
+    dialogService = mock<DialogService>();
+    toastService = mock<ToastService>();
+
+    const i18nService = { t: (key: string) => key };
+
+    await TestBed.configureTestingModule({
+      imports: [RotationShellComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: new BehaviorSubject({ organizationId: ORG_ID }),
+            snapshot: { params: { organizationId: ORG_ID } },
+          },
+        },
+        {
+          provide: RotationConfigsService,
+          useValue: { awaitingManualCount$, configs$, load: loadMock },
+        },
+        { provide: AccessConnectorsService, useValue: accessConnectorsService },
+        { provide: TargetSystemsService, useValue: targetSystemsService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: ToastService, useValue: toastService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1$) },
+      ],
+    })
+      .overrideComponent(RotationShellComponent, {
+        remove: { imports: [HeaderModule] },
+        add: { schemas: [NO_ERRORS_SCHEMA] },
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(RotationShellComponent);
+  });
+
+  const init = async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  it("renders the three tab links ordered by the setup each one requires", async () => {
+    await init();
+    const labels = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll("bit-tab-link"),
+    ).map((el) => el.textContent?.trim());
+    expect(labels).toEqual([
+      "pamRotationTabAccessConnectors",
+      "pamRotationTabTargetSystems",
+      "pamRotationTabManagedCredentials",
+    ]);
+  });
+
+  it("renders the page description in the header's subtitle slot", async () => {
+    await init();
+    const subtitle = (fixture.nativeElement as HTMLElement).querySelector('[slot="subtitle"]');
+    expect(subtitle?.textContent?.trim()).toBe("pamRotationSubtitle");
+  });
+
+  it("calls load on RotationConfigsService with the organization id on init", async () => {
+    await init();
+    expect(loadMock).toHaveBeenCalledWith(ORG_ID);
+  });
+
+  it("passes the awaiting-manual count to the Managed credentials tab berry", async () => {
+    awaitingManualCount$.next(3);
+    await init();
+    const count = (
+      fixture.componentInstance as unknown as { awaitingManualCount: () => number }
+    ).awaitingManualCount();
+    expect(count).toBe(3);
+  });
+
+  it("exposes hasConfigs from the configs stream", async () => {
+    await init();
+    const shell = fixture.componentInstance as unknown as { hasConfigs: () => boolean };
+    expect(shell.hasConfigs()).toBe(false);
+
+    configs$.next([{ id: configId("config-1") }]);
+    fixture.detectChanges();
+
+    expect(shell.hasConfigs()).toBe(true);
+  });
+
+  it("exposes hasAccessConnectors from the accessConnectors stream", async () => {
+    await init();
+    const shell = fixture.componentInstance as unknown as { hasAccessConnectors: () => boolean };
+    expect(shell.hasAccessConnectors()).toBe(false);
+
+    accessConnectors$.next([{ id: "access-connector-1" }]);
+    fixture.detectChanges();
+
+    expect(shell.hasAccessConnectors()).toBe(true);
+  });
+
+  it("navigates to the managed-credential create page on createManagedCredential", async () => {
+    await init();
+    const router = TestBed.inject(Router);
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    await (
+      fixture.componentInstance as unknown as { createManagedCredential: () => Promise<boolean> }
+    ).createManagedCredential();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["managed-credentials", "new"],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  it("navigates to the target-system create page on createTargetSystem", async () => {
+    await init();
+    const router = TestBed.inject(Router);
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    await (
+      fixture.componentInstance as unknown as { createTargetSystem: () => Promise<boolean> }
+    ).createTargetSystem();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["target-systems", "new"],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  it("refreshes accessConnectors and toasts after a successful registration", async () => {
+    await init();
+    dialogService.open.mockReturnValue({ closed: of(true) } as never);
+
+    await (
+      fixture.componentInstance as unknown as { registerAccessConnector: () => Promise<void> }
+    ).registerAccessConnector();
+
+    expect(accessConnectorsService.registerCompleted).toHaveBeenCalledWith(ORG_ID);
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success" }),
+    );
+  });
+
+  it("does not refresh accessConnectors when registration is canceled", async () => {
+    await init();
+    dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
+
+    await (
+      fixture.componentInstance as unknown as { registerAccessConnector: () => Promise<void> }
+    ).registerAccessConnector();
+
+    expect(accessConnectorsService.registerCompleted).not.toHaveBeenCalled();
+    expect(toastService.showToast).not.toHaveBeenCalled();
+  });
+});
+
+describe("RotationShellComponent (real router)", () => {
+  @Component({
+    template: "",
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class StubComponent {}
+
+  const stubEveryComponentButTheShell = (config: Routes): Routes =>
+    config.map((route) => ({
+      ...route,
+      providers: undefined,
+      canDeactivate: undefined,
+      ...(route.component && route.component !== RotationShellComponent
+        ? { component: StubComponent }
+        : {}),
+      ...(route.children ? { children: stubEveryComponentButTheShell(route.children) } : {}),
+    }));
+
+  const routes: Routes = [
+    { path: "rotation", children: stubEveryComponentButTheShell(rotationRoutes) },
+  ];
+
+  let harness: RouterTestingHarness;
+  let router: Router;
+  let vfo1$: BehaviorSubject<boolean>;
+  let configs$: BehaviorSubject<unknown[]>;
+  let accessConnectors$: BehaviorSubject<unknown[]>;
+  let systems$: BehaviorSubject<unknown[]>;
+
+  beforeEach(async () => {
+    vfo1$ = new BehaviorSubject(false);
+    configs$ = new BehaviorSubject<unknown[]>([{ id: configId("config-1") }]);
+    accessConnectors$ = new BehaviorSubject<unknown[]>([{ id: "access-connector-1" }]);
+    systems$ = new BehaviorSubject<unknown[]>([{ id: "target-system-1" }]);
+
+    await TestBed.configureTestingModule({
+      imports: [RotationShellComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter(routes),
+        {
+          provide: RotationConfigsService,
+          useValue: {
+            awaitingManualCount$: new BehaviorSubject(0),
+            configs$,
+            load: jest.fn(),
+          },
+        },
+        {
+          provide: AccessConnectorsService,
+          useValue: {
+            accessConnectors$,
+            registerCompleted: jest.fn(),
+          },
+        },
+        {
+          provide: TargetSystemsService,
+          useValue: { systems$ },
+        },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: vfo1ConfigService(vfo1$) },
+      ],
+    })
+      .overrideComponent(RotationShellComponent, {
+        remove: { imports: [HeaderModule] },
+        add: { schemas: [NO_ERRORS_SCHEMA] },
+      })
+      .compileComponents();
+
+    router = TestBed.inject(Router);
+    harness = await RouterTestingHarness.create();
+  });
+
+  const renderHeader = async (
+    tab: keyof typeof CREATE_BUTTON_ID,
+    vfo1: boolean,
+  ): Promise<HTMLElement> => {
+    vfo1$.next(vfo1);
+    await harness.navigateByUrl(`/rotation/${tab}`, RotationShellComponent);
+    harness.detectChanges();
+    return harness.fixture.nativeElement.querySelector("app-header") as HTMLElement;
+  };
+
+  it("lands on the access connectors tab from the shell's bare path", async () => {
+    await harness.navigateByUrl("/rotation", RotationShellComponent);
+    expect(router.url).toBe("/rotation/access-connectors");
+  });
+
+  it("reports the active tab from the child route", async () => {
+    const shell = (await harness.navigateByUrl(
+      "/rotation/access-connectors",
+      RotationShellComponent,
+    )) as unknown as { activeTab: () => string | null };
+    expect(shell.activeTab()).toBe("access-connectors");
+  });
+
+  it.each(["access-connectors", "target-systems", "managed-credentials"])(
+    "keeps the page description on the %s tab",
+    async (tab) => {
+      await harness.navigateByUrl(`/rotation/${tab}`, RotationShellComponent);
+      harness.detectChanges();
+
+      const subtitle = harness.routeNativeElement?.querySelector('[slot="subtitle"]');
+      expect(subtitle?.textContent?.trim()).toBe("pamRotationSubtitle");
+    },
+  );
+
+  it("navigates from the shell to the sibling create page", async () => {
+    const shell = (await harness.navigateByUrl(
+      "/rotation/target-systems",
+      RotationShellComponent,
+    )) as unknown as { createTargetSystem: () => Promise<boolean> };
+
+    await shell.createTargetSystem();
+
+    expect(router.url).toBe("/rotation/target-systems/new");
+  });
+
+  it("navigates from the shell to the sibling managed-credential create page", async () => {
+    const shell = (await harness.navigateByUrl(
+      "/rotation/managed-credentials",
+      RotationShellComponent,
+    )) as unknown as { createManagedCredential: () => Promise<boolean> };
+
+    await shell.createManagedCredential();
+
+    expect(router.url).toBe("/rotation/managed-credentials/new");
+  });
+
+  describe("create action placement", () => {
+    const LABEL = {
+      "access-connectors": "pamAccessConnectorNew",
+      "target-systems": "pamTargetSystemNew",
+      "managed-credentials": "pamRotationConfigNew",
+    } as const;
+
+    const tabs = Object.keys(CREATE_BUTTON_ID) as (keyof typeof CREATE_BUTTON_ID)[];
+
+    it.each(tabs)("keeps the %s create button in the header with the flag off", async (tab) => {
+      const header = await renderHeader(tab, false);
+
+      const button = header.querySelector<HTMLButtonElement>(`#${CREATE_BUTTON_ID[tab]}`);
+      expect(button).not.toBeNull();
+      expect(button!.textContent?.trim()).toBe(LABEL[tab]);
+    });
+
+    it.each(tabs)(
+      "renders no %s create button anywhere in the shell with the flag on",
+      async (tab) => {
+        await renderHeader(tab, true);
+
+        expect(harness.fixture.nativeElement.querySelector(`#${CREATE_BUTTON_ID[tab]}`)).toBeNull();
+      },
+    );
+
+    it.each(tabs)("keeps the %s tab nav bar in the header with the flag on", async (tab) => {
+      const header = await renderHeader(tab, true);
+
+      expect(header.querySelector("bit-tab-nav-bar")).not.toBeNull();
+      expect(header.querySelectorAll("bit-tab-link")).toHaveLength(3);
+    });
+
+    it("hides the header create button on an empty list with the flag off", async () => {
+      configs$.next([]);
+      accessConnectors$.next([]);
+      systems$.next([]);
+
+      for (const tab of tabs) {
+        const header = await renderHeader(tab, false);
+        expect(header.querySelector(`#${CREATE_BUTTON_ID[tab]}`)).toBeNull();
+      }
+    });
+
+    it("hides the header create button on an empty list with the flag on", async () => {
+      configs$.next([]);
+      accessConnectors$.next([]);
+      systems$.next([]);
+
+      for (const tab of tabs) {
+        const header = await renderHeader(tab, true);
+        expect(header.querySelector(`#${CREATE_BUTTON_ID[tab]}`)).toBeNull();
+      }
+    });
+  });
+});

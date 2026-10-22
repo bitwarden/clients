@@ -33,6 +33,17 @@ export type EncryptionContext = {
   encryptedByKeyId?: string;
 };
 
+/**
+ * A write to a restricted cipher was refused, before or by the server.
+ * Server ask: return 403 with an error code for a refused write to a restricted cipher (today a bare 404).
+ */
+export class RestrictedCipherWriteError extends Error {
+  constructor() {
+    super("The change to a restricted item was refused.");
+    this.name = "RestrictedCipherWriteError";
+  }
+}
+
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
   /**
@@ -48,13 +59,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
-   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
-   * and similar flows.
+   * Like {@link cipherListViews$}, but includes restricted ciphers.
+   * Consumers: vault list UIs (web VFO1 `vault-next`, `MyFolders`, `SharedFolders`, the web vault
+   * filter, desktop `vault-v3`). Add a new consumer to this list.
    */
-  abstract cipherListViewsWithPartials$(
+  abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
+  /** Not filtered: includes restricted ciphers, as do {@link get} and {@link getAll}. */
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -99,6 +111,15 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  /**
+   * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers.
+   * Named non-list consumers: the PAM access-name resolver (shows names of restricted ciphers).
+   */
+  abstract getAllDecryptedForIdsIncludingRestricted(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]>;
+  /** Excludes restricted ciphers; a revealed view (`partial` false) can match. */
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -153,10 +174,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
+   * @param originalCipherView The original to edit against when local state has no usable copy:
+   *   an admin edit, or a restricted cipher (the revealed view).
    * @param orgAdmin If true, the request is submitted as an organization admin request
-   * @param isNotClone If true, the cipher is not a clone and should be treated as a new cipher
    *
-   * @returns A promise that resolves to the updated cipher
+   * @returns A promise that resolves to the updated cipher. Restricted when the cipher is.
+   * @throws {RestrictedCipherWriteError} When a change to a restricted cipher is refused.
    */
   abstract updateWithServer(
     cipherView: CipherView,
@@ -245,6 +268,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<void>;
   /**
    * Update the local store of CipherData with the provided data. Values are upserted into the existing store.
+   * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} stays authoritative.
    *
    * @param cipher The cipher data to upsert. Can be a single CipherData object or an array of CipherData objects.
    * @param userId Optional user ID for whom the cipher data is being upserted.

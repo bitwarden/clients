@@ -10,7 +10,7 @@ function gatedResponse(partial: Record<string, unknown>, type: CipherType = Ciph
   return new CipherResponse({
     Id: "cipher-1",
     Type: type,
-    // A gated row carries no sensitive top-level fields, only the PartialData envelope.
+    // A gated row omits the sensitive fields; PartialData carries the reduced envelope.
     PartialData: JSON.stringify(partial),
   });
 }
