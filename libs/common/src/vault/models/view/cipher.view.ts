@@ -76,12 +76,6 @@ export class CipherView implements View, InitializerMetadata {
   partial = false;
 
   /**
-   * Set by the vault-item dialog on a full cipher revealed under an active PAM lease. Client-only;
-   * never sent by the server or persisted.
-   */
-  leaseGated?: boolean;
-
-  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
@@ -250,7 +244,6 @@ export class CipherView implements View, InitializerMetadata {
     view.organizationUseTotp = obj.organizationUseTotp ?? false;
     view.localData = obj.localData ? obj.localData : undefined;
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
-    // `leaseGated` is not copied, since it must not survive serialization.
     view.partial = obj.partial ?? false;
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;

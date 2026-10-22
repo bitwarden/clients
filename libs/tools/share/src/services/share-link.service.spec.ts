@@ -78,13 +78,13 @@ describe("ShareLinkService", () => {
       expect(await firstValueFrom(service.cipherCanBeShared$(cipher()))).toBe(true);
     });
 
-    it("refuses a gated (partial) item, which is read-only", async () => {
+    it("refuses a restricted item, which is read-only", async () => {
       expect(await firstValueFrom(service.cipherCanBeShared$(cipher({ partial: true })))).toBe(
         false,
       );
     });
 
-    it("refuses a gated (partial) item even where the user can edit every organization item", async () => {
+    it("refuses a restricted item even where the user can edit every organization item", async () => {
       organizationService.organizations$.mockReturnValue(
         of([{ id: organizationId, canEditAllCiphers: true } as Organization]),
       );

@@ -111,13 +111,8 @@
             [ariaLabel]="'pinned' | i18n"
           />
         }
-        @if (row.gated) {
-          <bit-icon
-            class="tw-shrink-0"
-            name="bwi-lock-encrypted"
-            [ariaLabel]="'pamSharedFolderPrivilegedControls' | i18n"
-            [bitTooltip]="'pamSharedFolderPrivilegedControls' | i18n"
-          />
+        @if (decoration) {
+          <ng-container *ngComponentOutlet="decoration; inputs: { collection: row.collection }" />
         }
       </span>
       @if (row.nestedSharedFolders > 0) {
