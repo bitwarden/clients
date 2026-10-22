@@ -20,7 +20,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { Observable } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -278,6 +278,14 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       this.allSendTypeOptions().filter((sto) =>
         policyResponseData.allowedSendTypes.includes(sto.value),
       ),
+    );
+  }
+
+  override async whenInitialized(): Promise<void> {
+    // The default Send types depend on the temporary item sharing flag, so the effect above
+    // reloads the form once the flag resolves.
+    await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
     );
   }
 

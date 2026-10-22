@@ -6,15 +6,15 @@ import {
   DestroyRef,
   Directive,
   Inject,
-  Signal,
   ViewContainerRef,
+  computed,
   inject,
   signal,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder } from "@angular/forms";
-import { combineLatest, map, firstValueFrom, switchMap, filter, of, startWith } from "rxjs";
+import { FormBuilder, FormControlStatus } from "@angular/forms";
+import { EMPTY, map, firstValueFrom, merge, switchMap, filter, of, startWith } from "rxjs";
 import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -61,6 +61,17 @@ export type PolicyEditDialogData = {
 export type PolicyEditDialogResult = "saved";
 
 /**
+ * Serializes the policy form's values for comparison. Array order is ignored so that e.g.
+ * reordering multi-select values doesn't count as a change.
+ */
+function serializePolicyForm(component: BasePolicyEditComponent): string {
+  return JSON.stringify(
+    { enabled: component.enabled.value, data: component.data?.getRawValue() ?? null },
+    (_key, value) => (Array.isArray(value) ? [...value].sort() : value),
+  );
+}
+
+/**
  * Abstract base class shared by {@link PolicyEditDrawerComponent} and
  * {@link MultiStepPolicyEditDialogComponent}. Contains all the constructor-injected services,
  * shared signals, and shared logic (load, discard guard) so concrete subclasses only need to
@@ -75,6 +86,11 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly loading = signal(true);
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
   protected readonly policyEnabled = signal(false);
+  /**
+   * Whether the policy form differs from its state when the dialog finished loading.
+   * Stays false until {@link trackPolicyChanges} has recorded the initial state.
+   */
+  protected readonly policyChanged = signal(false);
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
@@ -105,6 +121,26 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
       variant: "success",
       message: this.i18nService.t("editedPolicyId", policyName),
     });
+  }
+
+  /**
+   * Records the policy form's initial state and keeps {@link policyChanged} up to date as it is
+   * edited. Comparing against the initial form state, rather than the stored policy data, means
+   * policies that fill in defaults for unsaved data or transform data before saving don't appear
+   * changed as soon as they load.
+   */
+  protected async trackPolicyChanges(component: BasePolicyEditComponent): Promise<void> {
+    await component.whenInitialized();
+    // Flush any form updates (e.g. from effects) triggered while initializing.
+    this.cdr.detectChanges();
+
+    const initialState = serializePolicyForm(component);
+    merge(component.enabled.valueChanges, component.data?.valueChanges ?? EMPTY)
+      .pipe(
+        map(() => serializePolicyForm(component) !== initialState),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((changed) => this.policyChanged.set(changed));
   }
 
   protected isFormDirty(): boolean {
@@ -196,8 +232,16 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
 
   protected readonly policyType = PolicyType;
   protected readonly enabled = false;
-  private readonly _saveDisabled = signal(true);
-  protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
+  private readonly dataStatus = signal<FormControlStatus>("VALID");
+  private readonly canToggleState = signal(true);
+
+  // Disable the Save button if one of the three is true:
+  // 1. The policy form has not changed since it was loaded
+  // 2. The policy data form is currently invalid
+  // 3. The server says the policy cannot be toggled
+  protected readonly saveDisabled = computed(
+    () => !this.policyChanged() || this.dataStatus() === "INVALID" || !this.canToggleState(),
+  );
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -270,24 +314,6 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     return [legacy, this.policy.warningKeyVfo1 ?? legacy];
   }
 
-  protected policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
-    const oldPolicy = oldPolicyData ?? {};
-    const newPolicy = newPolicyData ?? {};
-    return (
-      Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
-      Object.keys(newPolicy).some((newKey) => {
-        const oldValue = oldPolicy[newKey];
-        const newValue = newPolicy[newKey];
-        if (Array.isArray(oldValue) || Array.isArray(newValue)) {
-          return (
-            JSON.stringify((oldValue || []).sort()) !== JSON.stringify((newValue || []).sort())
-          );
-        }
-        return oldValue !== newValue;
-      })
-    );
-  }
-
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading.set(false);
@@ -305,31 +331,15 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     const component = componentRef.instance;
     this.policyComponent.set(component);
     this.policyEnabled.set(this.data.policy.enabled(policyResponse));
+    this.canToggleState.set(policyResponse.canToggleState);
 
-    combineLatest([
-      component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
-      component.data?.valueChanges.pipe(startWith(policyResponse.data)) ?? of({}),
-      component.data?.statusChanges.pipe(startWith(component.data?.status)) ?? of("VALID"),
-    ])
-      .pipe(
-        map(([enabledFormValue, _dataFormValue, dataFormStatus]) => {
-          // Disable the Save button if one of the three is true:
-          // 1. The policy data and enabled field have not changed from what currently exists
-          // 2. The policy data form is currently invalid
-          // 3. The server says the policy cannot be toggled
-          return (
-            (enabledFormValue === policyResponse.enabled &&
-              !this.policyDataHasChanged(policyResponse.data, component.data?.getRawValue())) ||
-            dataFormStatus === "INVALID" ||
-            !policyResponse.canToggleState
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((disabled) => this._saveDisabled.set(disabled));
+    component.data?.statusChanges
+      .pipe(startWith(component.data.status), takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => this.dataStatus.set(status));
 
     this.cdr.detectChanges();
     this.setupDiscardGuard();
+    await this.trackPolicyChanges(component);
   }
 
   override readonly submit = async () => {
