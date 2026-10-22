@@ -8629,5 +8629,13 @@
   "excludedFromList": {
     "message": "Excluded from list",
     "description": "Section header for items excluded from vault health reports"
+  },
+  "itemRestoredToList": {
+    "message": "Item restored to list",
+    "description": "Toast message shown after an item is successfully restored from exclusion to the vault health report"
+  },
+  "itemRestoreFailed": {
+    "message": "Failed to restore item",
+    "description": "Toast message shown when an attempt fails to restore an excluded item to the vault health report"
   }
 }
