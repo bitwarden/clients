@@ -1,5 +1,11 @@
 @if (entries().length) {
-  <div class="tw-flex tw-items-center tw-gap-2">
+  <div
+    class="tw-flex tw-items-center tw-gap-2"
+    [bitPopoverAnchorFor]="switchVaultsCoachmark.popover()"
+    [popoverOpen]="coachmarkActive()"
+    [position]="coachmark.getStepPosition('switchVaults')"
+    [spotlight]="coachmarkActive()"
+  >
     @let current = selected();
     @if (current) {
       <bit-icon-tile
@@ -22,6 +28,7 @@
       data-testid="vault-switcher"
     ></button>
   </div>
+  <vault-coachmark #switchVaultsCoachmark stepId="switchVaults" />
   <bit-menu #vaultOptions>
     @for (entry of entries(); track entry.id) {
       <button type="button" bitMenuItem (click)="select(entry.id)">
