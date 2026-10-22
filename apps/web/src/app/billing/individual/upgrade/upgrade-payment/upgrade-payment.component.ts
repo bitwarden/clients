@@ -320,6 +320,10 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (this.previewFailed()) {
+      return;
+    }
+
     if (!this.selectedPlan()) {
       throw new Error("No plan selected");
     }

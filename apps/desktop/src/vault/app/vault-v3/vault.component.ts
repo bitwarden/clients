@@ -892,14 +892,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     // Desktop has no prompt service to sequence onboarding, so the page opens this itself.
-    const openedNewExperience = await this.newExperienceDialogService.conditionallyOpen(
+    const newExperienceResult = await this.newExperienceDialogService.conditionallyOpen(
       activeUserId,
       {
         lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
         darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
       },
     );
-    if (openedNewExperience) {
+    if (newExperienceResult !== null) {
       this.sideNavService.open.set(true);
     }
   }

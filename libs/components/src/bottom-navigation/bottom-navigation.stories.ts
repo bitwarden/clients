@@ -6,6 +6,8 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import {
   GeneratorActive,
   GeneratorInactive,
+  HealthActive,
+  HealthInactive,
   SendActive,
   SendInactive,
   SettingsActive,
@@ -63,6 +65,12 @@ const navButtons = (showBerry = false): BottomNavigationButton[] => [
     iconActive: SendActive,
   },
   {
+    label: "health",
+    page: "/tabs/health",
+    icon: HealthInactive,
+    iconActive: HealthActive,
+  },
+  {
     label: "settings",
     page: "/tabs/settings",
     icon: SettingsInactive,
@@ -91,6 +99,7 @@ export default {
               vault: "Vault",
               generator: "Generator",
               send: "Send",
+              health: "Health",
               settings: "Settings",
               labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
             });
@@ -107,6 +116,7 @@ export default {
               { path: "tabs/vault", component: StoryPageComponent },
               { path: "tabs/generator", component: StoryPageComponent },
               { path: "tabs/send", component: StoryPageComponent },
+              { path: "tabs/health", component: StoryPageComponent },
               { path: "tabs/settings", component: StoryPageComponent },
               { path: "**", redirectTo: "tabs/vault" },
             ],

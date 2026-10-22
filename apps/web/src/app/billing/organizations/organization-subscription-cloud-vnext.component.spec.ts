@@ -805,6 +805,46 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
   });
 
+  describe("privileged controls section", () => {
+    it("renders the section when the preview cart carries one", async () => {
+      dataService.getSubscriptionPreview.mockResolvedValue({
+        ...mockSubscriptionPreview,
+        cart: {
+          ...mockSubscriptionPreview.cart,
+          privilegedControls: {
+            seats: { translationKey: "membersLower", quantity: 4, cost: 20 },
+          },
+        },
+      } as SubscriptionPreview);
+
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const section = fixture.nativeElement.querySelector("#privileged-controls");
+      expect(section).not.toBeNull();
+      expect(section.textContent).toContain("privilegedControls");
+      expect(
+        fixture.nativeElement.querySelector("#privileged-controls-members").textContent,
+      ).toContain("4");
+    });
+
+    it("renders no section when the preview cart carries none", async () => {
+      createComponent({
+        organization: buildOrganization({ canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("billing-subscription-card")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("#privileged-controls")).toBeNull();
+    });
+  });
+
   describe("free organization", () => {
     it("shows the free-plan details table instead of the preview card", async () => {
       // A free org has no Stripe subscription, so the preview is never the source of truth.

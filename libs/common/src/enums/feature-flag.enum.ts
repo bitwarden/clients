@@ -29,7 +29,6 @@ export enum FeatureFlag {
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -107,6 +106,7 @@ export enum FeatureFlag {
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
+  PamAccessConnector = "pm-42354-rotation-daemon",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
@@ -133,7 +133,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
-  [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
@@ -217,6 +216,7 @@ export const DefaultFeatureFlagValue = {
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,

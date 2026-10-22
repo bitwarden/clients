@@ -57,11 +57,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  cipherInScope,
-  collectionInScope,
   EmptyVaultComponent,
   hasMultipleVaults,
-  idString,
   matchesFolder,
   matchesSharedFolder,
   matchesType,
@@ -87,18 +84,12 @@ import {
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
+import { collectionOptionsInScope, folderOptionsInScope } from "../../../utils/filter-options";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
-
-/**
- * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
- * option, not per branch. Nested rendering rebuilds nesting from the original tree instead of
- * this flat list — see {@link VaultPopupListTableComponent.toFilterOptionNodes}.
- */
-function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
-  return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
-}
+import { VaultFiltersTourComponent } from "../vault-filters-tour/vault-filters-tour.component";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -131,6 +122,7 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    VaultFiltersTourComponent,
     ScrollCollapseSourceDirective,
     CollapseOnScrollDirective,
     FilterMenuModule,
@@ -161,6 +153,7 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly vaultTourService = inject(VaultPopupTourService);
 
   /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
   protected readonly autofocusSearch = !inject(VaultPopupScrollPositionService).restoresCollapse();
@@ -307,8 +300,21 @@ export class VaultPopupListTableComponent {
    */
   protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
 
-  /** Whether the toolbar's filter dialog is open. */
-  protected readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
+  /** Whether the user left the toolbar's filter dialog open; restored when the popup reopens. */
+  private readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
+
+  /** The filter dialog is up while the user or the tour holds it open. */
+  protected readonly showFilterDialog = computed(
+    () => this.filterDialogOpen() || this.vaultTourService.filterDialogOpen(),
+  );
+
+  /** Closing the dialog releases the tour's hold too, which ends the tour on its step. */
+  protected setFilterDialogOpen(open: boolean) {
+    this.filterDialogOpen.set(open);
+    if (!open) {
+      this.vaultTourService.filterDialogOpen.set(false);
+    }
+  }
 
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],
@@ -334,12 +340,9 @@ export class VaultPopupListTableComponent {
    * Narrowed to the scoped vault's collections — the vault chip is gone, so the filter service
    * hands back every organization's.
    */
-  protected readonly collectionOptions = computed(() => {
-    const scope = this.listTableService.vaultScope();
-    return flattenOptions(this.collectionTree()).filter(
-      (option) => option.value != null && collectionInScope(option.value, scope),
-    );
-  });
+  protected readonly collectionOptions = computed(() =>
+    collectionOptionsInScope(this.collectionTree(), this.listTableService.vaultScope()),
+  );
   /** Every active cipher, before the search narrows it — the folder chip's options come from here. */
   private readonly activeCiphers = toSignal(this.vaultPopupItemsService.activeCiphers$, {
     initialValue: [] as PopupCipherViewLike[],
@@ -349,22 +352,13 @@ export class VaultPopupListTableComponent {
    * Narrowed like {@link collectionOptions}, against the unsearched list: an option that vanished
    * as the user typed could not widen the results again.
    */
-  protected readonly folderOptions = computed(() => {
-    const options = flattenOptions(this.folderTree());
-    const scope = this.listTableService.vaultScope();
-
-    if (scope.type === VaultScopeType.AllItems) {
-      return options;
-    }
-
-    const inScope = this.activeCiphers().filter((cipher) => cipherInScope(cipher, scope));
-    return options.filter((option) => {
-      const id = option.value?.id;
-      return id
-        ? inScope.some((cipher) => idString(cipher.folderId) === id)
-        : inScope.some((cipher) => cipher.folderId == null);
-    });
-  });
+  protected readonly folderOptions = computed(() =>
+    folderOptionsInScope(
+      this.folderTree(),
+      this.activeCiphers(),
+      this.listTableService.vaultScope(),
+    ),
+  );
 
   /**
    * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,

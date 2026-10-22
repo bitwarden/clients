@@ -760,6 +760,7 @@ describe("adaptInvoicePreviewToCart", () => {
       const storageDiscount = { ...lineDiscount, label: "STORAGE" };
       const smSeatDiscount = { ...lineDiscount, label: "SM-SEATS" };
       const serviceAccountDiscount = { ...lineDiscount, label: "SM-SA" };
+      const pcSeatDiscount = { ...lineDiscount, label: "PC-SEATS" };
       const preview = basePreview({
         passwordManager: {
           seats: { reference: "pm-seat", quantity: 5, cost: 50, discounts: [seatDiscount] },
@@ -779,6 +780,9 @@ describe("adaptInvoicePreviewToCart", () => {
             discounts: [serviceAccountDiscount],
           },
         },
+        privilegedControls: {
+          seats: { reference: "pam-seat", quantity: 4, cost: 20, discounts: [pcSeatDiscount] },
+        },
         discounts: [cartLevel],
       });
 
@@ -794,11 +798,13 @@ describe("adaptInvoicePreviewToCart", () => {
         storageDiscount,
         smSeatDiscount,
         serviceAccountDiscount,
+        pcSeatDiscount,
       ]);
       expect(cart.passwordManager.seats.discounts).toBeUndefined();
       expect(cart.passwordManager.additionalStorage.discounts).toBeUndefined();
       expect(cart.secretsManager.seats.discounts).toBeUndefined();
       expect(cart.secretsManager.additionalServiceAccounts.discounts).toBeUndefined();
+      expect(cart.privilegedControls!.seats!.discounts).toBeUndefined();
     });
 
     it("leaves per-line discounts on the line during an organization plan change", () => {
@@ -1045,6 +1051,247 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.passwordManager.seats.translationKey).toBe("familiesMembership");
       expect(cart.passwordManager.seats.translationParams).toBeUndefined();
+    });
+  });
+
+  describe("privileged controls", () => {
+    const pcSeats = { reference: "pam-seat" as const, quantity: 4, cost: 20 };
+
+    it("should leave a password-manager-only cart unchanged when the section is absent", () => {
+      const cart = adaptInvoicePreviewToCart(
+        basePreview(),
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart).toEqual({
+        passwordManager: {
+          seats: { translationKey: "membersLower", quantity: 5, cost: 50 },
+        },
+        cadence: "monthly",
+        estimatedTax: 9.6,
+        total: 259.6,
+        amountDue: 259.6,
+      });
+    });
+
+    it("should render the seat line on the subscription page", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        privilegedControls: { seats: pcSeats },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.privilegedControls).toEqual({
+        seats: { translationKey: "membersLower", quantity: 4, cost: 20 },
+      });
+      expect(cart.hidePricingTerm).toBeUndefined();
+    });
+
+    it("should render a proration-only section as a charge line on the subscription page", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        privilegedControls: {
+          prorations: [
+            { reference: "pam-seat", credit: 3, charge: 12.5, tax: 0, total: 9.5, months: 6 },
+          ],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.privilegedControls!.seats).toBeUndefined();
+      expect(cart.privilegedControls!.prorationCharges).toEqual([
+        {
+          translationKey: "privilegedControlsProratedCharge",
+          quantity: 1,
+          cost: 12.5,
+          hideBreakdown: true,
+        },
+      ]);
+      expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 3 });
+      expect(cart.hidePricingTerm).toBeUndefined();
+    });
+
+    it("should keep the term when privileged controls carries the only recurring line", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        passwordManager: {
+          prorations: [
+            { reference: "pm-seat", credit: 0, charge: 50, tax: 0, total: 50, months: 6 },
+          ],
+        },
+        privilegedControls: { seats: pcSeats },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.hidePricingTerm).toBeUndefined();
+    });
+
+    it("should omit a credit-only section and fold its credit into the credit row", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        privilegedControls: {
+          prorations: [
+            { reference: "pam-seat", credit: 4.25, charge: 0, tax: 0, total: -4.25, months: 6 },
+          ],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.privilegedControls).toBeUndefined();
+      expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 4.25 });
+    });
+
+    it("should sum password manager, secrets manager, and privileged controls credits in integer cents", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
+          prorations: [{ credit: 0.1, charge: 0, tax: 0, total: -0.1, months: 6 }],
+        },
+        secretsManager: {
+          prorations: [{ credit: 0.2, charge: 0, tax: 0, total: -0.2, months: 6 }],
+        },
+        privilegedControls: {
+          prorations: [{ credit: 0.7, charge: 0, tax: 0, total: -0.7, months: 6 }],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 1 });
+    });
+
+    it("should keep a seat discount on the line on the subscription page", () => {
+      const discount = { type: DiscountTypes.AmountOff, value: 8, amount: 8, label: "PAM" };
+      const preview = basePreview({
+        planTier: "enterprise",
+        privilegedControls: { seats: { ...pcSeats, discounts: [discount] } },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      expect(cart.privilegedControls!.seats!.discounts).toEqual([discount]);
+      expect(cart.discounts).toBeUndefined();
+    });
+
+    it("should hide the term and use the plan price label during a plan change with prorations", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        privilegedControls: {
+          seats: pcSeats,
+          prorations: [
+            { reference: "pam-seat", credit: 0, charge: 12.5, tax: 0, total: 12.5, months: 6 },
+          ],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationPlanChange,
+        logService,
+      );
+
+      expect(cart.privilegedControls!.seats!.translationKey).toBe("privilegedControlsPlanPrice");
+      expect(cart.hidePricingTerm).toBe(true);
+    });
+
+    it("should derive a seat line from a charged proration on a seat-line placement", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        privilegedControls: {
+          prorations: [
+            { reference: "pam-seat", credit: 0, charge: 12.5, tax: 0, total: 12.5, months: 6 },
+          ],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.privilegedControls).toEqual({
+        seats: {
+          translationKey: "privilegedControlsPlanPrice",
+          quantity: 1,
+          cost: 12.5,
+          hideBreakdown: true,
+        },
+      });
+    });
+
+    it("should reconcile the rendered lines with the server total", () => {
+      const preview = basePreview({
+        planTier: "enterprise",
+        passwordManager: { seats: { reference: "pm-seat", quantity: 5, cost: 72 } },
+        privilegedControls: {
+          seats: {
+            ...pcSeats,
+            discounts: [{ type: DiscountTypes.AmountOff, value: 8, amount: 8, label: "PAM" }],
+          },
+          prorations: [
+            { reference: "pam-seat", credit: 3, charge: 12.5, tax: 0, total: 9.5, months: 6 },
+          ],
+        },
+        estimatedTax: 10,
+        total: 451.5,
+        amountDue: 451.5,
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+      );
+
+      const cents = (amount: number) => Math.round(amount * 100);
+      const seatLines = [cart.passwordManager.seats, cart.privilegedControls!.seats];
+      const lineTotal = seatLines.reduce(
+        (sum, item) => sum + cents(item!.quantity * item!.cost),
+        0,
+      );
+      const charges = [
+        ...(cart.passwordManager.prorationCharges ?? []),
+        ...(cart.privilegedControls!.prorationCharges ?? []),
+      ].reduce((sum, item) => sum + cents(item.cost), 0);
+      const lineDiscounts = seatLines
+        .flatMap((item) => item!.discounts ?? [])
+        .reduce((sum, discount) => sum + cents(discount.amount!), 0);
+
+      expect(
+        lineTotal + charges - lineDiscounts - cents(cart.credit!.value) + cents(cart.estimatedTax),
+      ).toBe(cents(preview.total));
+      expect(cart.total).toBe(preview.total);
     });
   });
 

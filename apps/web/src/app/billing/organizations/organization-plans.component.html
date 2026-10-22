@@ -490,7 +490,7 @@
         buttonType="primary"
         bitButton
         bitFormButton
-        [disabled]="!formGroup.valid"
+        [disabled]="!formGroup.valid || previewFailed()"
       >
         {{ "submit" | i18n }}
       </button>

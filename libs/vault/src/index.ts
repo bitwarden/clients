@@ -6,6 +6,7 @@ export {
 export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
 export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
+export { PinnedSharedFoldersService } from "./services/pinned-shared-folders.service";
 export {
   CopyCipherFieldService,
   CopyAction,
