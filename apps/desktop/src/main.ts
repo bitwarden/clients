@@ -515,13 +515,15 @@ export class Main {
           this.processDeepLink([url]);
         });
 
-        // Handle window visibility events
-        this.windowMain.win.on("hide", () => {
-          this.messagingService.send("windowHidden");
-        });
-        this.windowMain.win.on("minimize", () => {
-          this.messagingService.send("windowHidden");
-        });
+        // Handle window visibility events (the window may not exist when booting headless).
+        if (this.windowMain.win != null) {
+          this.windowMain.win.on("hide", () => {
+            this.messagingService.send("windowHidden");
+          });
+          this.windowMain.win.on("minimize", () => {
+            this.messagingService.send("windowHidden");
+          });
+        }
 
         // Main owns the session: the SSH agent, never-lock auto-unlock, biometric unlocks, and the
         // shared-unlock peer.

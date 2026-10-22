@@ -83,7 +83,16 @@ export class IpcMainService extends IpcService {
           if (message.destination === "DesktopRenderer") {
             this.logService.info(`[IPC] Forwarding to renderer: ${describeMessage(message)}`);
 
-            this.windowMain.win?.webContents.send("ipc.onMessage", {
+            if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
+              // The renderer was torn down (headless main) and nobody recreated it, so the
+              // message is dropped rather than queued. Log it: the caller sees only a timeout.
+              this.logService.info(
+                `[IPC] No renderer to forward to, dropping: ${describeMessage(message)}`,
+              );
+              return;
+            }
+
+            this.windowMain.win.webContents.send("ipc.onMessage", {
               type: "bitwarden-ipc-message",
               message: {
                 destination: message.destination,
