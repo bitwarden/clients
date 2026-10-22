@@ -13,8 +13,8 @@
           'tw-size-6': !coloredIcon(),
         }"
         [ngStyle]="iconStyle()"
-        (load)="imageLoaded.set(true)"
-        (error)="imageLoaded.set(false)"
+        (load)="onImageLoad()"
+        (error)="onImageError()"
       />
     }
     @if (!data.imageEnabled || !data.image || !imageLoaded()) {
