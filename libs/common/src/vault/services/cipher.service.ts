@@ -77,7 +77,7 @@ import {
 const PERF_TRACK_GROUP = PerfTrackGroup.Unlock;
 const PERF_TRACK = "Vault Items";
 
-// New cipher operations must go through CipherSdkService, not ApiService/EncryptService directly.
+// New cipher operations must go through the SDK (CipherSdkService/CipherEncryptionService), not ApiService/EncryptService.
 // See libs/common/src/vault/CONTRIBUTING.md.
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
