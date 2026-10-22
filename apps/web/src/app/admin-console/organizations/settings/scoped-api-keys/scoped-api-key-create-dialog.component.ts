@@ -43,7 +43,11 @@ export class ScopedApiKeyCreateDialogComponent {
   protected readonly formGroup = this.formBuilder.group({
     name: [
       "",
-      [Validators.required, (control) => this.notBlank(control), Validators.maxLength(200)],
+      [
+        Validators.required,
+        (control: AbstractControl<string | null>) => this.notBlank(control),
+        Validators.maxLength(200),
+      ],
     ],
     scopes: this.formBuilder.group(
       Object.fromEntries(ScopedApiKeyScopes.map((scope) => [scope.controlName, false])),
