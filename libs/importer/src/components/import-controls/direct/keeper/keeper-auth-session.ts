@@ -1,3 +1,5 @@
+import { signal } from "@angular/core";
+
 import {
   Cancel,
   DeviceApprovalChannel,
@@ -26,8 +28,8 @@ type PendingResolver = (value: unknown) => void;
  */
 export class KeeperAuthSession implements Ui {
   private pendingResolver: PendingResolver | undefined;
-  private _userLeft = false;
-  private _errorReported = false;
+  private readonly _userLeft = signal(false);
+  private readonly _errorReported = signal(false);
   private dnaChosen = false;
 
   constructor(
@@ -38,18 +40,14 @@ export class KeeperAuthSession implements Ui {
   ) {}
 
   /** True once the user left mid-login, so the resulting cancellation isn't shown as an error. */
-  get userLeft(): boolean {
-    return this._userLeft;
-  }
+  readonly userLeft = this._userLeft.asReadonly();
 
   /** True once the card has shown this login's failure itself, so it needs no second message. */
-  get errorReported(): boolean {
-    return this._errorReported;
-  }
+  readonly errorReported = this._errorReported.asReadonly();
 
   /** Cancels the login from wherever it is: the open prompt, the SSO tab, or the next prompt. */
   leave(): void {
-    this._userLeft = true;
+    this._userLeft.set(true);
     this.ssoTabMonitor.cancel();
     this.resolvePending(Cancel);
   }
@@ -90,7 +88,7 @@ export class KeeperAuthSession implements Ui {
   async selectApprovalMethod(
     methods: DeviceApprovalChannel[],
   ): Promise<DeviceApprovalChannel | typeof Cancel> {
-    if (this._userLeft || methods.length === 0) {
+    if (this._userLeft() || methods.length === 0) {
       return Cancel;
     }
     if (methods.length === 1) {
@@ -109,7 +107,7 @@ export class KeeperAuthSession implements Ui {
     method: DeviceApprovalChannel,
     options?: ProvideApprovalCodeOptions,
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return Cancel;
     }
     const variant: "email" | "push" | "admin" =
@@ -135,7 +133,7 @@ export class KeeperAuthSession implements Ui {
   async selectTwoFactorMethod(
     methods: TwoFactorMethod[],
   ): Promise<TwoFactorMethod | typeof Cancel> {
-    if (this._userLeft || methods.length === 0) {
+    if (this._userLeft() || methods.length === 0) {
       return Cancel;
     }
     if (methods.length === 1) {
@@ -149,7 +147,7 @@ export class KeeperAuthSession implements Ui {
     method: TwoFactorMethod,
     options?: ProvideTwoFactorCodeOptions,
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return Cancel;
     }
     if (this.dnaChosen && options?.hidden) {
@@ -183,7 +181,7 @@ export class KeeperAuthSession implements Ui {
     methods: DuoMethod[],
     phoneNumber: string,
   ): Promise<DuoMethod | typeof Cancel> {
-    if (this._userLeft || methods.length === 0) {
+    if (this._userLeft() || methods.length === 0) {
       return Cancel;
     }
     if (methods.length === 1) {
@@ -194,7 +192,7 @@ export class KeeperAuthSession implements Ui {
   }
 
   async waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | typeof TryAnother | void> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return Cancel;
     }
     this.show(this, { kind: "duoPush", method });
@@ -209,7 +207,7 @@ export class KeeperAuthSession implements Ui {
   //
 
   async selectDnaMethod(methods: DnaMethod[]): Promise<DnaMethod | typeof Cancel> {
-    if (this._userLeft || methods.length === 0) {
+    if (this._userLeft() || methods.length === 0) {
       return Cancel;
     }
     if (methods.length === 1) {
@@ -220,7 +218,7 @@ export class KeeperAuthSession implements Ui {
   }
 
   async waitForDnaPush(): Promise<typeof Cancel | typeof TryAnother | void> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return Cancel;
     }
     this.show(this, { kind: "dnaPush" });
@@ -235,7 +233,7 @@ export class KeeperAuthSession implements Ui {
   //
 
   async ssoLogin(url: string): Promise<string | typeof Cancel> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return Cancel;
     }
 
@@ -266,7 +264,7 @@ export class KeeperAuthSession implements Ui {
   //
 
   async promptForPassword(options?: PromptForPasswordOptions): Promise<string | typeof Cancel> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return Cancel;
     }
     this.show(this, {
@@ -281,10 +279,10 @@ export class KeeperAuthSession implements Ui {
   //
 
   async showError(message: string): Promise<void> {
-    if (this._userLeft) {
+    if (this._userLeft()) {
       return;
     }
-    this._errorReported = true;
+    this._errorReported.set(true);
     this.reportError(this, message);
   }
 }

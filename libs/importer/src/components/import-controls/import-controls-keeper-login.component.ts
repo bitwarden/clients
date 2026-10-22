@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from "@angular/common";
 import {
   afterRenderEffect,
   ChangeDetectionStrategy,
@@ -27,8 +26,6 @@ import {
   IconButtonModule,
   LinkModule,
   PopoverModule,
-  RadioButtonModule,
-  SpinnerComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -41,6 +38,9 @@ import {
 } from "../../importers/keeper/access";
 
 import { KeeperInlineAuthUi, KeeperInlineScreen } from "./direct/keeper/keeper-inline-auth-ui";
+import { ImportControlsKeeperCodeFieldComponent } from "./import-controls-keeper-code-field.component";
+import { ImportControlsKeeperMethodPickerComponent } from "./import-controls-keeper-method-picker.component";
+import { ImportControlsKeeperWaitingComponent } from "./import-controls-keeper-waiting.component";
 
 function setEnabled(control: FormControl<unknown>, enabled: boolean): void {
   if (enabled && control.disabled) {
@@ -69,13 +69,13 @@ function isCodeStage(stage: KeeperInlineScreen): boolean {
     FormFieldModule,
     I18nPipe,
     IconButtonModule,
+    ImportControlsKeeperCodeFieldComponent,
+    ImportControlsKeeperMethodPickerComponent,
+    ImportControlsKeeperWaitingComponent,
     InputVerbatimDirective,
     LinkModule,
-    NgTemplateOutlet,
     PopoverModule,
-    RadioButtonModule,
     ReactiveFormsModule,
-    SpinnerComponent,
     TypographyModule,
   ],
   // Inert while a request is in flight, so the field can't be edited or resubmitted.

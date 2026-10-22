@@ -58,7 +58,7 @@ describe("KeeperInlineAuthUi", () => {
       const session = ui.begin();
 
       expect(ui.stage()).toEqual({ kind: "loading" });
-      expect(session.userLeft).toBe(false);
+      expect(session.userLeft()).toBe(false);
       expect(ui.session).toBe(session);
     });
 
@@ -76,7 +76,7 @@ describe("KeeperInlineAuthUi", () => {
 
       ui.leave();
 
-      expect(session.userLeft).toBe(true);
+      expect(session.userLeft()).toBe(true);
       expect(ui.stage()).toEqual({ kind: "idle" });
       expect(ui.waiting()).toBe(false);
       expect(ui.loginActive()).toBe(false);
@@ -136,7 +136,7 @@ describe("KeeperInlineAuthUi", () => {
       ui.leave();
 
       await expect(selected).resolves.toBe(Cancel);
-      expect(session.userLeft).toBe(true);
+      expect(session.userLeft()).toBe(true);
     });
   });
 
@@ -149,8 +149,8 @@ describe("KeeperInlineAuthUi", () => {
       const second = ui.begin();
 
       await expect(selected).resolves.toBe(Cancel);
-      expect(first.userLeft).toBe(true);
-      expect(second.userLeft).toBe(false);
+      expect(first.userLeft()).toBe(true);
+      expect(second.userLeft()).toBe(false);
     });
 
     it("a cancelled login's later prompts return Cancel and never reach the card", async () => {
@@ -196,7 +196,7 @@ describe("KeeperInlineAuthUi", () => {
       await expect(first.ssoLogin("https://keepersecurity.com/sso")).resolves.toBe(Cancel);
 
       expect(ssoTabMonitor.launchAndWaitForToken).not.toHaveBeenCalled();
-      expect(second.userLeft).toBe(false);
+      expect(second.userLeft()).toBe(false);
     });
   });
 
@@ -348,7 +348,7 @@ describe("KeeperInlineAuthUi", () => {
         expect.objectContaining({ variant: "error", message: "errorOccurred" }),
       );
       expect(startOver).toHaveBeenCalledTimes(1);
-      expect(session.errorReported).toBe(true);
+      expect(session.errorReported()).toBe(true);
     });
 
     it("words an unsupported second factor for the design and keeps the user where they are", async () => {
@@ -363,14 +363,14 @@ describe("KeeperInlineAuthUi", () => {
         expect.objectContaining({ variant: "error", message: "keeperLoginUnsupportedTwoFactor" }),
       );
       expect(startOver).not.toHaveBeenCalled();
-      expect(session.errorReported).toBe(true);
-      expect(session.userLeft).toBe(false);
+      expect(session.errorReported()).toBe(true);
+      expect(session.userLeft()).toBe(false);
     });
 
     it("has not reported an error until one is shown", () => {
       const ui = create();
 
-      expect(ui.begin().errorReported).toBe(false);
+      expect(ui.begin().errorReported()).toBe(false);
     });
 
     it("ignores an error from a login that was superseded", async () => {

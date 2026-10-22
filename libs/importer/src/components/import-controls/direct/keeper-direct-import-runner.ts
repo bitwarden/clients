@@ -44,12 +44,12 @@ export class KeeperDirectImportRunner {
       );
     } catch (error) {
       // Leaving mid-login cancels it; that isn't a login failure to show on the email field.
-      if (session.userLeft) {
+      if (session.userLeft()) {
         return { kind: "cancelled" };
       }
       this.logService.error(`Keeper importer error: ${error}`);
       // The card already showed this failure as a toast.
-      if (session.errorReported) {
+      if (session.errorReported()) {
         return { kind: "cancelled" };
       }
       email.setErrors({
@@ -60,7 +60,7 @@ export class KeeperDirectImportRunner {
     }
 
     // The login can still finish after the user left, if no further prompt was needed.
-    if (session.userLeft) {
+    if (session.userLeft()) {
       return { kind: "cancelled" };
     }
     session.beginImport();

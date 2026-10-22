@@ -1,148 +1,72 @@
 <ng-container [formGroup]="form">
-  <ng-template #waiting let-title="title" let-body="body">
-    <div
-      class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-pt-4 tw-text-center"
-      role="status"
-      tabindex="-1"
-    >
-      <bit-spinner size="base" />
-      <div>
-        @if (title) {
-          <p bitTypography="body1" class="tw-mb-3 tw-font-semibold" noMargin>{{ title | i18n }}</p>
-        }
-        @if (body) {
-          <p bitTypography="body1" noMargin class="tw-mb-0">{{ body | i18n }}</p>
-        }
-      </div>
-    </div>
-  </ng-template>
-
-  <ng-template #codeField let-canResend="canResend">
-    <bit-form-field class="tw-max-w-sm">
-      <bit-label>{{ "verificationCode" | i18n }}</bit-label>
-      <input
-        bitInput
-        type="text"
-        formControlName="keeperCode"
-        appInputVerbatim
-        id="importer-controls_input_keeper-code"
-      />
-      @if (canResend) {
-        <!-- The field swaps its hint for an error while the code is invalid, so the link returns
-             as soon as the user types. -->
-        <bit-hint>
-          <button
-            type="button"
-            bitLink
-            linkType="primary"
-            class="tw-text-xs"
-            (mousedown)="$event.preventDefault()"
-            (click)="resend()"
-            id="importer-controls_button_keeper-resend-code"
-          >
-            {{ "resendCode" | i18n }}
-          </button>
-        </bit-hint>
-      }
-    </bit-form-field>
-  </ng-template>
-
   @let current = stage();
   @switch (current.kind) {
     @case ("selectApproval") {
-      <bit-radio-group formControlName="keeperApprovalMethod" [block]="true">
-        <bit-label>{{ "keeperLoginApprovalMethod" | i18n }}</bit-label>
-        @for (method of current.methods; track method) {
-          <bit-radio-button
-            class="tw-block"
-            [value]="method"
-            [id]="'importer-controls_radio_keeper-approval-' + method"
-          >
-            <bit-label>{{ approvalLabel(method) | i18n }}</bit-label>
-          </bit-radio-button>
-        }
-      </bit-radio-group>
+      <importer-controls-keeper-method-picker
+        controlName="keeperApprovalMethod"
+        labelKey="keeperLoginApprovalMethod"
+        idPrefix="importer-controls_radio_keeper-approval-"
+        [methods]="current.methods"
+        [labelFn]="approvalLabel"
+      />
     }
     @case ("approvalCode") {
       @if (current.variant === "email") {
-        <ng-container *ngTemplateOutlet="codeField; context: { canResend: true }" />
+        <importer-controls-keeper-code-field [canResend]="true" (resend)="resend()" />
       } @else if (current.variant === "admin") {
-        <ng-container
-          *ngTemplateOutlet="
-            waiting;
-            context: { title: 'adminApprovalRequested', body: 'keeperLoginAdminRequestedDesc' }
-          "
+        <importer-controls-keeper-waiting
+          titleKey="adminApprovalRequested"
+          bodyKey="keeperLoginAdminRequestedDesc"
         />
       } @else {
-        <ng-container
-          *ngTemplateOutlet="
-            waiting;
-            context: { title: 'keeperPushSent', body: 'keeperLoginPushSentDesc' }
-          "
+        <importer-controls-keeper-waiting
+          titleKey="keeperPushSent"
+          bodyKey="keeperLoginPushSentDesc"
         />
       }
     }
     @case ("selectTwoFactor") {
-      <bit-radio-group formControlName="keeperTwoFactorMethod" [block]="true">
-        <bit-label>{{ "selectTwoFactorMethod" | i18n }}</bit-label>
-        @for (method of current.methods; track method) {
-          <bit-radio-button
-            class="tw-block"
-            [value]="method"
-            [id]="'importer-controls_radio_keeper-two-factor-' + method"
-          >
-            <bit-label>{{ twoFactorLabel(method) | i18n }}</bit-label>
-          </bit-radio-button>
-        }
-      </bit-radio-group>
+      <importer-controls-keeper-method-picker
+        controlName="keeperTwoFactorMethod"
+        labelKey="selectTwoFactorMethod"
+        idPrefix="importer-controls_radio_keeper-two-factor-"
+        [methods]="current.methods"
+        [labelFn]="twoFactorLabel"
+      />
     }
     @case ("twoFactorCode") {
       @if (current.needsInput) {
-        <ng-container *ngTemplateOutlet="codeField; context: { canResend: current.canResend }" />
+        <importer-controls-keeper-code-field [canResend]="current.canResend" (resend)="resend()" />
       } @else {
         <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
       }
     }
     @case ("selectDuo") {
       <p bitTypography="body1" class="tw-mb-2">{{ current.phoneNumber }}</p>
-      <bit-radio-group formControlName="keeperDuoMethod" [block]="true">
-        <bit-label>{{ "duoVerification" | i18n }}</bit-label>
-        @for (method of current.methods; track method) {
-          <bit-radio-button
-            class="tw-block"
-            [value]="method"
-            [id]="'importer-controls_radio_keeper-duo-' + method"
-          >
-            <bit-label>{{ duoLabel(method) | i18n }}</bit-label>
-          </bit-radio-button>
-        }
-      </bit-radio-group>
-    }
-    @case ("duoPush") {
-      <ng-container
-        *ngTemplateOutlet="waiting; context: { title: 'duoVerification', body: 'duoPushWaiting' }"
+      <importer-controls-keeper-method-picker
+        controlName="keeperDuoMethod"
+        labelKey="duoVerification"
+        idPrefix="importer-controls_radio_keeper-duo-"
+        [methods]="current.methods"
+        [labelFn]="duoLabel"
       />
     }
+    @case ("duoPush") {
+      <importer-controls-keeper-waiting titleKey="duoVerification" bodyKey="duoPushWaiting" />
+    }
     @case ("selectDna") {
-      <bit-radio-group formControlName="keeperDnaMethod" [block]="true">
-        <bit-label>{{ "keeperDnaVerification" | i18n }}</bit-label>
-        @for (method of current.methods; track method) {
-          <bit-radio-button
-            class="tw-block"
-            [value]="method"
-            [id]="'importer-controls_radio_keeper-dna-' + method"
-          >
-            <bit-label>{{ dnaLabel(method) | i18n }}</bit-label>
-          </bit-radio-button>
-        }
-      </bit-radio-group>
+      <importer-controls-keeper-method-picker
+        controlName="keeperDnaMethod"
+        labelKey="keeperDnaVerification"
+        idPrefix="importer-controls_radio_keeper-dna-"
+        [methods]="current.methods"
+        [labelFn]="dnaLabel"
+      />
     }
     @case ("dnaPush") {
-      <ng-container
-        *ngTemplateOutlet="
-          waiting;
-          context: { title: 'keeperLoginDnaSent', body: 'keeperLoginDnaSentDesc' }
-        "
+      <importer-controls-keeper-waiting
+        titleKey="keeperLoginDnaSent"
+        bodyKey="keeperLoginDnaSentDesc"
       />
     }
     @case ("ssoToken") {
