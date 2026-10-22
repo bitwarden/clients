@@ -81,11 +81,9 @@ import {
 } from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
-  SharedUnlockPeerService,
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import {
   VaultTimeoutSettingsService,
@@ -162,7 +160,7 @@ import {
   SHARE_PASSWORD_REPROMPT,
   ShareButtonComponent,
 } from "@bitwarden/tools-share";
-import { LockService, UnlockService } from "@bitwarden/unlock";
+import { UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
@@ -468,22 +466,6 @@ const safeProviders: SafeProvider[] = [
     provide: SharedUnlockSettingsService,
     useClass: DefaultSharedUnlockSettingsService,
     deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: SharedUnlockPeerService,
-    useClass: DefaultSharedUnlockPeerService,
-    deps: [
-      IpcService,
-      AccountService,
-      LockService,
-      PlatformUtilsServiceAbstraction,
-      VaultTimeoutSettingsService,
-      EnvironmentService,
-      SharedUnlockSettingsService,
-      UnlockService,
-      ConfigService,
-      StateProvider,
-    ],
   }),
   // Main owns the session; the renderer forwards every unlock over IPC and re-seeds its SDK.
   safeProvider({
