@@ -1,0 +1,60 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-form-field class="tw-w-2/3">
+    <bit-label>{{ "subscriptionSeats" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="privileged-controls-adjust_input_seat-count"
+      formControlName="seatCount"
+      type="number"
+      step="1"
+      [min]="seatFloor()"
+    />
+    <bit-hint>
+      <div>{{ "minimumSeatsCount" | i18n: options().seatMinimum }}</div>
+      <div>
+        <strong>{{ "total" | i18n }}:</strong>
+        {{ formValue().seatCount ?? 0 }} &times; {{ options().seatPrice | currency: "$" }} =
+        {{ seatTotalCost() | currency: "$" }} / {{ options().interval | i18n }}
+      </div>
+    </bit-hint>
+  </bit-form-field>
+  <bit-form-control>
+    <bit-label>{{ "limitSubscription" | i18n }}</bit-label>
+    <input
+      type="checkbox"
+      bitCheckbox
+      id="privileged-controls-adjust_checkbox_limit-seats"
+      formControlName="limitSeats"
+    />
+    <bit-hint>{{ "limitPrivilegedControlsSubscriptionDesc" | i18n }}</bit-hint>
+  </bit-form-control>
+  @if (formValue().limitSeats) {
+    <bit-form-field class="tw-w-2/3">
+      <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="privileged-controls-adjust_input_seat-limit"
+        formControlName="maxAutoscaleSeats"
+        type="number"
+        step="1"
+        [min]="formValue().seatCount"
+      />
+      <bit-hint>
+        <strong>{{ "maxSeatCost" | i18n }}:</strong>
+        {{ formValue().maxAutoscaleSeats ?? 0 }} &times; {{ options().seatPrice | currency: "$" }} =
+        {{ maxSeatTotalCost() | currency: "$" }} / {{ options().interval | i18n }}
+      </bit-hint>
+    </bit-form-field>
+  }
+  <button
+    type="submit"
+    id="privileged-controls-adjust_button_save"
+    bitButton
+    bitFormButton
+    buttonType="primary"
+    [disabled]="unchanged()"
+  >
+    {{ "save" | i18n }}
+  </button>
+  <bit-error-summary [formGroup]="formGroup" class="tw-mt-2"></bit-error-summary>
+</form>
