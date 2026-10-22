@@ -1,6 +1,7 @@
 import { ComponentRef, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -12,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LogService } from "@bitwarden/logging";
 
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
@@ -56,6 +58,7 @@ describe("ItemDetailsV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
           useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
