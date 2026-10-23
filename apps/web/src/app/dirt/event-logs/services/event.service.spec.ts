@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -451,5 +452,72 @@ describe("EventService shortcode escaping", () => {
 
     expect(info.message).toContain("<code>&lt;script&gt;</code>");
     expect(info.message).not.toContain("<code><script></code>");
+  });
+});
+
+describe("EventService machine account access token events", () => {
+  let sut: EventService;
+  let configService: ReturnType<typeof mock<ConfigService>>;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation((id: string, p1?: string) => `${id}${p1 ?? ""}`);
+
+  const serviceAccountId = "machine-1234-5678";
+
+  function tokenEvent(type: EventType): EventResponse {
+    return { type, serviceAccountId, organizationId: "org" } as EventResponse;
+  }
+
+  function setAuditLogFlag(enabled: boolean) {
+    configService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) =>
+      flag === FeatureFlag.Sm2060MachineAccountAuditLogs ? enabled : false,
+    );
+  }
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  it("renders the created message when the audit log flag is on", async () => {
+    setAuditLogFlag(true);
+
+    const info = await sut.getEventInfo(tokenEvent(EventType.AccessToken_Created));
+
+    expect(info.message).toContain("accessTokenCreatedForServiceAccountId");
+  });
+
+  it("renders the revoked message when the audit log flag is on", async () => {
+    setAuditLogFlag(true);
+
+    const info = await sut.getEventInfo(tokenEvent(EventType.AccessToken_Revoked));
+
+    expect(info.message).toContain("accessTokenRevokedForServiceAccountId");
+  });
+
+  it("produces no message for either event type when the audit log flag is off", async () => {
+    setAuditLogFlag(false);
+
+    const created = await sut.getEventInfo(tokenEvent(EventType.AccessToken_Created));
+    const revoked = await sut.getEventInfo(tokenEvent(EventType.AccessToken_Revoked));
+
+    expect(created.message).toBeNull();
+    expect(revoked.message).toBeNull();
+  });
+
+  it("does not read the audit log flag for unrelated event types", async () => {
+    setAuditLogFlag(true);
+
+    await sut.getEventInfo(tokenEvent(EventType.ServiceAccount_Created));
+
+    expect(configService.getFeatureFlag).not.toHaveBeenCalledWith(
+      FeatureFlag.Sm2060MachineAccountAuditLogs,
+    );
   });
 });
