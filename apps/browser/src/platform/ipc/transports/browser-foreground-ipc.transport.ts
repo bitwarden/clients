@@ -10,10 +10,7 @@ import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/s
 import { BrowserApi } from "../../browser/browser-api";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import {
-  IPC_FOREGROUND_PORT_NAME,
-  IPC_FOREGROUND_WAKE_PORT_NAME,
-} from "./ipc-foreground-port-name";
+import { IPC_FOREGROUND_PORT_NAME, IPC_FOREGROUND_WAKE_COMMAND } from "./ipc-foreground-port-name";
 
 // Matches the SDK's incoming channel capacity, so draining the held messages cannot overflow it.
 const MAX_PENDING_MESSAGES = 20;
@@ -122,14 +119,12 @@ export class BrowserForegroundIpcTransport {
 
   /**
    * Pages lose their port when the service worker stops, so a fresh worker would not know about
-   * pages that are already open. Every open page receives this port in `runtime.onConnect`,
-   * connects its own port and disconnects this one.
+   * pages that are already open. Every open page receives this message and connects its port.
    */
   private wakeForegrounds() {
     try {
-      const port = chrome.runtime.connect({ name: IPC_FOREGROUND_WAKE_PORT_NAME });
-      port.onDisconnect.addListener(() => {
-        // Suppress the error raised when no page is open to receive the port
+      chrome.runtime.sendMessage({ command: IPC_FOREGROUND_WAKE_COMMAND }, () => {
+        // Suppress the error raised when no page is open to receive the message
         void chrome.runtime.lastError;
       });
     } catch (e) {

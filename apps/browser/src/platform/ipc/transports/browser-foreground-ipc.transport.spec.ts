@@ -6,10 +6,7 @@ import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserForegroundIpcTransport } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import {
-  IPC_FOREGROUND_PORT_NAME,
-  IPC_FOREGROUND_WAKE_PORT_NAME,
-} from "./ipc-foreground-port-name";
+import { IPC_FOREGROUND_PORT_NAME, IPC_FOREGROUND_WAKE_COMMAND } from "./ipc-foreground-port-name";
 
 function createPort(name = IPC_FOREGROUND_PORT_NAME, origin = "chrome-extension://id") {
   const messageListeners: ((message: unknown) => void)[] = [];
@@ -48,30 +45,31 @@ describe("BrowserForegroundIpcTransport", () => {
     onConnect(port);
   };
 
-  let wakePort: ReturnType<typeof createPort>;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    wakePort = createPort(IPC_FOREGROUND_WAKE_PORT_NAME);
-    (chrome.runtime.connect as jest.Mock).mockReturnValue(wakePort.port);
     transport = new BrowserForegroundIpcTransport(logService, receive);
     transport.init();
   });
 
   it("asks open extension pages to connect on init", () => {
-    expect(chrome.runtime.connect).toHaveBeenCalledTimes(1);
-    expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: IPC_FOREGROUND_WAKE_PORT_NAME });
-    expect(wakePort.port.postMessage).not.toHaveBeenCalled();
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledTimes(1);
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+      { command: IPC_FOREGROUND_WAKE_COMMAND },
+      expect.any(Function),
+    );
+    expect(chrome.runtime.connect).not.toHaveBeenCalled();
   });
 
-  it("tolerates the wake port disconnecting when no page is open", () => {
-    expect(() => wakePort.disconnect()).not.toThrow();
+  it("tolerates no page being open to receive the wake message", () => {
+    const callback = (chrome.runtime.sendMessage as jest.Mock).mock.calls[0][1];
+
+    expect(() => callback()).not.toThrow();
   });
 
-  it("logs and continues accepting ports when the wake port cannot be opened", () => {
+  it("logs and continues accepting ports when the wake message cannot be sent", () => {
     jest.clearAllMocks();
-    (chrome.runtime.connect as jest.Mock).mockImplementation(() => {
-      throw new Error("connect failed");
+    (chrome.runtime.sendMessage as jest.Mock).mockImplementationOnce(() => {
+      throw new Error("sendMessage failed");
     });
     transport = new BrowserForegroundIpcTransport(logService, receive);
 
@@ -80,12 +78,6 @@ describe("BrowserForegroundIpcTransport", () => {
 
     expect(logService.warning).toHaveBeenCalled();
     expect(transport.connectedEndpoints()).toEqual([{ BrowserForeground: { id: 1 } }]);
-  });
-
-  it("does not accept its own wake port as a page", () => {
-    connect(createPort(IPC_FOREGROUND_WAKE_PORT_NAME).port);
-
-    expect(transport.connectedEndpoints()).toEqual([]);
   });
 
   it("assigns each port a new id and stamps it as the source", () => {

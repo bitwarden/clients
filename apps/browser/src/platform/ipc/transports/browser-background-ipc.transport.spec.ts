@@ -3,10 +3,7 @@ import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserBackgroundIpcTransport } from "./browser-background-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import {
-  IPC_FOREGROUND_PORT_NAME,
-  IPC_FOREGROUND_WAKE_PORT_NAME,
-} from "./ipc-foreground-port-name";
+import { IPC_FOREGROUND_PORT_NAME, IPC_FOREGROUND_WAKE_COMMAND } from "./ipc-foreground-port-name";
 
 function createPort() {
   const messageListeners: ((message: unknown) => void)[] = [];
@@ -27,10 +24,6 @@ function createPort() {
     emit: (message: unknown) => messageListeners.forEach((listener) => listener(message)),
     disconnect: () => disconnectListeners.forEach((listener) => listener()),
   };
-}
-
-function createIncomingPort(name: string) {
-  return { name, disconnect: jest.fn() } as unknown as chrome.runtime.Port;
 }
 
 const toBackground = {
@@ -55,9 +48,9 @@ describe("BrowserBackgroundIpcTransport", () => {
     transport = new BrowserBackgroundIpcTransport(receive);
   });
 
-  const incomingConnect = (port: chrome.runtime.Port) => {
-    const onConnect = (chrome.runtime.onConnect.addListener as jest.Mock).mock.calls[0][0];
-    onConnect(port);
+  const incomingMessage = (message: unknown) => {
+    const onMessage = (chrome.runtime.onMessage.addListener as jest.Mock).mock.calls[0][0];
+    onMessage(message, {}, jest.fn());
   };
 
   it("connects on init", () => {
@@ -79,34 +72,35 @@ describe("BrowserBackgroundIpcTransport", () => {
   it("reconnects when woken by the background after a disconnect", () => {
     transport.init();
     ports[0].disconnect();
-    const wakePort = createIncomingPort(IPC_FOREGROUND_WAKE_PORT_NAME);
 
-    incomingConnect(wakePort);
+    incomingMessage({ command: IPC_FOREGROUND_WAKE_COMMAND });
 
     expect(chrome.runtime.connect).toHaveBeenCalledTimes(2);
     expect(chrome.runtime.connect).toHaveBeenLastCalledWith({ name: IPC_FOREGROUND_PORT_NAME });
-    expect(wakePort.disconnect).toHaveBeenCalled();
   });
 
   it("keeps the existing port when woken while connected", () => {
     transport.init();
-    const wakePort = createIncomingPort(IPC_FOREGROUND_WAKE_PORT_NAME);
 
-    incomingConnect(wakePort);
+    incomingMessage({ command: IPC_FOREGROUND_WAKE_COMMAND });
 
     expect(chrome.runtime.connect).toHaveBeenCalledTimes(1);
-    expect(wakePort.disconnect).toHaveBeenCalled();
   });
 
-  it("ignores unrelated incoming ports", () => {
+  it("ignores unrelated runtime messages", () => {
     transport.init();
     ports[0].disconnect();
-    const otherPort = createIncomingPort("session");
 
-    incomingConnect(otherPort);
+    incomingMessage({ command: "somethingElse" });
+    incomingMessage(undefined);
 
     expect(chrome.runtime.connect).toHaveBeenCalledTimes(1);
-    expect(otherPort.disconnect).not.toHaveBeenCalled();
+  });
+
+  it("does not listen for incoming ports", () => {
+    transport.init();
+
+    expect(chrome.runtime.onConnect.addListener).not.toHaveBeenCalled();
   });
 
   it("connects on first send and reuses the port", async () => {

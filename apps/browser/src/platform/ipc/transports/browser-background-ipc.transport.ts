@@ -4,10 +4,7 @@ import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-interna
 import { BrowserApi } from "../../browser/browser-api";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import {
-  IPC_FOREGROUND_PORT_NAME,
-  IPC_FOREGROUND_WAKE_PORT_NAME,
-} from "./ipc-foreground-port-name";
+import { IPC_FOREGROUND_PORT_NAME, IPC_FOREGROUND_WAKE_COMMAND } from "./ipc-foreground-port-name";
 
 const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
 
@@ -26,14 +23,11 @@ export class BrowserBackgroundIpcTransport {
    * reconnects when a restarted background asks open pages to connect.
    */
   init() {
-    BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
-      // Other extension pages open unrelated ports that are also delivered here
-      if (port.name !== IPC_FOREGROUND_WAKE_PORT_NAME) {
+    BrowserApi.messageListener("platform.ipc.wake", (message: unknown) => {
+      if ((message as { command?: unknown } | null)?.command !== IPC_FOREGROUND_WAKE_COMMAND) {
         return;
       }
 
-      // The wake port is only a signal, closing it lets the background release it
-      port.disconnect();
       this.connect();
     });
 
