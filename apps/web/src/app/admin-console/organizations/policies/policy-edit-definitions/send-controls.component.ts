@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   inject,
   OnInit,
   signal,
@@ -106,7 +105,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
-    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
+    allowedSendTypes: [[SendType.Text, SendType.File, SendType.Item], [Validators.required]],
     deletionHours: null,
   });
   readonly enableSendControl = new FormControl<boolean>(false);
@@ -118,38 +117,29 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly temporaryItemSharingEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
-  );
-
-  protected readonly allSendTypeOptions = computed(() => {
-    const options: (SelectItemView & { value: SendType })[] = [
-      {
-        id: SendType.Text.toString(),
-        icon: "bwi-file-text",
-        listName: this.i18nService.t("sendTypeText"),
-        labelName: this.i18nService.t("sendTypeText"),
-        value: SendType.Text,
-      },
-      {
-        id: SendType.File.toString(),
-        icon: "bwi-file",
-        listName: this.i18nService.t("sendTypeFile"),
-        labelName: this.i18nService.t("sendTypeFile"),
-        value: SendType.File,
-      },
-    ];
-    if (this.temporaryItemSharingEnabled()) {
-      options.push({
-        id: SendType.Item.toString(),
-        icon: "bwi-lock",
-        listName: this.i18nService.t("vaultItems"),
-        labelName: this.i18nService.t("vaultItems"),
-        value: SendType.Item,
-      });
-    }
-    return options;
-  });
+  protected readonly allSendTypeOptions = signal<(SelectItemView & { value: SendType })[]>([
+    {
+      id: SendType.Text.toString(),
+      icon: "bwi-file-text",
+      listName: this.i18nService.t("sendTypeText"),
+      labelName: this.i18nService.t("sendTypeText"),
+      value: SendType.Text,
+    },
+    {
+      id: SendType.File.toString(),
+      icon: "bwi-file",
+      listName: this.i18nService.t("sendTypeFile"),
+      labelName: this.i18nService.t("sendTypeFile"),
+      value: SendType.File,
+    },
+    {
+      id: SendType.Item.toString(),
+      icon: "bwi-lock",
+      listName: this.i18nService.t("vaultItems"),
+      labelName: this.i18nService.t("vaultItems"),
+      value: SendType.Item,
+    },
+  ]).asReadonly();
 
   protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
     { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
@@ -181,7 +171,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
     private readonly i18nService: I18nService,
-    private readonly configService: ConfigService,
   ) {
     super();
     this.deletionHoursOptions = [
@@ -193,15 +182,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       { label: this.i18nService.t("days", "14"), value: SendDeletionDatePreset.FourteenDays },
       { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
     ];
-    // The possible values for Send Type options depend on whether the temporary item sharing feature flag is enabled
-    // Therefore we use this effect to re-initialize the form whenever those options or the policy data from the server change
-    effect(() => {
-      const allSendTypeOptions = this.allSendTypeOptions();
-      const policyResponse = this.policyResponse();
-      if (allSendTypeOptions && policyResponse) {
-        this.loadData();
-      }
-    });
   }
 
   async ngOnInit() {
@@ -254,7 +234,11 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       .subscribe((values) => {
         this.data.get("allowedSendTypes")?.patchValue((values ?? []).map<SendType>((v) => v.value));
       });
-    super.ngOnInit();
+    // Our loadData override does setup that we want to do regardless of whether there is existing
+    // policy data, so instead of calling the base class ngOnInit we do its enabled signal setup
+    // and call loadData ourselves
+    this.enabled.setValue(this.policyResponse()?.enabled ?? false);
+    this.loadData();
   }
 
   protected override loadData(): void {
@@ -263,7 +247,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const allowedSendTypes = policyResponseData.allowedSendTypes ?? [
       SendType.Text,
       SendType.File,
-      ...(this.temporaryItemSharingEnabled() ? [SendType.Item] : []),
+      SendType.Item,
     ];
     policyResponseData.allowedSendTypes = allowedSendTypes;
     if (policyResponseData.whoCanAccess == null) {

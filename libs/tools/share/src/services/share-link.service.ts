@@ -17,8 +17,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -59,7 +57,6 @@ export class ShareLinkService {
   private accountService = inject(AccountService);
   private sendSdkApiService = inject(SendSdkApiService);
   private i18nService = inject(I18nService);
-  private configService = inject(ConfigService);
   private collectionService = inject(CollectionService);
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
@@ -189,7 +186,6 @@ export class ShareLinkService {
   /** Returns whether a cipher can be shared or not */
   cipherCanBeShared$(c: CipherViewLike | undefined): Observable<boolean> {
     return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
@@ -209,9 +205,9 @@ export class ShareLinkService {
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
     ]).pipe(
-      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections]) => {
-        // Sharing feature must be enabled and, as a premium feature, accessible
-        if (!ffEnabled || !hasPremium) {
+      map(([hasPremium, organizations, sendControlsPolicies, collections]) => {
+        // Sharing is a premium feature
+        if (!hasPremium) {
           return false;
         }
         // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or gated

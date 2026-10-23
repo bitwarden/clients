@@ -437,7 +437,7 @@ const routes: Routes = [
   {
     path: "share-item",
     component: ShareItemComponent,
-    canActivate: [authGuard, canAccessFeature(FeatureFlag.PM34203TemporaryItemSharing)],
+    canActivate: [authGuard],
     // Above "view-cipher"
     data: { elevation: 4 } satisfies RouteDataProperties,
   },
