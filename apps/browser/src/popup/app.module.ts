@@ -13,6 +13,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
   DefaultVaultHealthReportService,
+  VaultHealthReportApiService,
   VaultHealthReportService,
 } from "@bitwarden/common/dirt/vault-health/services";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -103,7 +104,7 @@ import "../platform/popup/locales";
     safeProvider({
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
-      deps: [CipherRiskService, LogService],
+      deps: [CipherRiskService, VaultHealthReportApiService, LogService],
     }),
   ],
   bootstrap: [AppComponent],

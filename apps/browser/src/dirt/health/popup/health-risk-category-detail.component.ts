@@ -19,6 +19,7 @@ import {
 import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -39,6 +40,7 @@ import {
   SvgComponent,
   ScrollLayoutDirective,
   CompactModeService,
+  ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -105,6 +107,8 @@ export class HealthRiskCategoryDetailComponent {
   private readonly healthScanService = inject(HealthScanService);
   private readonly compactModeService = inject(CompactModeService);
   private readonly configService = inject(ConfigService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
 
   protected readonly exclusionsEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.HealthReportExclusions),
@@ -272,7 +276,20 @@ export class HealthRiskCategoryDetailComponent {
   };
 
   readonly onRestoreItem = async (cipherId: string) => {
-    // TODO: implementation that calls VaultHealthReportService to restore the excluded item
+    try {
+      await this.vaultHealthReportService.restoreExcludedCipher(cipherId);
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("itemRestoreFailed"),
+        variant: "error",
+      });
+      return;
+    }
+
+    this.toastService.showToast({
+      message: this.i18nService.t("itemRestoredToList"),
+      variant: "success",
+    });
   };
 
   readonly HEALTH_DETAIL_CONTENTS = {

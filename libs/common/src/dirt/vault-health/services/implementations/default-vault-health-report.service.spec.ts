@@ -18,11 +18,13 @@ import {
 } from "../../models";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
+import { VaultHealthReportApiService } from "./vault-health-report-api.service";
 
 describe("DefaultVaultHealthReportService", () => {
   const userId = "test-user-id" as UserId;
 
   let cipherRiskService: ReturnType<typeof mock<CipherRiskService>>;
+  let vaultHealthReportApiService: ReturnType<typeof mock<VaultHealthReportApiService>>;
   let logService: ReturnType<typeof mock<LogService>>;
   let service: DefaultVaultHealthReportService;
 
@@ -35,6 +37,7 @@ describe("DefaultVaultHealthReportService", () => {
 
   beforeEach(() => {
     cipherRiskService = mock<CipherRiskService>();
+    vaultHealthReportApiService = mock<VaultHealthReportApiService>();
     logService = mock<LogService>();
     riskById = new Map();
     destroy$ = new Subject<void>();
@@ -44,7 +47,11 @@ describe("DefaultVaultHealthReportService", () => {
       ciphers.map((c) => riskById.get(c.id)!),
     );
 
-    service = new DefaultVaultHealthReportService(cipherRiskService, logService);
+    service = new DefaultVaultHealthReportService(
+      cipherRiskService,
+      vaultHealthReportApiService,
+      logService,
+    );
   });
 
   afterEach(() => {
@@ -981,6 +988,39 @@ describe("DefaultVaultHealthReportService", () => {
         VAULT_HEALTH_REPORT_IDLE,
       );
       expect((await buckets()).exposed).toEqual(["a"]);
+    });
+  });
+
+  describe("restoreExcludedCipher", () => {
+    it("asks the API to restore the cipher", async () => {
+      vaultHealthReportApiService.restoreExcludedCipher.mockResolvedValue();
+
+      await service.restoreExcludedCipher("cipher-1");
+
+      expect(vaultHealthReportApiService.restoreExcludedCipher).toHaveBeenCalledWith("cipher-1");
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
+    it("logs and swallows a failed restore", async () => {
+      const failure = new Error("network down");
+      vaultHealthReportApiService.restoreExcludedCipher.mockRejectedValue(failure);
+
+      await expect(service.restoreExcludedCipher("cipher-1")).resolves.toBeUndefined();
+
+      expect(logService.error).toHaveBeenCalledWith("Failed to restore excluded cipher", failure);
+    });
+
+    it("leaves the published report untouched", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      const before = await firstValueFrom(service.getVaultHealthReport$(userId));
+      vaultHealthReportApiService.restoreExcludedCipher.mockResolvedValue();
+
+      await service.restoreExcludedCipher("a");
+
+      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toEqual(before);
     });
   });
 });

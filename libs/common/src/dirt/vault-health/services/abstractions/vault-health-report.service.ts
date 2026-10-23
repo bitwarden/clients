@@ -43,4 +43,11 @@ export abstract class VaultHealthReportService {
    * until a build runs.
    */
   abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState>;
+
+  /**
+   * Removes a Cipher from the User's list of items excluded from the Health report
+   *
+   * @param cipherId id of the Cipher to remove from excluded list for the User
+   */
+  abstract restoreExcludedCipher(cipherId: string): Promise<void>;
 }
