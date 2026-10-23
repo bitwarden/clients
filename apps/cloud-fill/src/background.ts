@@ -13,13 +13,13 @@ async function activeTabId(): Promise<number | undefined> {
   return tab?.id;
 }
 
-/** Fills the active tab. The tab is chosen here; the trigger carries no tab, URL or origin. */
-async function fillActiveTab(): Promise<FillResult> {
+/** Fills the active tab. The tab is chosen here; the trigger may only pin the origin it expects. */
+async function fillActiveTab(expectedOrigin?: string): Promise<FillResult> {
   const tabId = await activeTabId();
   if (tabId == null) {
     return { status: "no_tab" };
   }
-  return fillLoginInTab(tabId, credentialSource);
+  return fillLoginInTab(tabId, credentialSource, expectedOrigin);
 }
 
 // The collect service asks the extension for targeting rules; none are shipped yet.
@@ -35,7 +35,7 @@ if (__TEST_BUILD__) {
 }
 
 startNativeChannel({
-  fill: fillActiveTab,
+  fill: (expectedOrigin) => fillActiveTab(expectedOrigin),
   defaultRelayUrl: __RELAY_URL__,
   allowInsecureLocal: __TEST_BUILD__,
 });

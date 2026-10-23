@@ -16,7 +16,7 @@ export function approvedOrigin(topFrameUrl: string | undefined, allowLocalhost: 
     return null;
   }
 
-  if (url.protocol === "https:") {
+  if (url.protocol === "https:" && (allowLocalhost || url.port === "")) {
     return url.origin;
   }
 
@@ -27,15 +27,14 @@ export function approvedOrigin(topFrameUrl: string | undefined, allowLocalhost: 
   return null;
 }
 
-/** True when a form would submit to a different origin than the page the fill was approved for. */
-export function formActionLeavesOrigin(htmlAction: string | undefined, pageUrl: string): boolean {
-  if (!htmlAction) {
-    return false;
-  }
-
-  try {
-    return new URL(htmlAction, pageUrl).origin !== new URL(pageUrl).origin;
-  } catch {
-    return true;
-  }
+/** True when any submit target resolves to a different origin than the page the fill was approved for. */
+export function submitTargetsLeaveOrigin(targets: string[], pageUrl: string): boolean {
+  const pageOrigin = new URL(pageUrl).origin;
+  return targets.some((target) => {
+    try {
+      return new URL(target).origin !== pageOrigin;
+    } catch {
+      return true;
+    }
+  });
 }

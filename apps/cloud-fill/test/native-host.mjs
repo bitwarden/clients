@@ -3,7 +3,7 @@
 // replies back. Never logs message bodies.
 import { connect } from "node:net";
 
-const socket = connect({ host: "127.0.0.1", port: Number(process.env.CLOUD_FILL_BRIDGE_PORT) });
+const socket = connect({ path: process.env.CLOUD_FILL_BRIDGE_SOCKET });
 
 function send(message) {
   const body = Buffer.from(JSON.stringify(message));

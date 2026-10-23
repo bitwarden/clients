@@ -92,7 +92,11 @@ try {
     "fill requests the credential for the top frame hostname and fills the form",
     async () => {
       const result = await fill(page);
-      assert.deepEqual(result, { status: "ok", filledFields: 2 });
+      assert.deepEqual(result, {
+        status: "ok",
+        filledFields: 2,
+        origin: `http://localhost:${pages.port}`,
+      });
       assert.equal(await page.locator("#username").inputValue(), expected.username);
       assert.equal(await page.locator("#password").inputValue(), expected.password);
       assert.equal(pages.posts.length, 0, "fill must not submit the form");
@@ -108,7 +112,11 @@ try {
     async () => {
       await page.goto(loginUrl);
       const result = await fill(page);
-      assert.deepEqual(result, { status: "ok", filledFields: 2 });
+      assert.deepEqual(result, {
+        status: "ok",
+        filledFields: 2,
+        origin: `http://localhost:${pages.port}`,
+      });
       assert.equal(await page.locator("#password").inputValue(), expected.password);
     },
   );

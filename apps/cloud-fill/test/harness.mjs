@@ -1,6 +1,6 @@
 import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer as createHttpServer } from "node:http";
-import { createServer as createTcpServer } from "node:net";
+import { createServer as createSocketServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,7 +37,10 @@ export async function startPageServer() {
   return { port: server.address().port, posts, close: () => server.close() };
 }
 
-/** Local socket the native host connects to. Plays the role of the agent harness. */
+/**
+ * Unix socket the native host connects to, in a 0700 directory so other local users and processes
+ * outside the harness cannot reach it. Plays the role of the agent harness.
+ */
 export async function startNativeBridge() {
   let hostSocket;
   let nextId = 1;
@@ -45,7 +48,11 @@ export async function startNativeBridge() {
   let connected;
   const hostConnected = new Promise((resolve) => (connected = resolve));
 
-  const server = createTcpServer((socket) => {
+  const dir = await mkdtemp(join(tmpdir(), "cloud-fill-bridge-"));
+  await chmod(dir, 0o700);
+  const path = join(dir, "bridge.sock");
+
+  const server = createSocketServer((socket) => {
     hostSocket = socket;
     let buffer = "";
     socket.on("data", (chunk) => {
@@ -63,10 +70,11 @@ export async function startNativeBridge() {
     });
     connected();
   });
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  await new Promise((resolve) => server.listen(path, resolve));
+  await chmod(path, 0o600);
 
   return {
-    port: server.address().port,
+    path,
     hostConnected,
     request: async (message, timeoutMs = 150_000) => {
       await hostConnected;
@@ -81,6 +89,7 @@ export async function startNativeBridge() {
     close: () => {
       hostSocket?.destroy();
       server.close();
+      void rm(dir, { recursive: true, force: true });
     },
   };
 }
@@ -110,7 +119,7 @@ export async function launchWithExtension({ bridge } = {}) {
   const userDataDir = await mkdtemp(join(tmpdir(), "cloud-fill-profile-"));
   const env = { ...process.env };
   if (bridge) {
-    env.CLOUD_FILL_BRIDGE_PORT = String(bridge.port);
+    env.CLOUD_FILL_BRIDGE_SOCKET = bridge.path;
   }
   const context = await chromium.launchPersistentContext(userDataDir, {
     channel: "chromium",
@@ -134,7 +143,7 @@ export async function launchWithExtension({ bridge } = {}) {
   };
 }
 
-export async function trigger(worker, page) {
+export async function trigger(worker, page, expectedOrigin) {
   await page.bringToFront();
-  return worker.evaluate(() => globalThis.cloudFill.fillActiveTab());
+  return worker.evaluate((origin) => globalThis.cloudFill.fillActiveTab(origin), expectedOrigin);
 }

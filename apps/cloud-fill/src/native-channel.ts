@@ -1,15 +1,16 @@
 import type { FillResult } from "./messages";
 import { pairWithToken } from "./relay-credential-source";
+import { loadPairing } from "./session-storage";
 
 const HOST_NAME = "com.bitwarden.cloudfill";
 const RETRY_DELAY_MS = 2_000;
 
 type HostRequest =
-  | { id: number; type: "fill" }
-  | { id: number; type: "pair"; pskToken: string; relayUrl?: string };
+  | { id: number; type: "fill"; expectedOrigin?: string }
+  | { id: number; type: "pair"; pskToken: string; relayUrl?: string; replace?: boolean };
 
 export type Handlers = {
-  fill: () => Promise<FillResult>;
+  fill: (expectedOrigin?: string) => Promise<FillResult>;
   defaultRelayUrl: string;
   allowInsecureLocal: boolean;
 };
@@ -29,17 +30,23 @@ export function startNativeChannel(handlers: Handlers): void {
       }
 
       if (message.type === "fill") {
-        port.postMessage({ id: message.id, result: await handlers.fill() });
+        const expectedOrigin =
+          typeof message.expectedOrigin === "string" ? message.expectedOrigin : undefined;
+        port.postMessage({ id: message.id, result: await handlers.fill(expectedOrigin) });
         return;
       }
 
       if (message.type === "pair") {
+        if (message.replace !== true && (await loadPairing()) != null) {
+          port.postMessage({ id: message.id, result: { status: "error" } });
+          return;
+        }
+        // The relay is fixed at build time; only test builds may point somewhere else.
+        const relayUrl = handlers.allowInsecureLocal
+          ? (message.relayUrl ?? handlers.defaultRelayUrl)
+          : handlers.defaultRelayUrl;
         try {
-          await pairWithToken(
-            message.pskToken,
-            message.relayUrl ?? handlers.defaultRelayUrl,
-            handlers.allowInsecureLocal,
-          );
+          await pairWithToken(message.pskToken, relayUrl, handlers.allowInsecureLocal);
           port.postMessage({ id: message.id, result: { status: "ok" } });
         } catch {
           port.postMessage({ id: message.id, result: { status: "relay_error" } });

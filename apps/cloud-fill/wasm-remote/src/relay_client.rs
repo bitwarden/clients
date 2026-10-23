@@ -102,7 +102,7 @@ impl RelayClient for WasmRelayClient {
             cb.forget();
         }
 
-        // onerror before open — signals connection failure
+        // onerror before open: signals connection failure
         {
             let open_tx = Arc::clone(&open_tx);
             let cb = Closure::once(move |_: ErrorEvent| {

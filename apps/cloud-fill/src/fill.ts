@@ -1,4 +1,3 @@
-import AutofillPageDetails from "@bitwarden/browser/autofill/models/autofill-page-details";
 import {
   generateLoginFillScript,
   type LoginFillOptions,
@@ -8,15 +7,22 @@ import type { CredentialSource } from "./credential-source";
 import {
   CollectCommand,
   FillCommand,
+  InspectCommand,
   type CollectResponse,
   type FillMessage,
   type FillResponse,
   type FillResult,
+  type InspectMessage,
+  type InspectResponse,
 } from "./messages";
-import { approvedOrigin, formActionLeavesOrigin } from "./origin-policy";
+import { approvedOrigin, submitTargetsLeaveOrigin } from "./origin-policy";
 import { CredentialRequestError } from "./relay-credential-source";
 
 const TOP_FRAME = 0;
+const NOT_FILLED_COOLDOWN_MS = 30_000;
+
+let fillInFlight = false;
+const cooldownUntil = new Map<string, number>();
 
 const fillOptions: LoginFillOptions = {
   skipUsernameOnlyFill: false,
@@ -39,88 +45,122 @@ async function ensureContentScript(tabId: number): Promise<void> {
   });
 }
 
-function filledFormActions(
-  fillScript: FillMessage["fillScript"],
-  pageDetails: AutofillPageDetails,
-): (string | undefined)[] {
-  const filledOpids = new Set(
-    fillScript.script.filter(([action]) => action === "fill_by_opid").map(([, opid]) => opid),
-  );
-  const actions: (string | undefined)[] = [];
-  for (const field of pageDetails.fields) {
-    if (filledOpids.has(field.opid) && field.form != null) {
-      actions.push(pageDetails.forms?.[field.form]?.htmlAction);
-    }
-  }
-  return actions;
+function filledOpids(fillScript: FillMessage["fillScript"]): string[] {
+  return fillScript.script.filter(([action]) => action === "fill_by_opid").map(([, opid]) => opid);
 }
+
+async function collectAndInspect(
+  tabId: number,
+  url: string,
+  credential: Parameters<typeof generateLoginFillScript>[1],
+): Promise<
+  | { ok: true; fillScript: FillMessage["fillScript"]; documentNonce: string }
+  | { ok: false; status: FillResult["status"] }
+> {
+  await ensureContentScript(tabId);
+
+  const collected = (await chrome.tabs.sendMessage(
+    tabId,
+    { command: CollectCommand, expectedUrl: url },
+    { frameId: TOP_FRAME },
+  )) as CollectResponse | undefined;
+  if (!collected?.ok) {
+    return { ok: false, status: "page_changed" };
+  }
+
+  const fillScript = generateLoginFillScript(collected.pageDetails, credential, fillOptions);
+  const opids = filledOpids(fillScript);
+  if (opids.length === 0) {
+    return { ok: false, status: "no_fields" };
+  }
+
+  const inspected = (await chrome.tabs.sendMessage(
+    tabId,
+    { command: InspectCommand, expectedUrl: url, opids } satisfies InspectMessage,
+    { frameId: TOP_FRAME },
+  )) as InspectResponse | undefined;
+  if (!inspected?.ok) {
+    return { ok: false, status: "page_changed" };
+  }
+  if (inspected.formless || submitTargetsLeaveOrigin(inspected.submitTargets, url)) {
+    return { ok: false, status: "refused_form_action" };
+  }
+
+  return { ok: true, fillScript, documentNonce: collected.documentNonce };
+}
+
+const placeholder = { username: "x", password: "x" };
 
 /**
  * Fills the login in the top frame of a tab. The origin and URL come from the browser's record
- * of the tab, never from the caller. The result carries a status only.
+ * of the tab, never from the caller, who may only pin the origin they expect. The result carries
+ * a status only.
  */
-export async function fillLoginInTab(tabId: number, source: CredentialSource): Promise<FillResult> {
+export async function fillLoginInTab(
+  tabId: number,
+  source: CredentialSource,
+  expectedOrigin?: string,
+): Promise<FillResult> {
+  if (fillInFlight) {
+    return { status: "busy" };
+  }
+  fillInFlight = true;
   try {
     const url = await topFrameUrl(tabId);
     const origin = approvedOrigin(url, __TEST_BUILD__);
-    if (url == null || origin == null) {
+    if (url == null || origin == null || (expectedOrigin != null && expectedOrigin !== origin)) {
       return { status: "refused_origin" };
     }
-
-    await ensureContentScript(tabId);
-
-    const collected = (await chrome.tabs.sendMessage(
-      tabId,
-      { command: CollectCommand, expectedUrl: url },
-      { frameId: TOP_FRAME },
-    )) as CollectResponse | undefined;
-    if (!collected?.ok) {
-      return { status: "page_changed" };
+    if ((cooldownUntil.get(origin) ?? 0) > Date.now()) {
+      return { status: "not_filled" };
     }
 
     // The credential is requested only after the page looks fillable and safe to submit, so the
     // user is not prompted for a page that would be refused.
-    const probe = generateLoginFillScript(
-      collected.pageDetails,
-      { username: "x", password: "x" },
-      fillOptions,
-    );
-    if (!probe.script.some(([action]) => action === "fill_by_opid")) {
-      return { status: "no_fields" };
-    }
-
-    if (
-      filledFormActions(probe, collected.pageDetails).some((action) =>
-        formActionLeavesOrigin(action, url),
-      )
-    ) {
-      return { status: "refused_form_action" };
+    const probe = await collectAndInspect(tabId, url, placeholder);
+    if (probe.ok === false) {
+      return { status: probe.status };
     }
 
     const credential = await source.request(origin);
     if (credential == null) {
-      return { status: "no_credential" };
+      cooldownUntil.set(origin, Date.now() + NOT_FILLED_COOLDOWN_MS);
+      return { status: "not_filled" };
     }
 
-    const fillScript = generateLoginFillScript(collected.pageDetails, credential, fillOptions);
-
+    // The user may have taken minutes to approve, so the page is inspected again and the script
+    // is rebuilt from what is there now.
     if ((await topFrameUrl(tabId)) !== url) {
+      return { status: "page_changed" };
+    }
+    const fresh = await collectAndInspect(tabId, url, credential);
+    if (fresh.ok === false) {
+      return { status: fresh.status };
+    }
+    if (fresh.documentNonce !== probe.documentNonce) {
       return { status: "page_changed" };
     }
 
     const response = (await chrome.tabs.sendMessage(
       tabId,
-      { command: FillCommand, expectedUrl: url, fillScript } satisfies FillMessage,
+      {
+        command: FillCommand,
+        expectedUrl: url,
+        documentNonce: fresh.documentNonce,
+        fillScript: fresh.fillScript,
+      } satisfies FillMessage,
       { frameId: TOP_FRAME },
     )) as FillResponse | undefined;
 
     return response?.ok
-      ? {
-          status: "ok",
-          filledFields: fillScript.script.filter(([action]) => action === "fill_by_opid").length,
-        }
+      ? { status: "ok", filledFields: filledOpids(fresh.fillScript).length, origin }
       : { status: "page_changed" };
   } catch (error) {
-    return { status: error instanceof CredentialRequestError ? error.kind : "error" };
+    if (error instanceof CredentialRequestError) {
+      return { status: error.kind === "denied" ? "not_filled" : error.kind };
+    }
+    return { status: "error" };
+  } finally {
+    fillInFlight = false;
   }
 }

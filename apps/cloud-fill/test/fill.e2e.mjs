@@ -24,7 +24,11 @@ try {
   await check("fills username and password on a localhost login page", async () => {
     await page.goto(`http://localhost:${pages.port}/login.html`);
     const result = await trigger(browser.worker, page);
-    assert.deepEqual(result, { status: "ok", filledFields: 2 });
+    assert.deepEqual(result, {
+      status: "ok",
+      filledFields: 2,
+      origin: `http://localhost:${pages.port}`,
+    });
     assert.equal(await page.locator("#username").inputValue(), secrets.username);
     assert.equal(await page.locator("#password").inputValue(), secrets.password);
     assert.equal(await page.locator("#q").inputValue(), "");
@@ -41,7 +45,7 @@ try {
   await check("refuses when the top frame hostname has no credential (127.0.0.1)", async () => {
     await page.goto(`http://127.0.0.1:${pages.port}/login.html`);
     const result = await trigger(browser.worker, page);
-    assert.equal(result.status, "no_credential");
+    assert.equal(result.status, "not_filled");
     assert.equal(await page.locator("#password").inputValue(), "");
   });
 
@@ -50,6 +54,38 @@ try {
     const result = await trigger(browser.worker, page);
     assert.equal(result.status, "refused_form_action");
     assert.equal(await page.locator("#password").inputValue(), "");
+  });
+
+  for (const [name, file] of [
+    ["a child input named action clobbering form.action", "clobbered-action.html"],
+    ["a submit control with its own formaction", "formaction-override.html"],
+    ["login fields outside any form", "formless.html"],
+  ]) {
+    await check(`refuses ${name}`, async () => {
+      await page.goto(`http://localhost:${pages.port}/${file}`);
+      const result = await trigger(browser.worker, page);
+      assert.equal(result.status, "refused_form_action");
+      assert.equal(await page.locator("#password").inputValue(), "");
+    });
+  }
+
+  await check("refuses when the caller pins a different origin than the tab", async () => {
+    await page.goto(`http://localhost:${pages.port}/login.html`);
+    const result = await trigger(browser.worker, page, "http://localhost:1");
+    assert.equal(result.status, "refused_origin");
+    assert.equal(await page.locator("#password").inputValue(), "");
+  });
+
+  await check("a second fill while one is running reports busy", async () => {
+    await page.goto(`http://localhost:${pages.port}/login.html`);
+    await page.bringToFront();
+    const [first, second] = await browser.worker.evaluate(async () => {
+      const a = globalThis.cloudFill.fillActiveTab();
+      const b = globalThis.cloudFill.fillActiveTab();
+      return Promise.all([a, b]);
+    });
+    assert.equal(first.status, "ok");
+    assert.equal(second.status, "busy");
   });
 
   await check("reports no_fields on a page without a login form", async () => {
