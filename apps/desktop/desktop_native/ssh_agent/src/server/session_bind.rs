@@ -28,24 +28,29 @@ impl SessionBindState {
         let (hostkey_bytes, rest) = read_ssh_string(payload)?;
         let (session_id, rest) = read_ssh_string(rest)?;
         let (sig_outer, rest) = read_ssh_string(rest)?;
-        let is_forwarding = rest.first().map(|&b| b == 1).unwrap_or(false);
+
+        // The forwarding flag is a required SSH `boolean` (RFC 4251 §5): zero is false, any
+        // nonzero value is true. It must be the final byte of the payload.
+        let (&forwarding_byte, trailing) = rest.split_first()?;
+        if !trailing.is_empty() {
+            warn!("session-bind payload has trailing data");
+            return None;
+        }
+        let is_forwarding = forwarding_byte != 0;
 
         // sig_outer = [string alg_name][string raw_sig_bytes]
         let (alg_bytes, sig_inner) = read_ssh_string(sig_outer)?;
-        let (raw_sig, _) = read_ssh_string(sig_inner)?;
+        let (raw_sig, sig_trailing) = read_ssh_string(sig_inner)?;
+        if !sig_trailing.is_empty() {
+            warn!("session-bind signature has trailing data");
+            return None;
+        }
         let alg = std::str::from_utf8(alg_bytes).ok()?;
 
         let pub_key = ssh_key::PublicKey::from_bytes(hostkey_bytes).ok()?;
         let verified = match pub_key.key_data() {
-            KeyData::Ed25519(key) => {
-                let sig = Signature::new(Algorithm::Ed25519, raw_sig.to_vec()).ok()?;
-                key.verify(session_id, &sig).is_ok()
-            }
+            KeyData::Ed25519(key) => verify_ed25519(key, alg, session_id, raw_sig),
             KeyData::Rsa(key) => verify_rsa(key, alg, session_id, raw_sig),
-            KeyData::Ecdsa(_) => {
-                warn!("session-bind ECDSA host key not yet supported");
-                false
-            }
             _ => {
                 warn!("session-bind received unknown host key type");
                 false
@@ -70,6 +75,22 @@ impl SessionBindState {
         self.host_fingerprint = pub_key.fingerprint(HashAlg::Sha256).to_string();
         Some(())
     }
+}
+
+fn verify_ed25519(
+    key: &ssh_key::public::Ed25519PublicKey,
+    alg: &str,
+    session_id: &[u8],
+    sig: &[u8],
+) -> bool {
+    if alg != Algorithm::Ed25519.as_str() {
+        warn!(alg, "session-bind Ed25519 received mismatched algorithm");
+        return false;
+    }
+    let Ok(signature) = Signature::new(Algorithm::Ed25519, sig.to_vec()) else {
+        return false;
+    };
+    key.verify(session_id, &signature).is_ok()
 }
 
 fn verify_rsa(
@@ -112,13 +133,16 @@ fn verify_rsa(
 mod tests {
     use signature::Signer as _;
     use ssh_key::{
-        private::{Ed25519Keypair, KeypairData, RsaKeypair},
+        private::{EcdsaKeypair, Ed25519Keypair, KeypairData, RsaKeypair},
         rand_core::OsRng,
+        EcdsaCurve,
     };
 
     use super::SessionBindState;
     use crate::server::test_common::{
-        make_session_bind_payload_ed25519, make_session_bind_payload_rsa, write_ssh_string,
+        make_session_bind_payload_ecdsa, make_session_bind_payload_ed25519,
+        make_session_bind_payload_host_certificate, make_session_bind_payload_rsa,
+        make_session_bind_payload_unsupported_host_key, write_ssh_string,
     };
 
     fn apply(payload: &[u8]) -> Option<SessionBindState> {
@@ -269,21 +293,166 @@ mod tests {
     }
 
     #[test]
-    fn non_one_byte_treated_as_not_forwarding() {
+    fn nonzero_forwarding_byte_sets_forwarding() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
-        let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
-        *payload.last_mut().unwrap() = 2u8;
+        for byte in [2u8, 0x7F, 0xFF] {
+            let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
+            *payload.last_mut().unwrap() = byte;
+            let state = apply(&payload).unwrap();
+            assert!(
+                state.is_forwarding,
+                "nonzero boolean {byte:#x} must be treated as true"
+            );
+        }
+    }
+
+    #[test]
+    fn zero_forwarding_byte_not_forwarding() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
+        assert_eq!(payload.last(), Some(&0u8));
         let state = apply(&payload).unwrap();
         assert!(!state.is_forwarding);
     }
 
     #[test]
-    fn missing_forwarding_byte_defaults_to_false() {
+    fn missing_forwarding_byte_returns_false() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
         let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         payload.pop();
-        let state = apply(&payload).unwrap();
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn trailing_bytes_after_forwarding_byte_returns_false() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], true);
+        payload.push(0u8);
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn trailing_bytes_in_signature_wrapper_returns_false() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().to_string().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+        sig_outer.push(0u8);
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(0u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn ed25519_wrong_length_signature_returns_false() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        // A valid signature truncated to 63 bytes, with the correct algorithm name.
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, b"ssh-ed25519");
+        write_ssh_string(&mut sig_outer, &sig.as_bytes()[..63]);
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(1u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn ed25519_alg_mismatch_returns_false() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, b"rsa-sha2-256");
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(0u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    // Host certificates are a known, documented limitation: they are rejected (and the
+    // connection closed by the caller) rather than treated as an unbound, local connection.
+    #[test]
+    fn host_certificate_host_key_returns_false() {
+        let payload = make_session_bind_payload_host_certificate(true);
+
+        // Guard that the fixture really carries a certificate host key.
+        let hostkey_len = u32::from_be_bytes(payload[0..4].try_into().unwrap()) as usize;
+        let cert = ssh_key::Certificate::from_bytes(&payload[4..4 + hostkey_len]).unwrap();
+        assert_eq!(
+            cert.algorithm().to_certificate_type(),
+            "ssh-ed25519-cert-v01@openssh.com"
+        );
+
+        let mut state = SessionBindState::default();
+        assert!(!state.parse_and_verify(&payload));
         assert!(!state.is_forwarding);
+        assert!(state.host_fingerprint.is_empty());
+    }
+
+    // ECDSA host keys are not supported for session-bind in this change, so a validly signed
+    // ECDSA bind must be rejected (the caller then closes the connection) rather than verified.
+    #[test]
+    fn ecdsa_host_key_returns_false() {
+        for curve in [
+            EcdsaCurve::NistP256,
+            EcdsaCurve::NistP384,
+            EcdsaCurve::NistP521,
+        ] {
+            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
+            let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
+            let mut state = SessionBindState::default();
+            assert!(
+                !state.parse_and_verify(&payload),
+                "{curve:?} must be rejected"
+            );
+            assert!(!state.is_forwarding);
+            assert!(state.host_fingerprint.is_empty());
+        }
+    }
+
+    #[test]
+    fn unsupported_host_key_type_returns_false() {
+        let payload = make_session_bind_payload_unsupported_host_key(true);
+
+        // Guard that the fixture exercises the unsupported-key-type path, not a parse failure.
+        let hostkey_len = u32::from_be_bytes(payload[0..4].try_into().unwrap()) as usize;
+        let host_key = ssh_key::PublicKey::from_bytes(&payload[4..4 + hostkey_len]).unwrap();
+        assert!(matches!(
+            host_key.key_data(),
+            ssh_key::public::KeyData::SkEd25519(_)
+        ));
+
+        assert!(apply(&payload).is_none());
     }
 
     #[test]

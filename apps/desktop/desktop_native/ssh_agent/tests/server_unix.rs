@@ -7,13 +7,15 @@ use tokio::{io::AsyncWriteExt, net::UnixStream};
 
 mod common;
 use common::{
-    agent_with_keys, always_approving_agent, always_denying_agent,
+    agent_with_keys, always_approving_agent, always_denying_agent, counting_approving_agent,
     framed_invalid_session_bind_extension, framed_request_identities,
-    framed_session_bind_extension, framed_sign_request, init_tracing, parse_first_key_name,
-    parse_sign_response_algorithm, read_framed_response, test_ecdsa_p256_key,
-    test_ecdsa_p256_key_blob, test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key,
-    test_ecdsa_p521_key_blob, test_ed25519_key, test_ed25519_key_blob, test_rsa_key,
-    test_rsa_key_blob, unsupported_dsa_key_blob, MockApprovalRequester,
+    framed_session_bind_extension, framed_session_bind_extension_with_key, framed_sign_request,
+    framed_unsupported_host_key_session_bind_extension, init_tracing, parse_first_key_name,
+    parse_sign_response_algorithm, random_ecdsa_host_key, read_framed_response,
+    read_framed_response_or_eof, test_ecdsa_p256_key, test_ecdsa_p256_key_blob,
+    test_ecdsa_p384_key, test_ecdsa_p384_key_blob, test_ecdsa_p521_key, test_ecdsa_p521_key_blob,
+    test_ed25519_key, test_ed25519_key_blob, test_rsa_key, test_rsa_key_blob,
+    unsupported_dsa_key_blob, MockApprovalRequester,
 };
 use ssh_agent::{BitwardenSSHAgent, InMemoryEncryptedKeyStore};
 
@@ -495,6 +497,11 @@ async fn test_session_bind_invalid_signature_returns_failure() {
         response[0], 5,
         "expected FAILURE for invalid session-bind payload"
     );
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        None,
+        "connection must be closed after a failed session-bind"
+    );
 
     agent.stop();
 }
@@ -540,6 +547,186 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
         .unwrap();
     let sign_response = read_framed_response(&mut stream).await;
     assert_eq!(sign_response[0], 14, "expected SIGN_RESPONSE");
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_ecdsa_session_bind_closes_connection_without_approval() {
+    // ECDSA host keys are not supported for session-bind in this change: the bind fails
+    // closed and the queued sign request never reaches approval.
+    setup();
+    let (mut agent, approvals) = counting_approving_agent(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    let host_key = random_ecdsa_host_key(ssh_key::EcdsaCurve::NistP256);
+    let mut batch = framed_session_bind_extension_with_key(&host_key, true);
+    batch.extend(framed_sign_request(
+        &test_ed25519_key_blob(),
+        b"test data",
+        0,
+    ));
+    stream.write_all(&batch).await.unwrap();
+
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        Some(vec![5u8]),
+        "expected FAILURE for the ECDSA session-bind"
+    );
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        None,
+        "connection must be closed after an unsupported ECDSA session-bind"
+    );
+    assert_eq!(approvals.load(std::sync::atomic::Ordering::SeqCst), 0);
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_unsupported_session_bind_closes_connection() {
+    setup();
+    let (mut agent, approvals) = counting_approving_agent(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_unsupported_host_key_session_bind_extension())
+        .await
+        .unwrap();
+
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        Some(vec![5u8]),
+        "expected FAILURE for unsupported session-bind host key"
+    );
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        None,
+        "connection must be closed after an unsupported session-bind"
+    );
+    assert_eq!(approvals.load(std::sync::atomic::Ordering::SeqCst), 0);
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_sign_after_failed_session_bind_never_reaches_approval() {
+    setup();
+    let (mut agent, approvals) = counting_approving_agent(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+
+    // The failing bind and the sign/list requests are queued in a single write.
+    let mut batch = framed_unsupported_host_key_session_bind_extension();
+    batch.extend(framed_sign_request(
+        &test_ed25519_key_blob(),
+        b"test data",
+        0,
+    ));
+    batch.extend(framed_request_identities());
+    stream.write_all(&batch).await.unwrap();
+
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        Some(vec![5u8]),
+        "expected FAILURE for the session-bind"
+    );
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        None,
+        "queued requests must not be answered after a failed session-bind"
+    );
+    assert_eq!(
+        approvals.load(std::sync::atomic::Ordering::SeqCst),
+        0,
+        "queued requests must never reach approval"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_valid_then_failed_rebind_closes_connection() {
+    setup();
+    let (mut agent, approvals) = counting_approving_agent(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+
+    stream
+        .write_all(&framed_session_bind_extension(true))
+        .await
+        .unwrap();
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        Some(vec![6u8]),
+        "first-hop session-bind should succeed"
+    );
+
+    let mut batch = framed_unsupported_host_key_session_bind_extension();
+    batch.extend(framed_sign_request(
+        &test_ed25519_key_blob(),
+        b"test data",
+        0,
+    ));
+    stream.write_all(&batch).await.unwrap();
+
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        Some(vec![5u8]),
+        "expected FAILURE for the second session-bind"
+    );
+    assert_eq!(
+        read_framed_response_or_eof(&mut stream).await,
+        None,
+        "connection must be closed; the sign must not reuse the first hop's binding"
+    );
+    assert_eq!(approvals.load(std::sync::atomic::Ordering::SeqCst), 0);
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_new_connection_served_after_failed_session_bind() {
+    setup();
+    let (mut agent, _approvals) = counting_approving_agent(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    let mut failed = UnixStream::connect(test_socket_path()).await.unwrap();
+    failed
+        .write_all(&framed_invalid_session_bind_extension())
+        .await
+        .unwrap();
+    assert_eq!(
+        read_framed_response_or_eof(&mut failed).await,
+        Some(vec![5u8])
+    );
+    assert_eq!(read_framed_response_or_eof(&mut failed).await, None);
+    drop(failed);
+
+    // A local request on a fresh connection is unaffected.
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_sign_request(
+            &test_ed25519_key_blob(),
+            b"test data",
+            0,
+        ))
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+    assert_eq!(
+        response[0], 14,
+        "expected SIGN_RESPONSE on a new connection"
+    );
 
     agent.stop();
 }
