@@ -162,6 +162,15 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       });
     });
 
+    it("does not purchase when seats are empty", async () => {
+      createComponent();
+      enableAndFill(null, null);
+
+      await component["submit"]();
+
+      expect(billingClient.purchasePrivilegedControls).not.toHaveBeenCalled();
+    });
+
     it("shows a toast, syncs, and emits after a successful purchase", async () => {
       createComponent();
       const emitted = jest.fn();

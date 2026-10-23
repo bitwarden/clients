@@ -90,6 +90,9 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
 
   protected readonly submit = async () => {
     const { seats, maxAutoscaleSeats } = this.formGroup.getRawValue();
+    if (seats == null) {
+      return;
+    }
 
     await this.organizationBillingClient.purchasePrivilegedControls(this.organizationId(), {
       seats,
