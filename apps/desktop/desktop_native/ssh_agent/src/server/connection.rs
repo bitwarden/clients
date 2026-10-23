@@ -104,16 +104,14 @@ where
             let response = if msg.first() == Some(&EXTENSION) {
                 handle_extension_message(&msg[1..], &mut session_bind_state)
             } else {
-                Response::Continue(
-                    handle_message(
-                        &msg,
-                        self.connection.peer_info.as_ref(),
-                        &session_bind_state,
-                        &self.keystore,
-                        &self.auth_policy,
-                    )
-                    .await,
+                handle_message(
+                    &msg,
+                    self.connection.peer_info.as_ref(),
+                    &session_bind_state,
+                    &self.keystore,
+                    &self.auth_policy,
                 )
+                .await
             };
 
             match response {
@@ -206,13 +204,13 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
     session_bind_state: &SessionBindState,
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
-) -> Vec<u8> {
+) -> Response {
     let Some(message) = parse_message(msg) else {
         error!("Received malformed message");
-        return failure();
+        return Response::Continue(failure());
     };
 
-    match message {
+    let response = match message {
         AgentMessage::RequestIdentities => handle_list_request(keystore, auth_policy).await,
         AgentMessage::SignRequest {
             public_key,
@@ -234,7 +232,10 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
             debug!(msg_type, "Received unhandled message type");
             failure()
         }
-    }
+    };
+
+    // Agent requests never close the connection; only a failed session-bind does.
+    Response::Continue(response)
 }
 
 async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
@@ -368,6 +369,16 @@ mod tests {
         payload
     }
 
+    // Unwraps a response that must keep the connection open.
+    fn expect_continue(response: super::Response) -> Vec<u8> {
+        match response {
+            super::Response::Continue(bytes) => bytes,
+            super::Response::RespondThenClose(_) => {
+                panic!("agent requests must not close the connection")
+            }
+        }
+    }
+
     struct ErrorAuthPolicy;
 
     #[async_trait::async_trait]
@@ -403,14 +414,16 @@ mod tests {
         let keystore = Arc::new(MockKeyStore::new());
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
-        let response = super::handle_message(
-            &[99u8],
-            None,
-            &SessionBindState::default(),
-            &keystore,
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &[99u8],
+                None,
+                &SessionBindState::default(),
+                &keystore,
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -432,14 +445,16 @@ mod tests {
             });
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
-        let response = super::handle_message(
-            &[REQUEST_IDENTITIES],
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &[REQUEST_IDENTITIES],
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response[0], IDENTITIES_ANSWER);
         assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
@@ -450,14 +465,16 @@ mod tests {
         let keystore = MockKeyStore::new();
         let auth_policy = Arc::new(AlwaysDenyPolicy);
 
-        let response = super::handle_message(
-            &[REQUEST_IDENTITIES],
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &[REQUEST_IDENTITIES],
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -471,14 +488,16 @@ mod tests {
             .returning(|| Err(anyhow::anyhow!("keystore error")));
         let auth_policy = Arc::new(AlwaysAllowPolicy);
 
-        let response = super::handle_message(
-            &[REQUEST_IDENTITIES],
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &[REQUEST_IDENTITIES],
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -505,14 +524,16 @@ mod tests {
         let auth_policy = Arc::new(AlwaysAllowPolicy);
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response[0], SIGN_RESPONSE);
     }
@@ -524,14 +545,16 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &keystore,
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &keystore,
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -543,14 +566,16 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &keystore,
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &keystore,
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -567,14 +592,16 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -591,14 +618,16 @@ mod tests {
         let blob = make_minimal_ed25519_blob();
         let msg = make_sign_request_msg(&blob, b"test data", 0);
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -626,14 +655,16 @@ mod tests {
         let auth_policy = Arc::new(AlwaysAllowPolicy);
         let msg = make_sign_request_msg(&blob, b"test data", 0); // no flags → would imply SHA-1
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response, vec![FAILURE]);
     }
@@ -665,14 +696,16 @@ mod tests {
         let auth_policy = Arc::new(AlwaysAllowPolicy);
         let msg = make_sign_request_msg(&blob, b"test data", RSA_SHA2_256);
 
-        let response = super::handle_message(
-            &msg,
-            None,
-            &SessionBindState::default(),
-            &Arc::new(keystore),
-            &auth_policy,
-        )
-        .await;
+        let response = expect_continue(
+            super::handle_message(
+                &msg,
+                None,
+                &SessionBindState::default(),
+                &Arc::new(keystore),
+                &auth_policy,
+            )
+            .await,
+        );
 
         assert_eq!(response[0], SIGN_RESPONSE);
         let alg_len = u32::from_be_bytes(response[5..9].try_into().unwrap()) as usize;

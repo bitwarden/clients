@@ -49,14 +49,7 @@ impl SessionBindState {
 
         let pub_key = ssh_key::PublicKey::from_bytes(hostkey_bytes).ok()?;
         let verified = match pub_key.key_data() {
-            KeyData::Ed25519(key) => {
-                if alg != Algorithm::Ed25519.as_str() {
-                    warn!(alg, "session-bind Ed25519 received mismatched algorithm");
-                    return None;
-                }
-                let sig = Signature::new(Algorithm::Ed25519, raw_sig.to_vec()).ok()?;
-                key.verify(session_id, &sig).is_ok()
-            }
+            KeyData::Ed25519(key) => verify_ed25519(key, alg, session_id, raw_sig),
             KeyData::Rsa(key) => verify_rsa(key, alg, session_id, raw_sig),
             KeyData::Ecdsa(key) => verify_ecdsa(key, alg, session_id, raw_sig),
             _ => {
@@ -83,6 +76,22 @@ impl SessionBindState {
         self.host_fingerprint = pub_key.fingerprint(HashAlg::Sha256).to_string();
         Some(())
     }
+}
+
+fn verify_ed25519(
+    key: &ssh_key::public::Ed25519PublicKey,
+    alg: &str,
+    session_id: &[u8],
+    sig: &[u8],
+) -> bool {
+    if alg != Algorithm::Ed25519.as_str() {
+        warn!(alg, "session-bind Ed25519 received mismatched algorithm");
+        return false;
+    }
+    let Ok(signature) = Signature::new(Algorithm::Ed25519, sig.to_vec()) else {
+        return false;
+    };
+    key.verify(session_id, &signature).is_ok()
 }
 
 fn verify_ecdsa(
