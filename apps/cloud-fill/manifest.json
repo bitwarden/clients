@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Bitwarden Cloud Fill (spike)",
+  "version": "0.0.1",
+  "description": "Fills a login in an agent browser from a credential the user approved. The page and the agent never see the secret.",
+  "minimum_chrome_version": "116",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["scripting"],
+  "host_permissions": ["<all_urls>"]
+}

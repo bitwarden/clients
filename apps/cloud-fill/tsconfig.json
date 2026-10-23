@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "types": ["chrome", "firefox-webext-browser", "node"],
+    "noEmit": true
+  },
+  "include": ["src", "../browser/src/autofill/globals.d.ts", "../browser/src/platform/globals.d.ts"]
+}
