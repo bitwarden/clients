@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -14,6 +16,7 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { LogService } from "@bitwarden/logging";
@@ -40,6 +43,8 @@ describe("ShareItemFormComponent", () => {
   let toastService: MockProxy<ToastService>;
   let shareLinkService: MockProxy<ShareLinkService>;
   let i18nService: MockProxy<I18nService>;
+  let collections$: BehaviorSubject<CollectionView[]>;
+  let folderViews$: BehaviorSubject<FolderView[]>;
   // Mock SendPolicyService observables
   let deletionDatePolicyInfo$: BehaviorSubject<{
     deletionHours: SendDeletionDatePreset | null;
@@ -62,11 +67,13 @@ describe("ShareItemFormComponent", () => {
     i18nService.t.mockImplementation((key: string) => key);
     shareLinkService["links$"] = new BehaviorSubject<ShareLink[]>([]);
 
+    collections$ = new BehaviorSubject<CollectionView[]>([]);
     const collectionService = mock<CollectionService>();
-    collectionService.decryptedCollections$.mockReturnValue(of([]));
+    collectionService.decryptedCollections$.mockReturnValue(collections$);
 
+    folderViews$ = new BehaviorSubject<FolderView[]>([]);
     const folderService = mock<FolderService>();
-    folderService.folderViews$.mockReturnValue(of([]));
+    folderService.folderViews$.mockReturnValue(folderViews$);
 
     deletionDatePolicyInfo$ = new BehaviorSubject<{
       deletionHours: SendDeletionDatePreset | null;
@@ -115,6 +122,56 @@ describe("ShareItemFormComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
+  });
+
+  describe("item details", () => {
+    const accordion = () => hostFixture.debugElement.query(By.css("bit-accordion"));
+    const summary = () => hostFixture.debugElement.query(By.css("#share-item-form_item-summary"));
+
+    it("shows the item without an accordion when it has no folder or collections", () => {
+      expect(accordion()).toBeNull();
+      expect(summary()).not.toBeNull();
+      expect(summary().nativeElement.textContent).toContain("Test Login");
+    });
+
+    it("shows the accordion when the item is in a folder", () => {
+      folderViews$.next([Object.assign(new FolderView(), { id: "folder-1", name: "Work" })]);
+      hostFixture.componentRef.setInput(
+        "cipher",
+        Object.assign(new CipherView(), { ...mockCipher, folderId: "folder-1" }),
+      );
+      hostFixture.detectChanges();
+
+      expect(summary()).toBeNull();
+      expect(accordion()).not.toBeNull();
+      expect(accordion().nativeElement.textContent).toContain("Work");
+    });
+
+    it("shows the accordion when the item is in a collection", () => {
+      collections$.next([
+        Object.assign(Object.create(CollectionView.prototype), { id: "col-1", name: "Team" }),
+      ]);
+      hostFixture.componentRef.setInput(
+        "cipher",
+        Object.assign(new CipherView(), { ...mockCipher, collectionIds: ["col-1"] }),
+      );
+      hostFixture.detectChanges();
+
+      expect(summary()).toBeNull();
+      expect(accordion()).not.toBeNull();
+      expect(accordion().nativeElement.textContent).toContain("Team");
+    });
+
+    it("keeps the accordion hidden when the item's folder no longer exists", () => {
+      hostFixture.componentRef.setInput(
+        "cipher",
+        Object.assign(new CipherView(), { ...mockCipher, folderId: "deleted-folder" }),
+      );
+      hostFixture.detectChanges();
+
+      expect(accordion()).toBeNull();
+      expect(summary()).not.toBeNull();
+    });
   });
 
   it("should not create link when form is invalid", async () => {
