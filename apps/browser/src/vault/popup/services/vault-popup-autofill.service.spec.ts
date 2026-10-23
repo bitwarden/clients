@@ -27,6 +27,7 @@ import {
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
+import { flushPromises } from "../../../autofill/spec/testing-utils";
 import { FillResult } from "../../../autofill/types/fill-result";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -271,6 +272,64 @@ describe("VaultPopupAutofillService", () => {
       await secondTracked.pauseUntilReceived(1);
 
       expect(BrowserApi.getTabFromCurrentWindow).toHaveBeenCalledTimes(1);
+    });
+
+    describe("in the sidebar", () => {
+      const listenerOf = (addListener: unknown) => (addListener as jest.Mock).mock.calls.at(-1)[0];
+
+      beforeEach(() => {
+        jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(true);
+        (chrome.tabs.onActivated.addListener as jest.Mock).mockClear();
+        (chrome.tabs.onUpdated.addListener as jest.Mock).mockClear();
+
+        // The service subscribes eagerly on construction, so build a new one now that the
+        // sidebar is mocked.
+        service = new VaultPopupAutofillService(
+          mockDomainSettingsService,
+          mockI18nService,
+          mockToastService,
+          mockPlatformUtilsService,
+          mockPasswordRepromptService,
+          mockCipherService,
+          mockMessagingService,
+          mockActivatedRoute as unknown as ActivatedRoute,
+          accountService,
+          mockLogService,
+          mockInlineMenuFieldQualificationService,
+        );
+      });
+
+      it("should refresh the current tab when the active tab changes", async () => {
+        const otherTab = { ...mockCurrentTab, id: 2, url: "https://other.example.com" };
+        const tracked = subscribeTo(service.currentAutofillTab$);
+        await tracked.pauseUntilReceived(1);
+
+        jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(otherTab);
+        listenerOf(chrome.tabs.onActivated.addListener)({ tabId: 2, windowId: 1 });
+
+        const emissions = await tracked.pauseUntilReceived(2);
+        expect(emissions[1]).toEqual(otherTab);
+      });
+
+      it("should refresh the current tab when the active tab finishes navigating", async () => {
+        const tracked = subscribeTo(service.currentAutofillTab$);
+        await tracked.pauseUntilReceived(1);
+
+        listenerOf(chrome.tabs.onUpdated.addListener)(1, { status: "complete" }, { active: true });
+
+        await tracked.pauseUntilReceived(2);
+      });
+
+      it("should not refresh the current tab when a background tab updates", async () => {
+        (BrowserApi.getTabFromCurrentWindow as jest.Mock).mockClear();
+        const tracked = subscribeTo(service.currentAutofillTab$);
+        await tracked.pauseUntilReceived(1);
+
+        listenerOf(chrome.tabs.onUpdated.addListener)(3, { status: "complete" }, { active: false });
+        await flushPromises();
+
+        expect(BrowserApi.getTabFromCurrentWindow).not.toHaveBeenCalled();
+      });
     });
   });
 

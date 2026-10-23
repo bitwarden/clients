@@ -470,6 +470,28 @@ describe("BrowserApi", () => {
         expect(await BrowserApi.isPopupOpen()).toBe(false);
       });
 
+      it("returns true when the vault is open in the side panel", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          {
+            contextType: "SIDE_PANEL",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=sidebar",
+          },
+        ]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(true);
+      });
+
+      it("returns false when another view is open in the side panel", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          {
+            contextType: "SIDE_PANEL",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=sidepanel",
+          },
+        ]);
+
+        expect(await BrowserApi.isPopupOpen()).toBe(false);
+      });
+
       it("returns false when no contexts exist", async () => {
         (chrome.runtime as any).getContexts.mockResolvedValue([]);
 

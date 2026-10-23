@@ -499,7 +499,8 @@ export class BrowserApi {
   }
 
   /**
-   * Returns true if the vault popup is currently open.
+   * Returns true if the vault popup is currently open, including the vault opened in the Chrome
+   * Side Panel. Other side panel views, such as autofill triage, are not counted.
    *
    * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
    * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
@@ -510,7 +511,12 @@ export class BrowserApi {
       BrowserApi.isManifestVersion(3)
     ) {
       const contexts = await chrome.runtime.getContexts({});
-      return contexts.some((context) => context.contextType === "POPUP");
+      return contexts.some(
+        (context) =>
+          context.contextType === "POPUP" ||
+          (context.contextType === "SIDE_PANEL" &&
+            context.documentUrl?.includes("uilocation=sidebar")),
+      );
     }
 
     // MV2/Safari — background page can use getExtensionViews
@@ -776,6 +782,16 @@ export class BrowserApi {
       return;
     }
     await chrome.sidePanel.setOptions(options);
+  }
+
+  /**
+   * Sets whether clicking the extension's action icon opens the side panel instead of the popup.
+   */
+  static async setSidePanelBehavior(behavior: { openPanelOnActionClick: boolean }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.setPanelBehavior(behavior);
   }
 
   static sendMessage(subscriber: string, arg: any = {}) {
