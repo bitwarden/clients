@@ -14,6 +14,7 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -774,6 +775,68 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         fixture.nativeElement.querySelector("billing-cart-summary").classList.contains("tw-hidden"),
       ).toBe(true);
     }));
+
+    describe("billing address rejection", () => {
+      const addressError = new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: {
+            BillingAddress: [
+              "Your location wasn't recognized. Please ensure your country and postal code are valid and try again.",
+            ],
+          },
+        },
+        400,
+      );
+
+      it("toasts and shows the billing-details message when the preview rejects the billing address", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(addressError);
+
+        completeTheForm();
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "billingPreviewInvalidAddressError",
+        });
+        const callout = fixture.nativeElement.querySelector(
+          "[data-testid='invoice-preview-error']",
+        );
+        expect(callout).not.toBeNull();
+        expect(callout.textContent).toContain("billingPreviewInvalidAddressError");
+      }));
+
+      it("keeps the generic message for a 400 that isn't about the address", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(
+          new ErrorResponse({ Message: "User does not have an active Premium subscription." }, 400),
+        );
+
+        completeTheForm();
+        tick(1500);
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "invoicePreviewErrorMessage",
+        });
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
+      }));
+
+      it("replaces an earlier address message with the generic message on a later failure", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart
+          .mockRejectedValueOnce(addressError)
+          .mockRejectedValue(new Error("500"));
+
+        completeTheForm();
+        tick(1500);
+        expect(component["previewErrorMessageKey"]()).toBe("billingPreviewInvalidAddressError");
+
+        component["formGroup"].patchValue({ billingAddress: { postalCode: "54321" } });
+        tick(1500);
+
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
+      }));
+    });
 
     describe("submit availability", () => {
       const submitButton = (): HTMLElement | null =>

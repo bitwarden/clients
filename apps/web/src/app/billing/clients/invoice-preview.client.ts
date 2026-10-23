@@ -33,6 +33,10 @@ export type OrganizationPlanChangePreviewRequest = {
   billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
 };
 
+export type OrganizationRestartPreviewRequest = {
+  billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
+};
+
 /**
  * Raw HTTP access to the cart preview endpoints. No adaptation and no flow context — callers go
  * through `InvoicePreviewService`, which owns both.
@@ -115,6 +119,27 @@ export class InvoicePreviewClient {
     const json = await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/billing/subscription/plan-change/preview`,
+      request,
+      true,
+      true,
+    );
+
+    return new InvoicePreviewResponse(json);
+  };
+
+  /**
+   * Previews the invoice for restarting an organization's ended subscription.
+   * @param organizationId The ID of the organization whose subscription would be restarted.
+   * @param request The billing address the restart would be taxed against.
+   * @returns A promise that resolves to the invoice preview response.
+   */
+  previewOrganizationRestart = async (
+    organizationId: string,
+    request: OrganizationRestartPreviewRequest,
+  ): Promise<InvoicePreviewResponse> => {
+    const json = await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/billing/subscription/restart/preview`,
       request,
       true,
       true,
