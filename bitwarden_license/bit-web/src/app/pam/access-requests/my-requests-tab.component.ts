@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   signal,
   viewChild,
@@ -14,8 +13,6 @@ import { RouterModule } from "@angular/router";
 import { EMPTY, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -38,8 +35,6 @@ import {
   SearchModule,
   SortDirection,
   SortFn,
-  TableDataSource,
-  TableModule,
   ToastService,
   TypographyModule,
   defineTable,
@@ -80,7 +75,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown };
 
 /**
  * A row of the active-access table; exactly one of `lease` and `request` is set. `cipherName` and
- * `notAfter` are flattened because `bit-table` sorts on top-level properties.
+ * `notAfter` are flattened because `bit-table-v2` sorts on top-level properties.
  */
 type ActiveAccessRow = {
   readonly testId: string;
@@ -125,7 +120,6 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
     FilterOptionComponent,
     IconComponent,
     SearchModule,
-    TableModule,
     TypographyModule,
     I18nPipe,
     DurationShortPipe,
@@ -139,13 +133,6 @@ export class MyRequestsTabComponent {
   private readonly logService = inject(LogService);
   private readonly dialogService = inject(DialogService);
   private readonly ticker = inject(AccessBadgeTickerService);
-  private readonly configService = inject(ConfigService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   protected readonly starting = signal<Set<AccessRequestId>>(new Set());
@@ -290,7 +277,7 @@ export class MyRequestsTabComponent {
   protected readonly readyBadge: AccessBadgeState = { kind: "ready" };
 
   /**
-   * `bit-table` multiplies a custom comparator by its direction, so the held-first term is
+   * `bit-table-v2` multiplies a custom comparator by its direction, so the held-first term is
    * pre-multiplied to hold in both directions; the item name decides within a group.
    */
   protected readonly byItemName: SortFn = (
@@ -304,13 +291,6 @@ export class MyRequestsTabComponent {
     }
     return (a.cipherName ?? "").localeCompare(b.cipherName ?? "");
   };
-
-  /**
-   * Each table renders from its own data source so `bit-table` can sort the rows independently.
-   */
-  protected readonly pendingDataSource = new TableDataSource<MyAccessRequestRow>();
-  protected readonly extensionDataSource = new TableDataSource<MyAccessRequestRow>();
-  protected readonly activeAccessDataSource = new TableDataSource<ActiveAccessRow>();
 
   /**
    * Fed the unfiltered pending rows, since the projected toolbar registers with this table and it
@@ -327,18 +307,6 @@ export class MyRequestsTabComponent {
     ActiveAccessRow,
     "window" | "status" | "actions"
   >(this.activeAccessRows);
-
-  constructor() {
-    effect(() => {
-      this.pendingDataSource.data = this.pendingRows();
-    });
-    effect(() => {
-      this.extensionDataSource.data = this.extensionRows();
-    });
-    effect(() => {
-      this.activeAccessDataSource.data = this.activeAccessRows();
-    });
-  }
 
   private readonly filterInputs = computed<MyRequestsFilter>(() => ({
     term: this.searchTerm().trim().toLowerCase(),

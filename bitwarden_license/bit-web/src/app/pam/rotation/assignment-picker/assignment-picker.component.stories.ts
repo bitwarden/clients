@@ -2,9 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BadgeModule, BitCellComponent, SelectItemView, TableModule } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
+import { BadgeModule, BitCellComponent, SelectItemView } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -120,14 +118,9 @@ const targetTemplate = `
     emptyKey="pamAccessConnectorAssignmentsEmpty"
     ${COMMON_BINDINGS}
   />
-  <ng-template #rowTemplate let-row let-vfo1="vfo1">
-    @if (vfo1) {
-      <bit-cell>{{ row.label }}</bit-cell>
-      <bit-cell class="tw-text-muted">{{ row.kindKey | i18n }}</bit-cell>
-    } @else {
-      <td bitCell>{{ row.label }}</td>
-      <td bitCell class="tw-text-muted">{{ row.kindKey | i18n }}</td>
-    }
+  <ng-template #rowTemplate let-row>
+    <bit-cell>{{ row.label }}</bit-cell>
+    <bit-cell class="tw-text-muted">{{ row.kindKey | i18n }}</bit-cell>
   </ng-template>
 `;
 
@@ -142,32 +135,18 @@ const connectorTemplate = `
     emptyKey="pamTargetSystemConnectorAssignmentsEmpty"
     ${COMMON_BINDINGS}
   />
-  <ng-template #rowTemplate let-row let-vfo1="vfo1">
-    @if (vfo1) {
-      <bit-cell>{{ row.label }}</bit-cell>
-      <bit-cell>
-        <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">
-          {{ row.statusKey | i18n }}
-        </span>
-      </bit-cell>
-      <bit-cell>
-        <span bitBadge [variant]="row.connected ? 'success' : 'secondary'">
-          {{ row.connectionKey | i18n }}
-        </span>
-      </bit-cell>
-    } @else {
-      <td bitCell>{{ row.label }}</td>
-      <td bitCell>
-        <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">
-          {{ row.statusKey | i18n }}
-        </span>
-      </td>
-      <td bitCell>
-        <span bitBadge [variant]="row.connected ? 'success' : 'secondary'">
-          {{ row.connectionKey | i18n }}
-        </span>
-      </td>
-    }
+  <ng-template #rowTemplate let-row>
+    <bit-cell>{{ row.label }}</bit-cell>
+    <bit-cell>
+      <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">
+        {{ row.statusKey | i18n }}
+      </span>
+    </bit-cell>
+    <bit-cell>
+      <span bitBadge [variant]="row.connected ? 'success' : 'secondary'">
+        {{ row.connectionKey | i18n }}
+      </span>
+    </bit-cell>
   </ng-template>
 `;
 
@@ -176,7 +155,7 @@ export default {
   component: AssignmentPickerComponent,
   decorators: [
     moduleMetadata({
-      imports: [AssignmentPickerComponent, BitCellComponent, TableModule, BadgeModule, I18nPipe],
+      imports: [AssignmentPickerComponent, BitCellComponent, BadgeModule, I18nPipe],
     }),
     applicationConfig({
       providers: [
@@ -205,22 +184,10 @@ export default {
 type Story = StoryObj<AssignmentPickerComponent<TargetRow>>;
 
 /** The resting state, with something assigned and something left to assign. */
-export const Default: Story = {
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
-};
-
-/** {@link Default} with the VFO1 flag on, which draws the assigned rows with `bit-table-v2`. */
-export const FlagOn: Story = {
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-};
+export const Default: Story = {};
 
 export const NoAssignments: Story = {
   args: { assignments: [] },
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
 };
 
 export const AllAssigned: Story = {
@@ -258,9 +225,6 @@ export const ConnectorColumns: Story = {
     hints: CONNECTOR_HINTS,
   },
   render: (args) => ({ props: args, template: connectorTemplate }),
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
 };
 
 export const ConnectorColumnsEmpty: Story = {

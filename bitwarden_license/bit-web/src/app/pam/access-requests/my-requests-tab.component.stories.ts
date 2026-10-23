@@ -3,9 +3,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import {
@@ -153,21 +151,14 @@ type Story = StoryObj<MyRequestsTabComponent>;
 /** All three sections populated; the startable grant sits with the leases, not under Pending. */
 export const Default: Story = {
   decorators: [myAccess()],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
-};
-
-export const FlagOn: Story = {
-  decorators: [myAccess()],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /**
- * A Collection filter applied on the `bit-table-v2` path, which shows the toolbar's applied state
- * and narrows the other two sections from outside its table.
+ * A Collection filter applied, which shows the toolbar's applied state and narrows the other two
+ * sections from outside its table.
  */
-export const FlagOnFiltered: Story = {
+export const Filtered: Story = {
   decorators: [myAccess()],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
     const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
     await userEvent.click(trigger);

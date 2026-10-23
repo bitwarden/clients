@@ -6,7 +6,6 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
@@ -24,12 +23,6 @@ import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing
 
 import { AccessConnectorsTabComponent } from "./access-connectors-tab.component";
 import { AccessConnectorsService, AccessConnectorRow } from "./access-connectors.service";
-
-function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
-  const configService = mock<ConfigService>();
-  configService.getFeatureFlag$.mockReturnValue(of(enabled));
-  return configService;
-}
 
 describe("AccessConnectorsTabComponent", () => {
   let fixture: ComponentFixture<AccessConnectorsTabComponent>;
@@ -79,7 +72,6 @@ describe("AccessConnectorsTabComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
-        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -143,32 +135,16 @@ describe("AccessConnectorsTabComponent", () => {
     );
   });
 
-  it("sets the dataSource.data from the rows signal", () => {
-    const row = makeAccessConnectorRow();
-    rows$.next([row]);
-    fixture.detectChanges();
-
+  it("matches rows on the toolbar's search term", () => {
     const component = fixture.componentInstance as unknown as {
-      dataSource: { data: AccessConnectorRow[] };
+      rowMatchesFilter: (row: AccessConnectorRow, values: { search?: string }) => boolean;
     };
-    expect(component.dataSource.data).toEqual([
-      { ...row, assignTargetsBlockedKey: "pamAccessConnectorAssignNoTargetSystems" },
-    ]);
-  });
-
-  it("applies a name filter to the dataSource", () => {
-    const component = fixture.componentInstance as unknown as {
-      searchControl: { setValue: (v: string) => void };
-      dataSource: { filter: ((row: AccessConnectorRow) => boolean) | null };
-    };
-    component.searchControl.setValue("prod");
-    fixture.detectChanges();
 
     const matchRow = makeAccessConnectorRow({ name: "production-access-connector" });
     const noMatchRow = makeAccessConnectorRow({ id: connectorId("d2"), name: "staging" });
 
-    expect(component.dataSource.filter!(matchRow)).toBe(true);
-    expect(component.dataSource.filter!(noMatchRow)).toBe(false);
+    expect(component.rowMatchesFilter(matchRow, { search: "prod" })).toBe(true);
+    expect(component.rowMatchesFilter(noMatchRow, { search: "prod" })).toBe(false);
   });
 
   it("calls accessConnectorsService.setEnabled(false) on disable after confirmation", async () => {
@@ -735,7 +711,7 @@ describe("AccessConnectorsTabComponent", () => {
 
     function nameCellButton(): HTMLButtonElement {
       return (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
-        'tbody tr td:first-child button[id^="access-connectors-tab_button_detail-"]',
+        'bit-row button[id^="access-connectors-tab_button_detail-"]',
       )!;
     }
 
@@ -805,146 +781,10 @@ describe("AccessConnectorsTabComponent", () => {
       expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
   });
-
-  describe("loading skeleton", () => {
-    function advance(ms: number): void {
-      fixture.detectChanges();
-      jest.advanceTimersByTime(ms);
-      fixture.detectChanges();
-    }
-
-    /** Runs out the skeleton's delay. */
-    function showSkeleton(): void {
-      advance(1000);
-    }
-
-    beforeEach(async () => {
-      TestBed.resetTestingModule();
-      loadError$.next(null);
-      rows$.next([]);
-      loading$.next(true);
-
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-      await createComponent({ renderTemplate: true });
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-      loading$.next(false);
-      rows$.next([]);
-    });
-
-    it("stands a skeleton table in for the list, carrying the real columns", () => {
-      showSkeleton();
-      const el = fixture.nativeElement as HTMLElement;
-      const loading = el.querySelector('[data-testid="access-connectors-loading"]');
-
-      expect(el.querySelector("bit-spinner")).toBeNull();
-      expect(loading).not.toBeNull();
-      expect(loading!.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
-      expect(loading!.textContent).toContain("pamAccessConnectorConnection");
-      expect(loading!.textContent).toContain("pamAccessConnectorAssignments");
-    });
-
-    it("keeps the placeholder itself out of the accessibility tree", () => {
-      const loading = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="access-connectors-loading"]',
-      );
-
-      expect(loading!.getAttribute("aria-hidden")).toBe("true");
-    });
-
-    it("stands a placeholder in for the toolbar rather than offering row-derived filters", () => {
-      showSkeleton();
-      const el = fixture.nativeElement as HTMLElement;
-
-      expect(el.querySelector("bit-search")).toBeNull();
-      expect(el.querySelector("bit-filter-menu")).toBeNull();
-      expect(
-        el.querySelectorAll(
-          '[data-testid="access-connectors-loading"] > div:first-child bit-skeleton',
-        ).length,
-      ).toBeGreaterThan(0);
-    });
-
-    it("announces the load from a live region while the skeleton stands in", () => {
-      const status = (fixture.nativeElement as HTMLElement).querySelector(
-        '[data-testid="rotation-loading-status"]',
-      );
-
-      expect(status!.getAttribute("role")).toBe("status");
-      expect(status!.getAttribute("aria-live")).toBe("polite");
-      expect(status!.textContent).toContain("loading");
-    });
-
-    it("replaces the skeleton with the real rows, and announces the arrival", () => {
-      showSkeleton();
-      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
-      loading$.next(false);
-      advance(1000);
-
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="access-connectors-loading"]')).toBeNull();
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(
-        el.querySelector(
-          'tbody tr td:first-child button[id^="access-connectors-tab_button_detail-"]',
-        )!.textContent,
-      ).toContain("dc01 connector");
-      expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
-        "pamAccessConnectorsLoaded",
-      );
-    });
-
-    it("renders the tab's own furniture, not a blank area, before the delay is up", () => {
-      advance(999);
-
-      const el = fixture.nativeElement as HTMLElement;
-      const loading = el.querySelector('[data-testid="access-connectors-loading"]');
-      expect(loading).not.toBeNull();
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(loading!.textContent).toContain("pamAccessConnectorConnection");
-    });
-
-    it("never draws the placeholder for a list that arrives inside the delay", () => {
-      advance(500);
-      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
-      loading$.next(false);
-      advance(1000);
-
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector('[data-testid="access-connectors-loading"]')).toBeNull();
-    });
-
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
-      showSkeleton();
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
-
-      rows$.next([makeAccessConnectorRow({ name: "dc01 connector" })]);
-      loading$.next(false);
-      advance(300);
-
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
-
-      advance(700);
-
-      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
-    });
-
-    it("announces the load at once, not on the placeholder's clock", () => {
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
-        "loading",
-      );
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-    });
-  });
 });
 
 describe("AccessConnectorsTabComponent toolbar filters", () => {
   type FiltersComp = {
-    dataSource: { filteredData?: AccessConnectorRow[] };
     searchControl: { setValue: (value: string) => void };
     statusOptions: () => { value: string; label: string }[];
     connectionOptions: () => { value: boolean; label: string }[];
@@ -1030,7 +870,6 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1048,16 +887,13 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
   }
 
   function visibleIds(): string[] {
-    return (component.dataSource.filteredData ?? []).map((row) => uuidAsString(row.id)).sort();
+    const prefix = "access-connectors-tab_button_detail-";
+    return Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll(`bit-row button[id^="${prefix}"]`),
+    )
+      .map((button) => button.id.slice(prefix.length))
+      .sort();
   }
-
-  it("caps the search by making it a flex item, not a block child", () => {
-    setup([enabledConnected]);
-    const search = fixture.debugElement.query(By.css("bit-search"));
-    expect(search.nativeElement.className).toContain("tw-grow");
-    expect(search.nativeElement.className).toContain("tw-max-w-md");
-    expect(search.nativeElement.parentElement.className).toContain("tw-flex");
-  });
 
   it("derives the status options from the loaded rows, sorted by label", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
@@ -1169,7 +1005,6 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
             t: (key: string, p1?: string | number) => (p1 == null ? key : `${key}:${p1}`),
           },
         },
-        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1250,7 +1085,7 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
   });
 });
 
-describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
+describe("AccessConnectorsTabComponent table", () => {
   let fixture: ComponentFixture<AccessConnectorsTabComponent>;
   let rows$: BehaviorSubject<AccessConnectorRow[]>;
   let loading$: BehaviorSubject<boolean>;
@@ -1300,7 +1135,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     makeRow("c-3", "Staging", { enabled: false, isConnected: false }),
   ];
 
-  function render(vfo1: boolean, rows: AccessConnectorRow[] = ROWS, loading = false): HTMLElement {
+  function render(rows: AccessConnectorRow[] = ROWS, loading = false): HTMLElement {
     TestBed.resetTestingModule();
     rows$ = new BehaviorSubject<AccessConnectorRow[]>(rows);
     loading$ = new BehaviorSubject<boolean>(loading);
@@ -1347,7 +1182,6 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
             t: (key: string, p1?: string | number) => (p1 == null ? key : `${key}:${p1}`),
           },
         },
-        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1369,29 +1203,16 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     return (el.textContent ?? "").replace(/\s+/g, " ").trim();
   }
 
-  function isV2(el: HTMLElement): boolean {
-    return el.querySelector("bit-table-v2") != null;
-  }
-
   function headers(el: HTMLElement): HTMLElement[] {
-    return Array.from(
-      isV2(el)
-        ? el.querySelectorAll<HTMLElement>('bit-table-v2 [role="columnheader"]')
-        : el.querySelectorAll<HTMLElement>("bit-table thead th"),
-    );
+    return Array.from(el.querySelectorAll<HTMLElement>('bit-table-v2 [role="columnheader"]'));
   }
 
   function bodyRows(el: HTMLElement): Element[] {
-    return Array.from(
-      isV2(el)
-        ? el.querySelectorAll("bit-table-v2 bit-row")
-        : el.querySelectorAll("bit-table tbody tr"),
-    );
+    return Array.from(el.querySelectorAll("bit-table-v2 bit-row"));
   }
 
   function cellTexts(el: HTMLElement): string[][] {
-    const cellSelector = isV2(el) ? '[role="cell"]' : "td";
-    return bodyRows(el).map((row) => Array.from(row.querySelectorAll(cellSelector)).map(text));
+    return bodyRows(el).map((row) => Array.from(row.querySelectorAll('[role="cell"]')).map(text));
   }
 
   function rowNames(el: HTMLElement): string[] {
@@ -1401,11 +1222,9 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
   }
 
   function sortableHeadings(el: HTMLElement): string[] {
-    return isV2(el)
-      ? headers(el)
-          .filter((header) => header.querySelector("button") != null)
-          .map(text)
-      : Array.from(el.querySelectorAll("bit-table thead th[bitsortable]")).map(text);
+    return headers(el)
+      .filter((header) => header.querySelector("button") != null)
+      .map(text);
   }
 
   function clickSort(el: HTMLElement, label: string): void {
@@ -1448,8 +1267,8 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
   describe("create action placement", () => {
     const BUTTON_ID = "#rotation-shell_button_new-access-connector";
 
-    it("puts the register action in the end slot, not in the rotation shell header", () => {
-      const el = render(true);
+    it("puts the register action in the toolbar's end slot", () => {
+      const el = render();
 
       expect(endSlot(el).children).toHaveLength(1);
       const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
@@ -1458,30 +1277,16 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       expect(button!.getAttribute("type")).toBe("button");
     });
 
-    it("leaves the register action to the rotation shell header with the flag off", () => {
-      const el = render(false);
-
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
-      expect(el.querySelector(BUTTON_ID)).toBeNull();
-    });
-
     it("leaves the register action to the empty state when there are no connectors", () => {
-      const el = render(true, []);
+      const el = render([]);
 
       expect(el.querySelector("bit-table-toolbar")).toBeNull();
-      expect(el.querySelector(BUTTON_ID)).toBeNull();
-      expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
-    });
-
-    it("leaves the register action to the empty state with the flag off too", () => {
-      const el = render(false, []);
-
       expect(el.querySelector(BUTTON_ID)).toBeNull();
       expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
     });
 
     it("opens the register dialog, refreshes the list and toasts from the end slot button", async () => {
-      const el = render(true);
+      const el = render();
       dialogService.open.mockReturnValue({ closed: of(true) });
       const service = TestBed.inject(AccessConnectorsService);
       const toastService = TestBed.inject(ToastService);
@@ -1500,7 +1305,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
 
     it("refreshes nothing when the register dialog is dismissed", async () => {
-      const el = render(true);
+      const el = render();
       const service = TestBed.inject(AccessConnectorsService);
       const toastService = TestBed.inject(ToastService);
 
@@ -1512,36 +1317,18 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
   });
 
-  it("renders only the v1 table with the flag off", () => {
-    const el = render(false);
-
-    expect(el.querySelector("bit-table")).not.toBeNull();
-    expect(el.querySelector("bit-table-v2")).toBeNull();
-  });
-
-  it("renders only the v2 table with the flag on", () => {
-    const el = render(true);
-
-    expect(el.querySelector("bit-table-v2")).not.toBeNull();
-    expect(el.querySelector("bit-table")).toBeNull();
-  });
-
-  it("renders the same column headings, in the same order, as the v1 table", () => {
-    const v1 = headers(render(false)).map(text);
-    const v2 = headers(render(true)).map(text);
-
-    expect(v2.slice(0, 4)).toEqual([
+  it("renders the column headings in order", () => {
+    expect(headers(render()).map(text)).toEqual([
       "name",
       "status",
       "pamAccessConnectorConnection",
       "pamAccessConnectorAssignments",
+      "options",
     ]);
-    expect(v2.slice(0, 4)).toEqual(v1.slice(0, 4));
-    expect(v2).toHaveLength(v1.length);
   });
 
   it("gives the actions column a screen-reader-only heading", () => {
-    const actionsHeader = headers(render(true))[4];
+    const actionsHeader = headers(render())[4];
     const label = actionsHeader.querySelector(".tw-sr-only");
 
     expect(text(actionsHeader)).toBe("options");
@@ -1549,21 +1336,36 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     expect(text(label as HTMLElement)).toBe("options");
   });
 
-  it("renders the same rows and cells as the v1 table", () => {
-    const v1 = cellTexts(render(false));
-    const v2 = cellTexts(render(true));
-
-    expect(v2).toHaveLength(ROWS.length);
-    expect(v2).toEqual(v1);
+  it("renders a row of cells per connector", () => {
+    expect(cellTexts(render())).toEqual([
+      [
+        "Prod on-prem",
+        "pamAccessConnectorStatusActive",
+        "pamAccessConnectorConnected",
+        "pamAccessConnectorAssignmentCountSingular:1",
+        "",
+      ],
+      [
+        "EU region",
+        "pamAccessConnectorStatusActive",
+        "pamAccessConnectorDisconnected",
+        "pamAccessConnectorAssignmentCount:2",
+        "",
+      ],
+      [
+        "Staging",
+        "pamAccessConnectorStatusInactive",
+        "pamAccessConnectorDisconnected",
+        "pamAccessConnectorAssignmentsNone",
+        "",
+      ],
+    ]);
   });
 
-  it("offers the same row actions, in the same order, as the v1 table", () => {
-    const v1El = render(false);
-    const v1 = ROWS.map((_, i) => menuItems(v1El, i));
-    const v2El = render(true);
-    const v2 = ROWS.map((_, i) => menuItems(v2El, i));
+  it("offers the row actions in order", () => {
+    const el = render();
 
-    expect(v2[1]).toEqual([
+    expect(menuItems(el, 1)).toEqual([
       "pamAccessConnectorViewDetails",
       "pamAccessConnectorAssignTargets",
       "pamAccessConnectorUnassign:Prod DB",
@@ -1571,11 +1373,16 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       "pamAccessConnectorDeactivate",
       "pamAccessConnectorDeleteAccessConnector",
     ]);
-    expect(v2).toEqual(v1);
+    expect(menuItems(el, 2)).toEqual([
+      "pamAccessConnectorViewDetails",
+      "pamAccessConnectorAssignTargets",
+      "pamAccessConnectorActivate",
+      "pamAccessConnectorDeleteAccessConnector",
+    ]);
   });
 
-  it("gates the assign action the same way, keeping it aria-disabled for a disabled connector", () => {
-    const el = render(true);
+  it("keeps the assign action aria-disabled for a disabled connector", () => {
+    const el = render();
     const item = openMenu(el, 2).querySelector<HTMLButtonElement>(
       '[id^="access-connectors-tab_button_assign-"]',
     )!;
@@ -1585,8 +1392,8 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
   });
 
-  it("routes a row action through the shared component method", async () => {
-    const el = render(true);
+  it("opens the assign dialog from the row menu", async () => {
+    const el = render();
     openMenu(el, 0)
       .querySelector<HTMLButtonElement>('[id^="access-connectors-tab_button_assign-"]')!
       .click();
@@ -1596,7 +1403,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
   });
 
   it("navigates to the detail page from the name link", () => {
-    const el = render(true);
+    const el = render();
     const navigateSpy = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
     el.querySelector<HTMLButtonElement>(
@@ -1609,57 +1416,37 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     );
   });
 
-  it("sorts only by name, unsorted until asked, as the v1 table does", () => {
-    const shuffled = [ROWS[2], ROWS[0], ROWS[1]];
-    const v1El = render(false, shuffled);
-    const v1 = [rowNames(v1El), ariaSort(v1El, "name")];
-    expect(sortableHeadings(v1El)).toEqual(["name"]);
-    clickSort(v1El, "name");
-    v1.push(rowNames(v1El), ariaSort(v1El, "name"));
-    clickSort(v1El, "name");
-    v1.push(rowNames(v1El), ariaSort(v1El, "name"));
+  it("sorts only by name, unsorted until asked", () => {
+    const el = render([ROWS[2], ROWS[0], ROWS[1]]);
 
-    const v2El = render(true, shuffled);
-    const v2 = [rowNames(v2El), ariaSort(v2El, "name")];
-    expect(sortableHeadings(v2El)).toEqual(["name"]);
-    clickSort(v2El, "name");
-    v2.push(rowNames(v2El), ariaSort(v2El, "name"));
-    clickSort(v2El, "name");
-    v2.push(rowNames(v2El), ariaSort(v2El, "name"));
+    expect(sortableHeadings(el)).toEqual(["name"]);
+    expect(rowNames(el)).toEqual(["Staging", "Prod on-prem", "EU region"]);
 
-    expect(v2[0]).toEqual(["Staging", "Prod on-prem", "EU region"]);
-    expect(v2[2]).toEqual(["EU region", "Prod on-prem", "Staging"]);
-    expect(v2[4]).toEqual(["Staging", "Prod on-prem", "EU region"]);
-    expect(v2[3]).toBe("ascending");
-    expect(v2[5]).toBe("descending");
-    expect(v2).toEqual(v1);
+    clickSort(el, "name");
+    expect(rowNames(el)).toEqual(["EU region", "Prod on-prem", "Staging"]);
+    expect(ariaSort(el, "name")).toBe("ascending");
+
+    clickSort(el, "name");
+    expect(rowNames(el)).toEqual(["Staging", "Prod on-prem", "EU region"]);
+    expect(ariaSort(el, "name")).toBe("descending");
   });
 
-  it("filters by search text and both chips with the same predicate as the v1 table", () => {
-    const component = (): { searchControl: { setValue: (value: string) => void } } =>
+  it("filters by search text and both chips together", () => {
+    const el = render();
+    (
       fixture.componentInstance as unknown as {
         searchControl: { setValue: (value: string) => void };
-      };
-
-    const v1El = render(false);
-    component().searchControl.setValue("r");
-    chip("connection").toggle(false);
-    chip("status").toggle("pamAccessConnectorStatusActive");
-    fixture.detectChanges();
-    const v1 = rowNames(v1El);
-
-    const v2El = render(true);
-    component().searchControl.setValue("r");
+      }
+    ).searchControl.setValue("r");
     chip("connection").toggle(false);
     chip("status").toggle("pamAccessConnectorStatusActive");
     fixture.detectChanges();
 
-    expect(rowNames(v2El)).toEqual(["EU region"]);
-    expect(rowNames(v2El)).toEqual(v1);
+    expect(rowNames(el)).toEqual(["EU region"]);
   });
 
-  it("shows the same no-results message when the filters empty the table", () => {
-    const el = render(true, [ROWS[0]]);
+  it("shows the no-results message when the filters empty the table", () => {
+    const el = render([ROWS[0]]);
     chip("connection").toggle(false);
     fixture.detectChanges();
 
@@ -1670,14 +1457,14 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
   });
 
   it("keeps the no-connectors empty state outside the table", () => {
-    const el = render(true, []);
+    const el = render([]);
 
     expect(el.querySelector("bit-table-v2")).toBeNull();
     expect(el.textContent).toContain("pamAccessConnectorEmptyStateTitle");
   });
 
   it("follows a live connection change from the rows signal", () => {
-    const el = render(true, [ROWS[0]]);
+    const el = render([ROWS[0]]);
     expect(cellTexts(el)[0][2]).toBe("pamAccessConnectorConnected");
 
     rows$.next([{ ...ROWS[0], isConnected: false }]);
@@ -1686,18 +1473,14 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     expect(cellTexts(el)[0][2]).toBe("pamAccessConnectorDisconnected");
   });
 
-  it("gives the row menu trigger and the count disclosure the same accessible names", () => {
-    const v1El = render(false);
-    const v1Trigger = v1El.querySelector('button[id^="access-connectors-tab_button_menu-"]')!;
-    const v1Label = v1Trigger.getAttribute("aria-label");
-    const v2El = render(true);
-    const v2Trigger = v2El.querySelector('button[id^="access-connectors-tab_button_menu-"]')!;
-    const count = v2El.querySelector<HTMLButtonElement>(
+  it("names the row menu trigger and marks the count as a disclosure", () => {
+    const el = render();
+    const trigger = el.querySelector('button[id^="access-connectors-tab_button_menu-"]')!;
+    const count = el.querySelector<HTMLButtonElement>(
       'button[id^="access-connectors-tab_button_assignments-"]',
     )!;
 
-    expect(v2Trigger.getAttribute("aria-label")).toBe("options");
-    expect(v2Trigger.getAttribute("aria-label")).toBe(v1Label);
+    expect(trigger.getAttribute("aria-label")).toBe("options");
     expect(count.getAttribute("aria-expanded")).toBe("false");
     count.click();
     fixture.detectChanges();
@@ -1716,7 +1499,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     }
 
     it("puts the search and every filter chip inside the table's toolbar", () => {
-      const el = render(true);
+      const el = render();
 
       expect(toolbar(el)).not.toBeNull();
       expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
@@ -1725,48 +1508,29 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       expect(el.querySelectorAll("bit-filter-menu")).toHaveLength(2);
     });
 
-    it("leaves the controls outside the table when the flag is off", () => {
-      const el = render(false);
+    it("labels each chip and shows its unset state", () => {
+      const labels = Array.from(toolbar(render()).querySelectorAll("bit-filter-menu")).map(text);
 
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
-      expect(el.querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
-      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
-      expect(chipKeys(el)).toEqual(["status", "connection"]);
+      expect(labels[0]).toContain("status");
+      expect(labels[1]).toContain("pamAccessConnectorConnection");
+      expect(labels.every((label) => label.includes("all"))).toBe(true);
     });
 
-    it("keeps each chip's label and unset state", () => {
-      const offLabels = Array.from(render(false).querySelectorAll("bit-filter-menu")).map(text);
-      const onLabels = Array.from(toolbar(render(true)).querySelectorAll("bit-filter-menu")).map(
-        text,
-      );
+    it("gives the search its placeholder and leaves it enabled", () => {
+      const input = toolbar(render()).querySelector("bit-search input")!;
 
-      expect(offLabels[0]).toContain("status");
-      expect(offLabels[1]).toContain("pamAccessConnectorConnection");
-      expect(offLabels.every((label) => label.includes("all"))).toBe(true);
-      expect(onLabels).toEqual(offLabels);
-    });
-
-    it("keeps the search placeholder and input type it had off the flag", () => {
-      const offInput = render(false).querySelector("bit-search input")!;
-      const offPlaceholder = offInput.getAttribute("placeholder");
-      const offType = offInput.getAttribute("type");
-
-      const onInput = toolbar(render(true)).querySelector("bit-search input")!;
-
-      expect(onInput.getAttribute("placeholder")).toBe("pamAccessConnectorSearch");
-      expect(onInput.getAttribute("placeholder")).toBe(offPlaceholder);
-      expect(onInput.getAttribute("type")).toBe(offType);
-      expect(onInput.hasAttribute("disabled")).toBe(false);
+      expect(input.getAttribute("placeholder")).toBe("pamAccessConnectorSearch");
+      expect(input.hasAttribute("disabled")).toBe(false);
     });
 
     it("caps the search by making it a flex item of the toolbar, not a block child", () => {
-      const search = toolbar(render(true)).querySelector("bit-search")!;
+      const search = toolbar(render()).querySelector("bit-search")!;
 
       expect(search.className).toContain("tw-flex-1");
     });
 
     it("keeps every toolbar control keyboard reachable", () => {
-      const el = render(true);
+      const el = render();
       const focusable = Array.from(
         toolbar(el).querySelectorAll<HTMLElement>("input, button"),
       ).filter((control) => control.getAttribute("tabindex") !== "-1");
@@ -1775,41 +1539,8 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       expect(focusable.every((control) => !control.hasAttribute("disabled"))).toBe(true);
     });
 
-    it.each<[string, { search?: string; status?: string; connection?: boolean }]>([
-      ["the status chip", { status: "pamAccessConnectorStatusInactive" }],
-      ["the connection chip, on its false side", { connection: false }],
-      ["search on a connector name", { search: "prod" }],
-      [
-        "every control at once",
-        { search: "r", status: "pamAccessConnectorStatusActive", connection: false },
-      ],
-    ])("narrows the toolbar's rows the same way the flag-off path does: %s", (_, filters) => {
-      const names = (vfo1: boolean): string[] => {
-        const el = render(vfo1);
-        if (filters.search !== undefined) {
-          (
-            fixture.componentInstance as unknown as {
-              searchControl: { setValue: (value: string) => void };
-            }
-          ).searchControl.setValue(filters.search);
-        }
-        if (filters.status !== undefined) {
-          chip("status").toggle(filters.status);
-        }
-        if (filters.connection !== undefined) {
-          chip("connection").toggle(filters.connection);
-        }
-        fixture.detectChanges();
-        return rowNames(el);
-      };
-
-      const off = names(false);
-      expect(off.length).toBeGreaterThan(0);
-      expect(names(true)).toEqual(off);
-    });
-
     it("keeps the toolbar in place when the filters empty the table", () => {
-      const el = render(true, [ROWS[0]]);
+      const el = render([ROWS[0]]);
       chip("connection").toggle(false);
       fixture.detectChanges();
 
@@ -1819,7 +1550,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
 
     it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
-      const el = render(true);
+      const el = render();
       chip("status").toggle("pamAccessConnectorStatusInactive");
       fixture.detectChanges();
 
@@ -1849,13 +1580,12 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
       )!;
     }
 
-    it("stands a hidden v2 skeleton in for the list, carrying the real columns", () => {
-      render(true, [], true);
+    it("stands a hidden skeleton table in for the list, carrying the real columns", () => {
+      render([], true);
       advance(1000);
 
       expect(placeholder().getAttribute("aria-hidden")).toBe("true");
       expect(placeholder().querySelector("bit-table-v2")).not.toBeNull();
-      expect(placeholder().querySelector("bit-table")).toBeNull();
       expect(headers(placeholder()).map(text)).toEqual([
         "name",
         "status",
@@ -1868,7 +1598,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
 
     it("holds the toolbar inside the table while rows load, and hands off to the real one", () => {
-      const el = render(true, [], true);
+      const el = render([], true);
       advance(1000);
 
       const loadingToolbar = placeholder().querySelector<HTMLElement>(
@@ -1895,7 +1625,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
 
     it("draws the headers alone, with no skeleton or empty state, before the delay is up", () => {
-      render(true, [], true);
+      render([], true);
       advance(999);
 
       expect(headers(placeholder()).map(text)).toContain("pamAccessConnectorConnection");
@@ -1905,7 +1635,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
 
     it("draws no held rows in the placeholder while a reload is in flight", () => {
-      render(true, [ROWS[0]], true);
+      render([ROWS[0]], true);
       advance(1000);
 
       expect(
@@ -1914,7 +1644,7 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
     });
 
     it("replaces the skeleton with the real rows once the load lands", () => {
-      render(true, [], true);
+      render([], true);
       advance(1000);
       rows$.next(ROWS);
       loading$.next(false);
@@ -1922,6 +1652,73 @@ describe("AccessConnectorsTabComponent with the VFO1 flag", () => {
 
       expect(placeholder()).toBeNull();
       expect(rowNames(fixture.nativeElement as HTMLElement)).toEqual(ROWS.map((r) => r.name));
+    });
+
+    it("shows no spinner while the skeleton stands in", () => {
+      render([], true);
+      advance(1000);
+
+      expect((fixture.nativeElement as HTMLElement).querySelector("bit-spinner")).toBeNull();
+    });
+
+    it("announces the load from a live region while the skeleton stands in", () => {
+      render([], true);
+      const status = (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="rotation-loading-status"]',
+      );
+
+      expect(status!.getAttribute("role")).toBe("status");
+      expect(status!.getAttribute("aria-live")).toBe("polite");
+      expect(status!.textContent).toContain("loading");
+    });
+
+    it("announces the load at once, not on the placeholder's clock", () => {
+      const el = render([], true);
+
+      expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
+        "loading",
+      );
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+    });
+
+    it("announces the arrival once the rows land", () => {
+      const el = render([], true);
+      advance(1000);
+      rows$.next(ROWS);
+      loading$.next(false);
+      advance(1000);
+
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+      expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
+        "pamAccessConnectorsLoaded",
+      );
+    });
+
+    it("never draws the placeholder for a list that arrives inside the delay", () => {
+      const el = render([], true);
+      advance(500);
+      rows$.next(ROWS);
+      loading$.next(false);
+      advance(1000);
+
+      expect(el.querySelector("bit-skeleton")).toBeNull();
+      expect(placeholder()).toBeNull();
+    });
+
+    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
+      const el = render([], true);
+      advance(1000);
+      expect(el.querySelector("bit-skeleton")).not.toBeNull();
+
+      rows$.next(ROWS);
+      loading$.next(false);
+      advance(300);
+
+      expect(el.querySelector("bit-skeleton")).not.toBeNull();
+
+      advance(700);
+
+      expect(el.querySelector("bit-skeleton")).toBeNull();
     });
   });
 });

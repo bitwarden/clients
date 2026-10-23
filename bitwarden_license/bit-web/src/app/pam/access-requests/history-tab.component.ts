@@ -24,8 +24,6 @@ import {
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -47,8 +45,6 @@ import {
   SvgComponent,
   SkeletonComponent,
   SkeletonTextComponent,
-  TableDataSource,
-  TableModule,
   TypographyModule,
   defineTable,
 } from "@bitwarden/components";
@@ -108,7 +104,6 @@ const announcementHoldMs = 2000;
     SvgComponent,
     SkeletonComponent,
     SkeletonTextComponent,
-    TableModule,
     TypographyModule,
     I18nPipe,
     DurationShortPipe,
@@ -125,14 +120,7 @@ export class HistoryTabComponent {
   private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
   private readonly syncService = inject(SyncService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   protected readonly HistoryScope = HistoryScope;
 
@@ -142,8 +130,8 @@ export class HistoryTabComponent {
 
   /**
    * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip is read through its
-   * `FILTER_CONTROL` contract. On the VFO1 path the table also filters by it, but this still drives
-   * {@link scope} for readers outside the table.
+   * `FILTER_CONTROL` contract. The table also filters by it, but this still drives {@link scope}
+   * for readers outside the table.
    */
   private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
@@ -241,9 +229,8 @@ export class HistoryTabComponent {
   );
 
   /**
-   * Falls back to All at once if the chip disappears while filtered. The template's `@if` destroys
-   * the chip with {@link canSwitchScope}, so a returning chip starts unset and can't re-apply a
-   * stale pick.
+   * Falls back to All at once if the chip disappears while filtered; the template's `@if` destroys
+   * the chip with {@link canSwitchScope}.
    */
   protected readonly scope = computed<HistoryScope>(() =>
     this.canSwitchScope() ? toHistoryScope(this.scopeChip()?.value()) : HistoryScope.All,
@@ -294,15 +281,13 @@ export class HistoryTabComponent {
     this.scope() === HistoryScope.Managed ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty",
   );
 
-  protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
-
   /**
-   * The VFO1 table holds every row and narrows by scope in {@link matchesFilters}, so the scope
-   * chip's option counts are drawn from the whole history rather than the slice already listed.
+   * Holds every row and narrows by scope in {@link matchesFilters}, so the scope chip's option
+   * counts are drawn from the whole history rather than the slice already listed.
    */
   protected readonly historyTable = defineTable<MyAccessRequestRow, "actions">(this.allRows);
 
-  /** The VFO1 table, for reading the term the toolbar's `bit-search` registered with it. */
+  /** The table, for reading the term the toolbar's `bit-search` registered with it. */
   private readonly tableRef = viewChild(BitTableV2Component<MyAccessRequestRow>);
 
   /** The toolbar search's term, which picks the no-results state over the empty one. */
@@ -312,7 +297,7 @@ export class HistoryTabComponent {
       .toLowerCase(),
   );
 
-  /** The VFO1 table's row test: the scope chip's slice, then the toolbar search within it. */
+  /** The table's row test: the scope chip's slice, then the toolbar search within it. */
   protected readonly matchesFilters = (
     row: MyAccessRequestRow,
     values: { search?: string; historyScope?: unknown },
@@ -348,7 +333,7 @@ export class HistoryTabComponent {
 
   /**
    * Falls back to submitted time, or an undecided row would sink to the end of the descending sort.
-   * Ascending, since `bitSortable` applies the direction itself.
+   * Ascending, since the table applies the direction itself.
    */
   protected readonly byResolvedOrSubmitted = (a: MyAccessRequestRow, b: MyAccessRequestRow) =>
     resolvedOrSubmittedMs(a) - resolvedOrSubmittedMs(b);
@@ -357,9 +342,6 @@ export class HistoryTabComponent {
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   constructor() {
-    effect(() => {
-      this.historyDataSource.data = this.historyRows();
-    });
     effect((onCleanup) => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);

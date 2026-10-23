@@ -6,7 +6,6 @@ import {
   effect,
   inject,
   signal,
-  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -18,9 +17,7 @@ import { NoResults } from "@bitwarden/assets/svg";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -38,7 +35,6 @@ import {
   BitTableV2Component,
   ButtonModule,
   DialogService,
-  FILTER_CONTROL,
   FilterMenuModule,
   IconButtonModule,
   IconModule,
@@ -49,8 +45,6 @@ import {
   SkeletonTextComponent,
   StatusLockupComponent,
   SvgComponent,
-  TableDataSource,
-  TableModule,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -96,7 +90,6 @@ import { RotationConfigsService } from "./rotation-configs.service";
     SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
-    TableModule,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
@@ -124,13 +117,6 @@ export class ManagedCredentialsTabComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly configService = inject(ConfigService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   protected readonly loading = toSignal(this.configsService.loading$, { initialValue: true });
   protected readonly loadError = toSignal(this.configsService.loadError$, { initialValue: null });
@@ -164,11 +150,9 @@ export class ManagedCredentialsTabComponent {
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() == null,
   );
 
-  protected readonly dataSource = new TableDataSource<RotationConfigRow>();
   protected readonly table = defineTable<RotationConfigRow, "actions">(this.rows);
 
   protected readonly searchControl = new FormControl("", { nonNullable: true });
-  private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
@@ -183,12 +167,6 @@ export class ManagedCredentialsTabComponent {
 
   /** The status filter offers every status a row can hold, named by the badge that shows it. */
   protected readonly statusBadges = ROTATION_STATUS_BADGES;
-
-  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
-  private readonly targetSystemFilterChip = viewChild("targetSystemFilter", {
-    read: FILTER_CONTROL,
-  });
-  private readonly collectionFilterChip = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
   /** The target systems the loaded rows name, keyed by id. */
   protected readonly targetSystemOptions = computed(() =>
@@ -233,20 +211,7 @@ export class ManagedCredentialsTabComponent {
     return this.cipherCollectionIdsById().get(row.config.cipherId);
   }
 
-  protected readonly rowFilter = computed(() => {
-    const filter = toManagedCredentialFilter({
-      search: this.searchText(),
-      status: this.statusFilterChip()?.value(),
-      targetSystem: this.targetSystemFilterChip()?.value(),
-      collection: this.collectionFilterChip()?.value(),
-    });
-    return (row: RotationConfigRow): boolean => this.matchesFilter(row, filter);
-  });
-
-  /**
-   * The v2 table's row test; inside the toolbar, chip and search values arrive as `values`. Read
-   * the term from `values.search` alone, since {@link searchText} holds the same term.
-   */
+  /** The table's row test; the toolbar passes the chip and search values as `values`. */
   protected readonly rowMatchesFilter = (
     row: RotationConfigRow,
     values: ManagedCredentialFilterValues,
@@ -286,14 +251,6 @@ export class ManagedCredentialsTabComponent {
     effect(() => {
       void this.loadAll(this.organizationId());
     });
-
-    effect(() => {
-      this.dataSource.data = this.rows();
-    });
-
-    effect(() => {
-      this.dataSource.filter = this.rowFilter();
-    });
   }
 
   private async loadCollections(organizationId: OrganizationId): Promise<void> {
@@ -310,14 +267,7 @@ export class ManagedCredentialsTabComponent {
     }
   }
 
-  protected readonly processedRows = toSignal(this.dataSource.connect(), {
-    initialValue: [] as RotationConfigRow[],
-  });
-
   protected readonly isEmpty = computed(() => !this.loading() && this.rows().length === 0);
-  protected readonly noResults = computed(
-    () => !this.loading() && this.rows().length > 0 && this.processedRows().length === 0,
-  );
 
   /** `configsService.load` loads the org's target systems as part of its own read. */
   private async loadAll(organizationId: OrganizationId): Promise<void> {
@@ -445,7 +395,7 @@ export class ManagedCredentialsTabComponent {
   }
 }
 
-/** The toolbar's raw values by filter key, untyped because each host passes what a chip reports. */
+/** The toolbar's raw values by filter key, untyped because each chip reports its own value type. */
 type ManagedCredentialFilterValues = {
   search?: string;
   status?: unknown;
