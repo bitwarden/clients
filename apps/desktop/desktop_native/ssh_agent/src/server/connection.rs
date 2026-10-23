@@ -429,6 +429,26 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn malformed_message_returns_failure_and_keeps_connection_open() {
+        // A sign request truncated inside the key blob length cannot be parsed.
+        let keystore = Arc::new(MockKeyStore::new());
+        let auth_policy = Arc::new(AlwaysAllowPolicy);
+
+        let response = expect_continue(
+            super::handle_message(
+                &[SIGN_REQUEST, 0, 0],
+                None,
+                &SessionBindState::default(),
+                &keystore,
+                &auth_policy,
+            )
+            .await,
+        );
+
+        assert_eq!(response, vec![FAILURE]);
+    }
+
+    #[tokio::test]
     async fn list_request_when_authorized_returns_identities_answer() {
         let mut keystore = MockKeyStore::new();
         keystore

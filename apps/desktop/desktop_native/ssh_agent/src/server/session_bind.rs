@@ -374,6 +374,29 @@ mod tests {
     }
 
     #[test]
+    fn ed25519_wrong_length_signature_returns_false() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        // A valid signature truncated to 63 bytes, with the correct algorithm name.
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, b"ssh-ed25519");
+        write_ssh_string(&mut sig_outer, &sig.as_bytes()[..63]);
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(1u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
     fn ed25519_alg_mismatch_returns_false() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
         let session_id = [0x42u8; 32];
