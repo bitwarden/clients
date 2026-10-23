@@ -112,4 +112,15 @@ describe("DeleteAttachmentComponent", () => {
       message: "deletedAttachment",
     });
   });
+
+  it("shows an error toast when deletion fails", async () => {
+    deleteAttachmentWithServer.mockRejectedValueOnce("You do not have permissions to delete this.");
+
+    await component.delete();
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "You do not have permissions to delete this.",
+    });
+  });
 });

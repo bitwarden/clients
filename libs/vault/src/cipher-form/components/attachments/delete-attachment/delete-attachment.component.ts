@@ -90,6 +90,18 @@ export class DeleteAttachmentComponent {
       this.onDeletionSuccess.emit();
     } catch (e) {
       this.logService.error(e);
+
+      let errorMessage = this.i18nService.t("unexpectedError");
+      if (typeof e === "string") {
+        errorMessage = e;
+      } else if (e instanceof Error && e?.message) {
+        errorMessage = e.message;
+      }
+
+      this.toastService.showToast({
+        variant: "error",
+        message: errorMessage,
+      });
     }
   };
 }
