@@ -4,6 +4,7 @@ import {
   Component,
   forwardRef,
   inject,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -18,99 +19,50 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { merge, tap } from "rxjs";
+import { catchError, EMPTY, from, map, merge, of, Subject, switchMap, tap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { FormFieldModule, SelectModule } from "@bitwarden/components";
+import { FormFieldModule, Option, SelectModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { QuartzSchedulePreset } from "./rotation";
-import { RotationSdkService } from "./rotation-sdk.service";
+import { QuartzSchedulePreset } from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 
-/** The interval builder's mode value. */
-export const SCHEDULE_INTERVAL_MODE = "interval" as const;
-
-/** What the schedule select can hold: any SDK preset, or the interval builder. */
-export type ScheduleMode = QuartzSchedulePreset | typeof SCHEDULE_INTERVAL_MODE;
-
-/** Quartz can step day-of-month and month, but not weeks. */
-export const ScheduleIntervalUnit = Object.freeze({
-  Days: "days",
-  Months: "months",
-} as const);
-export type ScheduleIntervalUnit = (typeof ScheduleIntervalUnit)[keyof typeof ScheduleIntervalUnit];
-
-/** Quartz day-of-month is 1-31 and month is 1-12; `1/N` beyond those is rejected. */
-const MAX_INTERVAL_COUNT: Readonly<Record<ScheduleIntervalUnit, number>> = Object.freeze({
-  [ScheduleIntervalUnit.Days]: 31,
-  [ScheduleIntervalUnit.Months]: 12,
-});
-
-const MAX_HOUR = 23;
-const MAX_MINUTE = 59;
-
-/** `<input type="time">` emits "HH:MM"; seconds are accepted and dropped. */
-const TIME_OF_DAY = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
+import {
+  composeIntervalCron,
+  describeSchedule,
+  intervalParts,
+  MAX_INTERVAL_COUNT,
+  parseIntervalCron,
+  SCHEDULE_INTERVAL_MODE,
+  ScheduleEcho,
+  ScheduleInterval,
+  ScheduleIntervalUnit,
+  ScheduleMode,
+  timeOfDay,
+} from "./rotation-schedule";
 
 function wholeNumber(message: string): ValidatorFn {
   return ({ value }) =>
     value == null || Number.isInteger(value) ? null : { notWholeNumber: { message } };
 }
 
-/** A bare or zero-padded cron clock field, or `null` when it is not a number within `max`. */
-function clockField(field: string, max: number): number | null {
-  if (!/^\d{1,2}$/.test(field)) {
-    return null;
-  }
-  const value = Number(field);
-  return value <= max ? value : null;
-}
+/** The schedule select's options, in display order. */
+const SCHEDULE_MODE_LABEL_KEYS: ReadonlyArray<readonly [ScheduleMode, string]> = [
+  [QuartzSchedulePreset.None, "pamRotationScheduleNone"],
+  [QuartzSchedulePreset.Hourly, "pamRotationScheduleHourly"],
+  [QuartzSchedulePreset.Every6Hours, "pamRotationScheduleEvery6Hours"],
+  [QuartzSchedulePreset.Daily, "pamRotationScheduleDaily"],
+  [QuartzSchedulePreset.Weekly, "pamRotationScheduleWeekly"],
+  [QuartzSchedulePreset.Monthly, "pamRotationScheduleMonthly"],
+  [SCHEDULE_INTERVAL_MODE, "pamRotationScheduleInterval"],
+  [QuartzSchedulePreset.Custom, "pamRotationScheduleCustom"],
+];
 
-/** The step `N` a `*` or `1/N` cron field carries, or `null` when it is neither or out of range. */
-function intervalStep(field: string, unit: ScheduleIntervalUnit): number | null {
-  if (field === "*") {
-    return 1;
-  }
-  const match = /^1\/(\d{1,2})$/.exec(field);
-  if (match == null) {
-    return null;
-  }
-  const step = Number(match[1]);
-  return step >= 1 && step <= MAX_INTERVAL_COUNT[unit] ? step : null;
-}
-
-/** Preset → the key of the sentence describing what it does. */
-const SCHEDULE_ECHO_KEYS: Partial<Record<QuartzSchedulePreset, string>> = {
-  [QuartzSchedulePreset.None]: "pamRotationScheduleEchoNone",
-  [QuartzSchedulePreset.Hourly]: "pamRotationScheduleEchoHourly",
-  [QuartzSchedulePreset.Every6Hours]: "pamRotationScheduleEchoEvery6Hours",
-  [QuartzSchedulePreset.Daily]: "pamRotationScheduleEchoDaily",
-  [QuartzSchedulePreset.Weekly]: "pamRotationScheduleEchoWeekly",
-  [QuartzSchedulePreset.Monthly]: "pamRotationScheduleEchoMonthly",
-};
-
-const INTERVAL_ECHO_KEYS: Readonly<Record<ScheduleIntervalUnit, { one: string; many: string }>> =
-  Object.freeze({
-    [ScheduleIntervalUnit.Days]: {
-      one: "pamRotationScheduleEchoIntervalDay",
-      many: "pamRotationScheduleEchoIntervalDays",
-    },
-    [ScheduleIntervalUnit.Months]: {
-      one: "pamRotationScheduleEchoIntervalMonth",
-      many: "pamRotationScheduleEchoIntervalMonths",
-    },
-  });
-
-interface ScheduleEcho {
-  key: string;
-  p1?: string | number;
-  p2?: string | number;
-}
-
-/** Zero-padded, as `<input type="time">` and the SDK's presets spell it. */
-function timeOfDay(hh: number, mm: number): string {
-  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-}
+const INTERVAL_UNIT_LABEL_KEYS: ReadonlyArray<readonly [ScheduleIntervalUnit, string]> = [
+  [ScheduleIntervalUnit.Days, "pamRotationScheduleIntervalUnitDays"],
+  [ScheduleIntervalUnit.Months, "pamRotationScheduleIntervalUnitMonths"],
+];
 
 /**
  * Form control for a Quartz cron schedule, or `null` for none. The SDK names presets and judges a
@@ -147,19 +99,23 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
    * Whether the custom expression looks like Quartz, cached since {@link validate} is
    * synchronous. Starts `true` so a control is not reported invalid before the check runs.
    */
-  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
-  private cronShapeValid = true;
+  private readonly cronShapeValid = signal(true);
 
   protected readonly QuartzSchedulePreset = QuartzSchedulePreset;
 
   protected readonly ScheduleInterval = SCHEDULE_INTERVAL_MODE;
-  protected readonly ScheduleIntervalUnit = ScheduleIntervalUnit;
+
+  protected readonly modeOptions: Option<ScheduleMode>[] = SCHEDULE_MODE_LABEL_KEYS.map(
+    ([value, key]) => ({ value, label: this.i18n.t(key) }),
+  );
+  protected readonly intervalUnitOptions: Option<ScheduleIntervalUnit>[] =
+    INTERVAL_UNIT_LABEL_KEYS.map(([value, key]) => ({ value, label: this.i18n.t(key) }));
 
   protected readonly presetControl = this.fb.nonNullable.control<ScheduleMode>(
     QuartzSchedulePreset.None,
   );
   protected readonly customControl = this.fb.nonNullable.control<string>("", () =>
-    this.cronShapeValid ? null : { invalidCron: { message: this.invalidCronMessage() } },
+    this.cronShapeValid() ? null : { invalidCron: { message: this.invalidCronMessage() } },
   );
   protected readonly intervalCountControl = this.fb.nonNullable.control<number | null>(
     1,
@@ -171,6 +127,11 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   protected readonly intervalTimeControl = this.fb.nonNullable.control<string>("00:00", [
     Validators.required,
   ]);
+
+  /** Custom expressions to shape-check; only the latest answer counts. */
+  private readonly cronShapeChecks = new Subject<string>();
+  /** Values written by the form; only the latest is applied. */
+  private readonly writes = new Subject<string | null>();
 
   private readonly editorControls: readonly AbstractControl[] = [
     this.presetControl,
@@ -197,8 +158,35 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     });
     this.customControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.emitValue();
-      void this.refreshCronShape(value);
+      this.cronShapeChecks.next(value);
     });
+    this.cronShapeChecks
+      .pipe(
+        switchMap((value) => {
+          const raw = value.trim();
+          // An empty field means no schedule, not a malformed one.
+          if (raw === "") {
+            return of(true);
+          }
+          // The SDK logs a failure; the field keeps its last verdict.
+          return from(this.rotationSdk.isLikelyQuartzCron(raw)).pipe(catchError(() => EMPTY));
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((valid) => this.applyCronShape(valid));
+    this.writes
+      .pipe(
+        // Asking the SDK which preset this is takes a turn; controls settle after it answers.
+        switchMap((value) =>
+          from(this.rotationSdk.presetForCron(value)).pipe(
+            map((preset) => ({ value, preset })),
+            // The SDK logs a failure; the controls keep their last value.
+            catchError(() => EMPTY),
+          ),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ value, preset }) => this.applyPreset(value, preset));
     merge(
       this.intervalCountControl.valueChanges,
       this.intervalTimeControl.valueChanges,
@@ -235,10 +223,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.cdr.markForCheck();
   }
 
-  private async refreshCronShape(value: string): Promise<void> {
-    const raw = value.trim();
-    // An empty field means no schedule, not a malformed one.
-    this.cronShapeValid = raw === "" || (await this.rotationSdk.isLikelyQuartzCron(raw));
+  private applyCronShape(valid: boolean): void {
+    this.cronShapeValid.set(valid);
     this.customControl.updateValueAndValidity({ emitEvent: false });
     this.customControl.setErrors(this.customControl.errors);
     this.onValidatorChange();
@@ -250,12 +236,10 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   }
 
   writeValue(value: string | null): void {
-    // Asking the SDK which preset this is takes a turn; controls settle after it answers.
-    void this.applyPreset(value);
+    this.writes.next(value);
   }
 
-  private async applyPreset(value: string | null): Promise<void> {
-    const preset = await this.rotationSdk.presetForCron(value);
+  private applyPreset(value: string | null, preset: QuartzSchedulePreset): void {
     // A named preset wins over the interval builder.
     if (preset !== QuartzSchedulePreset.Custom) {
       this.presetControl.setValue(preset, { emitEvent: false });
@@ -265,14 +249,16 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       return;
     }
 
-    const interval = value == null ? null : this.parseIntervalCron(value);
+    const interval = value == null ? null : parseIntervalCron(value);
     if (interval != null) {
       this.presetControl.setValue(SCHEDULE_INTERVAL_MODE, { emitEvent: false });
       this.resetCustom();
       this.intervalUnitControl.setValue(interval.unit, { emitEvent: false });
       this.applyCountBounds(interval.unit);
       this.intervalCountControl.setValue(interval.count, { emitEvent: false });
-      this.intervalTimeControl.setValue(interval.time, { emitEvent: false });
+      this.intervalTimeControl.setValue(timeOfDay(interval.hh, interval.mm), {
+        emitEvent: false,
+      });
       this.acceptKnownShape();
       return;
     }
@@ -280,13 +266,13 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.presetControl.setValue(QuartzSchedulePreset.Custom, { emitEvent: false });
     this.resetInterval();
     this.customControl.setValue(value ?? "", { emitEvent: false });
-    await this.refreshCronShape(value ?? "");
+    this.cronShapeChecks.next(value ?? "");
+    this.cdr.markForCheck();
   }
 
-  /** A recognised value leaves nothing for the shape check to judge. */
+  /** A recognised value leaves nothing for the shape check to judge, and drops any pending one. */
   private acceptKnownShape(): void {
-    this.cronShapeValid = true;
-    this.onValidatorChange();
+    this.cronShapeChecks.next("");
     this.cdr.markForCheck();
   }
 
@@ -323,14 +309,14 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     const preset = this.presetControl.value;
     if (preset === SCHEDULE_INTERVAL_MODE) {
       // An incomplete builder emits null, which the server reads as "no scheduled rotation".
-      return this.intervalParts() == null
+      return this.builderInterval() == null
         ? { invalidInterval: { message: this.i18n.t("pamRotationScheduleInvalidInterval") } }
         : null;
     }
     if (preset !== QuartzSchedulePreset.Custom) {
       return null;
     }
-    if (this.cronShapeValid) {
+    if (this.cronShapeValid()) {
       return null;
     }
     return {
@@ -356,7 +342,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       return null;
     }
     if (preset === SCHEDULE_INTERVAL_MODE) {
-      return this.composeIntervalCron();
+      const interval = this.builderInterval();
+      return interval == null ? null : composeIntervalCron(interval);
     }
     if (preset === QuartzSchedulePreset.Custom) {
       const raw = this.customControl.value.trim();
@@ -365,32 +352,16 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return this.cronByPreset.get(preset) ?? null;
   }
 
-  /**
-   * The plain-English echo beneath the control, or `null` for an incomplete builder or an empty
-   * or malformed custom expression.
-   */
-  protected get scheduleEcho(): ScheduleEcho | null {
-    const preset = this.presetControl.value;
-    if (preset === SCHEDULE_INTERVAL_MODE) {
-      const parts = this.intervalParts();
-      if (parts == null) {
-        return null;
-      }
-      const keys = INTERVAL_ECHO_KEYS[parts.unit];
-      const time = timeOfDay(parts.hh, parts.mm);
-      return parts.count === 1
-        ? { key: keys.one, p1: time }
-        : { key: keys.many, p1: parts.count, p2: time };
-    }
-    const key = SCHEDULE_ECHO_KEYS[preset];
-    if (key != null) {
-      return preset === QuartzSchedulePreset.None || this.cronByPreset.has(preset) ? { key } : null;
-    }
-    if (!this.cronShapeValid) {
-      return null;
-    }
-    const cron = this.currentValue;
-    return cron == null ? null : { key: "pamRotationScheduleEchoCustom", p1: cron };
+  /** The plain-English echo beneath the control. */
+  protected scheduleEcho(): ScheduleEcho | null {
+    const mode = this.presetControl.value;
+    return describeSchedule({
+      mode,
+      interval: mode === SCHEDULE_INTERVAL_MODE ? this.builderInterval() : null,
+      cronByPreset: this.cronByPreset,
+      customCron:
+        mode === QuartzSchedulePreset.Custom && this.cronShapeValid() ? this.currentValue : null,
+    });
   }
 
   private countValidators(unit: ScheduleIntervalUnit): ValidatorFn[] {
@@ -410,73 +381,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     }
   }
 
-  /** The builder's parts, or `null` when they cannot make an expression. */
-  private intervalParts(): {
-    count: number;
-    unit: ScheduleIntervalUnit;
-    hh: number;
-    mm: number;
-  } | null {
-    const unit = this.intervalUnitControl.value;
-    const count = this.intervalCountControl.value;
-    const max = MAX_INTERVAL_COUNT[unit];
-    if (count == null || !Number.isInteger(count) || count < 1 || count > max) {
-      return null;
-    }
-    const match = TIME_OF_DAY.exec(this.intervalTimeControl.value.trim());
-    if (match == null) {
-      return null;
-    }
-    const hh = clockField(match[1], MAX_HOUR);
-    const mm = clockField(match[2], MAX_MINUTE);
-    if (hh == null || mm == null) {
-      return null;
-    }
-    return { count, unit, hh, mm };
-  }
-
-  private composeIntervalCron(): string | null {
-    const parts = this.intervalParts();
-    if (parts == null) {
-      return null;
-    }
-    const { count, unit, hh, mm } = parts;
-    const step = count === 1 ? "*" : `1/${count}`;
-    return unit === ScheduleIntervalUnit.Months
-      ? `0 ${mm} ${hh} 1 ${step} ?`
-      : `0 ${mm} ${hh} ${step} * ?`;
-  }
-
-  /** The builder's controls for an expression it could have produced, or `null`. */
-  private parseIntervalCron(
-    cron: string,
-  ): { count: number; unit: ScheduleIntervalUnit; time: string } | null {
-    const fields = cron.trim().split(/\s+/);
-    if (fields.length !== 6) {
-      return null;
-    }
-    const [second, minute, hour, dom, month, dow] = fields;
-    if (second !== "0" || dow !== "?") {
-      return null;
-    }
-    const hh = clockField(hour, MAX_HOUR);
-    const mm = clockField(minute, MAX_MINUTE);
-    if (hh == null || mm == null) {
-      return null;
-    }
-    const time = timeOfDay(hh, mm);
-
-    if (month === "*") {
-      if (dom === "1") {
-        return { count: 1, unit: ScheduleIntervalUnit.Months, time };
-      }
-      const count = intervalStep(dom, ScheduleIntervalUnit.Days);
-      return count == null ? null : { count, unit: ScheduleIntervalUnit.Days, time };
-    }
-    if (dom !== "1") {
-      return null;
-    }
-    const count = intervalStep(month, ScheduleIntervalUnit.Months);
-    return count == null || count === 1 ? null : { count, unit: ScheduleIntervalUnit.Months, time };
+  /** The builder's interval, or `null` when its controls cannot make an expression. */
+  private builderInterval(): ScheduleInterval | null {
+    return intervalParts(
+      this.intervalCountControl.value,
+      this.intervalUnitControl.value,
+      this.intervalTimeControl.value,
+    );
   }
 }

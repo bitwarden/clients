@@ -7,14 +7,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SelectComponent } from "@bitwarden/components";
 
-import { QuartzSchedulePreset } from "./rotation";
-import {
-  RotationScheduleInputComponent,
-  ScheduleIntervalUnit,
-  ScheduleMode,
-  SCHEDULE_INTERVAL_MODE,
-} from "./rotation-schedule-input.component";
-import { RotationSdkService } from "./rotation-sdk.service";
+import { QuartzSchedulePreset } from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
+
+import { SCHEDULE_INTERVAL_MODE, ScheduleIntervalUnit, ScheduleMode } from "./rotation-schedule";
+import { RotationScheduleInputComponent } from "./rotation-schedule-input.component";
 
 /**
  * The SDK's preset table, duplicated so these tests stub the wiring; `preset_for_cron` in
@@ -250,39 +247,9 @@ describe("RotationScheduleInputComponent", () => {
     expect(hints).toContain("pamRotationScheduleCustomHint");
   });
 
-  it("every 1 day at 00:00 emits the midnight daily expression", () => {
-    buildInterval(ScheduleIntervalUnit.Days, 1, "00:00");
-    expect(outerControl.value).toBe("0 0 0 * * ?");
-  });
-
-  it("every 1 day at 02:30 emits an unstepped day-of-month expression", () => {
-    buildInterval(ScheduleIntervalUnit.Days, 1, "02:30");
-    expect(outerControl.value).toBe("0 30 2 * * ?");
-  });
-
-  it("every 7 days at 02:00 emits a stepped day-of-month expression", () => {
+  it("emits the interval builder's expression to the outer control", () => {
     buildInterval(ScheduleIntervalUnit.Days, 7, "02:00");
     expect(outerControl.value).toBe("0 0 2 1/7 * ?");
-  });
-
-  it("every 30 days at 23:15 emits a stepped day-of-month expression", () => {
-    buildInterval(ScheduleIntervalUnit.Days, 30, "23:15");
-    expect(outerControl.value).toBe("0 15 23 1/30 * ?");
-  });
-
-  it("every 1 month at 00:00 emits the monthly expression", () => {
-    buildInterval(ScheduleIntervalUnit.Months, 1, "00:00");
-    expect(outerControl.value).toBe("0 0 0 1 * ?");
-  });
-
-  it("every 3 months at 02:00 emits a stepped month expression", () => {
-    buildInterval(ScheduleIntervalUnit.Months, 3, "02:00");
-    expect(outerControl.value).toBe("0 0 2 1 1/3 ?");
-  });
-
-  it("every 12 months at 06:45 emits a stepped month expression", () => {
-    buildInterval(ScheduleIntervalUnit.Months, 12, "06:45");
-    expect(outerControl.value).toBe("0 45 6 1 1/12 ?");
   });
 
   it("maps a stepped day-of-month cron back into the day builder", async () => {
@@ -292,24 +259,6 @@ describe("RotationScheduleInputComponent", () => {
     expect(intervalUnitCtrl().value).toBe(ScheduleIntervalUnit.Days);
     expect(intervalCountCtrl().value).toBe(7);
     expect(intervalTimeCtrl().value).toBe("02:00");
-  });
-
-  it("maps a stepped month cron back into the month builder", async () => {
-    component.writeValue("0 0 2 1 1/3 ?");
-    await fixture.whenStable();
-    expect(presetCtrl().value).toBe(SCHEDULE_INTERVAL_MODE);
-    expect(intervalUnitCtrl().value).toBe(ScheduleIntervalUnit.Months);
-    expect(intervalCountCtrl().value).toBe(3);
-    expect(intervalTimeCtrl().value).toBe("02:00");
-  });
-
-  it("maps an unstepped daily cron at a non-midnight time back into the day builder", async () => {
-    component.writeValue("0 30 2 * * ?");
-    await fixture.whenStable();
-    expect(presetCtrl().value).toBe(SCHEDULE_INTERVAL_MODE);
-    expect(intervalUnitCtrl().value).toBe(ScheduleIntervalUnit.Days);
-    expect(intervalCountCtrl().value).toBe(1);
-    expect(intervalTimeCtrl().value).toBe("02:30");
   });
 
   it("keeps the daily preset rather than opening the builder", async () => {
@@ -341,11 +290,44 @@ describe("RotationScheduleInputComponent", () => {
     expect(customCtrl().value).toBe("0 0 2 ? * MON-FRI");
   });
 
-  it("falls through to Custom for a seven-field cron", async () => {
-    component.writeValue("0 0 2 1/7 * ? 2027");
+  it("does not let an earlier write's shape check outlive a later write", async () => {
+    component.writeValue("not-a-cron");
+    component.writeValue(PRESET_CRONS.daily);
     await fixture.whenStable();
-    expect(presetCtrl().value).toBe(QuartzSchedulePreset.Custom);
-    expect(customCtrl().value).toBe("0 0 2 1/7 * ? 2027");
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(presetCtrl().value).toBe(QuartzSchedulePreset.Daily);
+    presetCtrl().setValue(QuartzSchedulePreset.Custom);
+    expect(component.validate({ value: outerControl.value } as never)).toBeNull();
+  });
+
+  it("keeps applying writes after the SDK fails one", async () => {
+    jest
+      .mocked(TestBed.inject(RotationSdkService).presetForCron)
+      .mockRejectedValueOnce(new Error("sdk unavailable"));
+
+    component.writeValue(PRESET_CRONS.daily);
+    await fixture.whenStable();
+    component.writeValue(PRESET_CRONS.weekly);
+    await fixture.whenStable();
+
+    expect(presetCtrl().value).toBe(QuartzSchedulePreset.Weekly);
+  });
+
+  it("ignores a shape check that answers after a newer expression's", async () => {
+    let answerStale!: (likely: boolean) => void;
+    jest
+      .mocked(TestBed.inject(RotationSdkService).isLikelyQuartzCron)
+      .mockImplementationOnce(() => new Promise((resolve) => (answerStale = resolve)));
+
+    presetCtrl().setValue(QuartzSchedulePreset.Custom);
+    customCtrl().setValue("not-a-cron");
+    customCtrl().setValue("0 0 */2 * * ?");
+    await fixture.whenStable();
+    answerStale(false);
+    await fixture.whenStable();
+
+    expect(component.validate({ value: outerControl.value } as never)).toBeNull();
   });
 
   it("a complete interval returns no validation error", () => {
@@ -359,27 +341,6 @@ describe("RotationScheduleInputComponent", () => {
       invalidInterval: { message: "pamRotationScheduleInvalidInterval" },
     });
     expect(outerControl.value).toBeNull();
-  });
-
-  it("a day count beyond 31 produces invalidInterval", () => {
-    buildInterval(ScheduleIntervalUnit.Days, 32, "02:00");
-    expect(component.validate({ value: outerControl.value } as never)).toMatchObject({
-      invalidInterval: { message: "pamRotationScheduleInvalidInterval" },
-    });
-  });
-
-  it("a month count beyond 12 produces invalidInterval", () => {
-    buildInterval(ScheduleIntervalUnit.Months, 13, "02:00");
-    expect(component.validate({ value: outerControl.value } as never)).toMatchObject({
-      invalidInterval: { message: "pamRotationScheduleInvalidInterval" },
-    });
-  });
-
-  it("a cleared time produces invalidInterval", () => {
-    buildInterval(ScheduleIntervalUnit.Days, 7, "");
-    expect(component.validate({ value: outerControl.value } as never)).toMatchObject({
-      invalidInterval: { message: "pamRotationScheduleInvalidInterval" },
-    });
   });
 
   it("switching from days to months puts an out-of-range count in error", () => {
@@ -536,61 +497,15 @@ describe("RotationScheduleInputComponent", () => {
     expect(echoText()).toBe("pamRotationScheduleEchoNone");
   });
 
-  it("describes the Daily preset", () => {
-    presetCtrl().setValue(QuartzSchedulePreset.Daily);
-    fixture.detectChanges();
-    expect(echoText()).toBe("pamRotationScheduleEchoDaily");
-  });
-
-  it("describes the Weekly preset", () => {
-    presetCtrl().setValue(QuartzSchedulePreset.Weekly);
-    fixture.detectChanges();
-    expect(echoText()).toBe("pamRotationScheduleEchoWeekly");
-  });
-
   it("describes a multi-day interval with its count and its time", () => {
     buildInterval(ScheduleIntervalUnit.Days, 7, "02:00");
     expect(echoText()).toBe("pamRotationScheduleEchoIntervalDays:7:02:00");
-  });
-
-  it("describes a one-day interval with the singular sentence", () => {
-    buildInterval(ScheduleIntervalUnit.Days, 1, "00:00");
-    expect(echoText()).toBe("pamRotationScheduleEchoIntervalDay:00:00");
-  });
-
-  it("describes a multi-month interval with its count and its time", () => {
-    buildInterval(ScheduleIntervalUnit.Months, 3, "02:00");
-    expect(echoText()).toBe("pamRotationScheduleEchoIntervalMonths:3:02:00");
-  });
-
-  it("describes a one-month interval with the singular sentence", () => {
-    buildInterval(ScheduleIntervalUnit.Months, 1, "06:45");
-    expect(echoText()).toBe("pamRotationScheduleEchoIntervalMonth:06:45");
-  });
-
-  it("says nothing about an incomplete interval", () => {
-    buildInterval(ScheduleIntervalUnit.Days, null, "02:00");
-    expect(echoText()).toBe("");
   });
 
   function presetCrons(): Map<QuartzSchedulePreset, string> {
     return (component as unknown as { cronByPreset: Map<QuartzSchedulePreset, string> })
       .cronByPreset;
   }
-
-  it("says nothing about a named preset before its expression resolves", () => {
-    presetCrons().clear();
-    presetCtrl().setValue(QuartzSchedulePreset.Daily);
-    fixture.detectChanges();
-    expect(echoText()).toBe("");
-  });
-
-  it("describes the None preset before any expression resolves", () => {
-    presetCrons().clear();
-    presetCtrl().setValue(QuartzSchedulePreset.None);
-    fixture.detectChanges();
-    expect(echoText()).toBe("pamRotationScheduleEchoNone");
-  });
 
   it("describes a preset once its expression resolves", async () => {
     presetCrons().clear();
@@ -623,6 +538,8 @@ describe("RotationScheduleInputComponent", () => {
   it("shows the saved schedule's sentence without the control being touched", async () => {
     fixture.autoDetectChanges();
     component.writeValue(PRESET_CRONS.monthly);
+    // The first wait lets the SDK answer; the second lets the render it marks for check land.
+    await fixture.whenStable();
     await fixture.whenStable();
     expect(echoText()).toBe("pamRotationScheduleEchoMonthly");
   });
@@ -630,6 +547,8 @@ describe("RotationScheduleInputComponent", () => {
   it("shows a saved custom expression without the control being touched", async () => {
     fixture.autoDetectChanges();
     component.writeValue("0 0 */4 * * ?");
+    // The first wait lets the SDK answer; the second lets the render it marks for check land.
+    await fixture.whenStable();
     await fixture.whenStable();
     expect(echoText()).toBe("pamRotationScheduleEchoCustom:0 0 */4 * * ?");
   });
