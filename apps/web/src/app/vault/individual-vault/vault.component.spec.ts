@@ -115,6 +115,7 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
+    cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
 
@@ -454,6 +455,22 @@ describe("VaultComponent", () => {
           });
         });
       });
+    });
+  });
+
+  describe("viewCipherById", () => {
+    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes.
+    async function openAndFlush(): Promise<void> {
+      void component.viewCipherById(TEST_CIPHER_ID);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    it("opens the cipher from local state", async () => {
+      await openAndFlush();
+
+      expect(openVaultItemDialogSpy).toHaveBeenCalled();
+      const params = openVaultItemDialogSpy.mock.lastCall[1];
+      expect(params.formConfig.originalCipher).toBe(mockCipher);
     });
   });
 

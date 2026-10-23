@@ -8,6 +8,8 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { isGuid } from "@bitwarden/guid";
 
+import { sharedFolderName } from "../utils/shared-folder-name";
+
 import { VaultNavItemType, VaultsNavViewModel } from "./vault-nav-view-model";
 
 /**
@@ -43,6 +45,13 @@ export const TRASH_ROUTE = "trash";
 
 /** The `:vaultId` route segment for archived items. */
 export const ARCHIVE_ROUTE = "archive";
+
+/**
+ * The top-level route segment for the user's own folders: the My folders list at `/folders`, and
+ * one folder's page at `/folders/:folderId`. Unlike the segments above it does not hang off
+ * `:vaultId`, because a folder belongs to the user rather than to any one vault.
+ */
+export const FOLDERS_ROUTE = "folders";
 
 export const VaultScopeType = Object.freeze({
   AllItems: "allItems",
@@ -236,6 +245,11 @@ export function isPersonalOnly(nav: VaultsNavViewModel): boolean {
   return nav.vaults.length === 1 && !nav.organizationDataOwnership;
 }
 
+/** Whether the nav lists several vaults under a "Vaults" header; data ownership lists orgs without one. */
+export function showsVaultsSection(nav: VaultsNavViewModel): boolean {
+  return nav.vaults.length > 1 && !nav.organizationDataOwnership;
+}
+
 /**
  * The id of an organization's "My items" collection, as the nav holds it. `undefined` when the
  * account's vaults have yet to load, when the organization is not one of them, or when it has no
@@ -357,6 +371,15 @@ export function sharedFoldersCommands(organizationId: OrganizationId): string[] 
 }
 
 /**
+ * The `Router.navigate` commands for one of the user's folders.
+ *
+ * Deliberately not a {@link VaultScope} member, for the reason {@link sharedFoldersCommands} isn't.
+ */
+export function folderCommands(folderId: string): string[] {
+  return [`/${FOLDERS_ROUTE}`, folderId];
+}
+
+/**
  * Cipher ids are branded SDK types on `CipherListView` but plain strings on `CipherView`, so an
  * organization id read off `CipherViewLike` needs widening before it can be compared.
  */
@@ -414,17 +437,19 @@ export function organizationNameForScope(
 }
 
 /**
- * The shared folder the scope has drilled into, by name — `undefined` unless the scope names a
- * collection {@link collections} can resolve. See {@link scopedSharedFolderId}.
+ * The shared folder the scope has drilled into, by its own name without its parent path (see
+ * {@link sharedFolderName}) — `undefined` unless the scope names a collection {@link collections}
+ * can resolve. See {@link scopedSharedFolderId}.
  */
 export function sharedFolderNameForScope(
   scope: VaultScope,
   collections: readonly CollectionView[],
 ): string | undefined {
   const collectionId = scopedSharedFolderId(scope);
-  return collectionId
-    ? collections.find((collection) => collection.id === collectionId)?.name
+  const collection = collectionId
+    ? collections.find((candidate) => candidate.id === collectionId)
     : undefined;
+  return collection ? sharedFolderName(collection) : undefined;
 }
 
 /**

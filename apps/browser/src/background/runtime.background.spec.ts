@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -12,6 +13,7 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -29,7 +31,9 @@ import {
   RETRY_SENDER,
   RETRY_WHEN_UNLOCK_COMPLETED,
 } from "../autofill/background/abstractions/notification.background";
+import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
@@ -54,6 +58,7 @@ type RuntimeBackgroundOverrides = {
   accountService?: MockProxy<AccountService>;
   environmentService?: MockProxy<BrowserEnvironmentService>;
   messagingService?: MockProxy<MessagingService>;
+  autofillLifecycleService?: MockProxy<AutofillLifecycleService>;
   autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
   intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
 };
@@ -64,6 +69,7 @@ function createRuntimeBackground({
   accountService = undefined as any,
   environmentService,
   messagingService,
+  autofillLifecycleService,
   autofillOrchestrator = mock<AutofillOrchestrator>(),
   intraprocessMessageSender = mock<IntraprocessMessageSender>(),
 }: RuntimeBackgroundOverrides = {}) {
@@ -83,7 +89,7 @@ function createRuntimeBackground({
     undefined as any, // lockService
     undefined as any, // billingAccountProfileStateService
     undefined as any, // browserInitialInstallService
-    undefined as any, // autofillLifecycleService
+    autofillLifecycleService as any,
     undefined as any, // defaultPasswordManagerPromptStateAccessor
     autofillOrchestrator,
     intraprocessMessageSender,
@@ -524,6 +530,56 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
   });
 });
 
+// The logout dispatch reads `msg.logoutReason` off the incoming message and
+// forwards it to `MainBackground.logout`. It previously read `msg.expired`, a
+// stale field no producer sets, so the reason was silently dropped and the
+// popup lost its post-logout toast. This guards against that field-name drift.
+describe("RuntimeBackground logout dispatch", () => {
+  let runtimeBackground: RuntimeBackground;
+  let mainBackground: MockProxy<MainBackground>;
+
+  const userId = "user-1" as UserId;
+  const logoutReason: LogoutReason = "userInitiated";
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    mainBackground = mock<MainBackground>();
+
+    runtimeBackground = new RuntimeBackground(
+      mainBackground,
+      mock<AutofillService>(),
+      mock<BrowserPlatformUtilsService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<LogService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<AutofillOrchestrator>(),
+      mock<IntraprocessMessageSender>(),
+    );
+  });
+
+  it("forwards logoutReason and userId from the message to MainBackground.logout", async () => {
+    await runtimeBackground.processMessage({ command: "logout", logoutReason, userId });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, userId);
+  });
+
+  it("forwards undefined userId when the message does not include one", async () => {
+    await runtimeBackground.processMessage({ command: "logout", logoutReason });
+
+    expect(mainBackground.logout).toHaveBeenCalledWith(logoutReason, undefined);
+  });
+});
+
 describe("RuntimeBackground vault referrer gating", () => {
   const environmentWebVaultUrl = "https://vault.selfhosted.test";
   const regionWebVaultUrl = "https://vault.bitwarden.com";
@@ -749,5 +805,55 @@ describe("RuntimeBackground locked vault pending notifications", () => {
       RETRY_WHEN_UNLOCK_COMPLETED,
       expect.anything(),
     );
+  });
+});
+
+describe("RuntimeBackground pageTransitionDetected", () => {
+  const committedUrl = "https://example.test/entry";
+  const routedUrl = "https://example.test/logged-in/step-one";
+
+  let runtimeBackground: RuntimeBackground;
+  let autofillLifecycleService: MockProxy<AutofillLifecycleService>;
+
+  const message = { command: AutofillMessageCommand.pageTransitionDetected };
+  const tab = createChromeTabMock({ id: 1, url: routedUrl });
+
+  /** Stands in for the frame lookup `BrowserApi.getFrameDetails` performs. */
+  const mockFrameLookup = (url: string | undefined) => {
+    (chrome.webNavigation.getFrame as unknown as jest.Mock).mockImplementation(
+      (_details, callback) => callback(url == null ? undefined : { url }),
+    );
+  };
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    autofillLifecycleService = mock<AutofillLifecycleService>();
+    runtimeBackground = createRuntimeBackground({ autofillLifecycleService });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("reports the frame's live URL rather than the URL it was committed at", async () => {
+    mockFrameLookup(routedUrl);
+    // `sender.url` stays pinned to the entry URL across the same-document navigation the
+    // monitor is reporting.
+    const sender = { frameId: 0, url: committedUrl, tab } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 0, routedUrl);
+  });
+
+  it("falls back to the sender URL when the frame lookup resolves nothing", async () => {
+    mockFrameLookup(undefined);
+    const subFrameUrl = "https://widget.example.test/form";
+    const sender = { frameId: 7, url: subFrameUrl, tab } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 7, subFrameUrl);
   });
 });

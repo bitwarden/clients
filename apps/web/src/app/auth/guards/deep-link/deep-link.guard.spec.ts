@@ -25,14 +25,6 @@ export class GuardedRouteTestComponent {}
   template: "",
   standalone: false,
 })
-export class LockTestComponent {}
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
-@Component({
-  template: "",
-  standalone: false,
-})
 export class RedirectTestComponent {}
 
 /**
@@ -40,7 +32,7 @@ export class RedirectTestComponent {}
  * RouterTestingHarness.
  *
  * when persisting a URL to storage we don't care wether or not the user is locked or logged out.
- * We only care about where the user is going, and has been.
+ * We only care about where the user is going.
  *
  * We are testing the activatedComponent because we are testing that the guard redirects when a user is
  * unlocked.
@@ -64,11 +56,6 @@ describe("Deep Link Guard", () => {
             canActivate: [deepLinkGuard()],
           },
           {
-            path: "lock-route",
-            component: LockTestComponent,
-            canActivate: [deepLinkGuard()],
-          },
-          {
             path: "redirect-route",
             component: RedirectTestComponent,
           },
@@ -79,59 +66,8 @@ describe("Deep Link Guard", () => {
     routerHarness = await RouterTestingHarness.create();
   });
 
-  // Story: User's vault times out
-  it('should persist routerService.previousUrl when routerService.previousUrl does not contain "lock"', async () => {
-    // Arrange
-    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
-    routerService.getPreviousUrl.mockReturnValue("/previous-url");
-
-    // Act
-    await routerHarness.navigateByUrl("/lock-route");
-
-    // Assert
-    expect(routerService.persistLoginRedirectUrl).toHaveBeenCalledWith("/previous-url");
-  });
-
-  // Story: User's vault times out and previousUrl contains "lock"
-  it('should not persist routerService.previousUrl when routerService.previousUrl contains "lock"', async () => {
-    // Arrange
-    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
-    routerService.getPreviousUrl.mockReturnValue("/lock");
-
-    // Act
-    await routerHarness.navigateByUrl("/lock-route");
-
-    // Assert
-    expect(routerService.persistLoginRedirectUrl).not.toHaveBeenCalled();
-  });
-
-  it('should not persist routerService.previousUrl when routerService.previousUrl contains "login-initiated"', async () => {
-    // Arrange
-    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
-    routerService.getPreviousUrl.mockReturnValue("/login-initiated");
-
-    // Act
-    await routerHarness.navigateByUrl("/lock-route");
-
-    // Assert
-    expect(routerService.persistLoginRedirectUrl).not.toHaveBeenCalled();
-  });
-
-  // Story: User's vault times out and previousUrl is undefined
-  it("should not persist routerService.previousUrl when routerService.previousUrl is undefined", async () => {
-    // Arrange
-    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
-    routerService.getPreviousUrl.mockReturnValue(undefined);
-
-    // Act
-    await routerHarness.navigateByUrl("/lock-route");
-
-    // Assert
-    expect(routerService.persistLoginRedirectUrl).not.toHaveBeenCalled();
-  });
-
   // Story: User tries to deep link to a guarded route and is logged out
-  it('should persist currentUrl when currentUrl does not contain "lock"', async () => {
+  it("should persist currentUrl when the user is logged out", async () => {
     // Arrange
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
 
@@ -142,23 +78,10 @@ describe("Deep Link Guard", () => {
     expect(routerService.persistLoginRedirectUrl).toHaveBeenCalledWith("/guarded-route?item=123");
   });
 
-  // Story: User tries to deep link to "lock"
-  it('should not persist currentUrl if the currentUrl contains "lock"', async () => {
-    // Arrange
-    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
-
-    // Act
-    await routerHarness.navigateByUrl("/lock-route");
-
-    // Assert
-    expect(routerService.persistLoginRedirectUrl).not.toHaveBeenCalled();
-  });
-
-  // Story: User tries to deep link to a guarded route from the lock page
-  it("should persist currentUrl over previousUrl", async () => {
+  // Story: User tries to deep link to a guarded route and is locked
+  it("should persist currentUrl when the user is locked", async () => {
     // Arrange
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
-    routerService.getPreviousUrl.mockReturnValue("/previous-url");
 
     // Act
     await routerHarness.navigateByUrl("/guarded-route?item=123");

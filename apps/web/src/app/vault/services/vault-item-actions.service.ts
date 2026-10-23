@@ -147,7 +147,10 @@ export class WebVaultItemActionsService {
       return;
     }
 
-    if (stored.login?.fido2Credentials?.length) {
+    const userId = await firstValueFrom(this.userId$);
+    const decrypted = await this.cipherService.decrypt(stored, userId);
+
+    if (CipherViewLikeUtils.hasFido2Credentials(decrypted)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },

@@ -9,6 +9,7 @@ import {
   inject,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -25,17 +26,12 @@ import {
 import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
-import { FilterPresenter } from "./filter-tokens";
+import { FilterPresenter, selectionCount } from "./filter-tokens";
 
 /** Data passed to {@link FilterDialogComponent} when the toolbar opens it. */
 export interface FilterDialogParams {
   /** The toolbar's projected filters, in row order. */
   readonly filters: Signal<readonly FilterPresenter[]>;
-}
-
-/** A toggle reports no labels, so its `active` state stands in for its one selection. */
-function optionCount(filter: FilterPresenter): number {
-  return Math.max(filter.selections().length, filter.active() ? 1 : 0);
 }
 
 /** The small-screen filter view. Opened by `bit-table-toolbar`. */
@@ -61,20 +57,29 @@ export class FilterDialogComponent {
 
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
+  /** The list page's rows, in `filters` order. Empty while drilled into a filter. */
+  private readonly rowEls = viewChildren("row", { read: ElementRef<HTMLElement> });
+
   protected readonly filters = inject<FilterDialogParams>(DIALOG_DATA).filters;
+
+  /** The list page's row for filter `key`, for anchoring a popover. */
+  row(key: string): ElementRef<HTMLElement> | undefined {
+    const index = this.filters().findIndex((filter) => filter.key() === key);
+    return this.rowEls()[index];
+  }
 
   /** The filter being drilled into, or `undefined` on the list page. */
   protected readonly activeFilter = signal<FilterPresenter | undefined>(undefined);
 
   /** How many options are selected across every filter — shown in the list page's footer. */
   protected readonly selectedCount = computed(() =>
-    this.filters().reduce((total, filter) => total + optionCount(filter), 0),
+    this.filters().reduce((total, filter) => total + selectionCount(filter), 0),
   );
 
   /** The same count for the filter being drilled into. */
   protected readonly activeSelectedCount = computed(() => {
     const filter = this.activeFilter();
-    return filter ? optionCount(filter) : 0;
+    return filter ? selectionCount(filter) : 0;
   });
 
   /** Whichever count the footer is showing — the drilled-into filter's, or every filter's. */

@@ -351,10 +351,10 @@ filter = (row: Member, f: Filters) =>
 
 Each chip or toggle registers itself with the table when projected in. **Option counts are
 automatic**: with a client-side `[filter]`, each `bit-filter-option` shows how many rows match that
-option on its own, ignoring the other active filters. No `[count]` needed. For **server-side**
-filtering, omit `[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to
-build your query, feed the pre-filtered rows to `data`, and set an explicit `[count]` on each option
-(the table can't compute it without the full dataset). See the
+option alongside the other active filters. No `[count]` needed. For **server-side** filtering, omit
+`[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to build your query,
+feed the pre-filtered rows to `data`, and set an explicit `[count]` on each option (the table can't
+compute it without the full dataset). See the
 [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
 (sections, nested options, in-menu search, radio + checkbox groups).
 
@@ -375,19 +375,21 @@ filter: (row, f) =>
 
 `<bit-table-toolbar>` renders above the header row and lays out in two rows:
 
-- **Top row** — the `<bit-search>` (capped at ~400px on wide viewports) and any `slot="end"`
-  controls (buttons, etc.), right-aligned. Below `md` those controls take a row of their own.
+- **Top row** — the `<bit-search>` (capped at ~400px) and any `slot="end"` controls (buttons, etc.),
+  right-aligned. When the toolbar's content is at or below the `sm` breakpoint (640px), those
+  controls take a row of their own.
 - **Filter row** — the filter chips, with a live "N items" count at the end. Separate groups of
   chips with `<bit-filter-divider>`. Once any filter is active, a "Clear all" button appears after
   the chips to reset them in one click — search is untouched.
 
 The filter row collapses into a single trigger and dialog once its contents stop fitting on one
-line, and always below `md`. Collapsed, the active filters get a row of dismissible chips beneath
-the search: a single-select or a toggle takes one chip naming the filter and its value
-(`Type: Login`), while a **multi-select takes one chip per selected option**, named for the option
-alone and led by the filter's `icon`. Dismissing one of those drops just that option; the others
-stay applied. Each chip's dismiss button is named for both the filter and the option, so a screen
-reader still hears which filter a chip belongs to.
+line, and always when the toolbar's content is at or below the `sm` breakpoint (640px). The
+toolbar's own width decides, not the viewport's. Collapsed, the active filters get a row of
+dismissible chips beneath the search: a single-select or a toggle takes one chip naming the filter
+and its value (`Type: Login`), while a **multi-select takes one chip per selected option**, named
+for the option alone and led by the filter's `icon`. Dismissing one of those drops just that option;
+the others stay applied. Each chip's dismiss button is named for both the filter and the option, so
+a screen reader still hears which filter a chip belongs to.
 
 ```html
 <bit-table-v2 [tableDef]="table">

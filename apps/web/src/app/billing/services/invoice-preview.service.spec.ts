@@ -9,6 +9,7 @@ import {
   InvoicePreviewClient,
   OrganizationPlanChangePreviewRequest,
   OrganizationPurchasePreviewRequest,
+  OrganizationRestartPreviewRequest,
   PremiumOrgUpgradePreviewRequest,
 } from "../clients/invoice-preview.client";
 
@@ -71,7 +72,10 @@ describe("InvoicePreviewService", () => {
     it("should bake the personal-checkout flow context", async () => {
       mockClient.previewPremiumPurchase.mockResolvedValue(preview("premium") as never);
 
-      const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
+      const cart = await sut.previewPremiumPurchaseCart({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
 
       expect(cart.passwordManager.seats.translationKey).toBe("premiumMembership");
       expect(mockLogService.error).not.toHaveBeenCalled();
@@ -84,7 +88,10 @@ describe("InvoicePreviewService", () => {
         amountDue: 200,
       } as never);
 
-      const cart = await sut.previewPremiumPurchaseCart({ additionalStorage: 0 });
+      const cart = await sut.previewPremiumPurchaseCart({
+        additionalStorage: 0,
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
 
       expect(cart.total).toBe(259.6);
       expect(cart.amountDue).toBe(200);
@@ -204,13 +211,40 @@ describe("InvoicePreviewService", () => {
     });
   });
 
+  describe("previewRestartCart", () => {
+    const request: OrganizationRestartPreviewRequest = {
+      billingAddress: { country: "US", postalCode: "12345", taxId: null },
+    };
+
+    it("should bake the restart-subscription flow context", async () => {
+      mockClient.previewOrganizationRestart.mockResolvedValue(preview("teams") as never);
+
+      const cart = await sut.previewRestartCart("org-id-123", request);
+
+      expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
+      expect(cart.credit).toBeUndefined();
+      expect(mockLogService.error).not.toHaveBeenCalled();
+    });
+
+    it("should pass the organization id through to the client", async () => {
+      mockClient.previewOrganizationRestart.mockResolvedValue(preview("teams") as never);
+
+      await sut.previewRestartCart("org-id-123", request);
+
+      expect(mockClient.previewOrganizationRestart).toHaveBeenCalledWith("org-id-123", request);
+    });
+  });
+
   describe("error propagation", () => {
     it("should let client errors propagate", async () => {
       mockClient.previewPremiumPurchase.mockRejectedValue(new Error("404 Not Found"));
 
-      await expect(sut.previewPremiumPurchaseCart({ additionalStorage: 0 })).rejects.toThrow(
-        "404 Not Found",
-      );
+      await expect(
+        sut.previewPremiumPurchaseCart({
+          additionalStorage: 0,
+          billingAddress: { country: "US", postalCode: "12345" },
+        }),
+      ).rejects.toThrow("404 Not Found");
     });
   });
 });

@@ -214,12 +214,14 @@ export class ShareLinkService {
         if (!ffEnabled || !hasPremium) {
           return false;
         }
-        // Cannot be shared if the cipher is undefined, archived, deleted, or an SSH key
+        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or gated
+        // ("partial") by PAM
         if (
           !c ||
           c.archivedDate ||
           c.deletedDate ||
-          CipherViewLikeUtils.getType(c) === CipherType.SshKey
+          CipherViewLikeUtils.getType(c) === CipherType.SshKey ||
+          CipherViewLikeUtils.isPartial(c)
         ) {
           return false;
         }
