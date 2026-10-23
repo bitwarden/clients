@@ -12579,6 +12579,10 @@
       }
     }
   },
+  "privilegedControlsSeatLimitDesc": {
+    "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to give more members Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "privilegedControlsSeatLimitBelowSeats": {
     "message": "Seat limit can't be less than the number of seats."
   },

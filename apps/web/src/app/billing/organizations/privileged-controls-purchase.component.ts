@@ -85,12 +85,13 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
 
     seats.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => maxAutoscaleSeats.updateValueAndValidity({ emitEvent: false }));
+      .subscribe(() => maxAutoscaleSeats.updateValueAndValidity());
   }
 
   protected readonly submit = async () => {
+    this.formGroup.markAllAsTouched();
     const { seats, maxAutoscaleSeats } = this.formGroup.getRawValue();
-    if (seats == null) {
+    if (this.formGroup.invalid || seats == null) {
       return;
     }
 

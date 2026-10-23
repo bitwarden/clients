@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { StatusChangeEvent } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -134,6 +135,34 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       form().controls.seats.setValue(13);
       expect(form().controls.maxAutoscaleSeats.hasError("seatLimitBelowSeats")).toBe(true);
     });
+
+    it("notifies the seat limit field of its new status when seats change", () => {
+      createComponent();
+      enableAndFill(12, 12);
+      const statusEvents: unknown[] = [];
+      form().controls.maxAutoscaleSeats.events.subscribe((event) => {
+        if (event instanceof StatusChangeEvent) {
+          statusEvents.push(event);
+        }
+      });
+
+      form().controls.seats.setValue(13);
+
+      expect(statusEvents.length).toBeGreaterThan(0);
+    });
+
+    it("shows a hint under the seat limit field", () => {
+      createComponent();
+      fixture.nativeElement.querySelector("#privileged-controls-purchase_input_enabled").click();
+      fixture.detectChanges();
+
+      const seatLimitInput: HTMLElement = fixture.nativeElement.querySelector(
+        "#privileged-controls-purchase_input_seat-limit",
+      );
+      expect(seatLimitInput.closest("bit-form-field")?.textContent).toContain(
+        "privilegedControlsSeatLimitDesc",
+      );
+    });
   });
 
   describe("submit", () => {
@@ -160,6 +189,24 @@ describe("PrivilegedControlsPurchaseComponent", () => {
         seats: 15,
         maxAutoscaleSeats: null,
       });
+    });
+
+    it("does not purchase when seats are below the minimum", async () => {
+      createComponent();
+      enableAndFill(9, null);
+
+      await component["submit"]();
+
+      expect(billingClient.purchasePrivilegedControls).not.toHaveBeenCalled();
+    });
+
+    it("does not purchase when the seat limit is below seats", async () => {
+      createComponent();
+      enableAndFill(12, 11);
+
+      await component["submit"]();
+
+      expect(billingClient.purchasePrivilegedControls).not.toHaveBeenCalled();
     });
 
     it("does not purchase when seats are empty", async () => {
