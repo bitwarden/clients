@@ -68,14 +68,16 @@ jobs:
       - name: Verify
         run: |
           PACKAGE_VERSION=$(jq -r .devDependencies.electron package.json)
-          ELECTRON_BUILDER_VERSION=$(jq -r .electronVersion ./apps/desktop/electron-builder.json)
+          for CONFIG in ./apps/desktop/electron-builder{,.beta}.json; do
+            ELECTRON_BUILDER_VERSION=$(jq -r .electronVersion "$CONFIG")
 
-          if [[ "$PACKAGE_VERSION" == "$ELECTRON_BUILDER_VERSION"  ]]; then
-            echo "Versions matches"
-          else
-            echo "Version mismatch, package.json: $PACKAGE_VERSION, electron-builder.json: $ELECTRON_BUILDER_VERSION"
-            exit 1
-          fi
+            if [[ "$PACKAGE_VERSION" == "$ELECTRON_BUILDER_VERSION" ]]; then
+              echo "Versions match: $CONFIG"
+            else
+              echo "Version mismatch, package.json: $PACKAGE_VERSION, $CONFIG: $ELECTRON_BUILDER_VERSION"
+              exit 1
+            fi
+          done
 
   setup:
     name: Setup
