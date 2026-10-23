@@ -440,6 +440,122 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["buildAutofillFieldsData"]).toHaveBeenCalled();
       expect(collectAutofillContentService["noFieldsFound"]).toBe(true);
     });
+
+    describe("rule qualification branch", () => {
+      const sampleRule = [{ category: "login", fields: {} }] as any;
+      const fallbackPageDetails = { foo: "fallback" } as any;
+      const targetedPageDetails = { foo: "targeted" } as any;
+      let ruleQualificationService: {
+        qualifyRule: jest.Mock;
+      };
+
+      beforeEach(() => {
+        ruleQualificationService = { qualifyRule: jest.fn() };
+        collectAutofillContentService.setRuleQualificationService(ruleQualificationService as any);
+        jest
+          .spyOn(collectAutofillContentService as any, "getTargetedPageDetails")
+          .mockResolvedValue(targetedPageDetails);
+      });
+
+      it("does not run qualification when ruleFailureFallback is unset", async () => {
+        collectAutofillContentService["pageTargetingRules"] = sampleRule;
+        collectAutofillContentService["ruleFailureFallback"] = undefined;
+
+        await collectAutofillContentService.getPageDetails();
+
+        expect(ruleQualificationService.qualifyRule).not.toHaveBeenCalled();
+      });
+
+      it("runs qualification and returns targeted page details on proceedTargeted", async () => {
+        collectAutofillContentService["pageTargetingRules"] = sampleRule;
+        collectAutofillContentService["ruleFailureFallback"] = true;
+        ruleQualificationService.qualifyRule.mockResolvedValue({ kind: "proceedTargeted" });
+
+        const result = await collectAutofillContentService.getPageDetails();
+
+        expect(ruleQualificationService.qualifyRule).toHaveBeenCalledWith(
+          location.href,
+          sampleRule,
+        );
+        expect(collectAutofillContentService["getTargetedPageDetails"]).toHaveBeenCalledWith(
+          sampleRule,
+        );
+        expect(result).toBe(targetedPageDetails);
+      });
+
+      it("pins pageTargetingRules to null and returns the fallback page details on miss", async () => {
+        collectAutofillContentService["pageTargetingRules"] = sampleRule;
+        collectAutofillContentService["ruleFailureFallback"] = true;
+        ruleQualificationService.qualifyRule.mockResolvedValue({
+          kind: "fallback",
+          missReason: "structural",
+          pageDetails: fallbackPageDetails,
+        });
+
+        const result = await collectAutofillContentService.getPageDetails();
+
+        expect(result).toBe(fallbackPageDetails);
+        expect(collectAutofillContentService["pageTargetingRules"]).toBeNull();
+      });
+
+      it("reuses the cached qualification result on subsequent calls", async () => {
+        collectAutofillContentService["pageTargetingRules"] = sampleRule;
+        collectAutofillContentService["ruleFailureFallback"] = true;
+        ruleQualificationService.qualifyRule.mockResolvedValue({ kind: "proceedTargeted" });
+
+        await collectAutofillContentService.getPageDetails();
+        await collectAutofillContentService.getPageDetails();
+
+        expect(ruleQualificationService.qualifyRule).toHaveBeenCalledTimes(1);
+      });
+
+      it("falls through to the heuristic path on subsequent calls after a miss", async () => {
+        collectAutofillContentService["pageTargetingRules"] = sampleRule;
+        collectAutofillContentService["ruleFailureFallback"] = true;
+        ruleQualificationService.qualifyRule.mockResolvedValue({
+          kind: "fallback",
+          missReason: "structural",
+          pageDetails: fallbackPageDetails,
+        });
+
+        await collectAutofillContentService.getPageDetails();
+        // pageTargetingRules is now null; second call should not re-enter the branch
+        await collectAutofillContentService.getPageDetails();
+
+        expect(ruleQualificationService.qualifyRule).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not run qualification when the service has not been wired", async () => {
+        // Fresh instance without setRuleQualificationService call
+        const freshService = new CollectAutofillContentService(
+          mock<DomElementVisibilityService>(),
+          mock<DomQueryService>(),
+          mock<AutofillOverlayContentService>(),
+        );
+        jest.spyOn(freshService as any, "sendExtensionMessage").mockResolvedValue({ result: null });
+        freshService["pageTargetingRules"] = sampleRule;
+        freshService["ruleFailureFallback"] = true;
+
+        await expect(freshService.getPageDetails()).resolves.toBeDefined();
+        expect(ruleQualificationService.qualifyRule).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("clearCachedTargetingRules", () => {
+      it("resets all three URL-scoped caches", () => {
+        collectAutofillContentService["pageTargetingRules"] = [] as any;
+        collectAutofillContentService["ruleFailureFallback"] = true;
+        collectAutofillContentService["ruleQualificationResult"] = {
+          kind: "proceedTargeted",
+        } as any;
+
+        collectAutofillContentService.clearCachedTargetingRules();
+
+        expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+        expect(collectAutofillContentService["ruleFailureFallback"]).toBeUndefined();
+        expect(collectAutofillContentService["ruleQualificationResult"]).toBeUndefined();
+      });
+    });
   });
 
   describe("applyExternalTargetedFields", () => {

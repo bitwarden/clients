@@ -39,6 +39,7 @@ import { DomElementVisibilityService } from "./abstractions/dom-element-visibili
 import { DomQueryService } from "./abstractions/dom-query.service";
 import {
   InScopeFormsDetection,
+  QualificationResult,
   RuleQualificationService,
 } from "./abstractions/rule-qualification.service";
 import { AutoFillConstants } from "./autofill-constants";
@@ -71,6 +72,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * [] = blocklisted (suppress autofill), [...] = use targeted fill
    */
   private pageTargetingRules: FormContent[] | null | undefined = undefined;
+  // Populated alongside `pageTargetingRules` from the background envelope. Sibling
+  // caches that short-circuit the per-call qualification cost (Half 1 + Half 2) on
+  // subsequent `getPageDetails()` calls for the same page load.
+  private ruleFailureFallback: boolean | undefined = undefined;
+  private ruleQualificationResult: QualificationResult | undefined = undefined;
   private ruleQualificationService?: RuleQualificationService;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
@@ -285,6 +291,33 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     const targetingRules = this.pageTargetingRules;
+
+    // Rule qualification branch. When the envelope's `ruleFailureFallback`
+    // is set and a non-empty rule matches, run qualification once per page
+    // load and route on the result. On miss, pin `pageTargetingRules = null`
+    // so later calls on this document skip this branch and run the heuristic
+    // path. The null check on `ruleQualificationService` guards against the
+    // branch firing before the service is wired by content-script DI setup.
+    if (
+      this.ruleFailureFallback &&
+      targetingRules != null &&
+      targetingRules.length > 0 &&
+      this.ruleQualificationService
+    ) {
+      if (this.ruleQualificationResult === undefined) {
+        this.ruleQualificationResult = await this.ruleQualificationService.qualifyRule(
+          location.href,
+          targetingRules,
+        );
+      }
+      const qualification = this.ruleQualificationResult;
+      if (qualification.kind === "proceedTargeted") {
+        return this.getTargetedPageDetails(targetingRules);
+      }
+      this.pageTargetingRules = null;
+      return qualification.pageDetails;
+    }
+
     if (targetingRules != null) {
       if (targetingRules.length === 0) {
         // Blocklisted; return empty page details, skip heuristics
@@ -617,6 +650,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   clearCachedTargetingRules(): void {
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
   }
 
   /**
@@ -1631,6 +1666,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Targeting rules are URL-scoped and gated by user/feature state at fetch
     // time; the new URL must re-fetch to pick up rule and gate changes.
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
 
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
