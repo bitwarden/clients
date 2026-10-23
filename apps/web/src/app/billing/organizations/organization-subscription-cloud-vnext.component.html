@@ -89,6 +89,17 @@
         </div>
       }
 
+      @if (showPrivilegedControlsPurchase() && orgSub && org) {
+        <div class="tw-mt-7">
+          <app-privileged-controls-purchase
+            [plan]="orgSub.plan"
+            [organizationId]="org.id"
+            [customerDiscount]="customerDiscount()"
+            (purchased)="subscriptionAdjusted()"
+          />
+        </div>
+      }
+
       <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
 
       @if (customerDiscount()?.id === "sm-standalone") {

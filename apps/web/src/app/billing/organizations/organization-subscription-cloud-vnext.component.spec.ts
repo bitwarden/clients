@@ -25,6 +25,7 @@ import { OrganizationBillingClient } from "../clients";
 import { AdjustSubscription } from "./adjust-subscription.component";
 import { OrganizationSubscriptionCloudVNextComponent } from "./organization-subscription-cloud-vnext.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import { PrivilegedControlsPurchaseComponent } from "./privileged-controls-purchase.component";
 import * as restartSubscriptionDialog from "./restart-subscription-dialog.component";
 import { RestartSubscriptionDialogResultType } from "./restart-subscription-dialog.component";
 import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
@@ -71,6 +72,18 @@ class MockSmSubscribeStandaloneComponent {
 }
 
 @Component({
+  selector: "app-privileged-controls-purchase",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockPrivilegedControlsPurchaseComponent {
+  readonly plan = input<unknown>();
+  readonly organizationId = input<unknown>();
+  readonly customerDiscount = input<unknown>();
+  readonly purchased = output<void>();
+}
+
+@Component({
   selector: "app-sm-adjust-subscription",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -103,6 +116,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let previewCartFlag$: BehaviorSubject<boolean>;
   let openRestartDialog: jest.SpyInstance;
+  let configService: jest.Mocked<ConfigService>;
 
   const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
@@ -221,9 +235,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     router.events = new Subject();
     platformUtilsService = mock<PlatformUtilsService>();
     previewCartFlag$ = new BehaviorSubject<boolean>(false);
-    const configService = mock<ConfigService>();
+    configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation((flag) =>
-      flag === FeatureFlag.PM36631_PreviewDrivenCart ? previewCartFlag$ : of(false),
+      flag === FeatureFlag.PM36631_PreviewDrivenCart ? previewCartFlag$ : of(true),
     );
     openRestartDialog = jest
       .spyOn(restartSubscriptionDialog, "openRestartSubscriptionDialog")
@@ -262,6 +276,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           SecretsManagerSubscribeStandaloneComponent,
           SecretsManagerAdjustSubscriptionComponent,
           OrganizationScheduledPriceIncreaseWarningComponent,
+          PrivilegedControlsPurchaseComponent,
         ],
       },
       add: {
@@ -271,6 +286,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           MockSmSubscribeStandaloneComponent,
           MockSmAdjustSubscriptionComponent,
           MockScheduledPriceIncreaseWarningComponent,
+          MockPrivilegedControlsPurchaseComponent,
         ],
       },
     });
@@ -869,6 +885,109 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
       expect(fixture.nativeElement.querySelector("billing-subscription-card")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("#privileged-controls")).toBeNull();
+    });
+  });
+
+  describe("privileged controls purchase gating", () => {
+    const buildEligibleOrganization = (overrides: Partial<Organization> = {}) =>
+      buildOrganization({
+        canEditSubscription: true,
+        usePam: false,
+        productTierType: ProductTierType.Enterprise,
+        ...overrides,
+      });
+
+    const buildEnterpriseSubscription = (
+      planOverrides: Record<string, unknown> = {},
+      overrides: Partial<OrganizationSubscriptionResponse> = {},
+    ) => {
+      const base = buildSubscriptionResponse();
+      return buildSubscriptionResponse({
+        planType: PlanType.EnterpriseAnnually,
+        plan: {
+          ...base.plan,
+          productTier: ProductTierType.Enterprise,
+          PrivilegedControls: { seatPrice: 120, defaultSeatMinimum: 10 },
+          ...planOverrides,
+        } as OrganizationSubscriptionResponse["plan"],
+        ...overrides,
+      });
+    };
+
+    const mockFlags = (billing: boolean, pam: boolean) =>
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
+        if (flag === FeatureFlag.PM36631_PreviewDrivenCart) {
+          return previewCartFlag$;
+        }
+        return of(flag === FeatureFlag.PM39883_PamBillingSupport ? billing : pam);
+      });
+
+    /** Renders and waits for the subscription resource so each gate is evaluated on loaded data. */
+    const render = async (options: {
+      organization: Organization;
+      subscription: OrganizationSubscriptionResponse;
+    }) => {
+      createComponent({ ...options, detectChanges: true });
+      await fixture.whenStable();
+      expect(component.organizationSubscription()).not.toBeNull();
+    };
+
+    it("shows the purchase block for an eligible Enterprise organization", async () => {
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription(),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(true);
+    });
+
+    it("hides it when the billing flag is off", async () => {
+      mockFlags(false, true);
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription(),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it when the PAM product flag is off", async () => {
+      mockFlags(true, false);
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription(),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it when the organization already has Privileged Controls", async () => {
+      await render({
+        organization: buildEligibleOrganization({ usePam: true }),
+        subscription: buildEnterpriseSubscription(),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it for a non-Enterprise plan", async () => {
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription({ productTier: ProductTierType.Teams }),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it when the plan has no Privileged Controls pricing", async () => {
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription({ PrivilegedControls: null }),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it when the subscription is cancelled", async () => {
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription({}, { subscription: { cancelled: true } as any }),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
     });
   });
 
