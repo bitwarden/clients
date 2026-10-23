@@ -4,18 +4,41 @@ import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-interna
 import { BrowserApi } from "../../browser/browser-api";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { IPC_FOREGROUND_PORT_NAME } from "./ipc-foreground-port-name";
+import {
+  IPC_FOREGROUND_PORT_NAME,
+  IPC_FOREGROUND_WAKE_PORT_NAME,
+} from "./ipc-foreground-port-name";
 
 const BACKGROUND_SOURCE = { BrowserBackground: { id: "Own" } } satisfies Source;
 
 /**
- * Extension page side of the transport to the background. Connects a runtime port on first send
- * and handles the `BrowserBackground` destination.
+ * Extension page side of the transport to the background. Holds a runtime port to the background
+ * and handles the `BrowserBackground` destination. The port is opened by {@link init}, when the
+ * background asks for it, or on the next send after a disconnect.
  */
 export class BrowserBackgroundIpcTransport {
   private port?: chrome.runtime.Port;
 
   constructor(private receive: (message: IncomingMessage) => void) {}
+
+  /**
+   * Connects to the background so the page is addressable before it sends anything, and
+   * reconnects when a restarted background asks open pages to connect.
+   */
+  init() {
+    BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
+      // Other extension pages open unrelated ports that are also delivered here
+      if (port.name !== IPC_FOREGROUND_WAKE_PORT_NAME) {
+        return;
+      }
+
+      // The wake port is only a signal, closing it lets the background release it
+      port.disconnect();
+      this.connect();
+    });
+
+    this.connect();
+  }
 
   async send(message: OutgoingMessage): Promise<void> {
     if (typeof message.destination !== "object" || !("BrowserBackground" in message.destination)) {

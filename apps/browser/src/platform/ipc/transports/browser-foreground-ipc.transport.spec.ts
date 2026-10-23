@@ -6,7 +6,10 @@ import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserForegroundIpcTransport } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { IPC_FOREGROUND_PORT_NAME } from "./ipc-foreground-port-name";
+import {
+  IPC_FOREGROUND_PORT_NAME,
+  IPC_FOREGROUND_WAKE_PORT_NAME,
+} from "./ipc-foreground-port-name";
 
 function createPort(name = IPC_FOREGROUND_PORT_NAME, origin = "chrome-extension://id") {
   const messageListeners: ((message: unknown) => void)[] = [];
@@ -45,10 +48,44 @@ describe("BrowserForegroundIpcTransport", () => {
     onConnect(port);
   };
 
+  let wakePort: ReturnType<typeof createPort>;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    wakePort = createPort(IPC_FOREGROUND_WAKE_PORT_NAME);
+    (chrome.runtime.connect as jest.Mock).mockReturnValue(wakePort.port);
     transport = new BrowserForegroundIpcTransport(logService, receive);
     transport.init();
+  });
+
+  it("asks open extension pages to connect on init", () => {
+    expect(chrome.runtime.connect).toHaveBeenCalledTimes(1);
+    expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: IPC_FOREGROUND_WAKE_PORT_NAME });
+    expect(wakePort.port.postMessage).not.toHaveBeenCalled();
+  });
+
+  it("tolerates the wake port disconnecting when no page is open", () => {
+    expect(() => wakePort.disconnect()).not.toThrow();
+  });
+
+  it("logs and continues accepting ports when the wake port cannot be opened", () => {
+    jest.clearAllMocks();
+    (chrome.runtime.connect as jest.Mock).mockImplementation(() => {
+      throw new Error("connect failed");
+    });
+    transport = new BrowserForegroundIpcTransport(logService, receive);
+
+    transport.init();
+    connect(createPort().port);
+
+    expect(logService.warning).toHaveBeenCalled();
+    expect(transport.connectedEndpoints()).toEqual([{ BrowserForeground: { id: 1 } }]);
+  });
+
+  it("does not accept its own wake port as a page", () => {
+    connect(createPort(IPC_FOREGROUND_WAKE_PORT_NAME).port);
+
+    expect(transport.connectedEndpoints()).toEqual([]);
   });
 
   it("assigns each port a new id and stamps it as the source", () => {
@@ -154,6 +191,30 @@ describe("BrowserForegroundIpcTransport", () => {
         payload: new Uint8Array(),
       } as OutgoingMessage),
     ).rejects.toThrow(DESTINATION_UNREACHABLE_ERROR);
+  });
+
+  it("reports the endpoints of connected ports", () => {
+    connect(createPort().port);
+    connect(createPort().port);
+
+    expect(transport.connectedEndpoints()).toEqual([
+      { BrowserForeground: { id: 1 } },
+      { BrowserForeground: { id: 2 } },
+    ]);
+  });
+
+  it("stops reporting the endpoint of a disconnected port", () => {
+    const first = createPort();
+    connect(first.port);
+    connect(createPort().port);
+
+    first.disconnect();
+
+    expect(transport.connectedEndpoints()).toEqual([{ BrowserForeground: { id: 2 } }]);
+  });
+
+  it("reports no endpoints before any port connects", () => {
+    expect(transport.connectedEndpoints()).toEqual([]);
   });
 
   it("removes the port on disconnect", async () => {

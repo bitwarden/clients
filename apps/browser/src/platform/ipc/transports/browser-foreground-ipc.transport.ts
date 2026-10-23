@@ -5,12 +5,15 @@ import {
   reconstructIpcMessage,
   SerializedOutgoingMessage,
 } from "@bitwarden/common/platform/ipc";
-import { IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
+import { Endpoint, IncomingMessage, OutgoingMessage, Source } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../../browser/browser-api";
 
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
-import { IPC_FOREGROUND_PORT_NAME } from "./ipc-foreground-port-name";
+import {
+  IPC_FOREGROUND_PORT_NAME,
+  IPC_FOREGROUND_WAKE_PORT_NAME,
+} from "./ipc-foreground-port-name";
 
 // Matches the SDK's incoming channel capacity, so draining the held messages cannot overflow it.
 const MAX_PENDING_MESSAGES = 20;
@@ -34,9 +37,10 @@ export class BrowserForegroundIpcTransport {
   ) {}
 
   /**
-   * Starts accepting ports. Must run synchronously during service worker startup so a port that
-   * wakes the worker is not missed. Up to {@link MAX_PENDING_MESSAGES} messages are held until
-   * {@link start} is called, dropping the oldest.
+   * Starts accepting ports and asks already open extension pages to connect. Must run
+   * synchronously during service worker startup so a port that wakes the worker is not missed.
+   * Up to {@link MAX_PENDING_MESSAGES} messages are held until {@link start} is called, dropping
+   * the oldest.
    */
   init() {
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
@@ -71,6 +75,8 @@ export class BrowserForegroundIpcTransport {
         void chrome.runtime.lastError;
       });
     });
+
+    this.wakeForegrounds();
   }
 
   /**
@@ -81,6 +87,13 @@ export class BrowserForegroundIpcTransport {
     const pending = this.pending;
     this.pending = [];
     pending.forEach((message) => this.deliver(message));
+  }
+
+  /**
+   * The endpoints of the extension pages that currently hold an open port, in connection order.
+   */
+  connectedEndpoints(): Endpoint[] {
+    return [...this.ports.keys()].map((id) => ({ BrowserForeground: { id } }));
   }
 
   async send(message: OutgoingMessage): Promise<void> {
@@ -104,6 +117,23 @@ export class BrowserForegroundIpcTransport {
       } satisfies IpcMessage);
     } catch {
       throw new Error(DESTINATION_UNREACHABLE_ERROR);
+    }
+  }
+
+  /**
+   * Pages lose their port when the service worker stops, so a fresh worker would not know about
+   * pages that are already open. Every open page receives this port in `runtime.onConnect`,
+   * connects its own port and disconnects this one.
+   */
+  private wakeForegrounds() {
+    try {
+      const port = chrome.runtime.connect({ name: IPC_FOREGROUND_WAKE_PORT_NAME });
+      port.onDisconnect.addListener(() => {
+        // Suppress the error raised when no page is open to receive the port
+        void chrome.runtime.lastError;
+      });
+    } catch (e) {
+      this.logService.warning("[IPC] Failed to wake extension pages", e);
     }
   }
 
