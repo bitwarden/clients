@@ -3,9 +3,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
@@ -159,32 +157,17 @@ type Story = StoryObj<ApprovalsTabComponent>;
 /** Both sections populated: decisions to make, and access already running. */
 export const Default: Story = {
   decorators: [inbox({ leases: activeLeases })],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
 };
 
-/** {@link Default} on the `bit-table-v2` path the VFO1 flag selects. */
-export const FlagOn: Story = {
+/** A chip applied, which renders the toolbar's applied-filter row. */
+export const Filtered: Story = {
   decorators: [inbox({ leases: activeLeases })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-};
-
-/** A chip applied on the `bit-table-v2` path, which renders the toolbar's applied-filter row. */
-export const FlagOnFiltered: Story = {
-  decorators: [inbox({ leases: activeLeases })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
     const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
     await userEvent.click(trigger);
     await userEvent.click(await within(document.body).findByText("Production"));
     await userEvent.keyboard("{Escape}");
   },
-};
-
-/** The skeleton on the `bit-table-v2` path, delayed past the hold-back as {@link Loading} is. */
-export const LoadingFlagOn: Story = {
-  decorators: [inbox({ rows: [], loading: true })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-  parameters: { chromatic: { delay: 1500 } },
 };
 
 /** Nothing left to decide, but the access the operator granted is still live and can be ended. */

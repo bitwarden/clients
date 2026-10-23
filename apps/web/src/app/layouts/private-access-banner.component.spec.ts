@@ -1,10 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import {
@@ -22,8 +19,6 @@ describe("PrivateAccessBannerComponent", () => {
   let fixture: ComponentFixture<PrivateAccessBannerComponent>;
   let measuredHeight: jest.SpyInstance<DOMRect>;
   const i18nService = mock<I18nService>();
-  const configService = mock<ConfigService>();
-  let vfo1Enabled: BehaviorSubject<boolean>;
 
   const banner = (target = fixture) => target.debugElement.query(By.css("bit-banner"));
   const link = () => banner().query(By.css("a")).nativeElement as HTMLAnchorElement;
@@ -42,20 +37,13 @@ describe("PrivateAccessBannerComponent", () => {
 
   beforeEach(async () => {
     i18nService.t.mockImplementation((key) => key);
-    vfo1Enabled = new BehaviorSubject(false);
-    configService.getFeatureFlag$.mockImplementation((flag) =>
-      flag === FeatureFlag.VFO1Foundation ? vfo1Enabled : new BehaviorSubject(false),
-    );
     measuredHeight = jest
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockReturnValue({ height: 43.5 } as DOMRect);
 
     await TestBed.configureTestingModule({
       imports: [PrivateAccessBannerComponent],
-      providers: [
-        { provide: I18nService, useValue: i18nService },
-        { provide: ConfigService, useValue: configService },
-      ],
+      providers: [{ provide: I18nService, useValue: i18nService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PrivateAccessBannerComponent);
@@ -140,13 +128,8 @@ describe("PrivateAccessBannerComponent", () => {
       expect(hostClasses(layoutFixture)).not.toContain("tw-top-0");
     });
 
-    it("drops the padding offset when the VFO1 layout removes main's top padding for a header", () => {
-      vfo1Enabled.next(true);
-      layoutFixture.detectChanges();
-
-      expect(hostClasses(layoutFixture)).toEqual(
-        expect.arrayContaining(["-tw-top-6", "[main:has(bit-header)>&]:tw-top-0"]),
-      );
+    it("drops the padding offset when main has no top padding for a header", () => {
+      expect(hostClasses(layoutFixture)).toContain("[main:has(bit-header)>&]:tw-top-0");
     });
 
     it("does not publish a height of its own", () => {

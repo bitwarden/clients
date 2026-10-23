@@ -15,8 +15,6 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
@@ -42,8 +40,6 @@ import {
   SkeletonComponent,
   SkeletonTextComponent,
   SortState,
-  TableDataSource,
-  TableModule,
   TooltipDirective,
   TypographyModule,
   defineTable,
@@ -110,7 +106,6 @@ type LeaseColumn = ColumnName<ManagedLeaseRow, "window" | "actions">;
     SearchModule,
     SkeletonComponent,
     SkeletonTextComponent,
-    TableModule,
     TooltipDirective,
     TypographyModule,
     I18nPipe,
@@ -123,13 +118,6 @@ export class ApprovalsTabComponent {
   private readonly inbox = inject(ApproverInboxService);
   private readonly approverActions = inject(ApproverActionsService);
   private readonly ticker = inject(AccessBadgeTickerService);
-  private readonly configService = inject(ConfigService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   private readonly deciding = signal<Set<string>>(new Set());
 
@@ -194,7 +182,7 @@ export class ApprovalsTabComponent {
 
   /**
    * Leases still inside their window by a live clock, since one can lapse with no push. Compared
-   * by identity so the tick only reaches `leasesDataSource` when rows change.
+   * by identity so the tick only reaches the lease table when rows change.
    */
   private readonly liveLeases = computed(
     () => this.allLeases().filter((row) => row.endsAtMs > this.nowMs()),
@@ -272,9 +260,6 @@ export class ApprovalsTabComponent {
     () => this.skeletonShown() && !this.skeletonVisible() && this.loadError() == null,
   );
 
-  protected readonly dataSource = new TableDataSource<ApprovalRow>();
-  protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
-
   /**
    * Fed the unfiltered inbox, since the projected toolbar registers with this table and it filters
    * through {@link rowMatchesFilter}. Pre-filtered rows would filter twice and skew each chip's
@@ -298,8 +283,8 @@ export class ApprovalsTabComponent {
   private readonly atLeastXl = isAtOrLargerThanBreakpointSignal("xl");
 
   /**
-   * A v2 column is a grid track, so a breakpoint class on its cells would leave an empty track
-   * behind; the narrow-viewport hiding v1 does with `tw-hidden` is done by omission instead.
+   * A column is a grid track, so a breakpoint class on its cells would leave an empty track behind;
+   * narrow viewports drop columns from this list instead.
    */
   protected readonly displayedColumns = computed<ApprovalColumn[]>(() => [
     "cipherName",
@@ -332,12 +317,6 @@ export class ApprovalsTabComponent {
   );
 
   constructor() {
-    effect(() => {
-      this.dataSource.data = this.rows();
-    });
-    effect(() => {
-      this.leasesDataSource.data = this.leaseRows();
-    });
     effect(() => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);

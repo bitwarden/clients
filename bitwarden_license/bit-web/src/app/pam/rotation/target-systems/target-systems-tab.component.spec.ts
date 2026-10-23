@@ -6,7 +6,6 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -45,10 +44,9 @@ function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView
   return targetSystem({ id: sysId("sys-1"), ...overrides });
 }
 
-function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
-  const configService = mock<ConfigService>();
-  configService.getFeatureFlag$.mockReturnValue(of(enabled));
-  return configService;
+/** The component's row list, read off its private `rows` signal. */
+function rowsOf(component: TargetSystemsTabComponent): TargetSystemRow[] {
+  return (component as unknown as { rows: () => TargetSystemRow[] }).rows();
 }
 
 describe("TargetSystemsTabComponent", () => {
@@ -92,7 +90,6 @@ describe("TargetSystemsTabComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
-        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -611,7 +608,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       return (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
-        "tbody tr td:first-child button",
+        "bit-table-v2 bit-row button[bitLink]",
       )!;
     }
 
@@ -621,13 +618,6 @@ describe("TargetSystemsTabComponent", () => {
       expect(button.textContent).toContain("dc01 service accounts");
       expect(button.classList).toContain("tw-text-fg-brand");
     });
-
-    it("keeps the name keyboard focusable", async () => {
-      const button = await nameCellButton();
-
-      expect(button.tagName).toBe("BUTTON");
-      expect(button.getAttribute("tabindex")).not.toBe("-1");
-    });
   });
 
   describe("session termination column", () => {
@@ -636,9 +626,9 @@ describe("TargetSystemsTabComponent", () => {
       targetSystemsService.systems$.next([makeSystem(system)]);
       await createComponent({ renderTemplate: true });
 
-      return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
-        "tbody tr td:nth-child(5)",
-      )!;
+      return (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+        'bit-table-v2 bit-row [role="cell"]',
+      )[4];
     }
 
     it("badges a system that supports termination", async () => {
@@ -686,8 +676,7 @@ describe("TargetSystemsTabComponent", () => {
       ]);
       fixture.detectChanges();
 
-      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
-        .data;
+      const rows = rowsOf(component);
 
       expect(rows.find((r) => r.id === sysId("sys-active-automatic"))?.canAssignConnectors).toBe(
         true,
@@ -703,9 +692,7 @@ describe("TargetSystemsTabComponent", () => {
 
   describe("sealed-state row flags", () => {
     function rowFor(id: TargetSystemId): TargetSystemRow | undefined {
-      return (
-        component as unknown as { dataSource: { data: TargetSystemRow[] } }
-      ).dataSource.data.find((r) => r.id === id);
+      return rowsOf(component).find((r) => r.id === id);
     }
 
     it("flags a pending_seal row by status, not by integrityCheckFailed", () => {
@@ -764,7 +751,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -774,8 +761,7 @@ describe("TargetSystemsTabComponent", () => {
     }
 
     function blockedKey(): string | null {
-      return (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
-        .data[0].assignConnectorsBlockedKey;
+      return rowsOf(component)[0].assignConnectorsBlockedKey;
     }
 
     const available = accessConnector({
@@ -848,7 +834,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -871,7 +857,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -892,7 +878,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -943,8 +929,10 @@ describe("TargetSystemsTabComponent", () => {
     // Scoped to the name cell: a pendingSeal row's own "warning" status badge renders the same
     // warning-triangle icon, which would otherwise collide with a page-wide query.
     function nameCellIcon(): Element | null {
-      return (fixture.nativeElement as HTMLElement).querySelector(
-        "tbody tr td:first-child .bwi-exclamation-triangle",
+      return (
+        (fixture.nativeElement as HTMLElement)
+          .querySelector('bit-table-v2 bit-row [role="cell"]')
+          ?.querySelector(".bwi-exclamation-triangle") ?? null
       );
     }
 
@@ -957,7 +945,7 @@ describe("TargetSystemsTabComponent", () => {
 
       const icon = nameCellIcon();
       expect(icon).not.toBeNull();
-      expect(icon!.closest("td")?.textContent).toContain("Finance SQL");
+      expect(icon!.closest('[role="cell"]')?.textContent).toContain("Finance SQL");
     });
 
     it("does not mark a pending_seal row, which has its own status badge", async () => {
@@ -987,7 +975,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('td button[bitIconButton="bwi-ellipsis-h"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -1007,8 +995,7 @@ describe("TargetSystemsTabComponent", () => {
       ]);
       fixture.detectChanges();
 
-      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
-        .data;
+      const rows = rowsOf(component);
       expect(rows.map((r) => r.idText)).toEqual([
         uuidAsString(sysId("sys-a")),
         uuidAsString(sysId("sys-b")),
@@ -1037,8 +1024,7 @@ describe("TargetSystemsTabComponent", () => {
       ]);
       fixture.detectChanges();
 
-      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
-        .data;
+      const rows = rowsOf(component);
 
       expect(
         rows.find((r) => r.id === sysId("sys-active-automatic"))?.canAddManagedCredential,
@@ -1055,8 +1041,7 @@ describe("TargetSystemsTabComponent", () => {
       targetSystemsService.systems$.next([]);
       fixture.detectChanges();
 
-      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
-        .data;
+      const rows = rowsOf(component);
 
       expect(rows).toHaveLength(0);
     });
@@ -1216,9 +1201,9 @@ describe("TargetSystemsTabComponent", () => {
       void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
       flushMicrotasks();
 
-      const blockedKey = (
-        component as unknown as { dataSource: { data: TargetSystemRow[] } }
-      ).dataSource.data.find((row) => row.id === sys.id)?.assignConnectorsBlockedKey;
+      const blockedKey = rowsOf(component).find(
+        (row) => row.id === sys.id,
+      )?.assignConnectorsBlockedKey;
       const passed = dialogService.open.mock.calls[0][1] as unknown as {
         data: { noneEligible: boolean };
       };
@@ -1306,6 +1291,12 @@ describe("TargetSystemsTabComponent", () => {
       advance(1000);
     }
 
+    /** Runs the timers the loaded table schedules, which `whenStable` would wait on forever. */
+    function settle(): void {
+      jest.runOnlyPendingTimers();
+      fixture.detectChanges();
+    }
+
     beforeEach(async () => {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([]);
@@ -1318,18 +1309,6 @@ describe("TargetSystemsTabComponent", () => {
     afterEach(() => {
       jest.useRealTimers();
       targetSystemsService.loading$.next(false);
-    });
-
-    it("stands a skeleton table in for the list, carrying the real columns", () => {
-      showSkeleton();
-      const el = fixture.nativeElement as HTMLElement;
-      const loading = el.querySelector('[data-testid="target-systems-loading"]');
-
-      expect(el.querySelector("bit-spinner")).toBeNull();
-      expect(loading).not.toBeNull();
-      expect(loading!.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
-      expect(loading!.textContent).toContain("pamTargetSystemMethodColumn");
-      expect(loading!.textContent).toContain("pamTargetSystemSessionTerminationColumn");
     });
 
     it("keeps the placeholder itself out of the accessibility tree", () => {
@@ -1362,18 +1341,17 @@ describe("TargetSystemsTabComponent", () => {
       expect(status!.textContent).toContain("loading");
     });
 
-    it("replaces the skeleton with the real rows, and announces the arrival", async () => {
+    it("replaces the skeleton with the real rows, and announces the arrival", () => {
       showSkeleton();
       targetSystemsService.systems$.next([makeSystem()]);
       targetSystemsService.loading$.next(false);
       advance(1000);
-      await fixture.whenStable();
-      fixture.detectChanges();
+      settle();
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector("tbody tr td:first-child button")!.textContent).toContain(
+      expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
         "Prod Entra",
       );
       expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
@@ -1381,33 +1359,22 @@ describe("TargetSystemsTabComponent", () => {
       );
     });
 
-    it("renders the tab's own furniture, not a blank area, before the delay is up", () => {
-      advance(999);
-
-      const el = fixture.nativeElement as HTMLElement;
-      const loading = el.querySelector('[data-testid="target-systems-loading"]');
-      expect(loading).not.toBeNull();
-      expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(loading!.textContent).toContain("pamTargetSystemMethodColumn");
-    });
-
-    it("never draws the placeholder for a list that arrives inside the delay", async () => {
+    it("never draws the placeholder for a list that arrives inside the delay", () => {
       advance(500);
       targetSystemsService.systems$.next([makeSystem()]);
       targetSystemsService.loading$.next(false);
       advance(1000);
-      await fixture.whenStable();
-      fixture.detectChanges();
+      settle();
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
-      expect(el.querySelector("tbody tr td:first-child button")!.textContent).toContain(
+      expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
         "Prod Entra",
       );
     });
 
-    it("holds the placeholder its minimum time once it is up, so it cannot blink", async () => {
+    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
       showSkeleton();
       expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
 
@@ -1418,8 +1385,7 @@ describe("TargetSystemsTabComponent", () => {
       expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
 
       advance(700);
-      await fixture.whenStable();
-      fixture.detectChanges();
+      settle();
 
       expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
     });
@@ -1435,10 +1401,8 @@ describe("TargetSystemsTabComponent", () => {
   });
 });
 
-describe("TargetSystemsTabComponent toolbar filters", () => {
+describe("TargetSystemsTabComponent filter options", () => {
   type FiltersComp = {
-    dataSource: { filteredData?: TargetSystemRow[] };
-    searchControl: { setValue: (value: string) => void };
     methodOptions: () => { value: string; label: string }[];
     kindOptions: () => { value: string; label: string }[];
     statusOptions: () => { value: string; label: string }[];
@@ -1503,7 +1467,6 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: vfo1ConfigService(false) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1515,22 +1478,6 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     component = fixture.componentInstance as unknown as FiltersComp;
     fixture.detectChanges();
   }
-
-  function chip(key: string): FilterMenuComponent {
-    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
-  }
-
-  function visibleIds(): string[] {
-    return (component.dataSource.filteredData ?? []).map((row) => uuidAsString(row.id)).sort();
-  }
-
-  it("caps the search by making it a flex item, not a block child", () => {
-    setup([entraActive]);
-    const search = fixture.debugElement.query(By.css("bit-search"));
-    expect(search.nativeElement.className).toContain("tw-grow");
-    expect(search.nativeElement.className).toContain("tw-max-w-md");
-    expect(search.nativeElement.parentElement.className).toContain("tw-flex");
-  });
 
   it("derives the method options from the loaded rows, sorted by label", () => {
     setup([entraActive, scriptDisabled, manualActive]);
@@ -1606,50 +1553,9 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
       { value: "pamTargetSystemStatusInactive", label: "pamTargetSystemStatusInactive" },
     ]);
   });
-
-  it("does not render the kind chip when no loaded target carries a kind", () => {
-    setup([manualActive]);
-    expect(fixture.debugElement.query(By.css('bit-filter-menu[key="kind"]'))).toBeNull();
-  });
-
-  it("narrows rows to the selected method", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    chip("method").toggle("pamTargetSystemMethodManual");
-    fixture.detectChanges();
-    expect(visibleIds()).toEqual([uuidAsString(sysId("3"))]);
-  });
-
-  it("narrows rows to the selected kind", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    chip("kind").toggle(TargetSystemKind.CustomScript);
-    fixture.detectChanges();
-    expect(visibleIds()).toEqual([uuidAsString(sysId("2"))]);
-  });
-
-  it("narrows rows to the selected status", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    chip("status").toggle("pamTargetSystemStatusInactive");
-    fixture.detectChanges();
-    expect(visibleIds()).toEqual([uuidAsString(sysId("2"))]);
-  });
-
-  it("ANDs the chips with each other and with the search text", () => {
-    setup([entraActive, scriptDisabled, manualActive]);
-    component.searchControl.setValue("prod");
-    chip("status").toggle("pamTargetSystemStatusActive");
-    fixture.detectChanges();
-    expect(visibleIds()).toEqual([uuidAsString(sysId("1"))]);
-  });
-
-  it("shows the no-results row when the chips alone empty the table", () => {
-    setup([entraActive]);
-    chip("status").toggle("pamTargetSystemStatusInactive");
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain("pamTargetSystemNoFilterResults");
-  });
 });
 
-describe("TargetSystemsTabComponent with the VFO1 flag", () => {
+describe("TargetSystemsTabComponent table", () => {
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
   let loading$: BehaviorSubject<boolean>;
   let dialogService: ReturnType<typeof mock<DialogService>>;
@@ -1681,10 +1587,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   });
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
 
-  async function render(
-    vfo1: boolean,
-    systems: TargetSystemView[] = SYSTEMS,
-  ): Promise<HTMLElement> {
+  async function render(systems: TargetSystemView[] = SYSTEMS): Promise<HTMLElement> {
     TestBed.resetTestingModule();
     loading$ = new BehaviorSubject<boolean>(false);
     dialogService = mock<DialogService>();
@@ -1724,7 +1627,6 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -1745,17 +1647,13 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   }
 
   function headings(el: HTMLElement): string[] {
-    const cells = el.querySelector("bit-table-v2")
-      ? el.querySelectorAll('bit-table-v2 [role="columnheader"]')
-      : el.querySelectorAll("bit-table thead th");
-    return Array.from(cells).map(text);
+    return Array.from(el.querySelectorAll('bit-table-v2 [role="columnheader"]')).map(text);
   }
 
   function rowNames(el: HTMLElement): string[] {
-    const rows = el.querySelector("bit-table-v2")
-      ? el.querySelectorAll("bit-table-v2 bit-row")
-      : el.querySelectorAll("bit-table tbody tr");
-    return Array.from(rows).map((row) => text(row.querySelector("button[bitLink]")!));
+    return Array.from(el.querySelectorAll("bit-table-v2 bit-row")).map((row) =>
+      text(row.querySelector("button[bitLink]")!),
+    );
   }
 
   function menuItems(el: HTMLElement, rowIndex: number): string[] {
@@ -1771,25 +1669,10 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
   }
 
-  it("renders only the v1 table with the flag off", async () => {
-    const el = await render(false);
+  it("renders the column headings in order", async () => {
+    const el = await render();
 
-    expect(el.querySelector("bit-table")).not.toBeNull();
-    expect(el.querySelector("bit-table-v2")).toBeNull();
-  });
-
-  it("renders only the v2 table with the flag on", async () => {
-    const el = await render(true);
-
-    expect(el.querySelector("bit-table-v2")).not.toBeNull();
-    expect(el.querySelector("bit-table")).toBeNull();
-  });
-
-  it("renders the same column headings, in the same order, as the v1 table", async () => {
-    const v1 = headings(await render(false));
-    const v2 = headings(await render(true));
-
-    expect(v2).toEqual([
+    expect(headings(el)).toEqual([
       "name",
       "pamTargetSystemMethodColumn",
       "pamTargetSystemTypeColumn",
@@ -1797,37 +1680,47 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
       "pamTargetSystemSessionTerminationColumn",
       "",
     ]);
-    expect(v2).toEqual(v1);
   });
 
-  it("renders the same rows, in the same order, as the v1 table", async () => {
-    const v1 = rowNames(await render(false));
-    const v2 = rowNames(await render(true));
-
-    expect(v2).toHaveLength(SYSTEMS.length);
-    expect(v2).toEqual(v1);
-  });
-
-  it("renders the same cell text in every row as the v1 table", async () => {
-    const v1El = await render(false);
-    const v1 = Array.from(v1El.querySelectorAll("bit-table tbody tr")).map((row) =>
-      Array.from(row.querySelectorAll("td")).map(text),
-    );
-    const v2El = await render(true);
-    const v2 = Array.from(v2El.querySelectorAll("bit-table-v2 bit-row")).map((row) =>
+  it("renders each row's cell text", async () => {
+    const el = await render();
+    const cells = Array.from(el.querySelectorAll("bit-table-v2 bit-row")).map((row) =>
       Array.from(row.querySelectorAll('[role="cell"]')).map(text),
     );
 
-    expect(v2).toEqual(v1);
+    expect(cells).toEqual([
+      [
+        "Prod Entra",
+        "pamTargetSystemMethodAutomatic",
+        "pamTargetSystemTypeEntra",
+        "pamTargetSystemStatusActive",
+        "pamTargetSystemSessionTerminationYes",
+        "",
+      ],
+      [
+        "Billing script",
+        "pamTargetSystemMethodAutomatic",
+        "pamTargetSystemTypeCustomScript",
+        "pamTargetSystemStatusInactive",
+        "pamTargetSystemSessionTerminationNo",
+        "",
+      ],
+      [
+        "Mainframe payroll",
+        "pamTargetSystemMethodManual",
+        "\u2014",
+        "pamTargetSystemStatusActive",
+        "pamTargetSystemSessionTerminationUnknown",
+        "",
+      ],
+    ]);
   });
 
-  it("offers the same row actions, in the same order and gating, as the v1 table", async () => {
-    const v1El = await render(false);
-    const v1 = SYSTEMS.map((_, i) => menuItems(v1El, i));
-    const v2El = await render(true);
-    const v2 = SYSTEMS.map((_, i) => menuItems(v2El, i));
+  it("offers the row actions each row's state allows, in order", async () => {
+    const el = await render();
+    const items = SYSTEMS.map((_, i) => menuItems(el, i));
 
-    expect(v2[0]).toEqual([
+    expect(items[0]).toEqual([
       "pamTargetSystemEditTarget",
       "pamTargetSystemCopyId",
       "pamRotationConfigCreateTitle",
@@ -1835,14 +1728,13 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
       "pamTargetSystemDeactivate",
       "pamTargetSystemDeleteTarget",
     ]);
-    expect(v2[1]).not.toContain("pamRotationConfigCreateTitle");
-    expect(v2[1]).toContain("pamTargetSystemActivate");
-    expect(v2[2]).not.toContain("pamTargetSystemAssignConnectors");
-    expect(v2).toEqual(v1);
+    expect(items[1]).not.toContain("pamRotationConfigCreateTitle");
+    expect(items[1]).toContain("pamTargetSystemActivate");
+    expect(items[2]).not.toContain("pamTargetSystemAssignConnectors");
   });
 
   it("routes a row action through the shared component method", async () => {
-    const el = await render(true);
+    const el = await render();
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!.click();
@@ -1853,8 +1745,8 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     );
   });
 
-  it("confirms a delete from the v2 row menu", async () => {
-    const el = await render(true);
+  it("confirms a delete from the row menu", async () => {
+    const el = await render();
     el.querySelector<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-h"]')!.click();
     fixture.detectChanges();
 
@@ -1870,7 +1762,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   });
 
   it("names the row menu trigger and keeps the name link a focusable button", async () => {
-    const el = await render(true);
+    const el = await render();
     const trigger = el.querySelector<HTMLButtonElement>(
       'bit-table-v2 button[bitIconButton="bwi-ellipsis-h"]',
     )!;
@@ -1882,7 +1774,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   });
 
   it("sorts on the name column only, and starts unsorted", async () => {
-    const el = await render(true);
+    const el = await render();
     const sortButtons = el.querySelectorAll('bit-table-v2 [role="columnheader"] button');
 
     expect(sortButtons).toHaveLength(1);
@@ -1900,8 +1792,8 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     expect(sortButtons[0].parentElement!.getAttribute("aria-sort")).toBe("descending");
   });
 
-  it("narrows the v2 rows with the search text and the chips", async () => {
-    const el = await render(true);
+  it("narrows the rows with the search text and the chips", async () => {
+    const el = await render();
     const comp = fixture.componentInstance as unknown as {
       searchControl: { setValue: (value: string) => void };
     };
@@ -1916,8 +1808,8 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     expect(rowNames(el)).toEqual(["Mainframe payroll"]);
   });
 
-  it("shows the no-results message when the chips empty the v2 table", async () => {
-    const el = await render(true, [entraActive]);
+  it("shows the no-results message when the chips empty the table", async () => {
+    const el = await render([entraActive]);
 
     chip("status").toggle("pamTargetSystemStatusInactive");
     fixture.detectChanges();
@@ -1928,8 +1820,8 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     );
   });
 
-  it("shows the empty state, not the v2 table, when there are no target systems", async () => {
-    const el = await render(true, []);
+  it("shows the empty state, not the table, when there are no target systems", async () => {
+    const el = await render([]);
 
     expect(el.querySelector("bit-table-v2")).toBeNull();
     expect(el.querySelector("pam-target-systems-empty-state")).not.toBeNull();
@@ -1951,20 +1843,19 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     }
 
     async function renderLoading(): Promise<HTMLElement> {
-      const el = await render(true, []);
+      const el = await render([]);
       startLoading();
       return el;
     }
 
-    it("stands a v2 skeleton table in for the list, carrying the real columns", async () => {
+    it("stands a skeleton table in for the list, carrying the real columns", async () => {
       const el = await renderLoading();
       jest.advanceTimersByTime(1000);
       fixture.detectChanges();
       const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
 
-      expect(loading.getAttribute("aria-hidden")).toBe("true");
+      expect(el.querySelector("bit-spinner")).toBeNull();
       expect(loading.querySelector("bit-table-v2")).not.toBeNull();
-      expect(loading.querySelector("bit-table")).toBeNull();
       expect(headings(el)).toEqual([
         "name",
         "pamTargetSystemMethodColumn",
@@ -1989,7 +1880,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
     });
 
     it("lays the skeleton out on the same column tracks as the loaded table", async () => {
-      const el = await render(true);
+      const el = await render();
       startLoading();
       jest.advanceTimersByTime(1000);
       fixture.detectChanges();
@@ -2015,7 +1906,7 @@ describe("TargetSystemsTabComponent with the VFO1 flag", () => {
   });
 });
 
-describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
+describe("TargetSystemsTabComponent toolbar", () => {
   let fixture: ComponentFixture<TargetSystemsTabComponent>;
   let systems$: BehaviorSubject<TargetSystemView[]>;
 
@@ -2043,7 +1934,6 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   const SYSTEMS = [entraActive, scriptDisabled, manualActive];
 
   async function render(
-    vfo1: boolean,
     systems: TargetSystemView[] = SYSTEMS,
   ): Promise<ComponentFixture<TargetSystemsTabComponent>> {
     TestBed.resetTestingModule();
@@ -2080,7 +1970,6 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
         {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
@@ -2111,12 +2000,6 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
       text(row.querySelector("button[bitLink]")!),
     );
 
-  const v1Names = (f: ComponentFixture<TargetSystemsTabComponent>): string[] =>
-    (
-      (f.componentInstance as unknown as { dataSource: { filteredData?: TargetSystemRow[] } })
-        .dataSource.filteredData ?? []
-    ).map((row) => row.name);
-
   const chip = (f: ComponentFixture<TargetSystemsTabComponent>, key: string): FilterMenuComponent =>
     f.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
 
@@ -2139,7 +2022,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   }
 
   it("puts the search and every filter chip inside the table's toolbar", async () => {
-    const on = await render(true);
+    const on = await render();
 
     expect(toolbar(on).querySelector("bit-search")).not.toBeNull();
     expect(
@@ -2149,69 +2032,56 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     expect(el(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
   });
 
-  it("leaves the controls outside the table when the flag is off", async () => {
-    const off = await render(false);
+  it("labels each chip with its column while unset, and filters nothing", async () => {
+    const on = await render();
+    const chips = Array.from(
+      toolbar(on).querySelectorAll("bit-filter-menu button[bit-chip-content]"),
+    );
 
-    expect(el(off).querySelector("bit-table-toolbar")).toBeNull();
-    expect(el(off).querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
-    expect(el(off).querySelectorAll("bit-search")).toHaveLength(1);
-    expect(el(off).querySelectorAll("bit-filter-menu")).toHaveLength(3);
-  });
-
-  it("keeps each chip's label and unset state", async () => {
-    const off = await render(false);
-    const offLabels = Array.from(el(off).querySelectorAll("bit-filter-menu")).map(text);
-
-    const on = await render(true);
-    const chips = Array.from(toolbar(on).querySelectorAll("bit-filter-menu"));
-
-    expect(chips.map(text)).toEqual(offLabels);
+    expect(chips.map(text)).toEqual([
+      "pamTargetSystemMethodColumn: all",
+      "pamTargetSystemTypeColumn: all",
+      "status: all",
+    ]);
     expect(rowNames(on)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
   });
 
-  it("keeps the search placeholder and accessible name it had off the flag", async () => {
-    const off = await render(false);
-    const offInput = el(off).querySelector("bit-search input")!;
+  it("gives the search its placeholder and leaves it enabled", async () => {
+    const input = toolbar(await render()).querySelector("bit-search input")!;
 
-    const on = await render(true);
-    const onInput = toolbar(on).querySelector("bit-search input")!;
-
-    expect(onInput.getAttribute("placeholder")).toBe("pamTargetSystemSearch");
-    expect(onInput.getAttribute("placeholder")).toBe(offInput.getAttribute("placeholder"));
-    expect(onInput.getAttribute("type")).toBe(offInput.getAttribute("type"));
-    expect(onInput.hasAttribute("disabled")).toBe(false);
+    expect(input.getAttribute("placeholder")).toBe("pamTargetSystemSearch");
+    expect(input.hasAttribute("disabled")).toBe(false);
   });
 
   it("drops the kind chip from the toolbar when no loaded target carries a kind", async () => {
-    const on = await render(true, [manualActive]);
+    const on = await render([manualActive]);
 
     expect(toolbar(on).querySelector('bit-filter-menu[key="kind"]')).toBeNull();
     expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(2);
   });
 
-  it.each<[string, { search?: string; method?: string; kind?: string; status?: string }]>([
-    ["the method chip", { method: "pamTargetSystemMethodManual" }],
-    ["the kind chip", { kind: TargetSystemKind.CustomScript }],
-    ["the status chip", { status: "pamTargetSystemStatusInactive" }],
-    ["search on a target name", { search: "prod" }],
-    ["search on a kind label", { search: "customscript" }],
-    ["every control at once", { search: "script", status: "pamTargetSystemStatusInactive" }],
-  ])("narrows the toolbar's rows the same way the flag-off path does: %s", async (_, filters) => {
-    const off = await render(false);
-    setFilters(off, filters);
-    const expected = v1Names(off);
-    // Two empty lists would agree without either path filtering.
-    expect(expected.length).toBeGreaterThan(0);
-    expect(expected.length).toBeLessThan(SYSTEMS.length);
-
-    const on = await render(true);
+  it.each<[string, { search?: string; method?: string; kind?: string; status?: string }, string[]]>(
+    [
+      ["the method chip", { method: "pamTargetSystemMethodManual" }, ["Mainframe payroll"]],
+      ["the kind chip", { kind: TargetSystemKind.CustomScript }, ["Billing script"]],
+      ["the status chip", { status: "pamTargetSystemStatusInactive" }, ["Billing script"]],
+      ["search on a target name", { search: "prod" }, ["Prod Entra"]],
+      ["search on a kind label", { search: "customscript" }, ["Billing script"]],
+      [
+        "every control at once",
+        { search: "script", status: "pamTargetSystemStatusInactive" },
+        ["Billing script"],
+      ],
+    ],
+  )("narrows the toolbar's rows with %s", async (_, filters, expected) => {
+    const on = await render();
     setFilters(on, filters);
 
     expect(rowNames(on)).toEqual(expected);
   });
 
-  it("applies the search once, not once per host, when the term matches a subset", async () => {
-    const on = await render(true);
+  it("restores every row when the search is cleared", async () => {
+    const on = await render();
 
     setFilters(on, { search: "prod" });
     expect(rowNames(on)).toEqual(["Prod Entra"]);
@@ -2221,7 +2091,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("restores every row when a chip is cleared from the toolbar", async () => {
-    const on = await render(true);
+    const on = await render();
 
     setFilters(on, { status: "pamTargetSystemStatusInactive" });
     expect(rowNames(on)).toEqual(["Billing script"]);
@@ -2232,7 +2102,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("keeps the toolbar rendered when the filters exclude every row", async () => {
-    const on = await render(true);
+    const on = await render();
 
     setFilters(on, { search: "nothing matches" });
 
@@ -2244,8 +2114,8 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
   });
 
-  it("puts the create action in the end slot, not in the rotation shell header", async () => {
-    const on = await render(true);
+  it("puts the create action in the toolbar's end slot", async () => {
+    const on = await render();
 
     expect(endSlot(on).children).toHaveLength(1);
     const button = endSlot(on).querySelector<HTMLButtonElement>(
@@ -2256,15 +2126,8 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
     expect(button!.getAttribute("type")).toBe("button");
   });
 
-  it("leaves the create action to the rotation shell header with the flag off", async () => {
-    const off = await render(false);
-
-    expect(el(off).querySelector("bit-table-toolbar")).toBeNull();
-    expect(el(off).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
-  });
-
   it("navigates to the create page from the end slot button", async () => {
-    const on = await render(true);
+    const on = await render();
     const router = TestBed.inject(Router);
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
 
@@ -2280,7 +2143,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("keeps the create action out of the toolbar when a search holds the table over an empty list", async () => {
-    const on = await render(true);
+    const on = await render();
 
     setFilters(on, { search: "prod" });
     systems$.next([]);
@@ -2293,7 +2156,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("leaves the create action to the empty state when there are no target systems", async () => {
-    const on = await render(true, []);
+    const on = await render([]);
 
     expect(el(on).querySelector("bit-table-toolbar")).toBeNull();
     expect(el(on).querySelector("#rotation-shell_button_new-target-system")).toBeNull();
@@ -2301,7 +2164,7 @@ describe("TargetSystemsTabComponent — VFO1 toolbar (flag on)", () => {
   });
 
   it("keeps every toolbar control keyboard reachable", async () => {
-    const on = await render(true);
+    const on = await render();
     const controls = [
       toolbar(on).querySelector("bit-search input")!,
       ...Array.from(toolbar(on).querySelectorAll("bit-filter-menu button")),

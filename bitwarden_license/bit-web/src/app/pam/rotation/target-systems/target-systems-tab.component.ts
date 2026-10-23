@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,16 +6,13 @@ import {
   effect,
   inject,
   signal,
-  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -33,7 +29,6 @@ import {
   ButtonModule,
   CopyClickDirective,
   DialogService,
-  FILTER_CONTROL,
   FilterMenuModule,
   IconButtonModule,
   IconModule,
@@ -42,8 +37,6 @@ import {
   SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
-  TableDataSource,
-  TableModule,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -128,7 +121,6 @@ export type TargetSystemRow = {
   templateUrl: "./target-systems-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
@@ -142,7 +134,6 @@ export type TargetSystemRow = {
     SearchModule,
     SkeletonComponent,
     SkeletonTextComponent,
-    TableModule,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
@@ -166,13 +157,6 @@ export class TargetSystemsTabComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly configService = inject(ConfigService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
@@ -217,12 +201,11 @@ export class TargetSystemsTabComponent {
   private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
 
   /**
-   * Gates the toolbar's create button. A search term keeps the toolbar on screen over an empty
-   * list, so the toolbar alone doesn't mean the org has target systems.
+   * Gates the table and the toolbar's create button. A search term keeps the table on screen
+   * over an empty list, so the toolbar alone doesn't mean the org has target systems.
    */
   protected readonly hasSystems = computed(() => this.rows().length > 0);
 
-  protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly table = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
     this.rows,
   );
@@ -234,12 +217,6 @@ export class TargetSystemsTabComponent {
     signal<TargetSystemRow[]>([]),
   );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
-
-  private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-
-  private readonly methodFilterChip = viewChild("methodFilter", { read: FILTER_CONTROL });
-  private readonly kindFilterChip = viewChild("kindFilter", { read: FILTER_CONTROL });
-  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
 
   /** A method this SDK can't name adds no option, so this chip can be empty. */
   protected readonly methodOptions = computed(() =>
@@ -264,20 +241,7 @@ export class TargetSystemsTabComponent {
     filterOptions(this.rows().map((row) => [row.statusLabelKey, row.statusLabel] as const)),
   );
 
-  protected readonly rowFilter = computed(() => {
-    const filter = toTargetSystemFilter({
-      search: this.searchText(),
-      method: this.methodFilterChip()?.value(),
-      kind: this.kindFilterChip()?.value(),
-      status: this.statusFilterChip()?.value(),
-    });
-    return (row: TargetSystemRow): boolean => matchesFilter(row, filter);
-  });
-
-  /**
-   * The v2 table's row test; inside the toolbar, chip and search values arrive as `values`. Read
-   * the term from `values.search` alone, since {@link searchText} holds the same term.
-   */
+  /** The table's row test; the toolbar hands over the search and chip values as `values`. */
   protected readonly rowMatchesFilter = (
     row: TargetSystemRow,
     values: TargetSystemFilterValues,
@@ -290,14 +254,6 @@ export class TargetSystemsTabComponent {
   constructor() {
     effect(() => {
       void this.loadAll(this.organizationId());
-    });
-
-    effect(() => {
-      this.dataSource.data = this.rows();
-    });
-
-    effect(() => {
-      this.dataSource.filter = this.rowFilter();
     });
   }
 
@@ -535,7 +491,7 @@ export class TargetSystemsTabComponent {
   }
 }
 
-/** The toolbar's raw values by filter key, untyped because each host passes what a chip reports. */
+/** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
 type TargetSystemFilterValues = {
   search?: string;
   method?: unknown;
