@@ -1,9 +1,8 @@
 import { Injectable, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Observable, map, switchMap } from "rxjs";
+import { Observable, map, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   StateProvider,
   UserKeyDefinition,
@@ -60,12 +59,18 @@ export class PinnedSharedFoldersService {
 
   /**
    * The active user's pinned folder ids, as a signal — the composition every consumer otherwise
-   * re-derives (`activeAccount$.pipe(getUserId)` into {@link pinnedIds$} into `toSignal`).
+   * re-derives (`activeAccount$` into {@link pinnedIds$} into `toSignal`).
+   *
+   * Resolves to `[]` rather than using `getUserId` while no account is active (e.g. between
+   * `switchAccount(null)` and a new account finishing login) — this is a `providedIn: "root"`
+   * singleton, so a thrown error here would permanently end its subscription for the rest of the
+   * app session, unlike a component-scoped equivalent that gets torn down and recreated.
    */
   readonly activePinnedIds = toSignal(
     this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.pinnedIds$(userId)),
+      switchMap((account) =>
+        account == null ? of([] as CollectionId[]) : this.pinnedIds$(account.id),
+      ),
     ),
     { initialValue: [] as CollectionId[] },
   );

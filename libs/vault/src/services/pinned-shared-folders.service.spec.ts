@@ -20,9 +20,10 @@ const folderB = Utils.newGuid() as CollectionId;
 
 describe("PinnedSharedFoldersService", () => {
   let service: PinnedSharedFoldersService;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
-    const accountService: FakeAccountService = mockAccountServiceWith(userId);
+    accountService = mockAccountServiceWith(userId);
     const stateProvider = new FakeStateProvider(accountService);
 
     TestBed.configureTestingModule({
@@ -116,6 +117,16 @@ describe("PinnedSharedFoldersService", () => {
       await service.pin(otherUserId, folderA);
 
       expect(service.activePinnedIds()).toEqual([]);
+    });
+
+    it("recovers once a new account signs in after the active account goes null", async () => {
+      await service.pin(userId, folderA);
+
+      await accountService.switchAccount(null);
+      await accountService.switchAccount(otherUserId);
+      await service.pin(otherUserId, folderB);
+
+      expect(service.activePinnedIds()).toEqual([folderB]);
     });
   });
 });
