@@ -7,9 +7,18 @@ import { build } from "esbuild";
 const here = dirname(fileURLToPath(import.meta.url));
 const dist = join(here, "dist");
 
-// CLOUD_FILL_ALLOW_LOCALHOST=1 is for test builds only. It lets the origin policy accept
-// http://localhost and http://127.0.0.1; a production build accepts https only.
-const allowLocalhost = process.env.CLOUD_FILL_ALLOW_LOCALHOST === "1";
+// CLOUD_FILL_TEST_BUILD=1 allows http://localhost origins, ws:// relays and test hooks on the
+// service worker. A production build accepts https origins and wss relays only.
+const testBuild = process.env.CLOUD_FILL_TEST_BUILD === "1";
+const credentialSource = process.env.CLOUD_FILL_SOURCE ?? "relay";
+const relayUrl = process.env.CLOUD_FILL_RELAY_URL ?? "wss://ap.lesspassword.dev";
+
+if (!["relay", "static"].includes(credentialSource)) {
+  throw new Error("CLOUD_FILL_SOURCE must be relay or static");
+}
+if (credentialSource === "static" && !testBuild) {
+  throw new Error("The static credential source is only available in test builds");
+}
 
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
@@ -25,9 +34,15 @@ await build({
   target: "chrome116",
   platform: "browser",
   tsconfig: join(here, "tsconfig.json"),
-  define: { __ALLOW_LOCALHOST__: JSON.stringify(allowLocalhost) },
+  define: {
+    __TEST_BUILD__: JSON.stringify(testBuild),
+    __CREDENTIAL_SOURCE__: JSON.stringify(credentialSource),
+    __RELAY_URL__: JSON.stringify(relayUrl),
+    "import.meta.url": JSON.stringify("chrome-extension://unused/"),
+  },
   legalComments: "none",
   logLevel: "info",
 });
 
 await cp(join(here, "manifest.json"), join(dist, "manifest.json"));
+await cp(join(here, "wasm-remote/pkg/cloud_fill_remote_wasm_bg.wasm"), join(dist, "remote.wasm"));

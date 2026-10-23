@@ -14,6 +14,7 @@ import {
   type FillResult,
 } from "./messages";
 import { approvedOrigin, formActionLeavesOrigin } from "./origin-policy";
+import { CredentialRequestError } from "./relay-credential-source";
 
 const TOP_FRAME = 0;
 
@@ -61,7 +62,7 @@ function filledFormActions(
 export async function fillLoginInTab(tabId: number, source: CredentialSource): Promise<FillResult> {
   try {
     const url = await topFrameUrl(tabId);
-    const origin = approvedOrigin(url, __ALLOW_LOCALHOST__);
+    const origin = approvedOrigin(url, __TEST_BUILD__);
     if (url == null || origin == null) {
       return { status: "refused_origin" };
     }
@@ -77,8 +78,8 @@ export async function fillLoginInTab(tabId: number, source: CredentialSource): P
       return { status: "page_changed" };
     }
 
-    // The credential is requested only after the page looks fillable, so the user is not
-    // prompted for a page with nothing to fill.
+    // The credential is requested only after the page looks fillable and safe to submit, so the
+    // user is not prompted for a page that would be refused.
     const probe = generateLoginFillScript(
       collected.pageDetails,
       { username: "x", password: "x" },
@@ -88,20 +89,20 @@ export async function fillLoginInTab(tabId: number, source: CredentialSource): P
       return { status: "no_fields" };
     }
 
+    if (
+      filledFormActions(probe, collected.pageDetails).some((action) =>
+        formActionLeavesOrigin(action, url),
+      )
+    ) {
+      return { status: "refused_form_action" };
+    }
+
     const credential = await source.request(origin);
     if (credential == null) {
       return { status: "no_credential" };
     }
 
     const fillScript = generateLoginFillScript(collected.pageDetails, credential, fillOptions);
-
-    if (
-      filledFormActions(fillScript, collected.pageDetails).some((action) =>
-        formActionLeavesOrigin(action, url),
-      )
-    ) {
-      return { status: "refused_form_action" };
-    }
 
     if ((await topFrameUrl(tabId)) !== url) {
       return { status: "page_changed" };
@@ -119,7 +120,7 @@ export async function fillLoginInTab(tabId: number, source: CredentialSource): P
           filledFields: fillScript.script.filter(([action]) => action === "fill_by_opid").length,
         }
       : { status: "page_changed" };
-  } catch {
-    return { status: "error" };
+  } catch (error) {
+    return { status: error instanceof CredentialRequestError ? error.kind : "error" };
   }
 }

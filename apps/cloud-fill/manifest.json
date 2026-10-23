@@ -7,6 +7,9 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["scripting"],
-  "host_permissions": ["<all_urls>"]
+  "permissions": ["scripting", "storage", "nativeMessaging"],
+  "host_permissions": ["<all_urls>"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
 }

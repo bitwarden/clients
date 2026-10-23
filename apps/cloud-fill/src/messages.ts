@@ -21,6 +21,9 @@ export type FillStatus =
   | "refused_origin"
   | "refused_form_action"
   | "no_credential"
+  | "denied"
+  | "not_paired"
+  | "relay_error"
   | "no_fields"
   | "page_changed"
   | "error";
