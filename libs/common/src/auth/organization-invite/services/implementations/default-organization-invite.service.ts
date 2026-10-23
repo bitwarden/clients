@@ -25,6 +25,7 @@ import {
   OrganizationInviteLinkValidateEmailDomainRequest,
 } from "@bitwarden/organization-invite-link";
 import {
+  AcceptInviteLinkError,
   HighEntropySecret,
   isAcceptInviteLinkError,
   isRegistrationError,
@@ -282,6 +283,14 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (e.variant !== "Api") {
       return { kind: "unexpected", errorMessage: e.message };
     }
+    return this.classifyOpenOrgInviteLegacyApiError(e);
+  }
+
+  /**
+   * Classifies an `Api`-variant accept error by parsing the legacy error body out of the
+   * SDK's display string. Used for responses the SDK could not map to a typed variant.
+   */
+  private classifyOpenOrgInviteLegacyApiError(e: AcceptInviteLinkError): OpenOrgInviteAcceptError {
     // Fragile client-side coupling to the SDK's `bitwarden-api-base::Error::Response`
     // Display format; accepted for MVP. Planned follow-up in next milestones: refactor
     // the SDK to expose a better typed error variant. If any extraction step fails,
