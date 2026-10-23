@@ -23,21 +23,11 @@ const typescriptStrictPluginPath = JSON.stringify(
   require.resolve("typescript-strict-plugin/dist/cli/tsc-strict/index.js"),
 );
 
-function getFiles(dir) {
-  results = [];
-  fs.readdirSync(dir).forEach((file) => {
-    file = path.join(dir, file);
-    const stat = fs.statSync(file);
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getFiles(file));
-    } else {
-      results.push(file);
-    }
-  });
-  return results;
-}
+const librariesDirectory = path.join(__dirname, "..", "libs");
 
-const files = getFiles(path.join(__dirname, "..", "libs"))
+const files = fs
+  .readdirSync(librariesDirectory, { recursive: true })
+  .map((file) => path.join(librariesDirectory, file))
   .filter((file) => {
     const name = path.basename(file);
     return name === "tsconfig.json";
