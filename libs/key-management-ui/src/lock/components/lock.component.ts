@@ -188,15 +188,23 @@ export class LockComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.clientType = this.platformUtilsService.getClientType();
+
+    // A new popout has its own biometrics service. Restore suppression before account
+    // subscriptions can automatically prompt to unlock a vault that was just locked.
+    if (
+      this.clientType === ClientType.Browser &&
+      this.activatedRoute.snapshot.queryParamMap.get("suppressBiometricAutoPrompt") === "true"
+    ) {
+      await this.biometricService.setShouldAutopromptNow(false);
+    }
+
     this.listenForActiveUnlockOptionChanges();
 
     // Listen for active account changes
     this.listenForActiveAccountChanges();
 
     this.listenForUnlockOptionsChanges();
-
-    // Identify client
-    this.clientType = this.platformUtilsService.getClientType();
 
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
@@ -629,6 +637,12 @@ export class LockComponent implements OnInit, OnDestroy {
        */
       if (previousUrl) {
         await this.router.navigateByUrl(previousUrl);
+        return;
+      }
+      // With no saved flow to resume, return to the toolbar popup and close this temporary window.
+      if (this.activatedRoute.snapshot.queryParamMap.get("autoClosePopout") === "true") {
+        this.messagingService.send("openPopup");
+        window.close();
         return;
       }
     }
