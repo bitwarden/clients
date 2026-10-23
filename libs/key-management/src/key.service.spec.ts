@@ -1,5 +1,13 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
+import {
+  BehaviorSubject,
+  bufferCount,
+  firstValueFrom,
+  lastValueFrom,
+  of,
+  Subscription,
+  take,
+} from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
@@ -43,6 +51,7 @@ import {
 import { Measurement } from "@bitwarden/logging";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
+import { CipherDecryptionKeys } from "./abstractions/key.service";
 import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
 
@@ -72,6 +81,8 @@ describe("keyService", () => {
       value: Promise.resolve(),
       configurable: true,
     });
+
+    sdkService.cryptoReady$.mockReturnValue(of(true));
 
     keyService = new DefaultKeyService(
       cryptoFunctionService,
@@ -617,6 +628,93 @@ describe("keyService", () => {
 
       subscription.unsubscribe();
       expect(emitted).toHaveLength(2);
+    });
+
+    describe("SDK client readiness", () => {
+      let cryptoReady$: BehaviorSubject<boolean>;
+      let emitted: (CipherDecryptionKeys | null)[];
+      let subscription: Subscription;
+
+      const settle = () => new Promise(process.nextTick);
+      const subscribe = async () => {
+        subscription = keyService
+          .cipherDecryptionKeys$(mockUserId)
+          .subscribe((keys) => emitted.push(keys));
+        await settle();
+      };
+
+      beforeEach(() => {
+        cryptoReady$ = new BehaviorSubject<boolean>(false);
+        sdkService.cryptoReady$.mockReturnValue(cryptoReady$);
+        emitted = [];
+      });
+
+      afterEach(() => {
+        subscription?.unsubscribe();
+      });
+
+      it("emits nothing while the client is not ready and keys are present", async () => {
+        updateKeys({
+          userKey: makeSymmetricCryptoKey<UserKey>(64),
+          encryptedPrivateKey: makeEncString("privateKey"),
+        });
+
+        await subscribe();
+
+        expect(emitted).toHaveLength(0);
+      });
+
+      it("emits null while the client is not ready and there is no user key", async () => {
+        setUserKeyState(mockUserId, null);
+
+        await subscribe();
+
+        expect(emitted).toEqual([null]);
+      });
+
+      it("emits the keys exactly once when the client becomes ready", async () => {
+        updateKeys({
+          userKey: makeSymmetricCryptoKey<UserKey>(64),
+          encryptedPrivateKey: makeEncString("privateKey"),
+        });
+        await subscribe();
+
+        cryptoReady$.next(true);
+        await settle();
+
+        expect(emitted).toHaveLength(1);
+        expect(emitted[0]).toEqual({ userKey: expect.anything(), orgKeys: {} });
+      });
+
+      it("holds the keys through a lock and unlock until the client is ready again", async () => {
+        const initialUserKey = makeSymmetricCryptoKey<UserKey>(64, 0);
+        updateKeys({ userKey: initialUserKey, encryptedPrivateKey: makeEncString("privateKey") });
+        cryptoReady$.next(true);
+        await subscribe();
+        expect(emitted).toEqual([{ userKey: initialUserKey, orgKeys: {} }]);
+
+        // Lock: the client stops being ready before the user key is cleared
+        cryptoReady$.next(false);
+        await settle();
+        setUserKeyState(mockUserId, null);
+        await settle();
+        expect(emitted).toEqual([{ userKey: initialUserKey, orgKeys: {} }, null]);
+
+        // Unlock: the user key is written before the organization keys reach the client
+        cryptoReady$.next(false);
+        const unlockedUserKey = makeSymmetricCryptoKey<UserKey>(64, 1);
+        setUserKeyState(mockUserId, unlockedUserKey);
+        await settle();
+        expect(emitted).toHaveLength(2);
+
+        cryptoReady$.next(true);
+        await settle();
+        expect(emitted).toEqual([
+          { userKey: initialUserKey, orgKeys: {} },
+          null,
+          { userKey: unlockedUserKey, orgKeys: {} },
+        ]);
+      });
     });
   });
 
