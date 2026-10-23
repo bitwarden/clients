@@ -104,19 +104,33 @@ where
             let response = if msg.first() == Some(&EXTENSION) {
                 handle_extension_message(&msg[1..], &mut session_bind_state)
             } else {
-                handle_message(
-                    &msg,
-                    self.connection.peer_info.as_ref(),
-                    &session_bind_state,
-                    &self.keystore,
-                    &self.auth_policy,
+                Response::Continue(
+                    handle_message(
+                        &msg,
+                        self.connection.peer_info.as_ref(),
+                        &session_bind_state,
+                        &self.keystore,
+                        &self.auth_policy,
+                    )
+                    .await,
                 )
-                .await
             };
 
-            if let Err(error) = self.connection.stream.write_all(&frame(response)).await {
-                error!(%error, "Failed to write response, closing connection");
-                break;
+            match response {
+                Response::Continue(response) => {
+                    if let Err(error) = self.connection.stream.write_all(&frame(response)).await {
+                        error!(%error, "Failed to write response, closing connection");
+                        break;
+                    }
+                }
+                Response::RespondThenClose(response) => {
+                    // Best effort: the connection is closed regardless of whether the client
+                    // receives the response. No further messages are read from it.
+                    let _ = self.connection.stream.write_all(&frame(response)).await;
+                    let _ = self.connection.stream.shutdown().await;
+                    warn!("Closing connection after failed session-bind");
+                    break;
+                }
             }
         }
 
@@ -150,9 +164,18 @@ async fn read_or_cancel<S: AsyncRead + Unpin>(
     }
 }
 
-fn handle_extension_message(payload: &[u8], session_bind_state: &mut SessionBindState) -> Vec<u8> {
+/// The response to a client message, and whether the connection may continue afterwards.
+#[derive(Debug, PartialEq)]
+enum Response {
+    /// Write the response and keep serving the connection.
+    Continue(Vec<u8>),
+    /// Write the response, then close the connection without reading further messages.
+    RespondThenClose(Vec<u8>),
+}
+
+fn handle_extension_message(payload: &[u8], session_bind_state: &mut SessionBindState) -> Response {
     let Some((name, rest)) = read_ssh_string(payload) else {
-        return failure();
+        return Response::Continue(failure());
     };
     match name {
         SESSION_BIND_EXTENSION => handle_session_bind(rest, session_bind_state),
@@ -161,17 +184,19 @@ fn handle_extension_message(payload: &[u8], session_bind_state: &mut SessionBind
                 name = std::str::from_utf8(name).unwrap_or("<non-utf8>"),
                 "Received unsupported extension"
             );
-            failure()
+            Response::Continue(failure())
         }
     }
 }
 
-fn handle_session_bind(payload: &[u8], session_bind_state: &mut SessionBindState) -> Vec<u8> {
+// A failed or unsupported session-bind must not leave a usable connection behind: requests on
+// it would otherwise be treated as local, bypassing the forwarded-host approval boundary.
+fn handle_session_bind(payload: &[u8], session_bind_state: &mut SessionBindState) -> Response {
     if session_bind_state.parse_and_verify(payload) {
-        success()
+        Response::Continue(success())
     } else {
         warn!("session-bind verification failed");
-        failure()
+        Response::RespondThenClose(failure())
     }
 }
 
@@ -321,8 +346,10 @@ mod tests {
     const SIGN_RESPONSE: u8 = 14;
 
     use crate::server::test_common::{
-        make_minimal_ed25519_blob, make_session_bind_payload_ed25519, make_sign_request_msg,
-        write_ssh_string, AlwaysAllowPolicy,
+        make_minimal_ed25519_blob, make_session_bind_payload_ecdsa,
+        make_session_bind_payload_ed25519, make_session_bind_payload_host_certificate,
+        make_session_bind_payload_unsupported_host_key, make_sign_request_msg, write_ssh_string,
+        AlwaysAllowPolicy,
     };
 
     fn make_minimal_rsa_blob() -> Vec<u8> {
@@ -657,7 +684,7 @@ mod tests {
     fn extension_truncated_name_returns_failure() {
         let mut state = SessionBindState::default();
         let response = super::handle_extension_message(&[0u8, 1u8, 2u8], &mut state);
-        assert_eq!(response, vec![FAILURE]);
+        assert_eq!(response, super::Response::Continue(vec![FAILURE]));
     }
 
     #[test]
@@ -665,7 +692,7 @@ mod tests {
         let payload = make_extension_payload(b"query", &[]);
         let mut state = SessionBindState::default();
         let response = super::handle_extension_message(&payload, &mut state);
-        assert_eq!(response, vec![FAILURE]);
+        assert_eq!(response, super::Response::Continue(vec![FAILURE]));
     }
 
     #[test]
@@ -673,7 +700,7 @@ mod tests {
         let payload = make_extension_payload(b"session-bind@openssh.com", &[0xDE, 0xAD]);
         let mut state = SessionBindState::default();
         let response = super::handle_extension_message(&payload, &mut state);
-        assert_eq!(response, vec![FAILURE]);
+        assert_eq!(response, super::Response::RespondThenClose(vec![FAILURE]));
         assert!(!state.is_forwarding);
         assert!(state.host_fingerprint.is_empty());
     }
@@ -688,7 +715,7 @@ mod tests {
 
         let mut state = SessionBindState::default();
         let response = super::handle_extension_message(&payload, &mut state);
-        assert_eq!(response, vec![SUCCESS]);
+        assert_eq!(response, super::Response::Continue(vec![SUCCESS]));
         assert!(!state.is_forwarding);
     }
 
@@ -702,7 +729,7 @@ mod tests {
 
         let mut state = SessionBindState::default();
         let response = super::handle_extension_message(&payload, &mut state);
-        assert_eq!(response, vec![SUCCESS]);
+        assert_eq!(response, super::Response::Continue(vec![SUCCESS]));
         assert!(state.is_forwarding);
     }
 
@@ -716,7 +743,7 @@ mod tests {
         let forwarding_payload = make_session_bind_payload_ed25519(&keypair, &[0x01u8; 32], true);
         let ext1 = make_extension_payload(b"session-bind@openssh.com", &forwarding_payload);
         let r1 = super::handle_extension_message(&ext1, &mut state);
-        assert_eq!(r1, vec![SUCCESS]);
+        assert_eq!(r1, super::Response::Continue(vec![SUCCESS]));
         assert!(
             state.is_forwarding,
             "first bind (forwarding=true) should set flag"
@@ -726,7 +753,7 @@ mod tests {
             make_session_bind_payload_ed25519(&keypair, &[0x02u8; 32], false);
         let ext2 = make_extension_payload(b"session-bind@openssh.com", &not_forwarding_payload);
         let r2 = super::handle_extension_message(&ext2, &mut state);
-        assert_eq!(r2, vec![SUCCESS]);
+        assert_eq!(r2, super::Response::Continue(vec![SUCCESS]));
         assert!(
             state.is_forwarding,
             "latch must not be cleared by a non-forwarding rebind"
@@ -743,7 +770,7 @@ mod tests {
 
         let mut state = SessionBindState::default();
         let bind_response = super::handle_extension_message(&ext_payload, &mut state);
-        assert_eq!(bind_response, vec![SUCCESS]);
+        assert_eq!(bind_response, super::Response::Continue(vec![SUCCESS]));
         assert!(state.is_forwarding);
 
         let blob = make_minimal_ed25519_blob();
@@ -887,5 +914,333 @@ mod tests {
         tokio::time::timeout(std::time::Duration::from_secs(1), handler.handle())
             .await
             .expect("handler should exit, denying oversized message length");
+    }
+
+    // ---- connection-level session-bind tests (full handler loop over an in-memory stream) ----
+
+    const EXTENSION: u8 = 27;
+
+    /// Counts authorization calls and captures the last request, approving every request.
+    #[derive(Default)]
+    struct CountingAuthPolicy {
+        calls: std::sync::atomic::AtomicUsize,
+        captured: std::sync::Mutex<Option<AuthRequest>>,
+    }
+
+    impl CountingAuthPolicy {
+        fn calls(&self) -> usize {
+            self.calls.load(std::sync::atomic::Ordering::SeqCst)
+        }
+    }
+
+    #[async_trait::async_trait]
+    impl AuthPolicy for CountingAuthPolicy {
+        async fn authorize(&self, req: &AuthRequest) -> Result<bool, AuthError> {
+            self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            *self.captured.lock().unwrap() = Some(req.clone());
+            Ok(true)
+        }
+    }
+
+    fn framed(body: &[u8]) -> Vec<u8> {
+        let mut out = (body.len() as u32).to_be_bytes().to_vec();
+        out.extend_from_slice(body);
+        out
+    }
+
+    fn framed_session_bind(bind_payload: &[u8]) -> Vec<u8> {
+        let mut body = vec![EXTENSION];
+        body.extend(make_extension_payload(
+            b"session-bind@openssh.com",
+            bind_payload,
+        ));
+        framed(&body)
+    }
+
+    fn framed_sign_request() -> Vec<u8> {
+        framed(&make_sign_request_msg(
+            &make_minimal_ed25519_blob(),
+            b"test data",
+            0,
+        ))
+    }
+
+    /// Runs a connection handler over an in-memory stream. The keystore has no expectations, so
+    /// any attempt to look up or sign with a key panics the handler task.
+    fn spawn_handler(
+        auth_policy: Arc<CountingAuthPolicy>,
+        keystore: MockKeyStore,
+    ) -> (tokio::io::DuplexStream, tokio::task::JoinHandle<()>) {
+        let (client, server) = tokio::io::duplex(64 * 1024);
+        let handler = super::ConnectionHandler::new(
+            Arc::new(keystore),
+            auth_policy,
+            super::Connection {
+                stream: server,
+                peer_info: None,
+            },
+            tokio_util::sync::CancellationToken::new(),
+        );
+        (client, tokio::spawn(handler.handle()))
+    }
+
+    /// Reads one response frame, or `None` if the server closed the connection.
+    async fn read_frame(client: &mut tokio::io::DuplexStream) -> Option<Vec<u8>> {
+        use tokio::io::AsyncReadExt;
+
+        let mut len_buf = [0u8; 4];
+        let read = tokio::time::timeout(
+            std::time::Duration::from_secs(5),
+            client.read_exact(&mut len_buf),
+        )
+        .await
+        .expect("timed out waiting for the server");
+        if read.is_err() {
+            return None;
+        }
+        let mut body = vec![0u8; u32::from_be_bytes(len_buf) as usize];
+        client.read_exact(&mut body).await.ok()?;
+        Some(body)
+    }
+
+    async fn assert_closed(
+        client: &mut tokio::io::DuplexStream,
+        handler: tokio::task::JoinHandle<()>,
+    ) {
+        assert_eq!(
+            read_frame(client).await,
+            None,
+            "connection must be closed after a failed session-bind"
+        );
+        tokio::time::timeout(std::time::Duration::from_secs(5), handler)
+            .await
+            .expect("handler should exit")
+            .expect("handler must not panic (no keystore access)");
+    }
+
+    #[tokio::test]
+    async fn failed_bind_returns_failure_then_closes_connection() {
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        client
+            .write_all(&framed_session_bind(&[0xDE, 0xAD, 0xBE, 0xEF]))
+            .await
+            .unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
+    }
+
+    #[tokio::test]
+    async fn unsupported_host_key_bind_closes_connection() {
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        client
+            .write_all(&framed_session_bind(
+                &make_session_bind_payload_unsupported_host_key(true),
+            ))
+            .await
+            .unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
+    }
+
+    // Documented limitation: host certificates are not supported for session-bind, so the
+    // connection is closed instead of serving later requests as local.
+    #[tokio::test]
+    async fn host_certificate_bind_closes_connection_without_signing() {
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        let mut batch = framed_session_bind(&make_session_bind_payload_host_certificate(true));
+        batch.extend(framed_sign_request());
+        client.write_all(&batch).await.unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
+    }
+
+    #[tokio::test]
+    async fn malformed_bind_trailing_data_closes_connection() {
+        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use tokio::io::AsyncWriteExt;
+
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let mut bind_payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], true);
+        bind_payload.push(0u8);
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        client
+            .write_all(&framed_session_bind(&bind_payload))
+            .await
+            .unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
+    }
+
+    #[tokio::test]
+    async fn queued_sign_after_failed_bind_is_never_processed() {
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        // Pipeline the failing bind and a sign request in a single write.
+        let mut batch = framed_session_bind(&make_session_bind_payload_unsupported_host_key(true));
+        batch.extend(framed_sign_request());
+        batch.extend(framed_sign_request());
+        client.write_all(&batch).await.unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(
+            policy.calls(),
+            0,
+            "queued sign requests must never reach authorization"
+        );
+    }
+
+    #[tokio::test]
+    async fn queued_list_after_failed_bind_is_never_processed() {
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        let mut batch = framed_session_bind(&[0xDE, 0xAD]);
+        batch.extend(framed(&[REQUEST_IDENTITIES]));
+        client.write_all(&batch).await.unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
+    }
+
+    #[tokio::test]
+    async fn valid_then_failed_rebind_closes_connection_without_signing() {
+        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        // First hop: a valid forwarded Ed25519 bind succeeds.
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let valid = make_session_bind_payload_ed25519(&keypair, &[0x01u8; 32], true);
+        client
+            .write_all(&framed_session_bind(&valid))
+            .await
+            .unwrap();
+        assert_eq!(read_frame(&mut client).await, Some(vec![SUCCESS]));
+
+        // Next hop: an unverifiable bind must not fall back to the first hop's fingerprint.
+        let mut batch = framed_session_bind(&make_session_bind_payload_unsupported_host_key(true));
+        batch.extend(framed_sign_request());
+        client.write_all(&batch).await.unwrap();
+
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
+    }
+
+    #[tokio::test]
+    async fn ecdsa_bind_propagates_forwarded_context_to_sign_request() {
+        use ssh_key::{private::EcdsaKeypair, rand_core::OsRng, EcdsaCurve, HashAlg};
+        use tokio::io::AsyncWriteExt;
+
+        for curve in [
+            EcdsaCurve::NistP256,
+            EcdsaCurve::NistP384,
+            EcdsaCurve::NistP521,
+        ] {
+            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
+            let expected_fingerprint = ssh_key::PublicKey::from(ssh_key::public::KeyData::Ecdsa(
+                ssh_key::public::EcdsaPublicKey::from(&keypair),
+            ))
+            .fingerprint(HashAlg::Sha256)
+            .to_string();
+
+            let mut keystore = MockKeyStore::new();
+            keystore
+                .expect_get_private_key()
+                .once()
+                .returning(|_| Ok(None));
+            let policy = Arc::new(CountingAuthPolicy::default());
+            let (mut client, handler) = spawn_handler(policy.clone(), keystore);
+
+            let bind = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
+            client.write_all(&framed_session_bind(&bind)).await.unwrap();
+            assert_eq!(
+                read_frame(&mut client).await,
+                Some(vec![SUCCESS]),
+                "{curve:?} bind should verify"
+            );
+
+            client.write_all(&framed_sign_request()).await.unwrap();
+            // Key is not in the keystore, so the sign itself fails after authorization.
+            assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+
+            drop(client);
+            handler.await.unwrap();
+
+            assert_eq!(policy.calls(), 1);
+            let captured = policy.captured.lock().unwrap();
+            let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() else {
+                panic!("expected Sign auth request to be captured");
+            };
+            let bind = sign_req
+                .connection
+                .session_bind
+                .as_ref()
+                .expect("forwarded context must be present");
+            assert!(bind.is_forwarding, "{curve:?} must be forwarded");
+            assert_eq!(bind.host_fingerprint, expected_fingerprint);
+        }
+    }
+
+    #[tokio::test]
+    async fn unknown_extension_does_not_close_connection() {
+        use tokio::io::AsyncWriteExt;
+
+        let mut keystore = MockKeyStore::new();
+        keystore
+            .expect_get_all_public_keys_and_names()
+            .once()
+            .returning(|| Ok(vec![]));
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), keystore);
+
+        let mut body = vec![EXTENSION];
+        body.extend(make_extension_payload(b"query", &[]));
+        client.write_all(&framed(&body)).await.unwrap();
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+
+        // The connection is still served.
+        client
+            .write_all(&framed(&[REQUEST_IDENTITIES]))
+            .await
+            .unwrap();
+        let response = read_frame(&mut client).await.expect("connection open");
+        assert_eq!(response[0], IDENTITIES_ANSWER);
+
+        drop(client);
+        handler.await.unwrap();
+        assert_eq!(policy.calls(), 1);
     }
 }
