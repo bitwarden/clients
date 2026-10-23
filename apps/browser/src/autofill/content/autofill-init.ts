@@ -8,6 +8,7 @@ import { DomElementVisibilityService } from "../services/abstractions/dom-elemen
 import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { DefaultRuleQualificationService } from "../services/rule-qualification.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import { sendExtensionMessage } from "../utils";
 import { EventSecurity } from "../utils/event-security";
@@ -61,6 +62,16 @@ class AutofillInit implements AutofillInitInterface {
       domElementVisibilityService,
       domQueryService,
       this.autofillOverlayContentService,
+    );
+    // Setter injection breaks the circular dep: the rule qualification service
+    // needs the collect service for its heuristic bypass; the collect service
+    // needs the rule qualification service to qualify matched rules.
+    this.collectAutofillContentService.setRuleQualificationService(
+      new DefaultRuleQualificationService(
+        this.collectAutofillContentService,
+        domQueryService,
+        domElementVisibilityService,
+      ),
     );
     this.insertAutofillContentService = new InsertAutofillContentService(
       domElementVisibilityService,
