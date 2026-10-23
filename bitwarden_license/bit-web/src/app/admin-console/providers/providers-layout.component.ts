@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
@@ -13,7 +11,7 @@ import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { SvgModule } from "@bitwarden/components";
+import { IconComponent, SvgModule } from "@bitwarden/components";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
@@ -32,96 +30,77 @@ import { ProviderWarningsService } from "../../billing/providers/warnings/servic
     JslibModule,
     WebLayoutModule,
     SvgModule,
+    IconComponent,
     TaxIdWarningComponent,
   ],
 })
-export class ProvidersLayoutComponent implements OnInit, OnDestroy {
+export class ProvidersLayoutComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly providerService = inject(ProviderService);
+  private readonly providerWarningsService = inject(ProviderWarningsService);
+  private readonly accountService = inject(AccountService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly logo = ProviderPortalLogo;
 
-  private destroy$ = new Subject<void>();
-  protected provider$: Observable<Provider>;
+  protected readonly provider$: Observable<Provider> = combineLatest([
+    this.route.params.pipe(map((params): string => params.providerId)),
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(
+    switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
+    filter((provider): provider is Provider => provider != null),
+  );
 
-  protected logo$: Observable<BitSvg>;
+  protected readonly logo$: Observable<BitSvg> = this.provider$.pipe(
+    map((provider) =>
+      provider.providerType === ProviderType.BusinessUnit
+        ? BusinessUnitPortalLogo
+        : ProviderPortalLogo,
+    ),
+  );
 
-  protected canAccessBilling$: Observable<boolean>;
+  protected readonly canAccessBilling$: Observable<boolean> = this.provider$.pipe(
+    map((provider) => provider.isProviderAdmin),
+  );
 
-  protected clientsTranslationKey$: Observable<string>;
+  protected readonly clientsTranslationKey$: Observable<string> = this.provider$.pipe(
+    map((provider) =>
+      provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
+    ),
+  );
 
-  protected subscriber$: Observable<NonIndividualSubscriber>;
-  protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
+  protected readonly subscriber$: Observable<NonIndividualSubscriber> = this.provider$.pipe(
+    map((provider) => ({
+      type: "provider",
+      data: provider,
+    })),
+  );
 
-  constructor(
-    private route: ActivatedRoute,
-    private providerService: ProviderService,
-    private providerWarningsService: ProviderWarningsService,
-    private accountService: AccountService,
-  ) {}
+  protected readonly getTaxIdWarning$ = (): Observable<TaxIdWarningType | null> =>
+    this.provider$.pipe(
+      switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
+    );
 
   ngOnInit() {
     document.body.classList.remove("layout_frontend");
-
-    const providerId$: Observable<string> = this.route.params.pipe(
-      map((params) => params.providerId),
-    );
-
-    this.provider$ = combineLatest([
-      providerId$,
-      this.accountService.activeAccount$.pipe(getUserId),
-    ]).pipe(
-      switchMap(([providerId, userId]) => this.providerService.get$(providerId, userId)),
-      takeUntil(this.destroy$),
-    );
-
-    this.logo$ = this.provider$.pipe(
-      map((provider) =>
-        provider.providerType === ProviderType.BusinessUnit
-          ? BusinessUnitPortalLogo
-          : ProviderPortalLogo,
-      ),
-    );
-
-    this.canAccessBilling$ = this.provider$.pipe(map((provider) => provider.isProviderAdmin));
-
-    this.clientsTranslationKey$ = this.provider$.pipe(
-      map((provider) =>
-        provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
-      ),
-    );
 
     this.provider$
       .pipe(
         switchMap((provider) =>
           this.providerWarningsService.showProviderSuspendedDialog$(provider),
         ),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-
-    this.subscriber$ = this.provider$.pipe(
-      map((provider) => ({
-        type: "provider",
-        data: provider,
-      })),
-    );
-
-    this.getTaxIdWarning$ = () =>
-      this.provider$.pipe(
-        switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
-      );
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  showManageTab(provider: Provider) {
+  protected showManageTab(provider: Provider) {
     return provider.canManageUsers || provider.canAccessEventLogs;
   }
 
-  showSettingsTab(provider: Provider) {
+  protected showSettingsTab(provider: Provider) {
     return provider.isProviderAdmin;
   }
 
-  refreshTaxIdWarning = () => this.providerWarningsService.refreshTaxIdWarning();
+  protected readonly refreshTaxIdWarning = () => this.providerWarningsService.refreshTaxIdWarning();
 }
