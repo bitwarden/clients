@@ -273,6 +273,36 @@ describe("UriOptionComponent", () => {
     it("should revert to the previous strategy when the user cancels", () => {
       testDialogAction("onCancel", UriMatchStrategy.Domain);
     });
+
+    it("should warn when the first change after `writeValue` is to an advanced strategy", () => {
+      const openSpy = jest
+        .spyOn(AdvancedUriOptionDialogComponent, "open")
+        .mockReturnValue(dialogRefMock);
+      component.writeValue({ uri: "https://example.com", matchDetection: UriMatchStrategy.Exact });
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.StartsWith);
+
+      expect(openSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should notify the parent form of the restored strategy when the user cancels", () => {
+      const onChange = jest.fn();
+      component.registerOnChange(onChange);
+      const openSpy = jest
+        .spyOn(AdvancedUriOptionDialogComponent, "open")
+        .mockReturnValue(dialogRefMock);
+      component.writeValue({ uri: "https://example.com", matchDetection: UriMatchStrategy.Exact });
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.StartsWith);
+      const [, params] = openSpy.mock.calls[0] as [DialogService, { onCancel: () => void }];
+      params.onCancel();
+
+      expect(component["uriForm"].controls.matchDetection.value).toBe(UriMatchStrategy.Exact);
+      expect(onChange).toHaveBeenLastCalledWith({
+        uri: "https://example.com",
+        matchDetection: UriMatchStrategy.Exact,
+      });
+    });
   });
 
   describe("default match strategy confirmation", () => {
@@ -310,6 +340,29 @@ describe("UriOptionComponent", () => {
       await fixture.whenStable();
 
       expect(component["uriForm"].controls.matchDetection.value).toBe(UriMatchStrategy.Host);
+      expect(onChange).toHaveBeenLastCalledWith({
+        uri: "https://example.com",
+        matchDetection: UriMatchStrategy.Host,
+      });
+    });
+
+    it("restores the original strategy when the user declines the default and then cancels an advanced strategy", async () => {
+      httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
+      const openSpy = jest
+        .spyOn(AdvancedUriOptionDialogComponent, "open")
+        .mockReturnValue(dialogRefMock);
+
+      component["uriForm"].controls.matchDetection.setValue(null);
+      // Let the declined confirmation settle before the next selection, as a separate user event would
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      component["uriForm"].controls.matchDetection.setValue(UriMatchStrategy.StartsWith);
+      const [, params] = openSpy.mock.calls[0] as [DialogService, { onCancel: () => void }];
+      params.onCancel();
+      await fixture.whenStable();
+
+      expect(component["uriForm"].controls.matchDetection.value).toBe(UriMatchStrategy.Host);
+      expect(httpAuthenticationService.confirmDefaultMatchStrategy).toHaveBeenCalledTimes(1);
       expect(onChange).toHaveBeenLastCalledWith({
         uri: "https://example.com",
         matchDetection: UriMatchStrategy.Host,

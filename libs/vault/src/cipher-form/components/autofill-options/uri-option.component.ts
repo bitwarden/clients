@@ -19,7 +19,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { concatMap, pairwise } from "rxjs";
+import { concatMap, EMPTY, ObservableInput } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -164,7 +164,7 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   protected showMatchDetection = false;
 
-  /** The most recent match strategy, used to restore it when a change to the default is declined */
+  /** The most recent match strategy, used to restore it when a change is declined or cancelled */
   private lastMatchDetection: UriMatchStrategySetting = null;
 
   private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
@@ -223,18 +223,32 @@ export class UriOptionComponent implements ControlValueAccessor {
 
     this.uriForm.controls.matchDetection.valueChanges
       .pipe(
-        pairwise(),
-        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        concatMap((current) => this.handleMatchDetectionChange(current)),
         takeUntilDestroyed(),
       )
       .subscribe();
+  }
 
-    this.uriForm.controls.matchDetection.valueChanges
-      .pipe(
-        concatMap((current) => this.handleDefaultMatch(current)),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
+  /**
+   * Compares a user-selected match strategy against the last known strategy, which `writeValue` and silent
+   * restores also keep current, and runs the confirmation for the newly selected strategy.
+   */
+  private handleMatchDetectionChange(current: UriMatchStrategySetting): ObservableInput<void> {
+    const previous = this.lastMatchDetection;
+    this.lastMatchDetection = current;
+
+    if (previous === current) {
+      return EMPTY;
+    }
+
+    if (current == null) {
+      return this.handleDefaultMatch(previous);
+    }
+
+    // Completes synchronously so the next change is not held behind a pending promise
+    this.handleAdvancedMatch(previous, current);
+
+    return EMPTY;
   }
 
   /**
@@ -242,44 +256,40 @@ export class UriOptionComponent implements ControlValueAccessor {
    * strategy while HTTP authentication is on asks the user to confirm turning HTTP authentication off; declining
    * restores the previous strategy.
    */
-  private async handleDefaultMatch(current: UriMatchStrategySetting) {
-    const previous = this.lastMatchDetection;
-    this.lastMatchDetection = current;
-
-    if (current != null || previous == null) {
-      return;
-    }
-
+  private async handleDefaultMatch(previous: UriMatchStrategySetting) {
     if (await this.httpAuthenticationService.confirmDefaultMatchStrategy()) {
       return;
     }
 
-    // Restore the previous strategy without re-running the advanced option warning
-    this.uriForm.controls.matchDetection.setValue(previous, { emitEvent: false });
-    this.lastMatchDetection = previous;
-    this.onChange(this.uriForm.value);
+    this.restoreMatchDetection(previous);
   }
 
-  private async handleAdvancedMatch(
-    previous: UriMatchStrategySetting,
-    current: UriMatchStrategySetting,
-  ) {
-    const valueChange = previous !== current;
+  private handleAdvancedMatch(previous: UriMatchStrategySetting, current: UriMatchStrategySetting) {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
 
-    if (!valueChange || !isAdvanced) {
+    if (!isAdvanced) {
       return;
     }
+
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
       contentKey: this.advancedOptionWarningMap[current],
-      onContinue: () => {
-        this.uriForm.controls.matchDetection.setValue(current);
-      },
+      // The control already holds the selected advanced strategy
+      onContinue: () => {},
       onCancel: () => {
-        this.uriForm.controls.matchDetection.setValue(previous);
+        this.restoreMatchDetection(previous);
       },
     });
+  }
+
+  /**
+   * Sets the match strategy without emitting a change, so restoring a declined strategy does not re-run the
+   * default or advanced option confirmations, then notifies the parent form of the restored value.
+   */
+  private restoreMatchDetection(value: UriMatchStrategySetting) {
+    this.uriForm.controls.matchDetection.setValue(value, { emitEvent: false });
+    this.lastMatchDetection = value;
+    this.onChange(this.uriForm.value);
   }
 
   focusInput() {
