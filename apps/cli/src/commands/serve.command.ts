@@ -1,3 +1,4 @@
+import { EventEmitter } from "node:events";
 import http from "node:http";
 import net from "node:net";
 
@@ -11,6 +12,7 @@ import * as koaJson from "koa-json";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+import { Response } from "../models/response";
 import { OssServeConfigurator } from "../oss-serve-configurator";
 import { ServiceContainer } from "../service-container/service-container";
 
@@ -75,13 +77,23 @@ export function buildOriginProtectionMiddleware(opts: {
   };
 }
 
+/** Resolves when the server stops, so `serve` stays pending while it is serving. */
+export function untilStopped(source: EventEmitter, description: string): Promise<Response> {
+  return new Promise((resolve) => {
+    source.once("error", (error: Error) =>
+      resolve(Response.error(`Cannot serve on ${description}: ${error.message}`)),
+    );
+    source.once("close", () => resolve(Response.success()));
+  });
+}
+
 export class ServeCommand {
   constructor(
     protected serviceContainer: ServiceContainer,
     protected serveConfigurator: OssServeConfigurator,
   ) {}
 
-  async run(options: OptionValues) {
+  async run(options: OptionValues): Promise<Response> {
     const protectOrigin = !options.disableOriginProtection;
     const port = Number(options.port) || 8087;
     const hostname = options.hostname || "localhost";
@@ -126,20 +138,28 @@ export class ServeCommand {
       socket.pause();
       httpServer.emit("connection", socket);
       socket.resume(); // Let the HTTP parser start reading
-    } else if (hostname.startsWith("fd+listening://")) {
+
+      // A connected fd is a single connection, so serving ends with it.
+      return await untilStopped(socket, hostname);
+    }
+
+    let description = hostname;
+    let httpServer: http.Server;
+    if (hostname.startsWith("fd+listening://")) {
       const fd = parseInt(hostname.slice("fd+listening://".length));
-      server.listen({ fd }, () => {
-        this.serviceContainer.logService.info("Listening on " + hostname);
-      });
+      httpServer = server.listen({ fd });
     } else if (hostname.startsWith("unix://")) {
       const socketPath = hostname.slice("unix://".length);
-      server.listen(socketPath, () => {
-        this.serviceContainer.logService.info("Listening on " + hostname);
-      });
+      httpServer = server.listen(socketPath);
     } else {
-      server.listen(port, hostname === "all" ? null : hostname, () => {
-        this.serviceContainer.logService.info("Listening on " + hostname + ":" + port);
-      });
+      description = hostname + ":" + port;
+      httpServer = server.listen(port, hostname === "all" ? null : hostname);
     }
+
+    httpServer.once("listening", () => {
+      this.serviceContainer.logService.info("Listening on " + description);
+    });
+
+    return await untilStopped(httpServer, description);
   }
 }
