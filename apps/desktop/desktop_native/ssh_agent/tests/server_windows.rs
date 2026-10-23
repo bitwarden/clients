@@ -525,79 +525,38 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
     agent.stop();
 }
 
-async fn assert_ecdsa_session_bind_reaches_approval_layer(
-    curve: ssh_key::EcdsaCurve,
-) -> anyhow::Result<()> {
-    let host_key = random_ecdsa_host_key(curve);
-    let expected_fingerprint = host_key
-        .public_key()
-        .fingerprint(ssh_key::HashAlg::Sha256)
-        .to_string();
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_ecdsa_session_bind_closes_connection_without_approval() {
+    // ECDSA host keys are not supported for session-bind in this change: the bind fails
+    // closed and the queued sign request never reaches approval.
+    setup();
+    let (mut agent, approvals) = counting_approving_agent(vec![test_ed25519_key()]);
+    agent.start().unwrap();
 
-    let mut requester = MockApprovalRequester::new();
-    requester
-        .expect_request_sign_approval()
-        .once()
-        .withf(move |req| {
-            req.sign_request
-                .connection
-                .session_bind
-                .as_ref()
-                .is_some_and(|s| s.is_forwarding && s.host_fingerprint == expected_fingerprint)
-        })
-        .returning(|_| Ok(true));
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    let host_key = random_ecdsa_host_key(ssh_key::EcdsaCurve::NistP256);
+    let mut batch = framed_session_bind_extension_with_key(&host_key, true);
+    batch.extend(framed_sign_request(
+        &test_ed25519_key_blob(),
+        b"test data",
+        0,
+    ));
+    client.write_all(&batch).await.unwrap();
 
-    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
-    agent.replace(vec![test_ed25519_key()])?;
-    agent.start()?;
-
-    let mut client = ClientOptions::new().open(PIPE_NAME)?;
-
-    client
-        .write_all(&framed_session_bind_extension_with_key(&host_key, true))
-        .await?;
-    let bind_response = read_framed_response(&mut client).await;
-    assert_eq!(bind_response[0], 6, "{curve:?} session-bind should succeed");
-
-    client
-        .write_all(&framed_sign_request(
-            &test_ed25519_key_blob(),
-            b"test data",
-            0,
-        ))
-        .await?;
-    let sign_response = read_framed_response(&mut client).await;
-    assert_eq!(sign_response[0], 14, "expected SIGN_RESPONSE");
+    assert_eq!(
+        read_framed_response_or_eof(&mut client).await,
+        Some(vec![5u8]),
+        "expected FAILURE for the ECDSA session-bind"
+    );
+    assert_eq!(
+        read_framed_response_or_eof(&mut client).await,
+        None,
+        "connection must be closed after an unsupported ECDSA session-bind"
+    );
+    assert_eq!(approvals.load(std::sync::atomic::Ordering::SeqCst), 0);
 
     agent.stop();
-    Ok(())
-}
-
-#[serial]
-#[tokio::test(flavor = "multi_thread")]
-async fn test_session_bind_ecdsa_p256_forwarding_reaches_approval_layer() {
-    setup();
-    assert_ecdsa_session_bind_reaches_approval_layer(ssh_key::EcdsaCurve::NistP256)
-        .await
-        .unwrap();
-}
-
-#[serial]
-#[tokio::test(flavor = "multi_thread")]
-async fn test_session_bind_ecdsa_p384_forwarding_reaches_approval_layer() {
-    setup();
-    assert_ecdsa_session_bind_reaches_approval_layer(ssh_key::EcdsaCurve::NistP384)
-        .await
-        .unwrap();
-}
-
-#[serial]
-#[tokio::test(flavor = "multi_thread")]
-async fn test_session_bind_ecdsa_p521_forwarding_reaches_approval_layer() {
-    setup();
-    assert_ecdsa_session_bind_reaches_approval_layer(ssh_key::EcdsaCurve::NistP521)
-        .await
-        .unwrap();
 }
 
 #[serial]

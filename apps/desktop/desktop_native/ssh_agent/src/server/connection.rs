@@ -1212,59 +1212,29 @@ mod tests {
         assert_eq!(policy.calls(), 0);
     }
 
+    // The reporter's scenario: a forwarded ECDSA host-key bind. ECDSA is not supported for
+    // session-bind in this change, so the bind fails, the connection closes, and a queued sign
+    // request is never authorized (previously it was authorized as a local request).
     #[tokio::test]
-    async fn ecdsa_bind_propagates_forwarded_context_to_sign_request() {
-        use ssh_key::{private::EcdsaKeypair, rand_core::OsRng, EcdsaCurve, HashAlg};
+    async fn ecdsa_host_key_bind_closes_connection_without_signing() {
+        use ssh_key::{private::EcdsaKeypair, rand_core::OsRng, EcdsaCurve};
         use tokio::io::AsyncWriteExt;
 
-        for curve in [
-            EcdsaCurve::NistP256,
-            EcdsaCurve::NistP384,
-            EcdsaCurve::NistP521,
-        ] {
-            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
-            let expected_fingerprint = ssh_key::PublicKey::from(ssh_key::public::KeyData::Ecdsa(
-                ssh_key::public::EcdsaPublicKey::from(&keypair),
-            ))
-            .fingerprint(HashAlg::Sha256)
-            .to_string();
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
 
-            let mut keystore = MockKeyStore::new();
-            keystore
-                .expect_get_private_key()
-                .once()
-                .returning(|_| Ok(None));
-            let policy = Arc::new(CountingAuthPolicy::default());
-            let (mut client, handler) = spawn_handler(policy.clone(), keystore);
+        let mut batch = framed_session_bind(&make_session_bind_payload_ecdsa(
+            &keypair,
+            &[0x42u8; 32],
+            true,
+        ));
+        batch.extend(framed_sign_request());
+        client.write_all(&batch).await.unwrap();
 
-            let bind = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
-            client.write_all(&framed_session_bind(&bind)).await.unwrap();
-            assert_eq!(
-                read_frame(&mut client).await,
-                Some(vec![SUCCESS]),
-                "{curve:?} bind should verify"
-            );
-
-            client.write_all(&framed_sign_request()).await.unwrap();
-            // Key is not in the keystore, so the sign itself fails after authorization.
-            assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
-
-            drop(client);
-            handler.await.unwrap();
-
-            assert_eq!(policy.calls(), 1);
-            let captured = policy.captured.lock().unwrap();
-            let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() else {
-                panic!("expected Sign auth request to be captured");
-            };
-            let bind = sign_req
-                .connection
-                .session_bind
-                .as_ref()
-                .expect("forwarded context must be present");
-            assert!(bind.is_forwarding, "{curve:?} must be forwarded");
-            assert_eq!(bind.host_fingerprint, expected_fingerprint);
-        }
+        assert_eq!(read_frame(&mut client).await, Some(vec![FAILURE]));
+        assert_closed(&mut client, handler).await;
+        assert_eq!(policy.calls(), 0);
     }
 
     #[tokio::test]
