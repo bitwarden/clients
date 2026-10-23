@@ -245,6 +245,15 @@ export abstract class BasePolicyEditComponent implements OnInit {
     }
   }
 
+  /**
+   * Resolves once the form has been populated with the loaded policy. The edit dialogs wait for
+   * this before recording the initial form state that the Save button compares against.
+   * Override this if the form is still being populated asynchronously after {@link ngOnInit}.
+   */
+  whenInitialized(): Promise<void> {
+    return Promise.resolve();
+  }
+
   async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
     if (!this.policy()) {
       throw new Error("Policy was not found");

@@ -158,6 +158,18 @@ Template (`your-policy.component.html`):
 </ng-container>
 ```
 
+##### Save button state
+
+The edit dialog only enables Save once the `enabled` control or the `data` form differs from its state when the dialog finished loading. This means your form can safely fill in defaults for a policy that has never been saved, and `loadData()`/`buildRequestData()` can transform values between the stored and displayed formats, without Save appearing enabled before the admin has edited anything.
+
+The initial state is recorded after `ngOnInit()` runs. If your component keeps populating the form asynchronously after that (for example, its defaults depend on a feature flag), override `whenInitialized()` to resolve once the form is fully populated:
+
+```typescript
+override async whenInitialized(): Promise<void> {
+  await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.YourFlag));
+}
+```
+
 #### Feature Flagged Policy
 
 To hide a policy behind a feature flag using ConfigService:

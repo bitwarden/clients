@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { map, of, startWith, switchMap } from "rxjs";
+import { combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -83,6 +83,8 @@ export class MultiStepPolicyEditDialogComponent
     return this.terminology.enabled() ? next : legacy;
   });
 
+  private readonly policyChanged$ = toObservable(this.policyChanged);
+
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
       switchMap((stepConfig) => {
@@ -90,13 +92,20 @@ export class MultiStepPolicyEditDialogComponent
           return stepConfig.disableSave;
         }
         const policyComponent = this.policyComponent();
-        if (policyComponent?.data) {
-          return policyComponent.data.statusChanges.pipe(
-            startWith(policyComponent.data.status),
-            map((status) => status === "INVALID"),
-          );
+        const invalid$ = policyComponent?.data
+          ? policyComponent.data.statusChanges.pipe(
+              startWith(policyComponent.data.status),
+              map((status) => status === "INVALID"),
+            )
+          : of(false);
+        // Only the first step edits the policy itself; later steps are follow-up actions that
+        // don't need changes to the form.
+        if (this.currentStep() !== 0) {
+          return invalid$;
         }
-        return of(false);
+        return combineLatest([invalid$, this.policyChanged$]).pipe(
+          map(([invalid, changed]) => invalid || !changed),
+        );
       }),
     ),
     { initialValue: false },
@@ -153,6 +162,7 @@ export class MultiStepPolicyEditDialogComponent
     this.policySteps.set(component.policySteps ?? []);
 
     this.setupDiscardGuard();
+    await this.trackPolicyChanges(component);
   }
 
   override readonly submit = async () => {

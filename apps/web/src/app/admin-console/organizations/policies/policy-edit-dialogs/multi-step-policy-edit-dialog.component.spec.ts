@@ -217,17 +217,38 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       expect((component as any).saveDisabled()).toBe(true);
     });
 
-    it("is false when step has no disableSave and policyComponent has no data", () => {
+    it("is true on the first step when the policy form has not changed", () => {
+      policyComponent.data = new UntypedFormGroup({});
+      setupSteps([{}]);
+      TestBed.flushEffects();
+
+      expect((component as any).saveDisabled()).toBe(true);
+    });
+
+    it("is false when step has no disableSave, the policy changed, and policyComponent has no data", () => {
       policyComponent.data = undefined;
+      (component as any).policyChanged.set(true);
       setupSteps([{}]);
       TestBed.flushEffects();
 
       expect((component as any).saveDisabled()).toBe(false);
     });
 
-    it("is false when step has no disableSave and the data form is valid", () => {
+    it("is false when step has no disableSave, the policy changed, and the data form is valid", () => {
       policyComponent.data = new UntypedFormGroup({});
+      (component as any).policyChanged.set(true);
       setupSteps([{}]);
+      TestBed.flushEffects();
+
+      expect((component as any).saveDisabled()).toBe(false);
+    });
+
+    it("does not require policy changes on steps after the first", () => {
+      policyComponent.data = new UntypedFormGroup({});
+      setupSteps([{}, {}]);
+      TestBed.flushEffects();
+
+      component.currentStep.set(1);
       TestBed.flushEffects();
 
       expect((component as any).saveDisabled()).toBe(false);
@@ -334,6 +355,42 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       expect(component.policyComponent()).toBeInstanceOf(OrganizationDataOwnershipPolicyComponent);
       expect(component.dialogTitle()).toBe("centralizeDataOwnership");
       expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+    });
+
+    describe("Save button state", () => {
+      it.each([
+        ["MasterPasswordPolicy", () => new MasterPasswordPolicy()],
+        ["OrganizationDataOwnershipPolicy", () => new OrganizationDataOwnershipPolicy()],
+      ])("%s is disabled on load and enabled once edited", async (_name, createPolicy) => {
+        const { fixture, component } = await setupRealPolicy(createPolicy());
+        TestBed.flushEffects();
+
+        expect(component.saveDisabled()).toBe(true);
+
+        component.policyComponent().enabled.setValue(true);
+        TestBed.flushEffects();
+        fixture.detectChanges();
+
+        expect(component.saveDisabled()).toBe(false);
+
+        component.policyComponent().enabled.setValue(false);
+        TestBed.flushEffects();
+
+        expect(component.saveDisabled()).toBe(true);
+      });
+
+      it("keeps MasterPasswordPolicy disabled when its defaulted data is unchanged", async () => {
+        const { component } = await setupRealPolicy(new MasterPasswordPolicy());
+        const policyComponent = component.policyComponent();
+
+        policyComponent.data.controls.minLength.setValue(20);
+        TestBed.flushEffects();
+        expect(component.saveDisabled()).toBe(false);
+
+        policyComponent.data.controls.minLength.setValue(12);
+        TestBed.flushEffects();
+        expect(component.saveDisabled()).toBe(true);
+      });
     });
 
     describe("AutoConfirmPolicy", () => {
