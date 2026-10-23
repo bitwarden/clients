@@ -10,7 +10,6 @@ import {
 
 import { DeviceType } from "../../../enums";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
@@ -139,11 +138,16 @@ export abstract class SdkService {
 
   /**
    * Unlock the user's live client.
+   *
+   * The user key lands in client state during the unlock, so callers read it from there rather
+   * than from the return value. This signals only who handled the unlock.
+   *
    * @param userId The user whose client to unlock
    * @param request The data needed to unlock the client
-   * @returns The user key, or `null` if no client was unlocked
+   * @returns `true` if the live client handled the unlock, `false` if the caller should fall back
+   *   to the register client
    */
-  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null>;
+  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<boolean>;
 
   /**
    * Clear the in-memory user key (lock).

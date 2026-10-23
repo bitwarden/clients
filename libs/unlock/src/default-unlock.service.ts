@@ -215,10 +215,16 @@ export class DefaultUnlockService implements UnlockService {
       method: initMethod,
     };
 
-    // A user's live SDK client unlocks directly and returns the user key. Organization keys can
-    // only be built once that key exists, so they follow in the unlock side effects.
-    const userKey = await this.sdkService.unlock(userId, request);
-    if (userKey != null) {
+    // A user's live SDK client unlocks directly, landing the user key in client state. We read it
+    // back from there to run the side effects; organization keys can only be built once it exists,
+    // so they follow in the unlock side effects.
+    const unlocked = await this.sdkService.unlock(userId, request);
+    if (unlocked) {
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      if (userKey == null) {
+        // A lock raced the unlock; nothing to run side effects for.
+        return;
+      }
       await this.runOnUnlockSideEffects(userId, userKey, unlockMethod);
       return;
     }

@@ -98,7 +98,7 @@ describe("DefaultUnlockService", () => {
     biometricsService.setBiometricProtectedUnlockKeyForUser.mockResolvedValue(undefined);
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
-    sdkService.unlock.mockResolvedValue(null);
+    sdkService.unlock.mockResolvedValue(false);
     sdkService.setOrgKeys.mockResolvedValue(undefined);
     keyService.buildSdkUnlockData.mockResolvedValue(null);
 
@@ -375,8 +375,8 @@ describe("DefaultUnlockService", () => {
       });
     });
 
-    it("falls back to the register client when the live client returns no user key", async () => {
-      sdkService.unlock.mockResolvedValue(null);
+    it("falls back to the register client when the live client does not handle the unlock", async () => {
+      sdkService.unlock.mockResolvedValue(false);
 
       await service.unlockWithPin(mockUserId, mockPin);
 
@@ -387,8 +387,9 @@ describe("DefaultUnlockService", () => {
       );
     });
 
-    it("uses the live client's user key and skips the register client when it returns one", async () => {
-      sdkService.unlock.mockResolvedValue(liveUserKey);
+    it("reads the user key from state and skips the register client when the live client handles the unlock", async () => {
+      sdkService.unlock.mockResolvedValue(true);
+      keyService.userKey$.mockReturnValue(of(liveUserKey));
       const action = jest.fn().mockResolvedValue(undefined);
       service.registerOnUnlockAction(action);
 
