@@ -9,7 +9,7 @@ import { KeyRotationTrustInfoComponent } from "../key-rotation/key-rotation-trus
 
 import { AccountRecoveryTrustComponent } from "./account-recovery-trust.component";
 import { DefaultUserCryptoDialogService } from "./default-user-crypto-dialog.service";
-import { EmergencyAccessTrustComponent } from "./emergency-access-trust.component";
+import { EmergencyAccessBulkTrustComponent } from "./emergency-access-bulk-trust.component";
 
 describe("DefaultUserCryptoDialogService", () => {
   let service: DefaultUserCryptoDialogService;
@@ -35,8 +35,17 @@ describe("DefaultUserCryptoDialogService", () => {
     public_key: eaPublicKeyB64,
   };
 
+  const secondEaPublicKeyB64 = Utils.fromBufferToB64(new Uint8Array([7, 8, 9]).buffer) as PublicKey;
+  const secondEmergencyAccessMembership = {
+    id: "secondId" as any,
+    grantee_id: "secondGranteeId" as any,
+    name: "secondName",
+    public_key: secondEaPublicKeyB64,
+  };
+
   const closedTrue = { closed: new BehaviorSubject(true) } as any;
   const closedFalse = { closed: new BehaviorSubject(false) } as any;
+  const closedWith = (value: unknown) => ({ closed: new BehaviorSubject(value) }) as any;
 
   beforeEach(() => {
     mockDialogService = mock<DialogService>();
@@ -46,8 +55,8 @@ describe("DefaultUserCryptoDialogService", () => {
       .spyOn(AccountRecoveryTrustComponent, "open")
       .mockReturnValue(closedTrue);
     emergencyAccessOpenSpy = jest
-      .spyOn(EmergencyAccessTrustComponent, "open")
-      .mockReturnValue(closedTrue);
+      .spyOn(EmergencyAccessBulkTrustComponent, "open")
+      .mockReturnValue(closedWith([mockEmergencyAccessMembership.id]));
 
     service = new DefaultUserCryptoDialogService(mockDialogService);
   });
@@ -102,8 +111,8 @@ describe("DefaultUserCryptoDialogService", () => {
     expect(emergencyAccessOpenSpy).not.toHaveBeenCalled();
   });
 
-  it("returns denied when the emergency access dialog is closed", async () => {
-    emergencyAccessOpenSpy.mockReturnValue(closedFalse);
+  it("returns denied when the emergency access dialog is skipped", async () => {
+    emergencyAccessOpenSpy.mockReturnValue(closedWith(undefined));
 
     const result = await service.verifyTrust([], [mockEmergencyAccessMembership]);
 
@@ -156,12 +165,58 @@ describe("DefaultUserCryptoDialogService", () => {
     });
   });
 
-  it("passes the emergency access user count to the info dialog when only emergency access users exist", async () => {
+  it("does not open the info dialog when only emergency access users exist", async () => {
     await service.verifyTrust([], [mockEmergencyAccessMembership]);
 
-    expect(infoOpenSpy).toHaveBeenCalledWith(mockDialogService, {
-      numberOfEmergencyAccessUsers: 1,
-      orgName: undefined,
+    expect(infoOpenSpy).not.toHaveBeenCalled();
+  });
+
+  it("passes all emergency access contacts to a single dialog", async () => {
+    await service.verifyTrust([], [mockEmergencyAccessMembership, secondEmergencyAccessMembership]);
+
+    expect(emergencyAccessOpenSpy).toHaveBeenCalledTimes(1);
+    expect(emergencyAccessOpenSpy).toHaveBeenCalledWith(mockDialogService, {
+      contacts: [
+        {
+          id: mockEmergencyAccessMembership.id,
+          granteeId: mockEmergencyAccessMembership.grantee_id,
+          name: mockEmergencyAccessMembership.name,
+          publicKey: new Uint8Array([1, 2, 3]),
+        },
+        {
+          id: secondEmergencyAccessMembership.id,
+          granteeId: secondEmergencyAccessMembership.grantee_id,
+          name: secondEmergencyAccessMembership.name,
+          publicKey: new Uint8Array([7, 8, 9]),
+        },
+      ],
+    });
+  });
+
+  it("returns only the keys of the selected emergency access contacts", async () => {
+    emergencyAccessOpenSpy.mockReturnValue(closedWith([secondEmergencyAccessMembership.id]));
+
+    const result = await service.verifyTrust(
+      [],
+      [mockEmergencyAccessMembership, secondEmergencyAccessMembership],
+    );
+
+    expect(result).toEqual({
+      wasTrustDenied: false,
+      trustedOrganizationPublicKeys: [],
+      trustedEmergencyAccessUserPublicKeys: [secondEaPublicKeyB64],
+    });
+  });
+
+  it("returns no emergency access keys when no contacts are selected", async () => {
+    emergencyAccessOpenSpy.mockReturnValue(closedWith([]));
+
+    const result = await service.verifyTrust([], [mockEmergencyAccessMembership]);
+
+    expect(result).toEqual({
+      wasTrustDenied: false,
+      trustedOrganizationPublicKeys: [],
+      trustedEmergencyAccessUserPublicKeys: [],
     });
   });
 });

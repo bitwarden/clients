@@ -11,7 +11,7 @@ import {
 import { KeyRotationTrustInfoComponent } from "../key-rotation/key-rotation-trust-info.component";
 
 import { AccountRecoveryTrustComponent } from "./account-recovery-trust.component";
-import { EmergencyAccessTrustComponent } from "./emergency-access-trust.component";
+import { EmergencyAccessBulkTrustComponent } from "./emergency-access-bulk-trust.component";
 
 /**
  * Default implementation of {@link UserCryptoDialogService} that prompts the user
@@ -25,11 +25,12 @@ export class DefaultUserCryptoDialogService implements UserCryptoDialogService {
     organizationV1Memberships: V1OrganizationMembership[],
     emergencyAccessV1Memberships: V1EmergencyAccessMembership[],
   ): Promise<TrustVerificationResult> {
-    if (organizationV1Memberships.length > 0 || emergencyAccessV1Memberships.length > 0) {
+    // Emergency access contacts are listed in their own dialog, so the info dialog only covers
+    // organizations.
+    if (organizationV1Memberships.length > 0) {
       const trustInfoDialog = KeyRotationTrustInfoComponent.open(this.dialogService, {
-        numberOfEmergencyAccessUsers: emergencyAccessV1Memberships.length,
-        orgName:
-          organizationV1Memberships.length > 0 ? organizationV1Memberships[0].name : undefined,
+        numberOfEmergencyAccessUsers: 0,
+        orgName: organizationV1Memberships[0].name,
       });
       if (!(await firstValueFrom(trustInfoDialog.closed))) {
         return {
@@ -55,25 +56,35 @@ export class DefaultUserCryptoDialogService implements UserCryptoDialogService {
       }
     }
 
-    for (const details of emergencyAccessV1Memberships) {
-      const dialogRef = EmergencyAccessTrustComponent.open(this.dialogService, {
-        name: details.name,
-        userId: details.grantee_id as string,
-        publicKey: Utils.fromB64ToArray(details.public_key),
+    let trustedEmergencyAccessMemberships: V1EmergencyAccessMembership[] = [];
+    if (emergencyAccessV1Memberships.length > 0) {
+      const dialogRef = EmergencyAccessBulkTrustComponent.open(this.dialogService, {
+        contacts: emergencyAccessV1Memberships.map((details) => ({
+          id: details.id as string,
+          granteeId: details.grantee_id as string,
+          name: details.name,
+          publicKey: Utils.fromB64ToArray(details.public_key),
+        })),
       });
-      if (!(await firstValueFrom(dialogRef.closed))) {
+      const trustedIds = await firstValueFrom(dialogRef.closed);
+      if (trustedIds == null) {
         return {
           wasTrustDenied: true,
           trustedOrganizationPublicKeys: [],
           trustedEmergencyAccessUserPublicKeys: [],
         };
       }
+      trustedEmergencyAccessMemberships = emergencyAccessV1Memberships.filter((details) =>
+        trustedIds.includes(details.id as string),
+      );
     }
 
     return {
       wasTrustDenied: false,
       trustedOrganizationPublicKeys: organizationV1Memberships.map((d) => d.public_key),
-      trustedEmergencyAccessUserPublicKeys: emergencyAccessV1Memberships.map((d) => d.public_key),
+      trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessMemberships.map(
+        (d) => d.public_key,
+      ),
     };
   }
 }

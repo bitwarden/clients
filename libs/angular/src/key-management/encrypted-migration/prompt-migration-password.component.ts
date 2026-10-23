@@ -3,6 +3,7 @@ import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { filter, firstValueFrom, map } from "rxjs";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,6 +16,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  SvgComponent,
   ToastService,
 } from "@bitwarden/components";
 
@@ -36,6 +38,7 @@ import { JslibModule } from "../../jslib.module";
     ReactiveFormsModule,
     AsyncActionsModule,
     FormFieldModule,
+    SvgComponent,
   ],
 })
 export class PromptMigrationPasswordComponent {
@@ -45,6 +48,8 @@ export class PromptMigrationPasswordComponent {
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+
+  protected readonly lockIcon = LockIcon;
 
   readonly migrationPasswordForm = this.formBuilder.group({
     masterPassword: ["", [Validators.required]],

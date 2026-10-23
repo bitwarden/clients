@@ -7285,14 +7285,11 @@
   "migrationsFailed": {
     "message": "An error occurred updating the encryption settings."
   },
-  "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+  "updateEncryptionSettingsPromptDesc": {
+    "message": "Strengthen your vault with the latest recommended encryption settings. Enter your master password to continue."
   },
-  "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
-  },
-  "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+  "skipForNow": {
+    "message": "Skip for now"
   },
   "enterYourMasterPassword": {
     "message": "Enter your master password"
@@ -18755,5 +18752,17 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "emergencyAccessBulkTrustDesc": {
+    "message": "Review and confirm your trusted relationships so they retain access after your encryption settings are updated."
+  },
+  "emergencyAccessBulkTrustInfo": {
+    "message": "The following emergency contacts will be updated to use your new encryption key. Unselected contacts will no longer be trusted, so they cannot recover your account."
+  },
+  "emergencyAccessBulkTrustFingerprintDesc": {
+    "message": "Ask them to confirm their account fingerprint phrase matches the following:"
+  },
+  "trustAndContinue": {
+    "message": "Trust and continue"
   }
 }

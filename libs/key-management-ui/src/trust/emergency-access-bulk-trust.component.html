@@ -1,0 +1,75 @@
+<form
+  [bitSubmit]="submit"
+  [formGroup]="trustForm"
+  bit-dialog
+  [loading]="loading()"
+  [title]="'updateEncryptionSettings' | i18n"
+>
+  <div bitDialogContent>
+    <div class="tw-flex tw-flex-col tw-items-center tw-text-center tw-mb-6">
+      <bit-svg [content]="lockIcon" class="tw-w-24 tw-mb-4"></bit-svg>
+      <p class="tw-mb-0">
+        {{ "emergencyAccessBulkTrustDesc" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/help/fingerprint-phrase/"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="external link"
+          endIcon="bwi-external-link"
+        >
+          {{ "learnMore" | i18n }}
+        </a>
+      </p>
+    </div>
+    <bit-callout type="info">{{ "emergencyAccessBulkTrustInfo" | i18n }}</bit-callout>
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      @for (contact of params.contacts; track contact.id) {
+        <bit-card-segmented class="tw-overflow-hidden">
+          <div class="tw-p-4">
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                [id]="'emergency-access-bulk-trust_input_' + contact.id"
+                [formControlName]="contact.id"
+              />
+              <bit-label>{{ contact.name }}</bit-label>
+            </bit-form-control>
+          </div>
+          <bit-accordion
+            size="sm"
+            height="auto"
+            [title]="'fingerprintPhraseHeader' | i18n"
+            class="!tw-border-x-0 !tw-rounded-none [&>[data-accordion-trigger]]:!tw-rounded-none"
+          >
+            <p bitTypography="body2" class="tw-mb-2">
+              {{ "emergencyAccessBulkTrustFingerprintDesc" | i18n }}
+            </p>
+            <code>{{ fingerprints()[contact.id] }}</code>
+          </bit-accordion>
+        </bit-card-segmented>
+      }
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="emergency-access-bulk-trust_button_trust-and-continue"
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+    >
+      <span>{{ "trustAndContinue" | i18n }}</span>
+    </button>
+    <button
+      id="emergency-access-bulk-trust_button_skip-for-now"
+      type="button"
+      bitLink
+      linkType="primary"
+      bitDialogClose
+    >
+      {{ "skipForNow" | i18n }}
+    </button>
+  </ng-container>
+</form>
