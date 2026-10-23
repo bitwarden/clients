@@ -99,6 +99,8 @@ export class ImportSourceSelectComponent implements OnInit {
     (this.searchText() ?? "").trim().toLowerCase(),
   );
 
+  protected readonly searching = computed(() => this.normalizedSearch().length > 0);
+
   private matchesSearch(option: ImportOption): boolean {
     const search = this.normalizedSearch();
     if (search.length === 0) {
@@ -158,7 +160,7 @@ export class ImportSourceSelectComponent implements OnInit {
   );
 
   protected readonly disclosureOpen = linkedSignal<boolean>(() => {
-    if (this.normalizedSearch().length > 0) {
+    if (this.searching()) {
       return true;
     }
     return untracked(() => this.isSelectionInRemaining());
@@ -166,6 +168,18 @@ export class ImportSourceSelectComponent implements OnInit {
 
   protected readonly visibleRemainingPasswordManagers = computed(() =>
     this.disclosureOpen() ? this.remainingPasswordManagers() : [],
+  );
+
+  /** Matches can come from the featured list, the Show all list, or both; label either way. */
+  protected readonly passwordManagersHeadingVisible = computed(
+    () =>
+      this.featuredPasswordManagers().length > 0 ||
+      this.visibleRemainingPasswordManagers().length > 0,
+  );
+
+  /** Search results always show in full, so there is nothing for Show all to expand. */
+  protected readonly showAllVisible = computed(
+    () => !this.searching() && this.hasRemainingPasswordManagers(),
   );
 
   protected readonly showAllLabel = computed(() =>

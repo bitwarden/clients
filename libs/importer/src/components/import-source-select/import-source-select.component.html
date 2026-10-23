@@ -43,13 +43,13 @@
         }
       }
 
-      @if (featuredPasswordManagers().length > 0) {
+      @if (passwordManagersHeadingVisible()) {
         <p bitTypography="h6" noMargin class="tw-col-span-full tw-mt-6 tw-mb-2 !tw-text-fg-heading">
           {{ "importSourcePasswordManagers" | i18n }}
         </p>
-        @for (option of featuredPasswordManagers(); track option.id) {
-          <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
-        }
+      }
+      @for (option of featuredPasswordManagers(); track option.id) {
+        <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
       }
 
       <bit-disclosure #allImportersDisclosure [(open)]="disclosureOpen" class="tw-contents">
@@ -58,7 +58,7 @@
         }
       </bit-disclosure>
 
-      @if (hasRemainingPasswordManagers()) {
+      @if (showAllVisible()) {
         <button
           type="button"
           bitLink
