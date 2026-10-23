@@ -137,7 +137,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     return state;
   }
 
-  /** The user's scan status and latest report without their excluded logins; `idle` with no report until a build runs. */
+  /** The user's scan status and latest report, without excluded logins. */
   getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState> {
     const state$ = this.stateFor(userId).pipe(
       map(({ status, report }) => ({ status, report })),

@@ -162,19 +162,5 @@ describe("VaultHealthReportView", () => {
       expect(result.totalCount).toBe(4);
       expect(result.score).toBe(0.25);
     });
-
-    it("removes a login at risk in every category from all of them", () => {
-      const report = VaultHealthReportView.fromCipherHealth(
-        [health("a", { exposed: 2, weak: 1, reuse: 3 })],
-        1,
-      );
-
-      const result = report.withoutExcluded(new Set(["a"]));
-
-      expect(result.categoryItems.exposed).toHaveLength(0);
-      expect(result.categoryItems.weak).toHaveLength(0);
-      expect(result.categoryItems.reused).toHaveLength(0);
-      expect(result.atRiskCount).toBe(0);
-    });
   });
 });

@@ -7,6 +7,6 @@ export abstract class CipherReportExclusionService {
   /** Ids of the user's ciphers excluded from health reports; empty while the exclusions flag is off. */
   abstract excludedCipherIds$(userId: UserId): Observable<ReadonlySet<string>>;
 
-  /** Saves the exclusion on the server, then on this device. Rejects, and changes nothing, if the save fails. */
+  /** Saves on the server, then locally; rejects without a local change if the save fails. */
   abstract excludeWithServer(cipherId: CipherId, userId: UserId): Promise<void>;
 }

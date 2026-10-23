@@ -24,10 +24,6 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
   let toastService: MockProxy<ToastService>;
   const userId = "user-1" as UserId;
 
-  beforeEach(() => {
-    cipherReportExclusionService = mock<CipherReportExclusionService>();
-  });
-
   function buildHealthView(args: Partial<CipherHealthView> = {}): CipherHealthView {
     return new CipherHealthView({
       cipherId: "cipher-1",
@@ -50,6 +46,7 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
     dialogRef = mock<DialogRef>();
     // a bare mock returns a truthy stub here, which would disable every bitDialogClose button
     dialogRef.disableClose = false;
+    cipherReportExclusionService = mock<CipherReportExclusionService>();
     toastService = mock<ToastService>();
 
     TestBed.resetTestingModule();
@@ -134,8 +131,8 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
   });
 
   it("keeps the dialog open and shows no success toast when the save fails", async () => {
-    cipherReportExclusionService.excludeWithServer.mockRejectedValue(new Error("save failed"));
     await initComponent();
+    cipherReportExclusionService.excludeWithServer.mockRejectedValue(new Error("save failed"));
 
     button("excludeAnyway").click();
     await fixture.whenStable();

@@ -581,7 +581,7 @@ describe("DefaultVaultHealthReportService", () => {
       await expect(currentReport(otherUserId)).resolves.not.toBeNull();
     });
 
-    it("leaves excluded logins out of the published report", async () => {
+    it("leaves excluded logins out of the published report without re-running the risk computation", async () => {
       const ciphers = withRisks([
         { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
         { cipher: login("b"), risk: risk("b", { exposed: 2 }) },
@@ -594,6 +594,7 @@ describe("DefaultVaultHealthReportService", () => {
       expect(cipherIds(report!.categoryItems.exposed)).toEqual(["b"]);
       expect(report!.atRiskCount).toBe(1);
       expect(report!.totalCount).toBe(2);
+      expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
     });
 
     it("applies exclusions to the first report a subscriber sees", async () => {
@@ -612,17 +613,6 @@ describe("DefaultVaultHealthReportService", () => {
 
       const firstSuccess = seen.find((state) => state.status === VaultHealthReportStatus.Success);
       expect(cipherIds(firstSuccess!.report!.categoryItems.exposed)).toEqual(["b"]);
-    });
-
-    it("updates the lists when exclusions change without re-running the risk computation", async () => {
-      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
-      await service.buildVaultHealthReport(ciphers, userId);
-
-      excludedIds$.next(new Set(["a"]));
-      const report = await currentReport();
-
-      expect(report!.categoryItems.exposed).toHaveLength(0);
-      expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -66,22 +66,10 @@ export class VaultHealthReportView implements View {
     if (excludedIds.size === 0) {
       return this;
     }
-    const keep = (items: CipherHealthView[]) =>
-      items.filter((health) => !excludedIds.has(health.cipherId));
-    const categoryItems = {
-      exposed: keep(this.categoryItems.exposed),
-      weak: keep(this.categoryItems.weak),
-      reused: keep(this.categoryItems.reused),
-    };
-    const atRiskCount =
-      categoryItems.exposed.length + categoryItems.weak.length + categoryItems.reused.length;
-
-    return new VaultHealthReportView({
-      totalCount: this.totalCount,
-      atRiskCount,
-      score: this.totalCount === 0 ? 0 : atRiskCount / this.totalCount,
-      categoryItems,
-    });
+    const kept = Object.values(this.categoryItems)
+      .flat()
+      .filter((health) => !excludedIds.has(health.cipherId));
+    return VaultHealthReportView.fromCipherHealth(kept, this.totalCount);
   }
 }
 
