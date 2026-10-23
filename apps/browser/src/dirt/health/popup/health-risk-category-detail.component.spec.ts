@@ -31,6 +31,7 @@ import {
   DialogRef,
   DialogService,
   ScrollLayoutHostDirective,
+  ToastService,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -41,6 +42,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 import { HealthDeleteAtRiskItemDialogComponent } from "./components/health-delete-at-risk-item-dialog/health-delete-at-risk-item-dialog.component";
 import { HealthExcludeAtRiskItemDialogComponent } from "./components/health-exclude-at-risk-item-dialog/health-exclude-at-risk-item-dialog.component";
+import { HealthExcludedItemsListComponent } from "./components/health-excluded-items-list/health-excluded-items-list.component";
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";
@@ -170,6 +172,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let dialogService: MockProxy<DialogService>;
   let compactModeService: MockProxy<CompactModeService>;
+  let toastService: MockProxy<ToastService>;
+  let exclusionsEnabled$: BehaviorSubject<boolean>;
 
   /**
    * `login.uri` is a getter over `login.uris`, so fixtures have to be real views — an object
@@ -335,6 +339,25 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return fixture.nativeElement.querySelector("bit-section-header span[slot=end]")?.textContent;
   }
 
+  /** The excluded items list, rendered only while the exclusions flag is on. */
+  function excludedList(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("health-excluded-items-list");
+  }
+
+  /** Expands the excluded items list, which starts collapsed. */
+  async function expandExcludedList() {
+    excludedList()!.querySelector<HTMLButtonElement>("bit-section-header button")!.click();
+    await settle();
+  }
+
+  /** The restore button on the given excluded item. */
+  function restoreButton(index: number): HTMLButtonElement | undefined {
+    const items = excludedList()!.querySelectorAll("bit-item");
+    return Array.from(items[index].querySelectorAll<HTMLButtonElement>("button")).find((button) =>
+      button.textContent?.includes("restore"),
+    );
+  }
+
   beforeEach(async () => {
     params$ = new BehaviorSubject<Params>({ category: RiskCategory.Exposed });
 
@@ -356,6 +379,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     reportService.buildVaultHealthReport.mockResolvedValue(undefined);
     // The auto-mock returns undefined, which the refresh pipeline cannot consume.
     reportService.refreshVaultHealthReport.mockResolvedValue(undefined);
+    reportService.restoreExcludedCipher.mockResolvedValue(undefined);
 
     cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     cipherService = mock<CipherService>();
@@ -392,6 +416,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
     exclusionsEnabled$ = new BehaviorSubject<boolean>(true);
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockReturnValue(exclusionsEnabled$);
+    toastService = mock<ToastService>();
+    exclusionsEnabled$ = new BehaviorSubject<boolean>(true);
 
     await TestBed.configureTestingModule({
       imports: [HealthRiskCategoryDetailComponent],
@@ -408,11 +434,12 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => exclusionsEnabled$ } },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: LogService, useValue: logService },
         { provide: CompactModeService, useValue: compactModeService },
         { provide: ConfigService, useValue: configService },
+        { provide: ToastService, useValue: toastService },
       ],
     })
       .overrideComponent(HealthRiskCategoryDetailComponent, {
@@ -438,6 +465,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
             MockHealthScanErrorComponent,
           ],
         },
+      })
+      // The excluded list renders vault icons once expanded, which need the same stand-in.
+      .overrideComponent(HealthExcludedItemsListComponent, {
+        remove: { imports: [AppVaultIconComponent] },
+        add: { imports: [MockAppVaultIcon] },
       })
       .compileComponents();
   });
@@ -978,6 +1010,62 @@ describe("HealthRiskCategoryDetailComponent", () => {
           }),
         }),
       );
+    });
+  });
+
+  describe("restoring an excluded item", () => {
+    beforeEach(() => {
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1" }),
+        buildLogin({ id: "cipher-2" }),
+      ]);
+    });
+
+    it("does not render the excluded items list when exclusions are disabled", async () => {
+      exclusionsEnabled$.next(false);
+
+      await initComponent();
+
+      expect(excludedList()).toBeNull();
+    });
+
+    it("restores the clicked item through the vault health report service", async () => {
+      await initComponent();
+      await expandExcludedList();
+
+      restoreButton(1)!.click();
+      await fixture.whenStable();
+
+      expect(reportService.restoreExcludedCipher).toHaveBeenCalledTimes(1);
+      expect(reportService.restoreExcludedCipher).toHaveBeenCalledWith("cipher-2");
+    });
+
+    it("shows a success toast once the item is restored", async () => {
+      await initComponent();
+      await expandExcludedList();
+
+      restoreButton(0)!.click();
+      await fixture.whenStable();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "itemRestoredToList",
+        variant: "success",
+      });
+    });
+
+    it("shows an error toast when the restore fails", async () => {
+      reportService.restoreExcludedCipher.mockRejectedValue(new Error("restore failed"));
+      await initComponent();
+      await expandExcludedList();
+
+      restoreButton(0)!.click();
+      await fixture.whenStable();
+
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "itemRestoreFailed",
+        variant: "error",
+      });
     });
   });
 });
