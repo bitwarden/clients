@@ -3,10 +3,8 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
 
 import { AccessConnector, TargetSystemView } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -166,15 +164,6 @@ type Story = StoryObj<AccessConnectorsTabComponent>;
 
 export const Default: Story = {
   decorators: [rotationServices(ROWS)],
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
-};
-
-/** {@link Default} with the VFO1 flag on, which draws the list with `bit-table-v2`. */
-export const FlagOn: Story = {
-  decorators: [rotationServices(ROWS)],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 export const Empty: Story = {

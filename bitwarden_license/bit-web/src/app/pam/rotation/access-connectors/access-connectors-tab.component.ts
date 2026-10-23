@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +6,6 @@ import {
   effect,
   inject,
   signal,
-  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -15,9 +13,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -34,7 +30,6 @@ import {
   ButtonModule,
   ChipActionComponent,
   DialogService,
-  FILTER_CONTROL,
   FilterMenuModule,
   IconButtonModule,
   IconModule,
@@ -46,8 +41,6 @@ import {
   SkeletonTextComponent,
   StatusLockupComponent,
   SvgComponent,
-  TableDataSource,
-  TableModule,
   ToastService,
   TooltipDirective,
   defineTable,
@@ -82,7 +75,6 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
   templateUrl: "./access-connectors-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
@@ -99,7 +91,6 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
     SkeletonTextComponent,
     StatusLockupComponent,
     SvgComponent,
-    TableModule,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
@@ -124,13 +115,6 @@ export class AccessConnectorsTabComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly configService = inject(ConfigService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   protected readonly loading = toSignal(this.accessConnectorsService.loading$, {
     initialValue: true,
@@ -178,7 +162,6 @@ export class AccessConnectorsTabComponent {
     }));
   });
 
-  protected readonly dataSource = new TableDataSource<AccessConnectorTabRow>();
   protected readonly table = defineTable<AccessConnectorTabRow, "actions">(this.rows);
   /**
    * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
@@ -188,10 +171,6 @@ export class AccessConnectorsTabComponent {
     signal<AccessConnectorTabRow[]>([]),
   );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
-  private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-
-  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
-  private readonly connectionFilterChip = viewChild("connectionFilter", { read: FILTER_CONTROL });
 
   protected readonly statusOptions = computed(() =>
     filterOptions(
@@ -222,19 +201,7 @@ export class AccessConnectorsTabComponent {
 
   protected readonly isRowBusy = this.busyRows.isBusy;
 
-  protected readonly rowFilter = computed(() => {
-    const filter = toAccessConnectorFilter({
-      search: this.searchText(),
-      status: this.statusFilterChip()?.value(),
-      connection: this.connectionFilterChip()?.value(),
-    });
-    return (row: AccessConnectorTabRow): boolean => matchesFilter(row, filter);
-  });
-
-  /**
-   * The v2 table's row test; inside the toolbar, chip and search values arrive as `values`. Read
-   * the term from `values.search` alone, since {@link searchText} holds the same term.
-   */
+  /** The table's row test; the toolbar passes its search and chip values as `values`. */
   protected readonly rowMatchesFilter = (
     row: AccessConnectorTabRow,
     values: AccessConnectorFilterValues,
@@ -243,14 +210,6 @@ export class AccessConnectorsTabComponent {
   constructor() {
     effect(() => {
       void this.loadAll(this.organizationId());
-    });
-
-    effect(() => {
-      this.dataSource.data = this.rows();
-    });
-
-    effect(() => {
-      this.dataSource.filter = this.rowFilter();
     });
   }
 
@@ -294,10 +253,7 @@ export class AccessConnectorsTabComponent {
   protected readonly openDetail = (row: AccessConnectorRow): Promise<boolean> =>
     this.router.navigate(["..", "access-connectors", row.id], { relativeTo: this.route });
 
-  /**
-   * Bound to the empty state and the VFO1 toolbar; off the flag, the shell's header button
-   * registers instead.
-   */
+  /** Bound to the empty state and the table toolbar. */
   protected readonly registerAccessConnector = async (): Promise<void> => {
     const orgId = this.organizationId();
     const ref = AccessConnectorRegisterDialogComponent.open(this.dialogService, {
@@ -457,7 +413,7 @@ export class AccessConnectorsTabComponent {
   }
 }
 
-/** The toolbar's raw values by filter key, untyped because each host passes what a chip reports. */
+/** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
 type AccessConnectorFilterValues = {
   search?: string;
   status?: unknown;
