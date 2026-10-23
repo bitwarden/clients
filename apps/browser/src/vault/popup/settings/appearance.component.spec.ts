@@ -2,13 +2,15 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -69,6 +71,9 @@ describe("AppearanceComponent", () => {
   const setEnableCompactMode = jest.fn().mockResolvedValue(undefined);
   const setShowQuickCopyActions = jest.fn().mockResolvedValue(undefined);
   const setShowAtRiskPasswordNotifications = jest.fn().mockResolvedValue(undefined);
+  const setClickItemsToAutofillVaultView = jest.fn().mockResolvedValue(undefined);
+  const featureFlag$ = new BehaviorSubject<boolean>(false);
+  const configService = mock<ConfigService>();
 
   const mockWidthService: Partial<PopupSizeService> = {
     width$: new BehaviorSubject("default"),
@@ -81,6 +86,15 @@ describe("AppearanceComponent", () => {
     setEnableBadgeCounter.mockClear();
     setEnableRoutingAnimation.mockClear();
     setShowAtRiskPasswordNotifications.mockClear();
+    setClickItemsToAutofillVaultView.mockClear();
+    configService.getFeatureFlag$.mockImplementation(
+      <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
+        if (flag === FeatureFlag.PM31039ItemActionInExtension) {
+          return featureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
+        }
+        return of(false) as Observable<FeatureFlagValueType<Flag>>;
+      },
+    );
 
     await TestBed.configureTestingModule({
       imports: [AppearanceComponent],
@@ -116,10 +130,13 @@ describe("AppearanceComponent", () => {
         {
           provide: VaultSettingsService,
           useValue: {
+            clickItemsToAutofillVaultView$: of(false),
             showAtRiskPasswordNotifications$: of(true),
+            setClickItemsToAutofillVaultView,
             setShowAtRiskPasswordNotifications,
           },
         },
+        { provide: ConfigService, useValue: configService },
         {
           provide: AccountService,
           useValue: {
@@ -163,6 +180,7 @@ describe("AppearanceComponent", () => {
       enableCompactMode: false,
       showQuickCopyActions: false,
       width: "default",
+      clickItemsToAutofillVaultView: false,
       showAtRiskNotifications: true,
     });
   });
@@ -208,6 +226,41 @@ describe("AppearanceComponent", () => {
       component.appearanceForm.controls.width.setValue("wide");
 
       expect(mockWidthService.setWidth).toHaveBeenCalledWith("wide");
+    });
+  });
+
+  describe("PM31039ItemActionInExtension feature flag", () => {
+    describe("when set to OFF", () => {
+      it("should show clickItemsToAutofillVaultView checkbox", () => {
+        featureFlag$.next(false);
+        fixture.detectChanges();
+
+        const checkbox = fixture.debugElement.query(
+          By.css('input[formControlName="clickItemsToAutofillVaultView"]'),
+        );
+        expect(checkbox).not.toBeNull();
+      });
+
+      it("should update the clickItemsToAutofillVaultView setting when changed", () => {
+        featureFlag$.next(false);
+        fixture.detectChanges();
+
+        component.appearanceForm.controls.clickItemsToAutofillVaultView.setValue(true);
+
+        expect(setClickItemsToAutofillVaultView).toHaveBeenCalledWith(true);
+      });
+    });
+
+    describe("when set to ON", () => {
+      it("should still show clickItemsToAutofillVaultView checkbox for autofill suggestions", () => {
+        featureFlag$.next(true);
+        fixture.detectChanges();
+
+        const checkbox = fixture.debugElement.query(
+          By.css('input[formControlName="clickItemsToAutofillVaultView"]'),
+        );
+        expect(checkbox).not.toBeNull();
+      });
     });
   });
 

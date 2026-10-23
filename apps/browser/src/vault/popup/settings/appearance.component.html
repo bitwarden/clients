@@ -55,6 +55,17 @@
         </bit-label>
       </bit-form-control>
 
+      <bit-form-control [disableMargin]="!isPremium">
+        <input bitCheckbox formControlName="clickItemsToAutofillVaultView" type="checkbox" />
+        <bit-label>
+          @if (simplifiedItemActionEnabled()) {
+            {{ "clickToAutofill" | i18n }}
+          } @else {
+            {{ "clickToAutofillOnVault" | i18n }}
+          }
+        </bit-label>
+      </bit-form-control>
+
       @if (isPremium) {
         <bit-form-control disableMargin>
           <input bitCheckbox formControlName="showAtRiskNotifications" type="checkbox" />

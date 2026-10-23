@@ -99,6 +99,8 @@ describe("DefaultCipherEncryptionService", () => {
         encrypt_cipher_for_rotation: jest.fn(),
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
+        decrypt_fido2_credentials: jest.fn(),
+        decrypt_fido2_private_key: jest.fn(),
         decrypt_list: jest.fn(),
         decrypt_list_with_failures: jest.fn(),
         move_to_organization: jest.fn(),
@@ -477,6 +479,8 @@ describe("DefaultCipherEncryptionService", () => {
       } as unknown as CipherView;
 
       mockSdkClient.vault().ciphers().decrypt.mockReturnValue(sdkCipherView);
+      mockSdkClient.vault().ciphers().decrypt_fido2_credentials.mockReturnValue([]);
+      mockSdkClient.vault().ciphers().decrypt_fido2_private_key.mockReturnValue("key");
       jest.spyOn(CipherView, "fromSdkCipherView").mockReturnValue(expectedCipherView);
 
       const result = await cipherEncryptionService.decrypt(cipherObj, userId);

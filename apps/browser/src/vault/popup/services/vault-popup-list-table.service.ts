@@ -21,6 +21,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
@@ -83,6 +84,7 @@ export type VaultTableRow = {
 /** Inputs that decide a row's action affordances. */
 interface RowActionContext {
   currentUriIsBlocked: boolean;
+  clickItemsToAutofillVaultView: boolean;
 }
 
 /**
@@ -103,6 +105,7 @@ export class VaultPopupListTableService {
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
+  private readonly vaultSettingsService = inject(VaultSettingsService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
 
   /**
@@ -166,11 +169,15 @@ export class VaultPopupListTableService {
    * {@link rows$} emitting promptly: the blocklist stream resolves asynchronously, so without a
    * seed the whole list would wait on it before first render.
    */
-  private readonly rowActionContext$: Observable<RowActionContext> =
-    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(
-      startWith(false),
-      map((currentUriIsBlocked) => ({ currentUriIsBlocked })),
-    );
+  private readonly rowActionContext$: Observable<RowActionContext> = combineLatest([
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$.pipe(startWith(false)),
+    this.vaultSettingsService.clickItemsToAutofillVaultView$.pipe(startWith(true)),
+  ]).pipe(
+    map(([currentUriIsBlocked, clickItemsToAutofillVaultView]) => ({
+      currentUriIsBlocked,
+      clickItemsToAutofillVaultView: clickItemsToAutofillVaultView ?? true,
+    })),
+  );
 
   /**
    * The rows to render, in display order. When a search is active the list collapses to a single
@@ -287,12 +294,12 @@ export class VaultPopupListTableService {
   private resolveActions(
     cipher: PopupCipherViewLike,
     section: VaultSection,
-    { currentUriIsBlocked }: RowActionContext,
+    { currentUriIsBlocked, clickItemsToAutofillVaultView }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
 
-    // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
-    const primaryAutofill = isAutofill && !currentUriIsBlocked;
+    // Whether clicking the row autofills. Honors click-to-view and never fills on blocklisted URIs.
+    const primaryAutofill = isAutofill && !currentUriIsBlocked && clickItemsToAutofillVaultView;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";

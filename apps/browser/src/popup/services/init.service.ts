@@ -34,10 +34,12 @@ export class InitService {
 
   init() {
     return async () => {
-      await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
-      await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
-      await this.i18nService.init();
+      await Promise.all([
+        this.sdkLoadService.loadAndInit(),
+        this.migrationRunner.waitForCompletion(), // Browser background is responsible for migrations
+        this.i18nService.init(),
+      ]);
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
