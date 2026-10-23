@@ -23,7 +23,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { OrganizationFilter } from "@bitwarden/vault";
@@ -53,8 +53,18 @@ const buildOrg = (overrides: Partial<Organization> = {}) =>
     ...overrides,
   });
 
+const makePolicy = () =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: orgId,
+    type: PolicyType.ResetPassword,
+    data: null,
+    enabled: true,
+    revisionDate: new Date().toISOString(),
+  });
+
 const resetPasswordPolicy = (overrides: Partial<Policy> = {}) =>
-  Object.assign(new Policy(), {
+  Object.assign(makePolicy(), {
     organizationId: orgId,
     type: PolicyType.ResetPassword,
     enabled: true,

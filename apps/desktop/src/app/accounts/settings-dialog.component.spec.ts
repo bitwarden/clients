@@ -48,7 +48,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { TabsModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
@@ -79,6 +79,16 @@ import { SettingsDialogComponent } from "./settings-dialog.component";
 class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
+
+const makePolicy = () =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.RemoveUnlockWithPin,
+    data: null,
+    enabled: true,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("SettingsDialogComponent", () => {
   let component: SettingsDialogComponent;
@@ -248,7 +258,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
     policyService.policiesByType$.mockReturnValue(of([policy]));
@@ -259,7 +269,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
     policyService.policiesByType$.mockReturnValue(of([policy]));
@@ -288,7 +298,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
     policyService.policiesByType$.mockReturnValue(of([policy]));
@@ -305,7 +315,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
     policyService.policiesByType$.mockReturnValue(of([policy]));
@@ -323,7 +333,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
     policyService.policiesByType$.mockReturnValue(of([policy]));
@@ -359,7 +369,7 @@ describe("SettingsDialogComponent", () => {
       test.each([true, false])(
         `correct message display for require MP/PIN on app restart when pin is set, windows desktop, and policy is %s`,
         async (policyEnabled) => {
-          const policy = new Policy();
+          const policy = makePolicy();
           policy.type = PolicyType.RemoveUnlockWithPin;
           policy.enabled = policyEnabled;
           policyService.policiesByType$.mockReturnValue(of([policy]));

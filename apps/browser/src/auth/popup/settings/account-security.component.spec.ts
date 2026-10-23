@@ -30,7 +30,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
@@ -65,6 +65,16 @@ class MockPopOutComponent {}
 class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
+
+const makePolicy = () =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.RemoveUnlockWithPin,
+    data: null,
+    enabled: true,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("AccountSecurityComponent", () => {
   let component: AccountSecurityComponent;
@@ -207,7 +217,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
@@ -225,7 +235,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
@@ -254,7 +264,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
@@ -269,7 +279,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
@@ -286,7 +296,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
+    const policy = makePolicy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
