@@ -335,6 +335,12 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       !cachedCipher.id &&
       this.updatedCipherView.type === cachedCipher.type;
 
+    if (isEditingExistingCipher) {
+      // Attachment changes happen outside the form and bump the revision date, so keep the fresh values
+      cachedCipher.revisionDate = this.updatedCipherView.revisionDate;
+      cachedCipher.attachments = this.updatedCipherView.attachments;
+    }
+
     if (isEditingExistingCipher || isCreatingNewCipher) {
       this.updatedCipherView = cachedCipher;
     }
