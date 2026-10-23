@@ -110,24 +110,34 @@
     </bit-column>
   }
 
-  <!-- Hover-revealed row actions (approvals + my-requests only). -->
+  <!-- Hover-revealed row actions (approvals + my-requests only). The reveal
+       strip lives in the cell's `end` slot so it right-anchors inside this
+       column's own track. Mirrors `vault-items-table-actions-column`: the
+       `slot="end"` wrapper stays plain, the inner div owns the hover/focus
+       reveal (pointer-events gated so the buttons can only be hit when shown).
+       Tooltip content is driven by `bitIconButton`'s `label` input — adding an
+       explicit `[bitTooltip]` would double-instantiate the directive and leak
+       a stray overlay. -->
   @if (!isHistory()) {
     <bit-column width="112px">
       <bit-header-cell><span class="tw-sr-only">Actions</span></bit-header-cell>
       <bit-cell *bitCellDef="table.columns.actions; let r">
-        <div
-          class="tw-flex tw-items-center tw-justify-end tw-gap-1 tw-opacity-0 group-hover/row:tw-opacity-100 focus-within:tw-opacity-100"
-        >
-          @for (btn of hoverActions(r); track btn.key) {
-            <button
-              type="button"
-              [bitIconButton]="btn.icon"
-              [buttonType]="btn.buttonType"
-              size="small"
-              [label]="btn.label"
-              (click)="onAction($event, r, btn.key)"
-            ></button>
-          }
+        <div slot="end" class="tw-flex tw-flex-nowrap tw-items-center tw-gap-1">
+          <div
+            class="tw-flex tw-flex-nowrap tw-items-center tw-gap-1 tw-opacity-0 tw-pointer-events-none tw-transition-opacity group-hover/row:tw-opacity-100 group-hover/row:tw-pointer-events-auto group-has-[:focus-visible]/row:tw-opacity-100 group-has-[:focus-visible]/row:tw-pointer-events-auto"
+          >
+            @for (btn of hoverActions(r); track btn.key) {
+              <button
+                type="button"
+                [bitIconButton]="btn.icon"
+                [buttonType]="btn.buttonType"
+                size="small"
+                [label]="btn.label"
+                pamTooltipPortalFix
+                (click)="onAction($event, r, btn.key)"
+              ></button>
+            }
+          </div>
         </div>
       </bit-cell>
     </bit-column>

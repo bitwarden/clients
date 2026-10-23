@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  computed,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import {
@@ -16,6 +24,7 @@ import {
   FilterOptionComponent,
   IconButtonModule,
   SearchModule,
+  TooltipDirective,
   TypographyModule,
   defineTable,
 } from "@bitwarden/components";
@@ -26,6 +35,37 @@ import {
   AccessRequestStatus,
   buildCipherForRequest,
 } from "./access-request.model";
+
+/**
+ * `bit-tab-group` renders tab bodies through a `CdkPortalOutlet`, which detaches
+ * the content from the ApplicationRef render queue that `OverlayRef.attach()`
+ * schedules its position apply against via `afterNextRender`. The tooltip overlay
+ * therefore mounts but is never positioned — the pane sits at (0,0). Nudging
+ * `updatePosition()` on the next frame reruns the strategy once the pane has
+ * measurable dimensions and parks the tooltip above the button. Drop this once
+ * the shared `TooltipDirective` grows a portal-safe scheduling path.
+ */
+@Directive({
+  selector: "[pamTooltipPortalFix]",
+})
+class TooltipPortalFixDirective {
+  private readonly tooltip = inject(TooltipDirective, { self: true, optional: true });
+
+  constructor() {
+    const tooltip = this.tooltip as unknown as {
+      showTooltip: () => void;
+      overlayRef?: { updatePosition: () => void };
+    } | null;
+    if (!tooltip) {
+      return;
+    }
+    const originalShow = tooltip.showTooltip;
+    tooltip.showTooltip = () => {
+      originalShow.call(tooltip);
+      requestAnimationFrame(() => tooltip.overlayRef?.updatePosition());
+    };
+  }
+}
 
 /** Verbs the list emits so the page can translate each into a dialog / toast. */
 export type RowAction = "approve" | "deny" | "revoke" | "cancel" | "activate" | "endSession";
@@ -45,6 +85,7 @@ interface HoverAction {
   key: RowAction;
   label: string;
   icon: string;
+  /** Filled button variant — colored by verb so Approve/Deny read at a glance. */
   buttonType: "success" | "danger" | "secondary";
 }
 
@@ -78,6 +119,7 @@ type FilterValues = {
     FilterOptionComponent,
     IconButtonModule,
     SearchModule,
+    TooltipPortalFixDirective,
     TypographyModule,
     VaultIconComponent,
   ],
