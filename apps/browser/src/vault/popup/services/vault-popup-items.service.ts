@@ -1,4 +1,4 @@
-import { inject, Injectable, NgZone } from "@angular/core";
+import { computed, inject, Injectable, NgZone } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
@@ -54,13 +54,21 @@ import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filt
   providedIn: "root",
 })
 export class VaultPopupItemsService {
-  private cachedSearchText = inject(PopupViewCacheService).signal<string>({
-    key: "vault-search-text",
-    initialValue: "",
-    persistNavigation: true,
-  });
+  /** Each vault scope's search text, keyed like its chip filters. */
+  private readonly searchTextByScope = inject(PopupViewCacheService).signal<Record<string, string>>(
+    {
+      key: "vault-search-text-by-scope",
+      initialValue: {},
+      persistNavigation: true,
+    },
+  );
 
-  readonly searchText$ = toObservable(this.cachedSearchText);
+  /** The search text for the vault in view. */
+  readonly searchText = computed(
+    () => this.searchTextByScope()[this.vaultPopupListTableFiltersService.scopeKey()] ?? "",
+  );
+
+  readonly searchText$ = toObservable(this.searchText);
 
   /**
    * Subject that emits whenever new ciphers are being processed/filtered.
@@ -381,13 +389,17 @@ export class VaultPopupItemsService {
       .subscribe(() => this.clearSearchText());
   }
 
-  /** Clears the persisted search text. Called when the active account changes. */
+  /** Clears every vault's persisted search text. Called when the active account changes. */
   private clearSearchText(): void {
-    this.cachedSearchText.set("");
+    this.searchTextByScope.set({});
   }
 
+  /** Sets the search text for the vault in view. */
   applyFilter(newSearchText: string) {
-    this.cachedSearchText.set(newSearchText);
+    this.searchTextByScope.update((searchTextByScope) => ({
+      ...searchTextByScope,
+      [this.vaultPopupListTableFiltersService.scopeKey()]: newSearchText,
+    }));
   }
 
   /**

@@ -71,6 +71,7 @@ import {
   DefaultVaultItemsTransferService,
   NewExperienceDialogResult,
   NewExperienceDialogService,
+  parseVaultScope,
   resolveVaultScope,
   type VaultScope,
   VaultItemsTransferService,
@@ -371,11 +372,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     private scrollLayoutService: ScrollLayoutService,
     private collectionService: CollectionService,
   ) {
-    this.activatedRoute.paramMap
-      .pipe(takeUntilDestroyed())
-      .subscribe((params) =>
-        this.vaultPopupListTableFiltersService.setCachedVaultScopeId(params.get("vaultId")),
-      );
+    // Keyed by the route's own scope rather than `vaultScope`, which turns All items into My vault
+    // once a personal-only account's vaults load, and so would save and restore under different
+    // keys. `paramMap` replays synchronously, so this lands before the table restores its chips.
+    this.activatedRoute.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const vaultId = params.get("vaultId");
+      this.vaultPopupListTableFiltersService.setCachedVaultScopeId(vaultId);
+      this.vaultPopupListTableFiltersService.setScope(parseVaultScope(vaultId));
+    });
 
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

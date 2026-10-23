@@ -8,6 +8,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   Injector,
   viewChild,
@@ -95,9 +96,6 @@ import { VaultFiltersTourComponent } from "../vault-filters-tour/vault-filters-t
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
   return nodes.flatMap((n) => [n.value, ...subtreeValues(n.options ?? [])]);
 }
-
-/** The chips a vault switch invalidates. Type is absent: item types span vaults. */
-const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
 
 @Component({
   selector: "app-vault-popup-list-table",
@@ -554,13 +552,12 @@ export class VaultPopupListTableComponent {
     CipherViewLikeUtils.getType(row.cipher) === CipherType.Identity;
 
   constructor() {
-    // Keep the input in sync with the search text already applied to the vault (e.g. restored state).
-    this.listTableService.searchText$
-      .pipe(
-        takeUntilDestroyed(),
-        filter((text) => !!text),
-      )
-      .subscribe((text) => (this.searchText = text));
+    // Keep the input in sync with the vault in view's applied search text (e.g. restored state).
+    // Read as a signal: the shared observable replays the previous vault's text to a page rebuilt by
+    // a vault switch, before it catches up.
+    effect(() => {
+      this.searchText = this.listTableService.searchText();
+    });
 
     // Debounced apply lives in the service; the component just feeds it and owns the subscription.
     this.listTableService
@@ -590,18 +587,6 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-        });
-
-      // The controls hold their own values. Driven by the switcher, not the scope, which also
-      // publishes on open.
-      this.listFiltersService.vaultScopedFiltersCleared$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          for (const control of table.filterControls()) {
-            if (VAULT_SCOPED_FILTER_KEYS.includes(control.key())) {
-              control.setValue(undefined);
-            }
-          }
         });
     });
   }

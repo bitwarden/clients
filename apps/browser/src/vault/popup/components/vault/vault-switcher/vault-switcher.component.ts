@@ -32,7 +32,6 @@ import {
   vaultScopeCommands,
 } from "@bitwarden/vault";
 
-import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 
 /** A menu entry: one of the account's vaults, or the unscoped "All items" entry. */
@@ -67,7 +66,6 @@ export class VaultSwitcherComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly basePath = inject(VAULT_BASE_ROUTE);
   private readonly i18nService = inject(I18nService);
-  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly scrollPositionService = inject(VaultPopupScrollPositionService);
   protected readonly coachmark = inject(CoachmarkService);
 
@@ -128,11 +126,6 @@ export class VaultSwitcherComponent {
     // The entry in view is clickable too, and the route would reload rather than no-op.
     if (id === this.selectedId()) {
       return;
-    }
-
-    // Cleared from the user's action, not the scope publish — that also fires on popup open.
-    if (id != null) {
-      this.listFiltersService.clearVaultScopedFilters();
     }
 
     // The offset names nothing in a different list, and the rebuilt page would restore it.

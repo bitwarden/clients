@@ -115,7 +115,7 @@ export class VaultPopupListTableService {
 
   /**
    * Narrows the vault to `scope`; {@link ALL_ITEMS_SCOPE} shows every vault's items. Does not
-   * clear the chips — this also fires on popup open, so the switcher does that instead.
+   * touch the chips — each vault keeps its own, keyed by the filter service.
    */
   setScope(scope: VaultScope | null): void {
     this.scope$.next(scope ?? ALL_ITEMS_SCOPE);
@@ -126,8 +126,8 @@ export class VaultPopupListTableService {
    */
   private viewCipherTimeout?: number;
 
-  /** The search text currently applied to the vault (e.g. restored from stored state). */
-  readonly searchText$ = this.vaultPopupItemsService.searchText$;
+  /** The search text applied to the vault in view (e.g. restored from stored state). */
+  readonly searchText = this.vaultPopupItemsService.searchText;
 
   /** Whether a search term is currently narrowing the vault list. */
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;

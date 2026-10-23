@@ -18,7 +18,6 @@ import {
   distinctUntilChanged,
   filter,
   map,
-  NEVER,
   of,
   startWith,
   timer,
@@ -416,7 +415,7 @@ const buildProviders = (args: StoryArgs) => {
   // The all-items list narrows as the user searches; keep the unfiltered set to search against.
   const allItems = args.filteredCiphers;
   const filteredCiphers$ = new BehaviorSubject(allItems);
-  const searchText$ = new BehaviorSubject("");
+  const searchText = signal("");
   const hasSearchText$ = new BehaviorSubject(false);
 
   // Mirrors the real service: the list counts as filtered when search text or any restored filter
@@ -429,7 +428,7 @@ const buildProviders = (args: StoryArgs) => {
   // Minimal stand-in for the real search service so the toolbar search folds the list live.
   const applyFilter = (text: string) => {
     const term = (text ?? "").trim().toLowerCase();
-    searchText$.next(text ?? "");
+    searchText.set(text ?? "");
     hasSearchText$.next(term.length > 0);
     hasFilterApplied$.next(filtersApplied || term.length > 0);
     filteredCiphers$.next(
@@ -456,9 +455,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
-        clearVaultScopedFilters: () => {},
         filterDialogOpen: signal(false),
-        vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
           cipherType: null,
@@ -482,7 +479,7 @@ const buildProviders = (args: StoryArgs) => {
         // The folder chip's options come from the unsearched list, not the rendered rows.
         activeCiphers$: filteredCiphers$.asObservable(),
         loading$: loading$.asObservable(),
-        searchText$: searchText$.asObservable(),
+        searchText,
         hasSearchText$: hasSearchText$.asObservable(),
         hasFilterApplied$: hasFilterApplied$.asObservable(),
         // No story exercises the suspended-organization notice.
