@@ -215,17 +215,13 @@ export class DefaultUnlockService implements UnlockService {
       method: initMethod,
     };
 
-    // A user's live SDK client unlocks directly, landing the user key in client state. We read it
-    // back from there to run the side effects; organization keys can only be built once it exists,
-    // so they follow in the unlock side effects.
-    const unlocked = await this.sdkService.unlock(userId, request);
-    if (unlocked) {
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      if (userKey == null) {
-        // A lock raced the unlock; nothing to run side effects for.
-        return;
-      }
-      await this.runOnUnlockSideEffects(userId, userKey, unlockMethod);
+    // A user's live SDK client unlocks directly and returns the unlocked client. The user key is
+    // read off that client to run the side effects; organization keys can only be built once it
+    // exists, so they follow in the unlock side effects.
+    const rc = await this.sdkService.unlock(userId, request);
+    if (rc != null) {
+      using ref = rc.take();
+      await this.runOnUnlockSideEffects(userId, ref, unlockMethod);
       return;
     }
 
@@ -239,10 +235,7 @@ export class DefaultUnlockService implements UnlockService {
           using ref = sdk.take();
 
           await this.initializeUserCrypto(userId, ref, request);
-          const registeredUserKey = SymmetricCryptoKey.fromString(
-            await ref.value.crypto().get_user_encryption_key(),
-          );
-          await this.runOnUnlockSideEffects(userId, registeredUserKey, unlockMethod);
+          await this.runOnUnlockSideEffects(userId, ref, unlockMethod);
         }),
       ),
     );
@@ -311,9 +304,13 @@ export class DefaultUnlockService implements UnlockService {
   @measured(PERF_TRACK_GROUP, PERF_TRACK)
   private async runOnUnlockSideEffects(
     userId: UserId,
-    userKey: SymmetricCryptoKey,
+    client: Ref<PasswordManagerClient>,
     method: UnlockMethod,
   ): Promise<void> {
+    const userKey = SymmetricCryptoKey.fromString(
+      await client.value.crypto().get_user_encryption_key(),
+    );
+
     if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
     }

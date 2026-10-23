@@ -98,7 +98,7 @@ describe("DefaultUnlockService", () => {
     biometricsService.setBiometricProtectedUnlockKeyForUser.mockResolvedValue(undefined);
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
-    sdkService.unlock.mockResolvedValue(false);
+    sdkService.unlock.mockResolvedValue(null);
     sdkService.setOrgKeys.mockResolvedValue(undefined);
     keyService.buildSdkUnlockData.mockResolvedValue(null);
 
@@ -375,8 +375,8 @@ describe("DefaultUnlockService", () => {
       });
     });
 
-    it("falls back to the register client when the live client does not handle the unlock", async () => {
-      sdkService.unlock.mockResolvedValue(false);
+    it("falls back to the register client when the live client is not used", async () => {
+      sdkService.unlock.mockResolvedValue(null);
 
       await service.unlockWithPin(mockUserId, mockPin);
 
@@ -387,9 +387,16 @@ describe("DefaultUnlockService", () => {
       );
     });
 
-    it("reads the user key from state and skips the register client when the live client handles the unlock", async () => {
-      sdkService.unlock.mockResolvedValue(true);
-      keyService.userKey$.mockReturnValue(of(liveUserKey));
+    it("reads the user key off the live client and skips the register client when it handles the unlock", async () => {
+      const liveCrypto = {
+        get_user_encryption_key: jest.fn().mockResolvedValue(liveUserKey.toBase64()),
+      };
+      const liveRef = {
+        value: { crypto: jest.fn().mockReturnValue(liveCrypto) },
+        [Symbol.dispose]: jest.fn(),
+      };
+      const liveRc = { take: jest.fn().mockReturnValue(liveRef) };
+      sdkService.unlock.mockResolvedValue(liveRc as any);
       const action = jest.fn().mockResolvedValue(undefined);
       service.registerOnUnlockAction(action);
 
@@ -397,9 +404,19 @@ describe("DefaultUnlockService", () => {
 
       expect(registerSdkService.registerClient$).not.toHaveBeenCalled();
       expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
-      expect(autoUnlockService.setAutoUnlockKey).toHaveBeenCalledWith(mockUserId, liveUserKey);
-      expect(keyService.buildSdkUnlockData).toHaveBeenCalledWith(mockUserId, liveUserKey);
-      expect(action).toHaveBeenCalledWith(mockUserId, liveUserKey, UnlockMethod.Pin);
+      expect(autoUnlockService.setAutoUnlockKey).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ keyB64: liveUserKey.toBase64() }),
+      );
+      expect(keyService.buildSdkUnlockData).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ keyB64: liveUserKey.toBase64() }),
+      );
+      expect(action).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ keyB64: liveUserKey.toBase64() }),
+        UnlockMethod.Pin,
+      );
     });
   });
 

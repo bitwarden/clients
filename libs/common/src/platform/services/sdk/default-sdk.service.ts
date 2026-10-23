@@ -140,8 +140,11 @@ export class DefaultSdkService implements SdkService {
     );
   }
 
-  async unlock(userId: UserId, request: SdkUnlockRequest): Promise<boolean> {
-    return false;
+  async unlock(
+    userId: UserId,
+    request: SdkUnlockRequest,
+  ): Promise<Rc<PasswordManagerClient> | null> {
+    return null;
   }
 
   async lock(userId: UserId): Promise<void> {}
