@@ -4,10 +4,11 @@ import { provideRouter } from "@angular/router";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
-import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
+import { CardGridComponent } from "./card-grid.component";
 
 /**
  * Nine cards — three columns × three rows — render before the rest collapse. jsdom lays nothing out,
@@ -23,15 +24,15 @@ const WIDTHS = [
   { width: 1200, columns: 3, collapsedCards: 9 },
 ];
 
-const TRIGGER_SELECTOR = "#shared-folder-card-grid_button_toggle-overflow";
+const TRIGGER_SELECTOR = "#card-grid_button_toggle-overflow";
 
 const organizationId = "org-1" as OrganizationId;
 
 /** The folder the scope drills into by default, and the one most suites hang children off. */
 const PARENT = { id: "engineering" as CollectionId, name: "Engineering" };
 
-describe("SharedFolderCardGridComponent", () => {
-  let fixture: ComponentFixture<SharedFolderCardGridComponent>;
+describe("CardGridComponent", () => {
+  let fixture: ComponentFixture<CardGridComponent>;
 
   /**
    * The observers the component has attached to its grid, and what each is watching. jsdom has no
@@ -87,12 +88,33 @@ describe("SharedFolderCardGridComponent", () => {
     return folderTree(PARENT, count);
   }
 
+  /** One of the user's own folders, flat and nested by name like the folder services hold them. */
+  function folder(id: string, name: string): FolderView {
+    return Object.assign(new FolderView(), { id, name });
+  }
+
+  /** The scope of a My folder's page. */
+  const folderScope = (folderId: string): VaultScope => ({
+    type: VaultScopeType.Folder,
+    folderId,
+  });
+
+  function createFolderComponent(
+    folders: FolderView[],
+    scope: VaultScope = folderScope("banking"),
+  ) {
+    fixture = TestBed.createComponent(CardGridComponent);
+    fixture.componentRef.setInput("folders", folders);
+    fixture.componentRef.setInput("scope", scope);
+    fixture.detectChanges();
+  }
+
   function createComponent(
     collections: CollectionView[],
     scope: VaultScope = scopeTo(PARENT.id),
     startingState: { open?: boolean; initiallyExpanded?: boolean } = {},
   ) {
-    fixture = TestBed.createComponent(SharedFolderCardGridComponent);
+    fixture = TestBed.createComponent(CardGridComponent);
     fixture.componentRef.setInput("collections", collections);
     fixture.componentRef.setInput("scope", scope);
     Object.entries(startingState).forEach(([input, value]) =>
@@ -159,7 +181,7 @@ describe("SharedFolderCardGridComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [SharedFolderCardGridComponent],
+      imports: [CardGridComponent],
       providers: [
         provideRouter([]),
         {
@@ -220,8 +242,8 @@ describe("SharedFolderCardGridComponent", () => {
 
       // A grandchild arrives with the drill-in to its own parent, not before.
       expect(cards().map((card) => card.id)).toEqual([
-        `shared-folder-card-grid_link_folder-${PARENT.id}-folder-0`,
-        `shared-folder-card-grid_link_folder-${PARENT.id}-folder-1`,
+        `card-grid_link_folder-${PARENT.id}-folder-0`,
+        `card-grid_link_folder-${PARENT.id}-folder-1`,
       ]);
     });
 
@@ -326,7 +348,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("gives each card an id naming the folder it opens", () => {
       createComponent(children(1));
 
-      expect(cards()[0].id).toBe("shared-folder-card-grid_link_folder-engineering-folder-0");
+      expect(cards()[0].id).toBe("card-grid_link_folder-engineering-folder-0");
     });
   });
 
@@ -489,7 +511,7 @@ describe("SharedFolderCardGridComponent", () => {
     });
   });
 
-  // Why the expand moves focus: see SharedFolderCardGridComponent.toggleExpanded.
+  // Why the expand moves focus: see CardGridComponent.toggleExpanded.
   describe("focus on expansion", () => {
     it("moves focus to the first card the trigger reveals", async () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
@@ -599,6 +621,79 @@ describe("SharedFolderCardGridComponent", () => {
 
       expect(region.getAttribute("aria-labelledby")).toBe(accordionTrigger.id);
       expect(region.querySelector("a[bit-item-content]")).not.toBeNull();
+    });
+  });
+
+  describe("my folders", () => {
+    const banking = folder("banking", "Banking");
+
+    it("renders the folder's direct children as folder cards", () => {
+      createFolderComponent([
+        banking,
+        folder("checking", "Banking/Checking"),
+        folder("savings", "Banking/Savings"),
+        folder("other", "Other"),
+      ]);
+
+      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Checking", "Savings"]);
+      cards().forEach((card) => {
+        expect(card.querySelector("bit-icon-tile bit-icon")?.classList).toContain("bwi-folder");
+        expect(card.querySelector("bit-icon-tile bit-icon")?.classList).not.toContain(
+          "bwi-shared-folder",
+        );
+      });
+    });
+
+    it("titles and counts the section with the folder messages", () => {
+      createFolderComponent([
+        banking,
+        folder("checking", "Banking/Checking"),
+        folder("savings", "Banking/Savings"),
+      ]);
+
+      expect(accordionTitle()).toBe("foldersInParent:Banking");
+      expect(countLabel()).toBe("folderCount:2");
+    });
+
+    it("uses the singular count for a single child", () => {
+      createFolderComponent([banking, folder("checking", "Banking/Checking")]);
+
+      expect(countLabel()).toBe("folderSingular:1");
+    });
+
+    it("counts the folders nested directly inside each card beneath its name", () => {
+      createFolderComponent([
+        banking,
+        folder("checking", "Banking/Checking"),
+        folder("savings", "Banking/Savings"),
+        folder("joint", "Banking/Checking/Joint"),
+        folder("solo", "Banking/Checking/Solo"),
+        folder("cards", "Banking/Savings/Cards"),
+        folder("misc", "Banking/Misc"),
+      ]);
+
+      expect(
+        cards().map((card) => card.querySelector('[slot="secondary"]')?.textContent?.trim()),
+      ).toEqual(["nestedFolderCount:2", undefined, "nestedFolderSingular"]);
+    });
+
+    it("links each card to its folder's page", () => {
+      createFolderComponent([banking, folder("checking", "Banking/Checking")]);
+
+      expect(cards()[0].getAttribute("href")).toBe("/folders/checking");
+      expect(cards()[0].id).toBe("card-grid_link_folder-checking");
+    });
+
+    it("renders nothing when the folder has no children", () => {
+      createFolderComponent([banking, folder("other", "Other")]);
+
+      expect(fixture.nativeElement.querySelector("bit-accordion")).toBeNull();
+    });
+
+    it("renders nothing for a folder the folders it is given do not hold", () => {
+      createFolderComponent([banking], folderScope("unknown"));
+
+      expect(fixture.nativeElement.querySelector("bit-accordion")).toBeNull();
     });
   });
 });
