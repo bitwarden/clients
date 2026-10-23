@@ -436,6 +436,40 @@ mod tests {
     }
 
     #[test]
+    fn ecdsa_malformed_signature_encoding_returns_false() {
+        // The algorithm name matches the P-256 host key, but the signature blob is not a valid
+        // `mpint r || mpint s` encoding: an empty blob, `r` wider than the curve's field, and a
+        // well-formed pair followed by trailing bytes.
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let valid_sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        let mut oversized_r = Vec::new();
+        write_ssh_string(&mut oversized_r, &[0x01u8; 40]);
+        write_ssh_string(&mut oversized_r, &[0x01u8; 32]);
+
+        let mut trailing = valid_sig.as_bytes().to_vec();
+        trailing.push(0u8);
+
+        for raw_sig in [Vec::new(), oversized_r, trailing] {
+            let mut sig_outer = Vec::new();
+            write_ssh_string(&mut sig_outer, b"ecdsa-sha2-nistp256");
+            write_ssh_string(&mut sig_outer, &raw_sig);
+
+            let mut payload = Vec::new();
+            write_ssh_string(&mut payload, &hostkey_bytes);
+            write_ssh_string(&mut payload, &session_id);
+            write_ssh_string(&mut payload, &sig_outer);
+            payload.push(1u8);
+
+            assert!(apply(&payload).is_none());
+        }
+    }
+
+    #[test]
     fn ecdsa_wrong_session_id_returns_false() {
         let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
         let mut payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);

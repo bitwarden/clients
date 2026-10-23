@@ -1215,6 +1215,24 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn response_write_failure_closes_connection() {
+        use tokio::io::AsyncWriteExt;
+
+        let policy = Arc::new(CountingAuthPolicy::default());
+        let (mut client, handler) = spawn_handler(policy.clone(), MockKeyStore::new());
+
+        // Queue a request, then disconnect before the response can be written.
+        client.write_all(&framed(&[99u8])).await.unwrap();
+        drop(client);
+
+        tokio::time::timeout(std::time::Duration::from_secs(5), handler)
+            .await
+            .expect("handler should exit when the response cannot be written")
+            .expect("handler must not panic");
+        assert_eq!(policy.calls(), 0);
+    }
+
+    #[tokio::test]
     async fn unknown_extension_does_not_close_connection() {
         use tokio::io::AsyncWriteExt;
 
