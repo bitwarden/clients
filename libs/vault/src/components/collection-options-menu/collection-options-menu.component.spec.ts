@@ -1,7 +1,7 @@
 import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 
 import {
   CollectionTypes,
@@ -76,6 +76,10 @@ type SetupOptions = {
   showPin?: boolean;
   pinnedIds?: CollectionId[];
   showDelete?: boolean;
+  /** Defaults to an already-resolved active account. Override with a controllable stream (e.g. a
+   * `Subject`) to test behavior while `togglePin()`'s `await firstValueFrom(this.userId$)` is
+   * still pending. */
+  activeAccount$?: Observable<{ id: UserId }>;
 };
 
 describe("CollectionOptionsMenuComponent", () => {
@@ -91,6 +95,7 @@ describe("CollectionOptionsMenuComponent", () => {
     const { collection: withCollectionDialog = true, bulkDelete: withBulkDeleteDialog = true } =
       options.dialogs ?? {};
     const { showPin = false, pinnedIds = [], showDelete = true } = options;
+    const { activeAccount$ = of({ id: USER_ID }) } = options;
 
     collectionDialog = mock<CollectionDialogRef>();
     collectionDialog.open.mockResolvedValue(CollectionDialogOutcome.Saved);
@@ -103,7 +108,7 @@ describe("CollectionOptionsMenuComponent", () => {
       imports: [CollectionOptionsMenuComponent],
       providers: [
         { provide: I18nService, useValue: { t: (key: string, ...args: string[]) => key } },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: USER_ID }) } },
+        { provide: AccountService, useValue: { activeAccount$ } },
         { provide: PinnedSharedFoldersService, useValue: pinnedSharedFolders },
         { provide: ToastService, useValue: toastService },
         ...(withCollectionDialog
@@ -320,6 +325,22 @@ describe("CollectionOptionsMenuComponent", () => {
         variant: "success",
         message: "folderUnpinnedFromSidebar",
       });
+    });
+
+    it("targets the folder in view when togglePin() started, not one the input changed to mid-await (regression for 960eeb7be2)", async () => {
+      const otherCollection = collection();
+      otherCollection.id = "dddddddd-4444-4444-8444-dddddddddddd" as CollectionId;
+      const activeAccount$ = new Subject<{ id: UserId }>();
+      await setup({ showPin: true, pinnedIds: [], activeAccount$ });
+
+      const togglePin = component["togglePin"]();
+      fixture.componentRef.setInput("collection", otherCollection);
+      fixture.detectChanges();
+      activeAccount$.next({ id: USER_ID });
+      await togglePin;
+
+      expect(pinnedSharedFolders.pin).toHaveBeenCalledWith(USER_ID, COLLECTION_ID);
+      expect(pinnedSharedFolders.pin).not.toHaveBeenCalledWith(USER_ID, otherCollection.id);
     });
   });
 
