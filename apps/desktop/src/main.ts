@@ -58,6 +58,7 @@ import { isMacAppStore } from "./main/platform-utils.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
+import { OnePasswordSsoMain } from "./main/tools/import/onepassword-sso.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
@@ -354,6 +355,7 @@ export class Main {
     );
 
     new ChromiumImporterService();
+    new OnePasswordSsoMain(this.logService, this.windowMain);
 
     this.desktopAutofillMain = new DesktopAutofillMain(this.logService, this.windowMain);
     void this.desktopAutofillMain.init();

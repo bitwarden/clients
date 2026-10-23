@@ -32,6 +32,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
+import { ImportOptions, ImporterClient } from "@bitwarden/sdk-internal";
 
 import {
   ArcCsvImporter,
@@ -114,6 +115,7 @@ import {
   OnePasswordImportSummary,
   OnePasswordSignInAddress,
   OnePasswordSignInMethods,
+  OnePasswordSsoImportRequest,
   resolveSdkImportTargets,
   SdkImportCredentials,
   SdkImporterRegistry,
@@ -323,6 +325,41 @@ export class ImportService implements ImportServiceAbstraction {
     selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean = false,
   ): Promise<OnePasswordImportSummary> {
+    return await this.runOnePasswordImport(
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+      (importers, options) =>
+        importers.import_onepassword(request.credentials, request.twoFactorUi, options),
+    );
+  }
+
+  /**
+   * Like {@link importOnePassword}, for an account that signs in through its identity provider. The
+   * SDK has `request.ui` take the user through that login and through the approval of the device,
+   * which is a new one on every import.
+   */
+  async importOnePasswordSso(
+    request: OnePasswordSsoImportRequest,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<OnePasswordImportSummary> {
+    return await this.runOnePasswordImport(
+      organizationId,
+      selectedImportTarget,
+      canAccessImportExport,
+      (importers, options) =>
+        importers.import_onepassword_sso(request.credentials, request.ui, options),
+    );
+  }
+
+  private async runOnePasswordImport(
+    organizationId: OrganizationId | null,
+    selectedImportTarget: FolderView | CollectionView | null,
+    canAccessImportExport: boolean,
+    run: (importers: ImporterClient, options: ImportOptions) => Promise<OnePasswordImportSummary>,
+  ): Promise<OnePasswordImportSummary> {
     // Mirror the pipeline's guard: an org import with no target collection leaves every item
     // unassigned, which is only allowed with import/export permission.
     if (organizationId && !selectedImportTarget && !canAccessImportExport) {
@@ -348,20 +385,18 @@ export class ImportService implements ImportServiceAbstraction {
             selectedImportTarget: selectedImportTarget ?? undefined,
             restrictedTypes,
           });
-          return await ref.value
-            .importers()
-            .import_onepassword(request.credentials, request.twoFactorUi, {
-              organization_id: organizationId ? asUuid(organizationId) : undefined,
-              target_folder: folder ? { id: asUuid(folder.id), name: folder.name } : undefined,
-              target_collection: collection
-                ? {
-                    id: asUuid(collection.id),
-                    name: collection.name,
-                    type: toSdkCollectionType(collection.type),
-                  }
-                : undefined,
-              restricted_types: restrictedTypes.map(toSdkCipherType),
-            });
+          return await run(ref.value.importers(), {
+            organization_id: organizationId ? asUuid(organizationId) : undefined,
+            target_folder: folder ? { id: asUuid(folder.id), name: folder.name } : undefined,
+            target_collection: collection
+              ? {
+                  id: asUuid(collection.id),
+                  name: collection.name,
+                  type: toSdkCollectionType(collection.type),
+                }
+              : undefined,
+            restricted_types: restrictedTypes.map(toSdkCipherType),
+          });
         }),
       ),
     );
