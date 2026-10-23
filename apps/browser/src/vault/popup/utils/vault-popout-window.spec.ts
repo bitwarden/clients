@@ -184,6 +184,7 @@ describe("VaultPopoutWindow", () => {
       const returnedWindowId = await openFido2Popout(senderTab, {
         sessionId: "sessionId",
         fallbackSupported: true,
+        senderUrl: "https://jest-testing.com",
       });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
@@ -197,6 +198,47 @@ describe("VaultPopoutWindow", () => {
       );
       expect(returnedWindowId).toEqual(10);
     });
+
+    it("passes the requesting frame's URL rather than the tab's", async () => {
+      const senderTab = mock<chrome.tabs.Tab>({
+        windowId: 1,
+        url: "https://top.example.com/checkout",
+        id: 2,
+      });
+
+      await openFido2Popout(senderTab, {
+        sessionId: "sessionId",
+        fallbackSupported: false,
+        senderUrl: "https://login.example.net/passkey",
+      });
+
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/fido2?sessionId=sessionId&fallbackSupported=false&senderTabId=2&senderUrl=https%3A%2F%2Flogin.example.net%2Fpasskey",
+        expect.anything(),
+      );
+    });
+
+    it.each([undefined, ""])(
+      "omits the senderUrl query param when the sender URL is %p",
+      async (senderUrl) => {
+        const senderTab = mock<chrome.tabs.Tab>({
+          windowId: 1,
+          url: "https://top.example.com/checkout",
+          id: 2,
+        });
+
+        await openFido2Popout(senderTab, {
+          sessionId: "sessionId",
+          fallbackSupported: false,
+          senderUrl,
+        });
+
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#/fido2?sessionId=sessionId&fallbackSupported=false&senderTabId=2",
+          expect.anything(),
+        );
+      },
+    );
   });
 
   describe("closeFido2Popout", () => {
