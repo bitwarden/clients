@@ -1,5 +1,6 @@
 import { BehaviorSubject, concat, defer, firstValueFrom, Observable, Subject } from "rxjs";
 import {
+  distinctUntilChanged,
   filter,
   ignoreElements,
   map,
@@ -14,6 +15,8 @@ import {
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -29,6 +32,7 @@ import {
   AutoSubmitInvalidated,
   PageTransitionResolved,
 } from "./abstractions/autofill-lifecycle.service";
+import { passiveAutofillMonitoringEnabled$ } from "./passive-autofill-monitoring";
 
 type PortEvent =
   | { type: "connect"; port: chrome.runtime.Port }
@@ -191,9 +195,17 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     (message) => this.logService.error(message),
   );
 
+  /** Latest passive-monitoring gate; updated from autofill settings. */
+  private passiveMonitoringEnabled = false;
+
+  /** Latest auth status; kept in sync for synchronous monitor gating. */
+  private currentAuthStatus: AuthenticationStatus | undefined;
+
   constructor(
     private authService: AuthService,
     private logService: LogService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private domainSettingsService: DomainSettingsService,
   ) {}
 
   /**
@@ -262,11 +274,22 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
       )
       .subscribe(this.liveTabs);
 
+    this.authService.activeAccountStatus$.subscribe((status) => {
+      this.currentAuthStatus = status;
+    });
+
     this.authService.activeAccountStatus$
       .pipe(startWith(undefined), pairwise())
       .subscribe(([previousStatus, currentStatus]) =>
         this.handleAuthStatusTransition(previousStatus, currentStatus),
       );
+
+    passiveAutofillMonitoringEnabled$(this.autofillSettingsService, this.domainSettingsService)
+      .pipe(distinctUntilChanged())
+      .subscribe((enabled) => {
+        this.passiveMonitoringEnabled = enabled;
+        this.syncPassiveMonitoringForLoggedInAccount();
+      });
   }
 
   reportPageTransition(
@@ -351,6 +374,9 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
       AuthenticationStatus.LoggedOut;
     if (!accountIsLoggedIn) {
       this.logService.warning("Autofill monitoring disabled; the active account is logged out.");
+      return;
+    }
+    if (!this.passiveMonitoringEnabled) {
       return;
     }
     // Fire-and-forget: the bootstrap is already injected at this point, and
@@ -439,8 +465,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     const wasLoggedOut = previousStatus === AuthenticationStatus.LoggedOut;
     const isLoggedOut = currentStatus === AuthenticationStatus.LoggedOut;
     if (wasLoggedOut && !isLoggedOut) {
-      this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.start });
-      this.markConnectedFramesMonitoring(true);
+      this.syncPassiveMonitoringForLoggedInAccount();
       return;
     }
     if (!wasLoggedOut && isLoggedOut) {
@@ -456,6 +481,22 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    * independently); the message is sent once per unique pair. Stale ports are
    * skipped silently.
    */
+  private syncPassiveMonitoringForLoggedInAccount(): void {
+    const accountIsLoggedIn = this.currentAuthStatus !== AuthenticationStatus.LoggedOut;
+    if (!accountIsLoggedIn) {
+      return;
+    }
+
+    if (this.passiveMonitoringEnabled) {
+      this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.start });
+      this.markConnectedFramesMonitoring(true);
+      return;
+    }
+
+    this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.stop });
+    this.markConnectedFramesMonitoring(false);
+  }
+
   private broadcastToInjectedScripts(message: { command: string }) {
     // The dedup key collapses ports for the same (tab, frameId). When a sender
     // unexpectedly reports `frameId` as undefined alongside another with a real

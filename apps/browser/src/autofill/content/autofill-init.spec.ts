@@ -204,20 +204,25 @@ describe("AutofillInit", () => {
       expect(response).toBe(null);
     });
 
-    describe("monitoring gate", () => {
-      it("drops operational commands when monitoring is stopped", async () => {
+    describe("on-demand collection without passive monitoring", () => {
+      it("collects page details when passive monitoring is stopped", async () => {
         autofillInit.stopMonitoring();
-        const getPageDetailsSpy = jest.spyOn(
-          autofillInit["collectAutofillContentService"],
-          "getPageDetails",
-        );
+        const getPageDetailsSpy = jest
+          .spyOn(autofillInit["collectAutofillContentService"], "getPageDetails")
+          .mockResolvedValue({
+            title: "",
+            url: "",
+            documentUrl: "",
+            forms: {},
+            fields: [],
+            collectedTimestamp: 0,
+          });
         message.command = "collectPageDetails";
 
-        const response = autofillInit["handleExtensionMessage"](message, sender, sendResponse);
+        autofillInit["handleExtensionMessage"](message, sender, sendResponse);
         await flushPromises();
 
-        expect(response).toBe(null);
-        expect(getPageDetailsSpy).not.toHaveBeenCalled();
+        expect(getPageDetailsSpy).toHaveBeenCalledTimes(1);
       });
 
       it("routes lifecycle commands while stopped, then routes operational commands again after start", async () => {
@@ -248,14 +253,13 @@ describe("AutofillInit", () => {
         expect(getPageDetailsSpy).toHaveBeenCalledTimes(1);
       });
 
-      it("drops applyTargetedFields when monitoring is stopped", async () => {
+      it("applies targeted fields when passive monitoring is stopped", async () => {
         autofillInit.stopMonitoring();
-        const applyExternalTargetedFieldsSpy = jest.spyOn(
-          autofillInit["collectAutofillContentService"],
-          "applyExternalTargetedFields",
-        );
+        const applyExternalTargetedFieldsSpy = jest
+          .spyOn(autofillInit["collectAutofillContentService"], "applyExternalTargetedFields")
+          .mockResolvedValue(undefined);
 
-        const response = autofillInit["handleExtensionMessage"](
+        autofillInit["handleExtensionMessage"](
           {
             ...message,
             command: "applyTargetedFields",
@@ -266,30 +270,7 @@ describe("AutofillInit", () => {
         );
         await flushPromises();
 
-        expect(response).toBe(null);
-        expect(applyExternalTargetedFieldsSpy).not.toHaveBeenCalled();
-      });
-
-      it("drops operational commands again after stopAutofillMonitors", async () => {
-        const getPageDetailsSpy = jest.spyOn(
-          autofillInit["collectAutofillContentService"],
-          "getPageDetails",
-        );
-
-        autofillInit["handleExtensionMessage"](
-          { command: "stopAutofillMonitors" } as AutofillExtensionMessage,
-          sender,
-          sendResponse,
-        );
-        const response = autofillInit["handleExtensionMessage"](
-          { ...message, command: "collectPageDetails" },
-          sender,
-          sendResponse,
-        );
-        await flushPromises();
-
-        expect(response).toBe(null);
-        expect(getPageDetailsSpy).not.toHaveBeenCalled();
+        expect(applyExternalTargetedFieldsSpy).toHaveBeenCalledTimes(1);
       });
     });
 
