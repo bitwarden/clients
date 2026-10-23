@@ -1536,6 +1536,42 @@ describe("AutofillOverlayContentService", () => {
             InlineMenuFillTypes.CurrentPasswordUpdate,
           );
         });
+
+        it("recognizes oldPassword as the current password in an update password form", async () => {
+          const oldPasswordFieldData = createAutofillFieldMock({
+            opid: "old-password-field",
+            form: "validFormId",
+            elementNumber: 5,
+            htmlName: "oldPassword",
+            type: "password",
+            viewable: true,
+          });
+          const confirmNewPasswordFieldData = createAutofillFieldMock({
+            opid: "confirm-new-password-field",
+            form: "validFormId",
+            elementNumber: 6,
+            autoCompleteType: "new-password",
+            placeholder: "confirm new password",
+            type: "password",
+            viewable: true,
+          });
+          pageDetailsMock.fields = [
+            oldPasswordFieldData,
+            newPasswordFieldData,
+            confirmNewPasswordFieldData,
+          ];
+
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            oldPasswordFieldData,
+            pageDetailsMock,
+          );
+          await flushPromises();
+
+          expect(oldPasswordFieldData.inlineMenuFillType).toEqual(
+            InlineMenuFillTypes.CurrentPasswordUpdate,
+          );
+        });
       });
     });
 
