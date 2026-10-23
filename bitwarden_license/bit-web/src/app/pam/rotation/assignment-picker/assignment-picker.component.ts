@@ -10,13 +10,9 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
-import { of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AsyncActionsModule,
@@ -33,7 +29,6 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SelectItemView,
-  TableModule,
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
@@ -53,11 +48,6 @@ export interface AssignmentPickerColumn {
 
 export interface AssignmentPickerRowContext<TRow extends AssignmentPickerRow> {
   readonly $implicit: TRow;
-  /**
-   * Set under `bit-table-v2`, whose cells must be `<bit-cell>`, since a `<td>` there has no
-   * `<table>` ancestor and no cell role. Remove when the VFO1 flag is removed.
-   */
-  readonly vfo1?: boolean;
 }
 
 /** The i18n key for the hint under the picker, one per state the section can be in. */
@@ -72,7 +62,7 @@ export interface AssignmentPickerHints {
 /**
  * The rotation pages' assignment card: a multi-select of eligible options with an Assign button,
  * and a table of current assignments with a Remove per row. The caller renders each row's cells
- * as a {@link TemplateRef}.
+ * as a {@link TemplateRef} of `<bit-cell>` elements.
  */
 @Component({
   selector: "pam-assignment-picker",
@@ -95,7 +85,6 @@ export interface AssignmentPickerHints {
     LinkModule,
     SectionComponent,
     SectionHeaderComponent,
-    TableModule,
     TooltipDirective,
     TypographyModule,
     I18nPipe,
@@ -103,14 +92,6 @@ export interface AssignmentPickerHints {
 })
 export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   private readonly i18nService = inject(I18nService);
-  // Optional because the host pages' specs render this card without providing one.
-  private readonly configService = inject(ConfigService, { optional: true });
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
-    { initialValue: false },
-  );
 
   readonly headingKey = input.required<string>();
 

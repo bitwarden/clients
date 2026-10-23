@@ -11,8 +11,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 
 /**
- * Header and routed tabs for the rotation feature. Off the VFO1 flag the header hosts the active
- * tab's create action; on it, each tab hosts its own in its table toolbar.
+ * Header and routed tabs for the rotation feature. Each tab hosts its own create action in its
+ * table toolbar.
  */
 @Component({
   selector: "app-rotation-shell",
