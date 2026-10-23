@@ -6,7 +6,7 @@ export class PolicyData {
   id: PolicyId;
   organizationId: string;
   type: PolicyType;
-  data: Record<string, string | number | boolean>;
+  data: Record<string, string | number | boolean> | null;
   enabled: boolean;
   revisionDate: string;
 
