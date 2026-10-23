@@ -72,6 +72,7 @@
           class="tw-font-mono"
           required
           appInputVerbatim
+          data-testid="lock-pin-input"
         />
         <button
           type="button"
@@ -83,7 +84,14 @@
       </bit-form-field>
 
       <div class="tw-flex tw-flex-col tw-space-y-3">
-        <button type="submit" bitButton bitFormButton buttonType="primary" block>
+        <button
+          type="submit"
+          bitButton
+          bitFormButton
+          buttonType="primary"
+          block
+          data-testid="lock-pin-unlock-button"
+        >
           {{ "unlock" | i18n }}
         </button>
 
