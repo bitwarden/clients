@@ -27,6 +27,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
       console.debug("[RuleQualificationService] structural miss", {
+        url,
         durationMs: performance.now() - startTime,
         inScopeForms: structural.inScopeForms.forms.size,
       });
@@ -41,6 +42,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         );
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
       console.debug("[RuleQualificationService] in_scope_extras miss", {
+        url,
         durationMs: performance.now() - startTime,
         inScopeForms: structural.inScopeForms.forms.size,
       });
@@ -49,6 +51,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
     // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
     console.debug("[RuleQualificationService] proceedTargeted", {
+      url,
       durationMs: performance.now() - startTime,
       inScopeForms: structural.inScopeForms.forms.size,
     });

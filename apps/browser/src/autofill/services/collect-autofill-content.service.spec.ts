@@ -557,6 +557,30 @@ describe("CollectAutofillContentService", () => {
       });
     });
 
+    describe("collectHeuristicPageDetailsBypass", () => {
+      it("clears pageTargetingRules, autofillFieldElements, and autofillFieldsByOpid before running heuristic collection", async () => {
+        const dummyField = document.createElement("input") as any;
+        collectAutofillContentService["pageTargetingRules"] = [
+          { category: "login", fields: {} },
+        ] as any;
+        collectAutofillContentService["autofillFieldElements"].set(dummyField, {} as any);
+        collectAutofillContentService["autofillFieldsByOpid"].set("__opid__0", dummyField);
+
+        const runHeuristicSpy = jest
+          .spyOn(collectAutofillContentService as any, "runHeuristicCollection")
+          .mockImplementation(() => {
+            expect(collectAutofillContentService["pageTargetingRules"]).toBeNull();
+            expect(collectAutofillContentService["autofillFieldElements"].size).toBe(0);
+            expect(collectAutofillContentService["autofillFieldsByOpid"].size).toBe(0);
+            return Promise.resolve({} as any);
+          });
+
+        await collectAutofillContentService.collectHeuristicPageDetailsBypass();
+
+        expect(runHeuristicSpy).toHaveBeenCalled();
+      });
+    });
+
     describe("envelope destructure", () => {
       it("populates pageTargetingRules and ruleFailureFallback from the envelope", async () => {
         const rules = [{ category: "login", fields: {} }] as any;
