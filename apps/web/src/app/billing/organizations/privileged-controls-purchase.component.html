@@ -1,0 +1,64 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
+  <!-- PLACEHOLDER: Privileged Controls header art from design goes here. -->
+  <div class="tw-h-16 tw-rounded-t tw-bg-background-alt3 tw-p-5"></div>
+  <div
+    class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-secondary-300 tw-p-5"
+  >
+    <h4 bitTypography="h4">{{ "privilegedControlsForEnterprise" | i18n }}</h4>
+    <p class="tw-text-muted">{{ "privilegedControlsPurchaseDesc" | i18n }}</p>
+
+    <div class="tw-mb-5">
+      {{ "costPerSeat" | i18n: (monthlyCostPerSeat() | currency: "$") }} /{{ "month" | i18n }}
+    </div>
+
+    <bit-form-control>
+      <input
+        id="privileged-controls-purchase_input_enabled"
+        type="checkbox"
+        bitCheckbox
+        formControlName="enabled"
+      />
+      <bit-label>{{ "addPrivilegedControls" | i18n }}</bit-label>
+    </bit-form-control>
+
+    @if (formGroup.controls.enabled.value) {
+      <div class="tw-w-1/2">
+        <bit-form-field>
+          <bit-label>{{ "seats" | i18n }}</bit-label>
+          <input
+            id="privileged-controls-purchase_input_seats"
+            bitInput
+            formControlName="seats"
+            type="number"
+            [min]="seatMinimum()"
+            [max]="maxQuantity"
+          />
+          <bit-hint>{{ "privilegedControlsMinimumSeats" | i18n: seatMinimum() }}</bit-hint>
+        </bit-form-field>
+      </div>
+      <div class="tw-w-1/2">
+        <bit-form-field>
+          <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
+          <input
+            id="privileged-controls-purchase_input_seat-limit"
+            bitInput
+            formControlName="maxAutoscaleSeats"
+            type="number"
+            [max]="maxQuantity"
+          />
+        </bit-form-field>
+      </div>
+
+      <button
+        id="privileged-controls-purchase_button_save"
+        type="submit"
+        bitButton
+        buttonType="primary"
+        bitFormButton
+      >
+        {{ "save" | i18n }}
+      </button>
+    }
+  </div>
+</form>

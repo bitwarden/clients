@@ -12550,6 +12550,42 @@
     "message": "Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
+  "privilegedControlsForEnterprise": {
+    "message": "Privileged Controls for Enterprise",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsPurchaseDesc": {
+    "message": "PLACEHOLDER: Privileged Controls description and included features"
+  },
+  "addPrivilegedControls": {
+    "message": "Add Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "costPerSeat": {
+    "message": "$COST$ per seat",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$10.00"
+      }
+    }
+  },
+  "privilegedControlsMinimumSeats": {
+    "message": "Minimum $COUNT$ seats",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "privilegedControlsSeatLimitBelowSeats": {
+    "message": "Seat limit can't be less than the number of seats."
+  },
+  "privilegedControlsPurchased": {
+    "message": "Subscription updated. You now have Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "privilegedControlsAccessDescription": {
     "message": "Activate user access to Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
