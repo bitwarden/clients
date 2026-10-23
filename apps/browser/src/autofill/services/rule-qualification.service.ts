@@ -1,5 +1,4 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { FormFieldElement } from "../types";
 import { elementIsFillableFormField } from "../utils";
@@ -18,15 +17,19 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     private collectAutofillContentService: CollectAutofillContentService,
     private domQueryService: DomQueryService,
     private domElementVisibilityService: DomElementVisibilityService,
-
-    private logService: LogService,
   ) {}
 
   async qualifyRule(url: string, matchedRule: FormContent[]): Promise<QualificationResult> {
+    const startTime = performance.now();
     const structural = await this.checkStructural(matchedRule);
     if (!structural.ok) {
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
+      // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
+      console.debug("[RuleQualificationService] structural miss", {
+        durationMs: performance.now() - startTime,
+        inScopeForms: structural.inScopeForms.forms.size,
+      });
       return { kind: "fallback", missReason: "structural", pageDetails };
     }
 
@@ -36,9 +39,19 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass(
           structural.inScopeForms,
         );
+      // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
+      console.debug("[RuleQualificationService] in_scope_extras miss", {
+        durationMs: performance.now() - startTime,
+        inScopeForms: structural.inScopeForms.forms.size,
+      });
       return { kind: "fallback", missReason: "in_scope_extras", pageDetails };
     }
 
+    // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
+    console.debug("[RuleQualificationService] proceedTargeted", {
+      durationMs: performance.now() - startTime,
+      inScopeForms: structural.inScopeForms.forms.size,
+    });
     return { kind: "proceedTargeted" };
   }
 

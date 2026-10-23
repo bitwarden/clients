@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { FormContent, FormPurposeCategory } from "@bitwarden/common/autofill/types";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import AutofillPageDetails from "../models/autofill-page-details";
 
@@ -14,7 +13,6 @@ describe("DefaultRuleQualificationService", () => {
   let collectService: MockProxy<CollectAutofillContentService>;
   let domQueryService: MockProxy<DomQueryService>;
   let domElementVisibilityService: MockProxy<DomElementVisibilityService>;
-  let logService: MockProxy<LogService>;
   let service: DefaultRuleQualificationService;
 
   const samplePageDetails = {} as AutofillPageDetails;
@@ -38,13 +36,11 @@ describe("DefaultRuleQualificationService", () => {
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = mock<DomElementVisibilityService>();
     domElementVisibilityService.isElementHiddenByCss.mockReturnValue(false);
-    logService = mock<LogService>();
 
     service = new DefaultRuleQualificationService(
       collectService,
       domQueryService,
       domElementVisibilityService,
-      logService,
     );
   });
 
@@ -134,7 +130,7 @@ describe("DefaultRuleQualificationService", () => {
           fields: {
             // Each entry here is a DeepSelectorSequence (string[]); the whole
             // sequence must resolve for the rule to qualify.
-            otp: [["#d1", "#d2", "#d3-missing"]],
+            oneTimeCode: [["#d1", "#d2", "#d3-missing"]],
           },
         },
       ];
@@ -266,6 +262,77 @@ describe("DefaultRuleQualificationService", () => {
       const result = await service.qualifyRule("https://example.com", rule);
 
       expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+  });
+
+  describe("qualifyRule — debug logging", () => {
+    let debugSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      debugSpy = jest.spyOn(console, "debug").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      debugSpy.mockRestore();
+    });
+
+    it("logs the proceedTargeted outcome with duration and in-scope form count", async () => {
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      form.append(user, pass);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(debugSpy).toHaveBeenCalledWith(
+        expect.stringContaining("proceedTargeted"),
+        expect.objectContaining({
+          durationMs: expect.any(Number),
+          inScopeForms: expect.any(Number),
+        }),
+      );
+    });
+
+    it("logs the structural miss outcome with duration and in-scope form count", async () => {
+      domQueryService.queryDeepSelector.mockReturnValue(null);
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(debugSpy).toHaveBeenCalledWith(
+        expect.stringContaining("structural miss"),
+        expect.objectContaining({
+          durationMs: expect.any(Number),
+          inScopeForms: expect.any(Number),
+        }),
+      );
+    });
+
+    it("logs the in_scope_extras miss outcome with duration and in-scope form count", async () => {
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      const extra = document.createElement("input");
+      form.append(user, pass, extra);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(debugSpy).toHaveBeenCalledWith(
+        expect.stringContaining("in_scope_extras miss"),
+        expect.objectContaining({
+          durationMs: expect.any(Number),
+          inScopeForms: expect.any(Number),
+        }),
+      );
     });
   });
 });
