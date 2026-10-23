@@ -37,7 +37,6 @@ import {
   SelectItemView,
   SkeletonComponent,
   SkeletonTextComponent,
-  TableModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -244,7 +243,6 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     SectionHeaderComponent,
     SkeletonComponent,
     SkeletonTextComponent,
-    TableModule,
     TypographyModule,
     AssignmentPickerComponent,
     RotationLoadErrorComponent,

@@ -4,9 +4,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -1751,43 +1749,13 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       ).toBeTruthy();
     });
 
-    it("draws each assigned connector's cells as bit-cell when the VFO1 flag is on", async () => {
-      TestBed.resetTestingModule();
-      rotationSdk = mock<RotationSdkService>();
+    it("draws each assigned connector's cells as bit-cell", async () => {
       const assigned = accessConnector({
         id: connectorId("c-assigned"),
         name: "Prod connector",
         assignedTargetSystemIds: [SYSTEM_ID],
       });
-      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: SYSTEM_ID })]);
-      rotationSdk.listConnectors.mockResolvedValue([assigned]);
-      rotationSdk.listConfigs.mockResolvedValue([]);
-      const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-      await TestBed.configureTestingModule({
-        imports: [TargetSystemEditComponent, NoopAnimationsModule],
-        providers: [
-          provideRouter([]),
-          { provide: RotationSdkService, useValue: rotationSdk },
-          { provide: I18nService, useValue: i18nFake },
-          { provide: ToastService, useValue: mock<ToastService>() },
-          { provide: DialogService, useValue: mock<DialogService>() },
-          { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-          { provide: ConfigService, useValue: configService },
-          {
-            provide: ActivatedRoute,
-            useValue: {
-              snapshot: { params: { organizationId: ORG_ID, targetSystemId: SYSTEM_ID } },
-            },
-          },
-        ],
-      }).compileComponents();
-      jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-      fixture = TestBed.createComponent(TargetSystemEditComponent);
-      component = fixture.componentInstance as unknown as AssignmentsComp;
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      await setup([assigned], {}, true);
 
       const rows = [...el().querySelectorAll("bit-table-v2 bit-row")];
       expect(rows).toHaveLength(1);

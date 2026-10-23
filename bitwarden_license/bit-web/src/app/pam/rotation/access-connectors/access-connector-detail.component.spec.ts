@@ -8,7 +8,6 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -725,6 +724,11 @@ describe("AccessConnectorDetailComponent", () => {
 
   describe("rendered assignment section", () => {
     const query = (selector: string) => fixture.nativeElement.querySelector(selector);
+    const bodyRows = (): HTMLElement[] => [
+      ...fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"),
+    ];
+    const columnTexts = (index: number): (string | undefined)[] =>
+      bodyRows().map((row) => row.querySelectorAll("bit-cell")[index]?.textContent?.trim());
 
     async function render(accessConnector = makeAccessConnector()): Promise<DetailApi> {
       rotationSdk.getConnector.mockResolvedValue(accessConnector);
@@ -740,7 +744,7 @@ describe("AccessConnectorDetailComponent", () => {
 
       expect(query("pam-assignment-picker")).toBeTruthy();
       expect(query("#access-connector-detail_multi-select_options")).toBeTruthy();
-      const rows = fixture.nativeElement.querySelectorAll("tbody tr");
+      const rows = bodyRows();
       expect(rows).toHaveLength(1);
       expect(rows[0].textContent).toContain("Prod Entra");
     });
@@ -760,17 +764,17 @@ describe("AccessConnectorDetailComponent", () => {
           "aria-label",
         ),
       ).toBe("pamAccessConnectorUnassign");
-      const kinds = Array.from(
-        fixture.nativeElement.querySelectorAll("tbody tr td:nth-child(2)"),
-      ).map((cell) => (cell as HTMLElement).textContent?.trim());
-      expect(kinds).toEqual(["pamTargetSystemTypeEntra", "pamTargetSystemTypeCustomScript"]);
+      expect(columnTexts(1)).toEqual([
+        "pamTargetSystemTypeEntra",
+        "pamTargetSystemTypeCustomScript",
+      ]);
     });
 
     it("states each assigned target's id and copies it whole", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       await render();
 
-      expect(query("tbody tr td:nth-child(3)").textContent).toContain(uuidAsString(sysId("ts-1")));
+      expect(columnTexts(2)[0]).toContain(uuidAsString(sysId("ts-1")));
 
       query(`#access-connector-detail_button_copy-target-id-${sysId("ts-1")}`).click();
 
@@ -792,7 +796,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.assignTargets([pick(makeOtherSystem())]);
       fixture.detectChanges();
 
-      const row = fixture.nativeElement.querySelector("tbody tr");
+      const row = bodyRows()[0];
       expect(row.textContent).toContain("pamRotationAssignmentPendingAssign");
       expect(row.querySelector(".tw-line-through")).toBeNull();
     });
@@ -803,7 +807,7 @@ describe("AccessConnectorDetailComponent", () => {
       await comp.unassignTarget(comp.assignments()[0]);
       fixture.detectChanges();
 
-      const row = fixture.nativeElement.querySelector("tbody tr");
+      const row = bodyRows()[0];
       expect(row.textContent).toContain("pamRotationAssignmentPendingUnassign");
       expect(row.querySelector(".tw-line-through")?.textContent?.trim()).toBe("Prod Entra");
     });
@@ -833,18 +837,13 @@ describe("AccessConnectorDetailComponent", () => {
       expect(query("#access-connector-detail_anchor_go-to")).toBeNull();
     });
 
-    it("draws each assignment's cells as bit-cell when the VFO1 flag is on", async () => {
+    it("draws each assignment's cells as bit-cell", async () => {
       rotationSdk.getConnector.mockResolvedValue(
         makeAccessConnector({ assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")] }),
       );
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeSameNamedSystem()]);
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
-      });
-      const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-      TestBed.configureTestingModule({
-        providers: [{ provide: ConfigService, useValue: configService }],
       });
       await createComponent();
 
@@ -862,16 +861,11 @@ describe("AccessConnectorDetailComponent", () => {
       ).not.toBeNull();
     });
 
-    it("keeps the pending badge out of the name's truncating box when the VFO1 flag is on", async () => {
+    it("keeps the pending badge out of the name's truncating box", async () => {
       rotationSdk.getConnector.mockResolvedValue(makeAccessConnector());
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
-      });
-      const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-      TestBed.configureTestingModule({
-        providers: [{ provide: ConfigService, useValue: configService }],
       });
       const comp = await createComponent();
 
