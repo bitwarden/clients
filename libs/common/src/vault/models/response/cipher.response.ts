@@ -50,6 +50,7 @@ export class CipherResponse extends BaseResponse {
   creationDate: string;
   deletedDate: string;
   archivedDate: string;
+  excludedFromReports?: boolean;
   reprompt: CipherRepromptType;
   key: string;
   data?: string;
@@ -81,6 +82,7 @@ export class CipherResponse extends BaseResponse {
     this.creationDate = this.getResponseProperty("CreationDate");
     this.deletedDate = this.getResponseProperty("DeletedDate");
     this.archivedDate = this.getResponseProperty("ArchivedDate");
+    this.excludedFromReports = this.getResponseProperty("ExcludedFromReports");
 
     const login = this.getResponseProperty("Login");
     if (login != null) {

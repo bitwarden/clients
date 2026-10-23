@@ -8,7 +8,7 @@
     <dirt-health-additional-risks [item]="data.item" [currentCategory]="data.currentCategory" />
   </div>
   <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
-    <button bitButton type="button" buttonType="primary" [bitDialogClose]="true">
+    <button bitButton type="button" buttonType="primary" [bitAction]="onExclude">
       {{ "excludeAnyway" | i18n }}
     </button>
     <button bitButton type="button" bitDialogClose>{{ "cancel" | i18n }}</button>
