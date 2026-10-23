@@ -90,6 +90,9 @@ describe("LockComponent", () => {
   const mockEncryptedMigrator = mock<EncryptedMigrator>();
   const mockActivatedRoute = {
     snapshot: {
+      queryParamMap: {
+        get: jest.fn().mockReturnValue(null),
+      },
       paramMap: {
         get: jest.fn().mockReturnValue(null), // return null for 'disable-redirect' param
       },
@@ -222,12 +225,129 @@ describe("LockComponent", () => {
     });
   });
 
+  describe("biometric auto-prompt after opening a lock popout", () => {
+    it.each([
+      ["true", false],
+      ["false", true],
+      [null, true],
+    ])(
+      "with suppression=%s, automatically unlocks=%s",
+      fakeAsync((suppression, shouldUnlock) => {
+        let shouldAutoprompt = true; // A fresh foreground service starts with prompting enabled.
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+        mockActivatedRoute.snapshot.queryParamMap.get.mockImplementation((key) =>
+          key === "suppressBiometricAutoPrompt" ? suppression : null,
+        );
+        mockBiometricService.getShouldAutopromptNow.mockImplementation(
+          async () => shouldAutoprompt,
+        );
+        mockBiometricService.setShouldAutopromptNow.mockImplementation(async (value) => {
+          shouldAutoprompt = value;
+        });
+        mockBiometricStateService.promptAutomatically$.mockReturnValue(of(true));
+        mockBiometricStateService.getLastProcessReload.mockResolvedValue(null);
+        mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(
+          of({
+            masterPassword: { enabled: true },
+            pin: { enabled: false },
+            biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+            prf: { enabled: true },
+          }),
+        );
+        const unlockSpy = jest.spyOn(component, "unlockViaBiometrics").mockResolvedValue();
+
+        void component.ngOnInit();
+        tick();
+        component.ngOnDestroy();
+
+        expect(mockBiometricService.getShouldAutopromptNow).toHaveBeenCalled();
+        expect(unlockSpy).toHaveBeenCalledTimes(shouldUnlock ? 1 : 0);
+      }),
+    );
+  });
+
   describe("successfulMasterPasswordUnlock", () => {
     const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
     const masterPassword = "test-password";
 
     beforeEach(async () => {
       component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+    });
+
+    describe("popout completion", () => {
+      let closeWindow: jest.SpyInstance;
+
+      beforeEach(() => {
+        component.clientType = ClientType.Browser;
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+        mockLockComponentService.getPreviousUrl.mockReturnValue(null);
+        mockActivatedRoute.snapshot.paramMap.get.mockReturnValue(null);
+        mockActivatedRoute.snapshot.queryParamMap.get.mockReturnValue(null);
+        mockPolicyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+        closeWindow = jest.spyOn(window, "close").mockImplementation();
+      });
+
+      afterEach(() => {
+        closeWindow.mockRestore();
+      });
+
+      it("requests the extension popup and closes a temporary popout after unlocking", async () => {
+        mockActivatedRoute.snapshot.queryParamMap.get.mockImplementation((key) =>
+          key === "autoClosePopout" ? "true" : null,
+        );
+
+        await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+        assertUnlocked();
+        expect(mockMessagingService.send).toHaveBeenCalledWith("openPopup");
+        expect(closeWindow).toHaveBeenCalledTimes(1);
+        expect(mockRouter.navigate).not.toHaveBeenCalled();
+        expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+      });
+
+      it("resumes a saved destination before considering automatic closure", async () => {
+        const previousUrl = "/fido2?sessionId=test-session";
+        mockLockComponentService.getPreviousUrl.mockReturnValue(previousUrl);
+        mockActivatedRoute.snapshot.queryParamMap.get.mockImplementation((key) =>
+          key === "autoClosePopout" ? "true" : null,
+        );
+
+        await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+        expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(previousUrl);
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("openPopup");
+        expect(closeWindow).not.toHaveBeenCalled();
+        expect(mockRouter.navigate).not.toHaveBeenCalled();
+      });
+
+      it.each([null, "false"])("keeps the window open when autoClosePopout=%s", async (value) => {
+        mockActivatedRoute.snapshot.queryParamMap.get.mockImplementation((key) =>
+          key === "autoClosePopout" ? value : null,
+        );
+
+        await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["/tabs/current"]);
+        expect(mockMessagingService.send).not.toHaveBeenCalledWith("openPopup");
+        expect(closeWindow).not.toHaveBeenCalled();
+      });
+
+      it.each([ClientType.Desktop, ClientType.Web])(
+        "ignores the browser popout flag on the %s client",
+        async (clientType) => {
+          component.clientType = clientType;
+          mockPlatformUtilsService.getClientType.mockReturnValue(clientType);
+          mockActivatedRoute.snapshot.queryParamMap.get.mockImplementation((key) =>
+            key === "autoClosePopout" ? "true" : null,
+          );
+
+          await component.successfulMasterPasswordUnlock({ userKey: mockUserKey, masterPassword });
+
+          expect(mockRouter.navigate).toHaveBeenCalledWith(["vault"]);
+          expect(mockMessagingService.send).not.toHaveBeenCalledWith("openPopup");
+          expect(closeWindow).not.toHaveBeenCalled();
+        },
+      );
     });
 
     it.each([

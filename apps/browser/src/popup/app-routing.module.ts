@@ -56,6 +56,7 @@ import { vaultScopeGuard } from "@bitwarden/vault";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
+import { lockPopoutGuard } from "../auth/popup/guards/lock-popout.guard";
 import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ChangePasswordPageComponent } from "../auth/popup/settings/change-password-page.component";
@@ -680,6 +681,8 @@ const routes: Routes = [
         children: [
           {
             path: "",
+            // Parent guards finish before child guards; only open a popout after lock access is allowed.
+            canActivate: [lockPopoutGuard],
             component: LockComponent,
           },
         ],
