@@ -4,9 +4,8 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -91,7 +90,6 @@ describe("MyRequestsTabComponent", () => {
   };
   let toastService: MockProxy<ToastService>;
   let dialogService: MockProxy<DialogService>;
-  let configService: MockProxy<ConfigService>;
 
   function create(): void {
     fixture = TestBed.createComponent(MyRequestsTabComponent);
@@ -101,24 +99,6 @@ describe("MyRequestsTabComponent", () => {
 
   function query(selector: string): HTMLElement | null {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
-  }
-
-  function activeAccessRowIds(): (string | null)[] {
-    const rows = fixture.nativeElement.querySelectorAll(
-      'tr[data-testid^="my-access-lease-"], tr[data-testid^="my-access-approved-"]',
-    ) as NodeListOf<HTMLElement>;
-    return [...rows].map((row) => row.getAttribute("data-testid"));
-  }
-
-  function sortActiveAccessByItem(): void {
-    const anyRow = fixture.nativeElement.querySelector(
-      'tr[data-testid^="my-access-lease-"], tr[data-testid^="my-access-approved-"]',
-    ) as HTMLElement;
-    const header = anyRow
-      .closest("table")!
-      .querySelector("th[bitSortable] button") as HTMLButtonElement;
-    header.click();
-    fixture.detectChanges();
   }
 
   beforeEach(async () => {
@@ -137,8 +117,6 @@ describe("MyRequestsTabComponent", () => {
     };
     toastService = mock<ToastService>();
     dialogService = mock<DialogService>();
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [MyRequestsTabComponent, NoopAnimationsModule],
@@ -147,7 +125,6 @@ describe("MyRequestsTabComponent", () => {
         { provide: MyAccessService, useValue: myAccess },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
-        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -413,26 +390,8 @@ describe("MyRequestsTabComponent", () => {
 
       create();
 
-      const row = query('[data-testid="my-access-approved-req-1"]')!;
+      const row = query('[data-testid="my-access-approved-req-1"]')!.closest("bit-row")!;
       expect(row.textContent).not.toContain("pamWindowUntil");
-    });
-
-    it("orders held access soonest-ending first, ahead of grants awaiting activation", () => {
-      pendingRows$.next([
-        requestRow({ id: "req-lapsed", leaseNotAfter: "2026-08-19T11:30:00.000Z" }),
-      ]);
-      leases$.next([
-        leaseRow({ id: "lease-late", notAfter: "2026-08-20T18:00:00.000Z" }),
-        leaseRow({ id: "lease-soon" }),
-      ]);
-
-      create();
-
-      expect(activeAccessRowIds()).toEqual([
-        "my-access-lease-lease-soon",
-        "my-access-lease-lease-late",
-        "my-access-approved-req-lapsed",
-      ]);
     });
 
     it("shows the Pending empty state when the only request is approved", () => {
@@ -442,42 +401,6 @@ describe("MyRequestsTabComponent", () => {
 
       expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
       expect(query('[data-testid="my-access-approved-req-1"]')).not.toBeNull();
-    });
-  });
-
-  describe("sorting the active access by item", () => {
-    beforeEach(() => {
-      jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
-      pendingRows$.next([
-        requestRow({ id: "req-alpha", cipherName: "Alpha DB" }),
-        requestRow({ id: "req-zebra", cipherName: "Zebra DB" }),
-      ]);
-      leases$.next([leaseRow({ id: "lease-1", cipherName: "Prod database" })]);
-    });
-
-    it("keeps held access ahead of grants when sorted A to Z", () => {
-      create();
-
-      sortActiveAccessByItem();
-
-      expect(activeAccessRowIds()).toEqual([
-        "my-access-lease-lease-1",
-        "my-access-approved-req-alpha",
-        "my-access-approved-req-zebra",
-      ]);
-    });
-
-    it("keeps held access ahead of grants when the sort is reversed", () => {
-      create();
-
-      sortActiveAccessByItem();
-      sortActiveAccessByItem();
-
-      expect(activeAccessRowIds()).toEqual([
-        "my-access-lease-lease-1",
-        "my-access-approved-req-zebra",
-        "my-access-approved-req-alpha",
-      ]);
     });
   });
 
@@ -517,13 +440,7 @@ describe("MyRequestsTabComponent", () => {
     });
   });
 
-  describe("with the VFO1 flag on", () => {
-    function createWithFlag(enabled: boolean): void {
-      fixture?.destroy();
-      configService.getFeatureFlag$.mockReturnValue(of(enabled));
-      create();
-    }
-
+  describe("the tables", () => {
     function queryAll(root: ParentNode, selector: string): HTMLElement[] {
       return Array.from(root.querySelectorAll<HTMLElement>(selector));
     }
@@ -536,7 +453,7 @@ describe("MyRequestsTabComponent", () => {
       const section = queryAll(fixture.nativeElement, "bit-accordion").find((accordion) =>
         text(accordion).includes(titleKey),
       );
-      return section?.querySelector<HTMLElement>("bit-table, bit-table-v2") ?? null;
+      return section?.querySelector<HTMLElement>("bit-table-v2") ?? null;
     }
 
     const pendingTable = () => sectionTable("pamMyRequestsPendingSection")!;
@@ -544,19 +461,17 @@ describe("MyRequestsTabComponent", () => {
     const activeTable = () => sectionTable("pamMyRequestsActiveAccessSection")!;
 
     function headings(table: HTMLElement): string[] {
-      return queryAll(table, 'th, [role="columnheader"]').map(text);
+      return queryAll(table, '[role="columnheader"]').map(text);
     }
 
     function rowCount(table: HTMLElement): number {
-      return queryAll(table, "tr[bitRow], bit-row").length;
+      return queryAll(table, "bit-row").length;
     }
 
-    /** Each row's leading test id, read off the v1 `tr` or the v2 Item cell. */
+    /** Each row's leading test id, read off its Item cell. */
     function rowIds(table: HTMLElement): (string | null)[] {
-      return queryAll(table, "tr[bitRow], bit-row").map((row) =>
-        (row.matches("[data-testid]") ? row : row.querySelector("[data-testid]"))!.getAttribute(
-          "data-testid",
-        ),
+      return queryAll(table, "bit-row").map((row) =>
+        row.querySelector("[data-testid]")!.getAttribute("data-testid"),
       );
     }
 
@@ -605,51 +520,36 @@ describe("MyRequestsTabComponent", () => {
       jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
     });
 
-    it("renders bit-table-v2 for every section instead of bit-table", () => {
+    it("renders bit-table-v2 for every section", () => {
       populate();
 
-      createWithFlag(true);
+      create();
 
       expect(pendingTable().tagName).toBe("BIT-TABLE-V2");
       expect(extensionTable().tagName).toBe("BIT-TABLE-V2");
       expect(activeTable().tagName).toBe("BIT-TABLE-V2");
-      expect(query("bit-table")).toBeNull();
     });
 
-    it("renders only the v1 tables with the flag off", () => {
+    it("renders each section's column headings in order", () => {
       populate();
 
-      createWithFlag(false);
+      create();
 
-      expect(pendingTable().tagName).toBe("BIT-TABLE");
-      expect(extensionTable().tagName).toBe("BIT-TABLE");
-      expect(activeTable().tagName).toBe("BIT-TABLE");
-      expect(query("bit-table-v2")).toBeNull();
-    });
-
-    it("renders the same column headings, in the same order, as the v1 tables", () => {
-      populate();
-      createWithFlag(false);
-      const v1 = [headings(pendingTable()), headings(extensionTable()), headings(activeTable())];
-
-      createWithFlag(true);
-
-      expect(v1).toEqual([
-        ["pamColumnItem", "pamColumnRequestedWindow", "pamColumnSubmitted", "pamColumnActions"],
-        ["pamColumnItem", "pamColumnRequestedWindow", "pamColumnSubmitted", "pamColumnActions"],
-        ["pamColumnItem", "pamColumnWindow", "pamColumnStatus", "pamColumnActions"],
-      ]);
       expect([
         headings(pendingTable()),
         headings(extensionTable()),
         headings(activeTable()),
-      ]).toEqual(v1);
+      ]).toEqual([
+        ["pamColumnItem", "pamColumnRequestedWindow", "pamColumnSubmitted", "pamColumnActions"],
+        ["pamColumnItem", "pamColumnRequestedWindow", "pamColumnSubmitted", "pamColumnActions"],
+        ["pamColumnItem", "pamColumnWindow", "pamColumnStatus", "pamColumnActions"],
+      ]);
     });
 
-    it("keeps the Actions heading visually hidden but named, as v1 does", () => {
+    it("keeps the Actions heading visually hidden but named", () => {
       populate();
 
-      createWithFlag(true);
+      create();
 
       for (const table of [pendingTable(), extensionTable(), activeTable()]) {
         const actionsHeading = queryAll(table, '[role="columnheader"]').at(-1)!;
@@ -659,57 +559,42 @@ describe("MyRequestsTabComponent", () => {
       }
     });
 
-    it("renders one row per request and per held or granted access, as v1 does", () => {
+    it("renders one row per request and per held or granted access", () => {
       populate();
-      createWithFlag(false);
-      const v1 = [rowCount(pendingTable()), rowCount(extensionTable()), rowCount(activeTable())];
 
-      createWithFlag(true);
+      create();
 
-      expect(v1).toEqual([2, 1, 4]);
       expect([
         rowCount(pendingTable()),
         rowCount(extensionTable()),
         rowCount(activeTable()),
-      ]).toEqual(v1);
+      ]).toEqual([2, 1, 4]);
     });
 
-    it("offers the same row actions, in the same order and with the same labels, as v1", () => {
+    it("offers each row's actions in order, with their labels", () => {
       populate();
-      createWithFlag(false);
-      const v1 = [actions(pendingTable()), actions(extensionTable()), actions(activeTable())];
 
-      createWithFlag(true);
+      create();
 
-      expect(v1[2]).toEqual([
+      expect(actions(pendingTable())).toEqual([
+        { testId: "my-access-pending-cancel-req-pending-new", label: "cancel" },
+        { testId: "my-access-pending-cancel-req-pending-old", label: "cancel" },
+      ]);
+      expect(actions(extensionTable())).toEqual([
+        { testId: "my-access-extension-cancel-req-ext", label: "cancel" },
+      ]);
+      expect(actions(activeTable())).toEqual([
         { testId: "my-access-end-lease-soon", label: "pamEndLeaseButton" },
         { testId: "my-access-end-lease-late", label: "pamEndLeaseButton" },
         { testId: "my-access-approved-start-req-alpha", label: "pamStartLeaseButton" },
         { testId: "my-access-approved-cancel-req-alpha", label: "cancel" },
       ]);
-      expect([actions(pendingTable()), actions(extensionTable()), actions(activeTable())]).toEqual(
-        v1,
-      );
     });
 
-    it("withholds Start and Cancel on a lapsed grant and badges it Expired", () => {
+    it("shows each held or granted access's item, collection, extension and status", () => {
       populate();
 
-      createWithFlag(true);
-
-      expect(query('[data-testid="my-access-approved-start-req-lapsed"]')).toBeNull();
-      expect(query('[data-testid="my-access-approved-cancel-req-lapsed"]')).toBeNull();
-      expect(query('[data-testid="my-access-approved-status-req-lapsed"]')!.textContent).toContain(
-        "pamStatusExpired",
-      );
-      const lapsedRow = query('[data-testid="my-access-approved-req-lapsed"]')!.closest("bit-row")!;
-      expect(lapsedRow.textContent).not.toContain("pamWindowUntil");
-    });
-
-    it("shows the same cell content as v1", () => {
-      populate();
-
-      createWithFlag(true);
+      create();
 
       const active = text(activeTable());
       expect(active).toContain("Prod database");
@@ -723,7 +608,7 @@ describe("MyRequestsTabComponent", () => {
     it("links each item to its request with a real anchor", () => {
       populate();
 
-      createWithFlag(true);
+      create();
 
       expect(
         query('[data-testid="my-access-pending-req-pending-new"] a')?.getAttribute("href"),
@@ -739,7 +624,7 @@ describe("MyRequestsTabComponent", () => {
     it("describes Start by the activation deadline it renders", () => {
       populate();
 
-      createWithFlag(true);
+      create();
 
       const start = query('[data-testid="my-access-approved-start-req-alpha"]')!;
       const describedBy = start.getAttribute("aria-describedby")!;
@@ -747,34 +632,28 @@ describe("MyRequestsTabComponent", () => {
       expect(fixture.nativeElement.querySelector(`#${describedBy}`)).not.toBeNull();
     });
 
-    it("sorts Pending newest submitted first by default, as v1 does", () => {
+    it("sorts Pending newest submitted first by default", () => {
       populate();
-      createWithFlag(false);
-      const v1 = rowIds(pendingTable());
 
-      createWithFlag(true);
+      create();
 
-      expect(v1).toEqual([
+      expect(rowIds(pendingTable())).toEqual([
         "my-access-pending-req-pending-new",
         "my-access-pending-req-pending-old",
       ]);
-      expect(rowIds(pendingTable())).toEqual(v1);
     });
 
-    it("keeps held access soonest-ending first, ahead of grants, when unsorted, as v1 does", () => {
+    it("keeps held access soonest-ending first, ahead of grants, when unsorted", () => {
       populate();
-      createWithFlag(false);
-      const v1 = rowIds(activeTable());
 
-      createWithFlag(true);
+      create();
 
-      expect(v1).toEqual([
+      expect(rowIds(activeTable())).toEqual([
         "my-access-lease-lease-soon",
         "my-access-lease-lease-late",
         "my-access-approved-req-lapsed",
         "my-access-approved-req-alpha",
       ]);
-      expect(rowIds(activeTable())).toEqual(v1);
     });
 
     it("keeps held access ahead of grants in both directions of the Item sort", () => {
@@ -783,7 +662,7 @@ describe("MyRequestsTabComponent", () => {
         requestRow({ id: "req-zebra", cipherName: "Zebra DB" }),
       ]);
       leases$.next([leaseRow({ id: "lease-1", cipherName: "Prod database" })]);
-      createWithFlag(true);
+      create();
 
       clickSortHeader(activeTable(), "pamColumnItem");
       expect(rowIds(activeTable())).toEqual([
@@ -800,10 +679,10 @@ describe("MyRequestsTabComponent", () => {
       ]);
     });
 
-    it("leaves Window and Status unsortable, as v1 does", () => {
+    it("leaves Window and Status unsortable", () => {
       populate();
 
-      createWithFlag(true);
+      create();
 
       const sortable = queryAll(activeTable(), '[role="columnheader"]')
         .filter((header) => header.querySelector("button") != null)
@@ -816,9 +695,9 @@ describe("MyRequestsTabComponent", () => {
       ).toEqual(["pamColumnItem", "pamColumnSubmitted"]);
     });
 
-    it("applies the toolbar search to every v2 table", () => {
+    it("applies the toolbar search to every table", () => {
       populate();
-      createWithFlag(true);
+      create();
 
       component["searchControl"].setValue("alpha");
       fixture.detectChanges();
@@ -829,7 +708,7 @@ describe("MyRequestsTabComponent", () => {
     });
 
     it("keeps the Pending empty state inside its table, and the Active one outside", () => {
-      createWithFlag(true);
+      create();
 
       expect(query('[data-testid="my-access-pending-empty"]')?.closest("bit-table-v2")).toBe(
         pendingTable(),
@@ -838,10 +717,10 @@ describe("MyRequestsTabComponent", () => {
       expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(1);
     });
 
-    it("routes Start, Cancel and End through the same component actions as v1", async () => {
+    it("routes Start, Cancel and End through the component's actions", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
       populate();
-      createWithFlag(true);
+      create();
 
       query('[data-testid="my-access-approved-start-req-alpha"]')!.click();
       query('[data-testid="my-access-pending-cancel-req-pending-new"]')!.click();
@@ -923,7 +802,7 @@ describe("MyRequestsTabComponent", () => {
       it("projects the search and the collection chip into the Pending table's toolbar", () => {
         twoCollections();
 
-        createWithFlag(true);
+        create();
 
         const toolbar = query("bit-table-toolbar");
         expect(toolbar).not.toBeNull();
@@ -934,77 +813,53 @@ describe("MyRequestsTabComponent", () => {
         expect(chips(fixture.nativeElement)).toHaveLength(1);
       });
 
-      it("leaves the controls above the accordion group with the flag off", () => {
+      it("renders the search placeholder", () => {
         twoCollections();
 
-        createWithFlag(false);
+        create();
 
-        expect(query("bit-table-toolbar")).toBeNull();
-        const search = query("bit-search");
-        expect(search?.closest("bit-accordion-group")).toBeNull();
-        expect(chips(fixture.nativeElement)).toHaveLength(1);
+        expect(searchPlaceholder()?.trim()).toBe("pamAccessRequestsSearchPlaceholder");
       });
 
-      it("keeps the search placeholder the v1 toolbar rendered", () => {
+      it("renders the chip's key, label and options", () => {
         twoCollections();
 
-        createWithFlag(false);
-        const v1Placeholder = searchPlaceholder();
-
-        createWithFlag(true);
-
-        expect(v1Placeholder?.trim()).toBe("pamAccessRequestsSearchPlaceholder");
-        expect(searchPlaceholder()).toBe(v1Placeholder);
-      });
-
-      it("keeps the chip's key, label and options", () => {
-        twoCollections();
-
-        createWithFlag(false);
-        const v1Options = optionLabels(chips(fixture.nativeElement)[0]);
-        const v1Label = text(chips(fixture.nativeElement)[0]);
-
-        createWithFlag(true);
+        create();
 
         expect(component["collectionOptions"]()).toEqual([
           { value: "col-1", label: "Production" },
           { value: "col-2", label: "Staging" },
         ]);
-        expect(optionLabels(chips(fixture.nativeElement)[0])).toEqual(v1Options);
-        expect(text(chips(fixture.nativeElement)[0])).toBe(v1Label);
+        expect(optionLabels(chips(fixture.nativeElement)[0])).toEqual(["Production", "Staging"]);
+        expect(text(chips(fixture.nativeElement)[0])).toContain("pamCollectionFilter");
         expect(component["collectionFilter"]()?.key()).toBe("collection");
       });
 
-      it("starts with the chip unset, listing every section in full, as v1 does", () => {
+      it("starts with the chip unset, listing every section in full", () => {
         twoCollections();
 
-        createWithFlag(true);
+        create();
 
         expect(component["collectionFilter"]()?.active()).toBe(false);
         expect(allSectionRowIds().map((ids) => ids?.length)).toEqual([2, 2, 2]);
       });
 
-      it("narrows every section from the chip, exactly as v1 does", () => {
+      it("narrows every section from the chip", () => {
         twoCollections();
 
-        createWithFlag(false);
-        selectCollection("col-2");
-        const v1 = allSectionRowIds();
-
-        createWithFlag(true);
+        create();
         selectCollection("col-2");
 
-        expect(v1).toEqual([
+        expect(allSectionRowIds()).toEqual([
           ["my-access-pending-req-staging"],
           ["my-access-extension-req-ext-staging"],
           ["my-access-lease-lease-staging"],
         ]);
-        expect(allSectionRowIds()).toEqual(v1);
       });
 
-      it("intersects the chip with the search term, as v1 does", () => {
+      it("intersects the chip with the search term", () => {
         twoCollections();
-        createWithFlag(true);
+        create();
 
         // Either control alone leaves rows; together they must leave none.
         selectCollection("col-1");
@@ -1019,7 +874,7 @@ describe("MyRequestsTabComponent", () => {
 
       it("counts each chip option against the other active controls", () => {
         twoCollections();
-        createWithFlag(true);
+        create();
 
         const table = fixture.debugElement.query(By.directive(BitTableV2Component))
           .componentInstance as { optionCount(key: string, value: unknown): number | undefined };
@@ -1045,7 +900,7 @@ describe("MyRequestsTabComponent", () => {
           }),
         ]);
 
-        createWithFlag(true);
+        create();
 
         const options = fixture.debugElement
           .queryAll(By.directive(FilterOptionComponent))
@@ -1063,7 +918,7 @@ describe("MyRequestsTabComponent", () => {
       it("holds the toolbar in place while Pending has nothing to show", () => {
         leases$.next([leaseRow()]);
 
-        createWithFlag(true);
+        create();
 
         expect(rowIds(pendingTable())).toEqual([]);
         expect(query("bit-table-toolbar")?.closest("bit-table-v2")).toBe(pendingTable());

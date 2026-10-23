@@ -22,8 +22,6 @@ import { NoResults } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -48,7 +46,6 @@ import {
   LinkModule,
   StatusLockupComponent,
   SvgComponent,
-  TableModule,
   TooltipDirective,
   defineTable,
 } from "@bitwarden/components";
@@ -155,7 +152,6 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
     LinkModule,
     StatusLockupComponent,
     SvgComponent,
-    TableModule,
     BitTableToolbarComponent,
     BitTableV2Component,
     BitColumnComponent,
@@ -183,14 +179,7 @@ export class AccessAuditComponent implements OnInit {
   private readonly userNamePipe = inject(UserNamePipe);
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly configService = inject(ConfigService);
   private readonly locale = inject(LOCALE_ID);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
 
   /** `requireSync` holds, since `params` emits its current value on subscribe. */
   private readonly organizationId = toSignal(
@@ -236,7 +225,7 @@ export class AccessAuditComponent implements OnInit {
   protected readonly table = defineTable<AuditRow, "item">(this.rows);
 
   /**
-   * The v2 cell templates get no index, so per-row ids key on this. It matches the rendered order,
+   * The cell templates get no index, so per-row ids key on this. It matches the rendered order,
    * since the table neither sorts nor filters here.
    */
   protected readonly rowIndex = computed(
@@ -431,8 +420,6 @@ export class AccessAuditComponent implements OnInit {
   private readonly loadedFilterKey = signal<string | null>(null);
 
   private readonly filterKey = computed(() => JSON.stringify(this.filter()));
-
-  protected readonly filtersActive = computed(() => this.chips().some((chip) => chip.active()));
 
   constructor() {
     // The chip has no value output, so its own selection signal drives the range; guarded

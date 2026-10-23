@@ -13,9 +13,7 @@ import {
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -86,7 +84,6 @@ describe("AccessAuditComponent", () => {
   let fileDownloadService: MockProxy<FileDownloadService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let dialogService: MockProxy<DialogService>;
-  let configService: MockProxy<ConfigService>;
 
   const configureTestBed = async (canManageAccessRules = true, canViewAllCollections = true) => {
     await TestBed.configureTestingModule({
@@ -98,7 +95,6 @@ describe("AccessAuditComponent", () => {
         { provide: FileDownloadService, useValue: fileDownloadService },
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
         { provide: DialogService, useValue: dialogService },
-        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: ActivatedRoute,
@@ -145,7 +141,7 @@ describe("AccessAuditComponent", () => {
             custom: "Custom",
             edit: "Edit",
             clearAll: "Clear all",
-            // Rendered by `bit-table-toolbar` itself on the flag-on path, not by this template.
+            // Rendered by `bit-table-toolbar` itself, not by this template.
             filters: "Filters",
             itemCount: (count?: string) => `${count} items`,
             pamAuditNoMatchesTitle: "No matching events",
@@ -235,14 +231,39 @@ describe("AccessAuditComponent", () => {
     fixture = TestBed.createComponent(AccessAuditComponent);
   };
 
+  const realMatchMedia = window.matchMedia;
+  let toolbarWidth: ReturnType<typeof stubToolbarWidth>;
+
+  /**
+   * Sets the viewport, and the toolbar's own width with it, which `bit-table-toolbar` collapses by.
+   * Collapsed, the chip row is laid out but invisible, so presence assertions pass either way.
+   */
+  const viewportAtLeastMd = (matches: boolean) => {
+    toolbarWidth.setWidth(matches ? 1440 : 500);
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string): Partial<MediaQueryList> => ({
+        matches: matches && query === "(min-width: 768px)",
+        media: query,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      }),
+    });
+  };
+
   beforeEach(async () => {
+    toolbarWidth = stubToolbarWidth(1440);
+    viewportAtLeastMd(true);
     auditApiService = mock<AuditApiService>();
     nameResolver = mock<AccessNameResolverService>();
     fileDownloadService = mock<FileDownloadService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     dialogService = mock<DialogService>();
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
     auditApiService.listAccessAuditItems.mockResolvedValue([]);
     organizationUserApiService.getAllMiniUserDetails.mockResolvedValue(
@@ -253,6 +274,15 @@ describe("AccessAuditComponent", () => {
     );
 
     await configureTestBed();
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: realMatchMedia,
+    });
+    toolbarWidth.restore();
   });
 
   const component = () => fixture.componentInstance as unknown as Record<string, any>;
@@ -328,6 +358,55 @@ describe("AccessAuditComponent", () => {
       .click();
     fixture.detectChanges();
     return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='treeitem']"));
+  };
+
+  const ALL_COLUMNS = ["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"];
+  const WITH_DRAWER = ["Timestamp", "Event", "Item"];
+  const ACTOR = 2;
+  const REQUESTER = 3;
+  const ITEM = 4;
+  const DURATION = 5;
+
+  const render = async (events: AccessAuditEventResponse[]) => {
+    returnsTrail(events);
+    await renderReady();
+  };
+
+  const headers = (): string[] =>
+    Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll("bit-table-v2 [role='columnheader']"),
+    ).map((header) => header.textContent!.trim());
+
+  const bodyRows = (): HTMLElement[] =>
+    Array.from(fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"));
+
+  const toolbar = (): HTMLElement =>
+    fixture.debugElement.query(By.directive(BitTableToolbarComponent)).nativeElement;
+
+  const cellsOf = (row: HTMLElement): HTMLElement[] =>
+    Array.from(row.querySelectorAll("[role='cell']"));
+
+  const cell = (column: number, row = 0) => cellsOf(bodyRows()[row])[column];
+
+  const text = (column: number, row = 0) => cell(column, row).textContent!.trim();
+
+  const activator = (index = 0): HTMLElement =>
+    fixture.nativeElement.querySelector(`#access-audit_button_details-${index}`);
+
+  const link = (name: string): HTMLAnchorElement | null =>
+    fixture.nativeElement.querySelector(`#access-audit_link_${name}-0`);
+
+  const drawerData = () =>
+    (dialogService.openDrawer.mock.calls[0][1] as { data: Record<string, any> }).data;
+
+  const dialogData = () =>
+    (dialogService.open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+
+  const press = (element: HTMLElement, key: string): KeyboardEvent => {
+    const keydown = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    element.dispatchEvent(keydown);
+    fixture.detectChanges();
+    return keydown;
   };
 
   it("reads the trail for the organization in the route", async () => {
@@ -841,13 +920,13 @@ describe("AccessAuditComponent", () => {
   });
 
   describe("clear all", () => {
-    const clearAllButton = () =>
-      fixture.nativeElement.querySelector("#access-audit_button_clear-all");
+    const clearAllButton = (): HTMLButtonElement =>
+      toolbar().querySelector("#bit-table-toolbar_button_clear-all")!;
 
     const anHourAgo = () => new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     const renderReady = async () => {
-      returnsTrail([
+      await render([
         event({ OccurredAt: anHourAgo(), ActorId: "user-1", ActorName: "Ada" }),
         event({
           OccurredAt: anHourAgo(),
@@ -856,36 +935,21 @@ describe("AccessAuditComponent", () => {
           ActorName: "Linus",
         }),
       ]);
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
     };
 
-    it("stays out of the chip row while nothing is filtering the table", async () => {
-      await renderReady();
-
-      expect(clearAllButton()).toBeNull();
-    });
-
-    it("appears as soon as one chip has a selection", async () => {
-      await renderReady();
-
-      selectFilter("actor", "user-3");
-
-      expect(clearAllButton()).not.toBeNull();
-    });
-
-    it("resets every chip at once", async () => {
+    it("resets every chip at once from the toolbar", async () => {
       await renderReady();
       selectFilter("kind", ["requestApproved"]);
       selectFilter("actor", ["user-1"]);
       selectFilter("requester", ["user-2"]);
       selectFilter("timePeriod", "past7Days");
       await fixture.whenStable();
+      expect(clearAllButton().classList).not.toContain("tw-hidden");
 
       clearAllButton().click();
       fixture.detectChanges();
       await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(
         component()
@@ -893,7 +957,7 @@ describe("AccessAuditComponent", () => {
           .some((chip: any) => chip.active()),
       ).toBe(false);
       expect(component().selectedPeriod()).toBeNull();
-      expect(clearAllButton()).toBeNull();
+      expect(clearAllButton().classList).toContain("tw-hidden");
       expect(lastFilter()).toEqual({
         start: undefined,
         end: undefined,
@@ -1020,7 +1084,7 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
 
       expect(component().status()).toBe("ready");
-      expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
+      expect(bodyRows()).toHaveLength(1);
 
       release({ data: [event(), event()], continuationToken: null });
       await refreshed;
@@ -1068,78 +1132,90 @@ describe("AccessAuditComponent", () => {
   });
 
   describe("toolbar", () => {
-    const renderToolbar = async () => {
-      returnsTrail([event()]);
+    const filterRow = (): HTMLElement => toolbar().querySelector("[bitOverflowList]")!;
 
+    it("lays the five chips out in the visible filter row at md and up", async () => {
+      await render([event()]);
+
+      expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+      expect(filterRow().classList).not.toContain("tw-invisible");
+      expect(toolbar().querySelector(".bwi-sliders")).toBeNull();
+    });
+
+    it("collapses the same chips into the filter dialog trigger below md", async () => {
+      viewportAtLeastMd(false);
+      await render([event()]);
+      // The toolbar starts observing its width in an after-render hook.
+      TestBed.tick();
       fixture.detectChanges();
+
+      expect(toolbar().querySelector(".bwi-sliders")).not.toBeNull();
+      expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+      expect(filterRow().classList).toContain("tw-invisible");
+    });
+
+    it("holds the chips and the page actions", async () => {
+      await render([event()]);
+
+      expect(toolbar().querySelectorAll("bit-filter-menu")).toHaveLength(5);
+      expect(toolbar().querySelector("#access-audit_container_actions")).not.toBeNull();
+    });
+
+    it("labels the five chips, and makes every one but the time period multi-select", async () => {
+      await render([event()]);
+
+      const chips = [...toolbar().querySelectorAll("bit-filter-menu")];
+      expect(chips.map((chip) => chip.querySelector("button")!.textContent!.trim())).toEqual([
+        "Event",
+        "Actor",
+        "Requester",
+        "Item",
+        "Time period: All time",
+      ]);
+      expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
+    });
+
+    it("groups Update and Export, with their ids and their handlers", async () => {
+      await render([event()]);
+      const actions = toolbar().querySelector("#access-audit_container_actions")!;
+
+      expect(actions.querySelector("#access-audit_button_refresh")).not.toBeNull();
+      const exportButton = actions.querySelector("#access-audit_button_export")!;
+      expect(exportButton.getAttribute("aria-disabled")).toBeNull();
+      expect(exportButton.querySelector("i")!.classList).toContain("bwi-import");
+
+      const before = readCount();
+      (actions.querySelector("#access-audit_button_refresh") as HTMLButtonElement).click();
+      await fixture.whenStable();
+      expect(readCount()).toBe(before + 1);
+    });
+
+    // The returned row doesn't match the chosen kind, so a client-side `[filter]` would drop it.
+    it("narrows through the server and renders every row the narrowed read returns", async () => {
+      await render([event(), event()]);
+      const before = readCount();
+
+      returnsTrail([event()]);
+      selectFilter("kind", ["ruleCreated"]);
       await fixture.whenStable();
       fixture.detectChanges();
 
-      return fixture.nativeElement.querySelector("#access-audit_container_toolbar") as HTMLElement;
-    };
-
-    it("filters from five chips of the same family", async () => {
-      const toolbar = await renderToolbar();
-
-      expect(toolbar).not.toBeNull();
-      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(5);
-      expect(toolbar.querySelector("bit-form-field")).toBeNull();
-      expect(toolbar.querySelector("input[type=datetime-local]")).toBeNull();
+      expect(readCount()).toBe(before + 1);
+      expect(lastFilter().kinds).toEqual(["ruleCreated"]);
+      expect(bodyRows()).toHaveLength(1);
     });
 
-    it("lines the actions up with the chips, at the end of the same row", async () => {
-      const toolbar = await renderToolbar();
+    it("offers the custom range's Edit from the toolbar once a range is in force", async () => {
+      await render([event()]);
+      dialogService.open.mockReturnValue({
+        closed: of({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" }),
+      } as any);
 
-      const actions = toolbar.querySelector("#access-audit_container_actions")!;
-      const filters = toolbar.querySelector("#access-audit_container_filters")!;
-      expect(toolbar.classList).toContain("tw-justify-between");
-      expect(toolbar.classList).toContain("tw-items-center");
-      // The chips read first, so the visual order and the tab order agree.
-      expect(filters.compareDocumentPosition(actions)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-      for (const button of ["#access-audit_button_refresh", "#access-audit_button_export"]) {
-        expect(actions.querySelector(button)).not.toBeNull();
-        expect(filters.querySelector(button)).toBeNull();
-      }
-    });
+      selectFilter("timePeriod", "custom");
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-    it("keeps the actions out of the wrap", async () => {
-      const toolbar = await renderToolbar();
-
-      expect(toolbar.classList).not.toContain("tw-flex-wrap");
-      expect(toolbar.querySelector("#access-audit_container_actions")!.classList).toContain(
-        "tw-shrink-0",
-      );
-    });
-
-    // The chips are all one height, so nothing in the row needs an offset to line up.
-    it("carries no height nudges", async () => {
-      const toolbar = await renderToolbar();
-
-      expect(toolbar.querySelectorAll(".tw-mt-7")).toHaveLength(0);
-      expect(toolbar.querySelectorAll(".tw-ms-auto")).toHaveLength(0);
-    });
-
-    it("makes every chip but the time period multi-select", async () => {
-      const toolbar = await renderToolbar();
-
-      const chips = [...toolbar.querySelectorAll("bit-filter-menu")];
-      expect(chips).toHaveLength(5);
-      expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
-
-      // The trigger's label is its rendered text; the chip carries no title attribute to match on.
-      const timePeriod = chips.find((chip) =>
-        chip.querySelector("button")?.textContent?.trim().startsWith("Time period"),
-      )!;
-      expect(timePeriod).not.toBeUndefined();
-      expect(timePeriod.hasAttribute("multiple")).toBe(false);
-    });
-
-    it("wraps the chip row rather than overflowing it", async () => {
-      const toolbar = await renderToolbar();
-
-      expect(toolbar.querySelector("#access-audit_container_filters")!.classList).toContain(
-        "tw-flex-wrap",
-      );
+      expect(toolbar().querySelector("#access-audit_button_edit-range")).not.toBeNull();
     });
   });
 
@@ -1449,6 +1525,24 @@ describe("AccessAuditComponent", () => {
       expect(component().rows()).toHaveLength(1);
     });
 
+    it("appends the next page to the same table", async () => {
+      returnsTrailOnce([event()], "page-2");
+      returnsTrailOnce([event(), event()]);
+      await renderReady();
+
+      await clickLoadMore();
+
+      expect(bodyRows()).toHaveLength(3);
+    });
+
+    it("places Load more below the table, outside the toolbar", async () => {
+      returnsTrail([event()], "page-2");
+      await renderReady();
+
+      expect(loadMoreButton()).not.toBeNull();
+      expect(toolbar().contains(loadMoreButton())).toBe(false);
+    });
+
     // Raised so the Load more button's `bitAction` reports it.
     it("keeps the rows already read when the next page fails", async () => {
       returnsTrail([event()], "page-2");
@@ -1464,23 +1558,6 @@ describe("AccessAuditComponent", () => {
   });
 
   describe("entity event history links", () => {
-    const render = async (events: AccessAuditEventResponse[]) => {
-      returnsTrail(events);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    };
-
-    const link = (name: string): HTMLAnchorElement | null =>
-      fixture.nativeElement.querySelector(`#access-audit_link_${name}-0`);
-
-    const cells = (): HTMLElement[] =>
-      Array.from(fixture.nativeElement.querySelectorAll("bit-table tbody tr td"));
-
-    const dialogData = () =>
-      (dialogService.open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
-
     const resolveCipherName = (cipherId: string, name: string) => {
       nameResolver.resolveNames.mockResolvedValue({
         ...emptyResolvedNames(),
@@ -1552,7 +1629,7 @@ describe("AccessAuditComponent", () => {
       await render([event({ ActorId: "user-1", ActorName: "Ada", Automated: true })]);
 
       expect(link("actor")).toBeNull();
-      expect(cells()[2].textContent).toContain("System");
+      expect(text(ACTOR)).toBe("System");
     });
 
     it("leaves an identity the member lookup did not resolve as plain text", async () => {
@@ -1567,8 +1644,8 @@ describe("AccessAuditComponent", () => {
 
       expect(link("actor")).toBeNull();
       expect(link("requester")).toBeNull();
-      expect(cells()[2].textContent).toContain("Linus");
-      expect(cells()[3].textContent).toContain("Linus");
+      expect(text(ACTOR)).toBe("Linus");
+      expect(text(REQUESTER)).toBe("Linus");
     });
 
     // No entity-events dialog exists for a rule.
@@ -1576,7 +1653,7 @@ describe("AccessAuditComponent", () => {
       await render([event({ Kind: "ruleCreated", RuleName: "Production access" })]);
 
       expect(link("item")).toBeNull();
-      expect(cells()[4].textContent).toContain("Production access");
+      expect(text(ITEM)).toBe("Production access");
     });
 
     it("names the access connector a fleet event acted on, with its target as the tooltip", async () => {
@@ -1591,20 +1668,20 @@ describe("AccessAuditComponent", () => {
       ]);
 
       expect(link("item")).toBeNull();
-      expect(cells()[4].textContent).toContain("eu-west-rotator");
+      expect(text(ITEM)).toBe("eu-west-rotator");
     });
 
     it("names the target system when the fleet event has no access connector", async () => {
       await render([event({ Kind: "targetSystemRenamed", TargetSystemName: "prod-postgres-01" })]);
 
-      expect(cells()[4].textContent).toContain("prod-postgres-01");
+      expect(text(ITEM)).toBe("prod-postgres-01");
     });
 
     it("leaves an item that did not decrypt unlinked", async () => {
       await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
 
       expect(link("item")).toBeNull();
-      expect(cells()[4].textContent).toContain("—");
+      expect(text(ITEM)).toBe("—");
     });
 
     it("does not navigate away when a dialog is opened", async () => {
@@ -1632,29 +1709,7 @@ describe("AccessAuditComponent", () => {
   });
 
   describe("details drawer", () => {
-    const render = async (events: AccessAuditEventResponse[]) => {
-      returnsTrail(events);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    };
-
-    const rows = (): HTMLElement[] =>
-      Array.from(fixture.nativeElement.querySelectorAll("bit-table tbody tr"));
-
-    const activator = (index = 0): HTMLElement =>
-      fixture.nativeElement.querySelector(`#access-audit_button_details-${index}`);
-
-    const drawerData = () =>
-      (dialogService.openDrawer.mock.calls[0][1] as { data: Record<string, any> }).data;
-
-    const press = (element: HTMLElement, key: string): KeyboardEvent => {
-      const keydown = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
-      element.dispatchEvent(keydown);
-      fixture.detectChanges();
-      return keydown;
-    };
+    const clickRow = (index = 0) => cell(ITEM, index).click();
 
     it("opens the drawer over the row that was activated", async () => {
       await render([
@@ -1662,18 +1717,28 @@ describe("AccessAuditComponent", () => {
         event({ OccurredAt: "2026-08-18T08:00:00.000Z", Detail: "second" }),
       ]);
 
-      rows()[1].click();
+      clickRow(1);
 
       expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
       expect(drawerData().row.detail).toBe("second");
       expect(drawerData().organizationId).toBe(ORGANIZATION_ID);
     });
 
+    it("opens the drawer from every cell of the row", async () => {
+      await render([event()]);
+
+      for (const rowCell of cellsOf(bodyRows()[0])) {
+        rowCell.click();
+      }
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(ALL_COLUMNS.length);
+    });
+
     // `openDrawer` defaults `closeOnNavigation` to false, so the page must pass it.
     it("closes the drawer when the auditor navigates away", async () => {
       await render([event()]);
 
-      rows()[0].click();
+      clickRow();
 
       expect(dialogService.openDrawer).toHaveBeenCalledWith(
         expect.anything(),
@@ -1684,7 +1749,7 @@ describe("AccessAuditComponent", () => {
     it("hands the drawer the identities the row resolved", async () => {
       await render([event({ ActorId: "user-1", RequesterId: "user-2" })]);
 
-      rows()[0].click();
+      clickRow();
 
       expect(drawerData().actor).toEqual({
         name: "Ada",
@@ -1697,7 +1762,7 @@ describe("AccessAuditComponent", () => {
     it("hands the drawer no actor for an automated row", async () => {
       await render([event({ Automated: true })]);
 
-      rows()[0].click();
+      clickRow();
 
       expect(drawerData().actor).toBeNull();
     });
@@ -1705,7 +1770,7 @@ describe("AccessAuditComponent", () => {
     it("leaves an identity the member lookup did not resolve unlinked in the drawer", async () => {
       await render([event({ ActorId: "user-9", ActorName: "Linus", RequesterId: "user-9" })]);
 
-      rows()[0].click();
+      clickRow();
 
       expect(drawerData().actor).toBeNull();
       expect(drawerData().requester).toBeNull();
@@ -1714,7 +1779,7 @@ describe("AccessAuditComponent", () => {
     it("hands the drawer the permissions its links are gated on", async () => {
       await render([event()]);
 
-      rows()[0].click();
+      clickRow();
 
       expect(drawerData().canManageAccessRules).toBe(true);
       expect(drawerData().canViewCollections).toBe(true);
@@ -1725,7 +1790,7 @@ describe("AccessAuditComponent", () => {
       await configureTestBed(false, false);
       await render([event()]);
 
-      rows()[0].click();
+      clickRow();
 
       expect(drawerData().canManageAccessRules).toBe(false);
       expect(drawerData().canViewCollections).toBe(false);
@@ -1759,18 +1824,15 @@ describe("AccessAuditComponent", () => {
     it("gives the row one keyboard activator, with a role and a name", async () => {
       await render([event()]);
 
-      const cell = activator();
-      expect(cell.getAttribute("role")).toBe("button");
-      expect(cell.getAttribute("tabindex")).toBe("0");
-      expect(cell.getAttribute("aria-label")).toContain("Request approved");
-      expect(cell.className).toContain("focus-visible:tw-ring-2");
-      expect(
-        fixture.nativeElement.querySelectorAll('bit-table tbody [role="button"]'),
-      ).toHaveLength(1);
+      const button = activator();
+      expect(button.getAttribute("role")).toBe("button");
+      expect(button.getAttribute("tabindex")).toBe("0");
+      expect(button.getAttribute("aria-label")).toContain("Request approved");
+      expect(bodyRows()[0].querySelectorAll('[role="button"]')).toHaveLength(1);
     });
 
     // `button` marks its children presentational, so the badge isn't announced as its own node.
-    it("names the in-doubt badge on the cell that carries the role", async () => {
+    it("names the in-doubt badge on the element that carries the role", async () => {
       await render([event({ Incomplete: true }), event({ Incomplete: false })]);
 
       expect(activator(0).getAttribute("aria-label")).toContain("Incomplete");
@@ -1795,7 +1857,7 @@ describe("AccessAuditComponent", () => {
       expect(keydown.defaultPrevented).toBe(true);
     });
 
-    // Pointer activation sits on the row, so the activator cell must not repeat it.
+    // Pointer activation sits on the cells, so the activator must not repeat it.
     it("opens the drawer once when the activator itself is clicked", async () => {
       await render([event()]);
 
@@ -1804,19 +1866,16 @@ describe("AccessAuditComponent", () => {
       expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
     });
 
-    it("no longer gives the table a Detail column", async () => {
+    it("gives the table no Detail column", async () => {
       await render([event({ Detail: "Incident closed early." })]);
 
-      const headers = Array.from<HTMLElement>(
-        fixture.nativeElement.querySelectorAll("bit-table thead th"),
-      ).map((header) => header.textContent!.trim());
-      expect(headers).toEqual(["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"]);
-      expect(fixture.nativeElement.querySelector("bit-table tbody").textContent).not.toContain(
+      expect(headers()).toEqual(ALL_COLUMNS);
+      expect(fixture.nativeElement.querySelector("bit-table-v2").textContent).not.toContain(
         "Incident closed early.",
       );
     });
 
-    it("still exports the detail the column gave up", async () => {
+    it("exports the detail the table leaves out", async () => {
       await render([event({ Detail: "Incident closed early." })]);
 
       fixture.nativeElement.querySelector("#access-audit_button_export").click();
@@ -1859,7 +1918,14 @@ describe("AccessAuditComponent", () => {
       expect(component().status()).toBe("ready");
       expect(fixture.nativeElement.querySelector("bit-status-lockup")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
-      expect(fixture.nativeElement.querySelector("bit-table")).toBeNull();
+      expect(bodyRows()).toHaveLength(0);
+    });
+
+    it("keeps the toolbar on screen as a way out", async () => {
+      await renderReady();
+      await overFilter();
+
+      expect(toolbar().querySelectorAll("bit-filter-menu")).toHaveLength(5);
     });
 
     it("carries the no-matches title and message into the empty state", async () => {
@@ -1918,32 +1984,12 @@ describe("AccessAuditComponent", () => {
       ).toBe(false);
       expect(component().selectedPeriod()).toBeNull();
       expect(component().rows()).toHaveLength(2);
-      expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
+      expect(bodyRows()).toHaveLength(2);
       expect(emptyStateClearAll()).toBeNull();
     });
   });
 
   describe("empty cells", () => {
-    const ACTOR = 2;
-    const REQUESTER = 3;
-    const ITEM = 4;
-    const DURATION = 5;
-
-    const render = async (events: AccessAuditEventResponse[]) => {
-      returnsTrail(events);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    };
-
-    const cell = (column: number): HTMLElement =>
-      Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll("bit-table tbody tr td"))[
-        column
-      ];
-
-    const text = (column: number) => cell(column).textContent!.trim();
-
     it("renders the actor's name when the row names one", async () => {
       await render([event({ ActorId: "user-9", ActorName: "Linus" })]);
 
@@ -2006,119 +2052,28 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
     };
 
-    const header = (): HTMLElement =>
-      fixture.nativeElement.querySelectorAll("bit-table thead th")[0];
-
-    const cell = (): HTMLElement =>
-      fixture.nativeElement.querySelectorAll("bit-table tbody tr td")[0];
-
     it("heads the column the way the organization event log heads it", async () => {
       await renderRow();
 
-      expect(header().textContent!.trim()).toBe("Timestamp");
+      expect(headers()[0]).toBe("Timestamp");
     });
 
     it("renders the whole timestamp rather than an abbreviated one", async () => {
       await renderRow();
 
       const medium = new DatePipe("en-US").transform(new Date(OCCURRED_AT), "medium")!;
-      expect(cell().textContent!.trim()).toBe(medium);
+      expect(text(0)).toBe(medium);
     });
 
     // The cell renders the whole timestamp, so a hover has nothing left to reveal.
     it("carries nothing to hover over", async () => {
       await renderRow();
 
-      expect(cell().querySelector("span")).toBeNull();
-    });
-  });
-
-  describe("column widths", () => {
-    const TIME = 0;
-    const EVENT = 1;
-    const ACTOR = 2;
-    const REQUESTER = 3;
-    const ITEM = 4;
-
-    const renderTable = async () => {
-      returnsTrail([event()]);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      return {
-        headers: Array.from<HTMLElement>(
-          fixture.nativeElement.querySelectorAll("bit-table thead th"),
-        ),
-        cells: Array.from<HTMLElement>(
-          fixture.nativeElement.querySelectorAll("bit-table tbody tr td"),
-        ),
-      };
-    };
-
-    it("holds Time and Event on one line, header and body cell alike", async () => {
-      const { headers, cells } = await renderTable();
-
-      for (const column of [TIME, EVENT]) {
-        expect(headers[column].classList).toContain("tw-whitespace-nowrap");
-        expect(cells[column].classList).toContain("tw-whitespace-nowrap");
-      }
-    });
-
-    it("keeps the bitCell padding alongside the width classes", async () => {
-      const { headers, cells } = await renderTable();
-
-      // bitCell's HostBinding class must merge with the static class attribute, not replace it.
-      expect(headers[TIME].classList).toContain("tw-p-3");
-      expect(cells[ITEM].classList).toContain("tw-p-3");
-    });
-
-    it("caps Item and lets its text break inside the cap", async () => {
-      const { headers, cells } = await renderTable();
-
-      expect(headers[ITEM].classList).toContain("tw-max-w-64");
-      expect(headers[ITEM].classList).toContain("tw-break-words");
-      expect(cells[ITEM].classList).toContain("tw-max-w-64");
-      expect(cells[ITEM].classList).toContain("tw-break-words");
-    });
-
-    it("floors Item so the auto table overflows instead of collapsing the column", async () => {
-      const { headers, cells } = await renderTable();
-
-      expect(headers[ITEM].classList).toContain("tw-min-w-48");
-      expect(cells[ITEM].classList).toContain("tw-min-w-48");
-    });
-
-    it("keeps the Item floor beneath the cap and beside the bitCell padding", async () => {
-      const { cells } = await renderTable();
-
-      expect(cells[ITEM].classList).toContain("tw-p-3");
-      expect(cells[ITEM].classList).toContain("tw-min-w-48");
-      expect(cells[ITEM].classList).toContain("tw-max-w-64");
-    });
-
-    it("leaves the unbounded name columns free to wrap", async () => {
-      const { cells } = await renderTable();
-
-      for (const column of [ACTOR, REQUESTER]) {
-        expect(cells[column].classList).not.toContain("tw-whitespace-nowrap");
-      }
-    });
-
-    it("gives the table its own horizontal scroll container", async () => {
-      await renderTable();
-
-      const table = fixture.nativeElement.querySelector("bit-table");
-      expect(table.parentElement.classList).toContain("tw-overflow-x-auto");
+      expect(cell(0).querySelector("span")).toBeNull();
     });
   });
 
   describe("columns while the details drawer is open", () => {
-    const ALL_COLUMNS = ["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"];
-    const WITH_DRAWER = ["Timestamp", "Event", "Item"];
-    const STOOD_DOWN = [2, 3, 5];
-
     /** Like the real ref, close and force-close each emit once on `closed`, then complete. */
     type FakeDrawer = { close: () => void; forceClose: () => void };
 
@@ -2139,22 +2094,14 @@ describe("AccessAuditComponent", () => {
       });
     });
 
-    const render = async () => {
-      returnsTrail([
+    const renderTwoRows = () =>
+      render([
         event({ OccurredAt: "2026-08-18T09:00:00.000Z" }),
         event({ OccurredAt: "2026-08-18T08:00:00.000Z" }),
       ]);
 
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    };
-
     const openRow = async (index = 0) => {
-      const rows: HTMLElement[] = Array.from(
-        fixture.nativeElement.querySelectorAll("bit-table tbody tr"),
-      );
-      rows[index].click();
+      activator(index).click();
       await fixture.whenStable();
       fixture.detectChanges();
     };
@@ -2164,73 +2111,21 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
     };
 
-    const headers = (): HTMLElement[] =>
-      Array.from(fixture.nativeElement.querySelectorAll("bit-table thead th"));
-
-    const bodyRows = (): HTMLElement[] =>
-      Array.from(fixture.nativeElement.querySelectorAll("bit-table tbody tr"));
-
-    const hidden = (element: HTMLElement) => element.classList.contains("tw-hidden");
-
-    const visibleColumns = () =>
-      headers()
-        .filter((header) => !hidden(header))
-        .map((header) => header.textContent!.trim());
-
     it("keeps all six columns while no drawer is open", async () => {
-      await render();
+      await renderTwoRows();
 
-      expect(visibleColumns()).toEqual(ALL_COLUMNS);
-      expect(headers().filter(hidden)).toHaveLength(0);
+      expect(headers()).toEqual(ALL_COLUMNS);
     });
 
-    it("stands Actor, Requester and Duration down once the drawer opens", async () => {
-      await render();
+    it("stands Actor, Requester and Duration down, header and cells together", async () => {
+      await renderTwoRows();
       await openRow();
 
       expect(component().detailsOpen()).toBe(true);
-      expect(visibleColumns()).toEqual(WITH_DRAWER);
-    });
-
-    it("leaves the stood-down columns in the DOM, header and cells together", async () => {
-      await render();
-      await openRow();
-
-      expect(headers()).toHaveLength(6);
-      const hiddenHeaders = headers().flatMap((header, index) => (hidden(header) ? [index] : []));
-      expect(hiddenHeaders).toEqual(STOOD_DOWN);
-
+      expect(headers()).toEqual(WITH_DRAWER);
       for (const row of bodyRows()) {
-        const cells: HTMLElement[] = Array.from(row.querySelectorAll("td"));
-        expect(cells).toHaveLength(6);
-        expect(cells.flatMap((cell, index) => (hidden(cell) ? [index] : []))).toEqual(STOOD_DOWN);
+        expect(cellsOf(row)).toHaveLength(WITH_DRAWER.length);
       }
-    });
-
-    // Only `tw-hidden` both frees the column's width and takes its links out of the tab order.
-    it("takes the stood-down cells out of the accessibility tree, not just out of view", async () => {
-      await render();
-      await openRow();
-
-      for (const index of STOOD_DOWN) {
-        const cell = bodyRows()[0].querySelectorAll("td")[index];
-        expect(cell.classList).toContain("tw-hidden");
-        for (const seen of ["tw-invisible", "tw-opacity-0", "tw-sr-only", "tw-w-0"]) {
-          expect(cell.classList).not.toContain(seen);
-        }
-      }
-    });
-
-    // The toggled class must merge with bitCell's HostBinding class, not replace it.
-    it("keeps the bitCell padding and the Item bounds under the toggle", async () => {
-      await render();
-      await openRow();
-
-      const item = bodyRows()[0].querySelectorAll("td")[4];
-      expect(item.classList).toContain("tw-p-3");
-      expect(item.classList).toContain("tw-min-w-48");
-      expect(item.classList).toContain("tw-max-w-64");
-      expect(bodyRows()[0].querySelectorAll("td")[2].classList).toContain("tw-p-3");
     });
 
     it.each([
@@ -2238,41 +2133,43 @@ describe("AccessAuditComponent", () => {
       ["Escape", (drawer: FakeDrawer) => drawer.close()],
       ["a route change", (drawer: FakeDrawer) => drawer.forceClose()],
     ])("restores all six columns when the drawer closes by %s", async (_route, close) => {
-      await render();
+      await renderTwoRows();
       await openRow();
-      expect(visibleColumns()).toEqual(WITH_DRAWER);
+      expect(headers()).toEqual(WITH_DRAWER);
 
       close(drawers.at(-1)!);
       await settle();
 
       expect(component().detailsOpen()).toBe(false);
-      expect(visibleColumns()).toEqual(ALL_COLUMNS);
+      expect(headers()).toEqual(ALL_COLUMNS);
+      expect(cellsOf(bodyRows()[0])).toHaveLength(ALL_COLUMNS.length);
     });
 
     it("stays at three columns when a different row replaces the open drawer", async () => {
-      await render();
+      await renderTwoRows();
       await openRow(0);
       await openRow(1);
 
       expect(dialogService.openDrawer).toHaveBeenCalledTimes(2);
       expect(drawers).toHaveLength(2);
       expect(component().detailsOpen()).toBe(true);
-      expect(visibleColumns()).toEqual(WITH_DRAWER);
+      expect(headers()).toEqual(WITH_DRAWER);
     });
 
     it("restores all six columns when the replacement drawer is closed", async () => {
-      await render();
+      await renderTwoRows();
       await openRow(0);
       await openRow(1);
 
       drawers.at(-1)!.close();
       await settle();
 
-      expect(visibleColumns()).toEqual(ALL_COLUMNS);
+      expect(headers()).toEqual(ALL_COLUMNS);
+      expect(cellsOf(bodyRows()[0])).toHaveLength(ALL_COLUMNS.length);
     });
 
     it("ignores a stale ref closing after it was replaced", async () => {
-      await render();
+      await renderTwoRows();
       await openRow(0);
       await openRow(1);
 
@@ -2280,486 +2177,32 @@ describe("AccessAuditComponent", () => {
       await settle();
 
       expect(component().detailsOpen()).toBe(true);
-      expect(visibleColumns()).toEqual(WITH_DRAWER);
-    });
-
-    it("keeps the horizontal scroll container while the drawer is open", async () => {
-      await render();
-      await openRow();
-
-      const table = fixture.nativeElement.querySelector("bit-table");
-      expect(table.parentElement.classList).toContain("tw-overflow-x-auto");
+      expect(headers()).toEqual(WITH_DRAWER);
     });
 
     // openDrawer resolves undefined when the open drawer's closePredicate keeps it open.
     it("keeps all six columns when the drawer never opened", async () => {
-      await render();
+      await renderTwoRows();
       dialogService.openDrawer.mockResolvedValue(undefined);
 
       await openRow();
 
       expect(component().detailsOpen()).toBe(false);
-      expect(visibleColumns()).toEqual(ALL_COLUMNS);
-    });
-  });
-
-  it("renders the v1 table while the VFO1 flag is off", async () => {
-    returnsTrail([event()]);
-    await renderReady();
-
-    expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
-    expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
-    expect(fixture.nativeElement.querySelector("bit-table-v2")).toBeNull();
-  });
-
-  describe("with the VFO1 flag on", () => {
-    const ALL_COLUMNS = ["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"];
-    const WITH_DRAWER = ["Timestamp", "Event", "Item"];
-    const ACTOR = 2;
-    const REQUESTER = 3;
-    const ITEM = 4;
-    const DURATION = 5;
-
-    const realMatchMedia = window.matchMedia;
-    let toolbarWidth: ReturnType<typeof stubToolbarWidth>;
-
-    /**
-     * Sets the viewport, and the toolbar's own width with it, which `bit-table-toolbar` collapses by.
-     * Collapsed, the chip row is laid out but invisible, so presence assertions pass either way.
-     */
-    const viewportAtLeastMd = (matches: boolean) => {
-      toolbarWidth.setWidth(matches ? 1440 : 500);
-      Object.defineProperty(window, "matchMedia", {
-        configurable: true,
-        writable: true,
-        value: (query: string) => ({
-          matches: matches && query === "(min-width: 768px)",
-          media: query,
-          onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
-        }),
-      });
-    };
-
-    beforeEach(() => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-      toolbarWidth = stubToolbarWidth(1440);
-      viewportAtLeastMd(true);
-      fixture = TestBed.createComponent(AccessAuditComponent);
-    });
-
-    afterEach(() => {
-      Object.defineProperty(window, "matchMedia", {
-        configurable: true,
-        writable: true,
-        value: realMatchMedia,
-      });
-      toolbarWidth.restore();
-    });
-
-    const render = async (events: AccessAuditEventResponse[]) => {
-      returnsTrail(events);
-      await renderReady();
-    };
-
-    const headers = (): string[] =>
-      Array.from<HTMLElement>(
-        fixture.nativeElement.querySelectorAll("bit-table-v2 [role='columnheader']"),
-      ).map((header) => header.textContent!.trim());
-
-    const bodyRows = (): HTMLElement[] =>
-      Array.from(fixture.nativeElement.querySelectorAll("bit-table-v2 bit-row"));
-
-    const toolbar = (): HTMLElement =>
-      fixture.debugElement.query(By.directive(BitTableToolbarComponent)).nativeElement;
-
-    const cellsOf = (row: HTMLElement): HTMLElement[] =>
-      Array.from(row.querySelectorAll("[role='cell']"));
-
-    const text = (column: number, row = 0) => cellsOf(bodyRows()[row])[column].textContent!.trim();
-
-    const activator = (index = 0): HTMLElement =>
-      fixture.nativeElement.querySelector(`#access-audit_button_details-${index}`);
-
-    const link = (name: string): HTMLAnchorElement | null =>
-      fixture.nativeElement.querySelector(`#access-audit_link_${name}-0`);
-
-    const drawerData = () =>
-      (dialogService.openDrawer.mock.calls[0][1] as { data: Record<string, any> }).data;
-
-    const dialogData = () =>
-      (dialogService.open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
-
-    const press = (element: HTMLElement, key: string): KeyboardEvent => {
-      const keydown = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
-      element.dispatchEvent(keydown);
-      fixture.detectChanges();
-      return keydown;
-    };
-
-    it("renders the v2 table in place of the v1 one", async () => {
-      await render([event()]);
-
-      expect(fixture.nativeElement.querySelector("bit-table-v2")).not.toBeNull();
-      expect(fixture.nativeElement.querySelector("bit-table")).toBeNull();
-    });
-
-    it("heads the same six columns, in the same order", async () => {
-      await render([event({ Detail: "Incident closed early." })]);
-
       expect(headers()).toEqual(ALL_COLUMNS);
-      expect(fixture.nativeElement.querySelector("bit-table-v2").textContent).not.toContain(
-        "Incident closed early.",
-      );
+      expect(cellsOf(bodyRows()[0])).toHaveLength(ALL_COLUMNS.length);
     });
-
-    it("renders one row per event, newest first as the trail returned them", async () => {
-      await render([
-        event({ OccurredAt: "2026-08-18T09:00:00.000Z" }),
-        event({ OccurredAt: "2026-08-18T08:00:00.000Z" }),
-        event({ OccurredAt: "2026-08-18T07:00:00.000Z" }),
-      ]);
-
-      expect(bodyRows()).toHaveLength(3);
-      const medium = (iso: string) => new DatePipe("en-US").transform(new Date(iso), "medium")!;
-      expect(text(0, 0)).toBe(medium("2026-08-18T09:00:00.000Z"));
-      expect(text(0, 2)).toBe(medium("2026-08-18T07:00:00.000Z"));
-    });
-
-    it("appends the next page to the same table", async () => {
-      returnsTrailOnce([event()], "page-2");
-      returnsTrailOnce([event(), event()]);
-      await renderReady();
-
-      fixture.nativeElement.querySelector("#access-audit_button_load-more").click();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(bodyRows()).toHaveLength(3);
-    });
-
-    it("keeps the toolbar on screen when nothing matches, with the same empty state", async () => {
-      await render([event()]);
-      returnsTrail([]);
-      selectFilter("kind", ["ruleCreated"]);
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(bodyRows()).toHaveLength(0);
-      expect(toolbar().querySelectorAll("bit-filter-menu")).toHaveLength(5);
-
-      const clearAll = fixture.nativeElement.querySelector(
-        "#access-audit_button_no-matches-clear-all",
-      );
-      expect(clearAll).not.toBeNull();
-      const emptyState = clearAll.closest("bit-status-lockup")!;
-      expect(emptyState.querySelector("[slot=title]")!.textContent!.trim()).toBe(
-        "No matching events",
-      );
-      expect(emptyState.querySelector("[slot=description]")!.textContent!.trim()).toBe(
-        "No events match the current filters.",
-      );
-    });
-
-    describe("toolbar", () => {
-      const filterRow = (): HTMLElement => toolbar().querySelector("[bitOverflowList]")!;
-
-      it("lays the five chips out in the visible filter row at md and up", async () => {
-        await render([event()]);
-
-        expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
-        expect(filterRow().classList).not.toContain("tw-invisible");
-        expect(toolbar().querySelector(".bwi-sliders")).toBeNull();
-      });
-
-      it("collapses the same chips into the filter dialog trigger below md", async () => {
-        viewportAtLeastMd(false);
-        await render([event()]);
-        // The toolbar starts observing its width in an after-render hook.
-        TestBed.tick();
-        fixture.detectChanges();
-
-        expect(toolbar().querySelector(".bwi-sliders")).not.toBeNull();
-        expect(filterRow().querySelectorAll("bit-filter-menu")).toHaveLength(5);
-        expect(filterRow().classList).toContain("tw-invisible");
-      });
-
-      it("moves the chips and the page actions into the table's toolbar", async () => {
-        await render([event()]);
-
-        expect(toolbar().querySelectorAll("bit-filter-menu")).toHaveLength(5);
-        expect(toolbar().querySelector("#access-audit_container_actions")).not.toBeNull();
-        expect(fixture.nativeElement.querySelector("#access-audit_container_toolbar")).toBeNull();
-        expect(fixture.nativeElement.querySelector("#access-audit_container_filters")).toBeNull();
-      });
-
-      it("keeps the same five chips, with the same labels and the same multi-select", async () => {
-        await render([event()]);
-
-        const chips = [...toolbar().querySelectorAll("bit-filter-menu")];
-        expect(chips.map((chip) => chip.querySelector("button")!.textContent!.trim())).toEqual([
-          "Event",
-          "Actor",
-          "Requester",
-          "Item",
-          "Time period: All time",
-        ]);
-        expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
-      });
-
-      it("keeps Update and Export together, with their ids and their handlers", async () => {
-        await render([event()]);
-        const actions = toolbar().querySelector("#access-audit_container_actions")!;
-
-        expect(actions.querySelector("#access-audit_button_refresh")).not.toBeNull();
-        const exportButton = actions.querySelector("#access-audit_button_export")!;
-        expect(exportButton.getAttribute("aria-disabled")).toBeNull();
-        expect(exportButton.querySelector("i")!.classList).toContain("bwi-import");
-
-        const before = readCount();
-        (actions.querySelector("#access-audit_button_refresh") as HTMLButtonElement).click();
-        await fixture.whenStable();
-        expect(readCount()).toBe(before + 1);
-      });
-
-      it("leaves nothing to export while nothing matches", async () => {
-        await render([event()]);
-        returnsTrail([]);
-        selectFilter("kind", ["ruleCreated"]);
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        const exportButton = toolbar().querySelector(
-          "#access-audit_button_export",
-        ) as HTMLButtonElement;
-        exportButton.click();
-        expect(fileDownloadService.download).not.toHaveBeenCalled();
-      });
-
-      // The returned row doesn't match the chosen kind, so a client-side `[filter]` would drop it.
-      it("narrows through the server and renders every row the narrowed read returns", async () => {
-        await render([event(), event()]);
-        const before = readCount();
-
-        returnsTrail([event()]);
-        selectFilter("kind", ["ruleCreated"]);
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        expect(readCount()).toBe(before + 1);
-        expect(lastFilter().kinds).toEqual(["ruleCreated"]);
-        expect(bodyRows()).toHaveLength(1);
-      });
-
-      it("carries a chosen time period to the server the same way", async () => {
-        await render([event()]);
-        const before = readCount();
-
-        selectFilter("timePeriod", "today");
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        expect(readCount()).toBe(before + 1);
-        expect(lastFilter().start).not.toBeUndefined();
-      });
-
-      it("offers the custom range's Edit from the toolbar once a range is in force", async () => {
-        await render([event()]);
-        dialogService.open.mockReturnValue({
-          closed: of({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" }),
-        } as any);
-
-        selectFilter("timePeriod", "custom");
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        expect(toolbar().querySelector("#access-audit_button_edit-range")).not.toBeNull();
-      });
-
-      it("keeps the load-more button below the table", async () => {
-        returnsTrailOnce([event()], "page-2");
-        returnsTrailOnce([event(), event()]);
-        await renderReady();
-
-        const loadMore = fixture.nativeElement.querySelector("#access-audit_button_load-more");
-        expect(loadMore).not.toBeNull();
-        expect(toolbar().contains(loadMore)).toBe(false);
-      });
-    });
-
-    it("opens the drawer over the row that was activated", async () => {
-      await render([
-        event({ OccurredAt: "2026-08-18T09:00:00.000Z", Detail: "first" }),
-        event({ OccurredAt: "2026-08-18T08:00:00.000Z", Detail: "second" }),
-      ]);
-
-      cellsOf(bodyRows()[1])[ITEM].click();
-
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
-      expect(drawerData().row.detail).toBe("second");
-      expect(drawerData().organizationId).toBe(ORGANIZATION_ID);
-      expect(drawerData().canManageAccessRules).toBe(true);
-      expect(drawerData().canViewCollections).toBe(true);
-    });
-
-    it("opens the drawer from every cell of the row", async () => {
-      await render([event()]);
-
-      for (const cell of cellsOf(bodyRows()[0])) {
-        cell.click();
-      }
-
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(ALL_COLUMNS.length);
-    });
-
-    it("gives the row one keyboard activator, with a role and a name", async () => {
-      await render([event({ Incomplete: true }), event()]);
-
-      const button = activator();
-      expect(button.getAttribute("role")).toBe("button");
-      expect(button.getAttribute("tabindex")).toBe("0");
-      expect(button.getAttribute("aria-label")).toContain("Request approved");
-      expect(button.getAttribute("aria-label")).toContain("Incomplete");
-      expect(activator(1).getAttribute("aria-label")).not.toContain("Incomplete");
-      expect(bodyRows()[0].querySelectorAll('[role="button"]')).toHaveLength(1);
-    });
-
-    it("opens the drawer on Enter", async () => {
-      await render([event()]);
-
-      press(activator(), "Enter");
-
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
-    });
-
-    it("opens the drawer on Space, and swallows the key", async () => {
-      await render([event()]);
-
-      const keydown = press(activator(), " ");
-
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
-      expect(keydown.defaultPrevented).toBe(true);
-    });
-
-    it("opens the drawer once when the activator itself is clicked", async () => {
-      await render([event()]);
-
-      activator().click();
-
-      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
-    });
-
-    it.each([
-      ["actor", { ActorId: "user-1", ActorName: "Ada" }, "org-user-1"],
-      ["requester", { RequesterId: "user-2", RequesterName: "Grace" }, "org-user-2"],
-    ])(
-      "opens only the entity dialog from the %s link",
-      async (name, overrides, organizationUserId) => {
-        await render([event(overrides)]);
-
-        link(name)!.click();
-
-        expect(dialogService.open).toHaveBeenCalledTimes(1);
-        expect(dialogService.openDrawer).not.toHaveBeenCalled();
-        expect(dialogData()).toEqual(
-          expect.objectContaining({ entity: "user", entityId: organizationUserId }),
-        );
-      },
-    );
-
-    it("opens only the entity dialog from the item link", async () => {
-      nameResolver.resolveNames.mockResolvedValue({
-        ...emptyResolvedNames(),
-        cipherNameById: new Map([["cipher-1", "Prod database"]]),
-      });
-      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
-
-      expect(link("item")!.textContent!.trim()).toBe("Prod database");
-      link("item")!.click();
-
-      expect(dialogService.openDrawer).not.toHaveBeenCalled();
-      expect(dialogData()).toEqual(
-        expect.objectContaining({ entity: "cipher", entityId: "cipher-1", name: "Prod database" }),
-      );
-    });
-
-    it("leaves the System actor and an unresolved identity as plain text", async () => {
-      await render([
-        event({ Automated: true }),
-        event({
-          ActorId: "user-9",
-          ActorName: "Linus",
-          RequesterId: "user-9",
-          RequesterName: "Linus",
-        }),
-      ]);
-
-      expect(link("actor")).toBeNull();
-      expect(text(ACTOR, 0)).toBe("System");
-      expect(text(ACTOR, 1)).toBe("Linus");
-      expect(text(REQUESTER, 1)).toBe("Linus");
-    });
-
-    it("leaves no cell of a bare row blank", async () => {
-      await render([
-        event({
-          ActorId: null,
-          ActorName: null,
-          ActorEmail: null,
-          RequesterId: null,
-          RequesterName: null,
-          RequesterEmail: null,
-        }),
-      ]);
-
-      for (const column of [ACTOR, REQUESTER, ITEM, DURATION]) {
-        expect(text(column)).toBe("—");
-        expect(cellsOf(bodyRows()[0])[column].querySelector(".tw-text-muted")).not.toBeNull();
-      }
-    });
-
-    describe("while the details drawer is open", () => {
-      let closed: Subject<unknown>;
-
-      beforeEach(() => {
-        closed = new Subject<unknown>();
-        dialogService.openDrawer.mockResolvedValue({
-          closed: closed.asObservable(),
-        } as unknown as DrawerRef);
-      });
-
-      const openRow = async () => {
-        activator().click();
-        await fixture.whenStable();
-        fixture.detectChanges();
-      };
-
-      it("stands Actor, Requester and Duration down, header and cells together", async () => {
-        await render([event(), event()]);
-        await openRow();
-
-        expect(headers()).toEqual(WITH_DRAWER);
-        for (const row of bodyRows()) {
-          expect(cellsOf(row)).toHaveLength(WITH_DRAWER.length);
-        }
-      });
-
-      it("restores all six columns when the drawer closes", async () => {
-        await render([event()]);
-        await openRow();
-
-        closed.next(undefined);
-        closed.complete();
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        expect(headers()).toEqual(ALL_COLUMNS);
-        expect(cellsOf(bodyRows()[0])).toHaveLength(ALL_COLUMNS.length);
-      });
-    });
+  });
+
+  it("renders one row per event, newest first as the trail returned them", async () => {
+    await render([
+      event({ OccurredAt: "2026-08-18T09:00:00.000Z" }),
+      event({ OccurredAt: "2026-08-18T08:00:00.000Z" }),
+      event({ OccurredAt: "2026-08-18T07:00:00.000Z" }),
+    ]);
+
+    expect(bodyRows()).toHaveLength(3);
+    const medium = (iso: string) => new DatePipe("en-US").transform(new Date(iso), "medium")!;
+    expect(text(0, 0)).toBe(medium("2026-08-18T09:00:00.000Z"));
+    expect(text(0, 2)).toBe(medium("2026-08-18T07:00:00.000Z"));
   });
 });

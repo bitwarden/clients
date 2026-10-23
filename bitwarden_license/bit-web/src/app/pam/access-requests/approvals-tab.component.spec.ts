@@ -6,7 +6,6 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -82,15 +81,6 @@ function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
     .map((result) => result.value);
 }
 
-/** Asserts a cell stays hidden below `visibleFrom` and shown from it up, nowhere else. */
-function expectVisibleFrom(element: HTMLElement | null, visibleFrom: string): void {
-  expect(element).not.toBeNull();
-  expect(element?.classList).toContain("tw-hidden");
-  expect([...(element?.classList ?? [])].filter((c) => c.endsWith(":tw-table-cell"))).toEqual([
-    `${visibleFrom}:tw-table-cell`,
-  ]);
-}
-
 describe("ApprovalsTabComponent", () => {
   let fixture: ComponentFixture<ApprovalsTabComponent>;
   let component: ApprovalsTabComponent;
@@ -105,7 +95,9 @@ describe("ApprovalsTabComponent", () => {
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
-  let configService: MockProxy<ConfigService>;
+  let viewportWidth: number;
+  let mediaListeners: Array<() => void>;
+  let toolbarWidth: ReturnType<typeof stubToolbarWidth>;
 
   function create(): void {
     fixture = TestBed.createComponent(ApprovalsTabComponent);
@@ -115,6 +107,39 @@ describe("ApprovalsTabComponent", () => {
 
   function query(selector: string): HTMLElement | null {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
+  }
+
+  function matchesWidth(query: string): boolean {
+    return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
+  }
+
+  /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
+  function stubMatchMedia(): void {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: matchesWidth(query),
+        media: query,
+        addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
+          mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
+        ),
+        removeEventListener: jest.fn(),
+        // The CDK's high-contrast detector still uses the deprecated listener API.
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+      }),
+    });
+  }
+
+  /** Resizes the viewport and the toolbar with it; the toolbar collapses by its own width. */
+  function resizeTo(width: number): void {
+    viewportWidth = width;
+    mediaListeners.forEach((notify) => notify());
+    // Runs the after-render hooks first, so the toolbar is observing its width.
+    TestBed.tick();
+    toolbarWidth.setWidth(width);
+    fixture.detectChanges();
   }
 
   beforeEach(async () => {
@@ -131,8 +156,10 @@ describe("ApprovalsTabComponent", () => {
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    viewportWidth = 1440;
+    mediaListeners = [];
+    stubMatchMedia();
+    toolbarWidth = stubToolbarWidth(viewportWidth);
 
     await TestBed.configureTestingModule({
       imports: [ApprovalsTabComponent, NoopAnimationsModule],
@@ -141,7 +168,6 @@ describe("ApprovalsTabComponent", () => {
         { provide: ApproverInboxService, useValue: inbox },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
-        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           // Echoes the key plus params, since I18nMockService throws on any key not given.
@@ -161,6 +187,8 @@ describe("ApprovalsTabComponent", () => {
 
   afterEach(() => {
     fixture?.destroy();
+    delete (window as { matchMedia?: unknown }).matchMedia;
+    toolbarWidth.restore();
     jest.useRealTimers();
     jest.restoreAllMocks();
   });
@@ -183,7 +211,7 @@ describe("ApprovalsTabComponent", () => {
 
       const skeleton = query('[data-testid="approvals-loading"]');
       expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
-      expect(skeleton?.querySelector("bit-table")?.getAttribute("aria-hidden")).toBe("true");
+      expect(skeleton?.querySelector("bit-table-v2")?.getAttribute("aria-hidden")).toBe("true");
       expect(query('[data-testid="approvals-loading-status"]')).toBe(status);
       expect(status?.textContent).toContain("loading");
       expect(query('p[bitTypography="body2"]')).toBeNull();
@@ -346,88 +374,6 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
-    it("renders a row per pending request", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" }), row({ id: "req-2" })]);
-
-      create();
-
-      expect(query('[data-testid="approvals-row-req-1"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-row-req-2"]')).not.toBeNull();
-    });
-
-    it("shows the item, requester, window and reason", () => {
-      inbox.inboxRows$.next([row()]);
-
-      create();
-
-      const text = fixture.nativeElement.textContent as string;
-      expect(text).toContain("Prod database");
-      expect(text).toContain("Grace");
-      expect(text).toContain("pamInboxDuration1Hour");
-      expect(text).toContain("prod incident");
-    });
-
-    // jsdom does no layout; these assert breakpoint classes only, not real 1024px/1280px behavior.
-    it.each([
-      ["window", "xl"],
-      ["reason", "xl"],
-      ["submitted", "lg"],
-    ] as const)("shows the %s column only from the %s breakpoint up", (column, visibleFrom) => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      for (const element of [
-        query(`[data-testid="approvals-col-${column}"]`),
-        query(`[data-testid="approvals-cell-${column}-req-1"]`),
-      ]) {
-        expectVisibleFrom(element, visibleFrom);
-      }
-
-      // The skeleton is the table's placeholder, so it hides the same columns at the same widths.
-      fixture.destroy();
-      inbox.inboxRows$.next([]);
-      inbox.loading$.next(true);
-      create();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-
-      expectVisibleFrom(query(`[data-testid="approvals-skeleton-col-${column}"]`), visibleFrom);
-    });
-
-    it("keeps the actions column visible at every width", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      expect(query('[data-testid="approvals-col-actions"]')?.classList).not.toContain("tw-hidden");
-      const actionsCell = query('[data-testid="approvals-approve-req-1"]')?.closest("td");
-      expect(actionsCell).not.toBeNull();
-      expect(actionsCell?.classList).not.toContain("tw-hidden");
-    });
-
-    it("links each row to the request detail, which is where a hidden column is read", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      expect(query('[data-testid="approvals-row-req-1"] a')?.getAttribute("href")).toBe(
-        "/pam/requests/req-1",
-      );
-    });
-
-    it("carries the exact window and the unclamped reason on title, where those columns show", () => {
-      const pending = row({ id: "req-1" });
-      inbox.inboxRows$.next([pending]);
-
-      create();
-
-      expect(query('[data-testid="approvals-cell-window-req-1"] span')?.title).toBe(
-        pending.exactWindow,
-      );
-      expect(query('[data-testid="approvals-cell-reason-req-1"] div')?.title).toBe(pending.reason);
-    });
-
     it("says so explicitly when a request carries no reason", () => {
       inbox.inboxRows$.next([row({ reason: undefined })]);
 
@@ -449,18 +395,6 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-deny-mine"]')?.getAttribute("aria-disabled")).toBe(
         "true",
       );
-    });
-
-    it("keeps the filter toolbar on screen when a filter matches nothing", () => {
-      // The only way to clear a filter that emptied the table.
-      inbox.inboxRows$.next([row()]);
-      create();
-
-      component["searchControl"].setValue("nothing matches this");
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approvals-no-results"]')).not.toBeNull();
-      expect(query("bit-search")).not.toBeNull();
     });
 
     it("filters by search term across item, collection and requester", () => {
@@ -563,8 +497,8 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-lease-lease-2"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-cell-item-lease-1"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-cell-item-lease-2"]')).not.toBeNull();
       expect(query('[data-testid="approvals-lease-extended-lease-2"]')).not.toBeNull();
       const text = fixture.nativeElement.textContent as string;
       expect(text).toContain("Prod database");
@@ -580,7 +514,7 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
       expect(query("bit-accordion-group")).not.toBeNull();
       expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
-      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-cell-item-lease-1"]')).not.toBeNull();
     });
 
     it("still renders the section, empty, when there is nothing live but something pending", () => {
@@ -601,7 +535,7 @@ describe("ApprovalsTabComponent", () => {
       component["collectionFilterMenu"]()?.setValue("Staging");
       fixture.detectChanges();
 
-      expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-lease-cell-item-lease-1"]')).toBeNull();
       expect(query('[data-testid="approvals-active-access-empty"]')?.textContent).toContain(
         "pamApprovalsNoResults",
       );
@@ -615,7 +549,7 @@ describe("ApprovalsTabComponent", () => {
       component["collectionFilterMenu"]()?.setValue("Staging");
       fixture.detectChanges();
 
-      expect(query('[data-testid="approvals-row-req-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-cell-item-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
         "pamApprovalsNoResults",
       );
@@ -632,12 +566,12 @@ describe("ApprovalsTabComponent", () => {
       inbox.inboxRows$.next([row()]);
       inbox.activeLeaseRows$.next([leaseRow({ leaseNotAfter: "2026-08-17T12:00:30.000Z" })]);
       create();
-      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-cell-item-lease-1"]')).not.toBeNull();
 
       jest.advanceTimersByTime(31_000);
       fixture.detectChanges();
 
-      expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-lease-cell-item-lease-1"]')).toBeNull();
       expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
     });
 
@@ -709,50 +643,7 @@ describe("ApprovalsTabComponent", () => {
     });
   });
 
-  describe("with the VFO1 flag on", () => {
-    let viewportWidth: number;
-    let mediaListeners: Array<() => void>;
-    let toolbarWidth: ReturnType<typeof stubToolbarWidth>;
-
-    function matchesWidth(query: string): boolean {
-      return viewportWidth >= Number(/min-width:\s*(\d+)px/.exec(query)?.[1] ?? 0);
-    }
-
-    /** jsdom has no `matchMedia`; this answers `min-width` queries against `viewportWidth`. */
-    function stubMatchMedia(): void {
-      Object.defineProperty(window, "matchMedia", {
-        configurable: true,
-        writable: true,
-        value: (query: string) => ({
-          matches: matchesWidth(query),
-          media: query,
-          addEventListener: jest.fn((_type: string, listener: (event: unknown) => void) =>
-            mediaListeners.push(() => listener({ matches: matchesWidth(query), media: query })),
-          ),
-          removeEventListener: jest.fn(),
-          // The CDK's high-contrast detector still uses the deprecated listener API.
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-        }),
-      });
-    }
-
-    /** Resizes the viewport and the toolbar with it; the toolbar collapses by its own width. */
-    function resizeTo(width: number): void {
-      viewportWidth = width;
-      mediaListeners.forEach((notify) => notify());
-      // Runs the after-render hooks first, so the toolbar is observing its width.
-      TestBed.tick();
-      toolbarWidth.setWidth(width);
-      fixture.detectChanges();
-    }
-
-    function createWithFlag(enabled: boolean): void {
-      fixture?.destroy();
-      configService.getFeatureFlag$.mockReturnValue(of(enabled));
-      create();
-    }
-
+  describe("tables", () => {
     function queryAll(root: ParentNode, selector: string): HTMLElement[] {
       return Array.from(root.querySelectorAll<HTMLElement>(selector));
     }
@@ -763,18 +654,18 @@ describe("ApprovalsTabComponent", () => {
 
     function pendingTable(): HTMLElement {
       return queryAll(fixture.nativeElement, "bit-accordion")[0].querySelector(
-        "bit-table, bit-table-v2",
+        "bit-table-v2",
       ) as HTMLElement;
     }
 
     function leaseTable(): HTMLElement {
       return queryAll(fixture.nativeElement, "bit-accordion")[1].querySelector(
-        "bit-table, bit-table-v2",
+        "bit-table-v2",
       ) as HTMLElement;
     }
 
     function headings(table: HTMLElement): string[] {
-      return queryAll(table, 'th, [role="columnheader"]').map(text);
+      return queryAll(table, '[role="columnheader"]').map(text);
     }
 
     function pendingOrder(): string[] {
@@ -783,51 +674,23 @@ describe("ApprovalsTabComponent", () => {
       );
     }
 
-    beforeEach(() => {
-      viewportWidth = 1440;
-      mediaListeners = [];
-      stubMatchMedia();
-      toolbarWidth = stubToolbarWidth(viewportWidth);
-    });
-
-    afterEach(() => {
-      delete (window as { matchMedia?: unknown }).matchMedia;
-      toolbarWidth.restore();
-    });
-
-    it("renders bit-table-v2 for both sections instead of bit-table", () => {
+    it("renders bit-table-v2 for both sections", () => {
       inbox.inboxRows$.next([row()]);
       inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(true);
+      create();
 
       expect(pendingTable().tagName).toBe("BIT-TABLE-V2");
       expect(leaseTable().tagName).toBe("BIT-TABLE-V2");
-      expect(query("bit-table")).toBeNull();
     });
 
-    it("renders the v1 table, and no v2 table, with the flag off", () => {
+    it("renders each section's column headings in order", () => {
       inbox.inboxRows$.next([row()]);
       inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(false);
+      create();
 
-      expect(pendingTable().tagName).toBe("BIT-TABLE");
-      expect(leaseTable().tagName).toBe("BIT-TABLE");
-      expect(query("bit-table-v2")).toBeNull();
-    });
-
-    it("renders the same column headings, in the same order, as the v1 tables", () => {
-      inbox.inboxRows$.next([row()]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
-
-      createWithFlag(false);
-      const v1Pending = headings(pendingTable());
-      const v1Leases = headings(leaseTable());
-
-      createWithFlag(true);
-
-      expect(v1Pending).toEqual([
+      expect(headings(pendingTable())).toEqual([
         "pamColumnItem",
         "pamInboxRequester",
         "pamInboxWindow",
@@ -835,58 +698,53 @@ describe("ApprovalsTabComponent", () => {
         "pamColumnSubmitted",
         "pamColumnActions",
       ]);
-      expect(headings(pendingTable())).toEqual(v1Pending);
-      expect(v1Leases).toEqual([
+      expect(headings(leaseTable())).toEqual([
         "pamColumnItem",
         "pamInboxRequester",
         "pamColumnWindow",
         "pamColumnRemaining",
         "pamColumnActions",
       ]);
-      expect(headings(leaseTable())).toEqual(v1Leases);
     });
 
     it.each([
       [1100, ["pamColumnItem", "pamInboxRequester", "pamColumnSubmitted", "pamColumnActions"]],
       [800, ["pamColumnItem", "pamInboxRequester", "pamColumnActions"]],
-    ])("drops the columns v1 hides below its breakpoints at %ipx", (width, expectedPending) => {
-      viewportWidth = width;
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-      inbox.activeLeaseRows$.next([leaseRow()]);
+    ])(
+      "drops the window, reason and submitted columns below their breakpoints at %ipx",
+      (width, expectedPending) => {
+        viewportWidth = width;
+        inbox.inboxRows$.next([row({ id: "req-1" })]);
+        inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(true);
+        create();
 
-      expect(headings(pendingTable())).toEqual(expectedPending);
-      expect(query('[data-testid="approvals-cell-window-req-1"]')).toBeNull();
-      expect(query('[data-testid="approvals-cell-reason-req-1"]')).toBeNull();
-      expect(headings(leaseTable())).toEqual([
-        "pamColumnItem",
-        "pamInboxRequester",
-        "pamColumnRemaining",
-        "pamColumnActions",
-      ]);
-    });
+        expect(headings(pendingTable())).toEqual(expectedPending);
+        expect(query('[data-testid="approvals-cell-window-req-1"]')).toBeNull();
+        expect(query('[data-testid="approvals-cell-reason-req-1"]')).toBeNull();
+        expect(headings(leaseTable())).toEqual([
+          "pamColumnItem",
+          "pamInboxRequester",
+          "pamColumnRemaining",
+          "pamColumnActions",
+        ]);
+      },
+    );
 
-    it("renders one row per pending request and per live lease, as v1 does", () => {
+    it("renders one row per pending request and per live lease", () => {
       inbox.inboxRows$.next([row({ id: "req-1" }), row({ id: "req-2" }), row({ id: "req-3" })]);
       inbox.activeLeaseRows$.next([
         leaseRow({ producedLeaseId: "lease-1" }),
         leaseRow({ id: "req-4", producedLeaseId: "lease-2" }),
       ]);
 
-      createWithFlag(false);
-      const v1PendingRows = queryAll(pendingTable(), "tr[bitRow]").length;
-      const v1LeaseRows = queryAll(leaseTable(), "tr[bitRow]").length;
+      create();
 
-      createWithFlag(true);
-
-      expect(v1PendingRows).toBe(3);
-      expect(queryAll(pendingTable(), "bit-row")).toHaveLength(v1PendingRows);
-      expect(v1LeaseRows).toBe(2);
-      expect(queryAll(leaseTable(), "bit-row")).toHaveLength(v1LeaseRows);
+      expect(queryAll(pendingTable(), "bit-row")).toHaveLength(3);
+      expect(queryAll(leaseTable(), "bit-row")).toHaveLength(2);
     });
 
-    it("shows the same cell content as v1", () => {
+    it("shows each row's item, requester, window, reason and lease state", () => {
       const pending = row({ id: "req-1" });
       inbox.inboxRows$.next([pending]);
       inbox.activeLeaseRows$.next([
@@ -896,7 +754,7 @@ describe("ApprovalsTabComponent", () => {
         ),
       ]);
 
-      createWithFlag(true);
+      create();
 
       const pendingText = text(pendingTable());
       expect(pendingText).toContain("Prod database");
@@ -918,42 +776,30 @@ describe("ApprovalsTabComponent", () => {
       expect(leaseTable().querySelector("app-pam-access-state-badge")).not.toBeNull();
     });
 
-    it("says so explicitly when a request carries no reason", () => {
-      inbox.inboxRows$.next([row({ reason: undefined })]);
-
-      createWithFlag(true);
-
-      expect(text(pendingTable())).toContain("pamInboxReasonMissing");
-    });
-
-    it("sorts by submitted time, oldest first, by default, as v1 does", () => {
+    it("sorts by submitted time, oldest first, by default", () => {
       inbox.inboxRows$.next([
         row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
         row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
         row({ id: "middle", submittedAt: "2026-08-17T11:00:00.000Z" }),
       ]);
 
-      createWithFlag(false);
-      const v1Order = pendingOrder();
+      create();
 
-      createWithFlag(true);
-
-      expect(v1Order).toEqual(["oldest", "middle", "newest"]);
-      expect(pendingOrder()).toEqual(v1Order);
+      expect(pendingOrder()).toEqual(["oldest", "middle", "newest"]);
       const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
         (header) => text(header) === "pamColumnSubmitted",
       );
       expect(submitted?.getAttribute("aria-sort")).toBe("ascending");
     });
 
-    it("keeps the default sort when opened below lg and widened, as v1 does", () => {
+    it("keeps the default sort when opened below lg and widened", () => {
       viewportWidth = 800;
       inbox.inboxRows$.next([
         row({ id: "newest", submittedAt: "2026-08-17T11:50:00.000Z" }),
         row({ id: "oldest", submittedAt: "2026-08-17T10:00:00.000Z" }),
       ]);
 
-      createWithFlag(true);
+      create();
       resizeTo(1440);
 
       const submitted = queryAll(pendingTable(), '[role="columnheader"]').find(
@@ -963,11 +809,11 @@ describe("ApprovalsTabComponent", () => {
       expect(pendingOrder()).toEqual(["oldest", "newest"]);
     });
 
-    it("sorts on the same three columns as v1 in each section", () => {
+    it("sorts on three columns in each section", () => {
       inbox.inboxRows$.next([row()]);
       inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(true);
+      create();
 
       const sortable = (table: HTMLElement) =>
         queryAll(table, '[role="columnheader"]')
@@ -991,7 +837,7 @@ describe("ApprovalsTabComponent", () => {
         row({ id: "a", cipherId: "cipher-a" }),
       ]);
 
-      createWithFlag(true);
+      create();
 
       const itemSort = queryAll(pendingTable(), '[role="columnheader"] button').find(
         (button) => text(button) === "pamColumnItem",
@@ -1006,7 +852,7 @@ describe("ApprovalsTabComponent", () => {
       inbox.inboxRows$.next([row({ id: "req-1" })]);
       inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(true);
+      create();
 
       expect(
         queryAll(
@@ -1019,24 +865,11 @@ describe("ApprovalsTabComponent", () => {
       );
     });
 
-    it("disables both decisions on the caller's own request", () => {
-      inbox.inboxRows$.next([row({ id: "mine" }, false)]);
-
-      createWithFlag(true);
-
-      expect(query('[data-testid="approvals-approve-mine"]')?.getAttribute("aria-disabled")).toBe(
-        "true",
-      );
-      expect(query('[data-testid="approvals-deny-mine"]')?.getAttribute("aria-disabled")).toBe(
-        "true",
-      );
-    });
-
     it("opens the decide dialog from the approve and deny buttons", () => {
       dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
       inbox.inboxRows$.next([row({ id: "req-1" })]);
 
-      createWithFlag(true);
+      create();
 
       query('[data-testid="approvals-approve-req-1"]')?.click();
       query('[data-testid="approvals-deny-req-1"]')?.click();
@@ -1048,19 +881,19 @@ describe("ApprovalsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
       inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(true);
+      create();
 
       query('[data-testid="approvals-revoke-lease-1"]')?.click();
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
-    it("applies the toolbar filters to the v2 rows", () => {
+    it("applies the toolbar search to the pending rows", () => {
       inbox.inboxRows$.next([
         row({ id: "keep" }),
         row({ id: "drop", requesterName: "Someone", requesterEmail: undefined }),
       ]);
-      createWithFlag(true);
+      create();
 
       component["searchControl"].setValue("grace");
       fixture.detectChanges();
@@ -1071,7 +904,7 @@ describe("ApprovalsTabComponent", () => {
     it("keeps the pending empty state inside its table, and the lease one outside", () => {
       inbox.activeLeaseRows$.next([leaseRow()]);
 
-      createWithFlag(true);
+      create();
 
       const pendingEmpty = query('[data-testid="approvals-pending-empty"]');
       expect(pendingEmpty?.closest("bit-table-v2")).toBe(pendingTable());
@@ -1079,17 +912,15 @@ describe("ApprovalsTabComponent", () => {
       expect(queryAll(fixture.nativeElement, "bit-table-v2")).toHaveLength(2);
     });
 
-    it("shows a v2 skeleton, hidden from assistive tech, once loading has run for a second", () => {
+    it("shows five skeleton rows under every column heading", () => {
       inbox.loading$.next(true);
 
-      createWithFlag(true);
+      create();
       jest.advanceTimersByTime(1000);
       fixture.detectChanges();
 
       const skeleton = query('[data-testid="approvals-loading"]');
       const table = skeleton?.querySelector("bit-table-v2");
-      expect(table?.getAttribute("aria-hidden")).toBe("true");
-      expect(skeleton?.querySelector("bit-table")).toBeNull();
       expect(queryAll(table as HTMLElement, "bit-row")).toHaveLength(5);
       expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
       expect(headings(table as HTMLElement)).toEqual([
@@ -1100,7 +931,6 @@ describe("ApprovalsTabComponent", () => {
         "pamColumnSubmitted",
         "pamColumnActions",
       ]);
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
     });
 
     describe("toolbar", () => {
@@ -1153,7 +983,7 @@ describe("ApprovalsTabComponent", () => {
       it("projects the search and both filter chips into bit-table-toolbar", () => {
         inbox.inboxRows$.next([row()]);
 
-        createWithFlag(true);
+        create();
 
         const toolbar = query("bit-table-toolbar");
         expect(toolbar).not.toBeNull();
@@ -1163,55 +993,37 @@ describe("ApprovalsTabComponent", () => {
         expect(chips(fixture.nativeElement)).toHaveLength(2);
       });
 
-      it("leaves the controls outside any toolbar with the flag off", () => {
+      it("renders the search placeholder and id", () => {
         inbox.inboxRows$.next([row()]);
 
-        createWithFlag(false);
+        create();
 
-        expect(query("bit-table-toolbar")).toBeNull();
-        expect(query("bit-search")).not.toBeNull();
-        expect(chips(fixture.nativeElement)).toHaveLength(2);
+        expect(searchPlaceholder()).toBe("pamApprovalsSearchPlaceholder");
+        expect(query("bit-search")?.getAttribute("id")).toBe("pam-approvals_input_search");
       });
 
-      it("keeps the search placeholder and id the v1 toolbar rendered", () => {
-        inbox.inboxRows$.next([row()]);
-
-        createWithFlag(false);
-        const v1Placeholder = searchPlaceholder();
-        const v1Id = query("bit-search")?.getAttribute("id");
-
-        createWithFlag(true);
-
-        expect(v1Placeholder).toBe("pamApprovalsSearchPlaceholder");
-        expect(searchPlaceholder()).toBe(v1Placeholder);
-        expect(query("bit-search")?.getAttribute("id")).toBe(v1Id);
-      });
-
-      it("keeps both chips' keys, labels and options", () => {
+      it("renders both chips' keys, labels and options", () => {
         twoOfEach();
 
-        createWithFlag(false);
-        const v1Options = chips(fixture.nativeElement).map(optionLabels);
-        const v1Labels = chips(fixture.nativeElement).map(text);
+        create();
 
-        createWithFlag(true);
-
-        expect(v1Options).toEqual([
+        const [collectionChip, requesterChip] = chips(fixture.nativeElement);
+        expect([optionLabels(collectionChip), optionLabels(requesterChip)]).toEqual([
           ["Production", "Staging"],
           ["Alan", "Grace"],
         ]);
-        expect(chips(fixture.nativeElement).map(optionLabels)).toEqual(v1Options);
-        expect(chips(fixture.nativeElement).map(text)).toEqual(v1Labels);
+        expect(text(collectionChip)).toContain("pamApprovalsCollectionFilter");
+        expect(text(requesterChip)).toContain("pamApprovalsRequesterFilter");
         expect([
           component["collectionFilterMenu"]()?.key(),
           component["requesterFilterMenu"]()?.key(),
         ]).toEqual(["collection", "requester"]);
       });
 
-      it("starts with both chips unset, as v1 does", () => {
+      it("starts with both chips unset", () => {
         twoOfEach();
 
-        createWithFlag(true);
+        create();
 
         expect(component["collectionFilterMenu"]()?.active()).toBe(false);
         expect(component["requesterFilterMenu"]()?.active()).toBe(false);
@@ -1219,9 +1031,9 @@ describe("ApprovalsTabComponent", () => {
         expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
       });
 
-      it("narrows both sections from the collection chip, as v1 does", () => {
+      it("narrows both sections from the collection chip", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         component["collectionFilterMenu"]()?.setValue("Staging");
         fixture.detectChanges();
@@ -1230,9 +1042,9 @@ describe("ApprovalsTabComponent", () => {
         expect(leaseIds()).toEqual(["lease-staging"]);
       });
 
-      it("narrows both sections from the requester chip, as v1 does", () => {
+      it("narrows both sections from the requester chip", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         component["requesterFilterMenu"]()?.setValue("Grace");
         fixture.detectChanges();
@@ -1241,9 +1053,9 @@ describe("ApprovalsTabComponent", () => {
         expect(leaseIds()).toEqual(["lease-prod"]);
       });
 
-      it("intersects the chips with the search term, as v1 does", () => {
+      it("intersects the chips with the search term", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         // Either control alone leaves rows; together they must leave none.
         component["collectionFilterMenu"]()?.setValue("Production");
@@ -1260,9 +1072,9 @@ describe("ApprovalsTabComponent", () => {
         );
       });
 
-      it("narrows both sections from the search box, matching the same fields as v1", () => {
+      it("narrows both sections from the search box", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         component["searchControl"].setValue("staging");
         fixture.detectChanges();
@@ -1274,7 +1086,7 @@ describe("ApprovalsTabComponent", () => {
       it("keeps the toolbar on screen when a filter matches nothing", () => {
         // The only way to clear a filter that emptied both sections.
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         component["searchControl"].setValue("nothing matches this");
         fixture.detectChanges();
@@ -1288,7 +1100,7 @@ describe("ApprovalsTabComponent", () => {
 
       it("projects the toolbar into the pending table, which holds its place when emptied", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         component["requesterFilterMenu"]()?.setValue("Alan");
         component["searchControl"].setValue("nothing matches this");
@@ -1303,7 +1115,7 @@ describe("ApprovalsTabComponent", () => {
 
       it("counts a chip's options against the pending rows the other chips leave", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         const table = fixture.debugElement.query(By.css("bit-table-v2")).componentInstance as {
           optionCount(key: string, value: unknown): number | undefined;
@@ -1320,7 +1132,7 @@ describe("ApprovalsTabComponent", () => {
       it("lays both chips out in the visible filter row at md and up", () => {
         twoOfEach();
 
-        createWithFlag(true);
+        create();
 
         expect(chips(filterRow())).toHaveLength(2);
         expect(filterRow().classList).not.toContain("tw-invisible");
@@ -1329,7 +1141,7 @@ describe("ApprovalsTabComponent", () => {
 
       it("collapses the same chips into the filter dialog trigger below md", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
 
         resizeTo(500);
 
@@ -1341,7 +1153,7 @@ describe("ApprovalsTabComponent", () => {
 
       it("clears a collapsed selection from its active-filter chip, re-listing both sections", () => {
         twoOfEach();
-        createWithFlag(true);
+        create();
         resizeTo(500);
 
         component["collectionFilterMenu"]()?.setValue("Staging");
@@ -1360,10 +1172,10 @@ describe("ApprovalsTabComponent", () => {
         expect(leaseIds()).toEqual(["lease-prod", "lease-staging"]);
       });
 
-      it("shows no toolbar while the skeleton is up, as v1 does", () => {
+      it("shows no toolbar while the skeleton is up", () => {
         inbox.loading$.next(true);
 
-        createWithFlag(true);
+        create();
         jest.advanceTimersByTime(1000);
         fixture.detectChanges();
 
@@ -1371,8 +1183,8 @@ describe("ApprovalsTabComponent", () => {
         expect(query("bit-table-toolbar")).toBeNull();
       });
 
-      it("shows no toolbar over the inbox-zero empty state, as v1 does", () => {
-        createWithFlag(true);
+      it("shows no toolbar over the inbox-zero empty state", () => {
+        create();
 
         expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
         expect(query("bit-table-toolbar")).toBeNull();

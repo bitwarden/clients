@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
-import { mock } from "jest-mock-extended";
 import { BehaviorSubject, combineLatest, map, of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -42,19 +40,14 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 function makeRow(
   configOverrides: Partial<RotationConfigView> = {},
   description = rotationConfigDescription(),
+  cipherName = "My Cipher",
 ): RotationConfigRow {
   return buildRotationConfigRow(
     rotationConfig(configOverrides),
     undefined,
-    "My Cipher",
+    cipherName,
     description,
   );
-}
-
-function vfo1ConfigService(enabled: boolean): ReturnType<typeof mock<ConfigService>> {
-  const configService = mock<ConfigService>();
-  configService.getFeatureFlag$.mockReturnValue(of(enabled));
-  return configService;
 }
 
 function makeCipher(cipherId: CipherId, collectionIds: string[] = []): CipherView {
@@ -127,6 +120,36 @@ function makeCipherCollectionProviders(
   ];
 }
 
+function text(el: Element): string {
+  return (el.textContent ?? "").replace(/\s+/g, " ").trim();
+}
+
+function headings(el: HTMLElement): string[] {
+  return Array.from(el.querySelectorAll('bit-table-v2 [role="columnheader"]')).map(text);
+}
+
+function bodyRows(el: HTMLElement): Element[] {
+  return Array.from(el.querySelectorAll("bit-table-v2 bit-row"));
+}
+
+function cellTexts(el: HTMLElement): string[][] {
+  return bodyRows(el).map((row) => Array.from(row.querySelectorAll('[role="cell"]')).map(text));
+}
+
+function rowNames(el: HTMLElement): string[] {
+  return bodyRows(el).map((row) => text(row.querySelector("button[bitLink]")!));
+}
+
+function sortButtonLabels(el: HTMLElement): string[] {
+  return Array.from(el.querySelectorAll('bit-table-v2 [role="columnheader"] button')).map(text);
+}
+
+function renderedStatuses(el: HTMLElement): string[] {
+  return Array.from(
+    el.querySelectorAll<HTMLElement>('[id^="managed-credentials-tab_status_"]'),
+  ).map((cell) => cell.querySelector("span[bitbadge]")!.textContent!.trim());
+}
+
 describe("ManagedCredentialsTabComponent", () => {
   let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
   let component: any;
@@ -134,6 +157,28 @@ describe("ManagedCredentialsTabComponent", () => {
   let targetSystemsService: ReturnType<typeof makeTargetSystemsServiceStub>;
   let toastService: { showToast: jest.Mock };
   let dialogService: { openSimpleDialog: jest.Mock };
+  let router: Router;
+
+  function chip(key: string): FilterMenuComponent {
+    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
+  }
+
+  function clickSort(el: HTMLElement, label: string): void {
+    Array.from(el.querySelectorAll<HTMLElement>('bit-table-v2 [role="columnheader"]'))
+      .find((header) => text(header) === label)!
+      .querySelector("button")!
+      .click();
+    fixture.detectChanges();
+  }
+
+  function menuItems(el: HTMLElement, rowIndex: number): string[] {
+    el.querySelectorAll<HTMLButtonElement>('button[id^="managed-credentials-tab_menu-trigger_"]')[
+      rowIndex
+    ].click();
+    fixture.detectChanges();
+    const panels = document.querySelectorAll<HTMLElement>(".bit-menu-panel");
+    return Array.from(panels[panels.length - 1].querySelectorAll("[bitmenuitem]")).map(text);
+  }
 
   function setupTestBed(
     dialogResult = true,
@@ -162,7 +207,6 @@ describe("ManagedCredentialsTabComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nFake },
-        { provide: ConfigService, useValue: vfo1ConfigService(false) },
       ],
     });
 
@@ -247,30 +291,6 @@ describe("ManagedCredentialsTabComponent", () => {
       await fixture.whenStable();
 
       expect(configsService.load).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe("credential column", () => {
-    function nameCellButton(): HTMLButtonElement {
-      setupTestBed(true, [{ id: "ts-1" }], true);
-
-      return (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
-        "tbody tr td:first-child button",
-      )!;
-    }
-
-    it("renders the credential name as a primary link", () => {
-      const button = nameCellButton();
-
-      expect(button.textContent).toContain("My Cipher");
-      expect(button.classList).toContain("tw-text-fg-brand");
-    });
-
-    it("keeps the credential name keyboard focusable", () => {
-      const button = nameCellButton();
-
-      expect(button.tagName).toBe("BUTTON");
-      expect(button.getAttribute("tabindex")).not.toBe("-1");
     });
   });
 
@@ -576,62 +596,6 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  /** Sorting on `statusLabelKey` would order the statuses by the spelling of their keys. */
-  describe("status column sort", () => {
-    function renderedStatuses(): string[] {
-      return Array.from(
-        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
-          '[id^="managed-credentials-tab_status_"]',
-        ),
-      ).map((cell) => cell.querySelector("span[bitbadge]")!.textContent!.trim());
-    }
-
-    function sortByStatus(): void {
-      const header = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
-        'th[bitsortable="statusSortOrder"]',
-      );
-      expect(header).not.toBeNull();
-      header!.querySelector("button")!.click();
-      fixture.detectChanges();
-    }
-
-    function renderRows(): void {
-      setupTestBed(true, [{ id: "ts-1" }], true);
-      configsService.rows$.next([
-        makeRow({ id: configId("1"), enabled: true }),
-        makeRow({ id: configId("2"), awaitingManualRotation: true }),
-        makeRow({ id: configId("3"), hasActiveJob: true }),
-        makeRow({ id: configId("4"), enabled: false }),
-      ]);
-      fixture.detectChanges();
-    }
-
-    it("orders ascending by the resolved status, not by the status label's i18n key", () => {
-      renderRows();
-      sortByStatus();
-
-      expect(renderedStatuses()).toEqual([
-        "pamRotationConfigRotatingBadge",
-        "pamRotationConfigStatusPaused",
-        "pamRotationConfigRotationDueBadge",
-        "pamRotationConfigStatusActive",
-      ]);
-    });
-
-    it("reverses on a second click", () => {
-      renderRows();
-      sortByStatus();
-      sortByStatus();
-
-      expect(renderedStatuses()).toEqual([
-        "pamRotationConfigStatusActive",
-        "pamRotationConfigRotationDueBadge",
-        "pamRotationConfigStatusPaused",
-        "pamRotationConfigRotatingBadge",
-      ]);
-    });
-  });
-
   describe("row menu", () => {
     function openRowMenu(row: RotationConfigRow): void {
       setupTestBed(true, [{ id: "ts-1" }], true);
@@ -789,24 +753,39 @@ describe("ManagedCredentialsTabComponent", () => {
     const cipherB = asUuid<CipherId>(id("cipher-b"));
     const cipherC = asUuid<CipherId>(id("cipher-c"));
 
-    const rowA = makeRow({
-      cipherId: cipherA,
-      targetSystemId: sysId("1"),
-      targetSystemName: "Prod Entra",
-      enabled: true,
-    });
-    const rowB = makeRow({
-      cipherId: cipherB,
-      targetSystemId: sysId("2"),
-      targetSystemName: "Staging AD",
-      enabled: false,
-    });
-    const rowC = makeRow({
-      cipherId: cipherC,
-      targetSystemId: sysId("1"),
-      targetSystemName: "Prod Entra",
-      enabled: true,
-    });
+    const rowA = makeRow(
+      {
+        id: configId("a"),
+        cipherId: cipherA,
+        targetSystemId: sysId("1"),
+        targetSystemName: "Prod Entra",
+        enabled: true,
+      },
+      undefined,
+      "Cipher A",
+    );
+    const rowB = makeRow(
+      {
+        id: configId("b"),
+        cipherId: cipherB,
+        targetSystemId: sysId("2"),
+        targetSystemName: "Staging AD",
+        enabled: false,
+      },
+      undefined,
+      "Cipher B",
+    );
+    const rowC = makeRow(
+      {
+        id: configId("c"),
+        cipherId: cipherC,
+        targetSystemId: sysId("1"),
+        targetSystemName: "Prod Entra",
+        enabled: true,
+      },
+      undefined,
+      "Cipher C",
+    );
 
     function setupWithData(
       rows: RotationConfigRow[],
@@ -832,17 +811,12 @@ describe("ManagedCredentialsTabComponent", () => {
           { provide: ToastService, useValue: toastService },
           { provide: DialogService, useValue: dialogService },
           { provide: I18nService, useValue: i18nFake },
-          { provide: ConfigService, useValue: vfo1ConfigService(false) },
         ],
       });
 
       fixture = TestBed.createComponent(ManagedCredentialsTabComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-    }
-
-    function chip(key: string): FilterMenuComponent {
-      return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
     }
 
     // Nothing else covers ROTATION_STATUS_BADGES, and without it the chip silently offers "All".
@@ -871,6 +845,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("keys target-system options by id, so two systems sharing a name stay distinct", () => {
       const rowSameNameOtherSystem = makeRow({
+        id: configId("c"),
         cipherId: cipherC,
         targetSystemId: sysId("2"),
         targetSystemName: "Prod Entra",
@@ -922,7 +897,6 @@ describe("ManagedCredentialsTabComponent", () => {
           { provide: ToastService, useValue: toastService },
           { provide: DialogService, useValue: dialogService },
           { provide: I18nService, useValue: i18nFake },
-          { provide: ConfigService, useValue: vfo1ConfigService(false) },
         ],
       });
 
@@ -934,28 +908,12 @@ describe("ManagedCredentialsTabComponent", () => {
 
       expect(component.collectionOptions()).toEqual([]);
       expect(fixture.debugElement.query(By.css('bit-filter-menu[key="collection"]'))).toBeNull();
-      expect(fixture.debugElement.query(By.css("bit-table"))).not.toBeNull();
+      expect(fixture.debugElement.query(By.css("bit-table-v2"))).not.toBeNull();
     });
 
     it("does not render the collection chip when no row's cipher carries a collection", () => {
       setupWithData([rowA], [makeCipher(cipherA, [])]);
       expect(fixture.debugElement.query(By.css('bit-filter-menu[key="collection"]'))).toBeNull();
-    });
-
-    it("narrows rows to the selected status", () => {
-      setupWithData([rowA, rowB, rowC], []);
-      chip("status").toggle("pamRotationConfigStatusPaused");
-      fixture.detectChanges();
-      expect(component.processedRows()).toHaveLength(1);
-      expect(component.processedRows()[0].config.cipherId).toBe(cipherB);
-    });
-
-    it("narrows rows to the selected target system", () => {
-      setupWithData([rowA, rowB, rowC], []);
-      chip("targetSystem").toggle(sysId("2"));
-      fixture.detectChanges();
-      expect(component.processedRows()).toHaveLength(1);
-      expect(component.processedRows()[0].config.cipherId).toBe(cipherB);
     });
 
     it("gives each fixture cipher its own id", () => {
@@ -977,8 +935,7 @@ describe("ManagedCredentialsTabComponent", () => {
       );
       chip("collection").toggle("col-1");
       fixture.detectChanges();
-      expect(component.processedRows()).toHaveLength(1);
-      expect(component.processedRows()[0].config.cipherId).toBe(cipherA);
+      expect(rowNames(fixture.nativeElement)).toEqual(["Cipher A"]);
     });
 
     it("resolves each row's collections from its own cipher", () => {
@@ -997,8 +954,7 @@ describe("ManagedCredentialsTabComponent", () => {
       );
       chip("collection").toggle("col-2");
       fixture.detectChanges();
-      expect(component.processedRows()).toHaveLength(1);
-      expect(component.processedRows()[0].config.cipherId).toBe(cipherB);
+      expect(rowNames(fixture.nativeElement)).toEqual(["Cipher B"]);
     });
 
     it("does not exclude a row from the collection filter when its cipher never loaded", () => {
@@ -1009,24 +965,7 @@ describe("ManagedCredentialsTabComponent", () => {
       );
       chip("collection").toggle("col-1");
       fixture.detectChanges();
-      const ids = component.processedRows().map((r: RotationConfigRow) => r.config.cipherId);
-      expect(ids.sort()).toEqual([cipherA, cipherC].sort());
-    });
-
-    it("ANDs the chips with each other and with the search text", () => {
-      setupWithData([rowA, rowB, rowC], []);
-      component.searchControl.setValue("prod");
-      chip("status").toggle("pamRotationConfigStatusActive");
-      fixture.detectChanges();
-      const ids = component.processedRows().map((r: RotationConfigRow) => r.config.cipherId);
-      expect(ids.sort()).toEqual([cipherA, cipherC].sort());
-    });
-
-    it("shows the generic no-results message when chip filters alone empty the table", () => {
-      setupWithData([rowA], []);
-      chip("status").toggle("pamRotationConfigStatusPaused");
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).toContain("pamRotationConfigNoResultsFiltered");
+      expect(rowNames(fixture.nativeElement)).toEqual(["Cipher A", "Cipher C"]);
     });
   });
 
@@ -1067,6 +1006,25 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(loading!.textContent).toContain("pamRotationConfigColumnNextRotation");
     });
 
+    it("draws the skeleton as a table with every column and five rows", () => {
+      const loading = renderSkeleton().querySelector<HTMLElement>(
+        '[data-testid="managed-credentials-loading"]',
+      )!;
+
+      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
+      expect(headings(loading)).toEqual([
+        "pamRotationConfigColumnItem",
+        "pamRotationConfigColumnTargetSystem",
+        "status",
+        "pamRotationConfigColumnSchedule",
+        "pamRotationConfigColumnRotateOnAccessEnd",
+        "pamRotationConfigColumnLastRotated",
+        "pamRotationConfigColumnNextRotation",
+        "",
+      ]);
+      expect(loading.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(5);
+    });
+
     it("keeps the placeholder itself out of the accessibility tree", () => {
       const loading = renderLoading().querySelector('[data-testid="managed-credentials-loading"]');
 
@@ -1101,9 +1059,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
       expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector("tbody tr td:first-child button")!.textContent).toContain(
-        "My Cipher",
-      );
+      expect(rowNames(el)).toEqual(["My Cipher"]);
       expect(el.querySelector('[data-testid="rotation-loading-status"]')!.textContent).toContain(
         "pamManagedCredentialsLoaded",
       );
@@ -1152,512 +1108,64 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(el.querySelector("bit-skeleton")).toBeNull();
     });
   });
-});
 
-describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
-  let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
-  let configsService: ReturnType<typeof makeConfigsServiceStub>;
-  let dialogService: { openSimpleDialog: jest.Mock };
-  let router: Router;
-
-  const active = buildRotationConfigRow(
-    rotationConfig({
-      id: configId("1"),
-      targetSystemId: sysId("1"),
-      targetSystemName: "Prod Entra",
-      rotateOnAccessEnd: true,
-      lastRotationAt: "2026-03-01T10:00:00Z",
-      nextRotationAt: "2026-04-01T10:00:00Z",
-    }),
-    undefined,
-    "Prod DB service account",
-    rotationConfigDescription(),
-  );
-  const paused = buildRotationConfigRow(
-    rotationConfig({
-      id: configId("2"),
-      targetSystemId: sysId("2"),
-      targetSystemName: "Staging AD",
-      enabled: false,
-      lastRotationAt: "2026-01-15T10:00:00Z",
-    }),
-    undefined,
-    "Staging admin login",
-    rotationConfigDescription({
-      actions: rotationConfigActions({ canRotateNow: false, canPause: false, canResume: true }),
-    }),
-  );
-  const rotating = buildRotationConfigRow(
-    rotationConfig({ id: configId("3"), hasActiveJob: true }),
-    undefined,
-    "CI pipeline token",
-    rotationConfigDescription({
-      actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
-    }),
-  );
-  const manual = buildRotationConfigRow(
-    rotationConfig({
-      id: configId("4"),
-      targetSystemId: sysId("2"),
-      targetSystemName: "Staging AD",
-      targetSystemMethod: TargetSystemMethod.Manual,
-      awaitingManualRotation: true,
-    }),
-    undefined,
-    "Mainframe operator",
-    rotationConfigDescription({
-      actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
-    }),
-  );
-  const ROWS = [active, paused, rotating, manual];
-
-  function render(vfo1: boolean, rows: RotationConfigRow[] = ROWS): HTMLElement {
-    TestBed.resetTestingModule();
-    const targetSystemsService = makeTargetSystemsServiceStub();
-    configsService = makeConfigsServiceStub(targetSystemsService, rows);
-    dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(false) };
-
-    TestBed.configureTestingModule({
-      imports: [ManagedCredentialsTabComponent],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
-        { provide: RotationConfigsService, useValue: configsService },
-        { provide: TargetSystemsService, useValue: targetSystemsService },
-        ...makeCipherCollectionProviders(),
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: DialogService, useValue: dialogService },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: ConfigService, useValue: vfo1ConfigService(vfo1) },
-      ],
-    });
-
-    router = TestBed.inject(Router);
-    fixture = TestBed.createComponent(ManagedCredentialsTabComponent);
-    fixture.detectChanges();
-    return fixture.nativeElement as HTMLElement;
-  }
-
-  function text(el: Element): string {
-    return (el.textContent ?? "").replace(/\s+/g, " ").trim();
-  }
-
-  function isV2(el: HTMLElement): boolean {
-    return el.querySelector("bit-table-v2") != null;
-  }
-
-  function headings(el: HTMLElement): string[] {
-    const cells = isV2(el)
-      ? el.querySelectorAll('bit-table-v2 [role="columnheader"]')
-      : el.querySelectorAll("bit-table thead th");
-    return Array.from(cells).map(text);
-  }
-
-  function bodyRows(el: HTMLElement): Element[] {
-    return Array.from(
-      isV2(el)
-        ? el.querySelectorAll("bit-table-v2 bit-row")
-        : el.querySelectorAll("bit-table tbody tr"),
-    );
-  }
-
-  function cellTexts(el: HTMLElement): string[][] {
-    const cellSelector = isV2(el) ? '[role="cell"]' : "td";
-    return bodyRows(el).map((row) => Array.from(row.querySelectorAll(cellSelector)).map(text));
-  }
-
-  function rowNames(el: HTMLElement): string[] {
-    return bodyRows(el).map((row) => text(row.querySelector("button[bitLink]")!));
-  }
-
-  function sortButtonLabels(el: HTMLElement): string[] {
-    return isV2(el)
-      ? Array.from(el.querySelectorAll('bit-table-v2 [role="columnheader"] button')).map(text)
-      : Array.from(el.querySelectorAll("bit-table thead th[bitsortable]")).map(text);
-  }
-
-  function clickSort(el: HTMLElement, label: string): void {
-    const headers = isV2(el)
-      ? el.querySelectorAll<HTMLElement>('bit-table-v2 [role="columnheader"]')
-      : el.querySelectorAll<HTMLElement>("bit-table thead th");
-    Array.from(headers)
-      .find((header) => text(header) === label)!
-      .querySelector("button")!
-      .click();
-    fixture.detectChanges();
-  }
-
-  function renderedStatuses(el: HTMLElement): string[] {
-    return Array.from(
-      el.querySelectorAll<HTMLElement>('[id^="managed-credentials-tab_status_"]'),
-    ).map((cell) => cell.querySelector("span[bitbadge]")!.textContent!.trim());
-  }
-
-  function menuItems(el: HTMLElement, rowIndex: number): string[] {
-    el.querySelectorAll<HTMLButtonElement>('button[id^="managed-credentials-tab_menu-trigger_"]')[
-      rowIndex
-    ].click();
-    fixture.detectChanges();
-    const panels = document.querySelectorAll<HTMLElement>(".bit-menu-panel");
-    return Array.from(panels[panels.length - 1].querySelectorAll("[bitmenuitem]")).map(text);
-  }
-
-  function chip(key: string): FilterMenuComponent {
-    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
-  }
-
-  it("renders only the v1 table with the flag off", () => {
-    const el = render(false);
-
-    expect(el.querySelector("bit-table")).not.toBeNull();
-    expect(el.querySelector("bit-table-v2")).toBeNull();
-  });
-
-  it("renders only the v2 table with the flag on", () => {
-    const el = render(true);
-
-    expect(el.querySelector("bit-table-v2")).not.toBeNull();
-    expect(el.querySelector("bit-table")).toBeNull();
-  });
-
-  it("renders the same column headings, in the same order, as the v1 table", () => {
-    const v1 = headings(render(false));
-    const v2 = headings(render(true));
-
-    expect(v2).toEqual([
-      "pamRotationConfigColumnItem",
-      "pamRotationConfigColumnTargetSystem",
-      "status",
-      "pamRotationConfigColumnSchedule",
-      "pamRotationConfigColumnRotateOnAccessEnd",
-      "pamRotationConfigColumnLastRotated",
-      "pamRotationConfigColumnNextRotation",
-      "",
-    ]);
-    expect(v2).toEqual(v1);
-  });
-
-  it("renders the same rows, in the same order, as the v1 table", () => {
-    const v1 = rowNames(render(false));
-    const v2 = rowNames(render(true));
-
-    expect(v2).toHaveLength(ROWS.length);
-    expect(v2).toEqual(v1);
-  });
-
-  it("renders the same cell text in every row as the v1 table", () => {
-    const v1 = cellTexts(render(false));
-    const v2 = cellTexts(render(true));
-
-    expect(v2).toHaveLength(ROWS.length);
-    expect(v2.map((cells) => cells.length)).toEqual([8, 8, 8, 8]);
-    expect(v2[0].slice(0, 7)).toEqual([
+  describe("table", () => {
+    const active = buildRotationConfigRow(
+      rotationConfig({
+        id: configId("1"),
+        targetSystemId: sysId("1"),
+        targetSystemName: "Prod Entra",
+        rotateOnAccessEnd: true,
+        lastRotationAt: "2026-03-01T10:00:00Z",
+        nextRotationAt: "2026-04-01T10:00:00Z",
+      }),
+      undefined,
       "Prod DB service account",
-      "Prod Entra pamTargetSystemMethodAutomatic",
-      "pamRotationConfigStatusActive",
-      "pamRotationScheduleDaily",
-      "yes",
-      "Mar 1, 2026",
-      "Apr 1, 2026",
-    ]);
-    expect(v2).toEqual(v1);
-  });
-
-  it("offers the same row actions, in the same order and gating, as the v1 table", () => {
-    const v1El = render(false);
-    const v1 = ROWS.map((_, i) => menuItems(v1El, i));
-    const v2El = render(true);
-    const v2 = ROWS.map((_, i) => menuItems(v2El, i));
-
-    expect(v2).toEqual([
-      [
-        "pamRotationConfigEditCredential",
-        "pamRotationConfigRotateNow",
-        "pamRotationConfigPauseRotation",
-        "pamRotationConfigRemoveFromRotation",
-      ],
-      [
-        "pamRotationConfigEditCredential",
-        "pamRotationConfigRotateNow",
-        "pamRotationConfigResumeRotation",
-        "pamRotationConfigRemoveFromRotation",
-      ],
-      [
-        "pamRotationConfigEditCredential",
-        "pamRotationConfigRotateNow",
-        "pamRotationConfigPauseRotation",
-        "pamRotationConfigRemoveFromRotation",
-      ],
-      [
-        "pamRotationConfigEditCredential",
-        "pamRotationConfigMarkRotated",
-        "pamRotationConfigPauseRotation",
-        "pamRotationConfigRemoveFromRotation",
-      ],
-    ]);
-    expect(v2).toEqual(v1);
-  });
-
-  it("keeps the locked row actions focusable and described", () => {
-    const el = render(true);
-    menuItems(el, 2);
-
-    for (const prefix of [
-      "managed-credentials-tab_button_rotate-now-locked_",
-      "managed-credentials-tab_button_delete-locked_",
-    ]) {
-      const button = document.querySelector<HTMLButtonElement>(
-        `.bit-menu-panel [id^="${prefix}"]`,
-      )!;
-      expect(button.hasAttribute("disabled")).toBe(false);
-      expect(button.getAttribute("aria-disabled")).toBe("true");
-      expect(button.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
-    }
-  });
-
-  it("names the row menu trigger and keeps the credential name a focusable button", () => {
-    const el = render(true);
-    const trigger = el.querySelector<HTMLButtonElement>(
-      'bit-table-v2 button[id^="managed-credentials-tab_menu-trigger_"]',
-    )!;
-    const link = el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!;
-
-    expect(trigger.getAttribute("aria-label")).toBe("options");
-    expect(link.tagName).toBe("BUTTON");
-    expect(link.getAttribute("tabindex")).not.toBe("-1");
-    expect(link.classList).toContain("tw-text-fg-brand");
-  });
-
-  it("opens the edit page through the shared openEdit", () => {
-    const el = render(true);
-    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-    el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!.click();
-
-    expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "managed-credentials", active.id],
-      expect.objectContaining({ relativeTo: expect.anything() }),
+      rotationConfigDescription(),
     );
-  });
-
-  it("rotates now and confirms a removal from the v2 row menu", async () => {
-    const el = render(true);
-    menuItems(el, 0);
-    document
-      .querySelector<HTMLButtonElement>(
-        '.bit-menu-panel [id^="managed-credentials-tab_button_rotate-now_"]',
-      )!
-      .click();
-    await fixture.whenStable();
-
-    expect(configsService.rotateNow).toHaveBeenCalledWith(active.config);
-
-    menuItems(el, 0);
-    document
-      .querySelector<HTMLButtonElement>(
-        '.bit-menu-panel [id^="managed-credentials-tab_button_delete_"]',
-      )!
-      .click();
-    await fixture.whenStable();
-
-    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-      expect.objectContaining({ title: { key: "pamRotationConfigDeleteConfirmTitle" } }),
+    const paused = buildRotationConfigRow(
+      rotationConfig({
+        id: configId("2"),
+        targetSystemId: sysId("2"),
+        targetSystemName: "Staging AD",
+        enabled: false,
+        lastRotationAt: "2026-01-15T10:00:00Z",
+      }),
+      undefined,
+      "Staging admin login",
+      rotationConfigDescription({
+        actions: rotationConfigActions({ canRotateNow: false, canPause: false, canResume: true }),
+      }),
     );
-    expect(configsService.delete).not.toHaveBeenCalled();
-  });
+    const rotating = buildRotationConfigRow(
+      rotationConfig({ id: configId("3"), hasActiveJob: true }),
+      undefined,
+      "CI pipeline token",
+      rotationConfigDescription({
+        actions: rotationConfigActions({ canRotateNow: false, mutationsLocked: true }),
+      }),
+    );
+    const manual = buildRotationConfigRow(
+      rotationConfig({
+        id: configId("4"),
+        targetSystemId: sysId("2"),
+        targetSystemName: "Staging AD",
+        targetSystemMethod: TargetSystemMethod.Manual,
+        awaitingManualRotation: true,
+      }),
+      undefined,
+      "Mainframe operator",
+      rotationConfigDescription({
+        actions: rotationConfigActions({ canRotateNow: false, canRecordManual: true }),
+      }),
+    );
+    const ROWS = [active, paused, rotating, manual];
 
-  it("sorts on the same columns as the v1 table, and starts unsorted", () => {
-    const v1 = sortButtonLabels(render(false));
-    const el = render(true);
-
-    expect(sortButtonLabels(el)).toEqual([
-      "pamRotationConfigColumnItem",
-      "status",
-      "pamRotationConfigColumnLastRotated",
-      "pamRotationConfigColumnNextRotation",
-    ]);
-    expect(sortButtonLabels(el)).toEqual(v1);
-    expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
-  });
-
-  it("orders the status column by resolved status, and reverses on a second click", () => {
-    const el = render(true);
-
-    clickSort(el, "status");
-    expect(renderedStatuses(el)).toEqual([
-      "pamRotationConfigRotatingBadge",
-      "pamRotationConfigStatusPaused",
-      "pamRotationConfigRotationDueBadge",
-      "pamRotationConfigStatusActive",
-    ]);
-
-    clickSort(el, "status");
-    expect(renderedStatuses(el)).toEqual([
-      "pamRotationConfigStatusActive",
-      "pamRotationConfigRotationDueBadge",
-      "pamRotationConfigStatusPaused",
-      "pamRotationConfigRotatingBadge",
-    ]);
-  });
-
-  it("sorts every sortable column into the same order as the v1 table", () => {
-    const labels = [
-      "pamRotationConfigColumnItem",
-      "status",
-      "pamRotationConfigColumnLastRotated",
-      "pamRotationConfigColumnNextRotation",
-    ];
-    const orders = (vfo1: boolean): string[][] =>
-      labels.flatMap((label) => {
-        const el = render(vfo1);
-        clickSort(el, label);
-        const asc = rowNames(el);
-        clickSort(el, label);
-        return [asc, rowNames(el)];
-      });
-
-    expect(orders(true)).toEqual(orders(false));
-  });
-
-  it("narrows the rows with the same search and chips as the v1 table", () => {
-    const narrowed = (vfo1: boolean): string[] => {
-      const el = render(vfo1);
-      fixture.componentInstance["searchControl"].setValue("staging");
-      chip("status").toggle("pamRotationConfigRotationDueBadge");
-      fixture.detectChanges();
-      return rowNames(el);
-    };
-
-    expect(narrowed(true)).toEqual(["Mainframe operator"]);
-    expect(narrowed(true)).toEqual(narrowed(false));
-  });
-
-  it("shows the generic no-results message when the filters empty the table", () => {
-    const el = render(true);
-    chip("status").toggle("pamRotationConfigStatusPaused");
-    chip("targetSystem").toggle(sysId("1"));
-    fixture.detectChanges();
-
-    expect(bodyRows(el)).toHaveLength(0);
-    expect(text(el.querySelector("bit-table-v2")!)).toContain("pamRotationConfigNoResultsFiltered");
-  });
-
-  it("keeps the empty-state lockup, not an empty table, when there are no credentials", () => {
-    const el = render(true, []);
-
-    expect(el.querySelector("bit-table-v2")).toBeNull();
-    expect(el.textContent).toContain("pamRotationConfigEmptyState");
-  });
-
-  describe("create action placement", () => {
-    const BUTTON_ID = "#rotation-shell_button_new-managed-credential";
-
-    function endSlot(el: HTMLElement): Element {
-      const toolbar = el.querySelector("bit-table-v2 bit-table-toolbar")!;
-      return toolbar.querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
-    }
-
-    it("puts the create action in the end slot, not in the rotation shell header", () => {
-      const el = render(true);
-
-      expect(endSlot(el).children).toHaveLength(1);
-      const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
-      expect(button).not.toBeNull();
-      expect(text(button!)).toBe("pamRotationConfigNew");
-      expect(button!.getAttribute("type")).toBe("button");
-    });
-
-    it("leaves the create action to the rotation shell header with the flag off", () => {
-      const el = render(false);
-
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
-      expect(el.querySelector(BUTTON_ID)).toBeNull();
-    });
-
-    it("leaves the create action to the empty state when there are no credentials", () => {
-      const el = render(true, []);
-
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
-      expect(el.querySelector(BUTTON_ID)).toBeNull();
-      expect(el.querySelector("#managed-credentials-tab_button_new-empty")).not.toBeNull();
-    });
-
-    it("leaves the create action to the empty state with the flag off too", () => {
-      const el = render(false, []);
-
-      expect(el.querySelector(BUTTON_ID)).toBeNull();
-      expect(el.querySelector("#managed-credentials-tab_button_new-empty")).not.toBeNull();
-    });
-
-    it("navigates to the create page from the end slot button", async () => {
-      const el = render(true);
-      const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
-      await fixture.whenStable();
-
-      expect(navigateSpy).toHaveBeenCalledWith(
-        ["..", "managed-credentials", "new"],
-        expect.objectContaining({ relativeTo: expect.anything() }),
-      );
-    });
-  });
-
-  describe("toolbar", () => {
-    function toolbar(el: HTMLElement): HTMLElement {
-      return el.querySelector("bit-table-v2 bit-table-toolbar")!;
-    }
-
-    function chipKeys(root: ParentNode): (string | null)[] {
-      return Array.from(root.querySelectorAll("bit-filter-menu")).map((menu) =>
-        menu.getAttribute("key"),
-      );
-    }
-
-    it("puts the search and every filter chip inside the table's toolbar", () => {
-      const el = render(true);
-
-      expect(toolbar(el)).not.toBeNull();
-      expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
-      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
-      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
-      expect(el.querySelectorAll("bit-filter-menu")).toHaveLength(2);
-    });
-
-    it("leaves the controls outside the table when the flag is off", () => {
-      const el = render(false);
-
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
-      expect(el.querySelector("bit-table")!.querySelector("bit-search")).toBeNull();
-      expect(el.querySelectorAll("bit-search")).toHaveLength(1);
-      expect(chipKeys(el)).toEqual(["status", "targetSystem"]);
-    });
-
-    it("keeps each chip's label and unset state", () => {
-      const offLabels = Array.from(render(false).querySelectorAll("bit-filter-menu")).map(text);
-      const onLabels = Array.from(toolbar(render(true)).querySelectorAll("bit-filter-menu")).map(
-        text,
-      );
-
-      expect(onLabels).toEqual(offLabels);
-    });
-
-    it("keeps the search placeholder and input type it had off the flag", () => {
-      const offInput = render(false).querySelector("bit-search input")!;
-      const offPlaceholder = offInput.getAttribute("placeholder");
-      const offType = offInput.getAttribute("type");
-
-      const onInput = toolbar(render(true)).querySelector("bit-search input")!;
-
-      expect(onInput.getAttribute("placeholder")).toBe("pamRotationConfigSearch");
-      expect(onInput.getAttribute("placeholder")).toBe(offPlaceholder);
-      expect(onInput.getAttribute("type")).toBe(offType);
-      expect(onInput.hasAttribute("disabled")).toBe(false);
-    });
-
-    it("projects the collection chip into the toolbar when the rows' ciphers carry one", async () => {
+    function render(rows: RotationConfigRow[] = ROWS): HTMLElement {
       TestBed.resetTestingModule();
-      const targetSystemsService = makeTargetSystemsServiceStub();
+      targetSystemsService = makeTargetSystemsServiceStub();
+      configsService = makeConfigsServiceStub(targetSystemsService, rows);
+      dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(false) };
 
       TestBed.configureTestingModule({
         imports: [ManagedCredentialsTabComponent],
@@ -1667,102 +1175,24 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
             provide: ActivatedRoute,
             useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
           },
-          {
-            provide: RotationConfigsService,
-            useValue: makeConfigsServiceStub(targetSystemsService, ROWS),
-          },
+          { provide: RotationConfigsService, useValue: configsService },
           { provide: TargetSystemsService, useValue: targetSystemsService },
-          ...makeCipherCollectionProviders(
-            [makeCipher(CIPHER_ID, ["col-1"])],
-            [{ id: "col-1", name: "Engineering" } as CollectionAdminView],
-          ),
+          ...makeCipherCollectionProviders(),
           { provide: ToastService, useValue: { showToast: jest.fn() } },
-          { provide: DialogService, useValue: { openSimpleDialog: jest.fn() } },
+          { provide: DialogService, useValue: dialogService },
           { provide: I18nService, useValue: i18nFake },
-          { provide: ConfigService, useValue: vfo1ConfigService(true) },
         ],
       });
 
+      router = TestBed.inject(Router);
       fixture = TestBed.createComponent(ManagedCredentialsTabComponent);
+      component = fixture.componentInstance;
       fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-      const el = fixture.nativeElement as HTMLElement;
-
-      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem", "collection"]);
-    });
-
-    it.each<[string, { search?: string; status?: string; targetSystem?: unknown }]>([
-      ["the status chip", { status: "pamRotationConfigStatusPaused" }],
-      ["the target-system chip", { targetSystem: sysId("2") }],
-      ["search on a credential name", { search: "mainframe" }],
-      ["search on a target-system name", { search: "staging" }],
-      ["every control at once", { search: "staging", status: "pamRotationConfigRotationDueBadge" }],
-    ])("narrows the toolbar's rows the same way the flag-off path does: %s", (_, filters) => {
-      const names = (vfo1: boolean): string[] => {
-        const el = render(vfo1);
-        if (filters.search !== undefined) {
-          fixture.componentInstance["searchControl"].setValue(filters.search);
-        }
-        if (filters.status !== undefined) {
-          chip("status").toggle(filters.status);
-        }
-        if (filters.targetSystem !== undefined) {
-          chip("targetSystem").toggle(filters.targetSystem);
-        }
-        fixture.detectChanges();
-        return rowNames(el);
-      };
-
-      expect(names(true)).toEqual(names(false));
-    });
-
-    it("keeps the toolbar in place when the filters empty the table", () => {
-      const el = render(true);
-      chip("status").toggle("pamRotationConfigStatusPaused");
-      chip("targetSystem").toggle(sysId("1"));
-      fixture.detectChanges();
-
-      expect(bodyRows(el)).toHaveLength(0);
-      expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
-      expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
-    });
-
-    it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
-      const el = render(true);
-      fixture.componentInstance["searchControl"].setValue("mainframe");
-      fixture.detectChanges();
-
-      expect(rowNames(el)).toEqual(["Mainframe operator"]);
-      expect(menuItems(el, 0)).toContain("pamRotationConfigMarkRotated");
-    });
-  });
-
-  describe("loading skeleton", () => {
-    beforeEach(() => {
-      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
-    });
-
-    afterEach(() => jest.useRealTimers());
-
-    function renderSkeleton(): HTMLElement {
-      const el = render(true);
-      configsService.loading$.next(true);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
-      return el;
+      return fixture.nativeElement as HTMLElement;
     }
 
-    it("stands a hidden v2 skeleton table in for the list, carrying the real columns", () => {
-      const loading = renderSkeleton().querySelector(
-        '[data-testid="managed-credentials-loading"]',
-      )!;
-
-      expect(loading.getAttribute("aria-hidden")).toBe("true");
-      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
-      expect(loading.querySelector("bit-table")).toBeNull();
-      expect(headings(loading as HTMLElement)).toEqual([
+    it("renders the column headings in order", () => {
+      expect(headings(render())).toEqual([
         "pamRotationConfigColumnItem",
         "pamRotationConfigColumnTargetSystem",
         "status",
@@ -1772,36 +1202,353 @@ describe("ManagedCredentialsTabComponent with the VFO1 flag", () => {
         "pamRotationConfigColumnNextRotation",
         "",
       ]);
-      expect(loading.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(5);
     });
 
-    it("replaces the skeleton with the real rows", () => {
-      const el = renderSkeleton();
+    it("renders every row in the order loaded", () => {
+      expect(rowNames(render())).toEqual(ROWS.map((r) => r.cipherName));
+    });
 
-      configsService.loading$.next(false);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
-      fixture.detectChanges();
+    it("renders the cell text for each column", () => {
+      const cells = cellTexts(render());
 
-      expect(el.querySelector('[data-testid="managed-credentials-loading"]')).toBeNull();
+      expect(cells.map((row) => row.length)).toEqual([8, 8, 8, 8]);
+      expect(cells[0].slice(0, 7)).toEqual([
+        "Prod DB service account",
+        "Prod Entra pamTargetSystemMethodAutomatic",
+        "pamRotationConfigStatusActive",
+        "pamRotationScheduleDaily",
+        "yes",
+        "Mar 1, 2026",
+        "Apr 1, 2026",
+      ]);
+    });
+
+    it("names the row menu trigger and keeps the credential name a focusable button", () => {
+      const el = render();
+      const trigger = el.querySelector<HTMLButtonElement>(
+        'bit-table-v2 button[id^="managed-credentials-tab_menu-trigger_"]',
+      )!;
+      const link = el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!;
+
+      expect(trigger.getAttribute("aria-label")).toBe("options");
+      expect(link.tagName).toBe("BUTTON");
+      expect(link.getAttribute("tabindex")).not.toBe("-1");
+      expect(link.classList).toContain("tw-text-fg-brand");
+    });
+
+    it("opens the edit page from the credential name", () => {
+      const el = render();
+      const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!.click();
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ["..", "managed-credentials", active.id],
+        expect.objectContaining({ relativeTo: expect.anything() }),
+      );
+    });
+
+    it("rotates now and confirms a removal from the row menu", async () => {
+      const el = render();
+      menuItems(el, 0);
+      document
+        .querySelector<HTMLButtonElement>(
+          '.bit-menu-panel [id^="managed-credentials-tab_button_rotate-now_"]',
+        )!
+        .click();
+      await fixture.whenStable();
+
+      expect(configsService.rotateNow).toHaveBeenCalledWith(active.config);
+
+      menuItems(el, 0);
+      document
+        .querySelector<HTMLButtonElement>(
+          '.bit-menu-panel [id^="managed-credentials-tab_button_delete_"]',
+        )!
+        .click();
+      await fixture.whenStable();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamRotationConfigDeleteConfirmTitle" } }),
+      );
+      expect(configsService.delete).not.toHaveBeenCalled();
+    });
+
+    it("sorts on the item, status and rotation date columns, and starts unsorted", () => {
+      const el = render();
+
+      expect(sortButtonLabels(el)).toEqual([
+        "pamRotationConfigColumnItem",
+        "status",
+        "pamRotationConfigColumnLastRotated",
+        "pamRotationConfigColumnNextRotation",
+      ]);
       expect(rowNames(el)).toEqual(ROWS.map((r) => r.cipherName));
     });
 
-    // The placeholder strip holds the toolbar's height, so the table doesn't shift when rows land.
-    it("reserves the toolbar row while loading on both paths", () => {
-      const placeholders = (el: HTMLElement): number =>
-        el.querySelectorAll(
-          '[data-testid="managed-credentials-loading"] > div:first-child bit-skeleton',
-        ).length;
+    /** Sorting on `statusLabelKey` would order the statuses by the spelling of their keys. */
+    it("orders the status column by resolved status, and reverses on a second click", () => {
+      const el = render();
 
-      const off = render(false);
-      configsService.loading$.next(true);
-      fixture.detectChanges();
-      jest.advanceTimersByTime(1000);
+      clickSort(el, "status");
+      expect(renderedStatuses(el)).toEqual([
+        "pamRotationConfigRotatingBadge",
+        "pamRotationConfigStatusPaused",
+        "pamRotationConfigRotationDueBadge",
+        "pamRotationConfigStatusActive",
+      ]);
+
+      clickSort(el, "status");
+      expect(renderedStatuses(el)).toEqual([
+        "pamRotationConfigStatusActive",
+        "pamRotationConfigRotationDueBadge",
+        "pamRotationConfigStatusPaused",
+        "pamRotationConfigRotatingBadge",
+      ]);
+    });
+
+    it.each<[string, string[], string[]]>([
+      [
+        "pamRotationConfigColumnItem",
+        [
+          "CI pipeline token",
+          "Mainframe operator",
+          "Prod DB service account",
+          "Staging admin login",
+        ],
+        [
+          "Staging admin login",
+          "Prod DB service account",
+          "Mainframe operator",
+          "CI pipeline token",
+        ],
+      ],
+      [
+        "pamRotationConfigColumnLastRotated",
+        [
+          "CI pipeline token",
+          "Mainframe operator",
+          "Staging admin login",
+          "Prod DB service account",
+        ],
+        [
+          "Prod DB service account",
+          "Staging admin login",
+          "CI pipeline token",
+          "Mainframe operator",
+        ],
+      ],
+      [
+        "pamRotationConfigColumnNextRotation",
+        [
+          "Staging admin login",
+          "CI pipeline token",
+          "Mainframe operator",
+          "Prod DB service account",
+        ],
+        [
+          "Prod DB service account",
+          "Staging admin login",
+          "CI pipeline token",
+          "Mainframe operator",
+        ],
+      ],
+    ])("sorts the %s column both ways", (label, ascending, descending) => {
+      const el = render();
+
+      clickSort(el, label);
+      expect(rowNames(el)).toEqual(ascending);
+
+      clickSort(el, label);
+      expect(rowNames(el)).toEqual(descending);
+    });
+
+    it("shows the generic no-results message when the filters empty the table", () => {
+      const el = render();
+      chip("status").toggle("pamRotationConfigStatusPaused");
+      chip("targetSystem").toggle(sysId("1"));
       fixture.detectChanges();
 
-      expect(placeholders(off)).toBeGreaterThan(0);
-      expect(placeholders(renderSkeleton())).toBeGreaterThan(0);
+      expect(bodyRows(el)).toHaveLength(0);
+      expect(text(el.querySelector("bit-table-v2")!)).toContain(
+        "pamRotationConfigNoResultsFiltered",
+      );
+    });
+
+    it("keeps the empty-state lockup, not an empty table, when there are no credentials", () => {
+      const el = render([]);
+
+      expect(el.querySelector("bit-table-v2")).toBeNull();
+      expect(el.textContent).toContain("pamRotationConfigEmptyState");
+    });
+
+    describe("create action", () => {
+      const BUTTON_ID = "#rotation-shell_button_new-managed-credential";
+
+      function endSlot(el: HTMLElement): Element {
+        const toolbar = el.querySelector("bit-table-v2 bit-table-toolbar")!;
+        return toolbar.querySelector("bit-search")!.parentElement!.parentElement!.lastElementChild!;
+      }
+
+      it("puts the create action in the toolbar's end slot", () => {
+        const el = render();
+
+        expect(endSlot(el).children).toHaveLength(1);
+        const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
+        expect(button).not.toBeNull();
+        expect(text(button!)).toBe("pamRotationConfigNew");
+        expect(button!.getAttribute("type")).toBe("button");
+      });
+
+      it("leaves the create action to the empty state when there are no credentials", () => {
+        const el = render([]);
+
+        expect(el.querySelector("bit-table-toolbar")).toBeNull();
+        expect(el.querySelector(BUTTON_ID)).toBeNull();
+        expect(el.querySelector("#managed-credentials-tab_button_new-empty")).not.toBeNull();
+      });
+
+      it("navigates to the create page from the end slot button", async () => {
+        const el = render();
+        const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+        el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
+        await fixture.whenStable();
+
+        expect(navigateSpy).toHaveBeenCalledWith(
+          ["..", "managed-credentials", "new"],
+          expect.objectContaining({ relativeTo: expect.anything() }),
+        );
+      });
+    });
+
+    describe("toolbar", () => {
+      function toolbar(el: HTMLElement): HTMLElement {
+        return el.querySelector("bit-table-v2 bit-table-toolbar")!;
+      }
+
+      function chipKeys(root: ParentNode): (string | null)[] {
+        return Array.from(root.querySelectorAll("bit-filter-menu")).map((menu) =>
+          menu.getAttribute("key"),
+        );
+      }
+
+      it("puts the search and every filter chip inside the table's toolbar", () => {
+        const el = render();
+
+        expect(toolbar(el)).not.toBeNull();
+        expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
+        expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
+        expect(el.querySelectorAll("bit-search")).toHaveLength(1);
+        expect(el.querySelectorAll("bit-filter-menu")).toHaveLength(2);
+      });
+
+      it("labels each chip with its unset state", () => {
+        const labels = Array.from(toolbar(render()).querySelectorAll("bit-filter-menu")).map(text);
+
+        expect(labels).toEqual([
+          expect.stringMatching(/^status: all/),
+          expect.stringMatching(/^pamRotationConfigColumnTargetSystem: all/),
+        ]);
+      });
+
+      it("gives the search its placeholder and leaves it enabled", () => {
+        const input = toolbar(render()).querySelector("bit-search input")!;
+
+        expect(input.getAttribute("placeholder")).toBe("pamRotationConfigSearch");
+        expect(input.getAttribute("type")).toBe("search");
+        expect(input.hasAttribute("disabled")).toBe(false);
+      });
+
+      it("projects the collection chip into the toolbar when the rows' ciphers carry one", async () => {
+        TestBed.resetTestingModule();
+        targetSystemsService = makeTargetSystemsServiceStub();
+
+        TestBed.configureTestingModule({
+          imports: [ManagedCredentialsTabComponent],
+          providers: [
+            provideRouter([]),
+            {
+              provide: ActivatedRoute,
+              useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+            },
+            {
+              provide: RotationConfigsService,
+              useValue: makeConfigsServiceStub(targetSystemsService, ROWS),
+            },
+            { provide: TargetSystemsService, useValue: targetSystemsService },
+            ...makeCipherCollectionProviders(
+              [makeCipher(CIPHER_ID, ["col-1"])],
+              [{ id: "col-1", name: "Engineering" } as CollectionAdminView],
+            ),
+            { provide: ToastService, useValue: { showToast: jest.fn() } },
+            { provide: DialogService, useValue: { openSimpleDialog: jest.fn() } },
+            { provide: I18nService, useValue: i18nFake },
+          ],
+        });
+
+        fixture = TestBed.createComponent(ManagedCredentialsTabComponent);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+        const el = fixture.nativeElement as HTMLElement;
+
+        expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem", "collection"]);
+      });
+
+      it.each<[string, { search?: string; status?: string; targetSystem?: unknown }, string[]]>([
+        ["the status chip", { status: "pamRotationConfigStatusPaused" }, ["Staging admin login"]],
+        [
+          "the target-system chip",
+          { targetSystem: sysId("2") },
+          ["Staging admin login", "Mainframe operator"],
+        ],
+        ["search on a credential name", { search: "mainframe" }, ["Mainframe operator"]],
+        [
+          "search on a target-system name",
+          { search: "staging" },
+          ["Staging admin login", "Mainframe operator"],
+        ],
+        [
+          "every control at once",
+          { search: "staging", status: "pamRotationConfigRotationDueBadge" },
+          ["Mainframe operator"],
+        ],
+      ])("narrows the rows by %s", (_, filters, expected) => {
+        const el = render();
+        if (filters.search !== undefined) {
+          component.searchControl.setValue(filters.search);
+        }
+        if (filters.status !== undefined) {
+          chip("status").toggle(filters.status);
+        }
+        if (filters.targetSystem !== undefined) {
+          chip("targetSystem").toggle(filters.targetSystem);
+        }
+        fixture.detectChanges();
+
+        expect(rowNames(el)).toEqual(expected);
+      });
+
+      it("keeps the toolbar in place when the filters empty the table", () => {
+        const el = render();
+        chip("status").toggle("pamRotationConfigStatusPaused");
+        chip("targetSystem").toggle(sysId("1"));
+        fixture.detectChanges();
+
+        expect(bodyRows(el)).toHaveLength(0);
+        expect(toolbar(el).querySelector("bit-search")).not.toBeNull();
+        expect(chipKeys(toolbar(el))).toEqual(["status", "targetSystem"]);
+      });
+
+      it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
+        const el = render();
+        component.searchControl.setValue("mainframe");
+        fixture.detectChanges();
+
+        expect(rowNames(el)).toEqual(["Mainframe operator"]);
+        expect(menuItems(el, 0)).toContain("pamRotationConfigMarkRotated");
+      });
     });
   });
 });

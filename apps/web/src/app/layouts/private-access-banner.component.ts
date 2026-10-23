@@ -14,10 +14,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BannerModule, LinkModule, ResizeObserverDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -62,21 +59,16 @@ export class PrivateAccessBannerComponent implements OnInit, AfterViewInit, OnDe
   private readonly destroyRef = inject(DestroyRef);
   private readonly container = viewChild<ElementRef<HTMLElement>>("container");
 
-  private readonly vfo1Enabled = toSignal(
-    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
-
   /**
    * Sticky insets are measured inside the scroll container's padding, so the layout instance
-   * offsets `<main>`'s top padding to pin flush with its top edge. Mirrors the padding
-   * correction in `bit-banner`.
+   * offsets `<main>`'s top padding to pin flush with its top edge, unless `<main>` hosts a
+   * `bit-header` and has no top padding. Mirrors the padding correction in `bit-banner`.
    */
   protected readonly offsetClass = computed(() => {
     if (this.placement() === "app") {
       return "tw-top-0";
     }
-    return this.vfo1Enabled() ? "-tw-top-6 [main:has(bit-header)>&]:tw-top-0" : "-tw-top-6";
+    return "-tw-top-6 [main:has(bit-header)>&]:tw-top-0";
   });
 
   protected readonly visible = computed(
