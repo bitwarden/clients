@@ -84,6 +84,7 @@ export class Cipher extends Domain {
   creationDate: Date;
   deletedDate?: Date;
   archivedDate?: Date;
+  excludedFromReports?: boolean;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
   /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
@@ -115,6 +116,7 @@ export class Cipher extends Domain {
     this.creationDate = new Date(obj.creationDate);
     this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
+    this.excludedFromReports = obj.excludedFromReports;
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
     this.data = obj.data;
@@ -205,6 +207,7 @@ export class Cipher extends Domain {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    c.excludedFromReports = this.excludedFromReports;
     c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
@@ -298,6 +301,7 @@ export class Cipher extends Domain {
     domain.revisionDate = new Date(obj.revisionDate);
     domain.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     domain.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
+    domain.excludedFromReports = obj.excludedFromReports;
     domain.name = encStringFrom(obj.name);
     domain.notes = encStringFrom(obj.notes);
     domain.key = encStringFrom(obj.key);
