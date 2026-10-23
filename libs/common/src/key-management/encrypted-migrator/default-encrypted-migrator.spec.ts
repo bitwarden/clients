@@ -12,6 +12,7 @@ import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-manage
 
 import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../platform/state";
@@ -35,6 +36,7 @@ jest.mock("./migrations/user-key-id-backfill-migration");
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
   const mockStateProvider = mock<StateProvider>();
+  const mockI18nService = mock<I18nService>();
   const mockLogService = mock<LogService>({ startMeasurement: () => mock<Measurement>() });
   const configService = mock<ConfigService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
@@ -97,6 +99,7 @@ describe("EncryptedMigrator", () => {
       mockCipherService,
       mockSdkService,
       mockStateProvider,
+      mockI18nService,
     );
   });
 

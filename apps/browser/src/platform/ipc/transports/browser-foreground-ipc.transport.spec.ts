@@ -4,14 +4,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { IpcMessage } from "@bitwarden/common/platform/ipc";
 import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
-import {
-  BrowserForegroundIpcTransport,
-  FOREGROUND_IPC_PORT_NAME,
-  FOREGROUND_IPC_WAKE_PORT_NAME,
-} from "./browser-foreground-ipc.transport";
+import { BrowserForegroundIpcTransport } from "./browser-foreground-ipc.transport";
 import { DESTINATION_UNREACHABLE_ERROR } from "./errors";
+import {
+  IPC_FOREGROUND_PORT_NAME,
+  IPC_FOREGROUND_WAKE_PORT_NAME,
+} from "./ipc-foreground-port-name";
 
-function createPort(name = FOREGROUND_IPC_PORT_NAME, origin = "chrome-extension://id") {
+function createPort(name = IPC_FOREGROUND_PORT_NAME, origin = "chrome-extension://id") {
   const messageListeners: ((message: unknown) => void)[] = [];
   const disconnectListeners: (() => void)[] = [];
   const port = {
@@ -52,7 +52,7 @@ describe("BrowserForegroundIpcTransport", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    wakePort = createPort(FOREGROUND_IPC_WAKE_PORT_NAME);
+    wakePort = createPort(IPC_FOREGROUND_WAKE_PORT_NAME);
     (chrome.runtime.connect as jest.Mock).mockReturnValue(wakePort.port);
     transport = new BrowserForegroundIpcTransport(logService, receive);
     transport.init();
@@ -60,7 +60,7 @@ describe("BrowserForegroundIpcTransport", () => {
 
   it("asks open extension pages to connect on init", () => {
     expect(chrome.runtime.connect).toHaveBeenCalledTimes(1);
-    expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: FOREGROUND_IPC_WAKE_PORT_NAME });
+    expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: IPC_FOREGROUND_WAKE_PORT_NAME });
     expect(wakePort.port.postMessage).not.toHaveBeenCalled();
   });
 
@@ -83,7 +83,7 @@ describe("BrowserForegroundIpcTransport", () => {
   });
 
   it("does not accept its own wake port as a page", () => {
-    connect(createPort(FOREGROUND_IPC_WAKE_PORT_NAME).port);
+    connect(createPort(IPC_FOREGROUND_WAKE_PORT_NAME).port);
 
     expect(transport.connectedEndpoints()).toEqual([]);
   });
@@ -128,6 +128,19 @@ describe("BrowserForegroundIpcTransport", () => {
     expect(receive).toHaveBeenCalledTimes(1);
   });
 
+  it("drops the oldest held messages past the limit", () => {
+    const { port, emit } = createPort();
+    connect(port);
+    for (let i = 0; i < 21; i++) {
+      emit(ipcMessage({ BrowserBackground: { id: "Own" } }, [i]));
+    }
+
+    transport.start();
+
+    expect(receive).toHaveBeenCalledTimes(20);
+    expect(receive.mock.calls[0][0].payload).toEqual(new Uint8Array([1]));
+  });
+
   it("ignores ports with another name", () => {
     const { port } = createPort("other-port");
     connect(port);
@@ -136,7 +149,7 @@ describe("BrowserForegroundIpcTransport", () => {
   });
 
   it("ignores ports from non-extension senders", () => {
-    const { port } = createPort(FOREGROUND_IPC_PORT_NAME, "https://example.com");
+    const { port } = createPort(IPC_FOREGROUND_PORT_NAME, "https://example.com");
     connect(port);
 
     expect(port.onMessage.addListener).not.toHaveBeenCalled();
@@ -209,6 +222,10 @@ describe("BrowserForegroundIpcTransport", () => {
     connect(port);
 
     disconnect();
+
+    expect(port.onMessage.removeListener).toHaveBeenCalledWith(
+      (port.onMessage.addListener as jest.Mock).mock.calls[0][0],
+    );
 
     await expect(
       transport.send({

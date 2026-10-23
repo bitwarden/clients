@@ -118,9 +118,11 @@ export const StickyHeaderAndFooterVfo1: Story = {
     `,
   }),
   play: async ({ canvasElement }) => {
-    // The nav scrolls itself, not the page; the sticky bands only engage once it is 600px tall.
+    // The nav scrolls itself, not the page; which element scrolls depends on the 600px breakpoint.
     const scroller = await waitFor(() => {
-      const el = canvasElement.querySelector<HTMLElement>("#bit-side-nav--scroll");
+      const el = [
+        ...canvasElement.querySelectorAll<HTMLElement>("[data-nav-column], #bit-side-nav--scroll"),
+      ].find((candidate) => candidate.scrollHeight > candidate.clientHeight);
       if (el == null) {
         throw new Error("Side nav scroll container has not rendered");
       }

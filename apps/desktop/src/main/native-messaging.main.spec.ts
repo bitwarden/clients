@@ -1,10 +1,15 @@
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import * as path from "path";
+
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DesktopIpcPeerClientType } from "@bitwarden/common/platform/ipc";
-import { ipc } from "@bitwarden/desktop-napi";
+import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { NativeMessagingMain } from "./native-messaging.main";
+import { isWindowsStore } from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 jest.mock("electron", () => ({
@@ -17,8 +22,13 @@ jest.mock("@bitwarden/desktop-napi", () => ({
     NativeIpcServer: { listen: jest.fn() },
     IpcMessageType: { Connected: 0, Disconnected: 1, Message: 2 },
   },
-  windows_registry: {},
+  windows_registry: { createKey: jest.fn() },
 }));
+
+// Dev mode would scan browser profiles for extension ids.
+jest.mock("../utils", () => ({ ...jest.requireActual("../utils"), isDev: () => false }));
+
+jest.mock("./platform-utils.main", () => ({ isWindowsStore: jest.fn() }));
 
 describe("NativeMessagingMain", () => {
   const clientId = 7;
@@ -127,5 +137,193 @@ describe("NativeMessagingMain", () => {
     emit(null, { kind: ipc.IpcMessageType.Disconnected, clientId } as ipc.IpcMessage);
 
     expect(sut.clientTypeFor(clientId)).toBeUndefined();
+  });
+
+  describe("generateManifests on linux", () => {
+    const manifestName = "com.8bit.bitwarden.json";
+    const platform = process.platform;
+
+    let home: string;
+
+    beforeEach(() => {
+      home = mkdtempSync(path.join(tmpdir(), "nmh-"));
+      Object.defineProperty(process, "platform", { value: "linux" });
+      jest.spyOn(sut as any, "homedir").mockReturnValue(home);
+
+      // Stand-in for the desktop_proxy binary the manifests point to.
+      const binary = path.join(home, "desktop_proxy");
+      writeFileSync(binary, "");
+      jest.spyOn(sut as any, "binaryPath").mockReturnValue(binary);
+    });
+
+    afterEach(() => {
+      Object.defineProperty(process, "platform", { value: platform });
+      rmSync(home, { recursive: true, force: true });
+    });
+
+    it("writes the firefox manifest when only the XDG profile dir exists", async () => {
+      mkdirSync(path.join(home, ".config", "mozilla"), { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(home, ".mozilla", "native-messaging-hosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    it("writes the flatpak firefox manifest when only the app dir exists", async () => {
+      const app = path.join(home, ".var", "app", "org.mozilla.firefox");
+      mkdirSync(app, { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(app, ".mozilla", "native-messaging-hosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    // Chromium-based browsers don't always ship a NativeMessagingHosts dir.
+    it("writes the chromium manifest when the NativeMessagingHosts dir is missing", async () => {
+      mkdirSync(path.join(home, ".config", "chromium"), { recursive: true });
+
+      await sut.generateManifests();
+
+      const nmhs = path.join(home, ".config", "chromium", "NativeMessagingHosts");
+      expect(existsSync(path.join(nmhs, manifestName))).toBe(true);
+    });
+
+    it("skips firefox when no profile dir exists", async () => {
+      await sut.generateManifests();
+
+      expect(existsSync(path.join(home, ".mozilla"))).toBe(false);
+      expect(existsSync(path.join(home, ".var"))).toBe(false);
+    });
+  });
+});
+
+describe("NativeMessagingMain.generateManifests on Windows", () => {
+  const chromeKey = "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden";
+  const originalPlatform = process.platform;
+  const originalResourcesPath = process.resourcesPath;
+  const originalLocalAppData = process.env.LOCALAPPDATA;
+
+  let root: string;
+  let userPath: string;
+  let localAppData: string;
+  let installPath: string;
+  let sut: NativeMessagingMain;
+
+  /** Reads the Chrome manifest that `generateManifests` registered for browsers to discover. */
+  function readRegisteredChromeManifest(): { path: string } {
+    const [, , manifestPath] = jest
+      .mocked(windows_registry.createKey)
+      .mock.calls.find(([, subkey]) => subkey === chromeKey);
+    return JSON.parse(readFileSync(manifestPath, "utf8"));
+  }
+
+  /** Runs as if from the Appx with this package full name, whose package folder exists. */
+  async function runFromAppx(packageFullName: string, packageFamilyName: string) {
+    jest.mocked(isWindowsStore).mockReturnValue(true);
+    Object.defineProperty(process, "resourcesPath", {
+      value: `C:\\Program Files\\WindowsApps\\${packageFullName}\\app\\resources`,
+      configurable: true,
+    });
+    mkdirSync(path.join(localAppData, "Packages", packageFamilyName, "LocalState"), {
+      recursive: true,
+    });
+  }
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    Object.defineProperty(process, "platform", { value: "win32" });
+
+    // %APPDATA%\Bitwarden is left uncreated: the Appx may be installed without it.
+    root = mkdtempSync(path.join(tmpdir(), "bitwarden-"));
+    userPath = path.join(root, "Roaming", "Bitwarden");
+    localAppData = path.join(root, "Local");
+    installPath = path.join(root, "install");
+    process.env.LOCALAPPDATA = localAppData;
+    mkdirSync(installPath);
+    writeFileSync(path.join(installPath, "desktop_proxy.exe"), "");
+
+    sut = new NativeMessagingMain(
+      mock<LogService>(),
+      mock<WindowMain>(),
+      userPath,
+      path.join(installPath, "Bitwarden.exe"),
+      "app",
+    );
+  });
+
+  afterEach(async () => {
+    Object.defineProperty(process, "platform", { value: originalPlatform });
+    Object.defineProperty(process, "resourcesPath", {
+      value: originalResourcesPath,
+      configurable: true,
+    });
+    process.env.LOCALAPPDATA = originalLocalAppData;
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it("registers a manifest in the user data directory pointing at the proxy beside the app outside an Appx", async () => {
+    jest.mocked(isWindowsStore).mockReturnValue(false);
+    mkdirSync(userPath, { recursive: true });
+
+    await sut.generateManifests();
+
+    expect(windows_registry.createKey).toHaveBeenCalledWith(
+      "HKCU",
+      chromeKey,
+      path.join(userPath, "browsers", "chrome.json"),
+    );
+    expect(readRegisteredChromeManifest().path).toBe(path.join(installPath, "desktop_proxy.exe"));
+  });
+
+  it("registers a manifest in the package folder pointing at the proxy's execution alias in the Appx", async () => {
+    await runFromAppx(
+      "8bitSolutionsLLC.bitwardendesktop_1.0.0.0_x64__h4e712dmw3xyy",
+      "8bitSolutionsLLC.bitwardendesktop_h4e712dmw3xyy",
+    );
+
+    await sut.generateManifests();
+
+    expect(windows_registry.createKey).toHaveBeenCalledWith(
+      "HKCU",
+      chromeKey,
+      path.join(
+        localAppData,
+        "Packages",
+        "8bitSolutionsLLC.bitwardendesktop_h4e712dmw3xyy",
+        "LocalState",
+        "browsers",
+        "chrome.json",
+      ),
+    );
+    expect(readRegisteredChromeManifest().path).toBe(
+      path.join(localAppData, "Microsoft", "WindowsApps", "bitwarden_desktop_proxy.exe"),
+    );
+  });
+
+  it("registers a manifest in the package folder pointing at the Beta proxy's execution alias in the Beta Appx", async () => {
+    await runFromAppx(
+      "8bitSolutionsLLC.BitwardenBeta_1.0.0.0_x64__h4e712dmw3xyy",
+      "8bitSolutionsLLC.BitwardenBeta_h4e712dmw3xyy",
+    );
+
+    await sut.generateManifests();
+
+    expect(windows_registry.createKey).toHaveBeenCalledWith(
+      "HKCU",
+      chromeKey,
+      path.join(
+        localAppData,
+        "Packages",
+        "8bitSolutionsLLC.BitwardenBeta_h4e712dmw3xyy",
+        "LocalState",
+        "browsers",
+        "chrome.json",
+      ),
+    );
+    expect(readRegisteredChromeManifest().path).toBe(
+      path.join(localAppData, "Microsoft", "WindowsApps", "bitwarden_beta_desktop_proxy.exe"),
+    );
   });
 });

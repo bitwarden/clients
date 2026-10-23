@@ -43,6 +43,7 @@ import {
 import { StateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import {
+  CoachmarkService,
   NO_FOLDER,
   PasswordRepromptService,
   VaultCopyButtonsService,
@@ -59,6 +60,7 @@ import { VaultPopupListTableFiltersService } from "../../../services/vault-popup
 import { VaultPopupListTableService } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 
 import { VaultPopupListTableComponent } from "./vault-popup-list-table.component";
@@ -212,8 +214,14 @@ describe("VaultPopupListTableComponent", () => {
     viewModel$: jest.fn().mockReturnValue(nav$.asObservable()),
   };
 
+  /** No tour step is active; the filters tour is covered by its own spec. */
+  const coachmarkService = mock<CoachmarkService>({ isStepActive: () => false });
+  /** Whether the tour holds the filter dialog open. */
+  const tourFilterDialogOpen = signal(false);
+
   beforeEach(async () => {
     jest.clearAllMocks();
+    tourFilterDialogOpen.set(false);
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     configService.getFeatureFlag.mockResolvedValue(false);
@@ -243,6 +251,11 @@ describe("VaultPopupListTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
       providers: [
+        { provide: CoachmarkService, useValue: coachmarkService },
+        {
+          provide: VaultPopupTourService,
+          useValue: { sharedFoldersRow: signal(null), filterDialogOpen: tourFilterDialogOpen },
+        },
         { provide: WINDOW, useValue: window },
         {
           provide: ViewCacheService,
@@ -1083,24 +1096,68 @@ describe("VaultPopupListTableComponent", () => {
   describe("filter dialog state", () => {
     // `DialogModule` provides its own instance, so spy on the class rather than the TestBed mock.
     let open: jest.SpyInstance;
-    beforeEach(() => (open = jest.spyOn(DialogService.prototype, "open")));
-    afterEach(() => open.mockRestore());
+    const originalResizeObserver = globalThis.ResizeObserver;
 
-    it("doesn't reopen a closed dialog when the vault page is recreated", () => {
+    beforeEach(() => {
+      open = jest.spyOn(DialogService.prototype, "open");
+      // JSDOM has no layout; report a narrow width so the toolbar collapses and opens the restored dialog.
+      globalThis.ResizeObserver = class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe(target: Element) {
+          const entry = { target, contentRect: { width: 360 } } as unknown as ResizeObserverEntry;
+          this.callback([entry], this as unknown as ResizeObserver);
+        }
+        unobserve() {}
+        disconnect() {}
+      } as unknown as typeof ResizeObserver;
+    });
+    afterEach(() => {
+      open.mockRestore();
+      globalThis.ResizeObserver = originalResizeObserver;
+    });
+
+    it("doesn't reopen a closed dialog when the vault page is recreated", async () => {
       // The popup opened with the dialog left open, and the snapshot keeps saying so.
       viewCacheSnapshot["vault-filter-dialog-open"] = true;
       vaultPopupListTableFiltersService.filterDialogOpen.set(true);
 
       const first = TestBed.createComponent(VaultPopupListTableComponent);
-      first.detectChanges();
+      first.autoDetectChanges();
+      await first.whenStable();
       expect(open).toHaveBeenCalledTimes(1);
 
       open.mock.results[0].value.close();
       first.destroy();
 
       // Navigating back rebuilds the page: `NoRouteReuseStrategy` never reuses it.
-      TestBed.createComponent(VaultPopupListTableComponent).detectChanges();
+      const second = TestBed.createComponent(VaultPopupListTableComponent);
+      second.autoDetectChanges();
+      await second.whenStable();
       expect(open).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens the dialog for the tour without caching it as left open", async () => {
+      tourFilterDialogOpen.set(true);
+
+      const page = TestBed.createComponent(VaultPopupListTableComponent);
+      page.autoDetectChanges();
+      await page.whenStable();
+
+      expect(open).toHaveBeenCalledTimes(1);
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
+    });
+
+    it("releases the tour's hold when the user closes the dialog", async () => {
+      tourFilterDialogOpen.set(true);
+
+      const page = TestBed.createComponent(VaultPopupListTableComponent);
+      page.autoDetectChanges();
+      await page.whenStable();
+      open.mock.results[0].value.close();
+      await page.whenStable();
+
+      expect(tourFilterDialogOpen()).toBe(false);
+      expect(vaultPopupListTableFiltersService.filterDialogOpen()).toBe(false);
     });
   });
 

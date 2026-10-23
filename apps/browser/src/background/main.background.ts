@@ -768,6 +768,47 @@ export default class MainBackground {
       this.accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    this.appIdService = new AppIdService(this.storageService, this.logService);
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      () => this.kdfConfigService,
+      () => this.keyService,
+      () => this.accountCryptographicStateService,
+      () => this.apiService,
+      this.stateProvider,
+      () => this.configService,
+      this.v2UpgradeTokenStateService,
+      this.managedSettingsService,
+      this.appIdService,
+      this.logService,
+    );
+
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
@@ -865,8 +906,6 @@ export default class MainBackground {
       this.logService,
     );
 
-    this.appIdService = new AppIdService(this.storageService, this.logService);
-
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
       this.singleUserStateProvider,
     );
@@ -922,11 +961,7 @@ export default class MainBackground {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.fileUploadService = new FileUploadService(
-      this.logService,
-      this.apiService,
-      this.configService,
-    );
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
@@ -954,6 +989,7 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+      this.sdkService,
     );
 
     this.availableRegionsService = new DefaultAvailableRegionsService(
@@ -972,44 +1008,6 @@ export default class MainBackground {
       this.policyService,
       this.authService,
       this.accountService,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      // The dev source replaces host acquisition rather than layering on top of it. Left running,
-      // the reader would find no policy on the developer's machine and clear the pushed profile.
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      this.managedSettingsService = devManagedSettingsService;
-    } else {
-      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-      this.managedConfigReader = new BrowserManagedConfigReader(
-        this.managedSettingsService,
-        this.logService,
-      );
-    }
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      this.managedSettingsService,
-      this.appIdService,
-      this.logService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -1198,7 +1196,6 @@ export default class MainBackground {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
-      this.configService,
       this.cipherSdkService,
     );
 
@@ -1776,6 +1773,8 @@ export default class MainBackground {
         this.accountService,
         chrome.webRequest,
         this.autofillSettingsService,
+        this.eventCollectionService,
+        this.logService,
       );
     }
 

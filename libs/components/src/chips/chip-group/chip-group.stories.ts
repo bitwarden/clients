@@ -34,13 +34,18 @@ export default {
         {
           provide: I18nService,
           useFactory: () =>
-            new I18nMockService({ showMore: "Show more", showMoreCount: "Show 5 more" }),
+            new I18nMockService({
+              showMore: "Show more",
+              showMoreCount: "Show 5 more",
+              removeItem: (name?: string) => `Remove ${name}`,
+            }),
         },
       ],
     }),
   ],
   args: {
     chipSelect: fn(),
+    chipDismiss: fn(),
   },
 } as Meta;
 
@@ -90,6 +95,33 @@ export const WithIcons: Story = {
       { id: "design", label: "Design", variant: "subtle", startIcon: "bwi-collection-shared" },
       { id: "support", label: "Support", variant: "subtle", startIcon: "bwi-collection-shared" },
       { id: "sales", label: "Sales", variant: "subtle", startIcon: "bwi-collection-shared" },
+    ],
+  },
+};
+
+/**
+ * Each chip carries a dismiss button. `accessibleName` qualifies the dismiss button and tooltip
+ * when the visible label leans on its icon for context.
+ */
+export const Dismissible: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div style="width: 300px;">
+        <bit-chip-group
+          dismissible
+          [chips]="chips"
+          (chipDismiss)="chipDismiss($event)"
+        ></bit-chip-group>
+      </div>
+    `,
+  }),
+  args: {
+    chips: [
+      { id: "type:0", label: "Login", accessibleName: "Type: Login", startIcon: "bwi-list" },
+      { id: "type:1", label: "Card", accessibleName: "Type: Card", startIcon: "bwi-list" },
+      { id: "folder", label: "Folder: Work" },
+      { id: "vault", label: "Vault: My vault" },
     ],
   },
 };

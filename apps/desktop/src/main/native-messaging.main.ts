@@ -17,6 +17,7 @@ import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../utils";
 
+import { isWindowsStore } from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 export class NativeMessagingMain {
@@ -189,10 +190,12 @@ export class NativeMessagingMain {
   }
 
   async generateManifests() {
-    const binaryPath = this.binaryPath();
-    if (!existsSync(binaryPath)) {
-      throw new Error(`Unable to find proxy binary: ${binaryPath}`);
+    const proxyPath = this.binaryPath();
+    if (!existsSync(proxyPath)) {
+      throw new Error(`Unable to find proxy binary: ${proxyPath}`);
     }
+    // Browsers may not launch executables inside the Appx, only its execution aliases.
+    const binaryPath = isWindowsStore() ? this.appxProxyAliasPath() : proxyPath;
 
     // When debugging against a dedicated chrome profile, only that profile gets a
     // manifest, so the real browser installs are left untouched.
@@ -203,7 +206,7 @@ export class NativeMessagingMain {
 
     switch (process.platform) {
       case "win32": {
-        const destination = path.join(this.userPath, "browsers");
+        const destination = this.windowsManifestDirectory();
         await this.writeManifest(
           path.join(destination, "firefox.json"),
           await this.generateFirefoxJson(binaryPath),
@@ -251,6 +254,10 @@ export class NativeMessagingMain {
         // so that a canonical path to put in the manifest can be used.
 
         // Unsandboxed browser
+        await this.createFirefoxDir(
+          `${this.homedir()}/.config/mozilla/`,
+          `${this.homedir()}/.mozilla`,
+        );
         for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
           if (existsSync(browserDirectory)) {
             let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
@@ -259,10 +266,8 @@ export class NativeMessagingMain {
             }
             const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
 
-            if (key === "Firefox") {
-              // Only generate the NMHS dir if the browser directory exists
-              await fs.mkdir(nhmsPath, { recursive: true });
-            }
+            // Only generate the NMHS dir if the browser directory exists
+            await fs.mkdir(nhmsPath, { recursive: true });
 
             await this.linkOrCopy(binaryPath, browserBinaryPath);
             this.logService.info(
@@ -285,6 +290,10 @@ export class NativeMessagingMain {
           }
         }
 
+        await this.createFirefoxDir(
+          `${this.homedir()}/.var/app/org.mozilla.firefox`,
+          this.getFlatpakNMHS().Firefox,
+        );
         for (const [key, value] of Object.entries(this.getFlatpakNMHS())) {
           if (existsSync(value)) {
             const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
@@ -382,8 +391,9 @@ export class NativeMessagingMain {
   async removeManifests() {
     switch (process.platform) {
       case "win32": {
-        await this.removeIfExists(path.join(this.userPath, "browsers", "firefox.json"));
-        await this.removeIfExists(path.join(this.userPath, "browsers", "chrome.json"));
+        const destination = this.windowsManifestDirectory();
+        await this.removeIfExists(path.join(destination, "firefox.json"));
+        await this.removeIfExists(path.join(destination, "chrome.json"));
 
         const nmhs = this.getWindowsNMHS();
         for (const [, [key, subkey]] of Object.entries(nmhs)) {
@@ -484,6 +494,9 @@ export class NativeMessagingMain {
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Brave: `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser/`,
+      "Brave Beta": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Beta/`,
+      "Brave Nightly": `${this.homedir()}/Library/Application\ Support/BraveSoftware/Brave-Browser-Nightly/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -498,6 +511,17 @@ export class NativeMessagingMain {
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
       Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
+  }
+
+  // Firefox may be installed without the dir it reads native messaging hosts from
+  // (e.g. XDG profiles in ~/.config/mozilla, no ~/.mozilla). Create it so Firefox is detected.
+  // E.g. firefoxDir: ~/.config/mozilla/, hostsDir: ~/.mozilla
+  private async createFirefoxDir(firefoxDir: string, hostsDir: string) {
+    if (!existsSync(firefoxDir)) {
+      return;
+    }
+
+    await fs.mkdir(hostsDir, { recursive: true });
   }
 
   private getFlatpakNMHS() {
@@ -639,6 +663,40 @@ export class NativeMessagingMain {
     }
 
     return path.join(path.dirname(this.exePath), `desktop_proxy${ext}`);
+  }
+
+  /**
+   * Where the manifests the registry points browsers at are written.
+   *
+   * The Appx's writes to new AppData folders are redirected into the package, where browsers
+   * looking at the original path won't find them. So the Appx writes them into its package folder
+   * directly, and registers that path. Its install directory is named for the package full name,
+   * `<name>_<version>_<arch>_<resourceId>_<publisherId>`, and its family name is
+   * `<name>_<publisherId>`.
+   */
+  private windowsManifestDirectory() {
+    if (!isWindowsStore()) {
+      return path.join(this.userPath, "browsers");
+    }
+
+    const [, name, publisherId] = process.resourcesPath.match(
+      /\\WindowsApps\\([^_\\]+)_[^\\]*_([^_\\]+)\\/,
+    );
+    return path.join(
+      process.env.LOCALAPPDATA,
+      "Packages",
+      `${name}_${publisherId}`,
+      "LocalState",
+      "browsers",
+    );
+  }
+
+  /** The proxy's execution alias, as declared in custom-appx-extensions.*.xml. */
+  private appxProxyAliasPath() {
+    const alias = process.resourcesPath.includes("8bitSolutionsLLC.BitwardenBeta_")
+      ? "bitwarden_beta_desktop_proxy.exe"
+      : "bitwarden_desktop_proxy.exe";
+    return path.join(process.env.LOCALAPPDATA, "Microsoft", "WindowsApps", alias);
   }
 
   private homedir() {
