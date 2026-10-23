@@ -248,6 +248,7 @@ export class AutoFillConstants {
 
   static readonly ExcludedInlineMenuTypes: string[] = [
     "textarea",
+    "url",
     ...AutoFillConstants.ExcludedAutofillTypes,
   ];
 
