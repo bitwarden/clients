@@ -4,6 +4,7 @@ import { concatMap, firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { PolicyRecordMapper } from "@bitwarden/common/admin-console/models/domain/policy-sdk-mapper";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -58,6 +59,8 @@ import {
 import { EmergencyAccessGranteeDetailsResponse } from "../response/emergency-access.response";
 
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
+
+const policyRecordMapper = new PolicyRecordMapper();
 
 @Injectable()
 export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvider<
@@ -143,7 +146,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       const sdkPolicies = await this.withSdk((client) =>
         client.get_grantor_policies(asUuid<EmergencyAccessId>(id)),
       );
-      return sdkPolicies.map((policy) => Policy.fromSdkPolicy(policy));
+      return sdkPolicies.map((policy) => new Policy(policyRecordMapper.fromSdk(policy)));
     }
 
     const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id);

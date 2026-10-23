@@ -2,6 +2,7 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 import { Repository, StateClient } from "@bitwarden/sdk-internal";
 
+import { PolicyRecordMapper } from "../../../admin-console/models/domain/policy-sdk-mapper";
 import { LocalUserDataKeyRecordMapper } from "../../../key-management/local-user-data-key-mapper";
 import { SendRecordMapper } from "../../../tools/send/models/domain/send-sdk-mapper";
 import { UserId } from "../../../types/guid";
@@ -23,7 +24,7 @@ export async function initializeClientManagedState(
     ),
     organization: null,
     organization_shared_key: null,
-    policy: null,
+    policy: new RepositoryRecord(userId, stateProvider, new PolicyRecordMapper()),
     send: new RepositoryRecord(userId, stateProvider, new SendRecordMapper(), true),
   });
 }
