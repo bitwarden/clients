@@ -214,6 +214,34 @@ describe("CipherFormComponent", () => {
     });
   });
 
+  describe("setInitialCipherFromCache", () => {
+    it("keeps the fresh revisionDate and attachments when restoring a cached edit", async () => {
+      const freshCipher = new CipherView();
+      freshCipher.id = "test-id";
+      freshCipher.name = "fresh name";
+      freshCipher.revisionDate = new Date("2026-10-23T12:00:00Z");
+      freshCipher.attachments = [];
+
+      const cachedCipher = new CipherView();
+      cachedCipher.id = "test-id";
+      cachedCipher.name = "edited name";
+      cachedCipher.revisionDate = new Date("2026-10-22T12:00:00Z");
+      cachedCipher.attachments = [new AttachmentView()];
+
+      decryptCipher.mockResolvedValue(freshCipher);
+      jest
+        .spyOn(component["cipherFormCacheService"], "getCachedCipherView")
+        .mockReturnValue(cachedCipher);
+      component.config = { mode: "edit", originalCipher: new Cipher() } as CipherFormConfig;
+
+      await component.ngOnInit();
+
+      expect(component["updatedCipherView"].name).toBe("edited name");
+      expect(component["updatedCipherView"].revisionDate).toEqual(freshCipher.revisionDate);
+      expect(component["updatedCipherView"].attachments).toEqual([]);
+    });
+  });
+
   describe("enableFormFields", () => {
     beforeEach(() => {
       // disable the form so enabling occurs
