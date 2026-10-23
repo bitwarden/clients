@@ -23,7 +23,7 @@ export type FolderTableRow = {
   nestedFolders: number;
 };
 
-const EMPTY_NAME_PLACEHOLDER = "—";
+export const EMPTY_NAME_PLACEHOLDER = "—";
 
 /** The user's top-level folders as table rows. */
 export function buildFolderRows(

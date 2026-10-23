@@ -50,6 +50,8 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
 export * from "./components/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 export * from "./components/my-folders/my-folders.component";
+export { MyFolderBreadcrumbsComponent } from "./components/my-folders/my-folder-breadcrumbs.component";
+export { MyFolderMenuComponent } from "./components/my-folders/my-folder-menu.component";
 export * from "./components/add-item-grid/add-item-grid.component";
 export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";

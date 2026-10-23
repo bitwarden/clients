@@ -140,7 +140,10 @@ import {
   resolveVaultScope,
   routeVaultScope,
   scopeKey,
+  scopedFolderId,
   CardGridComponent,
+  MyFolderBreadcrumbsComponent,
+  MyFolderMenuComponent,
   VaultBreadcrumbsComponent,
   VaultRemountOnDirective,
   sharedFolderNameForScope,
@@ -200,6 +203,8 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     AutofocusDirective,
     CardGridComponent,
     VaultBreadcrumbsComponent,
+    MyFolderBreadcrumbsComponent,
+    MyFolderMenuComponent,
     IconTileComponent,
     VaultRemountOnDirective,
   ],
@@ -446,6 +451,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     ),
     { initialValue: false },
   );
+
+  protected readonly scopedFolderId = computed(() => scopedFolderId(this.vaultScope()));
 
   protected readonly hasMultipleVaults = toSignal(
     combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
