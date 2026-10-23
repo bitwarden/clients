@@ -14,11 +14,13 @@ export const lockPopoutGuard: CanActivateFn = async (route, state) => {
   const biometricsService = inject(BiometricsService);
   const webAuthnPrfUnlockService = inject(WebAuthnPrfUnlockService);
 
+  // Keep the normal popup for accounts without passkey unlock.
   const account = await firstValueFrom(accountService.activeAccount$);
   if (!account || !(await webAuthnPrfUnlockService.isPrfUnlockAvailable(account.id))) {
     return true;
   }
 
+  // Suppression lives in the current window, so pass it to the popout's new service.
   const shouldAutoprompt = await biometricsService.getShouldAutopromptNow();
 
   return platformPopoutGuard(["linux"], false, {

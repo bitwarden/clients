@@ -639,6 +639,7 @@ export class LockComponent implements OnInit, OnDestroy {
         await this.router.navigateByUrl(previousUrl);
         return;
       }
+      // With no saved flow to resume, return to the toolbar popup and close this temporary window.
       if (this.activatedRoute.snapshot.queryParamMap.get("autoClosePopout") === "true") {
         this.messagingService.send("openPopup");
         window.close();

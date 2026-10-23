@@ -31,6 +31,7 @@ export function platformPopoutGuard(
       // Add autoClosePopout query param to signal the popout should close after completion
       const [path, existingQuery] = state.url.split("?");
       const params = new URLSearchParams(existingQuery || "");
+      // Keep existing route parameters when adding state for the new window.
       for (const [key, value] of Object.entries(queryParams)) {
         params.set(key, value);
       }
