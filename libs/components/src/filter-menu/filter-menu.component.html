@@ -82,9 +82,12 @@
       name="bwi-search"
       class="tw-text-xl tw-leading-none tw-text-fg-body-subtle"
     ></bit-icon>
-    <span bitTypography="body2" class="tw-text-fg-body-subtle">{{
-      "noFiltersMatchTerm" | i18n: searchTerm()
-    }}</span>
+    <!-- Capped so break-words can wrap a long unbroken term inside the centered column. -->
+    <span
+      bitTypography="body2"
+      class="tw-line-clamp-2 tw-max-w-full tw-break-words tw-text-center tw-text-fg-body-subtle"
+      >{{ "noFiltersMatchTerm" | i18n: searchTerm() }}</span
+    >
     <button
       bitButton
       buttonType="secondary"
