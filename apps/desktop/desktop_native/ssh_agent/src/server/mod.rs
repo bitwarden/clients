@@ -265,12 +265,16 @@ pub(crate) mod test_common {
         use ssh_key::{certificate, rand_core::OsRng, Algorithm, PrivateKey};
 
         let ca = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
+        // Validity is irrelevant to session-bind handling; the end bound only needs to be a
+        // timestamp every platform's `SystemTime` can represent (2100-01-01T00:00:00Z).
+        const VALID_BEFORE: u64 = 4_102_444_800;
+
         let host = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
         let mut builder = certificate::Builder::new(
             [0x11u8; 16],
             host.public_key().key_data().clone(),
             0,
-            u64::MAX >> 1,
+            VALID_BEFORE,
         )
         .unwrap();
         builder.cert_type(certificate::CertType::Host).unwrap();
