@@ -178,6 +178,15 @@
         ></app-sm-adjust-subscription>
       }
 
+      @if (showAdjustPrivilegedControls() && privilegedControlsOptions(); as pamOptions) {
+        <h3 bitTypography="h3" class="tw-mt-9">{{ "privilegedControls" | i18n }}</h3>
+        <app-privileged-controls-adjust-subscription
+          [organizationId]="typedOrganizationId"
+          [options]="pamOptions"
+          (adjusted)="subscriptionAdjusted()"
+        ></app-privileged-controls-adjust-subscription>
+      }
+
       <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
       <p bitTypography="body1">{{ "additionalOptionsDesc" | i18n }}</p>
 

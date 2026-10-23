@@ -8,6 +8,8 @@ import { GearIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -55,6 +57,10 @@ import {
 } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import {
+  PrivilegedControlsAdjustSubscriptionComponent,
+  PrivilegedControlsSubscriptionOptions,
+} from "./privileged-controls-adjust-subscription.component";
 import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
 import {
   SecretsManagerAdjustSubscriptionComponent,
@@ -104,6 +110,7 @@ const SubscriptionStatusLabels: Record<string, string> = {
     AdjustSubscription,
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
+    PrivilegedControlsAdjustSubscriptionComponent,
     ErrorCardComponent,
     CalloutComponent,
     DatePipe,
@@ -122,11 +129,13 @@ export class OrganizationSubscriptionCloudVNextComponent {
   private readonly apiService = inject(ApiService);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
   private readonly organizationBillingClient = inject(OrganizationBillingClient);
+  private readonly configService = inject(ConfigService);
 
   // Re-fires the subscription data streams after a mutation (reinstate, cancel, storage, etc.).
   // Seeded so the streams load once on init, then reload each time refreshAll() emits.
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
   readonly organizationId: string = this.route.snapshot.params.organizationId;
+  protected readonly typedOrganizationId = this.organizationId as OrganizationId;
   readonly gearIcon = GearIcon;
 
   constructor() {
@@ -333,6 +342,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
     );
   });
 
+  private readonly pamBillingSupportEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM39883_PamBillingSupport),
+    { initialValue: false },
+  );
+
+  readonly showAdjustPrivilegedControls = computed(() => {
+    const org = this.organization();
+    const sub = this.organizationSubscription();
+    if (!this.pamBillingSupportEnabled() || org == null || sub == null) {
+      return false;
+    }
+    return (
+      org.usePam &&
+      this.privilegedControlsOptions() != null &&
+      sub.isOnPamSalesInitiatedTrial !== true &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
   /**
    * Determines if the password manager seats can be adjusted.
    * @returns True if the password manager seats can be adjusted, false otherwise.
@@ -457,6 +485,24 @@ export class OrganizationSubscriptionCloudVNextComponent {
       graceServiceAccounts: sub.smServiceAccountsGrace ?? 0,
     };
   });
+
+  readonly privilegedControlsOptions = computed<PrivilegedControlsSubscriptionOptions | null>(
+    () => {
+      const sub = this.organizationSubscription();
+      const plan = sub?.plan;
+      const privilegedControls = plan?.PrivilegedControls;
+      if (sub == null || plan == null || privilegedControls == null || sub.pamSeats == null) {
+        return null;
+      }
+      return {
+        seatCount: sub.pamSeats,
+        maxAutoscaleSeats: sub.maxAutoscalePamSeats,
+        seatMinimum: sub.pamSeatMinimum ?? privilegedControls.defaultSeatMinimum,
+        seatPrice: privilegedControls.seatPrice,
+        interval: plan.isAnnual ? "year" : "month",
+      };
+    },
+  );
 
   /**
    * Retrieves the description of the subscription for display purposes.

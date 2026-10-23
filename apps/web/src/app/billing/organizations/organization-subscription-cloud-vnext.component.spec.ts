@@ -11,6 +11,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -23,6 +25,7 @@ import { OrganizationBillingClient } from "../clients";
 import { AdjustSubscription } from "./adjust-subscription.component";
 import { OrganizationSubscriptionCloudVNextComponent } from "./organization-subscription-cloud-vnext.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import { PrivilegedControlsAdjustSubscriptionComponent } from "./privileged-controls-adjust-subscription.component";
 import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
 import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
 import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/components";
@@ -78,6 +81,17 @@ class MockSmAdjustSubscriptionComponent {
 }
 
 @Component({
+  selector: "app-privileged-controls-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockPrivilegedControlsAdjustSubscriptionComponent {
+  readonly organizationId = input<unknown>();
+  readonly options = input<unknown>();
+  readonly adjusted = output<void>();
+}
+
+@Component({
   selector: "app-organization-scheduled-price-increase-warning",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,6 +111,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   };
   let router: jest.Mocked<Router>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
+  let configService: jest.Mocked<ConfigService>;
 
   const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
@@ -130,6 +145,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       maxAutoscaleSmServiceAccounts: 10,
       smServiceAccounts: 60,
       smServiceAccountsGrace: 0,
+      pamSeats: 15,
+      maxAutoscalePamSeats: undefined,
+      pamSeatMinimum: 10,
+      isOnPamSalesInitiatedTrial: false,
       customerDiscount: null,
       plan: {
         nameLocalizationKey: "teams",
@@ -146,6 +165,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           seatPrice: 6,
           baseServiceAccount: 50,
           additionalPricePerServiceAccount: 0.5,
+        },
+        PrivilegedControls: {
+          seatPrice: 5,
+          defaultSeatMinimum: 10,
         },
       },
       subscription: {
@@ -210,6 +233,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     // undefined, which crashes any template that renders an <a [routerLink]>.
     router.events = new Subject();
     platformUtilsService = mock<PlatformUtilsService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [OrganizationSubscriptionCloudVNextComponent],
@@ -228,6 +253,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: Router, useValue: router },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ConfigService, useValue: configService },
         DatePipe,
         { provide: AccountService, useValue: mock<AccountService>() },
       ],
@@ -240,6 +266,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           AdjustSubscription,
           SecretsManagerSubscribeStandaloneComponent,
           SecretsManagerAdjustSubscriptionComponent,
+          PrivilegedControlsAdjustSubscriptionComponent,
           OrganizationScheduledPriceIncreaseWarningComponent,
         ],
       },
@@ -249,6 +276,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           MockAdjustSubscriptionComponent,
           MockSmSubscribeStandaloneComponent,
           MockSmAdjustSubscriptionComponent,
+          MockPrivilegedControlsAdjustSubscriptionComponent,
           MockScheduledPriceIncreaseWarningComponent,
         ],
       },
@@ -842,6 +870,215 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
       expect(fixture.nativeElement.querySelector("billing-subscription-card")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("#privileged-controls")).toBeNull();
+    });
+  });
+
+  describe("privileged controls adjust gating", () => {
+    const enablePamBillingSupport = () =>
+      configService.getFeatureFlag$.mockImplementation(
+        (flag) => of(flag === FeatureFlag.PM39883_PamBillingSupport) as any,
+      );
+
+    const renderAdjust = async (options?: {
+      organization?: Organization;
+      subscription?: OrganizationSubscriptionResponse;
+    }) => {
+      createComponent({
+        organization:
+          options?.organization ?? buildOrganization({ canEditSubscription: true, usePam: true }),
+        subscription: options?.subscription,
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const adjustElement = () =>
+      fixture.nativeElement.querySelector("app-privileged-controls-adjust-subscription");
+
+    beforeEach(() => enablePamBillingSupport());
+
+    it("shows the adjust block for an active Privileged Controls subscription", async () => {
+      await renderAdjust();
+
+      expect(component.showAdjustPrivilegedControls()).toBe(true);
+      expect(adjustElement()).not.toBeNull();
+    });
+
+    it("hides the adjust block when the feature flag is off", async () => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      await renderAdjust();
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.PM39883_PamBillingSupport,
+      );
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the organization does not use Privileged Controls", async () => {
+      await renderAdjust({
+        organization: buildOrganization({ canEditSubscription: true, usePam: false }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the plan has no Privileged Controls pricing", async () => {
+      const subscription = buildSubscriptionResponse();
+      subscription.plan = { ...subscription.plan, PrivilegedControls: undefined } as any;
+
+      await renderAdjust({ subscription });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the organization has no Privileged Controls seats", async () => {
+      await renderAdjust({ subscription: buildSubscriptionResponse({ pamSeats: undefined }) });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block during a sales-initiated Privileged Controls trial", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({ isOnPamSalesInitiatedTrial: true }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("shows the adjust block when the server omits the sales-initiated trial flag", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({ isOnPamSalesInitiatedTrial: undefined }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(true);
+      expect(adjustElement()).not.toBeNull();
+    });
+
+    it("hides the adjust block when the subscription is cancelled", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({
+          subscription: { cancelled: true, items: [] } as any,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("hides the adjust block when the subscription is pending cancellation", async () => {
+      await renderAdjust({
+        subscription: buildSubscriptionResponse({
+          subscription: {
+            cancelled: false,
+            cancelAtEndDate: true,
+            status: "active",
+            items: [],
+          } as any,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("does not render the adjust block for a user who cannot edit the subscription", async () => {
+      await renderAdjust({
+        organization: buildOrganization({ canEditSubscription: false, usePam: true }),
+      });
+
+      expect(adjustElement()).toBeNull();
+    });
+
+    it("passes the organization id and options to the adjust block", async () => {
+      await renderAdjust();
+
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      expect(child.organizationId()).toBe("org-123");
+      expect(child.options()).toEqual(component.privilegedControlsOptions());
+    });
+
+    it("refreshes the subscription and preview when the adjust block reports a change", async () => {
+      await renderAdjust();
+
+      const subscriptionReload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+      const previewReload = jest.spyOn(component.subscriptionPreview, "reload");
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      child.adjusted.emit();
+
+      expect(subscriptionReload).toHaveBeenCalled();
+      expect(previewReload).toHaveBeenCalled();
+    });
+  });
+
+  describe("privileged controls options", () => {
+    it("maps the Privileged Controls seat options from the subscription", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ maxAutoscalePamSeats: 25 }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()).toEqual({
+        seatCount: 15,
+        maxAutoscaleSeats: 25,
+        seatMinimum: 10,
+        seatPrice: 5,
+        interval: "year",
+      });
+    });
+
+    it("prefers the organization's seat minimum over the plan default", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ pamSeatMinimum: 5 }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()?.seatMinimum).toBe(5);
+    });
+
+    it("falls back to the plan's default seat minimum", async () => {
+      const subscription = buildSubscriptionResponse({ pamSeatMinimum: undefined });
+      subscription.plan = {
+        ...subscription.plan,
+        PrivilegedControls: { ...subscription.plan.PrivilegedControls!, defaultSeatMinimum: 12 },
+      } as any;
+      createComponent({ subscription, detectChanges: true });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()?.seatMinimum).toBe(12);
+    });
+
+    it("uses a monthly interval for a monthly plan", async () => {
+      const subscription = buildSubscriptionResponse();
+      subscription.plan = { ...subscription.plan, isAnnual: false } as any;
+      createComponent({ subscription, detectChanges: true });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()?.interval).toBe("month");
+    });
+
+    it("returns null when the organization has no Privileged Controls seats", async () => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ pamSeats: undefined }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+
+      expect(component.privilegedControlsOptions()).toBeNull();
     });
   });
 
