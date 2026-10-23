@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconButtonModule, IconModule, MenuModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -43,7 +43,7 @@ export class CollectionOptionsMenuComponent {
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
 
-  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getOptionalUserId);
 
   /** The folder the menu acts on. */
   readonly collection = input.required<CollectionView>();
@@ -98,6 +98,11 @@ export class CollectionOptionsMenuComponent {
   protected async togglePin(): Promise<void> {
     const collection = this.collection();
     const userId = await firstValueFrom(this.userId$);
+    if (userId == null) {
+      // The active account went null mid-click (e.g. the logout transition, which emits a null
+      // account before navigating away) — nothing to write to, and the page is already leaving.
+      return;
+    }
     // Checked against the snapshotted `collection`, not a live re-read of `this.collection()` —
     // the input can change mid-await (e.g. CDK virtual-scroll row recycling), which would otherwise
     // decide pin-vs-unpin for a different folder than the one this call is about to mutate.

@@ -79,7 +79,7 @@ type SetupOptions = {
   /** Defaults to an already-resolved active account. Override with a controllable stream (e.g. a
    * `Subject`) to test behavior while `togglePin()`'s `await firstValueFrom(this.userId$)` is
    * still pending. */
-  activeAccount$?: Observable<{ id: UserId }>;
+  activeAccount$?: Observable<{ id: UserId } | null>;
 };
 
 describe("CollectionOptionsMenuComponent", () => {
@@ -341,6 +341,19 @@ describe("CollectionOptionsMenuComponent", () => {
 
       expect(pinnedSharedFolders.pin).toHaveBeenCalledWith(USER_ID, COLLECTION_ID);
       expect(pinnedSharedFolders.pin).not.toHaveBeenCalledWith(USER_ID, otherCollection.id);
+    });
+
+    it("no-ops instead of throwing when the active account goes null mid-click (e.g. the logout transition)", async () => {
+      const activeAccount$ = new Subject<{ id: UserId } | null>();
+      await setup({ showPin: true, pinnedIds: [], activeAccount$ });
+
+      const togglePin = component["togglePin"]();
+      activeAccount$.next(null);
+      await expect(togglePin).resolves.toBeUndefined();
+
+      expect(pinnedSharedFolders.pin).not.toHaveBeenCalled();
+      expect(pinnedSharedFolders.unpin).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
     });
   });
 
