@@ -32,6 +32,7 @@
     <ng-content select="[bitDialogHeaderStart]"></ng-content>
     <h2
       bitDialogTitleContainer
+      data-testid="bit-dialog-title"
       bitTypography="h3"
       noMargin
       class="tw-flex-1 tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
@@ -53,6 +54,7 @@
       @if (!this.dialogRef?.disableClose) {
         <button
           type="button"
+          data-testid="bit-dialog-dismiss"
           bitIconButton="bwi-close"
           buttonType="primaryGhost"
           size="default"
