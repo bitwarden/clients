@@ -46,6 +46,13 @@ const FULL_URI_MATCH_STRATEGIES = [
   UriMatchStrategy.Exact,
 ];
 
+/** Hostname plus port (when non-default), since a different port is a different site */
+function getHostWithPort(uri: string): string | null {
+  const hostname = Utils.getHostname(uri);
+  const port = hostname ? Utils.getUrl(uri)?.port : null;
+  return port ? `${hostname}:${port}` : hostname;
+}
+
 @Component({
   templateUrl: "./autofill-confirmation-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -95,27 +102,26 @@ export class AutofillConfirmationDialogComponent {
 
     return this.showFullUrls()
       ? savedUrls.map((u) => u.uri)
-      : savedUrls.map((u) => Utils.getHostname(u.uri ?? "")).filter(Boolean);
+      : savedUrls.map((u) => getHostWithPort(u.uri ?? "")).filter(Boolean);
   });
 
   readonly formattedCurrentUrl = computed(() => {
-    return this.showFullUrls() ? this.currentUrl() : Utils.getHostname(this.currentUrl());
+    return this.showFullUrls() ? this.currentUrl() : getHostWithPort(this.currentUrl());
   });
 
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
 
   readonly currentUrlMatchesNeverUri = computed<boolean>(() => {
-    const currentHostname = Utils.getHostname(this.currentUrl());
-    if (!currentHostname) {
+    const currentHost = getHostWithPort(this.currentUrl());
+    if (!currentHost) {
       return false;
     }
     const uriMatchSetting = this.uriMatchSetting();
     return this.savedUrls().some((u) => {
       const effectiveMatch = u.match ?? uriMatchSetting;
       return (
-        effectiveMatch === UriMatchStrategy.Never &&
-        Utils.getHostname(u.uri ?? "") === currentHostname
+        effectiveMatch === UriMatchStrategy.Never && getHostWithPort(u.uri ?? "") === currentHost
       );
     });
   });
