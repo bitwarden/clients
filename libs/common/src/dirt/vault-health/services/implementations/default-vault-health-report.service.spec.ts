@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import type { CipherRiskResult } from "@bitwarden/sdk-internal";
 
@@ -16,6 +16,7 @@ import {
   VaultHealthReportStatus,
   VaultHealthReportView,
 } from "../../models";
+import { CipherReportExclusionService } from "../abstractions/cipher-report-exclusion.service";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
 
@@ -24,6 +25,7 @@ describe("DefaultVaultHealthReportService", () => {
 
   let cipherRiskService: ReturnType<typeof mock<CipherRiskService>>;
   let logService: ReturnType<typeof mock<LogService>>;
+  let excludedIds$: BehaviorSubject<ReadonlySet<string>>;
   let service: DefaultVaultHealthReportService;
 
   // Per-test lookup so risk results are returned for exactly the ciphers passed,
@@ -44,7 +46,15 @@ describe("DefaultVaultHealthReportService", () => {
       ciphers.map((c) => riskById.get(c.id)!),
     );
 
-    service = new DefaultVaultHealthReportService(cipherRiskService, logService);
+    excludedIds$ = new BehaviorSubject<ReadonlySet<string>>(new Set());
+    const cipherReportExclusionService = mock<CipherReportExclusionService>();
+    cipherReportExclusionService.excludedCipherIds$.mockReturnValue(excludedIds$);
+
+    service = new DefaultVaultHealthReportService(
+      cipherRiskService,
+      logService,
+      cipherReportExclusionService,
+    );
   });
 
   afterEach(() => {
@@ -569,6 +579,50 @@ describe("DefaultVaultHealthReportService", () => {
         expect.objectContaining({ status: VaultHealthReportStatus.Success }),
       );
       await expect(currentReport(otherUserId)).resolves.not.toBeNull();
+    });
+
+    it("leaves excluded logins out of the published report", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { exposed: 2 }) },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      excludedIds$.next(new Set(["a"]));
+      const report = await currentReport();
+
+      expect(cipherIds(report!.categoryItems.exposed)).toEqual(["b"]);
+      expect(report!.atRiskCount).toBe(1);
+      expect(report!.totalCount).toBe(2);
+    });
+
+    it("applies exclusions to the first report a subscriber sees", async () => {
+      excludedIds$.next(new Set(["a"]));
+      const seen: VaultHealthReportState[] = [];
+      service
+        .getVaultHealthReport$(userId)
+        .pipe(takeUntil(destroy$))
+        .subscribe((state) => seen.push(state));
+
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { exposed: 2 }) },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const firstSuccess = seen.find((state) => state.status === VaultHealthReportStatus.Success);
+      expect(cipherIds(firstSuccess!.report!.categoryItems.exposed)).toEqual(["b"]);
+    });
+
+    it("updates the lists when exclusions change without re-running the risk computation", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      excludedIds$.next(new Set(["a"]));
+      const report = await currentReport();
+
+      expect(report!.categoryItems.exposed).toHaveLength(0);
+      expect(cipherRiskService.computeRiskForCiphers).toHaveBeenCalledTimes(1);
     });
   });
 

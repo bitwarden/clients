@@ -141,4 +141,40 @@ describe("VaultHealthReportView", () => {
       expect(first.categoryItems.weak).not.toBe(second.categoryItems.weak);
     });
   });
+  describe("withoutExcluded", () => {
+    it("returns the same report when nothing is excluded", () => {
+      const report = VaultHealthReportView.fromCipherHealth([health("a", { exposed: 1 })], 2);
+
+      expect(report.withoutExcluded(new Set())).toBe(report);
+    });
+
+    it("removes the login from its category and lowers atRiskCount and score, keeping totalCount", () => {
+      const report = VaultHealthReportView.fromCipherHealth(
+        [health("a", { exposed: 1 }), health("b", { weak: 1 }), health("c")],
+        4,
+      );
+
+      const result = report.withoutExcluded(new Set(["a"]));
+
+      expect(result.categoryItems.exposed).toHaveLength(0);
+      expect(ids(result.categoryItems.weak)).toEqual(["b"]);
+      expect(result.atRiskCount).toBe(1);
+      expect(result.totalCount).toBe(4);
+      expect(result.score).toBe(0.25);
+    });
+
+    it("removes a login at risk in every category from all of them", () => {
+      const report = VaultHealthReportView.fromCipherHealth(
+        [health("a", { exposed: 2, weak: 1, reuse: 3 })],
+        1,
+      );
+
+      const result = report.withoutExcluded(new Set(["a"]));
+
+      expect(result.categoryItems.exposed).toHaveLength(0);
+      expect(result.categoryItems.weak).toHaveLength(0);
+      expect(result.categoryItems.reused).toHaveLength(0);
+      expect(result.atRiskCount).toBe(0);
+    });
+  });
 });

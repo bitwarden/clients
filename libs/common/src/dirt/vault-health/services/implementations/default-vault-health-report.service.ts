@@ -1,4 +1,4 @@
-import { BehaviorSubject, distinctUntilChanged, map, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, distinctUntilChanged, map, Observable } from "rxjs";
 
 import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
@@ -14,6 +14,7 @@ import {
   VaultHealthReportStatus,
   VaultHealthReportView,
 } from "../../models";
+import { CipherReportExclusionService } from "../abstractions/cipher-report-exclusion.service";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
 /**
@@ -48,6 +49,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
   constructor(
     private cipherRiskService: CipherRiskService,
     private logService: LogService,
+    private cipherReportExclusionService: CipherReportExclusionService,
   ) {}
 
   /**
@@ -135,11 +137,20 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     return state;
   }
 
-  /** The user's scan status and latest report; `idle` with no report until a build runs. */
+  /** The user's scan status and latest report without their excluded logins; `idle` with no report until a build runs. */
   getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState> {
-    return this.stateFor(userId).pipe(
+    const state$ = this.stateFor(userId).pipe(
       map(({ status, report }) => ({ status, report })),
       distinctUntilChanged((a, b) => a.status === b.status && a.report === b.report),
+    );
+    return combineLatest([
+      state$,
+      this.cipherReportExclusionService.excludedCipherIds$(userId),
+    ]).pipe(
+      map(([state, excludedIds]) => ({
+        ...state,
+        report: state.report?.withoutExcluded(excludedIds) ?? null,
+      })),
     );
   }
 

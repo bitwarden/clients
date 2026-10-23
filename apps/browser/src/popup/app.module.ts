@@ -11,12 +11,17 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
+  CipherReportExclusionService,
+  DefaultCipherReportExclusionService,
   DefaultVaultHealthReportService,
   VaultHealthReportService,
 } from "@bitwarden/common/dirt/vault-health/services";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   DialogModule,
   AvatarModule,
@@ -101,9 +106,14 @@ import "../platform/popup/locales";
     { provide: LASTPASS_IMPORT_PAGE_FOCUS, useClass: BrowserLastPassImportPageFocus },
     { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
     safeProvider({
+      provide: CipherReportExclusionService,
+      useClass: DefaultCipherReportExclusionService,
+      deps: [ApiService, CipherService, ConfigService],
+    }),
+    safeProvider({
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
-      deps: [CipherRiskService, LogService],
+      deps: [CipherRiskService, LogService, CipherReportExclusionService],
     }),
   ],
   bootstrap: [AppComponent],

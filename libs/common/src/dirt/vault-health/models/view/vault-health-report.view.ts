@@ -60,6 +60,29 @@ export class VaultHealthReportView implements View {
       categoryItems,
     });
   }
+
+  /** This report without the given logins, scored against the same `totalCount`. */
+  withoutExcluded(excludedIds: ReadonlySet<string>): VaultHealthReportView {
+    if (excludedIds.size === 0) {
+      return this;
+    }
+    const keep = (items: CipherHealthView[]) =>
+      items.filter((health) => !excludedIds.has(health.cipherId));
+    const categoryItems = {
+      exposed: keep(this.categoryItems.exposed),
+      weak: keep(this.categoryItems.weak),
+      reused: keep(this.categoryItems.reused),
+    };
+    const atRiskCount =
+      categoryItems.exposed.length + categoryItems.weak.length + categoryItems.reused.length;
+
+    return new VaultHealthReportView({
+      totalCount: this.totalCount,
+      atRiskCount,
+      score: this.totalCount === 0 ? 0 : atRiskCount / this.totalCount,
+      categoryItems,
+    });
+  }
 }
 
 /** Highest-risk-wins: Exposed > Weak > Reused. Only called for at-risk logins. */
