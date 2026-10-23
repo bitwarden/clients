@@ -10,18 +10,26 @@ import {
   IpcClient,
 } from "@bitwarden/sdk-internal";
 
-import { DesktopIpcTransport, WebIpcTransport } from "./transports";
+import { BrowserForegroundIpcTransport, DesktopIpcTransport, WebIpcTransport } from "./transports";
 
 export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private webTransport?: WebIpcTransport;
   private desktopTransport?: DesktopIpcTransport;
+  private foregroundTransport: BrowserForegroundIpcTransport;
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
   ) {
     super();
+
+    // Listens before the SDK loads so a port that wakes the service worker is not missed.
+    this.foregroundTransport = new BrowserForegroundIpcTransport(
+      this.logService,
+      (message: IncomingMessage) => this.communicationBackend?.receive(message),
+    );
+    this.foregroundTransport.init();
   }
 
   override async init() {
@@ -50,6 +58,14 @@ export class IpcBackgroundService extends IpcService {
             return;
           }
 
+          if (
+            typeof message.destination === "object" &&
+            "BrowserForeground" in message.destination
+          ) {
+            await this.foregroundTransport.send(message);
+            return;
+          }
+
           throw new Error("Destination not supported.");
         },
       });
@@ -60,6 +76,7 @@ export class IpcBackgroundService extends IpcService {
       }
 
       await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
+      this.foregroundTransport.start();
 
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),
