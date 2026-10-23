@@ -1,6 +1,6 @@
 @if (loading()) {
   <div class="tw-flex tw-justify-center tw-p-8">
-    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+    <bit-icon name="bwi-spinner" class="bwi-spin bwi-3x"></bit-icon>
   </div>
 } @else if (!triageResult()) {
   <bit-callout type="info" [title]="'No Triage Results'">
