@@ -26,15 +26,11 @@ class AutofillInit implements AutofillInitInterface {
   private lastContextMenuClickedElement: HTMLElement | null = null;
   private isMonitoring = false;
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
-    collectPageDetails: ({ message }) =>
-      this.isMonitoring ? this.collectPageDetails(message) : undefined,
-    collectPageDetailsImmediately: ({ message }) =>
-      this.isMonitoring ? this.collectPageDetails(message, true) : undefined,
-    collectAutofillTriage: () =>
-      this.isMonitoring ? this.collectPageDetailsForContextMenu() : undefined,
-    fillForm: ({ message }) => (this.isMonitoring ? this.fillForm(message) : undefined),
-    applyTargetedFields: ({ message }) =>
-      this.isMonitoring ? this.applyTargetedFields(message) : undefined,
+    collectPageDetails: ({ message }) => this.collectPageDetails(message),
+    collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
+    collectAutofillTriage: () => this.collectPageDetailsForContextMenu(),
+    fillForm: ({ message }) => this.fillForm(message),
+    applyTargetedFields: ({ message }) => this.applyTargetedFields(message),
     clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
     startAutofillMonitors: () => this.startMonitoring(),
     stopAutofillMonitors: () => this.stopMonitoring(),

@@ -1,8 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, Subscription } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subscription } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -23,6 +26,8 @@ import { DefaultAutofillLifecycleService } from "./autofill-lifecycle.service";
 describe("DefaultAutofillLifecycleService", () => {
   let service: DefaultAutofillLifecycleService;
   let authService: MockProxy<AuthService>;
+  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
+  let domainSettingsService: MockProxy<DomainSettingsService>;
   const logService = mock<LogService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let tabSendMessageSpy: jest.SpyInstance;
@@ -46,13 +51,25 @@ describe("DefaultAutofillLifecycleService", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
 
+    autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
+    autofillSettingsService.autofillOnPageLoad$ = of(true);
+    autofillSettingsService.inlineMenuVisibility$ = of(AutofillOverlayVisibility.Off);
+
+    domainSettingsService = mock<DomainSettingsService>();
+    domainSettingsService.resolvedEnableFillAssist$ = of(false);
+
     jest.spyOn(BrowserApi, "addListener").mockImplementation();
     tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
     // The live-tab seed queries open tabs at init; default to none so seeding is deterministic
     // and no real chrome API is touched. Tests that exercise seeding override this.
     jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
 
-    service = new DefaultAutofillLifecycleService(authService, logService);
+    service = new DefaultAutofillLifecycleService(
+      authService,
+      logService,
+      autofillSettingsService,
+      domainSettingsService,
+    );
   });
 
   afterEach(() => {
@@ -270,7 +287,15 @@ describe("DefaultAutofillLifecycleService", () => {
     const bootInto = (status: AuthenticationStatus) => {
       activeAccountStatusMock$ = new BehaviorSubject(status);
       authService.activeAccountStatus$ = activeAccountStatusMock$;
-      service = new DefaultAutofillLifecycleService(authService, logService);
+      autofillSettingsService.autofillOnPageLoad$ = of(false);
+      autofillSettingsService.inlineMenuVisibility$ = of(AutofillOverlayVisibility.Off);
+      domainSettingsService.resolvedEnableFillAssist$ = of(false);
+      service = new DefaultAutofillLifecycleService(
+        authService,
+        logService,
+        autofillSettingsService,
+        domainSettingsService,
+      );
       service.init();
       connectPort(makePort(0));
     };

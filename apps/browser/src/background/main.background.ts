@@ -1352,6 +1352,8 @@ export default class MainBackground {
     this.autofillLifecycleService = new DefaultAutofillLifecycleService(
       this.authService,
       this.logService,
+      this.autofillSettingsService,
+      this.domainSettingsService,
     );
     this.autofillService = new AutofillService(
       this.cipherService,
