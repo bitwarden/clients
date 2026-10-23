@@ -82,7 +82,7 @@ import { PassphraseSettingsComponent } from "./passphrase-settings.component";
 import { PasswordSettingsComponent } from "./password-settings.component";
 import { SubaddressSettingsComponent } from "./subaddress-settings.component";
 import { UsernameSettingsComponent } from "./username-settings.component";
-import { translate } from "./util";
+import { getUsernameGeneratorSelection, translate } from "./util";
 
 // constants used to identify navigation selections that are not
 // generator algorithms
@@ -490,6 +490,9 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         // `is*Algorithm` decides `algorithm`'s type, which flows into `setPreference`
         if (isEmailAlgorithm(algorithm.id)) {
           setPreference("email");
+          if (isForwarderExtensionId(algorithm.id)) {
+            preference.email.forwarder = algorithm.id;
+          }
         } else if (isUsernameAlgorithm(algorithm.id)) {
           setPreference("username");
         } else if (isPasswordAlgorithm(algorithm.id)) {
@@ -508,21 +511,17 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     // populate the form with the user's preferences to kick off interactivity
     preferences
       .pipe(
-        map(({ email, username, password }) => {
-          const usernamePref = email.updated > username.updated ? email : username;
-          const forwarderPref = isForwarderExtensionId(usernamePref.algorithm)
-            ? usernamePref
-            : null;
+        map((preferences) => {
+          const { password } = preferences;
+          const { preference, forwarder } = getUsernameGeneratorSelection(preferences);
+          const { algorithm } = preference;
+          const isForwarderSelected = isForwarderExtensionId(algorithm);
 
           // inject drill-down flags
-          const forwarderNav = !forwarderPref
-            ? NONE_SELECTED
-            : JSON.stringify(forwarderPref.algorithm);
-          const userNav = forwarderPref ? FORWARDER : JSON.stringify(usernamePref.algorithm);
+          const forwarderNav = forwarder ? JSON.stringify(forwarder) : NONE_SELECTED;
+          const userNav = isForwarderSelected ? FORWARDER : JSON.stringify(algorithm);
           const rootNav =
-            usernamePref.updated > password.updated
-              ? IDENTIFIER
-              : JSON.stringify(password.algorithm);
+            preference.updated > password.updated ? IDENTIFIER : JSON.stringify(password.algorithm);
 
           // construct cascade metadata
           const cascade = {
@@ -537,14 +536,14 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
               selection: { nav: userNav },
               active: {
                 nav: userNav,
-                algorithm: forwarderPref ? undefined : usernamePref.algorithm,
+                algorithm: isForwarderSelected ? undefined : algorithm,
               },
             },
             forwarder: {
               selection: { nav: forwarderNav },
               active: {
                 nav: forwarderNav,
-                algorithm: forwarderPref?.algorithm,
+                algorithm: forwarder,
               },
             },
           };
