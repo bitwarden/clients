@@ -37,6 +37,10 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import {
+  InScopeFormsDetection,
+  RuleQualificationService,
+} from "./abstractions/rule-qualification.service";
 import { AutoFillConstants } from "./autofill-constants";
 import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
@@ -67,6 +71,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * [] = blocklisted (suppress autofill), [...] = use targeted fill
    */
   private pageTargetingRules: FormContent[] | null | undefined = undefined;
+  private ruleQualificationService?: RuleQualificationService;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -301,6 +306,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
     }
 
+    return this.runHeuristicCollection();
+  }
+
+  /**
+   * Walks the DOM for forms and fields, builds the page details, and sets up
+   * overlay listeners. Shared by `getPageDetails` and
+   * `collectHeuristicPageDetailsBypass`.
+   */
+  private async runHeuristicCollection(): Promise<AutofillPageDetails> {
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
@@ -318,6 +332,29 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Runs the heuristic collection path on the miss path, after clearing any
+   * targeted-rule state so the heuristic pass starts fresh. Called by
+   * `RuleQualificationService` when a matched rule fails qualification.
+   *
+   * The `cachedInScopeForms` parameter is reserved for a later optimization
+   * that reuses Half 2's field detection within the rule's in-scope forms
+   * rather than detecting them again. Not consumed yet; the heuristic walk
+   * runs over the full document.
+   */
+  async collectHeuristicPageDetailsBypass(
+    cachedInScopeForms?: InScopeFormsDetection,
+  ): Promise<AutofillPageDetails> {
+    this.pageTargetingRules = null;
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    return this.runHeuristicCollection();
+  }
+
+  setRuleQualificationService(ruleQualificationService: RuleQualificationService): void {
+    this.ruleQualificationService = ruleQualificationService;
   }
 
   /**

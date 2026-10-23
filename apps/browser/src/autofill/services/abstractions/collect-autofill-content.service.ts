@@ -4,6 +4,8 @@ import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
+import { InScopeFormsDetection, RuleQualificationService } from "./rule-qualification.service";
+
 type AutofillFormElements = Map<ElementWithOpId<HTMLFormElement>, AutofillForm>;
 
 type AutofillFieldElements = Map<ElementWithOpId<FormFieldElement>, AutofillField>;
@@ -24,6 +26,22 @@ interface CollectAutofillContentService extends AutofillMonitor {
     targetedFields: { selector: string; fieldType: string }[],
   ): Promise<void>;
   clearCachedTargetingRules(): void;
+  /**
+   * Runs the heuristic collection path after clearing the field caches so the
+   * pass starts fresh. Called by `RuleQualificationService` on the miss path.
+   * When `cachedInScopeForms.detectedFields` is populated, the bypass reuses
+   * those detections rather than scanning the same forms again.
+   */
+  collectHeuristicPageDetailsBypass(
+    cachedInScopeForms?: InScopeFormsDetection,
+  ): Promise<AutofillPageDetails>;
+  /**
+   * Setter wiring to break the circular dependency between this service and
+   * `RuleQualificationService` (the service needs the collect service to run
+   * the heuristic pass; the collect service needs the qualification service
+   * to decide whether a rule qualifies). Called once at DI setup.
+   */
+  setRuleQualificationService(ruleQualificationService: RuleQualificationService): void;
 }
 
 export {
