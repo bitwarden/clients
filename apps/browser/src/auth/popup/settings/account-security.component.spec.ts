@@ -66,13 +66,13 @@ class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
 
-const makePolicy = () =>
+const makePolicy = (enabled: boolean) =>
   new Policy({
     id: "policy-id" as PolicyId,
     organizationId: "org-id",
     type: PolicyType.RemoveUnlockWithPin,
     data: null,
-    enabled: true,
+    enabled,
     revisionDate: new Date().toISOString(),
   });
 
@@ -217,9 +217,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = makePolicy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -235,9 +233,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = makePolicy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -264,9 +260,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = makePolicy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -279,9 +273,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = makePolicy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
@@ -296,9 +288,7 @@ describe("AccountSecurityComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = makePolicy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
 
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
