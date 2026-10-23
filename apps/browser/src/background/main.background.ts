@@ -410,6 +410,7 @@ import { PopupRouterCacheBackgroundService } from "../platform/services/popup-ro
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
+import { SidePanelSettingsService } from "../platform/side-panel/side-panel-settings.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
@@ -522,6 +523,7 @@ export default class MainBackground {
   authRequestApiService: AuthRequestApiServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
+  sidePanelSettingsService: SidePanelSettingsService;
   pinService: PinServiceAbstraction;
   singleUserStateProvider: SingleUserStateProvider;
   activeUserStateProvider: ActiveUserStateProvider;
@@ -1185,6 +1187,7 @@ export default class MainBackground {
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
     this.animationControlService = new DefaultAnimationControlService(this.globalStateProvider);
+    this.sidePanelSettingsService = new SidePanelSettingsService(this.globalStateProvider);
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
@@ -1898,12 +1901,9 @@ export default class MainBackground {
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
-    // Disable the side panel globally on startup so Bitwarden does not appear in
-    // Chrome's side panel picker. It is enabled per-tab on demand when the user
-    // triggers autofill triage via the context menu.
-    if (BrowserApi.isSidePanelApiSupported) {
-      await BrowserApi.setSidePanelOptions({ enabled: false });
-    }
+    // Enable the side panel only if the user opted in from the appearance settings, otherwise
+    // keep it disabled globally so Bitwarden does not appear in Chrome's side panel picker.
+    this.sidePanelSettingsService.applyToBrowser();
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();

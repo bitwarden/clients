@@ -248,6 +248,7 @@ import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
 import { BrowserSdkLoadService } from "../../platform/services/sdk/browser-sdk-load.service";
 import { ForegroundTaskSchedulerService } from "../../platform/services/task-scheduler/foreground-task-scheduler.service";
+import { SidePanelSettingsService } from "../../platform/side-panel/side-panel-settings.service";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { ForegroundSyncService } from "../../platform/sync/foreground-sync.service";
@@ -749,6 +750,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AnimationControlService,
     useClass: DefaultAnimationControlService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: SidePanelSettingsService,
+    useClass: SidePanelSettingsService,
     deps: [GlobalStateProvider],
   }),
   safeProvider({

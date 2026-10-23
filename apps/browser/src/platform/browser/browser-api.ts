@@ -778,6 +778,16 @@ export class BrowserApi {
     await chrome.sidePanel.setOptions(options);
   }
 
+  /**
+   * Sets whether clicking the extension's action icon opens the side panel instead of the popup.
+   */
+  static async setSidePanelBehavior(behavior: { openPanelOnActionClick: boolean }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.setPanelBehavior(behavior);
+  }
+
   static sendMessage(subscriber: string, arg: any = {}) {
     const message = Object.assign({}, { command: subscriber }, arg);
     return chrome.runtime.sendMessage(message);

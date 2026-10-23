@@ -21,6 +21,7 @@ import { PopupCompactModeService } from "../../../platform/popup/layout/popup-co
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
+import { SidePanelSettingsService } from "../../../platform/side-panel/side-panel-settings.service";
 
 import { AppearanceComponent } from "./appearance.component";
 
@@ -69,6 +70,7 @@ describe("AppearanceComponent", () => {
   const setEnableCompactMode = jest.fn().mockResolvedValue(undefined);
   const setShowQuickCopyActions = jest.fn().mockResolvedValue(undefined);
   const setShowAtRiskPasswordNotifications = jest.fn().mockResolvedValue(undefined);
+  const setOpenInSidePanel = jest.fn().mockResolvedValue(undefined);
 
   const mockWidthService: Partial<PopupSizeService> = {
     width$: new BehaviorSubject("default"),
@@ -81,6 +83,7 @@ describe("AppearanceComponent", () => {
     setEnableBadgeCounter.mockClear();
     setEnableRoutingAnimation.mockClear();
     setShowAtRiskPasswordNotifications.mockClear();
+    setOpenInSidePanel.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [AppearanceComponent],
@@ -112,6 +115,10 @@ describe("AppearanceComponent", () => {
         {
           provide: PopupSizeService,
           useValue: mockWidthService,
+        },
+        {
+          provide: SidePanelSettingsService,
+          useValue: { openInSidePanel$: of(false), setOpenInSidePanel },
         },
         {
           provide: VaultSettingsService,
@@ -163,6 +170,7 @@ describe("AppearanceComponent", () => {
       enableCompactMode: false,
       showQuickCopyActions: false,
       width: "default",
+      openInSidePanel: false,
       showAtRiskNotifications: true,
     });
   });
@@ -208,6 +216,12 @@ describe("AppearanceComponent", () => {
       component.appearanceForm.controls.width.setValue("wide");
 
       expect(mockWidthService.setWidth).toHaveBeenCalledWith("wide");
+    });
+
+    it("updates the open in side panel setting", () => {
+      component.appearanceForm.controls.openInSidePanel.setValue(true);
+
+      expect(setOpenInSidePanel).toHaveBeenCalledWith(true);
     });
   });
 
