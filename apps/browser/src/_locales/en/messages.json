@@ -8625,5 +8625,9 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "excludedFromList": {
+    "message": "Excluded from list",
+    "description": "Section header for items excluded from vault health reports"
   }
 }

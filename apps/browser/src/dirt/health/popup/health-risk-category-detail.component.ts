@@ -56,6 +56,7 @@ import {
   HealthExcludeAtRiskItemDialogComponent,
   HealthExcludeAtRiskItemDialogData,
 } from "./components/health-exclude-at-risk-item-dialog/health-exclude-at-risk-item-dialog.component";
+import { HealthExcludedItemsListComponent } from "./components/health-excluded-items-list/health-excluded-items-list.component";
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthScanService } from "./services/health-scan.service";
@@ -88,6 +89,7 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     ScrollingModule,
     CdkVirtualScrollViewport,
     ScrollLayoutDirective,
+    HealthExcludedItemsListComponent,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
@@ -207,6 +209,12 @@ export class HealthRiskCategoryDetailComponent {
       .filter((row) => row.cipher != null);
   });
 
+  // TODO: update implementation to use actual excluded items from VaultHealthReportService when available instead of all rows
+  protected readonly excludedItems = computed(() => this.rows().map((row) => row.cipher));
+  protected readonly hasExcludedItems = computed(
+    () => this.exclusionsEnabled() && this.excludedItems().length > 0,
+  );
+
   protected readonly trackByCipherId = (
     _: number,
     row: { health: CipherHealthView; cipher: CipherView },
@@ -261,6 +269,10 @@ export class HealthRiskCategoryDetailComponent {
         currentCategory: this.category()!,
       } satisfies HealthDeleteAtRiskItemDialogData,
     });
+  };
+
+  readonly onRestoreItem = async (cipherId: string) => {
+    // TODO: implementation that calls VaultHealthReportService to restore the excluded item
   };
 
   readonly HEALTH_DETAIL_CONTENTS = {

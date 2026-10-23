@@ -408,6 +408,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: LogService, useValue: logService },
         { provide: CompactModeService, useValue: compactModeService },
