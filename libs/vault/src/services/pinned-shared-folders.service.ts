@@ -58,8 +58,8 @@ export class PinnedSharedFoldersService {
   }
 
   /**
-   * The active user's pinned folder ids, as a signal — the composition every consumer otherwise
-   * re-derives (`activeAccount$` into {@link pinnedIds$} into `toSignal`).
+   * The active user's pinned folder ids, as a signal — the `activeAccount$` into
+   * {@link pinnedIds$} into `toSignal` composition that `CollectionOptionsMenuComponent` uses.
    *
    * Resolves to `[]` rather than using `getUserId` while no account is active (e.g. between
    * `switchAccount(null)` and a new account finishing login) — this is a `providedIn: "root"`
