@@ -2,13 +2,12 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
+  computed,
   effect,
   inject,
   signal,
   untracked,
-  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
@@ -24,14 +23,11 @@ import {
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
-  BadgeComponent,
   BitCellComponent,
   BitCellDefDirective,
   BitCellLoadingDirective,
@@ -39,40 +35,57 @@ import {
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
-  ButtonModule,
-  FILTER_CONTROL,
-  FilterMenuModule,
+  FilterMenuComponent,
+  FilterOptionComponent,
+  IconModule,
   SearchModule,
-  StatusLockupComponent,
-  SvgComponent,
   SkeletonComponent,
   SkeletonTextComponent,
-  TableDataSource,
-  TableModule,
+  SortFn,
+  StatusLockupComponent,
+  SvgComponent,
+  TooltipDirective,
   TypographyModule,
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
-import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
-import { isLiveManagedLease, isUnstartedApproval } from "../approvals/managed-lease-row";
-import { DurationShortPipe } from "../date/duration-short.pipe";
-import { RelativeTimePipe } from "../date/relative-time.pipe";
+import { ElapsedLabel, elapsedLabel } from "../date/elapsed";
+import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
-import { MyAccessRequestRow, resolvedOrSubmittedMs } from "./my-access-row";
+import {
+  HISTORY_STATUS_LABEL_KEYS,
+  HistoryResolver,
+  HistoryRow,
+  HistoryStatus,
+  toHistoryRow,
+} from "./history-row";
+import { MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
-/** Which slice of the history the table is showing. */
-const HistoryScope = Object.freeze({ All: "all", Mine: "mine", Managed: "managed" } as const);
-type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
+/** A History row with its Resolved label, which moves with the clock. */
+type HistoryTableRow = HistoryRow & { elapsed: ElapsedLabel };
 
-function toHistoryScope(value: unknown): HistoryScope {
-  return value === HistoryScope.Mine || value === HistoryScope.Managed ? value : HistoryScope.All;
-}
+/** The table's `filterValues()`, keyed by each toolbar control's `key`. Untyped, as a chip's is. */
+type HistoryFilterValues = {
+  search?: unknown;
+  status?: unknown;
+  collection?: unknown;
+  requester?: unknown;
+};
+
+/** An empty list means that filter is unset. */
+type HistoryFilter = {
+  term: string;
+  statuses: string[];
+  collections: string[];
+  requesters: string[];
+};
+
+type FilterOption = { label: string; value: string };
 
 /**
  * How long the "loaded" announcement stays in the live region, long enough to be read but not to
@@ -80,9 +93,11 @@ function toHistoryScope(value: unknown): HistoryScope {
  */
 const announcementHoldMs = 2000;
 
+const minuteMs = 60_000;
+
 /**
- * Decided requests merged from Mine (the caller's own) and Managed (on collections they manage,
- * the only rows they can act on). The scope chip starts unset, which lists All.
+ * A read-only record of every request that reached an end state, merged from the caller's own
+ * requests and those on collections they manage.
  */
 @Component({
   selector: "pam-history-tab",
@@ -91,8 +106,6 @@ const announcementHoldMs = 2000;
   imports: [
     CommonModule,
     RouterModule,
-    AccessStateBadgeComponent,
-    BadgeComponent,
     BitCellComponent,
     BitCellDefDirective,
     BitCellLoadingDirective,
@@ -100,63 +113,36 @@ const announcementHoldMs = 2000;
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
-    ButtonModule,
-    FilterMenuModule,
+    FilterMenuComponent,
+    FilterOptionComponent,
     IconComponent,
+    IconModule,
     SearchModule,
-    StatusLockupComponent,
-    SvgComponent,
     SkeletonComponent,
     SkeletonTextComponent,
-    TableModule,
+    StatusLockupComponent,
+    SvgComponent,
+    TooltipDirective,
     TypographyModule,
     I18nPipe,
-    DurationShortPipe,
-    RelativeTimePipe,
   ],
-  providers: [ApproverActionsService],
 })
 export class HistoryTabComponent {
   protected readonly noResultsSvg = NoResults;
 
   private readonly myAccess = inject(MyAccessService);
   private readonly inbox = inject(ApproverInboxService);
-  private readonly approverActions = inject(ApproverActionsService);
   private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
   private readonly syncService = inject(SyncService);
+  private readonly ticker = inject(AccessBadgeTickerService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
-
-  // remove when VFO1 flag is removed
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
-
-  protected readonly HistoryScope = HistoryScope;
-
-  private readonly canApprove = toSignal(this.approvalPrivileges.canApprove$, {
-    initialValue: false,
-  });
-
-  /**
-   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip is read through its
-   * `FILTER_CONTROL` contract. On the VFO1 path the table also filters by it, but this still drives
-   * {@link scope} for readers outside the table.
-   */
-  private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
-
-  private readonly acting = signal<Set<string>>(new Set());
 
   private readonly myRows = toSignal(this.myAccess.historyRows$, {
     initialValue: [] as MyAccessRequestRow[],
   });
   private readonly managedRows = toSignal(this.inbox.historyRows$, {
     initialValue: [] as MyAccessRequestRow[],
-  });
-  private readonly managedIds = toSignal(this.inbox.managedIds$, {
-    initialValue: new Set<string>(),
   });
 
   private readonly myCiphers = toSignal(this.myAccess.cipherById$, {
@@ -168,6 +154,18 @@ export class HistoryTabComponent {
 
   private readonly myLoadError = toSignal(this.myAccess.loadError$, { initialValue: null });
   private readonly managedLoadError = toSignal(this.inbox.loadError$, { initialValue: null });
+
+  /**
+   * The badges' clock, to the minute: enough to move the Resolved labels and to bring in a lease
+   * that lapsed while the tab was open, which no push announces.
+   */
+  private readonly nowMs = toSignal(
+    this.ticker.ticks$.pipe(
+      map((ms) => Math.floor(ms / minuteMs) * minuteMs),
+      distinctUntilChanged(),
+    ),
+    { initialValue: Date.now() },
+  );
 
   /** A failed read leaves the merged list short of that side's rows, which the table can't show. */
   private readonly loadFailed = computed(
@@ -226,140 +224,54 @@ export class HistoryTabComponent {
     () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
   );
 
-  private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
-
-  protected readonly hasHistory = computed(
-    () => this.myRows().length > 0 || this.hasManagedHistory(),
-  );
-
   /**
-   * Offered to anyone who can approve once there is history to narrow. `hasManagedHistory()` also
-   * covers a viewer with managed rows whom the privilege predicate doesn't recognize.
+   * Every ended request, newest first. A row both reads return keeps the caller's own copy, which
+   * alone carries the lease's extended end.
    */
-  protected readonly canSwitchScope = computed(
-    () => this.hasHistory() && (this.canApprove() || this.hasManagedHistory()),
-  );
-
-  /**
-   * Falls back to All at once if the chip disappears while filtered. The template's `@if` destroys
-   * the chip with {@link canSwitchScope}, so a returning chip starts unset and can't re-apply a
-   * stale pick.
-   */
-  protected readonly scope = computed<HistoryScope>(() =>
-    this.canSwitchScope() ? toHistoryScope(this.scopeChip()?.value()) : HistoryScope.All,
-  );
-
-  /**
-   * A row both reads return keeps the caller's own copy, since only `buildMyAccessRequestRows`
-   * fills in the "Extended" badge.
-   */
-  private readonly allRows = computed(() => {
+  protected readonly rows = computed<HistoryTableRow[]>(() => {
     const rowsById = new Map(this.myRows().map((row) => [String(row.id), row]));
     for (const row of this.managedRows()) {
-      const key = String(row.id);
-      if (!rowsById.has(key)) {
-        rowsById.set(key, row);
+      if (!rowsById.has(String(row.id))) {
+        rowsById.set(String(row.id), row);
       }
     }
-    return [...rowsById.values()].sort(
-      (a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a),
-    );
+    const nowMs = this.nowMs();
+    const now = new Date(nowMs);
+    return [...rowsById.values()]
+      .map((row) => toHistoryRow(row, nowMs))
+      .filter((row): row is HistoryRow => row != null)
+      .map((row) => ({ ...row, elapsed: elapsedLabel(row.resolvedAt, now) }))
+      .sort((a, b) => b.resolvedAtMs - a.resolvedAtMs);
   });
 
-  private readonly myRowIds = computed(() => new Set(this.myRows().map((row) => String(row.id))));
-  private readonly managedRowIds = computed(
-    () => new Set(this.managedRows().map((row) => String(row.id))),
+  protected readonly hasHistory = computed(() => this.rows().length > 0);
+
+  /** Plain options, without the icon tiles the other tabs' Status filters carry. */
+  protected readonly statusOptions: FilterOption[] = Object.values(HistoryStatus).map((status) => ({
+    value: status,
+    label: this.i18nService.t(HISTORY_STATUS_LABEL_KEYS[status]),
+  }));
+
+  /** Every distinct shared folder present on the tab. */
+  protected readonly collectionOptions = computed<FilterOption[]>(() =>
+    distinctOptions(this.rows().map((row) => row.collectionName)),
   );
 
-  protected readonly historyRows = computed(() => {
-    switch (this.scope()) {
-      case HistoryScope.Mine:
-        return this.myRows();
-      case HistoryScope.Managed:
-        return this.managedRows();
-      default:
-        return this.allRows();
-    }
-  });
-
-  /**
-   * Shown when a listed row is actionable, by the same predicates the cells use; managed-ness alone
-   * also holds for requests with nothing left to do.
-   */
-  protected readonly showActionsColumn = computed(() =>
-    this.historyRows().some((row) => this.canRevoke(row) || this.canCancelApproval(row)),
+  /** Every distinct requester present on the tab. */
+  protected readonly requesterOptions = computed<FilterOption[]>(() =>
+    distinctOptions(this.rows().map((row) => row.requester)),
   );
 
-  protected readonly emptyMessageKey = computed(() =>
-    this.scope() === HistoryScope.Managed ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty",
-  );
-
-  protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
-
   /**
-   * The VFO1 table holds every row and narrows by scope in {@link matchesFilters}, so the scope
-   * chip's option counts are drawn from the whole history rather than the slice already listed.
+   * Fed the unfiltered rows, since the projected toolbar filters through {@link rowMatchesFilter}
+   * and counts each chip's options against them.
    */
-  protected readonly historyTable = defineTable<MyAccessRequestRow, "actions">(this.allRows);
-
-  /** The VFO1 table, for reading the term the toolbar's `bit-search` registered with it. */
-  private readonly tableRef = viewChild(BitTableV2Component<MyAccessRequestRow>);
-
-  /** The toolbar search's term, which picks the no-results state over the empty one. */
-  protected readonly searchTerm = computed(() =>
-    ((this.tableRef()?.filterValues() as { search?: string } | undefined)?.search ?? "")
-      .trim()
-      .toLowerCase(),
-  );
-
-  /** The VFO1 table's row test: the scope chip's slice, then the toolbar search within it. */
-  protected readonly matchesFilters = (
-    row: MyAccessRequestRow,
-    values: { search?: string; historyScope?: unknown },
-  ) => this.inScope(row, toHistoryScope(values.historyScope)) && this.matchesSearch(row, values);
-
-  private inScope(row: MyAccessRequestRow, scope: HistoryScope): boolean {
-    switch (scope) {
-      case HistoryScope.Mine:
-        return this.myRowIds().has(String(row.id));
-      case HistoryScope.Managed:
-        return this.managedRowIds().has(String(row.id));
-      default:
-        return true;
-    }
-  }
-
-  /**
-   * Searches the text the table shows, so a resolver named by an i18n key matches on its rendered
-   * wording, not the key.
-   */
-  private matchesSearch(row: MyAccessRequestRow, values: { search?: string }): boolean {
-    const term = (values.search ?? "").trim().toLowerCase();
-    if (term === "") {
-      return true;
-    }
-    return [
-      row.cipherName ?? row.cipherId,
-      row.collectionName,
-      row.resolverLabelKey == null ? row.resolverName : this.i18nService.t(row.resolverLabelKey),
-      row.approverComment,
-    ].some((field) => field != null && field.toLowerCase().includes(term));
-  }
-
-  /**
-   * Falls back to submitted time, or an undecided row would sink to the end of the descending sort.
-   * Ascending, since `bitSortable` applies the direction itself.
-   */
-  protected readonly byResolvedOrSubmitted = (a: MyAccessRequestRow, b: MyAccessRequestRow) =>
-    resolvedOrSubmittedMs(a) - resolvedOrSubmittedMs(b);
+  protected readonly table = defineTable<HistoryTableRow>(this.rows);
 
   /** Five rows fill the table's space without implying a real row count. */
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
+  protected readonly skeletonRows = 5;
 
   constructor() {
-    effect(() => {
-      this.historyDataSource.data = this.historyRows();
-    });
     effect((onCleanup) => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);
@@ -373,52 +285,59 @@ export class HistoryTabComponent {
     });
   }
 
+  protected readonly rowMatchesFilter = (row: HistoryTableRow, values: HistoryFilterValues) =>
+    this.matchesFilter(row, toHistoryFilter(values));
+
+  /** By the label the column shows, not the status's internal value. */
+  protected readonly sortByStatus: SortFn = (a: HistoryTableRow, b: HistoryTableRow) =>
+    this.statusLabel(a.status).localeCompare(this.statusLabel(b.status));
+
+  protected statusLabel(status: HistoryStatus): string {
+    return this.i18nService.t(HISTORY_STATUS_LABEL_KEYS[status]);
+  }
+
+  protected resolverLabel(resolver: HistoryResolver): string {
+    if (resolver.kind === "system") {
+      return this.i18nService.t("system");
+    }
+    return resolver.name ?? this.i18nService.t("pamResolverUnknown");
+  }
+
   /** The decrypted cipher for a row, undefined when absent from the caller's vault. */
   protected cipherFor(cipherId: string): CipherView | undefined {
     return this.myCiphers().get(cipherId) ?? this.managedCiphers().get(cipherId);
   }
 
-  protected isActing(row: MyAccessRequestRow): boolean {
-    return this.acting().has(String(row.id));
-  }
-
-  /** Only rows on collections the caller manages can be acted on. */
-  private isManaged(row: MyAccessRequestRow): boolean {
-    return this.managedIds().has(String(row.id));
-  }
-
-  /**
-   * A managed lease the server still reports active. Unlike Active access, it can't also test the
-   * effective end, since `toRequestRow` leaves these rows no `extendedUntil`.
-   */
-  protected canRevoke(row: MyAccessRequestRow): boolean {
-    return this.isManaged(row) && isLiveManagedLease(row);
-  }
-
-  /** An approval the requester has not started yet, so it can still be withdrawn. */
-  protected canCancelApproval(row: MyAccessRequestRow): boolean {
-    return this.isManaged(row) && isUnstartedApproval(row);
-  }
-
-  protected async revoke(row: MyAccessRequestRow): Promise<void> {
-    if (!this.canRevoke(row) || row.producedLeaseId == null || this.isActing(row)) {
-      return;
-    }
-    await this.approverActions.revoke(
-      () => this.inbox.revokeLease(row.id, row.producedLeaseId as unknown as AccessLeaseId),
-      rowBusy(this.acting, String(row.id)),
+  /** OR within a filter, AND across them. Searches the text the row shows. */
+  private matchesFilter(row: HistoryTableRow, filter: HistoryFilter): boolean {
+    return (
+      (filter.term === "" ||
+        [
+          row.cipherName,
+          row.collectionName,
+          row.requester,
+          row.requesterEmail,
+          this.statusLabel(row.status),
+          this.resolverLabel(row.resolvedBy),
+        ].some((field) => field != null && field.toLowerCase().includes(filter.term))) &&
+      (filter.statuses.length === 0 || filter.statuses.includes(row.status)) &&
+      (filter.collections.length === 0 ||
+        (row.collectionName != null && filter.collections.includes(row.collectionName))) &&
+      (filter.requesters.length === 0 || filter.requesters.includes(row.requester))
     );
   }
+}
 
-  protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
-    if (!this.canCancelApproval(row) || this.isActing(row)) {
-      return;
-    }
-    await this.approverActions.withdrawApproval(
-      // The same expression the Item column renders, so the dialog names the item as its row does.
-      row.cipherName ?? row.cipherId,
-      () => this.inbox.cancelApproval(row.id as AccessRequestId),
-      rowBusy(this.acting, String(row.id)),
-    );
-  }
+function toHistoryFilter(values: HistoryFilterValues): HistoryFilter {
+  return {
+    term: typeof values.search === "string" ? values.search.trim().toLowerCase() : "",
+    statuses: selectedFilterStrings(values.status),
+    collections: selectedFilterStrings(values.collection),
+    requesters: selectedFilterStrings(values.requester),
+  };
+}
+
+function distinctOptions(labels: Array<string | null>): FilterOption[] {
+  const distinct = new Set(labels.filter((label): label is string => !!label));
+  return [...distinct].sort((a, b) => a.localeCompare(b)).map((label) => ({ value: label, label }));
 }
