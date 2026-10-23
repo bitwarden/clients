@@ -556,6 +556,41 @@ describe("CollectAutofillContentService", () => {
         expect(collectAutofillContentService["ruleQualificationResult"]).toBeUndefined();
       });
     });
+
+    describe("envelope destructure", () => {
+      it("populates pageTargetingRules and ruleFailureFallback from the envelope", async () => {
+        const rules = [{ category: "login", fields: {} }] as any;
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: string) =>
+            command === "getUrlAutofillTargetingRules"
+              ? Promise.resolve({
+                  result: { targetingRules: rules, ruleFailureFallback: true },
+                })
+              : Promise.resolve(undefined),
+          );
+
+        await collectAutofillContentService.getPageDetails();
+
+        expect(collectAutofillContentService["pageTargetingRules"]).toBe(rules);
+        expect(collectAutofillContentService["ruleFailureFallback"]).toBe(true);
+      });
+
+      it("defaults to null rules and false fallback when the message returns no result", async () => {
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: string) =>
+            command === "getUrlAutofillTargetingRules"
+              ? Promise.resolve({ result: null })
+              : Promise.resolve(undefined),
+          );
+
+        await collectAutofillContentService.getPageDetails();
+
+        expect(collectAutofillContentService["pageTargetingRules"]).toBeNull();
+        expect(collectAutofillContentService["ruleFailureFallback"]).toBe(false);
+      });
+    });
   });
 
   describe("applyExternalTargetedFields", () => {
@@ -610,13 +645,16 @@ describe("CollectAutofillContentService", () => {
         .mockImplementation((command: string) => {
           if (command === "getUrlAutofillTargetingRules") {
             return Promise.resolve({
-              result: [
-                {
-                  fields: {
-                    username: ["iframe#nonexistent >>> #username"],
+              result: {
+                targetingRules: [
+                  {
+                    fields: {
+                      username: ["iframe#nonexistent >>> #username"],
+                    },
                   },
-                },
-              ],
+                ],
+                ruleFailureFallback: false,
+              },
             });
           }
           return Promise.resolve(undefined);
@@ -640,7 +678,10 @@ describe("CollectAutofillContentService", () => {
         .mockImplementation((command: string) => {
           if (command === "getUrlAutofillTargetingRules") {
             return Promise.resolve({
-              result: [{ fields: { username: ["iframe#nonexistent >>> #username"] } }],
+              result: {
+                targetingRules: [{ fields: { username: ["iframe#nonexistent >>> #username"] } }],
+                ruleFailureFallback: false,
+              },
             });
           }
           return Promise.resolve(undefined);
@@ -662,12 +703,15 @@ describe("CollectAutofillContentService", () => {
         .mockImplementation((command: string) => {
           if (command === "getUrlAutofillTargetingRules") {
             return Promise.resolve({
-              result: [
-                {
-                  category: FormPurposeCategories.AccountLogin,
-                  fields: { email: ["#username"] },
-                },
-              ],
+              result: {
+                targetingRules: [
+                  {
+                    category: FormPurposeCategories.AccountLogin,
+                    fields: { email: ["#username"] },
+                  },
+                ],
+                ruleFailureFallback: false,
+              },
             });
           }
           return Promise.resolve(undefined);
@@ -688,7 +732,10 @@ describe("CollectAutofillContentService", () => {
         .mockImplementation((command: string) => {
           if (command === "getUrlAutofillTargetingRules") {
             return Promise.resolve({
-              result: [{ fields: { username: [selector] } }],
+              result: {
+                targetingRules: [{ fields: { username: [selector] } }],
+                ruleFailureFallback: false,
+              },
             });
           }
           return Promise.resolve(undefined);
@@ -772,12 +819,15 @@ describe("CollectAutofillContentService", () => {
         .mockImplementation((command: string) => {
           if (command === "getUrlAutofillTargetingRules") {
             return Promise.resolve({
-              result: [
-                {
-                  category: FormPurposeCategories.AccountLogin,
-                  fields: { username: ["iframe#login-form-container >>> #username"] },
-                },
-              ],
+              result: {
+                targetingRules: [
+                  {
+                    category: FormPurposeCategories.AccountLogin,
+                    fields: { username: ["iframe#login-form-container >>> #username"] },
+                  },
+                ],
+                ruleFailureFallback: false,
+              },
             });
           }
           return Promise.resolve(undefined);

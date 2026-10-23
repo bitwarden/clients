@@ -5,6 +5,7 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   Region,
@@ -66,6 +67,7 @@ type RuntimeBackgroundOverrides = {
   autofillOrchestrator?: MockProxy<AutofillOrchestrator>;
   intraprocessMessageSender?: MockProxy<IntraprocessMessageSender>;
   fillAssistEventReceiver?: MockProxy<FillAssistEventReceiver>;
+  configService?: MockProxy<ConfigService>;
 };
 
 function createRuntimeBackground({
@@ -78,6 +80,7 @@ function createRuntimeBackground({
   autofillOrchestrator = mock<AutofillOrchestrator>(),
   intraprocessMessageSender = mock<IntraprocessMessageSender>(),
   fillAssistEventReceiver = mock<FillAssistEventReceiver>(),
+  configService = mock<ConfigService>(),
 }: RuntimeBackgroundOverrides = {}) {
   // The `undefined` slots are collaborators no covered path reaches.
   // Give one a mock as soon as a test needs it.
@@ -89,7 +92,7 @@ function createRuntimeBackground({
     environmentService as any,
     messagingService as any,
     logService,
-    undefined as any, // configService
+    configService,
     undefined as any, // messageListener
     accountService,
     undefined as any, // lockService
@@ -432,6 +435,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
   let runtimeBackground: RuntimeBackground;
   let mainBackground: MockProxy<MainBackground>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
+  let configService: MockProxy<ConfigService>;
 
   const message = { command: "getUrlAutofillTargetingRules" };
 
@@ -448,8 +452,10 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     domainSettingsService = mock<DomainSettingsService>();
     mainBackground = mock<MainBackground>();
     (mainBackground as any).domainSettingsService = domainSettingsService;
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false as any);
 
-    runtimeBackground = createRuntimeBackground({ main: mainBackground });
+    runtimeBackground = createRuntimeBackground({ main: mainBackground, configService });
   });
 
   afterEach(() => {
@@ -521,7 +527,7 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     expect(domainSettingsService.getTargetingRulesForUrl).toHaveBeenCalledWith(committedUrl);
   });
 
-  it("returns the resolved rules to the caller", async () => {
+  it("returns the resolved rules in the envelope under `targetingRules`", async () => {
     const rules = [{ category: "account-login", fields: {} }] as any;
     mockFrameLookup(routedUrl);
     domainSettingsService.getTargetingRulesForUrl.mockResolvedValue(rules);
@@ -533,7 +539,23 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
 
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
-    expect(result).toBe(rules);
+    expect(result).toEqual({ targetingRules: rules, ruleFailureFallback: false });
+  });
+
+  it("sets ruleFailureFallback=true in the envelope when the fallback flag is on", async () => {
+    const rules = [{ category: "account-login", fields: {} }] as any;
+    mockFrameLookup(routedUrl);
+    domainSettingsService.getTargetingRulesForUrl.mockResolvedValue(rules);
+    configService.getFeatureFlag.mockResolvedValue(true as any);
+    const sender = {
+      frameId: 0,
+      url: committedUrl,
+      tab: createChromeTabMock({ id: 1, url: routedUrl }),
+    } as chrome.runtime.MessageSender;
+
+    const result = await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(result).toEqual({ targetingRules: rules, ruleFailureFallback: true });
   });
 });
 

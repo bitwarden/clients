@@ -286,8 +286,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
-      this.pageTargetingRules =
-        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
+      const { result } = await this.sendExtensionMessage("getUrlAutofillTargetingRules");
+      const envelope = result ?? { targetingRules: null, ruleFailureFallback: false };
+      this.pageTargetingRules = envelope.targetingRules;
+      this.ruleFailureFallback = envelope.ruleFailureFallback;
     }
 
     const targetingRules = this.pageTargetingRules;
