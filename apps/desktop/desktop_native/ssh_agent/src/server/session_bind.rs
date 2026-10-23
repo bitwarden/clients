@@ -51,6 +51,7 @@ impl SessionBindState {
         let verified = match pub_key.key_data() {
             KeyData::Ed25519(key) => verify_ed25519(key, alg, session_id, raw_sig),
             KeyData::Rsa(key) => verify_rsa(key, alg, session_id, raw_sig),
+            KeyData::Ecdsa(key) => verify_ecdsa(key, alg, session_id, raw_sig),
             _ => {
                 warn!("session-bind received unknown host key type");
                 false
@@ -88,6 +89,24 @@ fn verify_ed25519(
         return false;
     }
     let Ok(signature) = Signature::new(Algorithm::Ed25519, sig.to_vec()) else {
+        return false;
+    };
+    key.verify(session_id, &signature).is_ok()
+}
+
+fn verify_ecdsa(
+    key: &ssh_key::public::EcdsaPublicKey,
+    alg: &str,
+    session_id: &[u8],
+    sig: &[u8],
+) -> bool {
+    // The signature algorithm must match the host key's curve.
+    let key_alg = key.algorithm();
+    if alg != key_alg.as_str() {
+        warn!(alg, "session-bind ECDSA received mismatched algorithm");
+        return false;
+    }
+    let Ok(signature) = Signature::new(key_alg, sig.to_vec()) else {
         return false;
     };
     key.verify(session_id, &signature).is_ok()
@@ -399,6 +418,147 @@ mod tests {
         assert!(apply(&payload).is_none());
     }
 
+    #[test]
+    fn valid_ecdsa_forwarding_sets_flag_and_fingerprint_all_curves() {
+        for curve in [
+            EcdsaCurve::NistP256,
+            EcdsaCurve::NistP384,
+            EcdsaCurve::NistP521,
+        ] {
+            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
+            let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
+            let state =
+                apply(&payload).unwrap_or_else(|| panic!("{curve:?} session-bind should verify"));
+            assert!(state.is_forwarding, "{curve:?} should set is_forwarding");
+
+            let expected = ssh_key::PublicKey::from(ssh_key::public::KeyData::Ecdsa(
+                ssh_key::public::EcdsaPublicKey::from(&keypair),
+            ))
+            .fingerprint(ssh_key::HashAlg::Sha256)
+            .to_string();
+            assert_eq!(state.host_fingerprint, expected, "{curve:?} fingerprint");
+        }
+    }
+
+    #[test]
+    fn valid_ecdsa_not_forwarding_returns_true() {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);
+        let state = apply(&payload).unwrap();
+        assert!(!state.is_forwarding);
+        assert!(state.host_fingerprint.starts_with("SHA256:"));
+    }
+
+    #[test]
+    fn ecdsa_tampered_signature_returns_false() {
+        for curve in [
+            EcdsaCurve::NistP256,
+            EcdsaCurve::NistP384,
+            EcdsaCurve::NistP521,
+        ] {
+            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
+            let mut payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);
+            let n = payload.len();
+            payload[n - 2] ^= 0x01; // last byte of the `s` mpint
+            assert!(
+                apply(&payload).is_none(),
+                "{curve:?} tampered signature must fail"
+            );
+        }
+    }
+
+    #[test]
+    fn ecdsa_malformed_signature_encoding_returns_false() {
+        // The algorithm name matches the P-256 host key, but the signature blob is not a valid
+        // `mpint r || mpint s` encoding: an empty blob, `r` wider than the curve's field, and a
+        // well-formed pair followed by trailing bytes.
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let session_id = [0x42u8; 32];
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let valid_sig: ssh_key::Signature = keypair.sign(&session_id);
+
+        let mut oversized_r = Vec::new();
+        write_ssh_string(&mut oversized_r, &[0x01u8; 40]);
+        write_ssh_string(&mut oversized_r, &[0x01u8; 32]);
+
+        let mut trailing = valid_sig.as_bytes().to_vec();
+        trailing.push(0u8);
+
+        for raw_sig in [Vec::new(), oversized_r, trailing] {
+            let mut sig_outer = Vec::new();
+            write_ssh_string(&mut sig_outer, b"ecdsa-sha2-nistp256");
+            write_ssh_string(&mut sig_outer, &raw_sig);
+
+            let mut payload = Vec::new();
+            write_ssh_string(&mut payload, &hostkey_bytes);
+            write_ssh_string(&mut payload, &session_id);
+            write_ssh_string(&mut payload, &sig_outer);
+            payload.push(1u8);
+
+            assert!(apply(&payload).is_none());
+        }
+    }
+
+    #[test]
+    fn ecdsa_wrong_session_id_returns_false() {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let mut payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], false);
+        // session_id follows the host key string; flip its first byte.
+        let hostkey_len = u32::from_be_bytes(payload[0..4].try_into().unwrap()) as usize;
+        payload[4 + hostkey_len + 4] ^= 0xFF;
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn ecdsa_wrong_key_returns_false() {
+        let keypair_a = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let keypair_b = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let session_id = [0x42u8; 32];
+
+        let private_a =
+            ssh_key::PrivateKey::new(KeypairData::Ecdsa(keypair_a.clone()), "").unwrap();
+        let hostkey_bytes = private_a.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair_b.sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(0u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
+    #[test]
+    fn ecdsa_curve_mismatch_returns_false() {
+        // Host key is P-256 but the signature claims (and is) P-384.
+        let host = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let signer = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP384).unwrap();
+        let session_id = [0x42u8; 32];
+
+        let private_host = ssh_key::PrivateKey::new(KeypairData::Ecdsa(host.clone()), "").unwrap();
+        let hostkey_bytes = private_host.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = signer.sign(&session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().as_str().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, &session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(0u8);
+
+        assert!(apply(&payload).is_none());
+    }
+
     // Host certificates are a known, documented limitation: they are rejected (and the
     // connection closed by the caller) rather than treated as an unbound, local connection.
     #[test]
@@ -417,27 +577,6 @@ mod tests {
         assert!(!state.parse_and_verify(&payload));
         assert!(!state.is_forwarding);
         assert!(state.host_fingerprint.is_empty());
-    }
-
-    // ECDSA host keys are not supported for session-bind in this change, so a validly signed
-    // ECDSA bind must be rejected (the caller then closes the connection) rather than verified.
-    #[test]
-    fn ecdsa_host_key_returns_false() {
-        for curve in [
-            EcdsaCurve::NistP256,
-            EcdsaCurve::NistP384,
-            EcdsaCurve::NistP521,
-        ] {
-            let keypair = EcdsaKeypair::random(&mut OsRng, curve).unwrap();
-            let payload = make_session_bind_payload_ecdsa(&keypair, &[0x42u8; 32], true);
-            let mut state = SessionBindState::default();
-            assert!(
-                !state.parse_and_verify(&payload),
-                "{curve:?} must be rejected"
-            );
-            assert!(!state.is_forwarding);
-            assert!(state.host_fingerprint.is_empty());
-        }
     }
 
     #[test]
