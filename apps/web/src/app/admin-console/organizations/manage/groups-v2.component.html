@@ -1,13 +1,5 @@
 <app-header></app-header>
 
-<bit-bulk-actions-bar>
-  <bit-bulk-action
-    [action]="confirmDeleteSelected"
-    [label]="'delete' | i18n"
-    icon="bwi-trash"
-  ></bit-bulk-action>
-</bit-bulk-actions-bar>
-
 <bit-table-v2
   [tableDef]="table"
   [filter]="filterGroups"
@@ -16,6 +8,14 @@
   [loading]="loading()"
   (selectedChange)="selectedGroups.set($event)"
 >
+  <bit-bulk-actions-bar>
+    <bit-bulk-action
+      [action]="confirmDeleteSelected"
+      [label]="'delete' | i18n"
+      icon="bwi-trash"
+    ></bit-bulk-action>
+  </bit-bulk-actions-bar>
+
   <bit-table-toolbar>
     <bit-search
       [placeholder]="'searchGroups' | i18n"

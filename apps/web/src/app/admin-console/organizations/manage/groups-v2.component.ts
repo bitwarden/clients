@@ -307,7 +307,9 @@ export class GroupsV2Component {
         ? { key: "deleteGroups", placeholders: [groups.length.toString()] }
         : { key: "deleteGroup" },
       content: { key: bulk ? "deleteGroupsWarningDesc" : "deleteGroupWarningDesc" },
-      type: "warning",
+      type: "danger",
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
     });
     if (!confirmed) {
       return;
