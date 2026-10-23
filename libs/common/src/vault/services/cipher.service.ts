@@ -23,9 +23,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
-import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
-import { ListResponse } from "../../models/response/list.response";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -50,13 +48,7 @@ import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
-import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
-import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
-import { CipherCreateRequest } from "../models/request/cipher-create.request";
-import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
-import { CipherRequest } from "../models/request/cipher.request";
-import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
@@ -86,13 +78,6 @@ export class CipherService implements CipherServiceAbstraction {
    * @private
    */
   private clearCipherViewsForUser$: Subject<UserId> = new Subject<UserId>();
-
-  /**
-   * Observable exposing the feature flag status for using the SDK for cipher CRUD operations.
-   */
-  private readonly sdkCipherCrudEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.PM27632_SdkCipherCrudOperations,
-  );
 
   constructor(
     private keyService: KeyService,
@@ -188,7 +173,7 @@ export class CipherService implements CipherServiceAbstraction {
         );
       }),
       switchMap(async (ciphers) => {
-        return await this.decryptCiphersWithSdk(ciphers, userId, false);
+        return await this.decryptCiphersWithSdk(ciphers, userId);
       }),
       tap(([decrypted, failures]) => {
         void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
@@ -377,32 +362,6 @@ export class CipherService implements CipherServiceAbstraction {
    * for {@link cipherViewsWithPartials$}.
    */
   private async getAllDecryptedIncludingPartials(userId: UserId): Promise<CipherView[]> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      return this.getAllDecryptedUsingSdk(userId);
-    }
-
-    const decCiphers = await this.getDecryptedCiphers(userId);
-    if (decCiphers != null && decCiphers.length !== 0) {
-      return decCiphers;
-    }
-
-    const decrypted = await this.decryptCiphers(await this.getAll(userId), userId);
-
-    // We failed to decrypt, return empty array but do not cache
-    if (decrypted == null) {
-      return [];
-    }
-
-    const [newDecCiphers, failedCiphers] = decrypted;
-
-    await this.setDecryptedCipherCache(newDecCiphers, userId);
-    await this.setFailedDecryptedCiphers(failedCiphers, userId);
-
-    return newDecCiphers;
-  }
-
-  private async getAllDecryptedUsingSdk(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
       return decCiphers;
@@ -451,34 +410,6 @@ export class CipherService implements CipherServiceAbstraction {
     return Object.values(
       await firstValueFrom(this.decryptedCiphersState(userId).state$.pipe(map((c) => c ?? {}))),
     );
-  }
-
-  /**
-   * Decrypts the provided ciphers using the provided user's keys.
-   * @param ciphers
-   * @param userId
-   * @returns Two cipher arrays, the first containing successfully decrypted ciphers and the second containing ciphers that failed to decrypt.
-   * @private
-   */
-  private async decryptCiphers(
-    ciphers: Cipher[],
-    userId: UserId,
-  ): Promise<[CipherView[], CipherView[]] | null> {
-    if (ciphers.length === 0) {
-      return [[], []];
-    }
-
-    const decryptMeasurement = this.logService.startMeasurement(
-      PERF_TRACK_GROUP,
-      PERF_TRACK,
-      "decryptCiphers",
-    );
-
-    const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
-
-    decryptMeasurement.finish([["Items", ciphers.length]]);
-
-    return result;
   }
 
   /**
@@ -612,23 +543,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async getAllFromApiForOrganization(
     organizationId: string,
-    includeMemberItems?: boolean,
-  ): Promise<CipherView[]> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
-    }
-
-    const response = await this.apiService.getCiphersOrganization(
-      organizationId,
-      includeMemberItems,
-    );
-    return await this.decryptOrganizationCiphersResponse(response);
-  }
-
-  private async getAllFromApiForOrganizationUsingSdk(
-    organizationId: string,
-    includeMemberItems: boolean,
+    includeMemberItems = false,
   ): Promise<CipherView[]> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (!userId) {
@@ -686,28 +601,6 @@ export class CipherService implements CipherServiceAbstraction {
     result.successes.sort(this.getLocaleSortingFunction());
 
     return result;
-  }
-
-  private async decryptOrganizationCiphersResponse(
-    response: ListResponse<CipherResponse>,
-  ): Promise<CipherView[]> {
-    if (response?.data == null || response.data.length < 1) {
-      return [];
-    }
-
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
-    if (!userId) {
-      throw new Error("User ID is required");
-    }
-    const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const [successful, failed] = await this.cipherEncryptionService.decryptManyLegacy(
-      ciphers,
-      userId,
-    );
-    const decCiphers = [...successful, ...failed];
-
-    decCiphers.sort(this.getLocaleSortingFunction());
-    return decCiphers;
   }
 
   async getLastUsedForUrl(
@@ -840,24 +733,6 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     orgAdmin?: boolean,
   ): Promise<CipherView> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-
-    if (useSdk) {
-      return (
-        (await this.createWithServerUsingSdk(cipherView, userId, orgAdmin)) || new CipherView()
-      );
-    }
-
-    const encrypted = await this.encrypt(cipherView, userId);
-    const result = await this.createWithServerLegacy(encrypted, orgAdmin);
-    return await this.decrypt(result, userId);
-  }
-
-  private async createWithServerUsingSdk(
-    cipherView: CipherView,
-    userId: UserId,
-    orgAdmin?: boolean,
-  ): Promise<CipherView | void> {
     // Clear the cache before creating the cipher. The SDK internally updates the encrypted storage
     // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
     // `createWithServer` can cause race conditions where the cache is cleared after the
@@ -869,56 +744,11 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
       orgAdmin,
     );
-    return resultCipherView;
-  }
-
-  private async createWithServerLegacy(
-    context: EncryptionContext,
-    orgAdmin?: boolean,
-  ): Promise<Cipher> {
-    const { cipher } = context;
-    let response: CipherResponse;
-    if (orgAdmin && cipher.organizationId != null) {
-      const request = new CipherCreateRequest(context);
-      response = await this.apiService.postCipherAdmin(request);
-      const data = new CipherData(response, cipher.collectionIds);
-      return new Cipher(data);
-    } else if (cipher.collectionIds != null && cipher.collectionIds.length > 0) {
-      const request = new CipherCreateRequest(context);
-      response = await this.apiService.postCipherCreate(request);
-    } else {
-      const request = new CipherRequest(context);
-      response = await this.apiService.postCipher(request);
-    }
-
-    cipher.id = response.id;
-
-    const data = new CipherData(response, cipher.collectionIds);
-    const updated = await this.upsert(data);
-    // No local data for new ciphers
-    return new Cipher(updated[cipher.id as CipherId]);
+    return resultCipherView || new CipherView();
   }
 
   async updateWithServer(
     cipherView: CipherView,
-    userId: UserId,
-    originalCipherView?: CipherView,
-    orgAdmin?: boolean,
-  ): Promise<CipherView> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-
-    if (useSdk) {
-      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
-    }
-
-    const encrypted = await this.encrypt(cipherView, userId);
-    const updatedCipher = await this.updateWithServerLegacy(encrypted, orgAdmin);
-    const updatedCipherView = await this.decrypt(updatedCipher, userId);
-    return updatedCipherView;
-  }
-
-  async updateWithServerUsingSdk(
-    cipher: CipherView,
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
@@ -930,34 +760,12 @@ export class CipherService implements CipherServiceAbstraction {
     await this.clearCache(userId);
 
     const resultCipherView = await this.cipherSdkService.updateWithServer(
-      cipher,
+      cipherView,
       userId,
       originalCipherView,
       orgAdmin,
     );
     return resultCipherView;
-  }
-
-  async updateWithServerLegacy(context: EncryptionContext, orgAdmin?: boolean): Promise<Cipher> {
-    const { cipher } = context;
-    let response: CipherResponse;
-    if (orgAdmin) {
-      const request = new CipherRequest(context);
-      response = await this.apiService.putCipherAdmin(cipher.id, request);
-      const data = new CipherData(response, cipher.collectionIds);
-      return new Cipher(data, cipher.localData);
-    } else if (cipher.edit) {
-      const request = new CipherRequest(context);
-      response = await this.apiService.putCipher(cipher.id, request);
-    } else {
-      const request = new CipherPartialRequest(cipher);
-      response = await this.apiService.putPartialCipher(cipher.id, request);
-    }
-
-    const data = new CipherData(response, cipher.collectionIds);
-    const updated = await this.upsert(data);
-    // updating with server does not change local data
-    return new Cipher(updated[cipher.id as CipherId], cipher.localData);
   }
 
   async shareWithServer(
@@ -1080,9 +888,9 @@ export class CipherService implements CipherServiceAbstraction {
         fileName: encFileName.encryptedString,
         fileSize: encData.buffer.byteLength,
         lastKnownRevisionDate: cipher.revisionDate.toISOString(),
-        asAdmin: admin,
       },
       userId,
+      admin,
     );
 
     await this.cipherFileUploadService.uploadPrepared(
@@ -1248,20 +1056,8 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async deleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
-      return;
-    }
-
-    if (asAdmin) {
-      await this.apiService.deleteCipherAdmin(id);
-    } else {
-      await this.apiService.deleteCipher(id);
-    }
-
-    await this.delete(id, userId);
+    await this.clearCache(userId);
+    await this.cipherSdkService.deleteWithServer(id, userId, asAdmin);
   }
 
   async deleteManyWithServer(
@@ -1270,20 +1066,8 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
-      return;
-    }
-
-    const request = new CipherBulkDeleteRequest(ids, orgId);
-    if (asAdmin) {
-      await this.apiService.deleteManyCiphersAdmin(request);
-    } else {
-      await this.apiService.deleteManyCiphers(request);
-    }
-    await this.delete(ids, userId);
+    await this.clearCache(userId);
+    await this.cipherSdkService.deleteManyWithServer(ids, userId, asAdmin, orgId);
   }
 
   async deleteAttachmentWithServer(
@@ -1407,20 +1191,8 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async softDeleteWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
-      return;
-    }
-
-    if (asAdmin) {
-      await this.apiService.putDeleteCipherAdmin(id);
-    } else {
-      await this.apiService.putDeleteCipher(id);
-    }
-
-    await this.softDelete(id, userId);
+    await this.clearCache(userId);
+    await this.cipherSdkService.softDeleteWithServer(id, userId, asAdmin);
   }
 
   async softDeleteManyWithServer(
@@ -1429,21 +1201,8 @@ export class CipherService implements CipherServiceAbstraction {
     asAdmin = false,
     orgId?: OrganizationId,
   ): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
-      return;
-    }
-
-    const request = new CipherBulkDeleteRequest(ids, orgId);
-    if (asAdmin) {
-      await this.apiService.putDeleteManyCiphersAdmin(request);
-    } else {
-      await this.apiService.putDeleteManyCiphers(request);
-    }
-
-    await this.softDelete(ids, userId);
+    await this.clearCache(userId);
+    await this.cipherSdkService.softDeleteManyWithServer(ids, userId, asAdmin, orgId);
   }
 
   async restore(
@@ -1480,21 +1239,8 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async restoreWithServer(id: string, userId: UserId, asAdmin = false): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
-      return;
-    }
-
-    let response;
-    if (asAdmin) {
-      response = await this.apiService.putRestoreCipherAdmin(id);
-    } else {
-      response = await this.apiService.putRestoreCipher(id);
-    }
-
-    await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
+    await this.clearCache(userId);
+    await this.cipherSdkService.restoreWithServer(id, userId, asAdmin);
   }
 
   /**
@@ -1502,28 +1248,8 @@ export class CipherService implements CipherServiceAbstraction {
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
   async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
-    const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
-    if (useSdk) {
-      await this.clearCache(userId);
-      await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
-      return;
-    }
-
-    let response;
-
-    if (orgId) {
-      const request = new CipherBulkRestoreRequest(ids, orgId);
-      response = await this.apiService.putRestoreManyCiphersAdmin(request);
-    } else {
-      const request = new CipherBulkRestoreRequest(ids);
-      response = await this.apiService.putRestoreManyCiphers(request);
-    }
-
-    const restores: { id: string; revisionDate: string }[] = [];
-    for (const cipher of response.data) {
-      restores.push({ id: cipher.id, revisionDate: cipher.revisionDate });
-    }
-    await this.restore(restores, userId);
+    await this.clearCache(userId);
+    await this.cipherSdkService.restoreManyWithServer(ids, userId, orgId);
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId) {
@@ -1818,41 +1544,13 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Decrypts the provided ciphers using the SDK with full CipherView decryption.
-   * @param ciphers The encrypted ciphers to decrypt.
-   * @param userId The user ID to use for decryption keys.
-   * @param fullDecryption When true, returns full CipherView objects with all fields decrypted.
-   * @returns A tuple containing:
-   *          - Array of fully decrypted CipherView objects, sorted by locale
-   *          - Array of CipherView objects that failed to decrypt (marked with decryptionFailure flag)
-   * @private
+   * Decrypts the provided ciphers into lightweight `CipherListView`s using the SDK.
+   * @returns A tuple of the decrypted list views (sorted by locale) and the ciphers that failed to decrypt.
    */
   private async decryptCiphersWithSdk(
     ciphers: Cipher[],
     userId: UserId,
-    fullDecryption: true,
-  ): Promise<[CipherView[], CipherView[]]>;
-  /**
-   * Decrypts the provided ciphers using the SDK with lightweight CipherListView decryption.
-   * @param ciphers The encrypted ciphers to decrypt.
-   * @param userId The user ID to use for decryption keys.
-   * @param fullDecryption When false, returns lightweight CipherListView objects for better performance.
-   * @returns A tuple containing:
-   *          - Array of lightweight CipherListView objects, sorted by locale
-   *          - Array of CipherView objects that failed to decrypt (marked with decryptionFailure flag)
-   * @private
-   */
-  private async decryptCiphersWithSdk(
-    ciphers: Cipher[],
-    userId: UserId,
-    fullDecryption: false,
-  ): Promise<[CipherListView[], CipherView[]]>;
-
-  private async decryptCiphersWithSdk(
-    ciphers: Cipher[],
-    userId: UserId,
-    fullDecryption: boolean = true,
-  ): Promise<[CipherViewLike[], CipherView[]]> {
+  ): Promise<[CipherListView[], CipherView[]]> {
     // Fixes a bug causing decryption failures immediately after a user leaves an organization.
     const decryptableCiphers = await this.excludeCiphersMissingOrgKey(ciphers, userId);
 
@@ -1860,14 +1558,6 @@ export class CipherService implements CipherServiceAbstraction {
     // Observables reacting to key changes may attempt to decrypt with a stale SDK reference.
     if (decryptableCiphers.length === 0) {
       return [[], []];
-    }
-
-    if (fullDecryption) {
-      const [decryptedViews, failedViews] = await this.cipherEncryptionService.decryptManyLegacy(
-        decryptableCiphers,
-        userId,
-      );
-      return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
     }
 
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(

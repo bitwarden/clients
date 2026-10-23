@@ -39,7 +39,7 @@ import { InvoicePreviewService } from "../../../services/invoice-preview.service
 import { SubscriptionDiscountService } from "../../../services/subscription-discount.service";
 
 import { UpgradePaymentService } from "./services/upgrade-payment.service";
-import { UpgradePaymentComponent } from "./upgrade-payment.component";
+import { UpgradePaymentComponent, UpgradePaymentStatus } from "./upgrade-payment.component";
 
 describe("UpgradePaymentComponent", () => {
   beforeAll(() => {
@@ -624,6 +624,59 @@ describe("UpgradePaymentComponent", () => {
       expect(host().querySelector('[data-testid="invoice-preview-error"]')).toBeNull();
       expect(host().querySelector("billing-cart-summary")?.classList).not.toContain("tw-hidden");
     }));
+
+    describe("submit availability", () => {
+      const submitButton = () => host().querySelector('button[type="submit"]');
+
+      const createSubmittableFixture = () => {
+        const credit$ = new Subject<number>();
+        mockUpgradePaymentService.accountCredit$ = credit$;
+        createFixture();
+        credit$.next(0);
+        jest.spyOn(component as any, "isFormValid").mockReturnValue(true);
+      };
+
+      it("disables submit while the preview has failed", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValue(
+          new Error("preview failed"),
+        );
+
+        createSubmittableFixture();
+        tick(1001);
+        fixture.detectChanges();
+
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+      }));
+
+      it("enables submit once a later preview succeeds", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumPurchaseCart
+          .mockRejectedValueOnce(new Error("preview failed"))
+          .mockResolvedValue(premiumCart);
+
+        createSubmittableFixture();
+        tick(1001);
+        component.formGroup.controls.billingAddress.patchValue({ postalCode: "54321" });
+        tick(1001);
+        fixture.detectChanges();
+
+        expect(submitButton()?.hasAttribute("aria-disabled")).toBe(false);
+      }));
+
+      it("does not purchase when submitted while the preview has failed", fakeAsync(async () => {
+        mockInvoicePreviewService.previewPremiumPurchaseCart.mockRejectedValue(
+          new Error("preview failed"),
+        );
+
+        createSubmittableFixture();
+        tick(1001);
+        const processUpgrade = jest
+          .spyOn(component as any, "processUpgrade")
+          .mockResolvedValue({ status: UpgradePaymentStatus.UpgradedToPremium });
+        await component["submit"]();
+
+        expect(processUpgrade).not.toHaveBeenCalled();
+      }));
+    });
 
     it("ignores a stale preview that resolves after a newer one", fakeAsync(() => {
       const staleCart: Cart = { ...premiumCart, total: 1 };

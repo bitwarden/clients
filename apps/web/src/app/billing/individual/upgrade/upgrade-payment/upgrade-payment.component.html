@@ -79,7 +79,9 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading() || !isFormValid() || !(hasEnoughAccountCredit$ | async)"
+      [disabled]="
+        loading() || !isFormValid() || previewFailed() || !(hasEnoughAccountCredit$ | async)
+      "
       type="submit"
     >
       {{ "upgrade" | i18n }}

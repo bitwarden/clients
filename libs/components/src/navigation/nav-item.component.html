@@ -118,11 +118,12 @@
       >
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
           <!-- Non-tile leading content (e.g. a collapse toggle); a tile renders inside the interactive element instead.
+               This slot always supplies the row's leading space, so the content adds none of its own while open.
                Depth 2+ always reserves this slot so leaf rows align with sibling groups' toggles. -->
           @if (open) {
             <div
               class="tw-shrink-0"
-              [class]="treeDepth() > 1 ? 'tw-w-8 tw-flex' : 'tw-ps-2 empty:tw-hidden'"
+              [class]="treeDepth() > 1 ? 'tw-w-8 tw-flex' : 'tw-ps-2'"
               [style.margin-inline-start]="nestedIndent()"
             >
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
@@ -190,7 +191,8 @@
          lingering title would show a second, unthemed tooltip behind ours. -->
     <div
       [attr.title]="open ? text() : null"
-      class="tw-p-2 tw-flex tw-items-center tw-h-full"
+      class="tw-py-2 tw-pe-2 tw-flex tw-items-center tw-h-full"
+      [class.tw-ps-2]="!open"
       [class.tw-gap-1]="hasStartIconTile()"
       [class.tw-text-center]="!open"
       [class.tw-justify-center]="!open"

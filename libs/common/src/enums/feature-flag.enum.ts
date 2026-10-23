@@ -29,7 +29,6 @@ export enum FeatureFlag {
   PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -91,7 +90,6 @@ export enum FeatureFlag {
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
@@ -108,6 +106,7 @@ export enum FeatureFlag {
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
+  PamAccessConnector = "pm-42354-rotation-daemon",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
@@ -134,7 +133,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
-  [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
@@ -169,7 +167,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
@@ -219,6 +216,7 @@ export const DefaultFeatureFlagValue = {
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,
