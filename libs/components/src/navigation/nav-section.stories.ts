@@ -90,7 +90,7 @@ export const Default: StoryObj<NavSectionComponent> = {
     props: args,
     template: /*html*/ `
       <bit-side-nav>
-        <bit-nav-section label="Manage" icon="bwi-collection-shared">
+        <bit-nav-section label="Manage" icon="bwi-shared-folder">
           <bit-nav-item text="My folders" route="folders" icon="bwi-folder"></bit-nav-item>
           <bit-nav-item text="Archive" route="archive" icon="bwi-archive">
             <button slot="end" bit-chip-action startIcon="bwi-diamond" label="Premium" size="small"></button>
