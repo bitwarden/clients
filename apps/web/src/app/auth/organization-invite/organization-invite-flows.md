@@ -591,6 +591,20 @@ status/membership, seat/plan, policy violations, provider constraints,
 domain/crypto, and an `unexpected` fallback carrying a best-effort
 message. Kind-to-UI mapping lives in `getOpenOrgInviteAcceptErrorUi`.
 
+The service classifies by the SDK's `AcceptInviteLinkError` variant
+(`classifyOpenOrgInviteAcceptError`). The SDK parses the server's coded
+validation errors, so each typed variant (for example
+`AlreadyOrganizationMember`) maps directly to its kind; the client doesn't
+parse response bodies for these. The SDK messages are English only, which is
+why the UI keys its localized copy off the kind. Two paths differ:
+
+- `Api` — responses in the legacy error body, which the `/accept` endpoint
+  still sends. These go through the older status + server-message matching
+  (`classifyOpenOrgInviteLegacyApiError`). The two `auto-confirm-*` kinds are
+  only reachable this way.
+- `Unknown`, client-side SDK errors, and any variant a newer SDK adds →
+  `unexpected`.
+
 ### Open-invite state and sealed-secret record
 
 Two open-invite-specific pieces of state, both persisted via
