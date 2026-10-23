@@ -2,11 +2,15 @@ import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherHealthView } from "@bitwarden/common/dirt/models/view";
 import { RiskCategory } from "@bitwarden/common/dirt/vault-health/models";
+import { CipherReportExclusionService } from "@bitwarden/common/dirt/vault-health/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef } from "@bitwarden/components";
+import { UserId } from "@bitwarden/common/types/guid";
+import { DialogRef, ToastService } from "@bitwarden/components";
 
 import {
   HealthExcludeAtRiskItemDialogComponent,
@@ -16,6 +20,13 @@ import {
 describe("HealthExcludeAtRiskItemDialogComponent", () => {
   let fixture: ComponentFixture<HealthExcludeAtRiskItemDialogComponent>;
   let dialogRef: MockProxy<DialogRef>;
+  let cipherReportExclusionService: MockProxy<CipherReportExclusionService>;
+  let toastService: MockProxy<ToastService>;
+  const userId = "user-1" as UserId;
+
+  beforeEach(() => {
+    cipherReportExclusionService = mock<CipherReportExclusionService>();
+  });
 
   function buildHealthView(args: Partial<CipherHealthView> = {}): CipherHealthView {
     return new CipherHealthView({
@@ -39,6 +50,7 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
     dialogRef = mock<DialogRef>();
     // a bare mock returns a truthy stub here, which would disable every bitDialogClose button
     dialogRef.disableClose = false;
+    toastService = mock<ToastService>();
 
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
@@ -48,6 +60,12 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: DialogRef, useValue: dialogRef },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject({ id: userId } as Account) },
+        },
+        { provide: CipherReportExclusionService, useValue: cipherReportExclusionService },
+        { provide: ToastService, useValue: toastService },
       ],
     }).compileComponents();
 
@@ -101,12 +119,29 @@ describe("HealthExcludeAtRiskItemDialogComponent", () => {
     expect(text()).not.toContain("passwordHasAdditionalRisks");
   });
 
-  it("closes with true when exclude anyway is clicked", async () => {
+  it("saves the exclusion, shows a toast and closes when exclude anyway is clicked", async () => {
     await initComponent();
 
     button("excludeAnyway").click();
+    await fixture.whenStable();
 
-    expect(dialogRef.close).toHaveBeenCalledWith(true);
+    expect(cipherReportExclusionService.excludeWithServer).toHaveBeenCalledWith("cipher-1", userId);
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      message: "itemExcludedFromList",
+      variant: "success",
+    });
+    expect(dialogRef.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the dialog open and shows no success toast when the save fails", async () => {
+    cipherReportExclusionService.excludeWithServer.mockRejectedValue(new Error("save failed"));
+    await initComponent();
+
+    button("excludeAnyway").click();
+    await fixture.whenStable();
+
+    expect(toastService.showToast).not.toHaveBeenCalled();
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 
   it("closes without confirming when cancel is clicked", async () => {

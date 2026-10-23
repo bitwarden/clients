@@ -8447,6 +8447,9 @@
   "excludeAnyway": {
     "message": "Exclude anyway"
   },
+  "itemExcludedFromList": {
+    "message": "Item excluded from list"
+  },
   "reused": {
     "message": "Reused",
     "description": "ex. A password that is reused across multiple logins."
