@@ -128,8 +128,8 @@ describe("DefaultRuleQualificationService", () => {
         {
           category: "login" as FormPurposeCategory,
           fields: {
-            // Each entry here is a DeepSelectorSequence (string[]); the whole
-            // sequence must resolve for the rule to qualify.
+            // Each entry here is a DeepSelectorSequence (string[]). The whole sequence
+            // must resolve for the rule to qualify.
             oneTimeCode: [["#d1", "#d2", "#d3-missing"]],
           },
         },
@@ -255,7 +255,7 @@ describe("DefaultRuleQualificationService", () => {
         },
       ];
       const input = document.createElement("input");
-      // findIframeCrossing returns null for shadow DOM only chains.
+      // findIframeCrossing returns null for chains without an iframe boundary.
       domQueryService.findIframeCrossing.mockReturnValue(null);
       domQueryService.queryDeepSelector.mockReturnValue(input);
 

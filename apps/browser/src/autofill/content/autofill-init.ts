@@ -63,9 +63,9 @@ class AutofillInit implements AutofillInitInterface {
       domQueryService,
       this.autofillOverlayContentService,
     );
-    // Setter injection breaks the circular dep: the rule qualification service
-    // needs the collect service for its heuristic bypass; the collect service
-    // needs the rule qualification service to qualify matched rules.
+    // Setter injection breaks the circular dependency. The rule qualification
+    // service needs the collect service for its heuristic bypass. The collect
+    // service needs the rule qualification service to qualify matched rules.
     this.collectAutofillContentService.setRuleQualificationService(
       new DefaultRuleQualificationService(
         this.collectAutofillContentService,

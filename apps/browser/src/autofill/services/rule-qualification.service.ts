@@ -69,7 +69,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
       for (const selector of this.extractDeclaredSelectors(form)) {
         // Iframe `>>>` selectors are partially checked: verify the first-hop
         // iframe exists in the parent's DOM. Later segments live in child
-        // frames and are not checked here per the partial-check design.
+        // frames and are not checked here.
         if (selector.includes(">>>")) {
           const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
           if (iframeCrossing) {
@@ -102,10 +102,9 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    *
    * Note on formless pages: when every resolved declared selector sits outside
    * a `<form>`, `inScopeForms.forms` is empty and this method returns `ok: true`
-   * without finding any extras. The predicate asks "is there an extra inside any
-   * in-scope form?" and with zero in-scope forms the answer is trivially no.
-   * This matches the known limitation that formless pages are not covered by
-   * the extras check.
+   * without finding any extras. The check asks "is there an extra inside any
+   * in-scope form?" and with zero in-scope forms the answer is no. This matches
+   * the known limitation that formless pages are not covered by the extras check.
    */
   private async checkInScopeExtras(
     rule: FormContent[],
@@ -145,7 +144,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
   /**
    * Flattens a form's declared selectors from `fields` and `container` into a
    * single list. For a `DeepSelectorSequence` (e.g. a 6-digit OTP split across
-   * 6 inputs), every member is included — the sequence qualifies only if all
+   * 6 inputs), every member is included. The sequence qualifies only if all
    * members resolve.
    */
   private extractDeclaredSelectors(form: FormContent): string[] {
@@ -173,12 +172,11 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    * side-effect-free equivalent of the field detection in
    * `buildAutofillFieldsData`.
    *
-   * We chose a scoped reimplementation over refactoring `buildAutofillFieldsData`
-   * to be cache-optional because the shared method populates the collect
-   * service's field caches as a side effect, and the sequencing invariant for
-   * the heuristic bypass requires those caches stay empty on this path. Adding
-   * a `skipCaching` branch to the hot shared path would complicate it for a
-   * single caller.
+   * We chose a scoped reimplementation over making `buildAutofillFieldsData`
+   * cache-optional because the shared method populates the collect service's
+   * field caches as a side effect, and those caches must stay empty on the
+   * heuristic bypass path. Adding a `skipCaching` branch to the shared path
+   * would clutter it for just one caller.
    */
   private detectHeuristicFieldsInForm(form: HTMLFormElement): FormFieldElement[] {
     const candidates = form.querySelectorAll("input, select, textarea");

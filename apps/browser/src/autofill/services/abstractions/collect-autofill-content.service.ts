@@ -37,9 +37,7 @@ interface CollectAutofillContentService extends AutofillMonitor {
   ): Promise<AutofillPageDetails>;
   /**
    * Setter wiring to break the circular dependency between this service and
-   * `RuleQualificationService` (the service needs the collect service to run
-   * the heuristic pass; the collect service needs the qualification service
-   * to decide whether a rule qualifies). Called once at DI setup.
+   * the rule qualification service. Called once at DI setup.
    */
   setRuleQualificationService(ruleQualificationService: RuleQualificationService): void;
 }

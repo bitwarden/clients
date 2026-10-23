@@ -519,7 +519,7 @@ describe("CollectAutofillContentService", () => {
         });
 
         await collectAutofillContentService.getPageDetails();
-        // pageTargetingRules is now null; second call should not re-enter the branch
+        // pageTargetingRules is now null, so the second call should not re-enter the branch
         await collectAutofillContentService.getPageDetails();
 
         expect(ruleQualificationService.qualifyRule).toHaveBeenCalledTimes(1);
