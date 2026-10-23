@@ -3,10 +3,8 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
@@ -192,12 +190,6 @@ type Story = StoryObj<HistoryTabComponent>;
 /** The history of a member who cannot approve, so no scope chip renders. */
 export const Default: Story = {
   decorators: [history()],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
-};
-
-export const FlagOn: Story = {
-  decorators: [history()],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** Nothing resolved yet. */
@@ -207,27 +199,16 @@ export const Empty: Story = {
 
 export const EmptyForAnApprover: Story = {
   decorators: [history({ mine: [], canApprove: true })],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
 };
 
 /** An approver's view, opening on All with revoke and withdraw offered only on managed rows. */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
 };
 
-export const WithManagedHistoryFlagOn: Story = {
+/** A scope picked, which shows the applied-filter styling and the clear-all button. */
+export const Filtered: Story = {
   decorators: [history({ managed: managedRows })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-};
-
-/**
- * A scope picked on the `bit-table-v2` path, which shows the applied-filter styling and the
- * clear-all button.
- */
-export const FlagOnFiltered: Story = {
-  decorators: [history({ managed: managedRows })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
     await selectHistoryScope(canvasElement, "For my collections");
   },

@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { DialogService } from "@bitwarden/components";
-import { featureFlagModes } from "@bitwarden/storybook";
+import { enabledFlags } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
@@ -519,6 +519,8 @@ export default {
     }),
   ],
   render: () => ({ template: `<app-pam-access-audit />` }),
+  // `app-header` reads this flag, so its layout matches the page's.
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 } as Meta<AccessAuditComponent>;
 
 type Story = StoryObj<AccessAuditComponent>;
@@ -526,15 +528,6 @@ type Story = StoryObj<AccessAuditComponent>;
 /** The populated trail. */
 export const Default: Story = {
   decorators: [audit()],
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
-};
-
-/** The populated trail on the `bit-table-v2` path. */
-export const FlagOn: Story = {
-  decorators: [audit()],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
 };
 
 /** An organization with no PAM activity recorded yet. */
@@ -572,12 +565,6 @@ export const DetailsDrawerOpen: Story = {
   },
 };
 
-/** {@link DetailsDrawerOpen} on the `bit-table-v2` path, where hidden columns leave the grid. */
-export const DetailsDrawerOpenFlagOn: Story = {
-  ...DetailsDrawerOpen,
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
-};
-
 /** The top row's cells open event histories; the rows below show cells that must not link. */
 export const EntityLinks: Story = {
   decorators: [audit({ events: MIXED_LINK_EVENTS })],
@@ -597,18 +584,9 @@ export const EmptyFields: Story = {
   decorators: [audit({ events: EMPTY_FIELD_EVENTS })],
 };
 
-/** A filter matching nothing shows the empty state, with Export disabled. */
+/** A filter matching nothing shows the empty state below the toolbar, with Export disabled. */
 export const NoMatches: Story = {
   decorators: [audit()],
-  play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Today");
-  },
-};
-
-/** {@link NoMatches} on the `bit-table-v2` path, where the toolbar stays above the empty state. */
-export const NoMatchesFlagOn: Story = {
-  decorators: [audit()],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
     await selectChipOption(canvasElement, "Time period", "Today");
   },
@@ -622,19 +600,12 @@ export const TimePeriodFiltered: Story = {
   },
 };
 
-/** Two chips narrowed together, which Clear all undoes in one move. */
+/**
+ * Two chips narrowed together, which Clear all undoes in one move. The toolbar counts only the
+ * loaded rows.
+ */
 export const FiltersActive: Story = {
   decorators: [audit({ events: liveEvents() })],
-  play: async ({ canvasElement }) => {
-    await selectChipOption(canvasElement, "Time period", "Past 30 days");
-    await selectChipOption(canvasElement, "Event", "Request approved");
-  },
-};
-
-/** {@link FiltersActive} on the `bit-table-v2` path, whose toolbar counts only loaded rows. */
-export const FiltersActiveFlagOn: Story = {
-  decorators: [audit({ events: liveEvents() })],
-  globals: featureFlagModes(FeatureFlag.VFO1Foundation)["flag on"],
   play: async ({ canvasElement }) => {
     await selectChipOption(canvasElement, "Time period", "Past 30 days");
     await selectChipOption(canvasElement, "Event", "Request approved");

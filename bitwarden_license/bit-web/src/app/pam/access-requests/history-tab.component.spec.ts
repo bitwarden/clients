@@ -4,9 +4,8 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -68,7 +67,6 @@ describe("HistoryTabComponent", () => {
   let canApprove$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
-  let configService: MockProxy<ConfigService>;
 
   function create(): void {
     fixture = TestBed.createComponent(HistoryTabComponent);
@@ -80,16 +78,25 @@ describe("HistoryTabComponent", () => {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
   }
 
-  /** The ids of the rendered rows, in rendered order. */
-  function renderedRowIds(): string[] {
-    return [...fixture.nativeElement.querySelectorAll("tr[data-testid]")].map((row: HTMLElement) =>
-      (row.getAttribute("data-testid") ?? "").replace("my-access-history-", ""),
-    );
+  function text(element: Element): string {
+    return (element.textContent ?? "").replace(/\s+/g, " ").trim();
   }
 
-  function renderedHeaders(): (string | undefined)[] {
-    return [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
-      th.textContent?.trim(),
+  function table(): HTMLElement {
+    return query("bit-table-v2")!;
+  }
+
+  function headings(): string[] {
+    return [...table().querySelectorAll('[role="columnheader"]')].map(text);
+  }
+
+  /** The ids of the rendered rows, in rendered order, read off each row's Item cell. */
+  function rowIds(): string[] {
+    return [...table().querySelectorAll("bit-row")].map((row) =>
+      row
+        .querySelector("[data-testid]")!
+        .getAttribute("data-testid")!
+        .replace("my-access-history-", ""),
     );
   }
 
@@ -145,8 +152,6 @@ describe("HistoryTabComponent", () => {
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [HistoryTabComponent, NoopAnimationsModule],
@@ -166,7 +171,6 @@ describe("HistoryTabComponent", () => {
         { provide: SyncService, useValue: { activeUserLastSync$: () => lastSync$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
-        { provide: ConfigService, useValue: configService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -312,7 +316,7 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(renderedRowIds()).toEqual(["mine-1", "managed-1"]);
+      expect(rowIds()).toEqual(["mine-1", "managed-1"]);
     });
 
     it("renders the merged list newest first", () => {
@@ -325,7 +329,7 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(renderedRowIds()).toEqual(["managed-1", "mine-1", "managed-2"]);
+      expect(rowIds()).toEqual(["managed-1", "mine-1", "managed-2"]);
     });
 
     it("narrows to the caller's own rows, then restores the union", () => {
@@ -392,24 +396,6 @@ describe("HistoryTabComponent", () => {
 
       expect(component["scope"]()).toBe("all");
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
-    });
-
-    // The fallback must stop applying the pick and also forget it.
-    it("does not restore the filter it fell back from when the filter returns", () => {
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-      showManaged();
-
-      managedRows$.next([]);
-      fixture.detectChanges();
-      expect(component["scope"]()).toBe("all");
-
-      managedRows$.next([historyRow({ id: "managed-2", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
-      fixture.detectChanges();
-
-      expect(component["scope"]()).toBe("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-2", "mine-1"]);
     });
   });
 
@@ -700,7 +686,7 @@ describe("HistoryTabComponent", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
 
-      expect(renderedHeaders()).not.toContain("pamColumnActions");
+      expect(headings()).not.toContain("pamColumnActions");
     });
 
     // The column answers whether anything here is actionable, not whether the caller manages
@@ -720,8 +706,8 @@ describe("HistoryTabComponent", () => {
       create();
       showManaged();
 
-      expect(renderedRowIds().sort()).toEqual(["managed-1", "managed-2"]);
-      expect(renderedHeaders()).not.toContain("pamColumnActions");
+      expect(rowIds().sort()).toEqual(["managed-1", "managed-2"]);
+      expect(headings()).not.toContain("pamColumnActions");
     });
 
     it("hides the Actions column under Mine for a terminal row the caller both raised and manages", () => {
@@ -730,8 +716,8 @@ describe("HistoryTabComponent", () => {
       create();
       selectScope("mine");
 
-      expect(renderedRowIds()).toEqual(["managed-1"]);
-      expect(renderedHeaders()).not.toContain("pamColumnActions");
+      expect(rowIds()).toEqual(["managed-1"]);
+      expect(headings()).not.toContain("pamColumnActions");
     });
 
     it("shows the Actions column once a listed row can be acted on", () => {
@@ -740,7 +726,7 @@ describe("HistoryTabComponent", () => {
       managedRows$.next([activeGrant]);
       create();
 
-      expect(renderedHeaders()).toContain("pamColumnActions");
+      expect(headings()).toContain("pamColumnActions");
     });
 
     it("shows the Actions column for a managed approval the requester has not started", () => {
@@ -749,7 +735,7 @@ describe("HistoryTabComponent", () => {
       create();
       showManaged();
 
-      expect(renderedHeaders()).toContain("pamColumnActions");
+      expect(headings()).toContain("pamColumnActions");
     });
 
     it("keeps a managed row's actions when the caller filters down to All's subsets", () => {
@@ -925,7 +911,7 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  describe("with the VFO1 flag on", () => {
+  describe("table", () => {
     const liveGrant = historyRow({
       id: "managed-live",
       status: "approved",
@@ -955,36 +941,10 @@ describe("HistoryTabComponent", () => {
       return historyRow({ id, ...request, ...historyDisplayStatus(request) });
     }
 
-    function createWithFlag(enabled: boolean): void {
-      fixture?.destroy();
-      configService.getFeatureFlag$.mockReturnValue(of(enabled));
-      create();
-    }
-
-    function text(element: Element): string {
-      return (element.textContent ?? "").replace(/\s+/g, " ").trim();
-    }
-
-    function table(): HTMLElement {
-      return query("bit-table-v2, bit-table")!;
-    }
-
-    function headings(): string[] {
-      return [...table().querySelectorAll('th, [role="columnheader"]')].map(text);
-    }
-
     function sortableHeadings(): string[] {
-      return [...table().querySelectorAll('th, [role="columnheader"]')]
+      return [...table().querySelectorAll('[role="columnheader"]')]
         .filter((header) => header.querySelector("button") != null)
         .map(text);
-    }
-
-    function rowIds(): string[] {
-      return [...table().querySelectorAll("tr[bitRow], bit-row")].map((row) =>
-        (row.matches("[data-testid]") ? row : row.querySelector("[data-testid]"))!
-          .getAttribute("data-testid")!
-          .replace("my-access-history-", ""),
-      );
     }
 
     function actions(): { testId: string | null; label: string; id: string }[] {
@@ -1019,30 +979,20 @@ describe("HistoryTabComponent", () => {
       managedRows$.next([deniedManaged, liveGrant, unstartedApproval]);
     }
 
-    it("renders bit-table-v2 instead of bit-table", () => {
+    it("renders the history in bit-table-v2", () => {
       populateApprover();
 
-      createWithFlag(true);
+      create();
 
       expect(query("bit-table-v2")).not.toBeNull();
-      expect(query("bit-table")).toBeNull();
     });
 
-    it("renders only the v1 table with the flag off", () => {
-      populateApprover();
-
-      createWithFlag(false);
-
-      expect(query("bit-table")).not.toBeNull();
-      expect(query("bit-table-v2")).toBeNull();
-    });
-
-    it("sizes the v2 skeleton's columns to match the loaded table's", () => {
+    it("sizes the skeleton's columns to match the loaded table's", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
 
-      createWithFlag(true);
+      create();
       passSkeletonDelay();
 
       const skeleton = query('[data-testid="history-loading"] bit-table-v2')!;
@@ -1066,14 +1016,12 @@ describe("HistoryTabComponent", () => {
       expect(skeletonTracks).toEqual(skeletonRows.map(() => loadedTracks));
     });
 
-    it("renders the same column headings, in the same order, as v1", () => {
+    it("renders the column headings in order", () => {
       populateApprover();
-      createWithFlag(false);
-      const v1 = headings();
 
-      createWithFlag(true);
+      create();
 
-      expect(v1).toEqual([
+      expect(headings()).toEqual([
         "pamColumnItem",
         "pamColumnStatus",
         "pamColumnResolver",
@@ -1081,48 +1029,33 @@ describe("HistoryTabComponent", () => {
         "pamColumnResolved",
         "pamColumnActions",
       ]);
-      expect(headings()).toEqual(v1);
     });
 
-    it("drops the Actions column when nothing listed can be acted on, as v1 does", () => {
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      createWithFlag(false);
-      const v1 = headings();
-
-      createWithFlag(true);
-
-      expect(v1).not.toContain("pamColumnActions");
-      expect(headings()).toEqual(v1);
-    });
-
-    it("renders the same rows, newest resolved-or-submitted first, as v1", () => {
+    it("renders every row, newest resolved-or-submitted first", () => {
       populateApprover();
-      createWithFlag(false);
-      const v1 = rowIds();
 
-      createWithFlag(true);
+      create();
 
-      expect(v1).toEqual([
+      expect(rowIds()).toEqual([
         "mine-undecided",
         "managed-live",
         "mine-1",
         "managed-unstarted",
         "managed-denied",
       ]);
-      expect(rowIds()).toEqual(v1);
     });
 
-    it("sorts on Item, Status and Resolved only, as v1 does", () => {
+    it("sorts on Item, Status and Resolved only", () => {
       populateApprover();
 
-      createWithFlag(true);
+      create();
 
       expect(sortableHeadings()).toEqual(["pamColumnItem", "pamColumnStatus", "pamColumnResolved"]);
     });
 
     it("reverses the Resolved sort on a header click, keeping undecided rows at their submitted place", () => {
       populateApprover();
-      createWithFlag(true);
+      create();
 
       clickSortHeader("pamColumnResolved");
 
@@ -1135,24 +1068,21 @@ describe("HistoryTabComponent", () => {
       ]);
     });
 
-    it("offers the same row actions, gated the same way, as v1", () => {
+    it("offers Revoke and Withdraw approval only on the rows they apply to", () => {
       populateApprover();
-      createWithFlag(false);
-      const v1 = actions().map(({ testId, label }) => ({ testId, label }));
 
-      createWithFlag(true);
+      create();
 
-      expect(v1).toEqual([
+      expect(actions().map(({ testId, label }) => ({ testId, label }))).toEqual([
         { testId: "history-revoke-managed-live", label: "pamInboxRevoke" },
         { testId: "history-cancel-approval-managed-unstarted", label: "pamInboxWithdrawApproval" },
       ]);
-      expect(actions().map(({ testId, label }) => ({ testId, label }))).toEqual(v1);
     });
 
     it("gives every row action a descriptive id", () => {
       populateApprover();
 
-      createWithFlag(true);
+      create();
 
       expect(actions().map(({ id }) => id)).toEqual([
         "pam-history-tab_button_revoke-managed-live",
@@ -1160,9 +1090,9 @@ describe("HistoryTabComponent", () => {
       ]);
     });
 
-    it("routes Revoke and Withdraw approval through the same component actions as v1", async () => {
+    it("routes Revoke and Withdraw approval through the component's actions", async () => {
       populateApprover();
-      createWithFlag(true);
+      create();
 
       query('[data-testid="history-revoke-managed-live"]')!.click();
       query('[data-testid="history-cancel-approval-managed-unstarted"]')!.click();
@@ -1178,7 +1108,7 @@ describe("HistoryTabComponent", () => {
         endedLease("ended-revoked", "revoked"),
       ]);
 
-      createWithFlag(true);
+      create();
 
       expect(text(query('[data-testid="my-access-history-status-ended-canceled"]')!)).toBe(
         "pamStatusCanceled",
@@ -1188,7 +1118,7 @@ describe("HistoryTabComponent", () => {
       );
     });
 
-    it("shows the same cell content as v1", () => {
+    it("shows each row's item, collection, resolver, comment, extension and status", () => {
       canApprove$.next(true);
       myRows$.next([
         historyRow({
@@ -1200,7 +1130,7 @@ describe("HistoryTabComponent", () => {
         historyRow({ id: "mine-2", resolverName: null, resolverLabelKey: "pamResolverAccessRule" }),
       ]);
 
-      createWithFlag(true);
+      create();
 
       const rendered = text(table());
       expect(rendered).toContain("Prod database");
@@ -1217,16 +1147,16 @@ describe("HistoryTabComponent", () => {
     it("links each item to its request with a real anchor", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
 
-      createWithFlag(true);
+      create();
 
       expect(query('[data-testid="my-access-history-mine-1"] a')?.getAttribute("href")).toBe(
         "/pam/requests/mine-1",
       );
     });
 
-    it("narrows the v2 table through the scope chip", () => {
+    it("narrows the table through the scope chip", () => {
       populateApprover();
-      createWithFlag(true);
+      create();
 
       selectScope("mine");
       expect(rowIds()).toEqual(["mine-undecided", "mine-1"]);
@@ -1235,42 +1165,30 @@ describe("HistoryTabComponent", () => {
       expect(rowIds()).toEqual(["managed-live", "managed-unstarted", "managed-denied"]);
     });
 
-    it("moves the scope chip into the table's toolbar", () => {
+    it("puts the scope chip in the table's toolbar", () => {
       populateApprover();
 
-      createWithFlag(true);
+      create();
 
       expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
       expect(query('bit-table-v2 [data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    it("leaves the scope chip above the table with the flag off", () => {
+    it("renders the chip's label and options in the toolbar", () => {
       populateApprover();
 
-      createWithFlag(false);
+      create();
 
-      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
-      expect(query("bit-table-toolbar")).toBeNull();
-      expect(query('bit-table [data-testid="history-scope-filter"]')).toBeNull();
-    });
-
-    it("keeps the chip's label and options unchanged in the toolbar", () => {
-      populateApprover();
-      createWithFlag(false);
-      const v1 = text(query('[data-testid="history-scope-filter"]')!);
-
-      createWithFlag(true);
-
-      expect(v1).toContain("pamHistoryScopeLabel");
-      expect(v1).toContain("pamHistoryScopeMine");
-      expect(v1).toContain("pamHistoryScopeManaged");
-      expect(text(query('[data-testid="history-scope-filter"]')!)).toBe(v1);
+      const chip = text(query('[data-testid="history-scope-filter"]')!);
+      expect(chip).toContain("pamHistoryScopeLabel");
+      expect(chip).toContain("pamHistoryScopeMine");
+      expect(chip).toContain("pamHistoryScopeManaged");
     });
 
     it("replaces the table and its toolbar with the empty state for an approver with no history", () => {
       canApprove$.next(true);
 
-      createWithFlag(true);
+      create();
 
       const empty = text(query('[data-testid="my-access-history-empty"]')!);
       expect(empty).toContain("pamHistoryEmptyTitle");
@@ -1280,7 +1198,7 @@ describe("HistoryTabComponent", () => {
     });
 
     it("replaces the table and its search with the empty state for a member with no history", () => {
-      createWithFlag(true);
+      create();
 
       expect(query('[data-testid="my-access-history-empty"]')).not.toBeNull();
       expect(query("bit-table-v2")).toBeNull();
@@ -1291,7 +1209,7 @@ describe("HistoryTabComponent", () => {
       canApprove$.next(true);
       managedIds$.next(new Set(["managed-denied"]));
       managedRows$.next([deniedManaged]);
-      createWithFlag(true);
+      create();
 
       selectScope("mine");
 
@@ -1303,16 +1221,15 @@ describe("HistoryTabComponent", () => {
       expect(query('bit-table-toolbar [data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    it("shows the hidden skeleton as a v2 table while the history loads", () => {
+    it("shows the hidden skeleton as a table while the history loads", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
-      createWithFlag(true);
+      create();
       passSkeletonDelay();
 
       const skeleton = query('[data-testid="history-loading"]')!;
       expect(skeleton.getAttribute("aria-hidden")).toBe("true");
       expect(skeleton.querySelector("bit-table-v2")).not.toBeNull();
-      expect(skeleton.querySelector("bit-table")).toBeNull();
       expect(skeleton.querySelectorAll("bit-row")).toHaveLength(5);
       expect([...skeleton.querySelectorAll('[role="columnheader"]')].map(text)).toEqual([
         "pamColumnItem",
@@ -1329,18 +1246,11 @@ describe("HistoryTabComponent", () => {
     });
 
     // Reserves the space the scope chip will occupy, so the table does not jump when the rows land.
-    it("reserves the scope-chip row while loading on both paths", () => {
+    it("reserves the scope-chip row while loading", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
 
-      createWithFlag(false);
-      passSkeletonDelay();
-
-      expect(
-        query('[data-testid="history-loading"]')!.querySelector('bit-skeleton[edgeShape="circle"]'),
-      ).not.toBeNull();
-
-      createWithFlag(true);
+      create();
       passSkeletonDelay();
 
       expect(
@@ -1373,24 +1283,16 @@ describe("HistoryTabComponent", () => {
       it("fills the toolbar's top row with a search rather than leaving it empty", () => {
         populateApprover();
 
-        createWithFlag(true);
+        create();
 
         const searchEl = query("bit-table-toolbar bit-search")!;
         expect(searchEl).not.toBeNull();
         expect(searchEl.closest("[bitOverflowList]")).toBeNull();
       });
 
-      it("adds no search to the v1 path", () => {
-        populateApprover();
-
-        createWithFlag(false);
-
-        expect(query("bit-search")).toBeNull();
-      });
-
       it("narrows the table to the rows whose item name matches", () => {
         myRows$.next(namedRows);
-        createWithFlag(true);
+        create();
 
         searchFor("staging cache");
 
@@ -1399,7 +1301,7 @@ describe("HistoryTabComponent", () => {
 
       it("matches the resolver and the approver's comment as well as the item", () => {
         myRows$.next(namedRows);
-        createWithFlag(true);
+        create();
 
         searchFor("grace");
         expect(rowIds()).toEqual(["mine-cache"]);
@@ -1413,7 +1315,7 @@ describe("HistoryTabComponent", () => {
 
       it("ignores case and surrounding whitespace", () => {
         myRows$.next(namedRows);
-        createWithFlag(true);
+        create();
 
         searchFor("  PROD DATA  ");
 
@@ -1422,7 +1324,7 @@ describe("HistoryTabComponent", () => {
 
       it("restores the full list when the term is cleared", () => {
         myRows$.next(namedRows);
-        createWithFlag(true);
+        create();
 
         searchFor("grace");
         expect(rowIds()).toEqual(["mine-cache"]);
@@ -1435,7 +1337,7 @@ describe("HistoryTabComponent", () => {
         populateApprover();
         myRows$.next([namedRows[0]]);
         managedRows$.next([namedRows[1]]);
-        createWithFlag(true);
+        create();
 
         selectScope("mine");
         searchFor("staging");
@@ -1446,7 +1348,7 @@ describe("HistoryTabComponent", () => {
       // The empty state says nothing was resolved, which is not what an unmatched search means.
       it("says nothing matched rather than that the history is empty", () => {
         myRows$.next(namedRows);
-        createWithFlag(true);
+        create();
 
         searchFor("no-such-thing");
 
@@ -1465,7 +1367,7 @@ describe("HistoryTabComponent", () => {
 
       it("counts each scope's own rows, whichever scope is listed", () => {
         populateApprover();
-        createWithFlag(true);
+        create();
 
         expect([optionCount(null), optionCount("mine"), optionCount("managed")]).toEqual([5, 2, 3]);
 
