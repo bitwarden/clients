@@ -232,7 +232,7 @@ describe("LockComponent", () => {
       [null, true],
     ])(
       "with suppression=%s, automatically unlocks=%s",
-      fakeAsync((suppression, shouldUnlock) => {
+      fakeAsync((suppression: string | null, shouldUnlock: boolean) => {
         let shouldAutoprompt = true; // A fresh foreground service starts with prompting enabled.
         mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
         mockActivatedRoute.snapshot.queryParamMap.get.mockImplementation((key) =>
