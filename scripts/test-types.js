@@ -16,6 +16,13 @@ const maxProcesses =
     ),
   );
 
+// Invoke the local entry points directly so each job runs a single node process. Commands must not
+// both start and end with a double quote, because concurrently strips such enclosing quotes.
+const typescriptCompilerPath = JSON.stringify(require.resolve("typescript/bin/tsc"));
+const typescriptStrictPluginPath = JSON.stringify(
+  require.resolve("typescript-strict-plugin/dist/cli/tsc-strict/index.js"),
+);
+
 function getFiles(dir) {
   results = [];
   fs.readdirSync(dir).forEach((file) => {
@@ -45,11 +52,11 @@ concurrently(
     {
       // run the strict type check plugin until we're fully converted, then update tsconfig.json to use strict
       name: "typescript-strict-plugin",
-      command: "npx tsc-strict",
+      command: `node ${typescriptStrictPluginPath}`,
     },
     ...files.map((file) => ({
       name: path.basename(path.dirname(file)),
-      command: `npx tsc --noEmit --project ${file}`,
+      command: `node ${typescriptCompilerPath} --noEmit --project ${JSON.stringify(file)}`,
     })),
   ],
   { maxProcesses },
