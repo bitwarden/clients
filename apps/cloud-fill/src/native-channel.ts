@@ -4,6 +4,7 @@ import { loadPairing } from "./session-storage";
 
 const HOST_NAME = "com.bitwarden.cloudfill";
 const RETRY_DELAY_MS = 2_000;
+const RECONNECT_ALARM = "cloudFillNativeReconnect";
 
 type HostRequest =
   | { id: number; type: "fill"; expectedOrigin?: string }
@@ -21,7 +22,13 @@ export type Handlers = {
  * Replies carry a status only.
  */
 export function startNativeChannel(handlers: Handlers): void {
+  let connected = false;
+
   const connect = () => {
+    if (connected) {
+      return;
+    }
+    connected = true;
     const port = chrome.runtime.connectNative(HOST_NAME);
 
     port.onMessage.addListener(async (message: HostRequest) => {
@@ -56,9 +63,18 @@ export function startNativeChannel(handlers: Handlers): void {
 
     port.onDisconnect.addListener(() => {
       void chrome.runtime.lastError;
+      connected = false;
       setTimeout(connect, RETRY_DELAY_MS);
     });
   };
+
+  // A worker that went idle while the host was missing is woken by the alarm to try again.
+  void chrome.alarms.create(RECONNECT_ALARM, { periodInMinutes: 0.5 });
+  chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === RECONNECT_ALARM) {
+      connect();
+    }
+  });
 
   connect();
 }

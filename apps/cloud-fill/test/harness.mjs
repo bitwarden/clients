@@ -136,6 +136,7 @@ export async function launchWithExtension({ bridge } = {}) {
     context,
     worker,
     extensionId,
+    userDataDir,
     close: async () => {
       await context.close();
       await rm(userDataDir, { recursive: true, force: true });

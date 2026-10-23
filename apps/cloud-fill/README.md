@@ -32,3 +32,33 @@ Tests (need a Chromium that honors `--load-extension`, for example Playwright's)
 
 `ap-relay` and the listener come from the agent-access repo (`cargo build -p ap-relay`, and
 `cargo build --manifest-path examples/rust-listener/Cargo.toml`).
+
+## Running it on a real browser
+
+The extension takes commands only through Chrome native messaging. The `host/` directory has the pieces.
+
+1. Load the extension (unpacked from `dist/`, or from the zip) and note its id on `chrome://extensions`.
+2. Register the host. This copies the host into `~/.cloud-fill`, writes a wrapper that pins the current `node`, and writes the host manifest, which allows only that extension id to start the host:
+
+   ```shell
+   node apps/cloud-fill/host/install.mjs --extension-id <id>
+   ```
+
+   Use `--browser chromium|brave|edge` for other browsers, and `--uninstall` to remove it. The extension reconnects on its own within about 30 seconds, so the browser does not need a restart.
+
+3. On the machine that holds the vault, start the approving side and take its pairing token:
+
+   ```shell
+   aac listen --psk
+   ```
+
+4. Pair, then fill. Pass the token on stdin so it does not appear in the process list:
+
+   ```shell
+   echo "<token>" | node ~/.cloud-fill/bin/cloud-fill.mjs pair -
+   node ~/.cloud-fill/bin/cloud-fill.mjs fill --origin https://example.com
+   ```
+
+   `fill` acts on the active tab, requests the credential for that tab's origin, waits for the user to approve, and prints a status only. `--origin` makes it refuse if the active tab is on a different origin.
+
+Anything that can run as the same user can reach `~/.cloud-fill/host.sock` and trigger a fill, so an agent with a shell on this machine can call it too. Each fill still needs the user's approval unless the approving client auto-approves. Pairing tokens are single use and the pairing lives in browser session storage, so a new browser session needs a new token.
