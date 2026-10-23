@@ -75,7 +75,7 @@ export class BaseVaultExportService {
           cipher.fields += "\n";
         }
 
-        cipher.fields += (f.name || "") + ": " + f.value;
+        cipher.fields += (f.name || "") + ": " + (f.value ?? "");
       });
     }
 
