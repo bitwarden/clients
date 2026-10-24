@@ -26,6 +26,7 @@ import {
   SendFormService,
   SendFormModule,
   SendFormConfig,
+  removeSendAuthI18nKeys,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
@@ -152,14 +153,15 @@ export class SendComponent {
     });
   }
 
-  protected async onRemovePassword(send: SendView): Promise<void> {
+  protected async onRemoveAuth(send: SendView): Promise<void> {
     if (this.disableSend()) {
       return;
     }
 
+    const i18nKeys = removeSendAuthI18nKeys(send.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -168,11 +170,11 @@ export class SendComponent {
     }
 
     try {
-      await this.sendApiService.removePassword(send.id);
+      await this.sendApiService.removeAuth(send.id);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("removedPassword"),
+        message: this.i18nService.t(i18nKeys.removed),
       });
     } catch (e) {
       this.logService.error(e);
