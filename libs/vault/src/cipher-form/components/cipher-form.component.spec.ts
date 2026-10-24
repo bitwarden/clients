@@ -1,6 +1,7 @@
 import { ChangeDetectorRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
@@ -240,6 +241,94 @@ describe("CipherFormComponent", () => {
       });
 
       component.enableFormFields();
+    });
+  });
+
+  describe("keyboard submit", () => {
+    let form: HTMLFormElement;
+    let submit: jest.Mock;
+
+    const keydown = (
+      target: HTMLElement,
+      init: KeyboardEventInit,
+    ): { defaultPrevented: boolean } => {
+      const event = new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+        ...init,
+      });
+      target.dispatchEvent(event);
+      return event;
+    };
+
+    beforeEach(() => {
+      form = fixture.debugElement.query(By.css("form")).nativeElement;
+
+      // Replace the submit handler so the test only asserts that the submit path was triggered.
+      submit = jest.fn().mockResolvedValue(undefined);
+      component.submit = submit;
+      fixture.detectChanges();
+    });
+
+    it("submits the form on Ctrl+Enter", () => {
+      const event = keydown(form, { ctrlKey: true });
+
+      expect(submit).toHaveBeenCalledTimes(1);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("submits the form on Meta+Enter", () => {
+      const event = keydown(form, { metaKey: true });
+
+      expect(submit).toHaveBeenCalledTimes(1);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("submits the form on Ctrl+Enter from a textarea inside the form", () => {
+      const textarea = form.appendChild(document.createElement("textarea"));
+
+      keydown(textarea, { ctrlKey: true });
+
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not submit the form on plain Enter in a textarea", () => {
+      const textarea = form.appendChild(document.createElement("textarea"));
+
+      const event = keydown(textarea, {});
+
+      expect(submit).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("ignores the shortcut during IME composition", () => {
+      const event = keydown(form, { ctrlKey: true, isComposing: true });
+
+      expect(submit).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("does not submit the form when Ctrl and Meta are both held", () => {
+      const event = keydown(form, { ctrlKey: true, metaKey: true });
+
+      expect(submit).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("ignores auto-repeated key presses", () => {
+      keydown(form, { ctrlKey: true, repeat: true });
+
+      expect(submit).not.toHaveBeenCalled();
+    });
+
+    it("does not submit again while a submit is still running", () => {
+      submit.mockReturnValue(new Promise<void>(() => {}));
+
+      keydown(form, { ctrlKey: true });
+      keydown(form, { metaKey: true });
+
+      expect(submit).toHaveBeenCalledTimes(1);
     });
   });
 });
