@@ -10,8 +10,9 @@ use super::{
     auth_policy::{AuthPolicy, AuthRequest, ConnectionContext, SessionBindContext, SignRequest},
     peer_info::PeerInfo,
     protocol::{
-        build_identities_answer, build_sign_response, detect_namespace, failure, frame,
-        parse_message, read_ssh_string, success, AgentMessage, SignFlags, EXTENSION,
+        build_identities_answer, build_sign_response, detect_namespace,
+        failure as protocol_failure, frame, parse_message, read_ssh_string,
+        success as protocol_success, AgentMessage, SignFlags, EXTENSION,
     },
     session_bind::SessionBindState,
     KeyStore,
@@ -126,7 +127,7 @@ where
                     // receives the response. No further messages are read from it.
                     let _ = self.connection.stream.write_all(&frame(response)).await;
                     let _ = self.connection.stream.shutdown().await;
-                    warn!("Closing connection after failed session-bind");
+                    warn!("Closing connection after a critical failure");
                     break;
                 }
             }
@@ -171,9 +172,24 @@ enum Response {
     RespondThenClose(Vec<u8>),
 }
 
+/// SSH_AGENT_SUCCESS; the connection stays open.
+fn success() -> Response {
+    Response::Continue(protocol_success())
+}
+
+/// SSH_AGENT_FAILURE; the connection stays open.
+fn failure() -> Response {
+    Response::Continue(protocol_failure())
+}
+
+/// SSH_AGENT_FAILURE, then the connection is closed without reading further messages.
+fn critical_failure() -> Response {
+    Response::RespondThenClose(protocol_failure())
+}
+
 fn handle_extension_message(payload: &[u8], session_bind_state: &mut SessionBindState) -> Response {
     let Some((name, rest)) = read_ssh_string(payload) else {
-        return Response::Continue(failure());
+        return failure();
     };
     match name {
         SESSION_BIND_EXTENSION => handle_session_bind(rest, session_bind_state),
@@ -182,7 +198,7 @@ fn handle_extension_message(payload: &[u8], session_bind_state: &mut SessionBind
                 name = std::str::from_utf8(name).unwrap_or("<non-utf8>"),
                 "Received unsupported extension"
             );
-            Response::Continue(failure())
+            failure()
         }
     }
 }
@@ -191,10 +207,10 @@ fn handle_extension_message(payload: &[u8], session_bind_state: &mut SessionBind
 // it would otherwise be treated as local, bypassing the forwarded-host approval boundary.
 fn handle_session_bind(payload: &[u8], session_bind_state: &mut SessionBindState) -> Response {
     if session_bind_state.parse_and_verify(payload) {
-        Response::Continue(success())
+        success()
     } else {
         warn!("session-bind verification failed");
-        Response::RespondThenClose(failure())
+        critical_failure()
     }
 }
 
@@ -207,10 +223,10 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
 ) -> Response {
     let Some(message) = parse_message(msg) else {
         error!("Received malformed message");
-        return Response::Continue(failure());
+        return failure();
     };
 
-    let response = match message {
+    match message {
         AgentMessage::RequestIdentities => handle_list_request(keystore, auth_policy).await,
         AgentMessage::SignRequest {
             public_key,
@@ -232,16 +248,13 @@ async fn handle_message<K: KeyStore, A: AuthPolicy>(
             debug!(msg_type, "Received unhandled message type");
             failure()
         }
-    };
-
-    // Agent requests never close the connection; only a failed session-bind does.
-    Response::Continue(response)
+    }
 }
 
 async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
-) -> Vec<u8> {
+) -> Response {
     debug!("handling list request");
 
     let Ok(authorized) = auth_policy
@@ -258,7 +271,7 @@ async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
     }
 
     match keystore.get_all_public_keys_and_names() {
-        Ok(keys) => build_identities_answer(keys),
+        Ok(keys) => Response::Continue(build_identities_answer(keys)),
         Err(error) => {
             error!(%error, "Failed to retrieve keys from keystore");
             failure()
@@ -274,7 +287,7 @@ async fn handle_sign_request<K: KeyStore, A: AuthPolicy>(
     session_bind_state: &SessionBindState,
     keystore: &Arc<K>,
     auth_policy: &Arc<A>,
-) -> Vec<u8> {
+) -> Response {
     debug!("handling sign request");
 
     let sign_request = SignRequest {
@@ -324,7 +337,7 @@ async fn handle_sign_request<K: KeyStore, A: AuthPolicy>(
         return failure();
     };
 
-    build_sign_response(&signing_key.sign(&data))
+    Response::Continue(build_sign_response(&signing_key.sign(&data)))
 }
 
 #[cfg(test)]

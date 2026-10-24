@@ -29,8 +29,9 @@ impl SessionBindState {
         let (session_id, rest) = read_ssh_string(rest)?;
         let (sig_outer, rest) = read_ssh_string(rest)?;
 
-        // The forwarding flag is a required SSH `boolean` (RFC 4251 §5): zero is false, any
-        // nonzero value is true. It must be the final byte of the payload.
+        // The forwarding flag is a required SSH `boolean` (RFC 4251 §5): zero is false, and any
+        // nonzero value MUST be interpreted as true, although clients should only ever send zero
+        // or one. It must be the final byte of the payload.
         let (&forwarding_byte, trailing) = rest.split_first()?;
         if !trailing.is_empty() {
             warn!("session-bind payload has trailing data");
