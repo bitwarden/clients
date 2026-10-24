@@ -40,7 +40,7 @@ describe("CommandsBackground", () => {
   let intraprocessMessageSender: IntraprocessMessageSender;
   let externalMessages: Subject<Message<Record<string, unknown>>>;
   let commandsBackground: CommandsBackground;
-  let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
+  let getTabFromCurrentWindowSpy: jest.SpyInstance;
 
   const retainedRetry = ({
     command = ExtensionCommand.AutofillLogin,
@@ -86,13 +86,13 @@ describe("CommandsBackground", () => {
     commandsBackground.init();
 
     // The fallback a sender-less retry would reach. Spied so a test can assert it stays unused.
-    getTabFromCurrentWindowIdSpy = jest
-      .spyOn(BrowserApi, "getTabFromCurrentWindowId")
+    getTabFromCurrentWindowSpy = jest
+      .spyOn(BrowserApi, "getTabFromCurrentWindow")
       .mockResolvedValue(createChromeTabMock({ id: 99, windowId: 9 }));
   });
 
   afterEach(() => {
-    getTabFromCurrentWindowIdSpy.mockRestore();
+    getTabFromCurrentWindowSpy.mockRestore();
     jest.clearAllMocks();
   });
 
@@ -140,7 +140,7 @@ describe("CommandsBackground", () => {
       intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
       await flushPromises();
 
-      expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
+      expect(getTabFromCurrentWindowSpy).not.toHaveBeenCalled();
       expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
@@ -152,7 +152,7 @@ describe("CommandsBackground", () => {
       intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data });
       await flushPromises();
 
-      expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
+      expect(getTabFromCurrentWindowSpy).not.toHaveBeenCalled();
       expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
