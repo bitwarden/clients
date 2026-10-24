@@ -75,7 +75,7 @@ const CONNECTOR_ROWS: ConnectorRow[] = [
     label: "Prod on-prem connector",
     enabled: true,
     connected: true,
-    statusKey: "pamAccessConnectorStatusActive",
+    statusKey: "active",
     connectionKey: "pamAccessConnectorConnected",
   },
   {
@@ -83,7 +83,7 @@ const CONNECTOR_ROWS: ConnectorRow[] = [
     label: "Backup connector",
     enabled: false,
     connected: false,
-    statusKey: "pamAccessConnectorStatusInactive",
+    statusKey: "inactive",
     connectionKey: "pamAccessConnectorDisconnected",
   },
 ];
@@ -113,7 +113,6 @@ const targetTemplate = `
     idPrefix="access-connector-detail"
     headingKey="pamAccessConnectorAssignments"
     selectLabelKey="pamAccessConnectorAssignSelectLabel"
-    assignLabelKey="pamAccessConnectorAssignConfirm"
     unassignLabelKey="pamAccessConnectorUnassign"
     emptyKey="pamAccessConnectorAssignmentsEmpty"
     ${COMMON_BINDINGS}

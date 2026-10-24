@@ -29,7 +29,7 @@ const routes: Routes = [
           canAccessFeature(FeatureFlag.PamAccessConnector),
           organizationPermissionsGuard((org) => org.canManageRotation),
         ],
-        data: { titleId: "pamRotationTitle" },
+        data: { titleId: "pamRotation" },
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
       },
       {

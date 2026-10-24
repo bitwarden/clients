@@ -18756,10 +18756,7 @@
   "resetToDefault": {
     "message": "Reset to default"
   },
-  "pamRotationNav": {
-    "message": "Rotation"
-  },
-  "pamRotationTitle": {
+  "pamRotation": {
     "message": "Rotation"
   },
   "pamRotationSubtitle": {
@@ -18979,9 +18976,6 @@
   "pamAccessConnectorTargetSystemsLoadError": {
     "message": "Couldn't load target systems. Refresh the page to try again."
   },
-  "pamAccessConnectorAssignConfirm": {
-    "message": "Assign"
-  },
   "pamAccessConnectorAssignmentsEmpty": {
     "message": "No target systems assigned."
   },
@@ -19021,20 +19015,11 @@
       }
     }
   },
-  "pamAccessConnectorStatusActive": {
-    "message": "Active"
-  },
-  "pamAccessConnectorStatusInactive": {
-    "message": "Inactive"
-  },
   "pamRotationListLoadErrorTitle": {
     "message": "Unable to load"
   },
   "pamRotationListLoadErrorDescription": {
     "message": "Check your connection and try again. If the problem continues, refresh the page."
-  },
-  "pamRotationConfigStatusActive": {
-    "message": "Active"
   },
   "pamRotationConfigStatusPaused": {
     "message": "Paused"

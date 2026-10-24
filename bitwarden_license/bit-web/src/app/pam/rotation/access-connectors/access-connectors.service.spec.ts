@@ -188,22 +188,22 @@ describe("AccessConnectorsService", () => {
       expect(rows[0].canAssign).toBe(false);
     });
 
-    it("uses pamAccessConnectorStatusActive key for enabled connectors", async () => {
+    it("uses the active key for enabled connectors", async () => {
       rotationSdk.listConnectors.mockResolvedValue([
         makeAccessConnector({ status: AccessConnectorStatus.Enabled }),
       ]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamAccessConnectorStatusActive");
+      expect(rows[0].statusLabelKey).toBe("active");
     });
 
-    it("uses pamAccessConnectorStatusInactive key for disabled connectors", async () => {
+    it("uses the inactive key for disabled connectors", async () => {
       rotationSdk.listConnectors.mockResolvedValue([
         makeAccessConnector({ status: AccessConnectorStatus.Disabled }),
       ]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamAccessConnectorStatusInactive");
+      expect(rows[0].statusLabelKey).toBe("inactive");
     });
   });
 

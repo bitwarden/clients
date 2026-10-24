@@ -39,7 +39,7 @@ const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusB
   Object.freeze({
     [RotationRowStatus.Active]: {
       status: RotationRowStatus.Active,
-      labelKey: "pamRotationConfigStatusActive",
+      labelKey: "active",
       variant: "success",
       icon: "bwi-check-circle",
       sortOrder: 4,

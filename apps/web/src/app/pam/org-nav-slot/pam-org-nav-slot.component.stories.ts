@@ -89,7 +89,7 @@ export default {
             new I18nMockService({
               privilegedControls: "Privileged Controls",
               pamAccessRules: "Access rules",
-              pamRotationNav: "Rotation",
+              pamRotation: "Rotation",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
               toggleSideNavigation: "Toggle side navigation",

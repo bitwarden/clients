@@ -59,7 +59,7 @@ describe("buildRotationConfigRow", () => {
     it("reads active when enabled, idle, and not awaiting a manual rotation", () => {
       const built = row({ config: { enabled: true } });
       expect(built.status).toBe(RotationRowStatus.Active);
-      expect(built.statusBadge.labelKey).toBe("pamRotationConfigStatusActive");
+      expect(built.statusBadge.labelKey).toBe("active");
       expect(built.statusBadge.variant).toBe("success");
       expect(built.statusBadge.icon).toBe("bwi-check-circle");
     });

@@ -18,7 +18,7 @@ import { accessConnectorStatusLabelKey } from "./access-connector-label";
 export type AccessConnectorRow = {
   id: AccessConnectorId;
   name: string;
-  statusLabelKey: "pamAccessConnectorStatusActive" | "pamAccessConnectorStatusInactive";
+  statusLabelKey: "active" | "inactive";
   isConnected: boolean;
   /** Target system names for the assignment badges, falling back to the raw ID when unresolved. */
   assignmentNames: string[];

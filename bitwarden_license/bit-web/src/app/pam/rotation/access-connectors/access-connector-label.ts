@@ -3,10 +3,8 @@ import { AccessConnectorStatus } from "../rotation";
 /** How an access connector's two states are named and badged, wherever one is shown. */
 export function accessConnectorStatusLabelKey(
   status: AccessConnectorStatus,
-): "pamAccessConnectorStatusActive" | "pamAccessConnectorStatusInactive" {
-  return status === AccessConnectorStatus.Enabled
-    ? "pamAccessConnectorStatusActive"
-    : "pamAccessConnectorStatusInactive";
+): "active" | "inactive" {
+  return status === AccessConnectorStatus.Enabled ? "active" : "inactive";
 }
 
 export function accessConnectorConnectionLabelKey(

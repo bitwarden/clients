@@ -48,7 +48,7 @@ describe("PamOrgNavSlotComponent", () => {
           useValue: new I18nMockService({
             privilegedControls: "Privileged Controls",
             pamAccessRules: "Access rules",
-            pamRotationNav: "Rotation",
+            pamRotation: "Rotation",
           }),
         },
       ],
