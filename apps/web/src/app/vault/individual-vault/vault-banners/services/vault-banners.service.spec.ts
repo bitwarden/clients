@@ -2,18 +2,13 @@ import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import {
-  FakeStateProvider,
-  mockAccountServiceWith,
-  mockAccountInfoWith,
-} from "@bitwarden/common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
@@ -25,20 +20,12 @@ describe("VaultBannersService", () => {
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
   const userId = Utils.newGuid() as UserId;
   const fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
-  const getEmailVerified = jest.fn().mockResolvedValue(true);
   const lastSync$ = new BehaviorSubject<Date | null>(null);
-  const accounts$ = new BehaviorSubject({
-    [userId]: mockAccountInfoWith({
-      email: "test@bitwarden.com",
-      name: "name",
-    }),
-  });
   const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
 
   beforeEach(() => {
     lastSync$.next(new Date("2024-05-14"));
     isSelfHost.mockClear();
-    getEmailVerified.mockClear().mockResolvedValue(true);
 
     TestBed.configureTestingModule({
       providers: [
@@ -54,10 +41,6 @@ describe("VaultBannersService", () => {
         {
           provide: StateProvider,
           useValue: fakeStateProvider,
-        },
-        {
-          provide: AccountService,
-          useValue: { accounts$ },
         },
         {
           provide: SyncService,
@@ -99,33 +82,6 @@ describe("VaultBannersService", () => {
       await service.dismissBanner(userId, VisibleVaultBanner.OutdatedBrowser);
 
       expect(await service.shouldShowUpdateBrowserBanner(userId)).toBe(false);
-    });
-  });
-
-  describe("VerifyEmail", () => {
-    beforeEach(async () => {
-      accounts$.next({
-        [userId]: {
-          ...accounts$.value[userId],
-          emailVerified: false,
-        },
-      });
-    });
-
-    it("shows verify email banner", async () => {
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowVerifyEmailBanner(userId)).toBe(true);
-    });
-
-    it("dismisses verify email banner", async () => {
-      service = TestBed.inject(VaultBannersService);
-
-      expect(await service.shouldShowVerifyEmailBanner(userId)).toBe(true);
-
-      await service.dismissBanner(userId, VisibleVaultBanner.VerifyEmail);
-
-      expect(await service.shouldShowVerifyEmailBanner(userId)).toBe(false);
     });
   });
 
