@@ -32,6 +32,7 @@ export type AddLoginNotificationData = {
 export type ChangePasswordNotificationData = {
   cipherIds: CipherView["id"][];
   newPassword: string;
+  username?: string;
 };
 
 export type UnlockVaultNotificationData = never;
