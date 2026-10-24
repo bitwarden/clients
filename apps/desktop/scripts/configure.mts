@@ -12,7 +12,7 @@
 /// needs an artifact from an earlier job stages it at the path this file names.
 ///
 /// Usage:
-///   node scripts/configure.mts --build-dir build-mac \
+///   bw-task configure --build-dir build-mac \
 ///     --architecture universal --distribution-channel dmg \
 ///     --with-macos-autofill-extension \
 ///     --macos-signing-certificate "Developer ID Application: Bitwarden Inc" \
@@ -27,6 +27,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   statSync,
   writeFileSync,
 } from "fs";
@@ -41,10 +42,12 @@ import {
   type BuildConfig,
   type ResolvedInputs,
   type RawOptions,
+  type BuildDirLocation,
   diffKeys,
   enabledTargetDefinitions,
   parseConfigureArgs,
   provisioningProfilePath,
+  resolveBuildDir,
   serializeBuildConfig,
   toBuildConfig,
   usage,
@@ -64,16 +67,22 @@ const PROFILE_SEARCH_DIRS = [
 ];
 
 function main(): void {
-  const raw = parseConfigureArgs(process.argv.slice(2));
+  const parsed = parseConfigureArgs(process.argv.slice(2));
 
-  if (raw.help) {
+  if (parsed.help) {
     console.log(usage());
     return;
   }
 
+  // --build-dir is what the caller typed, which means whatever it would mean to their shell.
+  // Everything downstream wants it relative to apps/desktop, so it is converted here, once,
+  // before anything looks at it.
+  const located = locateBuildDir(parsed);
+  const raw = located.raw;
+
   // Filesystem checks run only once the options themselves make sense, so that a typo in a
   // distribution channel doesn't also produce a confusing "profile not found".
-  const optionErrors = validate(raw);
+  const optionErrors = [...located.errors, ...validate(raw)];
   const resolution = optionErrors.length === 0 ? resolveInputs(raw) : emptyResolution();
   const errors = [...optionErrors, ...resolution.errors];
 
@@ -95,7 +104,7 @@ function main(): void {
     return;
   }
 
-  const buildDir = path.resolve(projectDir, config.buildDir);
+  const buildDir = located.location?.absolute ?? path.resolve(projectDir, config.buildDir);
   const configPath = path.join(buildDir, BUILD_CONFIG_FILENAME);
 
   warnAboutChanges(configPath, config);
@@ -149,6 +158,37 @@ function toolchainIsReady(config: BuildConfig): boolean {
     return false;
   }
   return true;
+}
+
+interface LocatedBuildDir {
+  /// The options, with --build-dir rewritten to the form the configuration records. Left as the
+  /// caller typed it when it could not be resolved, so validate still reports it as missing if
+  /// that is what it is.
+  raw: RawOptions;
+  location?: BuildDirLocation;
+  errors: string[];
+}
+
+function locateBuildDir(raw: RawOptions): LocatedBuildDir {
+  if (raw.buildDir == null || raw.buildDir.trim() === "") {
+    return { raw, errors: [] };
+  }
+
+  const resolution = resolveBuildDir(
+    raw.buildDir,
+    realpathSync(process.cwd()),
+    projectDir,
+    repoRoot,
+  );
+  if (!resolution.ok) {
+    return { raw, errors: [resolution.error] };
+  }
+
+  return {
+    raw: { ...raw, buildDir: resolution.location.recorded },
+    location: resolution.location,
+    errors: [],
+  };
 }
 
 interface Resolution {
@@ -313,7 +353,8 @@ function warnAboutChanges(configPath: string, config: BuildConfig): void {
 function summarize(config: BuildConfig, configPath: string): void {
   const targets = Object.keys(config.targets);
   const dependencies = Object.keys(config.dependencies);
-  console.log(`Wrote ${path.relative(projectDir, configPath)}`);
+  console.log(`Wrote ${configPath}`);
+  console.log(`  build dir:     ${path.dirname(configPath)}`);
   console.log(`  platform:      ${config.derived.platform}`);
   console.log(`  channel:       ${config.channel}`);
   console.log(`  architectures: ${config.architectures.join(", ")}`);
