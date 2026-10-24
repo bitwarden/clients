@@ -22,6 +22,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
 import {
   CopyCipherFieldDirective,
@@ -79,6 +80,7 @@ describe("VaultCipherRowComponent", () => {
         VaultItemCopyActionsComponent,
       ],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: EnvironmentService,
@@ -269,6 +271,7 @@ describe("VaultCipherRowComponent", () => {
           VaultItemCopyActionsComponent,
         ],
         providers: [
+          { provide: LogService, useValue: mock<LogService>() },
           { provide: I18nService, useValue: { t: (key: string) => key } },
           {
             provide: EnvironmentService,
