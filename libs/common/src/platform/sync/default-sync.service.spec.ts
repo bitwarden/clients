@@ -35,7 +35,6 @@ import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { SyncSendNotification } from "../../models/response/notification.response";
-import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { SendType } from "../../tools/send/types/send-type";
@@ -862,28 +861,13 @@ describe("DefaultSyncService", () => {
     });
 
     describe("retry pending send deletions", () => {
-      it("retries pending send deletions when the flag is on", async () => {
-        configService.getFeatureFlag.mockImplementation((flag) =>
-          Promise.resolve(flag === FeatureFlag.Pm30110SdkSendsApi),
-        );
-
+      it("retries pending send deletions", async () => {
         await sut.fullSync(true);
 
         expect(sendsClient.retry_pending_deletions).toHaveBeenCalledTimes(1);
       });
 
-      it("does not retry pending send deletions when the flag is off", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-
-        await sut.fullSync(true);
-
-        expect(sendsClient.retry_pending_deletions).not.toHaveBeenCalled();
-      });
-
       it("completes the sync and logs the error when retrying pending send deletions rejects", async () => {
-        configService.getFeatureFlag.mockImplementation((flag) =>
-          Promise.resolve(flag === FeatureFlag.Pm30110SdkSendsApi),
-        );
         const error = new Error("still offline");
         sendsClient.retry_pending_deletions.mockRejectedValue(error);
 
@@ -911,8 +895,7 @@ describe("DefaultSyncService", () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
     });
 
-    it("fetches the send through the SDK when the flag is on", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+    it("fetches the send through the SDK", async () => {
       const sdkSend = {
         id: sendGuid,
         type: SendType.Text,
@@ -930,21 +913,6 @@ describe("DefaultSyncService", () => {
 
       expect(result).toBe(true);
       expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
-      expect(sendApiService.getSend).not.toHaveBeenCalled();
-      expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
-    });
-
-    it("fetches the send through the legacy API and upserts it when the flag is off", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-      const remoteSend = { id: sendGuid } as any;
-      sendApiService.getSend.mockResolvedValue(remoteSend);
-
-      const result = await sut.syncUpsertSend(notification, false);
-
-      expect(result).toBe(true);
-      expect(sendApiService.getSend).toHaveBeenCalledWith(sendGuid);
-      expect(sendsClient.fetch).not.toHaveBeenCalled();
-      expect(sendService.upsert).toHaveBeenCalledWith(new SendData(remoteSend));
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
     });
   });

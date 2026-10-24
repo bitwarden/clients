@@ -23,10 +23,8 @@ import {
   normalizeSendAccessTokenError,
   toSdkSendAccessCredentials,
 } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -107,7 +105,6 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendTokenService: SendTokenService,
     private sendDecryptionService: SendDecryptionService,
     private appIdService: AppIdService,
-    private configService: ConfigService,
     private userAgent: string,
   ) {
     super(encryptService, apiService);
@@ -653,13 +650,10 @@ export class SendReceiveCommand extends DownloadCommand {
    * password hash included — reaches the signed-in instance.
    *
    * Returns null — keeping SendTokenService and {@link SendApiService} — for a Send on the
-   * configured server, which needs no client of its own, and while the SDK Sends flag is off.
+   * configured server, which needs no client of its own.
    */
   private async createSendReceiveClient(sendServer: SendServer): Promise<SendReceiveClient | null> {
     if (sendServer.isConfiguredServer) {
-      return null;
-    }
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
       return null;
     }
 

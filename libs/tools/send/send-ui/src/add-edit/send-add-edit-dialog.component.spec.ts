@@ -8,8 +8,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService as SendApiServiceConcrete } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -20,8 +20,6 @@ import {
 } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogCloseRef, DialogRef, DialogService, ToastService } from "@bitwarden/components";
-// eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 
 import { SendFormConfig } from "../send-form/abstractions/send-form-config.service";
 import { SendFormService } from "../send-form/abstractions/send-form.service";
@@ -66,37 +64,46 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
   // Drives `dialogRef.close()` directly through the real `DefaultSendFormService`/`SendApiService`
   // stack — not just the Cancel button — to prove an in-flight file upload is aborted no matter
   // which close path (the header X, Escape, or Cancel) triggers it.
+  // File creates go through the SDK, so the SDK client is the mocked boundary.
 
   let apiService: MockProxy<ApiService>;
-  let fileUploadService: MockProxy<FileUploadService>;
   let sendService: MockProxy<InternalSendService>;
   let sendDecryptionService: MockProxy<SendDecryptionService>;
   let sendFormService: SendFormService;
+  let sendsClient: { create_file_send: jest.Mock; upload_send_file: jest.Mock; delete: jest.Mock };
   let resolveUpload: () => void;
 
   const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   beforeEach(async () => {
     apiService = mock<ApiService>();
-    fileUploadService = mock<FileUploadService>();
+    // Read-back GET after the upload.
+    apiService.send.mockResolvedValue({ id: "server-id" });
     sendService = mock<InternalSendService>();
     sendDecryptionService = mock<SendDecryptionService>();
     sendDecryptionService.decryptSend.mockResolvedValue(new SendView());
 
-    const send = new Send();
-    send.type = SendType.File;
-    send.file = { fileName: "notes.txt" } as any;
-    sendService.encrypt.mockResolvedValue([send, mock<EncArrayBuffer>()]);
-
-    apiService.send.mockResolvedValueOnce({
-      fileUploadType: 0,
-      url: null,
-      sendResponse: { id: "server-id", accessId: "access-id", file: { id: "file-id" } },
-    });
-    fileUploadService.upload.mockReturnValue(
-      new Promise<void>((resolve) => {
-        resolveUpload = resolve;
+    sendsClient = {
+      create_file_send: jest.fn().mockResolvedValue({
+        send: { id: "server-id", accessId: "access-id" },
+        url: null,
+        fileUploadType: 0,
+        fileId: "file-id",
+        encryptedFileName: "2.encrypted-file-name",
+        encryptedFileBuffer: new Uint8Array([1]),
       }),
+      upload_send_file: jest.fn().mockReturnValue(
+        new Promise<void>((resolve) => {
+          resolveUpload = resolve;
+        }),
+      ),
+      delete: jest.fn().mockResolvedValue(undefined),
+    };
+    const sdkService = mock<SdkService>();
+    sdkService.userClient$.mockReturnValue(
+      of({
+        take: () => ({ value: { sends: () => sendsClient }, [Symbol.dispose]: jest.fn() }),
+      } as any),
     );
 
     await TestBed.configureTestingModule({
@@ -110,10 +117,19 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
         {
           provide: SendApiServiceAbstraction,
           useClass: SendApiServiceConcrete,
-          deps: [ApiService, FileUploadService, InternalSendService, LogService],
+          deps: [
+            ApiService,
+            FileUploadService,
+            InternalSendService,
+            LogService,
+            SdkService,
+            AccountService,
+            SendDecryptionService,
+          ],
         },
         { provide: ApiService, useValue: apiService },
-        { provide: FileUploadService, useValue: fileUploadService },
+        { provide: FileUploadService, useValue: mock<FileUploadService>() },
+        { provide: SdkService, useValue: sdkService },
         { provide: InternalSendService, useValue: sendService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SendService, useValue: sendService },
@@ -132,7 +148,19 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
       sendType: SendType.File,
       areSendsAllowed: true,
     } as SendFormConfig);
-    sendFormService.setFile(new File(["hello"], "notes.txt"));
+    // Normally set by child forms not rendered here; the SDK requires a deletion date.
+    sendFormService.patchSend((view) =>
+      Object.assign(view, {
+        name: "a-file",
+        deletionDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      }),
+    );
+    // jsdom's `File` lacks `arrayBuffer()`.
+    sendFormService.setFile({
+      name: "notes.txt",
+      size: 5,
+      arrayBuffer: () => Promise.resolve(new Uint8Array([1, 2, 3, 4, 5]).buffer),
+    } as unknown as File);
   });
 
   const createDialog = (dialogRef: FakeDialogRef) => {
@@ -166,7 +194,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
     const submitPromise = sendFormService.submitSendForm();
     await flushMicrotasks();
     // The upload is in flight — the send was already created server-side.
-    expect(fileUploadService.upload).toHaveBeenCalledTimes(1);
+    expect(sendsClient.upload_send_file).toHaveBeenCalledTimes(1);
 
     // Simulate the user hitting Escape or the header X — both call dialogRef.close() directly,
     // never SendAddEditDialogComponent.cancelEditSend().
@@ -177,7 +205,7 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
     await flushMicrotasks();
 
     await expect(submitPromise).resolves.toBeUndefined();
-    expect(apiService.send).toHaveBeenCalledWith("DELETE", "/sends/server-id", null, true, false);
+    expect(sendsClient.delete).toHaveBeenCalledWith("server-id");
   });
 
   it("does not close, and does not abort, when the wired closePredicate vetoes the close", async () => {
@@ -198,12 +226,6 @@ describe("SendAddEditDialogComponent + DefaultSendFormService integration", () =
     await flushMicrotasks();
 
     await expect(submitPromise).resolves.toBeInstanceOf(SendView);
-    expect(apiService.send).not.toHaveBeenCalledWith(
-      "DELETE",
-      "/sends/server-id",
-      null,
-      true,
-      false,
-    );
+    expect(sendsClient.delete).not.toHaveBeenCalled();
   });
 });

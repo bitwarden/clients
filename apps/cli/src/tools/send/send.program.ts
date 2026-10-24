@@ -124,7 +124,6 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendTokenService,
           this.serviceContainer.sendDecryptionService,
           this.serviceContainer.appIdService,
-          this.serviceContainer.configService,
           this.serviceContainer.customUserAgent,
         );
         // When invoked as `bw send receive`, the parent `send` command also declares
