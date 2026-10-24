@@ -16,6 +16,7 @@ export class WebSsoComponentService
   }
 
   setDocumentCookies() {
-    document.cookie = `ssoHandOffMessage=${this.i18nService.t("ssoHandOff")};SameSite=strict`;
+    const message = encodeURIComponent(this.i18nService.t("ssoHandOff"));
+    document.cookie = `ssoHandOffMessage=${message};SameSite=strict`;
   }
 }
