@@ -25,7 +25,19 @@ import {
   electronBuilderTargets,
   unsupportedChannels,
 } from "./electron-builder-config.mts";
+import { packHooks } from "./pack-hooks.mts";
 
+/// TODO: electron-builder merges this file in a second time, behind our back. Passing `config`
+/// as an object leaves `configPath` null, and app-builder-lib's getConfig then discovers
+/// electron-builder.json in the project directory and deepAssigns ours on top of it -- which
+/// concatenates arrays rather than replacing them. So the base's `mac.extraFiles`, pointing at
+/// the `desktop_native/dist` that build.js writes, survives alongside the entries generated
+/// here: harmless while that directory is absent (electron-builder warns and skips), but a
+/// stale binary there would be packaged. Passing a path instead of an object would stop the
+/// discovery, but then the hooks below could not be functions. It goes away when
+/// desktop_native/build.js and the legacy pack scripts do, and electron-builder.json can be
+/// generated outright rather than overlaid.
+///
 /// Everything that does not vary per build. Read rather than reproduced, so the language
 /// lists, snap plugs and installer settings stay data.
 const BASE_CONFIG = "electron-builder.json";
@@ -36,6 +48,15 @@ const PLATFORMS = {
   windows: Platform.WINDOWS,
   linux: Platform.LINUX,
 };
+
+/// Signing settings naming a file, which electron-builder passes to `codesign` and `security`
+/// as given.
+const SIGNING_PATHS = [
+  "entitlements",
+  "entitlementsInherit",
+  "entitlementsLoginHelper",
+  "provisioningProfile",
+];
 
 const ARCHITECTURES: Record<Architecture, Arch> = {
   ia32: Arch.ia32,
@@ -70,8 +91,6 @@ async function pack(config: BuildConfig): Promise<void> {
     );
   }
 
-  warnAboutUnsignedMac(config);
-
   const resolved = applyBuildConfig(readBaseConfig(), config);
   const resolvedPath = path.resolve(projectDir, config.buildDir, RESOLVED_CONFIG);
   writeFileSync(resolvedPath, `${JSON.stringify(resolved, null, 2)}\n`);
@@ -82,7 +101,13 @@ async function pack(config: BuildConfig): Promise<void> {
 
   await electronBuilder({
     projectDir,
-    config: resolved,
+    // The hooks and the absolute paths go on after the file is written -- what is recorded there
+    // stays the configuration, relative and readable, not the form it has to take to run.
+    config: {
+      ...withAbsoluteSigningPaths(resolved),
+      ...packHooks(config),
+      ...appxManifestHook(config),
+    },
     targets: PLATFORMS[config.derived.platform].createTarget(
       targets,
       ...config.architectures.map((architecture) => ARCHITECTURES[architecture]),
@@ -93,30 +118,46 @@ async function pack(config: BuildConfig): Promise<void> {
   });
 }
 
-/// TODO: stop needing the electron-builder hooks at all. before-pack.js, after-pack.js and
-/// after-sign.js each re-derive what this build already decided -- gating the autofill
-/// extension on whether a directory exists, picking a signing identity from GITHUB_ACTIONS,
-/// notarizing any darwin build -- and they are the reason a configuration this script has in
-/// hand cannot be honoured end to end. What they do belongs here, where the build
-/// configuration is readable.
+/// Rewrites those to absolute paths.
 ///
-/// When that happens, embed the autofill and safari extensions at the point after-pack runs
-/// rather than where after-sign does. Both are copied into Contents/PlugIns today *after* the
-/// app has been signed, so after-sign has to re-sign the bundle to cover them. Putting them in
-/// before signing makes the signature right the first time and drops the second pass.
-///
-/// after-pack.js signs the proxy binary with the hardened runtime whatever the configuration
-/// says, picking an identity out of the keychain. Turning electron-builder's signing off makes
-/// it strip the signatures the hook then tries to replace, and the pack fails partway through.
-/// The hooks read the environment rather than the build configuration; until they read it, an
-/// unsigned macOS package is not something this can produce.
-function warnAboutUnsignedMac(config: BuildConfig): void {
-  if (config.derived.platform === "macos" && config.macos?.signingCertificate === "none") {
-    console.warn(
-      "warning: --macos-signing-certificate none is not yet honored end to end; the packaging " +
-        "hooks sign the proxy binary regardless and this build will fail while doing so.",
-    );
+/// The configuration records them relative to apps/desktop, which is what makes it portable.
+/// But electron-builder runs `codesign` and `security` in the working directory it was called
+/// from, not the project directory, so a relative path is one they cannot open unless the
+/// caller happened to be standing in apps/desktop. Everything else -- `extraFiles`, the
+/// directories -- electron-builder resolves against the project itself and is left alone.
+function withAbsoluteSigningPaths(resolved: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...resolved };
+
+  for (const platform of ["mac", "mas"]) {
+    const section = result[platform];
+    if (section == null || typeof section !== "object") {
+      continue;
+    }
+
+    const values = { ...(section as Record<string, unknown>) };
+    for (const key of SIGNING_PATHS) {
+      if (typeof values[key] === "string") {
+        values[key] = path.resolve(projectDir, values[key]);
+      }
+    }
+    result[platform] = values;
   }
+
+  return result;
+}
+
+/// The beta Appx manifest is edited after electron-builder generates it, by a hook the beta
+/// fork names as `scripts/appx-manifest-created.js`.
+///
+/// Named here rather than in the generated configuration because electron-builder resolves a
+/// hook's path with `require`, against the working directory rather than the project -- and it
+/// resolves every hook up front, so a relative path breaks a macOS build started from anywhere
+/// but apps/desktop. Absolute, and only where there is a manifest to edit.
+function appxManifestHook(config: BuildConfig): Record<string, string> {
+  if (config.derived.platform !== "windows" || config.channel !== "beta") {
+    return {};
+  }
+  return { appxManifestCreated: path.join(projectDir, "scripts/appx-manifest-created.js") };
 }
 
 function readBaseConfig(): Record<string, unknown> {
