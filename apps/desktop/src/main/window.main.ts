@@ -106,6 +106,7 @@ export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
   isClosing = false;
+  rendererTornDown = false;
   private isReloading = false;
 
   private windowStateChangeTimer: NodeJS.Timeout;
@@ -228,11 +229,8 @@ export class WindowMain {
               // icon or terminal while already running). Always bring us to the foreground.
               if (this.focusWindowCallback != null) {
                 void this.focusWindowCallback();
-              } else if (this.win != null) {
-                if (this.win.isMinimized() || !this.win.isVisible()) {
-                  this.win.show();
-                }
-                this.win.focus();
+              } else {
+                void this.ensureRenderer();
               }
               if (isWindows() || isLinux()) {
                 if (this.argvCallback != null) {
@@ -288,7 +286,9 @@ export class WindowMain {
             }
           }
 
-          await this.createWindow("full-app", show);
+          if (show) {
+            await this.createWindow("full-app", true);
+          }
           resolve();
 
           if (this.argvCallback != null) {
@@ -299,8 +299,9 @@ export class WindowMain {
         // Quit when all windows are closed.
         app.on("window-all-closed", () => {
           // On OS X it is common for applications and their menu bar
-          // to stay active until the user quits explicitly with Cmd + Q
-          if (!isMac() || this.isQuitting || isMacAppStore()) {
+          // to stay active until the user quits explicitly with Cmd + Q.
+          // A renderer torn down for background operation must not quit the main process.
+          if (this.isQuitting || isMacAppStore() || (!isMac() && !this.rendererTornDown)) {
             app.quit();
           }
         });
@@ -310,11 +311,8 @@ export class WindowMain {
           // dock icon is clicked and there are no other windows open.
           if (this.focusWindowCallback != null) {
             await this.focusWindowCallback();
-          } else if (this.win == null) {
-            await this.createWindow();
           } else {
-            // Show the window when clicking on Dock icon
-            this.win.show();
+            await this.ensureRenderer();
           }
         });
       } catch (e) {
@@ -331,6 +329,81 @@ export class WindowMain {
       applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
       this.win.show();
     }
+  }
+
+  /**
+   * Destroys the renderer so the app runs with only the main process. The `close` handler set up
+   * by {@link TrayMain} lets this close proceed, and `window-all-closed` keeps the process alive
+   * while `rendererTornDown` is set.
+   */
+  destroyRenderer(): void {
+    if (this.win == null || this.win.isDestroyed()) {
+      return;
+    }
+    this.rendererTornDown = true;
+    this.win.close();
+  }
+
+  /**
+   * Ensures a live renderer exists, recreating it (and, through the renderer's boot path,
+   * re-seeding its SDK) if it was torn down. When `show` is false the renderer is recreated
+   * hidden so background flows can use it without surfacing the window.
+   */
+  async ensureRenderer(show: boolean = true): Promise<void> {
+    if (this.win == null || this.win.isDestroyed()) {
+      // Recreate hidden and raise the window only once the page has actually
+      // rendered. Showing and stealing focus immediately after createWindow races
+      // the asynchronous loadURL; macOS sometimes ignores the activation request.
+      await this.createWindow("full-app", false);
+      if (!show) {
+        return;
+      }
+      this.showWhenReady();
+      return;
+    }
+
+    if (!show) {
+      return;
+    }
+
+    if (this.win.isMinimized()) {
+      this.win.restore();
+    }
+    this.win.show();
+
+    this.win.focus();
+    if (isMac()) {
+      // Showing and focusing the window is not enough to raise it above other
+      // applications' windows when the app was hidden to the tray (its dock was
+      // hidden too). Steal focus to bring it to the foreground. Defer the steal
+      // to the next tick so macOS has processed the show()/restore() (and, on the
+      // restore-from-tray path, the dock show that precedes it) before we request
+      // activation; stealing in the same tick as show() is sometimes dropped.
+      setTimeout(() => app.focus({ steal: true }));
+    }
+  }
+
+  /**
+   * Shows, focuses, and (on macOS) steals focus for a freshly recreated window once
+   * its renderer has finished its first paint. Deferring until `ready-to-show` avoids
+   * racing the asynchronous `loadURL`.
+   */
+  private showWhenReady(): void {
+    const win = this.win;
+    if (win == null) {
+      return;
+    }
+
+    win.once("ready-to-show", () => {
+      if (win.isDestroyed()) {
+        return;
+      }
+      win.show();
+      win.focus();
+      if (isMac()) {
+        app.focus({ steal: true });
+      }
+    });
   }
 
   private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
@@ -450,6 +523,7 @@ export class WindowMain {
     template: "full-app" | "modal-app" = "full-app",
     show: boolean = true,
   ): Promise<void> {
+    this.rendererTornDown = false;
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,

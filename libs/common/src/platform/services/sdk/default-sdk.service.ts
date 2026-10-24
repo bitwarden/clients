@@ -118,7 +118,7 @@ export class DefaultSdkService implements SdkService {
     private keyServiceProvider: () => KeyService,
     private accountCryptographyStateServiceProvider: () => AccountCryptographicStateService,
     private apiServiceProvider: () => ApiService,
-    private stateProvider: StateProvider,
+    protected stateProvider: StateProvider,
     private configServiceProvider: () => ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private managedSettingsService: ManagedSettingsService,
@@ -286,12 +286,14 @@ export class DefaultSdkService implements SdkService {
     return client$;
   }
 
+  protected createStateBridge(userId: UserId): JsWasmStateBridge {
+    return new JsWasmStateBridge(this.stateProvider, userId);
+  }
+
   private async initializeClient(userId: UserId, client: PasswordManagerClient) {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
-    client
-      .km_state_bridge()
-      .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
+    client.km_state_bridge().register_bridge_impl(this.createStateBridge(userId));
     await this.loadFeatureFlags(client);
   }
 

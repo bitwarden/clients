@@ -5848,6 +5848,22 @@
   "sshkeyApprovalMessageSuffix": {
     "message": "in order to"
   },
+  "sshAgentApprovalNotificationTitle": {
+    "message": "SSH key request"
+  },
+  "sshAgentApprovalNotificationBody": {
+    "message": "$APPLICATION$ is requesting access to $CIPHER_NAME$",
+    "placeholders": {
+      "application": {
+        "content": "$1",
+        "example": "OpenSSH"
+      },
+      "cipher_name": {
+        "content": "$2",
+        "example": "My SSH key"
+      }
+    }
+  },
   "sshActionLogin": {
     "message": "authenticate to a server"
   },

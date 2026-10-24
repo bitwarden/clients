@@ -91,12 +91,12 @@ export class TrayMain {
     });
 
     win.on("close", async (e: Event) => {
-      if (this.windowMain.isQuitting) {
+      if (this.windowMain.isQuitting || this.windowMain.rendererTornDown) {
         return;
       }
 
       if (await firstValueFrom(this.desktopSettingsService.runInBackground$)) {
-        // Keep running in the background: closing the window hides it to the tray.
+        // Keep running in the background: tear the renderer down instead of hiding it.
         e.preventDefault();
         this.hideToTray();
       } else {
@@ -122,9 +122,7 @@ export class TrayMain {
 
   hideToTray() {
     this.showTray();
-    if (this.windowMain.win != null) {
-      this.windowMain.win.hide();
-    }
+    this.windowMain.destroyRenderer();
     if (this.isDarwin()) {
       this.hideDock();
     }
@@ -136,21 +134,13 @@ export class TrayMain {
    * the window - foregrounding is not a toggle.
    */
   async restoreFromTray() {
-    if (this.windowMain.win == null) {
-      // On macOS, closing the window via the red button destroys the BrowserWindow instance.
-      await this.windowMain.createWindow();
-      this.windowMain.win.show();
-    } else {
-      if (this.windowMain.win.isMinimized()) {
-        this.windowMain.win.restore();
-      }
-      this.windowMain.show();
-      this.windowMain.win.focus();
+    if (this.isDarwin()) {
+      // Show the dock first: while it is hidden the app is in accessory activation
+      // mode and a focus steal below would be dropped. Then recreate/raise the window.
+      await this.showDock();
     }
 
-    if (this.isDarwin()) {
-      this.showDock();
-    }
+    await this.windowMain.ensureRenderer();
   }
 
   showTray() {
@@ -181,10 +171,8 @@ export class TrayMain {
     app.dock.hide();
   }
 
-  private showDock() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    app.dock.show();
+  private showDock(): Promise<void> {
+    return app.dock.show();
   }
 
   private isDarwin() {
@@ -199,6 +187,9 @@ export class TrayMain {
     this.windowMain.isQuitting = true;
     if (this.windowMain.win != null) {
       this.windowMain.win.close();
+    } else {
+      // The renderer was already torn down, so there is no window whose close would trigger quit.
+      app.quit();
     }
   }
 

@@ -25,6 +25,8 @@ import { NativeMessagingHost, nativeMessagingHost } from "../utils/native-messag
 
 export class IpcMainService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
+  /** The desktop endpoint each connected native-messaging client addresses, by client ID. */
+  private readonly desktopEndpointByClient = new Map<number, DesktopEndpoint>();
 
   constructor(
     private logService: LogService,
@@ -49,22 +51,48 @@ export class IpcMainService extends IpcService {
           }
 
           const nativeHost = nativeMessagingHost(message.destination);
+          this.logService.info(
+            `[IPC] send ${describeMessage(message)} -> nativeHost=${JSON.stringify(nativeHost)}`,
+          );
+
           if (nativeHost != null) {
-            const ipcMessage = {
-              type: "bitwarden-ipc-message",
+            const clientId = extractClientId(nativeHost);
+            this.logService.info(
+              `[IPC] Relaying to native client ${clientId}: ${describeMessage(message)}`,
+            );
+
+            // A native-messaging client keys its Noise session by the desktop endpoint it
+            // addressed, so a reply has to be attributed to that same endpoint. Main answers in
+            // place of the renderer, whose endpoint the clients use today, so a plain reply would
+            // reach them attributed to `DesktopMain` and be dropped. Send it as the renderer's
+            // forwarded message instead, under the name the client itself addressed.
+            const forwardedMessage = {
+              type: "forwarded-bitwarden-ipc-message",
               message: {
                 destination: message.destination,
                 payload: [...message.payload],
                 topic: message.topic,
               },
-            } satisfies IpcMessage;
+              originalSource: this.desktopEndpointByClient.get(clientId) ?? "DesktopRenderer",
+            } satisfies ForwardedIpcMessage;
 
-            this.nativeMessaging.sendTo(extractClientId(nativeHost), ipcMessage);
+            this.nativeMessaging.sendTo(clientId, forwardedMessage);
             return;
           }
 
           if (message.destination === "DesktopRenderer") {
-            this.windowMain.win?.webContents.send("ipc.onMessage", {
+            this.logService.info(`[IPC] Forwarding to renderer: ${describeMessage(message)}`);
+
+            if (this.windowMain.win == null || this.windowMain.win.isDestroyed()) {
+              // The renderer was torn down (headless main) and nobody recreated it, so the
+              // message is dropped rather than queued. Log it: the caller sees only a timeout.
+              this.logService.info(
+                `[IPC] No renderer to forward to, dropping: ${describeMessage(message)}`,
+              );
+              return;
+            }
+
+            this.windowMain.win.webContents.send("ipc.onMessage", {
               type: "bitwarden-ipc-message",
               message: {
                 destination: message.destination,
@@ -81,6 +109,9 @@ export class IpcMainService extends IpcService {
 
       this.nativeMessaging.messages$.subscribe((nativeMessage: ipc.IpcMessage) => {
         if (!nativeMessage.message) {
+          this.logService.info(
+            `[IPC] Ignoring empty native message from client ${nativeMessage.clientId}`,
+          );
           return;
         }
 
@@ -90,33 +121,46 @@ export class IpcMainService extends IpcService {
         } catch (e) {
           // A malformed native message must not tear down the subscription, which would
           // break IPC for all subsequent messages.
-          this.logService.error("[IPC] Failed to parse native message", e);
+          this.logService.error(
+            `[IPC] Failed to parse native message from client ${nativeMessage.clientId}`,
+            e,
+          );
           return;
         }
 
         if (!isIpcMessage(ipcMessage)) {
+          this.logService.info(
+            `[IPC] Ignoring malformed native message from client ${nativeMessage.clientId}`,
+          );
           return;
         }
 
         try {
-          // Forward to renderer process
-          if (ipcMessage.message.destination === "DesktopRenderer") {
-            this.windowMain.win?.webContents.send("ipc.onMessage", {
-              type: "forwarded-bitwarden-ipc-message",
-              message: ipcMessage.message,
-              originalSource: this.sourceFor(nativeMessage.clientId),
-            } satisfies ForwardedIpcMessage);
+          // The browser extension still addresses desktop-bound IPC (shared unlock, discover) to
+          // the renderer. The shared-unlock peer runs in the main process, so capture those
+          // messages here and deliver them to the main process's own client, treating them as
+          // addressed to DesktopMain. The browser will target DesktopMain directly in a later
+          // change.
+          const destination = ipcMessage.message.destination;
+          if (destination !== "DesktopRenderer" && destination !== "DesktopMain") {
+            this.logService.info(
+              `[IPC] Ignoring native message addressed elsewhere from client ${nativeMessage.clientId}: ${describeMessage(ipcMessage.message)}`,
+            );
             return;
           }
 
-          if (ipcMessage.message.destination !== "DesktopMain") {
-            return;
-          }
+          // Remember which desktop endpoint this client addresses, so replies can be sent under
+          // the same name and are attributed to the session it holds.
+          this.desktopEndpointByClient.set(nativeMessage.clientId, destination);
+
+          this.logService.info(
+            `[IPC] Received from native client ${nativeMessage.clientId} (${destination}): ${describeMessage(ipcMessage.message)}`,
+          );
 
           this.communicationBackend?.receive(
             new IncomingMessage(
               new Uint8Array(ipcMessage.message.payload),
-              ipcMessage.message.destination,
+              "DesktopMain",
               this.sourceFor(nativeMessage.clientId),
               ipcMessage.message.topic,
             ),
@@ -124,13 +168,23 @@ export class IpcMainService extends IpcService {
         } catch (e) {
           // A throw here (e.g. backend.receive or webContents.send) must not tear down
           // the subscription, which would break IPC for all subsequent messages.
-          this.logService.error("[IPC] Failed to process native message", e);
+          this.logService.error(
+            `[IPC] Failed to process native message from client ${nativeMessage.clientId}`,
+            e,
+          );
         }
       });
 
       // Handle messages from renderer process
       ipcMain.on("ipc.send", async (_event, message: IpcMessage) => {
         try {
+          if (!isIpcMessage(message)) {
+            this.logService.info("[IPC] Ignoring malformed message from renderer");
+            return;
+          }
+
+          this.logService.info(`[IPC] Received from renderer: ${describeMessage(message.message)}`);
+
           if (message.message.destination === "DesktopMain") {
             this.communicationBackend?.receive(
               new IncomingMessage(
@@ -145,7 +199,16 @@ export class IpcMainService extends IpcService {
 
           // Forward to native messaging
           const nativeHost = nativeMessagingHost(message.message.destination);
+          this.logService.info(
+            `[IPC] renderer ${describeMessage(message.message)} -> nativeHost=${JSON.stringify(nativeHost)}`,
+          );
+
           if (nativeHost != null) {
+            const clientId = extractClientId(nativeHost);
+            this.logService.info(
+              `[IPC] Relaying from renderer to native client ${clientId}: ${describeMessage(message.message)}`,
+            );
+
             const forwardedMessage = {
               type: "forwarded-bitwarden-ipc-message",
               message: {
@@ -156,8 +219,13 @@ export class IpcMainService extends IpcService {
               originalSource: "DesktopRenderer" as Source,
             } satisfies ForwardedIpcMessage;
 
-            this.nativeMessaging.sendTo(extractClientId(nativeHost), forwardedMessage);
+            this.nativeMessaging.sendTo(clientId, forwardedMessage);
+            return;
           }
+
+          this.logService.info(
+            `[IPC] Dropping renderer message with unsupported destination: ${describeMessage(message.message)}`,
+          );
         } catch (e) {
           // The listener is async and ipcMain.on does not await it, so a throw here
           // (e.g. extractClientId on an unresolvable host, or sendTo on a disconnected
@@ -191,6 +259,28 @@ export class IpcMainService extends IpcService {
 
     return { BrowserBackground: { id: { Id: clientId } } } as Source;
   }
+}
+
+/**
+ * Endpoints that address the desktop app itself, as opposed to another client of it.
+ *
+ * Clients reach the desktop under `DesktopRenderer`, the endpoint the renderer used before state
+ * moved to the main process; they will address `DesktopMain` once they are updated to target it.
+ */
+type DesktopEndpoint = "DesktopRenderer" | "DesktopMain";
+
+/**
+ * A payload-free description of an IPC message, for logging.
+ *
+ * Payloads are opaque blobs that may hold vault data or key material, so only their size is
+ * reported — never their contents.
+ */
+function describeMessage(message: {
+  destination: unknown;
+  topic?: string | null;
+  payload: ArrayLike<number>;
+}): string {
+  return `topic=${message.topic} destination=${JSON.stringify(message.destination)} payload=${message.payload.length}B`;
 }
 
 /**

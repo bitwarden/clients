@@ -158,7 +158,7 @@ export class NativeMessagingMain {
   }
 
   sendTo(clientId: number, message: object) {
-    this.logService.debug("Native messaging targeted reply to client", clientId, ":", message);
+    this.logService.info("Native messaging targeted reply to client", clientId, ":", message);
     this.ipcServer?.sendTo(clientId, JSON.stringify(message));
   }
 
