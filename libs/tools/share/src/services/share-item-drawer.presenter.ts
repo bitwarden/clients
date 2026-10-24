@@ -39,7 +39,10 @@ export class ShareItemDrawerPresenter implements ShareItemPresenter {
       return;
     }
 
-    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher: cipherView } });
+    await this.dialogService.openDrawer(ShareItemDrawerComponent, {
+      data: { cipher: cipherView },
+      closeOnNavigation: true,
+    });
   }
 
   /**
