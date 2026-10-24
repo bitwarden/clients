@@ -43,14 +43,18 @@
     "build:bit:prod:safari": "cross-env NODE_ENV=production npm run build:bit:safari",
     "build:beta:chrome": "cross-env CHANNEL=beta npm run build:prod:chrome",
     "build:bit:beta:chrome": "cross-env CHANNEL=beta npm run build:bit:prod:chrome",
+    "build:beta:firefox": "cross-env CHANNEL=beta npm run build:prod:firefox",
+    "build:bit:beta:firefox": "cross-env CHANNEL=beta npm run build:bit:prod:firefox",
     "dist:chrome": "npm run build:prod:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
     "dist:bit:chrome": "npm run build:bit:prod:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
-    "dist:beta:chrome": "npm run build:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
-    "dist:bit:beta:chrome": "npm run build:bit:beta:chrome && npm run update:beta:chrome && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
+    "dist:beta:chrome": "npm run build:beta:chrome && npm run update:beta && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
+    "dist:bit:beta:chrome": "npm run build:bit:beta:chrome && npm run update:beta && mkdir -p dist && ./scripts/compress.sh bit-dist-chrome.zip",
     "dist:edge": "npm run build:prod:edge && mkdir -p dist && ./scripts/compress.sh dist-edge.zip",
     "dist:bit:edge": "npm run build:bit:prod:edge && mkdir -p dist && ./scripts/compress.sh bit-dist-edge.zip",
     "dist:firefox": "npm run build:prod:firefox && mkdir -p dist && ./scripts/compress.sh dist-firefox.zip",
     "dist:bit:firefox": "npm run build:bit:prod:firefox && mkdir -p dist && ./scripts/compress.sh bit-dist-firefox.zip",
+    "dist:beta:firefox": "npm run build:beta:firefox && npm run update:beta && mkdir -p dist && ./scripts/compress.sh dist-firefox.zip",
+    "dist:bit:beta:firefox": "npm run build:bit:beta:firefox && npm run update:beta && mkdir -p dist && ./scripts/compress.sh bit-dist-firefox.zip",
     "dist:opera": "npm run build:prod:opera && mkdir -p dist && ./scripts/compress.sh dist-opera.zip",
     "dist:bit:opera": "npm run build:bit:prod:opera && mkdir -p dist && ./scripts/compress.sh bit-dist-opera.zip",
     "dist:safari": "npm run build:prod:safari && ./scripts/package-safari.ps1",
@@ -70,6 +74,6 @@
     "test:watch:all": "jest --watchAll",
     "test:clearCache": "jest --clear-cache",
     "update:dev:chrome": "./scripts/update-manifest-dev.sh",
-    "update:beta:chrome": "./scripts/update-manifest-beta.sh"
+    "update:beta": "./scripts/update-manifest-beta.sh"
   }
 }
