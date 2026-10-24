@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
+  CipherActionService,
   CipherFormConfig,
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
@@ -36,6 +37,7 @@ import { ItemDeepLink, ItemDeepLinkAction } from "../utils/item-deep-link";
 @Injectable()
 export class WebVaultItemActionsService {
   private readonly accountService = inject(AccountService);
+  private readonly cipherActionService = inject(CipherActionService);
   private readonly cipherService = inject(CipherService);
   private readonly cipherFormConfigService = inject(DefaultCipherFormConfigService);
   private readonly dialogService = inject(DialogService);
@@ -234,7 +236,11 @@ export class WebVaultItemActionsService {
         return;
       }
 
-      const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
+      const dialogRef = VaultItemDialogComponent.open(this.dialogService, {
+        mode,
+        formConfig,
+        restore: (cipher) => this.cipherActionService.restore(cipher),
+      });
       const result = await lastValueFrom(dialogRef.closed);
 
       // The user is navigated to subscription settings elsewhere; leave the URL alone.
