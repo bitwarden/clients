@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Bitwarden Cloud Fill (preview)",
+  "version": "0.0.2",
+  "description": "Fills a login in an agent browser with a credential the user approves in their Bitwarden app.",
+  "minimum_chrome_version": "116",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["alarms", "scripting", "storage", "nativeMessaging"],
+  "host_permissions": ["<all_urls>"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}
