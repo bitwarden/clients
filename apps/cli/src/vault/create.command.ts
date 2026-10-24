@@ -92,6 +92,7 @@ export class CreateCommand {
       case "folder":
         return await this.createFolder(req);
       case "org-collection":
+      case "org-shared-folder":
         return await this.createOrganizationCollection(req, normalizedOptions);
       default:
         return Response.badRequest("Unknown object.");

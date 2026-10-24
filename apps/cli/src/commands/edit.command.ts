@@ -87,10 +87,12 @@ export class EditCommand {
       case "item":
         return await this.editCipher(id, req);
       case "item-collections":
+      case "item-shared-folders":
         return await this.editCipherCollections(id, req);
       case "folder":
         return await this.editFolder(id, req);
       case "org-collection":
+      case "org-shared-folder":
         return await this.editOrganizationCollection(id, req, normalizedOptions);
       default:
         return Response.badRequest("Unknown object.");

@@ -255,4 +255,160 @@ describe("CreateCommand", () => {
       expect(data.users).toEqual([]);
     });
   });
+
+  describe("org-shared-folder alias", () => {
+    const object = "org-shared-folder";
+
+    it("falls back to the request's organizationId when the option is missing", async () => {
+      const result = await command.run(
+        object,
+        makeRequest() as any,
+        makeOptions({ organizationId: null }),
+      );
+      expect(result.success).toBe(true);
+      expect(apiService.postCollection).toHaveBeenCalledWith(validOrgId, expect.anything());
+    });
+
+    it("falls back to the request's organizationId when the option is an empty string", async () => {
+      const result = await command.run(
+        object,
+        makeRequest() as any,
+        makeOptions({ organizationId: "" }),
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it("falls back to the option's organizationId when the request does not provide one", async () => {
+      const result = await command.run(
+        object,
+        makeRequest({ organizationId: null }) as any,
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      expect(apiService.postCollection).toHaveBeenCalledWith(validOrgId, expect.anything());
+    });
+
+    it("returns bad request when organizationId is missing from both the option and the request", async () => {
+      const result = await command.run(
+        object,
+        makeRequest({ organizationId: null }) as any,
+        makeOptions({ organizationId: null }),
+      );
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("An organization id is required");
+    });
+
+    it("returns bad request when organizationId is not a valid GUID", async () => {
+      const result = await command.run(
+        object,
+        makeRequest() as any,
+        makeOptions({ organizationId: "not-a-guid" }),
+      );
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("is not a GUID");
+    });
+
+    it("returns bad request when organizationId option does not match request", async () => {
+      const otherOrgId = "22222222-2222-2222-2222-222222222222" as OrganizationId;
+      const result = await command.run(
+        object,
+        makeRequest({ organizationId: otherOrgId }) as any,
+        makeOptions(),
+      );
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("does not match");
+    });
+
+    it("returns bad request when shared folder name is empty string", async () => {
+      const result = await command.run(object, makeRequest({ name: "" }) as any, makeOptions());
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Collection name is required");
+    });
+
+    it("returns bad request when shared folder name is whitespace only", async () => {
+      const result = await command.run(object, makeRequest({ name: "   " }) as any, makeOptions());
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Collection name is required");
+    });
+
+    it("returns bad request when shared folder name is null", async () => {
+      const result = await command.run(object, makeRequest({ name: null }) as any, makeOptions());
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Collection name is required");
+    });
+
+    it("returns error when no org encryption key is found", async () => {
+      keyService.orgKeys$.mockReturnValue(of(null));
+      const result = await command.run(object, makeRequest() as any, makeOptions());
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("No encryption key for this organization");
+    });
+
+    it("returns bad request when no active user is found", async () => {
+      accountService.activeAccount$ = of(null);
+      const result = await command.run(object, makeRequest() as any, makeOptions());
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Null or undefined account");
+    });
+
+    it("creates shared folder successfully with groups and users provided", async () => {
+      const groups = [{ id: "group-1", readOnly: false, hidePasswords: false, manage: true }];
+      const users = [{ id: "user-1", readOnly: false, hidePasswords: false, manage: true }];
+      const result = await command.run(
+        object,
+        makeRequest({ groups, users }) as any,
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      expect(encryptService.encryptString).toHaveBeenCalledWith("My Collection", mockOrgKey);
+      expect(apiService.postCollection).toHaveBeenCalledWith(
+        validOrgId,
+        expect.objectContaining({ name: mockEncString.encryptedString }),
+      );
+    });
+
+    it("handles null groups by passing null to the request", async () => {
+      const result = await command.run(object, makeRequest({ groups: null }) as any, makeOptions());
+      expect(result.success).toBe(true);
+      expect(apiService.postCollection).toHaveBeenCalled();
+    });
+
+    it("defaults users to the current org user when users is null", async () => {
+      const result = await command.run(object, makeRequest({ users: null }) as any, makeOptions());
+      expect(result.success).toBe(true);
+      expect(apiService.postCollection).toHaveBeenCalledWith(
+        validOrgId,
+        expect.objectContaining({
+          users: [expect.objectContaining({ id: orgUserId })],
+        }),
+      );
+    });
+
+    it("returns error when the API call fails", async () => {
+      apiService.postCollection.mockRejectedValue(new Error("API error"));
+      const result = await command.run(object, makeRequest() as any, makeOptions());
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("API error");
+    });
+
+    it("response groups/users reflect server values, not request values", async () => {
+      const requestGroups = [
+        { id: "fake-group-id", readOnly: false, hidePasswords: false, manage: true },
+      ];
+      apiService.postCollection.mockResolvedValue({
+        id: "new-collection-id",
+        groups: [],
+        users: [],
+      } as any);
+      const result = await command.run(
+        object,
+        makeRequest({ groups: requestGroups }) as any,
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.groups).toEqual([]);
+      expect(data.users).toEqual([]);
+    });
+  });
 });
