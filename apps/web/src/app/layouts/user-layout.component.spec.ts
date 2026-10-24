@@ -16,6 +16,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
+import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import {
@@ -116,6 +117,8 @@ describe("UserLayoutComponent", () => {
   const cipherArchiveService = mock<CipherArchiveService>();
   const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
   const coachmarkService = mock<CoachmarkService>();
+  const overrideMenuEnabled$ = new BehaviorSubject<boolean>(false);
+  const featureFlagOverrideMenuService = { enabled$: overrideMenuEnabled$, openDialog: jest.fn() };
   const activeStepId = signal<CoachmarkStepId | null>(null);
   Object.defineProperty(coachmarkService, "activeStepId", { value: activeStepId });
 
@@ -164,6 +167,7 @@ describe("UserLayoutComponent", () => {
   beforeEach(async () => {
     activeStepId.set(null);
     flag$.next(false);
+    overrideMenuEnabled$.next(false);
     viewModel$.next(emptyViewModel);
 
     jest.clearAllMocks();
@@ -210,6 +214,7 @@ describe("UserLayoutComponent", () => {
           useValue: { getSubscriptionRoute$: () => of(null) },
         },
         { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: FeatureFlagOverrideMenuService, useValue: featureFlagOverrideMenuService },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
       ],
@@ -253,6 +258,28 @@ describe("UserLayoutComponent", () => {
       expect(childText(expandGroup("tools"))).toEqual(
         expect.arrayContaining(["generator", "importNoun", "exportNoun"]),
       );
+    });
+  });
+
+  describe("feature flag override menu", () => {
+    const entry = () =>
+      expandGroup("settings")
+        ? fixture.debugElement
+            .queryAll(By.css("bit-nav-item"))
+            .find((el) => el.nativeElement.textContent.includes("Feature flag overrides"))
+        : undefined;
+
+    it("hides the entry when the menu is disabled", () => {
+      expect(entry()).toBeUndefined();
+    });
+
+    it("opens the dialog from the entry when the menu is enabled", () => {
+      overrideMenuEnabled$.next(true);
+      fixture.detectChanges();
+
+      entry().componentInstance.mainContentClicked.emit();
+
+      expect(featureFlagOverrideMenuService.openDialog).toHaveBeenCalled();
     });
   });
 
