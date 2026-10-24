@@ -4,8 +4,9 @@ import { SendEncryptionType, SendItem as SdkSendItem } from "@bitwarden/sdk-inte
 
 import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { SendItemMetadataData } from "../data/send-item-metadata.data";
 import { SendItemData } from "../data/send-item.data";
+
+import { SendItemMetadata } from "./send-item-metadata";
 
 export class SendItem extends Domain {
   encryptionVersion: SendEncryptionType = SendEncryptionType.V1;
@@ -14,8 +15,8 @@ export class SendItem extends Domain {
    * string through verbatim — parsing or re-serializing it corrupts the wire value.
    */
   data?: string;
-  /** Unencrypted metadata carried alongside {@link data}; the SDK restores the item id from it. */
-  metadata?: SendItemMetadataData;
+  /** Partially encrypted metadata carried alongside {@link data}; the SDK restores the item id from it. */
+  metadata?: SendItemMetadata;
 
   constructor(obj?: SendItemData) {
     super();
@@ -27,7 +28,7 @@ export class SendItem extends Domain {
       this.encryptionVersion = obj.encryptionVersion;
     }
     this.data = obj.data;
-    this.metadata = obj.metadata;
+    this.metadata = obj.metadata ? new SendItemMetadata(obj.metadata) : undefined;
   }
 
   static fromJSON(json: Jsonify<SendItem>) {
@@ -50,7 +51,14 @@ export class SendItem extends Domain {
     return {
       encryptionVersion: this.encryptionVersion,
       data: this.data,
-      metadata: { itemId: asUuid(this.metadata.itemId) },
+      metadata: {
+        itemId: asUuid(this.metadata.itemId),
+        folderName: this.metadata.folderName?.toSdk(),
+        collectionNames: this.metadata.collectionNames?.map((cn) => cn.toSdk()),
+        organizationName: this.metadata.organizationName?.toSdk(),
+        creationDate: this.metadata.creationDate,
+        revisionDate: this.metadata.revisionDate,
+      },
     };
   }
 
@@ -59,7 +67,14 @@ export class SendItem extends Domain {
     return Object.assign(new SendItem(), {
       encryptionVersion: obj.encryptionVersion,
       data: obj.data,
-      metadata: { itemId: uuidAsString(obj.metadata.itemId) },
+      metadata: {
+        itemId: uuidAsString(obj.metadata.itemId),
+        creationDate: obj.metadata.creationDate,
+        revisionDate: obj.metadata.revisionDate,
+        folderName: obj.metadata.folderName,
+        collectionNames: obj.metadata.collectionNames,
+        organizationName: obj.metadata.organizationName,
+      },
     });
   }
 
