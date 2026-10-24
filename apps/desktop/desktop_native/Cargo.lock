@@ -936,7 +936,7 @@ dependencies = [
 name = "chromium_importer"
 version = "0.0.0"
 dependencies = [
- "aes 0.8.4",
+ "aes 0.9.3",
  "aes-gcm 0.11.0",
  "anyhow",
  "async-trait",
