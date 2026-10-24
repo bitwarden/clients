@@ -37,6 +37,13 @@ describe("IconComponent", () => {
     fixture.detectChanges();
   };
 
+  // A load event as the browser fires it for an image of the given size
+  const loaded = (size: number) => ({ target: { naturalWidth: size, naturalHeight: size } });
+  const REAL_ICON = loaded(32);
+  const NOT_FOUND_ICON = loaded(19);
+
+  const glyph = () => fixture.debugElement.query(By.css("i.bwi"));
+
   const img = () => fixture.debugElement.query(By.css("img"));
 
   beforeEach(async () => {
@@ -78,7 +85,7 @@ describe("IconComponent", () => {
   });
 
   it("finishes the entry once the image loads", () => {
-    img().triggerEventHandler("load");
+    img().triggerEventHandler("load", REAL_ICON);
 
     expect(measurement.finish).toHaveBeenCalledTimes(1);
     expect(measurement.finish).toHaveBeenCalledWith([["Result", "loaded"]]);
@@ -91,8 +98,8 @@ describe("IconComponent", () => {
   });
 
   it("records one entry per load", () => {
-    img().triggerEventHandler("load");
-    img().triggerEventHandler("load");
+    img().triggerEventHandler("load", REAL_ICON);
+    img().triggerEventHandler("load", REAL_ICON);
 
     expect(measurement.finish).toHaveBeenCalledTimes(1);
   });
@@ -111,5 +118,22 @@ describe("IconComponent", () => {
 
     expect(img()).toBeNull();
     expect(logService.startMeasurement).not.toHaveBeenCalled();
+  });
+
+  it("shows the image once a real icon loads", () => {
+    img().triggerEventHandler("load", REAL_ICON);
+    fixture.detectChanges();
+
+    expect(img().classes["tw-invisible"]).toBeFalsy();
+    expect(glyph()).toBeNull();
+  });
+
+  it("shows the glyph when the icon server answers with its not-found image", () => {
+    img().triggerEventHandler("load", NOT_FOUND_ICON);
+    fixture.detectChanges();
+
+    expect(img().classes["tw-invisible"]).toBe(true);
+    expect(glyph().classes["bwi-globe"]).toBe(true);
+    expect(measurement.finish).toHaveBeenCalledWith([["Result", "not found"]]);
   });
 });

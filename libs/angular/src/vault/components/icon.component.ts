@@ -22,8 +22,15 @@ import { LogService, Measurement, PerfTrackGroup } from "@bitwarden/logging";
 const PERF_TRACK = "Icons";
 const PERF_ENTRY = "Load icon";
 
+/**
+ * Size of the image the icons server answers with, as HTTP 200, when it has no icon for a
+ * domain: a 19x19 globe PNG. Its size is the only signal, as the response itself is opaque.
+ */
+const NOT_FOUND_ICON_SIZE = 19;
+
 const IconLoadResult = Object.freeze({
   Loaded: "loaded",
+  NotFound: "not found",
   Error: "error",
 } as const);
 type IconLoadResult = (typeof IconLoadResult)[keyof typeof IconLoadResult];
@@ -111,7 +118,15 @@ export class IconComponent {
     );
   }
 
-  protected onImageLoad() {
+  protected onImageLoad(event: Event) {
+    // Keep the server's low resolution placeholder hidden, so the glyph shows instead
+    const { naturalWidth, naturalHeight } = event.target as HTMLImageElement;
+    if (naturalWidth === NOT_FOUND_ICON_SIZE && naturalHeight === NOT_FOUND_ICON_SIZE) {
+      this.imageLoaded.set(false);
+      this.finishLoad(IconLoadResult.NotFound);
+      return;
+    }
+
     this.imageLoaded.set(true);
     this.finishLoad(IconLoadResult.Loaded);
   }
