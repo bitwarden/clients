@@ -256,7 +256,7 @@ export class WindowMain {
         // Some APIs can only be used after this event occurs.
         // `whenReady()` also covers callers that run after the `ready` event has already fired.
         void app.whenReady().then(async () => {
-          this.session = session.fromPartition("persist:bitwarden", { cache: false });
+          this.session = session.fromPartition("persist:bitwarden");
           this.setupAppProtocol();
 
           if (!isDev()) {
