@@ -13,6 +13,7 @@ import { IMenubarMenu } from "./menubar";
 
 export class HelpMenu implements IMenubarMenu {
   readonly id: string = "help";
+  readonly role: "help" = "help";
 
   get label(): string {
     return this.localize("help");
