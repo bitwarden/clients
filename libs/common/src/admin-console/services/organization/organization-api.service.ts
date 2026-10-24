@@ -22,12 +22,15 @@ import { OrganizationApiKeyType } from "../../enums";
 import { OrganizationCollectionManagementUpdateRequest } from "../../models/request/organization-collection-management-update.request";
 import { OrganizationCreateRequest } from "../../models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../models/request/organization-keys.request";
+import { OrganizationScopedApiKeyCreateRequest } from "../../models/request/organization-scoped-api-key-create.request";
 import { OrganizationUpdateRequest } from "../../models/request/organization-update.request";
 import { OrganizationUpgradeRequest } from "../../models/request/organization-upgrade.request";
 import { OrganizationVerifyDeleteRecoverRequest } from "../../models/request/organization-verify-delete-recover.request";
 import { OrganizationApiKeyInformationResponse } from "../../models/response/organization-api-key-information.response";
 import { OrganizationAutoEnrollStatusResponse } from "../../models/response/organization-auto-enroll-status.response";
 import { OrganizationKeysResponse } from "../../models/response/organization-keys.response";
+import { OrganizationScopedApiKeyCreatedResponse } from "../../models/response/organization-scoped-api-key-created.response";
+import { OrganizationScopedApiKeyResponse } from "../../models/response/organization-scoped-api-key.response";
 import { OrganizationResponse } from "../../models/response/organization.response";
 import { ProfileOrganizationResponse } from "../../models/response/profile-organization.response";
 
@@ -276,6 +279,41 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       true,
     );
     return new ApiKeyResponse(r);
+  }
+
+  async getScopedApiKeys(id: string): Promise<ListResponse<OrganizationScopedApiKeyResponse>> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + id + "/scoped-api-keys",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationScopedApiKeyResponse);
+  }
+
+  async createScopedApiKey(
+    id: string,
+    request: OrganizationScopedApiKeyCreateRequest,
+  ): Promise<OrganizationScopedApiKeyCreatedResponse> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/" + id + "/scoped-api-keys",
+      request,
+      true,
+      true,
+    );
+    return new OrganizationScopedApiKeyCreatedResponse(r);
+  }
+
+  async revokeScopedApiKey(id: string, keyId: string): Promise<void> {
+    await this.apiService.send(
+      "DELETE",
+      "/organizations/" + id + "/scoped-api-keys/" + keyId,
+      null,
+      true,
+      false,
+    );
   }
 
   async getKeys(id: string): Promise<OrganizationKeysResponse> {

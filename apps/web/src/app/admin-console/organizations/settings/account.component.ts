@@ -47,6 +47,7 @@ import { SharedModule } from "../../../shared";
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
 
 import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./components";
+import { ScopedApiKeysComponent } from "./scoped-api-keys/scoped-api-keys.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -61,6 +62,7 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
     AccountFingerprintComponent,
     DangerZoneComponent,
     Vfo1I18nPipe,
+    ScopedApiKeysComponent,
   ],
 })
 export class AccountComponent implements OnInit, OnDestroy {
