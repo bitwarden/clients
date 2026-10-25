@@ -184,29 +184,7 @@ export class ImportService implements ImportServiceAbstraction {
     selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean = false,
   ): Promise<ImportResult> {
-    if (!importResult.success) {
-      if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
-        throw new Error(importResult.errorMessage);
-      }
-      throw new Error(this.i18nService.t("importFormatError"));
-    }
-
-    if (importResult.folders.length === 0 && importResult.ciphers.length === 0) {
-      throw new Error(this.i18nService.t("importNothingError"));
-    }
-
-    if (importResult.ciphers.length > 0) {
-      const halfway = Math.floor(importResult.ciphers.length / 2);
-      const last = importResult.ciphers.length - 1;
-
-      if (
-        this.badData(importResult.ciphers[0]) &&
-        this.badData(importResult.ciphers[halfway]) &&
-        this.badData(importResult.ciphers[last])
-      ) {
-        throw new Error(this.i18nService.t("importFormatError"));
-      }
-    }
+    this.validateImportResult(importResult);
 
     const restrictedItemTypes = await firstValueFrom(
       this.restrictedItemTypesService.restricted$.pipe(
@@ -240,6 +218,33 @@ export class ImportService implements ImportServiceAbstraction {
       throw this.handleServerError(errorResponse, importResult);
     }
     return importResult;
+  }
+
+  /** Rejects a parsed result that failed, is empty, or is unreadable junk. Throws; never imports. */
+  protected validateImportResult(importResult: ImportResult): void {
+    if (!importResult.success) {
+      if (!Utils.isNullOrWhitespace(importResult.errorMessage)) {
+        throw new Error(importResult.errorMessage);
+      }
+      throw new Error(this.i18nService.t("importFormatError"));
+    }
+
+    if (importResult.folders.length === 0 && importResult.ciphers.length === 0) {
+      throw new Error(this.i18nService.t("importNothingError"));
+    }
+
+    if (importResult.ciphers.length > 0) {
+      const halfway = Math.floor(importResult.ciphers.length / 2);
+      const last = importResult.ciphers.length - 1;
+
+      if (
+        this.badData(importResult.ciphers[0]) &&
+        this.badData(importResult.ciphers[halfway]) &&
+        this.badData(importResult.ciphers[last])
+      ) {
+        throw new Error(this.i18nService.t("importFormatError"));
+      }
+    }
   }
 
   getImporter(

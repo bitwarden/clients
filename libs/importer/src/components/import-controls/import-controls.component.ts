@@ -50,6 +50,7 @@ import { KeeperRegion } from "../../importers/keeper/access";
 import { Loader } from "../../metadata";
 import {
   CredentialKind,
+  ImportDestinations,
   ImportOption,
   ImportResult,
   ImportResultError,
@@ -59,18 +60,16 @@ import {
   UpgradeImportType,
 } from "../../models";
 import {
+  ImportDestinationServiceAbstraction,
   ImporterProfile,
+  ImportStagingServiceAbstraction,
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
   readImportFileContents,
+  StagedImport,
 } from "../../services";
 import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
-import {
-  FilePasswordPromptComponent,
-  ImportErrorDialogComponent,
-  ImportSkippedItemsDialogComponent,
-  ImportSuccessDialogComponent,
-} from "../dialog";
+import { FilePasswordPromptComponent, ImportErrorDialogComponent } from "../dialog";
 import { pickerIconFor } from "../import-source-select/import-source-picker-metadata";
 import {
   pickerAlwaysPromptsFormat,
@@ -99,6 +98,10 @@ import {
   expectedPasteShapeFor,
   vendorSupportsPasteShapeNarrowing,
 } from "./paste-content-shape";
+import { presentImportOutcome } from "./present-import-outcome";
+
+type DestinationsState =
+  { status: "pending" } | { status: "error" } | { status: "ready"; value: ImportDestinations };
 
 /** How import data is provided: vendor direct importer, Chromium importer, or file/paste. */
 type ImportStrategy = "direct" | "chromium" | "manual";
@@ -160,6 +163,8 @@ export class ImportControlsComponent {
   private readonly document = inject(DOCUMENT);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
   private readonly importMetadataService = inject(ImportUpgradeMetadataServiceAbstraction);
+  private readonly destinationService = inject(ImportDestinationServiceAbstraction);
+  private readonly stagingService = inject(ImportStagingServiceAbstraction);
   private readonly themingService = inject(AbstractThemingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly keeperUi = inject(KeeperInlineAuthUi);
@@ -168,7 +173,8 @@ export class ImportControlsComponent {
   /** The vendor chosen in step 1. */
   readonly importType = input.required<UpgradeImportType>();
 
-  /** Fires once the import succeeds, not on button click. */
+  /** Fires once the import succeeds, or once its items are staged for the user to choose their
+   *  location, not on button click. The host tells them apart by whether anything is staged. */
   readonly continue = output<void>();
 
   /** Fires when the user clicks Back. */
@@ -380,12 +386,38 @@ export class ImportControlsComponent {
     () => this.personalOwnershipPolicyApplies() === undefined,
   );
 
+  // Continue stays blocked until this resolves; "error" fails closed (see
+  // blockedByPersonalOwnershipPolicy).
+  private readonly destinations = toSignal(
+    this.destinationService.destinations$.pipe(
+      map((value): DestinationsState => ({ status: "ready", value })),
+      catchError((error: unknown) => {
+        // Name only: nothing else about this failure is worth logging.
+        this.logService.error(
+          "Error loading import destinations:",
+          error instanceof Error ? error.name : "unknown error",
+        );
+        return of<DestinationsState>({ status: "error" });
+      }),
+    ),
+    { initialValue: { status: "pending" } as DestinationsState },
+  );
+
+  protected readonly destinationsPending = computed(() => this.destinations().status === "pending");
+
+  /** The user has a location to choose, so the import happens there instead of here. */
+  private readonly hasDestinationStep = computed(() => {
+    const destinations = this.destinations();
+    return destinations.status === "ready" && destinations.value.hasStep;
+  });
+
   // Single source for submit()'s gate and the button's [disabled].
   protected readonly continueBlocked = computed(
     () =>
       this.capabilitiesPending() ||
       this.profilesPending() ||
       this.personalOwnershipPolicyPending() ||
+      this.destinationsPending() ||
       this.filePasswordCheckPending() ||
       this.keeperUi.waiting() ||
       this.lastPassUi.waiting(),
@@ -949,7 +981,12 @@ export class ImportControlsComponent {
     this.showKeyFile.set(true);
   }
 
+  // Read once per Continue: the gate and the staging-or-importing choice below must agree, and
+  // `destinations` can re-emit during the awaits in between.
+  private readonly stagesImport = signal(false);
+
   protected async onContinue(): Promise<void> {
+    this.stagesImport.set(this.hasDestinationStep());
     if (this.blockedByPersonalOwnershipPolicy()) {
       return;
     }
@@ -970,37 +1007,28 @@ export class ImportControlsComponent {
       return;
     }
 
-    // Before the dialog so Continue's spinner covers the wait. Failures are only logged.
-    try {
-      const synced = await this.syncService.fullSync(true);
-      if (!synced) {
-        // An ordinary failure resolves false rather than throwing.
-        this.logService.warning("Post-import sync did not complete");
-      }
-    } catch (error) {
-      this.logService.error("Post-import sync failed:", error);
-    }
-
-    if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
-      this.dialogService.open(ImportSkippedItemsDialogComponent, {
-        data: { errors: outcome.result.errors },
-      });
-    } else {
-      this.dialogService.open(ImportSuccessDialogComponent, {
-        data:
-          outcome.kind === "imported"
-            ? { importResult: outcome.result }
-            : { sdkSummary: outcome.sdkSummary },
+    // A staged outcome has nothing to report yet: the location screen imports and reports then.
+    if (outcome.kind !== "staged") {
+      await presentImportOutcome(outcome, {
+        syncService: this.syncService,
+        logService: this.logService,
+        dialogService: this.dialogService,
       });
     }
 
     this.continue.emit();
   }
 
-  // Pending and "error" both block, without blaming the org policy.
+  // Pending and "error" both block, without blaming the org policy. A failed destination lookup
+  // fails closed too: it is also how the policy's effect on the location choices is known.
   private blockedByPersonalOwnershipPolicy(): boolean {
     const policyApplies = this.personalOwnershipPolicyApplies();
-    if (policyApplies === false) {
+    const destinations = this.destinations();
+    if (policyApplies === false && destinations.status !== "error") {
+      return false;
+    }
+    // With an importable org the user can choose My items, so the policy blocks only without one.
+    if (policyApplies === true && this.stagesImport()) {
       return false;
     }
 
@@ -1008,10 +1036,30 @@ export class ImportControlsComponent {
       variant: "error",
       title: undefined,
       message: this.i18nService.t(
-        policyApplies === true ? "personalOwnershipPolicyInEffectImports" : "errorOccurred",
+        policyApplies === true && destinations.status === "ready"
+          ? "personalOwnershipPolicyInEffectImports"
+          : "errorOccurred",
       ),
     });
     return true;
+  }
+
+  private stage(staged: StagedImport): ImportOutcome {
+    this.stagingService.stage(staged);
+    return { kind: "staged" };
+  }
+
+  /** For a result parsed elsewhere (Keeper): stages it for the user to choose a location, or
+   *  imports it straight away when there is no location to choose. */
+  private async finishParsed(result: ImportResult): Promise<ImportOutcome> {
+    if (this.stagesImport()) {
+      this.importService.validateParsed(result);
+      return this.stage({ kind: "parsed", importType: this.importType(), result });
+    }
+    return {
+      kind: "imported",
+      result: await this.importService.importImportResult(result, undefined, undefined, false),
+    };
   }
 
   private async runImport(): Promise<ImportOutcome> {
@@ -1019,7 +1067,11 @@ export class ImportControlsComponent {
       if (this.isKeeper()) {
         return this.injector
           .get(KeeperDirectImportRunner)
-          .run(this.formGroup.controls.keeperEmail, this.formGroup.controls.keeperRegion);
+          .run(
+            this.formGroup.controls.keeperEmail,
+            this.formGroup.controls.keeperRegion,
+            (result) => this.finishParsed(result),
+          );
       }
       if (this.isLastPass()) {
         return this.injector
@@ -1053,10 +1105,7 @@ export class ImportControlsComponent {
       throw new Error(this.i18nService.t(csvResult.errorKey));
     }
 
-    return {
-      kind: "imported",
-      result: await this.runGenericImport(this.importType(), csvResult.csv),
-    };
+    return this.runGenericImport(this.importType(), csvResult.csv);
   }
 
   private unresolvedImportMessageKey(): string {
@@ -1101,7 +1150,7 @@ export class ImportControlsComponent {
     }
 
     try {
-      return { kind: "imported", result: await this.runGenericImport(format, contents) };
+      return await this.runGenericImport(format, contents);
     } catch (error) {
       // Set only by UpgradeBitwardenEncryptedJsonImporter; shown as a toast, not the error dialog.
       if (
@@ -1126,8 +1175,7 @@ export class ImportControlsComponent {
     password: string,
   ): Promise<ImportOutcome> {
     try {
-      const result = await this.runGenericImport(format, contents, () => Promise.resolve(password));
-      return { kind: "imported", result };
+      return await this.runGenericImport(format, contents, () => Promise.resolve(password));
     } catch (error) {
       if (
         error instanceof ImportResultError &&
@@ -1183,6 +1231,12 @@ export class ImportControlsComponent {
     if (credentials == null) {
       // Credentials dialog dismissed.
       return { kind: "cancelled" };
+    }
+
+    // The SDK parses and writes in one call, so it runs on the location screen with what was
+    // collected here.
+    if (this.stagesImport()) {
+      return this.stage({ kind: "sdk", format, file: fileBytes, credentials });
     }
 
     try {
@@ -1247,13 +1301,47 @@ export class ImportControlsComponent {
     format: UpgradeImportType,
     contents: string,
     promptForPassword_callback: () => Promise<string> = () => this.promptForPassword(),
-  ): Promise<ImportResult> {
-    const importer = this.importService.getImporter(format, promptForPassword_callback, undefined);
+  ): Promise<ImportOutcome> {
+    // Kept for the location screen, which parses again and must not ask for it twice.
+    let filePassword: string | null = null;
+    const importer = this.importService.getImporter(
+      format,
+      async () => (filePassword = await promptForPassword_callback()),
+      undefined,
+    );
     if (importer == null) {
       throw new Error(this.i18nService.t("selectFormat"));
     }
 
-    return this.importService.import(importer, contents, undefined, undefined, false);
+    if (this.stagesImport()) {
+      let result: ImportResult | undefined;
+      try {
+        result = await this.importService.parse(importer, contents);
+      } catch (error) {
+        // An organization's encrypted export needs that organization's key, which the location
+        // screen has once one is chosen.
+        if (!(
+          error instanceof ImportResultError &&
+          error.errorKey === ImportResultErrorKey.AccountMismatch
+        )) {
+          throw error;
+        }
+      }
+      return this.stage({
+        kind: "file",
+        importType: this.importType(),
+        format,
+        contents,
+        filePassword,
+        itemCount:
+          result == null ? undefined : await this.destinationService.importableCount(result),
+      });
+    }
+
+    return {
+      kind: "imported",
+      result: await this.importService.import(importer, contents, undefined, undefined, false),
+    };
   }
 
   protected readonly submit = async (): Promise<void> => {

@@ -20,6 +20,7 @@ import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 
 import { UpgradeBitwardenPasswordProtectedImporter } from "../importers/bitwarden-upgrade/upgrade-bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
+import { KeeperDirectImporter } from "../importers/keeper/keeper-direct-importer";
 import { ImportOption, ImportType, importOptionsById } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
 import { importUpgradeOptionsById, UpgradeImportType } from "../models/import-upgrade-options";
@@ -119,18 +120,48 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     return importer;
   }
 
-  override async importImportResult(
-    importResult: ImportResult,
-    organizationId: OrganizationId = null,
-    selectedImportTarget: FolderView | CollectionView = null,
-    canAccessImportExport: boolean = false,
-  ): Promise<ImportResult> {
+  /** Parses and checks `fileContents` exactly as `import` does, without importing. Credential
+   *  parsing stages the result for location selection, which imports it. */
+  async parse(importer: Importer, fileContents: string): Promise<ImportResult> {
+    let importResult: ImportResult;
+    try {
+      importResult = await importer.parse(fileContents);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error(this.bitwardenImporterDeps.i18nService.t("importFormatError"));
+      }
+      throw error;
+    }
+    this.validateParsed(importResult);
+    return importResult;
+  }
+
+  toOrganizationShape(importResult: ImportResult, organizationId: string): void {
+    new KeeperDirectImporter().moveToOrganization(importResult, organizationId as OrganizationId);
+  }
+
+  /** The checks `importImportResult` runs before it imports, for a result parsed elsewhere. */
+  validateParsed(importResult: ImportResult): void {
+    this.throwIfFailed(importResult);
+    this.validateImportResult(importResult);
+  }
+
+  private throwIfFailed(importResult: ImportResult): void {
     if (!importResult.success && !Utils.isNullOrWhitespace(importResult.errorMessage)) {
       throw new ImportResultError(
         importResult.errorMessage,
         importResult instanceof ImportUpgradeResult ? importResult.errorKey : undefined,
       );
     }
+  }
+
+  override async importImportResult(
+    importResult: ImportResult,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<ImportResult> {
+    this.throwIfFailed(importResult);
     return super.importImportResult(
       importResult,
       organizationId,

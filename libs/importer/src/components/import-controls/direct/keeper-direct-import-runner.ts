@@ -8,7 +8,6 @@ import { DialogService } from "@bitwarden/components";
 
 import { KeeperRegion } from "../../../importers/keeper/access";
 import { ImportRecordError, ImportResult } from "../../../models";
-import { ImportUpgradeServiceAbstraction } from "../../../services";
 import { keeperImportGate, shouldSubmitAfterDialog } from "../../keeper/keeper-import-gate";
 import { keeperValidationErrorI18nKey } from "../../keeper/keeper-validation-error";
 import {
@@ -24,14 +23,16 @@ import { KeeperInlineAuthUi } from "./keeper/keeper-inline-auth-ui";
 export class KeeperDirectImportRunner {
   private readonly keeperDirectImportService = inject(KeeperDirectImportUpgradeService);
   private readonly keeperUi = inject(KeeperInlineAuthUi);
-  private readonly importService = inject(ImportUpgradeServiceAbstraction);
   private readonly dialogService = inject(DialogService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
 
+  /** `finish` takes the fetched vault from here: it imports it, or stages it for the user to
+   *  choose a location. */
   async run(
     email: FormControl<string | null>,
     region: FormControl<KeeperRegion>,
+    finish: (result: ImportResult) => Promise<ImportOutcome>,
   ): Promise<ImportOutcome> {
     // Captured now: a later login replaces the current session, and this one must not read it.
     const session = this.keeperUi.session;
@@ -78,9 +79,6 @@ export class KeeperDirectImportRunner {
       }
     }
 
-    return {
-      kind: "imported",
-      result: await this.importService.importImportResult(result, undefined, undefined, false),
-    };
+    return finish(result);
   }
 }

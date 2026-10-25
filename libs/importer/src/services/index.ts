@@ -22,4 +22,15 @@ export {
   ImporterProfile,
 } from "./import-upgrade-metadata.service.abstraction";
 export { DefaultImportUpgradeMetadataService } from "./default-import-upgrade-metadata.service";
+export {
+  ImportDestinationCollections,
+  ImportDestinationServiceAbstraction,
+} from "./import-destination.service.abstraction";
+export { DefaultImportDestinationService } from "./default-import-destination.service";
+export {
+  ImportStagingServiceAbstraction,
+  StagedImport,
+} from "./import-staging.service.abstraction";
+export { DefaultImportStagingService } from "./default-import-staging.service";
+export { cloneImportResult } from "./clone-import-result";
 export { readImportFileContents } from "./read-import-file-contents";

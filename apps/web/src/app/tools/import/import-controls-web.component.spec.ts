@@ -5,7 +5,12 @@ import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ImportType } from "@bitwarden/importer-core";
+import {
+  DefaultImportStagingService,
+  ImportResult,
+  ImportStagingServiceAbstraction,
+  ImportType,
+} from "@bitwarden/importer-core";
 
 import { ImportControlsWebComponent } from "./import-controls-web.component";
 
@@ -23,15 +28,18 @@ class ImporterControlsStubComponent {
 describe("ImportControlsWebComponent", () => {
   let fixture: ComponentFixture<ImportControlsWebComponent>;
   let router: MockProxy<Router>;
+  let stagingService: DefaultImportStagingService;
 
   const setup = async (importTypeParam: string) => {
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
+    stagingService = new DefaultImportStagingService();
 
     await TestBed.configureTestingModule({
       imports: [ImportControlsWebComponent],
       providers: [
         { provide: Router, useValue: router },
+        { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -72,7 +80,7 @@ describe("ImportControlsWebComponent", () => {
     });
   });
 
-  it("navigates to the vault when the controls component emits continue", async () => {
+  it("navigates to the vault when the controls component emits continue with nothing staged", async () => {
     await setup("keeper");
 
     fixture.debugElement
@@ -80,5 +88,17 @@ describe("ImportControlsWebComponent", () => {
       .triggerEventHandler("continue", undefined);
 
     expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
+  });
+
+  it("navigates to location selection when continue is emitted with items staged", async () => {
+    await setup("keeper");
+    stagingService.stage({ kind: "parsed", importType: "keeper", result: new ImportResult() });
+
+    fixture.debugElement
+      .query(By.css("importer-controls"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith(["/tools/import", "keeper", "destination"]);
+    expect(router.navigate).not.toHaveBeenCalledWith(["/vault"]);
   });
 });

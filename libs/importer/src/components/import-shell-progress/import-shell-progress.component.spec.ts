@@ -18,20 +18,50 @@ import {
 } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject, throwError } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ProgressBarComponent, ScrollLayoutService, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { ImportDestinationKind, ImportDestinations } from "../../models";
+import { ImportDestinationServiceAbstraction } from "../../services";
+import { IMPORT_DESTINATION_ROUTE_PATH } from "../import-destination/import-destination-route";
+
 import { ImportShellProgressComponent } from "./import-shell-progress.component";
+
+const noStep: ImportDestinations = { options: [], hasStep: false };
+const withStep: ImportDestinations = {
+  options: [
+    { id: "myVault", kind: ImportDestinationKind.MyVault, sharedFolders: [], restrictions: [] },
+  ],
+  hasStep: true,
+};
+const withMyItems: ImportDestinations = {
+  options: [
+    { id: "myItems:a", kind: ImportDestinationKind.MyItems, sharedFolders: [], restrictions: [] },
+  ],
+  hasStep: true,
+};
 
 describe("ImportShellProgressComponent", () => {
   let fixture: ComponentFixture<ImportShellProgressComponent>;
   let routerEvents: Subject<unknown>;
   let hasImportTypeParam: boolean;
+  let onDestinationRoute: boolean;
+  let destinations$: BehaviorSubject<ImportDestinations>;
+  let destinationService: MockProxy<ImportDestinationServiceAbstraction>;
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
   let scrollElement: HTMLElement;
+
+  beforeEach(() => {
+    onDestinationRoute = false;
+    destinations$ = new BehaviorSubject<ImportDestinations>(noStep);
+    // Assigned after mock(): a property passed to mock() is wrapped and its subscribe goes silent.
+    destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+      destinations$: destinations$.asObservable(),
+    });
+  });
 
   const setup = async () => {
     routerEvents = new Subject();
@@ -48,7 +78,12 @@ describe("ImportShellProgressComponent", () => {
     const route = {
       snapshot: {
         get firstChild() {
-          return { paramMap: { has: (key: string) => key === "importType" && hasImportTypeParam } };
+          return {
+            paramMap: { has: (key: string) => key === "importType" && hasImportTypeParam },
+            routeConfig: {
+              path: onDestinationRoute ? IMPORT_DESTINATION_ROUTE_PATH : ":importType",
+            },
+          };
         },
       },
     } as unknown as ActivatedRoute;
@@ -66,6 +101,7 @@ describe("ImportShellProgressComponent", () => {
       providers: [
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route },
+        { provide: ImportDestinationServiceAbstraction, useValue: destinationService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: ScrollLayoutService, useValue: scrollLayout },
@@ -212,6 +248,68 @@ describe("ImportShellProgressComponent", () => {
 
     expect(component()["currentStep"]()).toBe(1);
   });
+
+  describe("with location selection", () => {
+    beforeEach(() => destinations$.next(withStep));
+
+    it("counts three steps on the source picker and credential parsing", async () => {
+      hasImportTypeParam = false;
+      await setup();
+
+      expect(component()["totalSteps"]()).toBe(3);
+      expect(component()["progressValue"]()).toBeCloseTo((1 / 3) * 100);
+      expect(component()["stepText"]()).toBe("importSourceStepCount");
+    });
+
+    it("reports the location page (3 of 3) on the destination route with the vault label", async () => {
+      hasImportTypeParam = true;
+      onDestinationRoute = true;
+      await setup();
+
+      expect(component()["currentStep"]()).toBe(3);
+      expect(component()["totalSteps"]()).toBe(3);
+      expect(component()["progressValue"]()).toBeCloseTo(100);
+      expect(component()["headingKey"]()).toBe("selectVault");
+    });
+
+    it("uses the location label when a My items card is offered", async () => {
+      destinations$.next(withMyItems);
+      hasImportTypeParam = true;
+      onDestinationRoute = true;
+      await setup();
+
+      expect(component()["headingKey"]()).toBe("selectLocation");
+    });
+
+    it("still reports credential parsing (2 of 3) on the :importType route", async () => {
+      hasImportTypeParam = true;
+      await setup();
+
+      expect(component()["currentStep"]()).toBe(2);
+      expect(component()["headingKey"]()).toBe("importData");
+    });
+  });
+
+  it("hides the step count until the destination lookup resolves", async () => {
+    (destinationService as { destinations$: unknown }).destinations$ = new Subject().asObservable();
+    hasImportTypeParam = false;
+    await setup();
+
+    expect(component()["stepText"]()).toBe("");
+    expect(component()["progressValue"]()).toBe(0);
+    expect(liveAnnouncer.announce).toHaveBeenCalledWith("importSourceBreadcrumb", "polite");
+  });
+
+  it("keeps two steps when the destination lookup fails", async () => {
+    (destinationService as { destinations$: unknown }).destinations$ = throwError(
+      () => new Error("lookup failed"),
+    );
+    hasImportTypeParam = false;
+    await setup();
+
+    expect(component()["totalSteps"]()).toBe(2);
+    expect(component()["stepText"]()).toBe("importSourceStepCount");
+  });
 });
 
 // A real two-child route config, not a hand-rolled ActivatedRoute stub — pins the DI contract the
@@ -240,6 +338,13 @@ describe("ImportShellProgressComponent (real routing)", () => {
   })
   class TestStepTwoComponent {}
 
+  @Component({
+    selector: "test-location",
+    template: "",
+    changeDetection: ChangeDetectionStrategy.OnPush,
+  })
+  class TestLocationComponent {}
+
   async function setup(url: string) {
     TestBed.configureTestingModule({
       providers: [
@@ -250,10 +355,17 @@ describe("ImportShellProgressComponent (real routing)", () => {
             children: [
               { path: "", pathMatch: "full", component: TestStepOneComponent },
               { path: ":importType", component: TestStepTwoComponent },
+              { path: IMPORT_DESTINATION_ROUTE_PATH, component: TestLocationComponent },
             ],
           },
         ]),
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
+        {
+          provide: ImportDestinationServiceAbstraction,
+          useValue: Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+            destinations$: new BehaviorSubject<ImportDestinations>(withStep).asObservable(),
+          }),
+        },
       ],
     });
 
@@ -277,5 +389,13 @@ describe("ImportShellProgressComponent (real routing)", () => {
 
     expect(progress["currentStep"]()).toBe(2);
     expect(progress["headingKey"]()).toBe("importData");
+  });
+
+  it("reports the location page once routed to the destination child, not credential parsing", async () => {
+    const progress = await setup("/import/keeper/destination");
+
+    expect(progress["currentStep"]()).toBe(3);
+    expect(progress["totalSteps"]()).toBe(3);
+    expect(progress["headingKey"]()).toBe("selectVault");
   });
 });

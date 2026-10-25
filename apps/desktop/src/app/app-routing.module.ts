@@ -45,7 +45,7 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
@@ -581,6 +581,15 @@ export const routes: Routes = [
             loadComponent: () =>
               import("./tools/import/import-controls-desktop.component").then(
                 (mod) => mod.ImportControlsDesktopComponent,
+              ),
+            data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+          },
+          {
+            path: IMPORT_DESTINATION_ROUTE_PATH,
+            canActivate: [canActivateImportType("/import")],
+            loadComponent: () =>
+              import("./tools/import/import-destination-desktop.component").then(
+                (mod) => mod.ImportDestinationDesktopComponent,
               ),
             data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
           },

@@ -2,8 +2,12 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ImportUpgradeMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
+  ImportStagingServiceAbstraction,
+  ImportUpgradeMetadataServiceAbstraction,
+} from "@bitwarden/importer-core";
+import {
+  IMPORT_DESTINATION_SEGMENT,
   ImportControlsComponent,
   ImportUpgradeProviders,
   importTypeFromRoute,
@@ -29,6 +33,7 @@ import { DesktopImportUpgradeMetadataService } from "./desktop-import-upgrade-me
 export class ImportControlsDesktopComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly stagingService = inject(ImportStagingServiceAbstraction);
 
   protected readonly importType = importTypeFromRoute(this.route);
 
@@ -37,6 +42,11 @@ export class ImportControlsDesktopComponent {
   }
 
   protected onContinue(): void {
+    // Staged items mean the user still has to pick where they go.
+    if (this.stagingService.current() != null) {
+      void this.router.navigate(["/import", this.importType(), IMPORT_DESTINATION_SEGMENT]);
+      return;
+    }
     void this.router.navigate(["/vault"]);
   }
 }

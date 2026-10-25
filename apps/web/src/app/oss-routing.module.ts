@@ -55,7 +55,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { canActivateImportType } from "@bitwarden/importer-ui";
+import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
@@ -844,6 +844,17 @@ const routes: Routes = [
                 loadComponent: () =>
                   import("./tools/import/import-controls-web.component").then(
                     (mod) => mod.ImportControlsWebComponent,
+                  ),
+                data: {
+                  titleId: "importNoun",
+                } satisfies RouteDataProperties,
+              },
+              {
+                path: IMPORT_DESTINATION_ROUTE_PATH,
+                canActivate: [canActivateImportType("/tools/import")],
+                loadComponent: () =>
+                  import("./tools/import/import-destination-web.component").then(
+                    (mod) => mod.ImportDestinationWebComponent,
                   ),
                 data: {
                   titleId: "importNoun",

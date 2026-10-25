@@ -31,7 +31,10 @@ import {
 import { Loader } from "../../metadata";
 import { ImportOption, ImportResult } from "../../models";
 import {
+  DefaultImportStagingService,
   ImporterUpgradeCapabilities,
+  ImportDestinationServiceAbstraction,
+  ImportStagingServiceAbstraction,
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
@@ -118,6 +121,13 @@ describe("ImportControlsComponent: Keeper login in the card", () => {
   const providers = () => [
     { provide: ImportUpgradeServiceAbstraction, useValue: importService },
     { provide: ImportUpgradeMetadataServiceAbstraction, useValue: importMetadataService },
+    {
+      provide: ImportDestinationServiceAbstraction,
+      useValue: Object.assign(mock<ImportDestinationServiceAbstraction>(), {
+        destinations$: of({ options: [], hasStep: false }),
+      }),
+    },
+    { provide: ImportStagingServiceAbstraction, useValue: new DefaultImportStagingService() },
     { provide: PlatformUtilsService, useValue: platformUtilsService },
     { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
     { provide: LogService, useValue: mock<LogService>() },

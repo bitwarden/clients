@@ -4,6 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import { vaultFilterRestoreGuard, VAULT_FILTER_SCOPE } from "@bitwarden/vault";
 
 import { routes } from "./app-routing.module";
@@ -75,5 +76,15 @@ describe("desktop import route", () => {
       TestBed.runInInjectionContext(() => canMatch(route, segments)) as any,
     );
     expect(whenOn).toBe(true);
+  });
+
+  it("keeps the location selection route inside the flag-gated subtree", () => {
+    const [importRoute] = findRoute(routes, "import");
+
+    expect((importRoute.children ?? []).map((child) => child.path)).toEqual([
+      "",
+      ":importType",
+      IMPORT_DESTINATION_ROUTE_PATH,
+    ]);
   });
 });

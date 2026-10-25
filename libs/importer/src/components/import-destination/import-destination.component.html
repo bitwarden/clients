@@ -1,0 +1,107 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-card-segmented>
+    <bit-card-content>
+      @if (pending()) {
+        <div class="tw-flex tw-justify-center tw-py-8">
+          <bit-spinner size="lg" />
+        </div>
+      } @else if (failed()) {
+        <bit-callout type="danger">{{ "errorOccurred" | i18n }}</bit-callout>
+      } @else {
+        <h2 bitTypography="h2" noMargin class="tw-mb-0">{{ titleKey() | i18n }}</h2>
+        <p bitTypography="body1" class="tw-text-fg-body tw-mt-1 tw-mb-4">
+          {{ "importDestinationDescription" | i18n }}
+        </p>
+
+        @for (callout of restrictionCallouts(); track callout.key) {
+          <bit-callout type="subtle">
+            {{ callout.text }}
+            <a
+              bitLink
+              linkType="subtle"
+              endIcon="bwi-external-link"
+              [href]="policyHelpUrl"
+              target="_blank"
+              rel="noreferrer"
+              >{{ "learnMore" | i18n }}</a
+            >
+          </bit-callout>
+        }
+
+        <!-- Two columns with a 16px gap, as designed. The group is only the radios' DI parent: its
+             own grid mode would auto-fit four narrow columns. -->
+        <bit-form-control-group [formControl]="destinationControl">
+          <bit-label class="tw-sr-only">{{ titleKey() | i18n }}</bit-label>
+          <div class="tw-grid tw-w-full tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+            @for (card of cards(); track card.id) {
+              <bit-form-control-card>
+                <bit-icon-tile slot="start" [icon]="card.icon" />
+                <input type="radio" bitRadio [value]="card.id" />
+                <bit-label>{{ card.label }}</bit-label>
+                <bit-hint>{{ card.hint }}</bit-hint>
+              </bit-form-control-card>
+            }
+          </div>
+        </bit-form-control-group>
+
+        @if (showMoveToSharedFolder()) {
+          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+            <div>
+              <bit-form-control>
+                <input
+                  bitCheckbox
+                  type="checkbox"
+                  [formControl]="moveToSharedFolderControl"
+                  id="import-destination_input_move-to-shared-folder"
+                />
+                <bit-label>{{ moveToSharedFolderLabel() }}</bit-label>
+              </bit-form-control>
+
+              @if (showSharedFolder()) {
+                <bit-form-field>
+                  <bit-label>{{ "sharedFolder" | i18n }}</bit-label>
+                  <bit-select
+                    [formControl]="sharedFolderControl"
+                    id="import-destination_select_shared-folder"
+                  >
+                    @for (folder of selectedOption()?.sharedFolders; track folder.id) {
+                      <bit-option [value]="folder" [label]="folder.name" />
+                    }
+                  </bit-select>
+                  <bit-hint>{{ "importSharedFolderHint" | i18n }}</bit-hint>
+                </bit-form-field>
+              }
+            </div>
+          </div>
+        }
+      }
+    </bit-card-content>
+
+    <bit-card-content>
+      <div class="tw-flex tw-justify-end tw-gap-3">
+        <!-- cancel mousedown so that back navigates as expected instead of surfacing form field error -->
+        <button
+          type="button"
+          bitButton
+          bitFormButton
+          buttonType="secondary"
+          (mousedown)="$event.preventDefault()"
+          (click)="onBack()"
+          id="import-destination_button_back"
+        >
+          {{ "back" | i18n }}
+        </button>
+        <button
+          type="submit"
+          bitButton
+          bitFormButton
+          buttonType="primary"
+          [disabled]="importDisabled()"
+          id="import-destination_button_import"
+        >
+          {{ importLabel() }}
+        </button>
+      </div>
+    </bit-card-content>
+  </bit-card-segmented>
+</form>
