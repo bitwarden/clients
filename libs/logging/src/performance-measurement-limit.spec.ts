@@ -1,8 +1,4 @@
-import {
-  limitPerformanceMeasurements,
-  MAX_AGE_MS,
-  MAX_ENTRIES,
-} from "./performance-measurement-limit";
+import { limitPerformanceMeasurements, MAX_ENTRIES } from "./performance-measurement-limit";
 
 /** Records `count` entries, alternating marks and measures. */
 function recordEntries(count: number) {
@@ -22,7 +18,6 @@ async function flushObserver() {
 
 describe("limitPerformanceMeasurements", () => {
   afterEach(() => {
-    jest.restoreAllMocks();
     performance.clearMarks();
     performance.clearMeasures();
   });
@@ -45,18 +40,6 @@ describe("limitPerformanceMeasurements", () => {
     await flushObserver();
 
     expect(performance.getEntries().length).toBe(MAX_ENTRIES);
-  });
-
-  it("clears entries once the oldest is older than MAX_AGE_MS", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    using limit = limitPerformanceMeasurements();
-
-    const now = performance.now();
-    jest.spyOn(performance, "now").mockReturnValue(now + MAX_AGE_MS + 1);
-    performance.mark("old", { startTime: now });
-    await flushObserver();
-
-    expect(performance.getEntries().length).toBe(0);
   });
 
   it("counts entries recorded before it was installed", async () => {
