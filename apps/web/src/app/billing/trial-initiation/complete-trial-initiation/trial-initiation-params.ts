@@ -40,7 +40,8 @@ export interface TrialInitiationParams {
  * Parses a trial link's query parameters into a {@link TrialInitiationParams} model.
  *
  * `product` is a comma-separated list of ints (e.g. `"0,2"` for Password Manager + Privileged
- * Controls); unrecognized values are dropped. Interpreting the set — which product is primary
+ * Controls); unrecognized values are dropped. The set is split into a primary `product` (the first
+ * base product listed) and the `privilegedControlsRequested` add-on flag.
  */
 export function parseTrialInitiationParams(queryParams: Params): TrialInitiationParams {
   const products = String(queryParams.product ?? "")
