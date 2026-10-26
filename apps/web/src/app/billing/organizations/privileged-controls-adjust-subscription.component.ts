@@ -123,7 +123,7 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
     await this.organizationBillingClient.updatePrivilegedControlsSubscription(
       this.organizationId(),
       {
-        seats: seatCount,
+        seatAdjustment: seatCount - this.options().seatCount,
         maxAutoscaleSeats: limitSeats ? maxAutoscaleSeats : null,
       },
     );

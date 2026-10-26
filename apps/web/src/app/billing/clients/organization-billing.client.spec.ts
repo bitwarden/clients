@@ -160,18 +160,18 @@ describe("OrganizationBillingClient", () => {
   });
 
   describe("updatePrivilegedControlsSubscription", () => {
-    it("sends the absolute totals to the correct route", async () => {
+    it("sends the seat adjustment and limit to the correct route", async () => {
       mockApiService.send.mockResolvedValue(undefined);
 
       const result = await sut.updatePrivilegedControlsSubscription(orgId, {
-        seats: 12,
+        seatAdjustment: 2,
         maxAutoscaleSeats: null,
       });
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "PUT",
         "/organizations/org-123/billing/subscription/privileged-controls",
-        { seats: 12, maxAutoscaleSeats: null },
+        { seatAdjustment: 2, maxAutoscaleSeats: null },
         true,
         false,
       );
@@ -186,7 +186,10 @@ describe("OrganizationBillingClient", () => {
       mockApiService.send.mockRejectedValue(serverError);
 
       await expect(
-        sut.updatePrivilegedControlsSubscription(orgId, { seats: 9, maxAutoscaleSeats: null }),
+        sut.updatePrivilegedControlsSubscription(orgId, {
+          seatAdjustment: -1,
+          maxAutoscaleSeats: null,
+        }),
       ).rejects.toBe(serverError);
     });
   });

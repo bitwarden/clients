@@ -8,7 +8,7 @@ import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/o
 type ChurnMitigationOfferDuration = "once" | "repeating";
 
 export type UpdatePrivilegedControlsSubscriptionRequest = {
-  seats: number;
+  seatAdjustment: number;
   maxAutoscaleSeats: number | null;
 };
 

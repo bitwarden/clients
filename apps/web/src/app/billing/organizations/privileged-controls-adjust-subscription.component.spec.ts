@@ -304,7 +304,7 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
   });
 
   describe("submit", () => {
-    it("submits the absolute seat total with the seat limit", async () => {
+    it("submits the seat change relative to the current seat count with the seat limit", async () => {
       await render();
       setValue({ seatCount: 12, limitSeats: true, maxAutoscaleSeats: 20 });
 
@@ -312,7 +312,31 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
 
       expect(organizationBillingClient.updatePrivilegedControlsSubscription).toHaveBeenCalledWith(
         organizationId,
-        { seats: 12, maxAutoscaleSeats: 20 },
+        { seatAdjustment: -3, maxAutoscaleSeats: 20 },
+      );
+    });
+
+    it("submits a positive adjustment when seats are added", async () => {
+      await render();
+      setValue({ seatCount: 20 });
+
+      await submitForm();
+
+      expect(organizationBillingClient.updatePrivilegedControlsSubscription).toHaveBeenCalledWith(
+        organizationId,
+        { seatAdjustment: 5, maxAutoscaleSeats: null },
+      );
+    });
+
+    it("submits a zero adjustment when only the seat limit changes", async () => {
+      await render(buildOptions({ maxAutoscaleSeats: 25 }));
+      setValue({ maxAutoscaleSeats: 30 });
+
+      await submitForm();
+
+      expect(organizationBillingClient.updatePrivilegedControlsSubscription).toHaveBeenCalledWith(
+        organizationId,
+        { seatAdjustment: 0, maxAutoscaleSeats: 30 },
       );
     });
 
@@ -324,7 +348,7 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
 
       expect(organizationBillingClient.updatePrivilegedControlsSubscription).toHaveBeenCalledWith(
         organizationId,
-        { seats: 12, maxAutoscaleSeats: null },
+        { seatAdjustment: -3, maxAutoscaleSeats: null },
       );
     });
 
