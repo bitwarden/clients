@@ -4686,7 +4686,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
+    "message": "您需要在某个受信任的设备上登录，或请求管理员为您分配一个密码。"
   },
   "ssoIdentifierRequired": {
     "message": "必须填写组织 SSO 标识符。"
@@ -5094,7 +5094,7 @@
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "此文件使用了不受支持的加密设置，无法导入。"
   },
   "importNothingError": {
     "message": "没有导入任何内容。"
@@ -5394,6 +5394,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "可接受的格式：$FORMATS$",
@@ -5778,8 +5802,92 @@
   "lastPassEmail": {
     "message": "LastPass Email"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "正在导入您的账户..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "需要 LastPass 多重身份验证"
@@ -5821,7 +5929,7 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "$COUNT$ 个 1Password 项目或密码库无法导入",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5830,52 +5938,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "发生错误。请检查您的凭据，然后重试。"
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "仅支持使用密码登录。"
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "仅支持使用密码登录。请重试或使用其他导入方式。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "发生错误。请重试或使用其他导入方式。"
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "必须填写电子邮箱。"
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "请输入有效的电子邮箱地址。"
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "必须填写登录地址。"
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "请输入有效的登录地址。"
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "必须填写安全密钥。"
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "请输入有效的安全密钥。"
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "必须填写密码。"
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "请输入有效的验证码。"
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "登录地址"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password 电子邮箱"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "输入您用于登录 1Password 的电子邮箱"
   },
   "secretKey": {
     "message": "安全密钥"
@@ -8465,6 +8573,37 @@
   "exploreTheNewVault": {
     "message": "探索新的密码库",
     "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "在密码库间切换"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "借助全新的密码库切换器，您可以快速查看您的私人密码库，或与他人共享的密码库。"
+  },
+  "coachmarkFiltersTitle": {
+    "message": "组合使用筛选"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "可同时选择多个筛选，精准锁定您所需的结果。即使您跳转至其他页面，筛选依然有效。"
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "集合和文件夹拥有新的名称"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "功能保持不变，名称更加直观。「集合」现更名为「共享文件夹」，「文件夹」则更名为「我的文件夹」。"
   },
   "customize": {
     "message": "自定义"

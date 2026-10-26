@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "Е-поща от LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Да се включат и споделените папки"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Данни за вписване, карти, самоличности, защитени бележки и еднократни временни пароли, като структурата на папките ще бъде запазена."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Приемани формати: $FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Управление на възстановяването на акаунти"
   },
+  "manageAccessRules": {
+    "message": "Управление на правилата за достъп"
+  },
+  "manageRotation": {
+    "message": "Управление на подновяването"
+  },
   "disableRequiredError": {
     "message": "За да изключите тази политика, първо трябва ръчно да изключите $POLICYNAME$.",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
   },
+  "pinned": {
+    "message": "Закачено",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Закачане към страничната лента",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Откачане от страничната лента",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "Закачено към страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "Откачено от страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Намерете споделена папка в този трезор и изберете",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "от менюто.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Закачайте споделени папки към страничната лента, за да ги филтрирате тук."
+  },
   "noMembersAdded": {
     "message": "Няма добавени членове"
   },
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Цена на плана за Управлението на тайни"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Цена на плана с Разширено управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Управител на пароли"
@@ -17546,6 +17650,63 @@
   "importingYourAccount": {
     "message": "Внасяне на данните Ви…"
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
   "passcode": {
     "message": "Код за достъп"
   },
@@ -17802,6 +17963,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Заявки за достъп"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ мин",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 час"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ часа",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "започва сега"
+  },
+  "pamInboxStartToday": {
+    "message": "днес"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "утре"
+  },
+  "pamInboxStartInDays": {
+    "message": "след $DAYS$ дни",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Периодът на достъп не може да започне."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Одобреният период на достъп все още не е започнал."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Одобреният период на достъп вече е приключил."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Тази заявка все още не е одобрена."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Тази заявка вече не може да бъде активирана."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Достъпът от тази заявка вече е бил използван и тя вече не е активна."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Само 1 потребител може да има активен достъп до този елемент в даден момент. Опитайте отново след като текущият потребител се е оттеглил."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен от текущата Ви мрежа."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен в този момент."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Достъпът до този елемент не е разрешен точно сега."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Изисква се лиценз за Разширено управление. Помолете администратора си да активира лиценза Ви.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Вече имате активен достъп до този елемент."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Вече имате одобрена заявка за този елемент."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Вече имате чакаща заявка за този елемент."
+  },
+  "pamInboxElapsedDays": {
+    "message": "Преди $DAYS$ д",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "Преди $HOURS$ ч",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Току-що"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "Преди $MINUTES$ мин",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Правила за достъп"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Пропорционално таксуване за Управителя на тайни"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Пропорционално таксуване за Разширеното управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Пропорционално таксуване за сервизни акаунти"
