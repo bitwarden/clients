@@ -302,8 +302,19 @@ export class ManagedCredentialsTabComponent {
   protected readonly openEdit = (row: RotationConfigRow): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", row.id], { relativeTo: this.route });
 
-  protected readonly rotateNow = (row: RotationConfigRow): Promise<void> =>
+  /** Rotating changes the live credential on the target system and can't be undone, so it confirms first. */
+  protected readonly confirmRotateNow = (row: RotationConfigRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamRotationConfigRotateNow" },
+        content: { key: "pamRotationConfigRotateNowConfirmContent" },
+        acceptButtonText: { key: "pamRotationConfigRotateNow" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
+        return;
+      }
       try {
         await this.configsService.rotateNow(row.config);
         this.toastService.showToast({
