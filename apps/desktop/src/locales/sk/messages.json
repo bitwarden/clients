@@ -5603,7 +5603,7 @@
     "message": "Prístupový kľúč bol odstránený"
   },
   "errorAssigningTargetCollection": {
-    "message": "Chyba pri priraďovaní cieľovej kolekcie."
+    "message": "Chyba pri priraďovaní cieľovej zbierky."
   },
   "errorAssigningTargetFolder": {
     "message": "Chyba pri priraďovaní cieľového priečinka."
@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Pridajte zdieľaný priečinok na bezpečné zdieľanie položiek trezoru s ostatnými členmi."
   },
+  "pinned": {
+    "message": "Pripnuté",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pripnúť na bočný panel",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Odopnúť z bočného panela",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pripnuté na bočnom paneli",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ odopnuté z bočného panela",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Nájdite zdieľaný priečinok v tomto trezore a vyberte ho",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "z ponuky Možnosti.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pripnite zdieľané priečinky na bočný panel a filtrujte ich tu."
+  },
   "sendPasswordHelperText": {
     "message": "Jednotlivci budú musieť zadať heslo, aby mohli zobraziť tento Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7290,10 +7333,16 @@
     "message": "Tu sú teraz zobrazené osobné, rodinné a obchodné trezory."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Kolekcie a priečinky majú nové názvy"
+    "message": "Zbierky a priečinky majú nové názvy"
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Rovnaké funkcie, jasnejšie názvy. Zbierky sa teraz nazývajú zdieľané priečinky. Priečinky sú teraz Moje priečinky."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Kombinujte filtre"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Vyberte naraz viacero filtrov, aby ste zúžili vyhľadávanie presne na výsledky, ktoré chcete. Tieto filtre zostanú aktívne aj po prechode na inú stránku."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ z $TOTAL$",
