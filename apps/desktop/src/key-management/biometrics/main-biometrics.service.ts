@@ -30,6 +30,10 @@ export class MainBiometricsService extends DesktopBiometricsService {
   private shouldAutoPrompt = true;
   private biometricsStatusCacheMs = BiometricsStatusCacheMs;
   private cachedBiometricsStatus: { status: BiometricsStatus; expiresAt: number } | null = null;
+  private pendingBiometricsStatus: Promise<BiometricsStatus> | null = null;
+  // Bumped whenever the cached status is dropped, so a check that was already running can tell
+  // that its answer may be out of date.
+  private biometricsStatusGeneration = 0;
 
   constructor(
     private i18nService: I18nService,
@@ -86,14 +90,34 @@ export class MainBiometricsService extends DesktopBiometricsService {
    * @returns the status of the biometrics of the platform
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
-    const now = Date.now();
-    if (this.cachedBiometricsStatus != null && now < this.cachedBiometricsStatus.expiresAt) {
+    if (this.cachedBiometricsStatus != null && Date.now() < this.cachedBiometricsStatus.expiresAt) {
       return this.cachedBiometricsStatus.status;
     }
 
-    const status = await this.getPlatformBiometricsStatus();
-    this.cachedBiometricsStatus = { status, expiresAt: now + this.biometricsStatusCacheMs };
-    return status;
+    // The lock screen polls without waiting for the previous check to finish, so calls that arrive
+    // while the OS is still answering share that check instead of starting their own.
+    this.pendingBiometricsStatus ??= this.refreshBiometricsStatus();
+    return await this.pendingBiometricsStatus;
+  }
+
+  private async refreshBiometricsStatus(): Promise<BiometricsStatus> {
+    const generation = this.biometricsStatusGeneration;
+    try {
+      const status = await this.getPlatformBiometricsStatus();
+      // If the cache was dropped while the OS was answering, this answer may predate the change
+      // that caused it, so it is returned but not kept.
+      if (generation === this.biometricsStatusGeneration) {
+        this.cachedBiometricsStatus = {
+          status,
+          expiresAt: Date.now() + this.biometricsStatusCacheMs,
+        };
+      }
+      return status;
+    } finally {
+      if (generation === this.biometricsStatusGeneration) {
+        this.pendingBiometricsStatus = null;
+      }
+    }
   }
 
   private async getPlatformBiometricsStatus(): Promise<BiometricsStatus> {
@@ -196,6 +220,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   private clearCachedBiometricsStatus(): void {
+    this.biometricsStatusGeneration++;
     this.cachedBiometricsStatus = null;
+    this.pendingBiometricsStatus = null;
   }
 }
