@@ -7,96 +7,116 @@ use std::{
     collections::BTreeMap,
     fs,
     io::{ErrorKind, Write},
-    path::Path,
+    path::{Component, Path, PathBuf},
     sync::Mutex,
 };
 
 use anyhow::{anyhow, Result};
-use serde::{Deserialize, Serialize};
 
 use crate::password::PASSWORD_NOT_FOUND;
 
-/// Contents of the password file.
-#[derive(Default, Serialize, Deserialize)]
-#[serde(transparent)]
-struct Store {
-    /// service -> account -> password
-    services: BTreeMap<String, BTreeMap<String, String>>,
-}
-
-/// Serializes read-modify-write cycles within this process.
-static LOCK: Mutex<()> = Mutex::new(());
+/// In-memory copy of the password file, loaded on first use.
+/// The mutex serializes read-modify-write cycles within this process.
+static STORE: Mutex<Option<Store>> = Mutex::new(None);
 
 /// Retrieves a password from the file.
 pub fn get_password(path: &Path, service: &str, account: &str) -> Result<String> {
-    let _guard = LOCK.lock().map_err(|_| anyhow!("Lock poisoned"))?;
-
-    Store::read(path)?
-        .services
-        .get(service)
-        .and_then(|accounts| accounts.get(account))
-        .cloned()
-        .ok_or_else(|| anyhow!(PASSWORD_NOT_FOUND))
+    with_store(path, |store| store.read(service, account))
 }
 
 /// Stores a password in the file. Overwrites an existing entry.
 pub fn set_password(path: &Path, service: &str, account: &str, password: &str) -> Result<()> {
-    let _guard = LOCK.lock().map_err(|_| anyhow!("Lock poisoned"))?;
-
-    let mut store = Store::read(path)?;
-    store
-        .services
-        .entry(service.to_owned())
-        .or_default()
-        .insert(account.to_owned(), password.to_owned());
-
-    store.write(path)
+    with_store(path, |store| store.write(service, account, password))
 }
 
 /// Deletes a password from the file.
 pub fn delete_password(path: &Path, service: &str, account: &str) -> Result<()> {
-    let _guard = LOCK.lock().map_err(|_| anyhow!("Lock poisoned"))?;
+    with_store(path, |store| store.delete(service, account))
+}
 
-    let mut store = Store::read(path)?;
-    let Some(accounts) = store.services.get_mut(service) else {
-        return Err(anyhow!(PASSWORD_NOT_FOUND));
+/// Runs `f` on the locked store, loading it from `path` if not loaded yet or loaded from
+/// another path.
+fn with_store<T>(path: &Path, f: impl FnOnce(&mut Store) -> Result<T>) -> Result<T> {
+    let mut guard = STORE.lock().map_err(|_| anyhow!("Lock poisoned"))?;
+
+    let store = match guard.take() {
+        Some(store) if store.path == path => guard.insert(store),
+        _ => guard.insert(Store::load(path)?),
     };
-    if accounts.remove(account).is_none() {
-        return Err(anyhow!(PASSWORD_NOT_FOUND));
-    }
 
-    // Drop empty services to keep the file tidy.
-    if accounts.is_empty() {
-        store.services.remove(service);
-    }
+    f(store)
+}
 
-    store.write(path)
+/// Passwords of one file. Every change is written back to disk.
+struct Store {
+    path: PathBuf,
+    /// service -> account -> password
+    services: BTreeMap<String, BTreeMap<String, String>>,
 }
 
 impl Store {
+    /// Retrieves a password.
+    pub fn read(&self, service: &str, account: &str) -> Result<String> {
+        self.services
+            .get(service)
+            .and_then(|accounts| accounts.get(account))
+            .cloned()
+            .ok_or_else(|| anyhow!(PASSWORD_NOT_FOUND))
+    }
+
+    /// Stores a password. Overwrites an existing entry.
+    pub fn write(&mut self, service: &str, account: &str, password: &str) -> Result<()> {
+        self.services
+            .entry(service.to_owned())
+            .or_default()
+            .insert(account.to_owned(), password.to_owned());
+
+        self.save()
+    }
+
+    /// Deletes a password.
+    pub fn delete(&mut self, service: &str, account: &str) -> Result<()> {
+        let Some(accounts) = self.services.get_mut(service) else {
+            return Err(anyhow!(PASSWORD_NOT_FOUND));
+        };
+        if accounts.remove(account).is_none() {
+            return Err(anyhow!(PASSWORD_NOT_FOUND));
+        }
+
+        // Drop empty services to keep the file tidy.
+        if accounts.is_empty() {
+            self.services.remove(service);
+        }
+
+        self.save()
+    }
+
     /// Loads the store. A missing file is an empty store.
-    fn read(path: &Path) -> Result<Self> {
+    fn load(path: &Path) -> Result<Self> {
         // Prevent path traversal attacks by rejecting paths containing '..'.
-        if path
-            .components()
-            .any(|c| c == std::path::Component::ParentDir)
-        {
+        if path.components().any(|c| c == Component::ParentDir) {
             return Err(anyhow!("Invalid input: {}", path.display()));
         }
-        match fs::read_to_string(path) {
-            Ok(json) => Ok(serde_json::from_str(&json)?),
-            Err(e) if e.kind() == ErrorKind::NotFound => Ok(Self::default()),
-            Err(e) => Err(e.into()),
-        }
+
+        let services = match fs::read_to_string(path) {
+            Ok(json) => serde_json::from_str(&json)?,
+            Err(e) if e.kind() == ErrorKind::NotFound => BTreeMap::new(),
+            Err(e) => return Err(e.into()),
+        };
+
+        Ok(Self {
+            path: path.to_owned(),
+            services,
+        })
     }
 
     /// Writes to a sibling temp file, then renames, so a crash never leaves a half-written store.
-    fn write(&self, path: &Path) -> Result<()> {
-        if let Some(dir) = path.parent() {
+    fn save(&self) -> Result<()> {
+        if let Some(dir) = self.path.parent() {
             fs::create_dir_all(dir)?;
         }
 
-        let tmp = path.with_extension("tmp");
+        let tmp = self.path.with_extension("tmp");
         let mut options = fs::OpenOptions::new();
         options.write(true).create(true).truncate(true);
 
@@ -108,9 +128,9 @@ impl Store {
         }
 
         let mut file = options.open(&tmp)?;
-        file.write_all(serde_json::to_string_pretty(self)?.as_bytes())?;
+        file.write_all(serde_json::to_string_pretty(&self.services)?.as_bytes())?;
         file.sync_all()?;
-        fs::rename(&tmp, path)?;
+        fs::rename(&tmp, &self.path)?;
 
         Ok(())
     }
