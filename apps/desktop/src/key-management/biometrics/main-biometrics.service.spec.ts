@@ -284,6 +284,52 @@ describe("MainBiometricsService", function () {
       expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.HardwareUnavailable);
     });
 
+    it("shares one OS check between calls that arrive while it is still running", async () => {
+      let finishCheck!: (supported: boolean) => void;
+      innerService.supportsBiometrics.mockReturnValueOnce(
+        new Promise((resolve) => (finishCheck = resolve)),
+      );
+
+      const first = sut.getBiometricsStatus();
+      jest.advanceTimersByTime(1_000);
+      const second = sut.getBiometricsStatus();
+      finishCheck(true);
+
+      expect(await Promise.all([first, second])).toEqual([
+        BiometricsStatus.Available,
+        BiometricsStatus.Available,
+      ]);
+      expect(innerService.supportsBiometrics).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not keep a status that was still being checked when an app window gained focus", async () => {
+      let finishStaleCheck!: (supported: boolean) => void;
+      innerService.supportsBiometrics.mockReturnValueOnce(
+        new Promise((resolve) => (finishStaleCheck = resolve)),
+      );
+      const staleCheck = sut.getBiometricsStatus();
+
+      onWindowFocus();
+      innerService.supportsBiometrics.mockResolvedValue(false);
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.HardwareUnavailable);
+      finishStaleCheck(true);
+      await staleCheck;
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.HardwareUnavailable);
+      expect(innerService.supportsBiometrics).toHaveBeenCalledTimes(2);
+    });
+
+    it("asks the OS again after a status check fails", async () => {
+      innerService.supportsBiometrics.mockRejectedValueOnce(
+        new Error("Secret Service unavailable"),
+      );
+
+      await expect(sut.getBiometricsStatus()).rejects.toThrow("Secret Service unavailable");
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.Available);
+      expect(innerService.supportsBiometrics).toHaveBeenCalledTimes(2);
+    });
+
     it("does not cache the status reported by automation biometrics", async () => {
       const originalEnv = process.env;
       process.env = { ...originalEnv, USE_AUTOMATION_BIOMETRICS: "true" };
