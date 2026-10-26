@@ -47,8 +47,8 @@ const mockApiService: Partial<ApiService> = {
 function storyMeta(dialogParams: AddEditMemberDialogParams) {
   return {
     moduleMetadata: {
-      declarations: [AddEditMemberDialogComponent],
       imports: [
+        AddEditMemberDialogComponent,
         CommonModule,
         ReactiveFormsModule,
         JslibModule,

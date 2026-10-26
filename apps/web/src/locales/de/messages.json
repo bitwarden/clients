@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Suche zurücksetzen"
   },
+  "clearSearchTooltip": {
+    "message": "Zum Löschen hier klicken oder die Esc-Taste drücken.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Alle Einträge"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Sammlungen"
   },
+  "controlledAccess": {
+    "message": "Kontrollierter Zugriff"
+  },
   "firstName": {
     "message": "Vorname"
   },
@@ -1252,6 +1259,20 @@
       }
     }
   },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ verschachtelte geteilte Ordner",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 geteilter verschachtelter Ordner",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
   "myFolder": {
     "message": "Mein Ordner"
   },
@@ -1269,9 +1290,6 @@
   },
   "addSharedFolder": {
     "message": "Geteilten Ordner erstellen"
-  },
-  "newSharedFolder": {
-    "message": "Neuer geteilter Ordner"
   },
   "searchSharedFolder": {
     "message": "Nach geteiltem Ordner suchen"
@@ -1464,42 +1482,6 @@
     "message": "Reisepass hinzufügen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Neue Zugangsdaten",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Neue Karte",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Neue Identität",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Neue Notiz",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Neue sichere Notiz",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Neuer SSH-Schlüssel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Neues Bankkonto",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Neuer Führerschein",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Neuer Reisepass",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Neuer Text",
     "description": "Header for new text send"
@@ -1507,22 +1489,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Neue Datei",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Zugangsdaten bearbeiten",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Karte bearbeiten",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identität bearbeiten",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notiz bearbeiten",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Sichere Notiz bearbeiten",
@@ -1991,6 +1957,27 @@
   },
   "selectFile": {
     "message": "Wähle eine Datei."
+  },
+  "selectFileUnsupportedType": {
+    "message": "Dieser Dateityp wird für diese Quelle nicht unterstützt. Wähle eine andere Datei aus."
+  },
+  "pasteContentRequired": {
+    "message": "Füge den exportierten Inhalt ein."
+  },
+  "fileTypeNotSupported": {
+    "message": "Dieser Dateityp wird nicht unterstützt. Wähle eine $TYPES$-Datei aus.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Der eingefügte Inhalt stimmt nicht mit dem ausgewählten Format überein."
+  },
+  "errorReadingFile": {
+    "message": "Die ausgewählte Datei konnte nicht gelesen werden."
   },
   "maxFileSize": {
     "message": "Die maximale Dateigröße beträgt 500 MB."
@@ -2966,11 +2953,44 @@
   "keePassMasterPassword": {
     "message": "KeePass-Master-Passwort"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$-Passwort",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Ein Passwort ist erforderlich."
+  },
+  "filePasswordRequired": {
+    "message": "Ein Dateipasswort ist erforderlich"
+  },
+  "filePasswordInvalid": {
+    "message": "Gib ein gültiges Dateipasswort ein."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Die hochgeladene Datei ist passwortgeschützt. Gib das Passwort ein, um fortzufahren."
+  },
+  "selectProfile": {
+    "message": "Profil auswählen"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Gib ein gültiges Passwort ein"
+  },
+  "importAccountMismatchError": {
+    "message": "Diese Datei kann nur in das Konto importiert werden, aus dem sie exportiert wurde."
+  },
   "addKeyFile": {
     "message": "Schlüsseldatei hinzufügen"
   },
   "keyFileUpload": {
     "message": "Schlüsseldatei hochladen"
+  },
+  "keyFileUploadV2": {
+    "message": "Schlüsseldatei"
   },
   "kdbxFileUpload": {
     "message": "KDBX-Datei hochladen"
@@ -3374,6 +3394,9 @@
   "importFormatError": {
     "message": "Die Daten sind nicht richtig formatiert. Kontrollieren Sie bitte Ihre Import-Datei und versuchen Sie es erneut."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Diese Datei verwendet nicht unterstützte Verschlüsselungseinstellungen und kann daher nicht importiert werden."
+  },
   "importNothingError": {
     "message": "Es wurde nichts importiert."
   },
@@ -3451,19 +3474,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Erfahre mehr über deine Importoptionen"
-  },
-  "selectImportFolder": {
-    "message": "Ordner auswählen"
-  },
-  "selectImportCollection": {
-    "message": "Sammlung auswählen"
-  },
-  "selectImportSharedFolder": {
-    "message": "Wähle einen geteilten Ordner aus"
-  },
-  "importTargetMyFolder": {
-    "message": "Mein Ordner",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn die Inhalte der Import-Datei in eine Sammlung verschoben werden sollen"
@@ -3624,6 +3634,173 @@
   },
   "importHelpCenterLinkText": {
     "message": "Hilfezentrum"
+  },
+  "uploadFile": {
+    "message": "Datei hochladen"
+  },
+  "pasteAsPlainText": {
+    "message": "Als Klartext einfügen"
+  },
+  "plainText": {
+    "message": "Klartext"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "lastPassEmail": {
+    "message": "LastPass E-Mail-Adresse"
+  },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
+  "includeSharedFolders": {
+    "message": "Geteilte Ordner mit einbeziehen"
+  },
+  "importManuallyInstead": {
+    "message": "Stattdessen manuell importieren"
+  },
+  "directlyImportInstead": {
+    "message": "Stattdessen direkt importieren"
+  },
+  "fastest": {
+    "message": "Am schnellsten"
+  },
+  "importDataTitle": {
+    "message": "Importiere deine Daten"
+  },
+  "importDataDirectTitle": {
+    "message": "Importiere deine Daten in wenigen Minuten"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importiere alle Einträge direkt aus",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": ", um alle deine Daten zu erhalten.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Von $VENDOR$ importieren oder Exportinhalt kopieren und ihn hier einfügen.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Wähle das Profil aus, aus dem du Passwörter importieren möchtest."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Es wurden keine Browserprofile gefunden"
+  },
+  "importDataLoginTitle": {
+    "message": "Bei $VENDOR$ anmelden",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Deine Zugangsdaten werden bei der Übertragung verschlüsselt und niemals gespeichert."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Von Grund auf sicher"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Ende-zu-Ende verschlüsselte Übergabe. Bitwarden sieht zu keinem Zeitpunkt deine $VENDOR$-Zugangsdaten.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Wir werden nach deinen Zugangsdaten fragen"
+  },
+  "importDataLoginInfoBody": {
+    "message": "Melde dich im nächsten Schritt bei deinem $VENDOR$-Konto an.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Alles wird übertragen"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Zugangsdaten, Karten, Identitäten, sichere Notizen und TOTPs unter Beibehaltung ihrer Ordnerstruktur."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+  },
+  "importAcceptedFormats": {
+    "message": "Akzeptiert: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ Dateityp",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Der Vorgang ist genau derselbe wie beim Import aus Google Chrome.",
@@ -3881,9 +4058,6 @@
   },
   "customize": {
     "message": "Anpassen"
-  },
-  "newCustomDomain": {
-    "message": "Neue benutzerdefinierte Domain"
   },
   "addCustomDomain": {
     "message": "Benutzerdefinierte Domain hinzufügen"
@@ -5400,9 +5574,6 @@
   "groups": {
     "message": "Gruppen"
   },
-  "newGroup": {
-    "message": "Neue Gruppe"
-  },
   "addGroup": {
     "message": "Gruppe hinzufügen"
   },
@@ -5457,9 +5628,6 @@
   },
   "readOnly": {
     "message": "Schreibgeschützt"
-  },
-  "newCollection": {
-    "message": "Neue Sammlung"
   },
   "addCollection": {
     "message": "Sammlung hinzufügen"
@@ -6155,6 +6323,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Eine HTTP-Authentifizierungsanfrage mit der Eintrags-ID $ID$ wurde beantwortet.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "Sammlung $ID$ erstellt.",
     "placeholders": {
@@ -6774,11 +6951,26 @@
   "resendInvitation": {
     "message": "Einladung erneut versenden"
   },
+  "sendInvite": {
+    "message": "Einladung versenden"
+  },
+  "sendInvites": {
+    "message": "Einladungen versenden"
+  },
   "resendEmail": {
     "message": "E-Mail erneut senden"
   },
   "hasBeenReinvited": {
     "message": "$USER$ wurde erneut eingeladen",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ eingeladen",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -7573,20 +7765,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Füge erlaubte E-Mail-Domains hinzu (z. B. acme.com), damit nur Benutzer mit übereinstimenden E-Mail-Adressen diesen Einladungslink verwenden können. Du kannst diese Einstellung jederzeit aktualisieren."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "Du befindest dich in der Vorschau-Tour, daher dienen diese Domains nur als Beispiele."
+  },
   "adjustTheLink": {
     "message": "Link anpassen"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Deine Bedürfnisse ändern sich und der Link kann sich mit dir anpassen. <strong>Regeneriere</strong> den Link, um den alten Link ungültig zu machen und einen neuen zu erstellen."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Deine Bedürfnisse ändern sich, und der Link kann sich mit dir ändern."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Regeneriere</strong> den Link, um den alten Link ungültig zu machen und einen neuen zu erstellen."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Eine Bestätigung durch den Administrator verlangen</strong>, um neue Mitglieder zu genehmigen, bevor sie der Organisation beitreten können."
   },
   "shareTheLinkAnywhere": {
     "message": "Teile den Link überall"
@@ -8471,6 +8657,10 @@
     "message": "Die mit diesem Send verbundene Datei konnte nicht gefunden werden.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Diese Datei konnte nicht heruntergeladen werden, da der Download-Link eine Sicherheitsprüfung nicht bestanden hat.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "Keine Sends gefunden.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8965,20 +9155,46 @@
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
   },
   "fillAssistPolicy": {
-    "message": "Ausfüllhilfe aktivieren",
+    "message": "Fill Assist aktivieren",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyV2": {
+    "message": "Fill Assist aktivieren",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
   "fillAssistPolicyDesc": {
-    "message": "Aktiviert die Ausfüllhilfe standardmäßig für alle Mitglieder. Diese Funktion nutzt geprüfte, Website-spezifische Anweisungen, um die Genauigkeit von Auto-Ausfüllen auf Websites zu verbessern, die bekanntermaßen schwer automatisch auszufüllen sind."
+    "message": "Fill Assist standardmäßig für alle Mitglieder aktivieren. Diese Funktion nutzt geprüfte, Website-spezifische Anweisungen, um die Genauigkeit von Auto-Ausfüllen auf Websites zu verbessern, die bekanntermaßen schwer automatisch auszufüllen sind."
+  },
+  "fillAssistRuleSource": {
+    "message": "Regelsatz für Auto-Ausfüllen"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Standard"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Verwende den von Bitwarden geprüften Regelsatz für Auto-Ausfüllen."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Benutzerdefiniert"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Gib deinen persönlichen eigenen Regelsatz ein."
   },
   "fillAssistRulesUrl": {
     "message": "Eigener Regelsatz für Auto-Ausfüllen"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Standardmäßig verwendet die Ausfüllhilfe den von Bitwarden zusammengestellten Regelsatz. Gib hier eine URL ein, um diesen durch deinen eigenen zu überschreiben."
+  "fillAssistRulesUrlV2": {
+    "message": "Eigener Regelsatz"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "Erfahre mehr über eigene Regeln"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Gib eine gültige URL ein",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Gib eine gültige URL für einen eigenen Regelsatz ein.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -9064,6 +9280,12 @@
   },
   "manageAccountRecovery": {
     "message": "Kontowiederherstellung verwalten"
+  },
+  "manageAccessRules": {
+    "message": "Zugriffsregeln verwalten"
+  },
+  "manageRotation": {
+    "message": "Erneuerung verwalten"
   },
   "disableRequiredError": {
     "message": "Du musst die $POLICYNAME$-Richtlinie manuell deaktivieren, bevor diese Richtlinie deaktiviert werden kann.",
@@ -10953,6 +11175,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Diese URL ist nicht zulässig. Sie muss https verwenden und darf nicht auf eine Adresse in einem lokalen oder privaten Netzwerk verweisen.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Gib eine gültige URL ein",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsichere URL erkannt",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Diese URL ist möglicherweise unsicher oder verweist auf ein privates Netzwerk. Die Nutzung kann zur Kompromittierung privater Daten führen. Fahre nur fort, wenn du diesem Server vertraust.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "URL vertrauen",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Diese URL wurde als vertrauenswürdig markiert. Du kannst sie jederzeit bearbeiten.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Unbekannter $SERVICENAME$-Fehler aufgetreten.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -11864,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Füge einen geteilten Ordner hinzu, um Tresor-Einträge sicher mit anderen Mitgliedern zu teilen."
   },
+  "pinned": {
+    "message": "Angeheftet",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "An Seitenleiste anheften",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Von Seitenleiste entfernen",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ an Seitenleiste angeheftet",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ aus der Seitenleiste entfernt",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Suche einen geteilten Ordner in diesem Tresor und wähle",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "aus dem Optionsmenü.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Hefte geteilte Ordner an die Seitenleiste, um sie hier zu filtern."
+  },
   "noMembersAdded": {
     "message": "Keine Mitglieder hinzugefügt"
   },
@@ -11875,9 +12164,6 @@
   },
   "domainVerification": {
     "message": "Domain-Verifizierung"
-  },
-  "newDomain": {
-    "message": "Neue Domain"
   },
   "addDomain": {
     "message": "Domain hinzufügen"
@@ -12247,9 +12533,6 @@
   },
   "groupSlashUser": {
     "message": "Gruppe/Benutzer"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "Wenn du fortfährst, wirst du von allen aktiven Sitzungen abgemeldet. Du musst dich erneut anmelden und, falls eingerichtet, die Zwei-Faktor-Authentifizierung durchführen. Wir empfehlen, deinen Tresor zu exportieren, bevor du deine Verschlüsselungseinstellungen änderst, um Datenverluste zu vermeiden."
   },
   "secretsManager": {
     "message": "Secrets Manager"
@@ -13152,6 +13435,10 @@
   "secretsManagerPlanPrice": {
     "message": "Secrets Manager Abonnementpreis"
   },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls Abonnementpreis",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "passwordManager": {
     "message": "Passwort-Manager"
   },
@@ -13867,10 +14154,6 @@
     "message": "Gerätekonten",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Neues Gerätekonto",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Gerätekonto hinzufügen",
     "description": "Title for creating a new machine account."
@@ -14340,6 +14623,9 @@
   "organizationOptionsMenu": {
     "message": "Organisationsmenü umschalten"
   },
+  "vaultOptions": {
+    "message": "Tresoroptionen"
+  },
   "vaultItemSelect": {
     "message": "Tresor-Eintrag auswählen"
   },
@@ -14500,6 +14786,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Bei der Vorschau der Rechnung ist ein Fehler aufgetreten. Bitte versuche es später erneut."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Bitte überprüfe deine Rechnungsdaten und versuche es erneut."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Dieses Upgrade umfasst eine Testversion von $DAYS$ Tagen. Der oben angegebene Gesamtbetrag wird dir am Ende der Testphase in Rechnung gestellt.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Du hast noch 1 Tag deiner Testversion übrig. Der oben genannte Gesamtbetrag wird dir am $DATE$ in Rechnung gestellt.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Du hast noch $DAYS$ Tage deiner Testversion übrig. Der oben genannte Gesamtbetrag wird dir am $DATE$ in Rechnung gestellt.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Nicht verifiziert"
@@ -16811,8 +17131,8 @@
   "premiumSubscriptionCredit": {
     "message": "Premium-Abonnement-Guthaben"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Angewendete Abonnement-Guthaben"
+  "appliedProrationCredits": {
+    "message": "Angewandte anteilige Gutschrift"
   },
   "enterpriseMembership": {
     "message": "Enterprise-Mitgliedschaft"
@@ -16977,6 +17297,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Sorge für die Sicherheit deiner Tresor-Einträge, indem du Berichte auf Schwachstellen überprüfst."
   },
+  "whatsNew": {
+    "message": "Was ist Neu"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "Durch die überarbeitete Navigation und des neuen Designs ist es einfacher denn je, das zu finden, was du suchst."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Zwischen Produkten wechseln"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Klicke hier, um weitere Bitwarden-Produkte anzuzeigen, auf die du Zugriff hast oder entdecke neue Produkte und Tarife."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Alle deine Tresore an einem Ort"
+  },
+  "coachmarkVaultListDescription": {
+    "message": "Hier sind nun die privaten, familiären und geschäftlichen Tresore aufgelistet."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Sammlungen und Ordner haben neue Namen"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Gleiche Funktionen, klarere Bezeichnungen. \"Sammlungen\" heißen nun \"geteilte Ordner\". \"Ordner\" heißen nun \"Meine Ordner\"."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Sicherheitsaktivität überwachen"
   },
@@ -17007,6 +17351,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Aktualisiere Berichte und Analysen regelmäßig, um neue Risiken zu erkennen und die aktuellen Metriken im Zuge des Wachstums deiner Organisation im Blick zu behalten."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Filter kombinieren"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Wähle mehrere Filter gleichzeitig aus, um die Ergebnisse genau auf deine Wünsche einzugrenzen. Die Filter bleiben auch dann aktiv, wenn du die Seite verlässt."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ von $TOTAL$",
     "placeholders": {
@@ -17033,14 +17383,71 @@
       }
     }
   },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password-Einträge oder -Tresore konnten nicht importiert werden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Es ist ein Fehler aufgetreten. Überprüfe deine Zugangsdaten und versuche es erneut."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Nur die Anmeldung mit Passwort wird unterstützt."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
+  },
+  "onePasswordImportError": {
+    "message": "Es ist ein Fehler aufgetreten. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "emailIsRequired": {
+    "message": "Eine E-Mail-Adresse ist erforderlich."
+  },
+  "enterValidEmailAddress": {
+    "message": "Gib eine gültige E-Mail-Adresse ein."
+  },
+  "signInAddressIsRequired": {
+    "message": "Eine Anmeldeadresse ist erforderlich."
+  },
+  "enterValidSignInAddress": {
+    "message": "Gib eine gültige Anmeldeadresse ein."
+  },
+  "secretKeyIsRequired": {
+    "message": "Ein geheimer Schlüssel ist erforderlich."
+  },
+  "enterValidSecretKey": {
+    "message": "Gib einen gültigen geheimen Schlüssel ein."
+  },
+  "passwordIsRequired": {
+    "message": "Ein Passwort ist erforderlich."
+  },
+  "enterValidVerificationCode": {
+    "message": "Gib einen gültigen Verifizierungscode ein."
+  },
+  "signInAddress": {
+    "message": "Anmeldeadresse"
+  },
+  "onePasswordEmail": {
+    "message": "1Password E-Mail-Adresse"
+  },
+  "onePasswordEmailHint": {
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
+  },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Geheimer Schlüssel"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Geheimer Schlüssel und Passwort"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -17242,6 +17649,63 @@
   },
   "importingYourAccount": {
     "message": "Dein Konto wird importiert..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "passcode": {
     "message": "Zugangscode"
@@ -17500,8 +17964,141 @@
   "pamAccessRequestsTitle": {
     "message": "Zugriffsanforderungen"
   },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 Stunde"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ Stunden",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "ab sofort"
+  },
+  "pamInboxStartToday": {
+    "message": "heute"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "morgen"
+  },
+  "pamInboxStartInDays": {
+    "message": "in $DAYS$ Tagen",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Der Zugriff konnte nicht gestartet werden."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Das genehmigte Zugriffsfenster wurde noch nicht gestartet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Das genehmigte Zugriffsfenster ist bereits abgelaufen."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Diese Anfrage wurde noch nicht genehmigt."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Diese Anfrage kann nicht mehr aktiviert werden."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Der Zugriff für diese Anfrage wurde bereits genutzt und ist nicht mehr aktiv."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Es kann jeweils nur 1 Benutzer aktiven Zugriff auf diesen Eintrag haben. Versuche es erneut, sobald der aktuelle Zugriff beendet ist."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist von deinem aktuellen Netzwerk aus nicht gestattet."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist im Moment nicht gestattet."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Der Zugriff auf diesen Eintrag ist derzeit nicht gestattet."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Eine Privileged Controls-Lizenz ist erforderlich. Bitte deinen Administrator, deine Lizenz zu aktivieren.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Du hast bereits aktiven Zugriff auf diesen Eintrag."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Du hast bereits eine genehmigte Anfrage für diesen Eintrag."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Für diesen Eintrag liegt bereits eine ausstehende Anfrage vor."
+  },
+  "pamInboxElapsedDays": {
+    "message": "Vor $DAYS$d",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "Vor $HOURS$h",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Gerade eben"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "Vor $MINUTES$min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "pamAccessRules": {
     "message": "Zugriffsregeln"
+  },
+  "pamAccessRuleActive": {
+    "message": "Aktiv"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inaktiv"
+  },
+  "pamAccessRuleActiveHint": {
+    "message": "Wenn die Regel deaktiviert ist, schränkt sie den Zugriff nicht ein."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Regel aktivieren"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Regel deaktivieren"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Zugriffsregel aktiviert."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Zugriffsregel deaktiviert."
   },
   "pamAccessRuleEnabled": {
     "message": "Aktiviert"
@@ -17527,6 +18124,9 @@
   "pamAccessRulesSubheading": {
     "message": "Lege Regeln fest, um zu steuern, wer unter welchen Bedingungen und für welchen Zeitraum Zugriff auf vertrauliche Zugangsdaten anfragen darf."
   },
+  "pamAccessRuleCreate": {
+    "message": "Zugriffsregel erstellen"
+  },
   "pamAccessRuleNew": {
     "message": "Neue Regel"
   },
@@ -17545,6 +18145,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Allgemeine Informationen"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Zugriffsdauer"
   },
@@ -17557,6 +18160,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Diese Zugriffsregel gilt für alle ausgewählten Sammlungen."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Alle Anfragen und Entscheidungen werden protokolliert."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Kontroll-Protokoll anzeigen"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Sammlungen konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen."
   },
@@ -17566,17 +18175,17 @@
   "pamAccessRuleDescription": {
     "message": "Beschreibung"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Standard-Zugriffsdauer"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Standarddauer"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximale Zugriffsdauer"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximale Dauer"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Keine Begrenzung"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Jeder einzelne Leasingzeitraum wird auf höchstens diese Dauer begrenzt, unabhängig davon, was der Anfrager wünscht."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "Der Zugriff ist auf diese Länge beschränkt, unabhängig davon, welche Dauer angefordert wird."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 Minuten"
@@ -17596,11 +18205,32 @@
   "pamAccessRuleDuration8h": {
     "message": "8 Stunden"
   },
+  "pamAccessRuleDuration1d": {
+    "message": "1 Tag"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 Tage"
+  },
   "pamAccessRuleDuration24h": {
     "message": "24 Stunden"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 Tage"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 Tage"
+  },
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Es kann jeweils nur 1 Benutzer aktiven Zugriff haben"
+  },
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Andere Personen mit Genehmigung können versuchen, den Zugriff zu starten, sobald der aktuelle Zugriff endet oder widerrufen wird."
+  },
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Zugriffs-Verlängerungen erlauben"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "Mitglieder können ihren aktiven Zugang einmalig ohne erneute Genehmigung bis zur unten angegebenen maximalen Dauer verlängern."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Es kann jeweils nur ein Benutzer über eine aktive Leasingvereinbarung verfügen"
@@ -17632,11 +18262,40 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Sammlungs-Verwalter"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (Kopie)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (Kopie $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Kopie erstellt. Wähle die Sammlungen aus, für die sie gelten soll."
+  },
   "pamAccessRuleCreated": {
     "message": "Zugriffsregel erstellt."
   },
   "pamAccessRuleUpdated": {
     "message": "Zugriffsregel aktualisiert."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Zugriffsregel gelöscht."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Zugriffsregel löschen?"
@@ -17649,6 +18308,45 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Zugriffsregel deaktivieren"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Diese Regel gilt nicht mehr für neue Zugriffsanforderungen."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Es ist ein Fehler aufgetreten. Deine Regel wurde nicht gespeichert, aber deine Angaben sind weiterhin vorhanden."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Einen Namen eingeben."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Eine andere Regel verwendet bereits diesen Namen. Gib einen anderen Namen ein."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Für eine dieser Sammlungen gilt bereits eine andere Zugriffsregel. Wähle andere Sammlungen aus."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Für $COLLECTIONS$ gilt bereits eine andere Zugriffsregel. Wähle andere Sammlungen aus.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "Eine der von dir ausgewählten Sammlungen existiert nicht mehr. Wähle eine andere Sammlung aus."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "Eine der von dir ausgewählten Sammlungen gehört nicht zu dieser Organisation. Wähle eine andere Sammlung aus."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Wähle die maximale Verlängerung oder deaktiviere Verlängerungen."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Diese Regel existiert nicht mehr. Möglicherweise wurde sie von einem anderen Administrator gelöscht."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Noch keine Zugriffsregeln"
@@ -17668,6 +18366,9 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in Time"
   },
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automatisch genehmigt"
+  },
   "pamTemplateJustInTimeSummary": {
     "message": "Automatisch genehmigt • Läuft nach 1h ab • In Protokoll erfasst"
   },
@@ -17677,6 +18378,9 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Genehmigung erforderlich"
   },
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Genehmigung durch menschliche Person • 1 Genehmiger erforderlich"
+  },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Genehmigung durch menschliche Person • 1 Genehmiger erforderlich • In Protokoll erfasst"
   },
@@ -17685,6 +18389,9 @@
   },
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-beschränkt"
+  },
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automatisch genehmigt • Liste zugelassener IP-Adressen"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Automatisch genehmigt • Liste zugelassener IP-Adressen • In Protokoll erfasst"
@@ -17698,11 +18405,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Nicht zugewiesen"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 Sammlung"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ Sammlungen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Suchregeln"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Gilt für"
+  },
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Genehmigungsmethode"
+  },
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximale Dauer"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Bedingungen"
@@ -17725,6 +18450,12 @@
   "pamAccessRulesNoResults": {
     "message": "Es wurden keine Zugriffsregeln gefunden, die deinen Filtern entsprechen."
   },
+  "pamAccessRuleBulkActivate": {
+    "message": "Aktivieren"
+  },
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deaktivieren"
+  },
   "pamAccessRuleBulkEnable": {
     "message": "Aktivieren"
   },
@@ -17742,6 +18473,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ Zugriffsregeln werden dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Zugriffsregeln deaktivieren"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ Regeln gelten nicht mehr für neue Zugriffsanforderungen.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17836,6 +18579,9 @@
   },
   "inviteLinkCalloutBody": {
     "message": "Jeder, der über eine Firmen-E-Mail-Adresse verfügt, kann über den Einladungslink deiner Organisation beitreten. Füge den Link in die Onboarding-Materialien ein, damit neue Mitarbeiter beitreten können, sobald sie dazu bereit sind."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "Die Tour verwendet Beispieldaten. Nichts in deiner Organisation wird sich ändern."
   },
   "inviteLinkCalloutImageAlt": {
     "message": "Vorschau des Dialogs zum Einladen von Mitgliedern mit dem neuen \"Per Link\"-Tab"
@@ -17975,7 +18721,36 @@
   "secretsManagerProratedCharge": {
     "message": "Anteilig berechnete Gebühr für Secrets Manager"
   },
+  "privilegedControlsProratedCharge": {
+    "message": "Anteilig berechnete Gebühr für Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "serviceAccountsProratedCharge": {
     "message": "Anteilig berechnete Gebühr für Dienstkonten"
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden hat ein neues Design",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Bessere Benutzererfahrung, dieselbe bewährte Sicherheit. Der Bitwarden-Tresor wurde auf Grundlage deines Feedbacks neu gestaltet, sodass du Dinge leichter findest und alles so funktioniert, wie du es erwartest.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Eine Vorschau auf den neu gestalteten Bitwarden-Tresor.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Erkunde den neuen Tresor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Deine Ansicht anpassen"
+  },
+  "showColumns": {
+    "message": "Spalten anzeigen"
+  },
+  "resetToDefault": {
+    "message": "Auf Standard zurücksetzen"
   }
 }

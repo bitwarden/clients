@@ -291,6 +291,8 @@ export class ServiceContainer {
   legacyCompatKeyService: LegacyCompatKeyService;
   tokenService: TokenService;
   appIdService: AppIdService;
+  /** The User-Agent the CLI identifies itself with, for clients that build their own HTTP stack. */
+  customUserAgent: string;
   apiService: NodeApiService;
   twoFactorApiService: TwoFactorApiService;
   hibpApiService: HibpApiService;
@@ -515,6 +517,7 @@ export class ServiceContainer {
       " (" +
       this.platformUtilsService.getDeviceString().toUpperCase() +
       ")";
+    this.customUserAgent = customUserAgent;
 
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
@@ -602,6 +605,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.accountCryptographicStateService,
       this.biometricsService,
+      this.sdkService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -816,6 +820,8 @@ export class ServiceContainer {
       this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
+      this.sdkService,
       this.autoUnlockService,
     );
 
@@ -983,7 +989,6 @@ export class ServiceContainer {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
-      this.configService,
       this.cipherSdkService,
     );
 
