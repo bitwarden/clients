@@ -397,6 +397,12 @@ describe("CustomFieldsComponent", () => {
         "boolean label",
         "linked label",
       ]);
+      expect(updatedCipher.fields.map((f: FieldView) => f.value)).toEqual([
+        "hidden value",
+        "text value",
+        "true",
+        null,
+      ]);
     });
 
     it("moves an item down in order via down arrow key", () => {
@@ -417,6 +423,12 @@ describe("CustomFieldsComponent", () => {
         "linked label",
         "boolean label",
       ]);
+      expect(updatedCipher.fields.map((f: FieldView) => f.value)).toEqual([
+        "text value",
+        "hidden value",
+        null,
+        "true",
+      ]);
     });
 
     it("moves an item up in order via up arrow key", () => {
@@ -433,6 +445,12 @@ describe("CustomFieldsComponent", () => {
         "text label",
         "boolean label",
         "linked label",
+      ]);
+      expect(updatedCipher.fields.map((f: FieldView) => f.value)).toEqual([
+        "hidden value",
+        "text value",
+        "true",
+        null,
       ]);
     });
 
