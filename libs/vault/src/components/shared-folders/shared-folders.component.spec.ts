@@ -1001,7 +1001,7 @@ describe("SharedFoldersComponent", () => {
     }
 
     function toggle(): HTMLElement | null {
-      return fixture.nativeElement.querySelector("bit-filter-toggle");
+      return fixture.nativeElement.querySelector('bit-filter-toggle[key="controlledAccess"]');
     }
 
     it("is rendered when some folders are governed and some are not", async () => {
