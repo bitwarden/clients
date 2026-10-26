@@ -964,7 +964,15 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     it("hides it when the organization already has Privileged Controls", async () => {
       await render({
         organization: buildEligibleOrganization({ usePam: true }),
-        subscription: buildEnterpriseSubscription(),
+        subscription: buildEnterpriseSubscription({}, { usePam: true }),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it when the server reports Privileged Controls before the local organization syncs", async () => {
+      await render({
+        organization: buildEligibleOrganization({ usePam: false }),
+        subscription: buildEnterpriseSubscription({}, { usePam: true }),
       });
       expect(component.showPrivilegedControlsPurchase()).toBe(false);
     });

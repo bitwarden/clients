@@ -339,15 +339,17 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * @returns True if the section should be displayed, false otherwise.
    */
   readonly showPrivilegedControlsPurchase = computed(() => {
-    const org = this.organization();
-    const plan = this.organizationSubscription()?.plan;
-    if (org == null || plan == null) {
+    const subscription = this.organizationSubscription();
+    const plan = subscription?.plan;
+    if (subscription == null || plan == null) {
       return false;
     }
+    // The subscription response is fetched fresh, so this reflects Privileged Controls added in
+    // another session before this client next syncs.
     return (
       this.pamBillingSupportEnabled() &&
       this.pamEnabled() &&
-      !org.usePam &&
+      !subscription.usePam &&
       plan.productTier === ProductTierType.Enterprise &&
       plan.PrivilegedControls != null &&
       !this.isSubscriptionCanceledOrPendingCancellation()
