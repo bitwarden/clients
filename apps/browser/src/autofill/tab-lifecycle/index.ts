@@ -1,6 +1,8 @@
 export { TabState, TabEdgeCause } from "./enums";
 export type { BufferAction, TabEdge, TabLifecycleEvent, TransitionReport } from "./types";
-export { COOL_DOWN_MS, SETTLE_MS, tabLifecycle } from "./rx";
+export { tabLifecycle } from "./rx";
+export { defaultTimings, waitFor } from "./timings";
+export type { AutofillTimings } from "./timings";
 export {
   bufferPageTransition,
   edgeBufferAction,

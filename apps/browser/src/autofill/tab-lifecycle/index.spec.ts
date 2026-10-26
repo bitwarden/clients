@@ -1,4 +1,4 @@
-import { BehaviorSubject, firstValueFrom, map, merge, NEVER, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, merge, NEVER, of, Subject } from "rxjs";
 import { TestScheduler } from "rxjs/testing";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -9,7 +9,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { accountEvents$ } from "../rx";
 
 import { TabState } from "./enums";
-import { SETTLE_MS, tabLifecycle } from "./rx";
+import { tabLifecycle } from "./rx";
 import {
   BufferedTransitionReport,
   bufferEnabled,
@@ -20,6 +20,12 @@ import {
 import { BUFFERED_TRANSITIONS } from "./transition-buffer/persistent";
 import type { TabLifecycleEvent } from "./types";
 import { isMonitoring } from "./utils";
+
+// The waits the specs run against. They are the specs' own, so the specs do not depend on the
+// durations that ship.
+const SETTLE_MS = 500;
+const COOL_DOWN_MS = 15_000;
+const timings = { settleMs$: of(SETTLE_MS), coolDownMs$: of(COOL_DOWN_MS) };
 
 const activate = (focused: boolean): TabLifecycleEvent => ({ kind: "activate", focused });
 const deactivate: TabLifecycleEvent = { kind: "deactivate" };
@@ -42,7 +48,7 @@ describe("tab lifecycle integration tests", () => {
       scheduler.run(({ cold, expectObservable }) => {
         const events = cold("a 99ms d", { a: activate(false), d: deactivate });
         const out = events.pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((e) => isMonitoring(e)),
         );
         // cold → warm-up → cold: neither destination monitors
@@ -58,7 +64,7 @@ describe("tab lifecycle integration tests", () => {
           r: activate(true),
         });
         const out = events.pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((e) => isMonitoring(e)),
         );
         // warm-up(false) @0, hot(true) @500, cool-down(true) @1000, hot(true) @5000 — and crucially
@@ -115,7 +121,7 @@ describe("tab lifecycle integration tests", () => {
     it("a report buffered through an aborted activation resolves on the next real one", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "u"], [101, "d"], [301, "a"]), events).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -135,7 +141,7 @@ describe("tab lifecycle integration tests", () => {
     it("a report buffered in cool-down resolves when the user returns inside the grace period", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "a"], [1001, "d"], [5000, "a"]), events).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -156,7 +162,7 @@ describe("tab lifecycle integration tests", () => {
       // the tab leaves and returns afterwards; the resolved report does not fill again
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "a"], [2000, "d"], [3000, "a"]), events).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -176,7 +182,7 @@ describe("tab lifecycle integration tests", () => {
     it("a command-caused arrival at hot drops the report buffered for the settle", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "u"], [100, "c"]), events).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -196,7 +202,7 @@ describe("tab lifecycle integration tests", () => {
     it("a focus redirecting the settle resolves the report at the settle it caused", () => {
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "u"], [100, "f"]), events).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -217,7 +223,7 @@ describe("tab lifecycle integration tests", () => {
       // the report is dropped at warm; the focus that later makes the tab hot cannot revive it
       scheduler.run(({ hot, expectObservable }) => {
         const tabLifecycleChanged$ = hot(at([1, "u"], [600, "f"]), events).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -240,7 +246,7 @@ describe("tab lifecycle integration tests", () => {
           at([1, "a"], [100, "l"], [200, "i"], [300, "a"]),
           events,
         ).pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         );
 
@@ -262,11 +268,11 @@ describe("tab lifecycle integration tests", () => {
         // tab 1 is hot when tab 2's report arrives, and tab 2 is still cold
         const tabLifecycleChanged$ = merge(
           hot(at([1, "a"], [1000, "d"]), events).pipe(
-            tabLifecycle(TabState.Cold),
+            tabLifecycle(TabState.Cold, timings),
             map((change) => [1, change] as const),
           ),
           hot(at([1000, "a"]), events).pipe(
-            tabLifecycle(TabState.Cold),
+            tabLifecycle(TabState.Cold, timings),
             map((change) => [2, change] as const),
           ),
         );
@@ -292,11 +298,11 @@ describe("tab lifecycle integration tests", () => {
         // both tabs are settling toward hot; tab 1 closes first, though its machine keeps running
         const tabLifecycleChanged$ = merge(
           hot(at([1, "a"]), events).pipe(
-            tabLifecycle(TabState.Cold),
+            tabLifecycle(TabState.Cold, timings),
             map((change) => [1, change] as const),
           ),
           hot(at([1, "a"]), events).pipe(
-            tabLifecycle(TabState.Cold),
+            tabLifecycle(TabState.Cold, timings),
             map((change) => [2, change] as const),
           ),
         );
@@ -362,7 +368,7 @@ describe("tab lifecycle integration tests", () => {
         stateProvider,
         report$: registered$,
         tabLifecycleChanged$: events$.pipe(
-          tabLifecycle(TabState.Cold),
+          tabLifecycle(TabState.Cold, timings),
           map((change) => [TAB, change] as const),
         ),
         frameLost$: NEVER,
