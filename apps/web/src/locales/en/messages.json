@@ -12555,7 +12555,22 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsPurchaseDesc": {
-    "message": "PLACEHOLDER: Privileged Controls description and included features"
+    "message": "For security and IT teams to control who can access sensitive credentials, when, and for how long."
+  },
+  "privilegedControlsFeatureAccessRules": {
+    "message": "Access rules for sensitive collections"
+  },
+  "privilegedControlsFeatureJustInTime": {
+    "message": "Just-in-time, time-limited access"
+  },
+  "privilegedControlsFeatureApprovals": {
+    "message": "Approval workflows for access requests"
+  },
+  "privilegedControlsFeatureIpRestrictions": {
+    "message": "IP address restrictions"
+  },
+  "privilegedControlsFeatureAuditLog": {
+    "message": "Audit logging for every request and decision"
   },
   "addPrivilegedControls": {
     "message": "Add Privileged Controls",
@@ -12583,8 +12598,8 @@
     "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to give more members Privileged Controls.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
-  "privilegedControlsSeatLimitBelowSeats": {
-    "message": "Seat limit can't be less than the number of seats."
+  "privilegedControlsSeatLimitNotAboveSeats": {
+    "message": "Seat limit must be a whole number greater than the number of seats."
   },
   "privilegedControlsPurchased": {
     "message": "Subscription updated. You now have Privileged Controls.",

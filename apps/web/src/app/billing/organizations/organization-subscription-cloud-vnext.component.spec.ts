@@ -989,6 +989,30 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       });
       expect(component.showPrivilegedControlsPurchase()).toBe(false);
     });
+
+    const moreFromBitwardenHeadings = (): HTMLElement[] =>
+      Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll("h3")).filter(
+        (heading) => heading.textContent?.trim() === "moreFromBitwarden",
+      );
+
+    it("shows its own More from Bitwarden heading when Secrets Manager subscribe is hidden", async () => {
+      await render({
+        organization: buildEligibleOrganization({ useSecretsManager: true }),
+        subscription: buildEnterpriseSubscription(),
+      });
+      fixture.detectChanges();
+      expect(moreFromBitwardenHeadings().length).toBe(1);
+    });
+
+    it("leaves the More from Bitwarden heading to Secrets Manager subscribe when it is shown", async () => {
+      await render({
+        organization: buildEligibleOrganization({ useSecretsManager: false }),
+        subscription: buildEnterpriseSubscription(),
+      });
+      fixture.detectChanges();
+      expect(component.showSecretsManagerSubscribe()).toBe(true);
+      expect(moreFromBitwardenHeadings().length).toBe(0);
+    });
   });
 
   describe("free organization", () => {

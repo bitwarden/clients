@@ -119,21 +119,36 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(form().controls.seats.hasError("required")).toBe(true);
     });
 
-    it("accepts a seat limit equal to seats and rejects one below", () => {
+    it("accepts a seat limit above seats", () => {
       createComponent();
-      enableAndFill(12, 12);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitBelowSeats")).toBe(false);
-
-      form().controls.maxAutoscaleSeats.setValue(11);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitBelowSeats")).toBe(true);
+      enableAndFill(12, 13);
+      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(false);
     });
 
-    it("flags the seat limit when seats are raised above it", () => {
+    it("rejects a seat limit equal to seats", () => {
       createComponent();
       enableAndFill(12, 12);
+      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+    });
+
+    it("rejects a negative seat limit", () => {
+      createComponent();
+      enableAndFill(12, -5);
+      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+    });
+
+    it("rejects a decimal seat limit", () => {
+      createComponent();
+      enableAndFill(12, 20.5);
+      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+    });
+
+    it("flags the seat limit when seats are raised to it", () => {
+      createComponent();
+      enableAndFill(12, 13);
 
       form().controls.seats.setValue(13);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitBelowSeats")).toBe(true);
+      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
     });
 
     it("notifies the seat limit field of its new status when seats change", () => {
@@ -162,6 +177,33 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(seatLimitInput.closest("bit-form-field")?.textContent).toContain(
         "privilegedControlsSeatLimitDesc",
       );
+    });
+  });
+
+  describe("max seat cost", () => {
+    it("multiplies the seat limit by the plan seat price", () => {
+      createComponent();
+      enableAndFill(12, 20);
+      expect(component["maxSeatTotal"]()).toBe(2400);
+    });
+
+    it("applies an active percentage discount", () => {
+      createComponent({
+        customerDiscount: { active: true, percentOff: 20 } as BillingCustomerDiscount,
+      });
+      enableAndFill(12, 20);
+      expect(component["maxSeatTotal"]()).toBe(1920);
+    });
+
+    it("is zero when the seat limit is empty", () => {
+      createComponent();
+      enableAndFill(12, null);
+      expect(component["maxSeatTotal"]()).toBe(0);
+    });
+
+    it("uses the plan billing interval", () => {
+      createComponent({ plan: buildPlan({ isAnnual: false, seatPrice: 11 }) });
+      expect(component["interval"]()).toBe("month");
     });
   });
 
@@ -200,9 +242,9 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(billingClient.purchasePrivilegedControls).not.toHaveBeenCalled();
     });
 
-    it("does not purchase when the seat limit is below seats", async () => {
+    it("does not purchase when the seat limit is not above seats", async () => {
       createComponent();
-      enableAndFill(12, 11);
+      enableAndFill(12, 12);
 
       await component["submit"]();
 

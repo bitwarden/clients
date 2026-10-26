@@ -1,12 +1,23 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
-  <!-- PLACEHOLDER: Privileged Controls header art from design goes here. -->
-  <div class="tw-h-16 tw-rounded-t tw-bg-background-alt3 tw-p-5"></div>
+  <div class="tw-rounded-t tw-bg-background-alt3 tw-p-5">
+    <div class="tw-w-72">
+      <bit-svg [content]="logo"></bit-svg>
+    </div>
+  </div>
   <div
     class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-secondary-300 tw-p-5"
   >
     <h4 bitTypography="h4">{{ "privilegedControlsForEnterprise" | i18n }}</h4>
-    <p class="tw-text-muted">{{ "privilegedControlsPurchaseDesc" | i18n }}</p>
+    <div class="tw-text-muted">
+      {{ "privilegedControlsPurchaseDesc" | i18n }}
+      <ul>
+        <li>{{ "privilegedControlsFeatureAccessRules" | i18n }}</li>
+        <li>{{ "privilegedControlsFeatureJustInTime" | i18n }}</li>
+        <li>{{ "privilegedControlsFeatureApprovals" | i18n }}</li>
+        <li>{{ "privilegedControlsFeatureIpRestrictions" | i18n }}</li>
+        <li>{{ "privilegedControlsFeatureAuditLog" | i18n }}</li>
+      </ul>
+    </div>
 
     <div class="tw-mb-5">
       {{ "costPerSeat" | i18n: (monthlyCostPerSeat() | currency: "$") }} /{{ "month" | i18n }}
@@ -45,9 +56,17 @@
             bitInput
             formControlName="maxAutoscaleSeats"
             type="number"
+            [min]="(seats() ?? 0) + 1"
             [max]="maxQuantity"
+            step="1"
           />
-          <bit-hint>{{ "privilegedControlsSeatLimitDesc" | i18n }}</bit-hint>
+          <bit-hint>
+            {{ "privilegedControlsSeatLimitDesc" | i18n }}
+            <br />
+            <strong>{{ "maxSeatCost" | i18n }}:</strong>
+            {{ maxAutoscaleSeats() || 0 }} &times; {{ seatPrice() | currency: "$" }} =
+            {{ maxSeatTotal() | currency: "$" }} / {{ interval() | i18n }}
+          </bit-hint>
         </bit-form-field>
       </div>
 

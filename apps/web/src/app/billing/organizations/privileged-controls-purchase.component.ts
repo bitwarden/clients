@@ -8,7 +8,7 @@ import {
   OnInit,
   output,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormControl,
@@ -17,6 +17,7 @@ import {
   Validators,
 } from "@angular/forms";
 
+import { PrivilegedControlsAlt } from "@bitwarden/assets/svg";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -49,16 +50,21 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
   readonly purchased = output<void>();
 
   protected readonly maxQuantity = MAX_PURCHASABLE_QUANTITY;
+  protected readonly logo = PrivilegedControlsAlt;
 
   protected readonly seatMinimum = computed(
     () => this.plan().PrivilegedControls.defaultSeatMinimum,
   );
 
-  protected readonly monthlyCostPerSeat = computed(() => {
-    const plan = this.plan();
-    const seatPrice = this.discountPrice(plan.PrivilegedControls.seatPrice);
-    return plan.isAnnual ? seatPrice / 12 : seatPrice;
-  });
+  protected readonly seatPrice = computed(() =>
+    this.discountPrice(this.plan().PrivilegedControls.seatPrice),
+  );
+
+  protected readonly monthlyCostPerSeat = computed(() =>
+    this.plan().isAnnual ? this.seatPrice() / 12 : this.seatPrice(),
+  );
+
+  protected readonly interval = computed(() => (this.plan().isAnnual ? "year" : "month"));
 
   protected readonly formGroup = new FormGroup({
     enabled: new FormControl(false, { nonNullable: true }),
@@ -72,6 +78,19 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
       (control: AbstractControl) => this.validateSeatLimit(control),
     ]),
   });
+
+  protected readonly seats = toSignal(this.formGroup.controls.seats.valueChanges, {
+    initialValue: this.formGroup.controls.seats.value,
+  });
+
+  protected readonly maxAutoscaleSeats = toSignal(
+    this.formGroup.controls.maxAutoscaleSeats.valueChanges,
+    { initialValue: this.formGroup.controls.maxAutoscaleSeats.value },
+  );
+
+  protected readonly maxSeatTotal = computed(
+    () => (this.maxAutoscaleSeats() ?? 0) * this.seatPrice(),
+  );
 
   ngOnInit() {
     const { enabled, seats, maxAutoscaleSeats } = this.formGroup.controls;
@@ -135,11 +154,14 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
   }
 
   private validateSeatLimit(control: AbstractControl): ValidationErrors | null {
-    const seats = control.parent?.get("seats")?.value;
-    return control.value != null && seats != null && control.value < seats
+    if (control.value == null) {
+      return null;
+    }
+    const seats = control.parent?.get("seats")?.value ?? 0;
+    return !Number.isInteger(control.value) || control.value <= seats
       ? {
-          seatLimitBelowSeats: {
-            message: this.i18nService.t("privilegedControlsSeatLimitBelowSeats"),
+          seatLimitNotAboveSeats: {
+            message: this.i18nService.t("privilegedControlsSeatLimitNotAboveSeats"),
           },
         }
       : null;
