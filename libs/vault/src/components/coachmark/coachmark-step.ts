@@ -8,9 +8,11 @@ export type CoachmarkStepId =
   | "monitorSecurity"
   | "switchProducts"
   | "vaultList"
-  /** Used by the VFO1 walkthrough. The new-user tour uses `shareWithCollections`. */
+  /** Used by the VFO1 walkthrough and extension vault tour. The new-user tour uses `shareWithCollections`. */
   | "sharedFolders"
-  | "filters";
+  | "filters"
+  //extension vault tour
+  | "switchVaults";
 
 /** Configuration for a single coachmark step */
 export interface CoachmarkStep {

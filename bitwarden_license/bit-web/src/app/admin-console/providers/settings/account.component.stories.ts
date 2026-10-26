@@ -58,7 +58,7 @@ export default {
           provide: ActivatedRoute,
           useValue: {
             data: of({ titleId: "myProvider" }),
-            parent: { parent: { params: of({ providerId: PROVIDER_ID }) } },
+            params: of({ providerId: PROVIDER_ID }),
           },
         },
         {

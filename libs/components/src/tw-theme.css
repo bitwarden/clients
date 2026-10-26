@@ -76,11 +76,11 @@
 
   --tw-sm-breakpoint: 640px;
 
-  --color-illustration-outline: 2 15 102;
-  --color-illustration-bg-primary: 219 229 246;
-  --color-illustration-bg-secondary: 170 195 239;
-  --color-illustration-bg-tertiary: 255 255 255;
-  --color-illustration-tertiary: 255 191 0;
+  --color-illustration-stroke: var(--color-brand-800);
+  --color-illustration-fill-primary: var(--color-white);
+  --color-illustration-fill-secondary: var(--color-brand-200);
+  --color-illustration-fill-tertiary: var(--color-brand-050);
+  --color-illustration-fill-accent: var(--color-teal-400);
   --color-illustration-logo: 23 93 220;
 
   /* ========================================
@@ -544,11 +544,11 @@
 
   --tw-ring-offset-color: #1f242e;
 
-  --color-illustration-outline: 23 93 220;
-  --color-illustration-bg-primary: 170 195 239;
-  --color-illustration-bg-secondary: 121 161 233;
-  --color-illustration-bg-tertiary: 243 246 249;
-  --color-illustration-tertiary: 255 191 0;
+  --color-illustration-stroke: var(--color-gray-950);
+  --color-illustration-fill-primary: var(--color-brand-100);
+  --color-illustration-fill-secondary: var(--color-brand-400);
+  --color-illustration-fill-tertiary: var(--color-brand-200);
+  --color-illustration-fill-accent: var(--color-teal-400);
   --color-illustration-logo: 255 255 255;
 
   /* ========================================

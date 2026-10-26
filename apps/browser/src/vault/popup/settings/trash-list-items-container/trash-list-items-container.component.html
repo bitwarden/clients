@@ -19,10 +19,10 @@
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
-            @if (cipher.organizationId) {
+            @if (cipher.organization; as organization) {
               <i
                 appOrgIcon
-                [tierType]="cipher.organization.productTierType"
+                [tierType]="organization.productTierType"
                 [size]="'small'"
                 [appA11yTitle]="orgIconTooltip(cipher)"
               ></i>
