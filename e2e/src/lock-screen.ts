@@ -6,6 +6,7 @@ const MASTER_PASSWORD_INPUT = "lock-master-password-input";
 const MASTER_PASSWORD_UNLOCK_BUTTON = "lock-master-password-unlock-button";
 const PIN_INPUT = "lock-pin-input";
 const PIN_UNLOCK_BUTTON = "lock-pin-unlock-button";
+const BIOMETRIC_UNLOCK_BUTTON = "lock-biometric-unlock-button";
 const UNLOCK_TIMEOUT_MS = 60_000;
 
 export class LockScreen {
@@ -33,6 +34,16 @@ export class LockScreen {
     await this.pinInput.fill(pin);
     await this.page.getByTestId(PIN_UNLOCK_BUTTON).click();
     await this.waitUntilGone();
+  }
+
+  /** Main button of the biometric option, the default one when biometrics are available. */
+  biometricUnlockButton() {
+    return this.page.getByTestId(BIOMETRIC_UNLOCK_BUTTON);
+  }
+
+  /** "Unlock with biometrics" on the master password and PIN options, which swaps to biometrics. */
+  biometricSwapButton() {
+    return this.page.getByRole("button", { name: "Unlock with biometrics", exact: true });
   }
 
   /** Unlocking navigates away, which removes the lock screen. */
