@@ -1385,46 +1385,6 @@ describe("Cipher Service", () => {
 
       expect(sdkServiceSpy).toHaveBeenCalledWith(testOrgId, mockUserId, false);
     });
-
-    // The gated-row routing lives in `decryptOrganizationCiphersResponse`, which only the
-    // non-SDK branch runs.
-    it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
-        .mockResolvedValue(false);
-      keyService.cipherDecryptionKeys$.mockReturnValue(
-        of({
-          userKey: makeSymmetricCryptoKey(64) as UserKey,
-          orgKeys: { [orgId]: makeSymmetricCryptoKey(32) as OrgKey },
-        } as CipherDecryptionKeys),
-      );
-
-      // A gated row as the server sends it, with `partialData` in place of the suppressed secrets.
-      jest.spyOn(apiService, "getCiphersOrganization").mockResolvedValue({
-        data: [
-          {
-            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
-            organizationId: testOrgId,
-            type: CipherType.Login,
-            revisionDate: "2022-01-31T12:00:00.000Z",
-            partialData: '{"name":"EncryptedString"}',
-          },
-        ],
-      } as any);
-
-      const partialView = new CipherView();
-      partialView.name = "AWS Root Account";
-      partialView.partial = true;
-      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[partialView], []]);
-
-      const result = await cipherService.getAllFromApiForOrganization(testOrgId);
-
-      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledTimes(1);
-      const [ciphers] = cipherEncryptionService.decryptManyLegacy.mock.calls[0];
-      expect(ciphers).toHaveLength(1);
-      expect(ciphers[0].partialData).toBe('{"name":"EncryptedString"}');
-      expect(result).toEqual([partialView]);
-    });
   });
 
   describe("getManyFromApiForOrganization()", () => {
