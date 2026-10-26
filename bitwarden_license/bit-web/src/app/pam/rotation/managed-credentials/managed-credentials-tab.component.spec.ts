@@ -340,6 +340,32 @@ describe("ManagedCredentialsTabComponent", () => {
         expect.objectContaining({ variant: "error" }),
       );
     });
+
+    it("shows the server's reason when the SDK refuses the rotation", async () => {
+      configsService.rotateNow.mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 400 Bad Request: {"object":"error",' +
+              '"message":"A rotation for this credential is already in progress."}',
+          ),
+          { name: "RotationError", variant: "Api" },
+        ),
+      );
+      await component.rotateNow(makeRow());
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "A rotation for this credential is already in progress.",
+      });
+    });
+
+    it("falls back to the generic message for an error with no server reason", async () => {
+      configsService.rotateNow.mockRejectedValue(new Error("fail"));
+      await component.rotateNow(makeRow());
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "unexpectedError",
+      });
+    });
   });
 
   describe("confirmDelete (confirmed)", () => {
