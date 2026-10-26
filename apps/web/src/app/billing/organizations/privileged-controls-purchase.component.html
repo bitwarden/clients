@@ -44,6 +44,7 @@
             type="number"
             [min]="seatMinimum()"
             [max]="maxQuantity"
+            step="1"
           />
           <bit-hint>{{ "privilegedControlsMinimumSeats" | i18n: seatMinimum() }}</bit-hint>
         </bit-form-field>

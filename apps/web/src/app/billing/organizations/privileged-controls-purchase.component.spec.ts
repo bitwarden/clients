@@ -113,6 +113,12 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(form().controls.seats.hasError("max")).toBe(true);
     });
 
+    it("rejects decimal seats", () => {
+      createComponent();
+      enableAndFill(10.5, null);
+      expect(form().controls.seats.hasError("wholeNumber")).toBe(true);
+    });
+
     it("requires seats", () => {
       createComponent();
       enableAndFill(null, null);
@@ -245,6 +251,15 @@ describe("PrivilegedControlsPurchaseComponent", () => {
     it("does not purchase when the seat limit is not above seats", async () => {
       createComponent();
       enableAndFill(12, 12);
+
+      await component["submit"]();
+
+      expect(billingClient.purchasePrivilegedControls).not.toHaveBeenCalled();
+    });
+
+    it("does not purchase when seats are a decimal", async () => {
+      createComponent();
+      enableAndFill(10.5, null);
 
       await component["submit"]();
 

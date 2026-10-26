@@ -149,6 +149,9 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
     if (control.value == null) {
       return null;
     }
+    if (!Number.isInteger(control.value)) {
+      return { wholeNumber: { message: this.i18nService.t("integerInputError") } };
+    }
     const minimum = this.seatMinimum();
     return control.value < minimum ? { min: { min: minimum, actual: control.value } } : null;
   }
