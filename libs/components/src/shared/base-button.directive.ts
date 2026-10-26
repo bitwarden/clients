@@ -326,6 +326,12 @@ export class BaseButtonDirective {
 
   readonly loading = model<boolean>(false);
 
+  /**
+   * Shows the spinner as soon as `loading` starts, skipping the debounce. For actions that block
+   * the main thread, e.g. a key derivation, where waiting for the debounce delays the action.
+   */
+  readonly instantSpinner = input(false, { transform: booleanAttribute });
+
   readonly disabled = model<boolean>(false);
 
   readonly disabledAttr = computed(() => {
@@ -349,7 +355,9 @@ export class BaseButtonDirective {
    */
   readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(
-      debounce((isLoading) => interval(isLoading ? BUTTON_SPINNER_DELAY_MS : 0)),
+      debounce((isLoading) =>
+        interval(isLoading && !this.instantSpinner() ? BUTTON_SPINNER_DELAY_MS : 0),
+      ),
     ),
   );
 
