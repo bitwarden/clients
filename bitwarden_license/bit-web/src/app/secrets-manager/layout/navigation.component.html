@@ -1,6 +1,14 @@
-<app-side-nav>
+<app-side-nav headerBorder="always">
   <bit-nav-logo [openIcon]="logo" route="." [label]="'secretsManager' | i18n"></bit-nav-logo>
-  <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
+  @if (vfo1Enabled()) {
+    <org-switcher
+      slot="product-switcher"
+      [filter]="orgFilter"
+      [hideNewButton]="true"
+    ></org-switcher>
+  } @else {
+    <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
+  }
   <!-- vfo1: an unlabeled section gives the rows section row spacing. -->
   @if (vfo1Enabled()) {
     <bit-nav-section>
