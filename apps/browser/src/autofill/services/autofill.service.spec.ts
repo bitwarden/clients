@@ -3272,6 +3272,139 @@ describe("AutofillService", () => {
 
         expect(value.autosubmit).toEqual([null]);
       });
+
+      describe("given a field that accepts either a TOTP or a backup code", () => {
+        const totpCode = "123456";
+        let combinedField: AutofillField;
+
+        beforeEach(() => {
+          usernameField.htmlID = "username";
+          usernameField.htmlName = "username";
+          combinedField = createAutofillFieldMock({
+            opid: "combined",
+            type: "text",
+            form: "validFormId",
+            htmlID: "totp",
+            htmlName: "otp",
+            autoCompleteType: "one-time-code",
+            "label-left": "Authenticator or backup code",
+            placeholder: "Enter your authenticator or backup code",
+            elementNumber: 3,
+          });
+          pageDetails.fields = [usernameField, passwordField, combinedField];
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValue(false);
+          jest.spyOn(AutofillService, "fillByOpid");
+        });
+
+        it("fills the TOTP into the field when no field is focused", async () => {
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            combinedField,
+            totpCode,
+          );
+        });
+
+        it("fills the TOTP into the field, and the username into the username field, when the field is focused", async () => {
+          options.focusedFieldOpid = combinedField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            combinedField,
+            totpCode,
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            usernameField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            combinedField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("does not fill the TOTP into a separate recovery-only field marked as a one-time code", async () => {
+          const recoveryField = createAutofillFieldMock({
+            opid: "recovery",
+            type: "text",
+            form: "validFormId",
+            htmlID: "backup-code",
+            htmlName: "backup_code",
+            autoCompleteType: "one-time-code",
+            "label-left": "Backup code",
+            elementNumber: 3,
+          });
+          combinedField.elementNumber = 4;
+          pageDetails.fields = [usernameField, passwordField, recoveryField, combinedField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            recoveryField,
+            totpCode,
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            combinedField,
+            totpCode,
+          );
+        });
+
+        it("never fills the username into a focused recovery-only field", async () => {
+          const recoveryField = createAutofillFieldMock({
+            opid: "recovery",
+            type: "text",
+            form: "validFormId",
+            htmlID: "recovery-code",
+            htmlName: "recovery_code",
+            "label-left": "Recovery code",
+            elementNumber: 3,
+          });
+          pageDetails.fields = [usernameField, passwordField, recoveryField];
+          options.focusedFieldOpid = recoveryField.opid;
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            recoveryField,
+            expect.anything(),
+          );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            usernameField,
+            options.cipher.login.username,
+          );
+        });
+      });
     });
   });
 

@@ -103,6 +103,58 @@ export function fieldContainsKeyword(
 }
 
 /**
+ * True if any keyword matches a token from a single attribute value, using the same matching
+ * rules as {@link fieldContainsKeyword}.
+ */
+function attributeContainsKeyword(
+  value: string | undefined,
+  keywords: readonly string[],
+  mode: KeywordMatchMode = KeywordMatchMode.AppearsWithin,
+): boolean {
+  if (!value || typeof value !== "string") {
+    return false;
+  }
+  const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
+  const keywordsSet = tokenizeValue(value);
+  if (mode === KeywordMatchMode.AppearsWithin) {
+    const stringValue = Array.from(keywordsSet).join(",");
+    return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
+  }
+  return parsedKeywords.some((k) => keywordsSet.has(k));
+}
+
+/**
+ * True if the field asks for a recovery or backup code rather than a TOTP. A field whose id or
+ * name marks it as a TOTP input, and that mentions backup codes only in its label or placeholder
+ * (e.g. "Authenticator or backup code"), accepts either and is not treated as recovery-only.
+ */
+export function isRecoveryCodeField(field: AutofillField): boolean {
+  if (!fieldContainsKeyword(field, AutoFillConstants.RecoveryCodeFieldNames)) {
+    return false;
+  }
+
+  const identifiers = [field.htmlID, field.htmlName];
+  if (
+    identifiers.some((value) =>
+      attributeContainsKeyword(value, AutoFillConstants.RecoveryCodeFieldNames),
+    )
+  ) {
+    return true;
+  }
+
+  const identifiedAsTotp = identifiers.some(
+    (value) =>
+      attributeContainsKeyword(value, AutoFillConstants.TotpFieldNames) ||
+      attributeContainsKeyword(
+        value,
+        AutoFillConstants.AbbreviatedTotpFieldNames,
+        KeywordMatchMode.MatchesToken,
+      ),
+  );
+  return !identifiedAsTotp;
+}
+
+/**
  * True if any keyword matches a token from the form. With `appearsWithin` (default), the
  * keyword may appear as a substring of any token; `matchesToken` requires an exact token.
  * Hyphens are stripped from keywords before matching.
