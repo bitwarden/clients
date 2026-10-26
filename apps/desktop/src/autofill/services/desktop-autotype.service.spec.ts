@@ -10,11 +10,19 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { GlobalStateProvider, KeyDefinition } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { LogService } from "@bitwarden/logging";
+import { autotypeRequestSetEnabled } from "@bitwarden/sdk-internal";
 
 import { DesktopAutotypeService } from "./desktop-autotype.service";
+
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  autotypeRequestSetEnabled: jest.fn(),
+}));
 
 type FakeGlobalState<T> = {
   state$: Observable<T | null>;
@@ -31,6 +39,8 @@ describe("DesktopAutotypeService", () => {
   let mockGlobalStateProvider: jest.Mocked<GlobalStateProvider>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockBillingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let mockLogService: MockProxy<LogService>;
+  let mockIpcService: MockProxy<IpcService>;
 
   let mockAutotypeEnabledState: FakeGlobalState<boolean>;
   let mockAutotypeKeyboardShortcutState: FakeGlobalState<string[]>;
@@ -57,7 +67,14 @@ describe("DesktopAutotypeService", () => {
     });
   }
 
+  // The desktop test environment runs on jest-environment-jsdom's bundled jsdom@20,
+  // which predates the `AbortSignal.timeout` static the service relies on (present
+  // in the Electron/Chromium runtime). Polyfill it for the duration of each test.
+  const originalAbortSignalTimeout = (AbortSignal as any).timeout;
+
   beforeEach(() => {
+    (AbortSignal as any).timeout = jest.fn(() => new AbortController().signal);
+
     autotypeEnabledSubject = new BehaviorSubject<boolean | null>(null);
     autotypeKeyboardShortcutSubject = new BehaviorSubject<string[]>(["Control", "Alt", "B"]);
     activeAccountSubject = new BehaviorSubject<Account | null>({
@@ -124,6 +141,11 @@ describe("DesktopAutotypeService", () => {
       hasPremiumSubject.asObservable(),
     );
 
+    mockLogService = mock<LogService>();
+
+    mockIpcService = mock<IpcService>();
+    (autotypeRequestSetEnabled as jest.Mock).mockResolvedValue({ success: true });
+
     TestBed.configureTestingModule({
       providers: [
         DesktopAutotypeService,
@@ -137,6 +159,8 @@ describe("DesktopAutotypeService", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
+        { provide: LogService, useValue: mockLogService },
+        { provide: IpcService, useValue: mockIpcService },
       ],
     });
 
@@ -145,6 +169,7 @@ describe("DesktopAutotypeService", () => {
 
   afterEach(() => {
     service.ngOnDestroy();
+    (AbortSignal as any).timeout = originalAbortSignalTimeout;
     jest.clearAllMocks();
   });
 
@@ -206,6 +231,180 @@ describe("DesktopAutotypeService", () => {
 
       expect(mockAutotypeEnabledState.update).not.toHaveBeenCalled();
       expect(autotypeEnabledSubject.value).toBeNull();
+    });
+  });
+
+  describe("set-enabled IPC", () => {
+    // Lets `autotypeFeatureEnabled$` emit true: GA flag on, setting on, and the
+    // unlocked/premium defaults from `beforeEach`.
+    function enableAutotype() {
+      mockAutotypeFlags(false, true);
+      autotypeEnabledSubject.next(true);
+    }
+
+    // Lets a test turn the GA flag off after `init()`. Every read of the GA flag shares one
+    // subject so, as with the shared `serverConfig$` in production, the GA flag gate hears
+    // the change before `autotypeFeatureEnabled$` does.
+    function mockRuntimeGaFlag(): BehaviorSubject<boolean> {
+      const gaFlagSubject = new BehaviorSubject<boolean>(true);
+      mockConfigService.getFeatureFlag$.mockImplementation((flag) => {
+        if (flag === FeatureFlag.WindowsDesktopAutotypeGA) {
+          return gaFlagSubject;
+        }
+        if (flag === FeatureFlag.WindowsDesktopAutotype) {
+          return of(false);
+        }
+        throw new Error(`Unexpected feature flag requested in test: ${flag}`);
+      });
+      return gaFlagSubject;
+    }
+
+    it("should tell the main process when autotype turns on", async () => {
+      enableAutotype();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).toHaveBeenCalledWith(
+        mockIpcService.client,
+        true,
+        expect.any(AbortSignal),
+      );
+    });
+
+    it("should tell the main process when autotype turns off", async () => {
+      enableAutotype();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      autotypeEnabledSubject.next(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).toHaveBeenLastCalledWith(
+        mockIpcService.client,
+        false,
+        expect.any(AbortSignal),
+      );
+    });
+
+    it("should bound each request with a timeout", async () => {
+      enableAutotype();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(AbortSignal.timeout).toHaveBeenCalledWith(5_000);
+    });
+
+    it("should log when the main process does not apply the change", async () => {
+      (autotypeRequestSetEnabled as jest.Mock).mockResolvedValue({ success: false });
+      enableAutotype();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        "Failed to set the Autotype enabled state to: true",
+      );
+    });
+
+    it("should keep sending later toggles after a request fails", async () => {
+      const failure = new Error("Destination unreachable");
+      (autotypeRequestSetEnabled as jest.Mock).mockRejectedValueOnce(failure);
+      enableAutotype();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        "Failed to send the Autotype enabled state to the main process.",
+        failure,
+      );
+
+      // A rejection must not tear down the subscription.
+      autotypeEnabledSubject.next(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).toHaveBeenLastCalledWith(
+        mockIpcService.client,
+        false,
+        expect.any(AbortSignal),
+      );
+    });
+
+    it("should tell the main process autotype is off when the GA flag is on", async () => {
+      mockAutotypeFlags(false, true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).toHaveBeenCalledWith(
+        mockIpcService.client,
+        false,
+        expect.any(AbortSignal),
+      );
+    });
+
+    it("should tell the main process autotype is off once when the GA flag turns off after enabling", async () => {
+      const gaFlagSubject = mockRuntimeGaFlag();
+      autotypeEnabledSubject.next(true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      gaFlagSubject.next(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).toHaveBeenCalledTimes(2);
+      expect(autotypeRequestSetEnabled).toHaveBeenLastCalledWith(
+        mockIpcService.client,
+        false,
+        expect.any(AbortSignal),
+      );
+    });
+
+    it("should not contact the main process when the GA flag turns off without enabling", async () => {
+      const gaFlagSubject = mockRuntimeGaFlag();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      gaFlagSubject.next(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Only the initial `false` while the GA flag was on.
+      expect(autotypeRequestSetEnabled).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not contact the main process when only the MVP flag is on", async () => {
+      // A `false` from here would unregister the MVP service's keyboard shortcut.
+      mockAutotypeFlags(true, false);
+      autotypeEnabledSubject.next(true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).not.toHaveBeenCalled();
+    });
+
+    it("should not contact the main process when the Autotype flags are off", async () => {
+      autotypeEnabledSubject.next(true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).not.toHaveBeenCalled();
+    });
+
+    it("should not contact the main process on non-Windows platforms", async () => {
+      mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+      enableAutotype();
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(autotypeRequestSetEnabled).not.toHaveBeenCalled();
     });
   });
 

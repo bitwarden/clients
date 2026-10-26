@@ -3,6 +3,7 @@ import {
   combineLatest,
   concatMap,
   distinctUntilChanged,
+  EMPTY,
   filter,
   map,
   Observable,
@@ -10,6 +11,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,12 +23,15 @@ import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/serv
 import { DeviceType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import {
   GlobalStateProvider,
   AUTOTYPE_SETTINGS_DISK,
   KeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { LogService } from "@bitwarden/logging";
+import { autotypeRequestSetEnabled } from "@bitwarden/sdk-internal";
 
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
@@ -55,6 +60,11 @@ export const AUTOTYPE_GA_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   "autotypeGaKeyboardShortcut",
   { deserializer: (b) => b },
 );
+
+/*
+  How long to wait for the main process to answer an Autotype IPC request.
+*/
+const AUTOTYPE_IPC_TIMEOUT_MS = 5_000;
 
 export type Result<T, E = Error> = [E, null] | [null, T];
 
@@ -88,6 +98,8 @@ export class DesktopAutotypeService implements OnDestroy {
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private logService: LogService,
+    private ipcService: IpcService,
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
@@ -127,12 +139,44 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
-    // Enable or disable Autotype
-    this.autotypeFeatureEnabled$
+    // Enable or disable Autotype in the main process, which owns the global shortcut.
+    // Only while the GA flag is on: the MVP service registers the same default shortcut,
+    // and the main process can't tell which service registered it, so a `false` sent
+    // from here would unregister the MVP's shortcut.
+    //
+    // The exception is the GA flag turning off after this service enabled Autotype: one
+    // `false` is sent so the shortcut is released. If the flag switches straight to the
+    // MVP, that `false` races the MVP's own registration, so the MVP may need a restart
+    // (MVP, delete with PM-41067).
+    let lastRequestedEnabled = false;
+    autotypeFeatureFlagState$(this.configService)
       .pipe(
+        map((state) => state === AutotypeFeatureFlagState.Ga),
+        distinctUntilChanged(),
+        switchMap((gaEnabled) => {
+          if (gaEnabled) {
+            return this.autotypeFeatureEnabled$;
+          }
+          return lastRequestedEnabled ? of(false) : EMPTY;
+        }),
+        tap((enabled) => (lastRequestedEnabled = enabled)),
         concatMap(async (enabled) => {
-          // TODO: inform the main process the keyboard shortcut setting changed
-          //       (PM-38967)
+          try {
+            const response = await autotypeRequestSetEnabled(
+              this.ipcService.client,
+              enabled,
+              AbortSignal.timeout(AUTOTYPE_IPC_TIMEOUT_MS),
+            );
+
+            if (!response.success) {
+              this.logService.error(`Failed to set the Autotype enabled state to: ${enabled}`);
+            }
+          } catch (e) {
+            this.logService.error(
+              "Failed to send the Autotype enabled state to the main process.",
+              e,
+            );
+          }
         }),
         takeUntil(this.destroy$),
       )

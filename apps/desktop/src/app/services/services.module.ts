@@ -682,6 +682,8 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
+      LogService,
+      IpcService,
     ],
   }),
   // Autotype MVP only: must only be consumed within the Autotype MVP scope
