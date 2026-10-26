@@ -796,11 +796,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return false;
     }
 
-    // TODO: the stash doubles as the record that login already evaluated this org's MP
-    // policy, so any entry that skips login (an authed user pasting the accept URL) must not
-    // write it, and recoverable accept failures must keep it. Consider recording the policy
-    // evaluation as its own explicit fact, written by the login flow, so the stash only
-    // carries the invite.
+    // TODO: PM-45803 - the stash doubles as the record that login already evaluated this
+    // org's MP policy, so any entry that skips login (an authed user pasting the accept URL)
+    // must not write it, and recoverable accept failures must keep it. Consider recording the
+    // policy evaluation as its own explicit fact, written by the login flow, so the stash
+    // only carries the invite.
     const storedInvite = await readStash();
     if (storedInvite != null && !matchesStash(storedInvite)) {
       // Stale same-kind stash from a different ceremony; clear so the detour fires fresh.
