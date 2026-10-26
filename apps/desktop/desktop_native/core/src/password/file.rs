@@ -65,6 +65,13 @@ pub fn delete_password(path: &Path, service: &str, account: &str) -> Result<()> 
 }
 
 fn read(path: &Path) -> Result<Store> {
+    // Prevent path traversal attacks by rejecting paths containing '..'.
+    if path
+        .components()
+        .any(|c| c == std::path::Component::ParentDir)
+    {
+        return Err(anyhow!("Invalid input: {}", path.display()));
+    }
     match fs::read_to_string(path) {
         Ok(json) => Ok(serde_json::from_str(&json)?),
         Err(e) if e.kind() == ErrorKind::NotFound => Ok(Store::new()),
