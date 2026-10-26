@@ -252,7 +252,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
     const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       password.keyB64,
-      await this.tokenService.getEmail(),
+      this.masterPasswordService.emailToSalt(await this.tokenService.getEmail()),
       kdfConfig,
     );
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(

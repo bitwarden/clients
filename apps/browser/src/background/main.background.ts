@@ -297,7 +297,7 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
-import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { FlightRecorderLogRecorder, limitPerformanceMeasurements } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
@@ -881,6 +881,7 @@ export default class MainBackground {
       this.stateProvider,
       this.accountCryptographicStateService,
       browserBiometricsService,
+      this.sdkService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -1053,6 +1054,8 @@ export default class MainBackground {
       this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
+      this.sdkService,
       this.autoUnlockService,
       this.messagingService,
       this.messageListener,
@@ -1855,6 +1858,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
+    limitPerformanceMeasurements();
     this.containerService.attachToGlobal(self);
 
     // Acquired first so no consumer can observe an empty profile that acquisition would have
