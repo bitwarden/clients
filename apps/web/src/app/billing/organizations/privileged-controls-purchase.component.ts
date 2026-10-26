@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   input,
   OnInit,
@@ -31,7 +30,7 @@ import { OrganizationBillingClient } from "../clients/organization-billing.clien
 const MAX_PURCHASABLE_QUANTITY = 100000;
 
 @Component({
-  selector: "app-privileged-controls-purchase",
+  selector: "billing-privileged-controls-purchase",
   templateUrl: "privileged-controls-purchase.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SharedModule],
@@ -41,7 +40,6 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
   private readonly syncService = inject(SyncService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly plan = input.required<PlanResponse>();
   readonly organizationId = input.required<OrganizationId>();
@@ -53,7 +51,13 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
 
   protected readonly logo = PrivilegedControlsAlt;
 
-  protected readonly seatLimitCap = computed(
+  protected readonly enabledControl = new FormControl(false, { nonNullable: true });
+
+  protected readonly enabled = toSignal(this.enabledControl.valueChanges, {
+    initialValue: this.enabledControl.value,
+  });
+
+  protected readonly maxAutoscaleSeatsCap = computed(
     () => this.passwordManagerMaxAutoscaleSeats() ?? this.passwordManagerSeats(),
   );
 
@@ -67,46 +71,47 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
 
   protected readonly interval = computed(() => (this.plan().isAnnual ? "year" : "month"));
 
+  private readonly seatsControl = new FormControl<number | null>(null, [
+    Validators.required,
+    Validators.min(1),
+    Validators.max(MAX_PURCHASABLE_QUANTITY),
+    (control: AbstractControl) => this.validateWholeNumber(control),
+    (control: AbstractControl) => this.validateSeatsWithinPasswordManagerSeats(control),
+  ]);
+
+  private readonly maxAutoscaleSeatsControl = new FormControl<number | null>(null, [
+    Validators.max(MAX_PURCHASABLE_QUANTITY),
+    (control: AbstractControl) => this.validateWholeNumber(control),
+    (control: AbstractControl) => this.validateMaxAutoscaleSeatsAboveSeats(control),
+    (control: AbstractControl) => this.validateMaxAutoscaleSeatsWithinCap(control),
+  ]);
+
   protected readonly formGroup = new FormGroup({
-    enabled: new FormControl(false, { nonNullable: true }),
-    seats: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(1),
-      Validators.max(MAX_PURCHASABLE_QUANTITY),
-      (control: AbstractControl) => this.validateSeats(control),
-    ]),
-    maxAutoscaleSeats: new FormControl<number | null>(null, [
-      Validators.max(MAX_PURCHASABLE_QUANTITY),
-      (control: AbstractControl) => this.validateSeatLimit(control),
-    ]),
+    seats: this.seatsControl,
+    maxAutoscaleSeats: this.maxAutoscaleSeatsControl,
   });
 
-  protected readonly seats = toSignal(this.formGroup.controls.seats.valueChanges, {
-    initialValue: this.formGroup.controls.seats.value,
+  protected readonly seats = toSignal(this.seatsControl.valueChanges, {
+    initialValue: this.seatsControl.value,
   });
 
-  protected readonly maxAutoscaleSeats = toSignal(
-    this.formGroup.controls.maxAutoscaleSeats.valueChanges,
-    { initialValue: this.formGroup.controls.maxAutoscaleSeats.value },
-  );
+  protected readonly maxAutoscaleSeats = toSignal(this.maxAutoscaleSeatsControl.valueChanges, {
+    initialValue: this.maxAutoscaleSeatsControl.value,
+  });
 
   protected readonly maxSeatTotal = computed(
     () => (this.maxAutoscaleSeats() ?? 0) * this.seatPrice(),
   );
 
+  constructor() {
+    this.seatsControl.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.maxAutoscaleSeatsControl.updateValueAndValidity());
+  }
+
   ngOnInit() {
-    const { enabled, seats, maxAutoscaleSeats } = this.formGroup.controls;
-
-    seats.setValue(1);
-
-    this.toggleFields(enabled.value);
-    enabled.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => this.toggleFields(value));
-
-    seats.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => maxAutoscaleSeats.updateValueAndValidity());
+    // Set after inputs are bound, since the seats validators read the required passwordManagerSeats input.
+    this.seatsControl.setValue(1);
   }
 
   protected readonly submit = async () => {
@@ -136,23 +141,18 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
     return discount?.active ? price - price * ((discount.percentOff ?? 0) / 100) : price;
   }
 
-  private toggleFields(enabled: boolean) {
-    const { seats, maxAutoscaleSeats } = this.formGroup.controls;
-    if (enabled) {
-      seats.enable();
-      maxAutoscaleSeats.enable();
-    } else {
-      seats.disable();
-      maxAutoscaleSeats.disable();
-    }
-  }
-
-  private validateSeats(control: AbstractControl): ValidationErrors | null {
-    if (control.value == null) {
+  private validateWholeNumber(control: AbstractControl): ValidationErrors | null {
+    if (control.value == null || Number.isInteger(control.value)) {
       return null;
     }
-    if (!Number.isInteger(control.value)) {
-      return { wholeNumber: { message: this.i18nService.t("integerInputError") } };
+    return { wholeNumber: { message: this.i18nService.t("integerInputError") } };
+  }
+
+  private validateSeatsWithinPasswordManagerSeats(
+    control: AbstractControl,
+  ): ValidationErrors | null {
+    if (control.value == null) {
+      return null;
     }
     const passwordManagerSeats = this.passwordManagerSeats();
     return control.value > passwordManagerSeats
@@ -167,19 +167,22 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
       : null;
   }
 
-  private validateSeatLimit(control: AbstractControl): ValidationErrors | null {
+  private validateMaxAutoscaleSeatsAboveSeats(control: AbstractControl): ValidationErrors | null {
+    if (control.value == null || control.value > (this.seatsControl.value ?? 0)) {
+      return null;
+    }
+    return {
+      maxAutoscaleSeatsNotAboveSeats: {
+        message: this.i18nService.t("privilegedControlsSeatLimitNotAboveSeats"),
+      },
+    };
+  }
+
+  private validateMaxAutoscaleSeatsWithinCap(control: AbstractControl): ValidationErrors | null {
     if (control.value == null) {
       return null;
     }
-    const seats = control.parent?.get("seats")?.value ?? 0;
-    if (!Number.isInteger(control.value) || control.value <= seats) {
-      return {
-        seatLimitNotAboveSeats: {
-          message: this.i18nService.t("privilegedControlsSeatLimitNotAboveSeats"),
-        },
-      };
-    }
-    const cap = this.seatLimitCap();
+    const cap = this.maxAutoscaleSeatsCap();
     if (control.value <= cap) {
       return null;
     }
@@ -188,7 +191,7 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
         ? "privilegedControlsSeatLimitAbovePasswordManagerSeats"
         : "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit";
     return {
-      seatLimitAbovePasswordManager: { message: this.i18nService.t(messageKey, cap) },
+      maxAutoscaleSeatsAbovePasswordManager: { message: this.i18nService.t(messageKey, cap) },
     };
   }
 }

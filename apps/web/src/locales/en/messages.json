@@ -12620,7 +12620,7 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsSeatLimitNotAboveSeats": {
-    "message": "Seat limit must be a whole number greater than the number of seats."
+    "message": "Seat limit must be greater than the number of seats."
   },
   "privilegedControlsPurchased": {
     "message": "Subscription updated. You now have Privileged Controls.",

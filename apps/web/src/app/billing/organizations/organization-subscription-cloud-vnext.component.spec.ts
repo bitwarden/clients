@@ -73,7 +73,7 @@ class MockSmSubscribeStandaloneComponent {
 }
 
 @Component({
-  selector: "app-privileged-controls-purchase",
+  selector: "billing-privileged-controls-purchase",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -997,6 +997,14 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       await render({
         organization: buildEligibleOrganization(),
         subscription: buildEnterpriseSubscription({}, { subscription: { cancelled: true } as any }),
+      });
+      expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("hides it when the organization has a provider", async () => {
+      await render({
+        organization: buildEligibleOrganization({ hasProvider: true }),
+        subscription: buildEnterpriseSubscription(),
       });
       expect(component.showPrivilegedControlsPurchase()).toBe(false);
     });

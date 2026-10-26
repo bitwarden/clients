@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { StatusChangeEvent } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -50,7 +49,7 @@ describe("PrivilegedControlsPurchaseComponent", () => {
   const form = () => component["formGroup"];
 
   const enableAndFill = (seats: number, maxAutoscaleSeats: number | null) => {
-    form().controls.enabled.setValue(true);
+    component["enabledControl"].setValue(true);
     form().controls.seats.setValue(seats);
     form().controls.maxAutoscaleSeats.setValue(maxAutoscaleSeats);
   };
@@ -152,25 +151,31 @@ describe("PrivilegedControlsPurchaseComponent", () => {
     it("accepts a seat limit above seats", () => {
       createComponent();
       enableAndFill(12, 13);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(false);
+      expect(form().controls.maxAutoscaleSeats.hasError("maxAutoscaleSeatsNotAboveSeats")).toBe(
+        false,
+      );
     });
 
     it("rejects a seat limit equal to seats", () => {
       createComponent();
       enableAndFill(12, 12);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+      expect(form().controls.maxAutoscaleSeats.getError("maxAutoscaleSeatsNotAboveSeats")).toEqual({
+        message: "privilegedControlsSeatLimitNotAboveSeats",
+      });
     });
 
     it("rejects a negative seat limit", () => {
       createComponent();
       enableAndFill(12, -5);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+      expect(form().controls.maxAutoscaleSeats.hasError("maxAutoscaleSeatsNotAboveSeats")).toBe(
+        true,
+      );
     });
 
     it("rejects a decimal seat limit", () => {
       createComponent();
       enableAndFill(12, 20.5);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+      expect(form().controls.maxAutoscaleSeats.hasError("wholeNumber")).toBe(true);
     });
 
     it("caps the seat limit at the Password Manager seat limit when one is set", () => {
@@ -179,7 +184,9 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(form().controls.maxAutoscaleSeats.valid).toBe(true);
 
       form().controls.maxAutoscaleSeats.setValue(31);
-      expect(form().controls.maxAutoscaleSeats.getError("seatLimitAbovePasswordManager")).toEqual({
+      expect(
+        form().controls.maxAutoscaleSeats.getError("maxAutoscaleSeatsAbovePasswordManager"),
+      ).toEqual({
         message: "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit",
       });
     });
@@ -190,7 +197,9 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(form().controls.maxAutoscaleSeats.valid).toBe(true);
 
       form().controls.maxAutoscaleSeats.setValue(51);
-      expect(form().controls.maxAutoscaleSeats.getError("seatLimitAbovePasswordManager")).toEqual({
+      expect(
+        form().controls.maxAutoscaleSeats.getError("maxAutoscaleSeatsAbovePasswordManager"),
+      ).toEqual({
         message: "privilegedControlsSeatLimitAbovePasswordManagerSeats",
       });
     });
@@ -200,22 +209,42 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       enableAndFill(12, 13);
 
       form().controls.seats.setValue(13);
-      expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+      expect(form().controls.maxAutoscaleSeats.hasError("maxAutoscaleSeatsNotAboveSeats")).toBe(
+        true,
+      );
     });
 
-    it("notifies the seat limit field of its new status when seats change", () => {
+    it("clears the seat limit error when seats are lowered below it", () => {
       createComponent();
       enableAndFill(12, 12);
-      const statusEvents: unknown[] = [];
-      form().controls.maxAutoscaleSeats.events.subscribe((event) => {
-        if (event instanceof StatusChangeEvent) {
-          statusEvents.push(event);
-        }
-      });
 
-      form().controls.seats.setValue(13);
+      form().controls.seats.setValue(11);
+      expect(form().controls.maxAutoscaleSeats.valid).toBe(true);
+    });
 
-      expect(statusEvents.length).toBeGreaterThan(0);
+    it("keeps the seat limit's own errors when the seats comparison passes", () => {
+      createComponent({ passwordManagerSeats: 50 });
+      enableAndFill(12, 51);
+
+      form().controls.seats.setValue(10);
+      expect(
+        form().controls.maxAutoscaleSeats.hasError("maxAutoscaleSeatsAbovePasswordManager"),
+      ).toBe(true);
+    });
+
+    it("hides the seat fields until Privileged Controls is checked", () => {
+      createComponent();
+
+      expect(
+        fixture.nativeElement.querySelector("#privileged-controls-purchase_input_seats"),
+      ).toBeNull();
+
+      fixture.nativeElement.querySelector("#privileged-controls-purchase_input_enabled").click();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("#privileged-controls-purchase_input_seats"),
+      ).not.toBeNull();
     });
 
     it("shows a hint under the seat limit field", () => {
@@ -223,10 +252,10 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       fixture.nativeElement.querySelector("#privileged-controls-purchase_input_enabled").click();
       fixture.detectChanges();
 
-      const seatLimitInput: HTMLElement = fixture.nativeElement.querySelector(
+      const maxAutoscaleSeatsInput: HTMLElement = fixture.nativeElement.querySelector(
         "#privileged-controls-purchase_input_seat-limit",
       );
-      expect(seatLimitInput.closest("bit-form-field")?.textContent).toContain(
+      expect(maxAutoscaleSeatsInput.closest("bit-form-field")?.textContent).toContain(
         "privilegedControlsSeatLimitDesc",
       );
     });

@@ -28,12 +28,12 @@
         id="privileged-controls-purchase_input_enabled"
         type="checkbox"
         bitCheckbox
-        formControlName="enabled"
+        [formControl]="enabledControl"
       />
       <bit-label>{{ "addPrivilegedControls" | i18n }}</bit-label>
     </bit-form-control>
 
-    @if (formGroup.controls.enabled.value) {
+    @if (enabled()) {
       <div class="tw-w-1/2">
         <bit-form-field>
           <bit-label>{{ "seats" | i18n }}</bit-label>
@@ -57,7 +57,7 @@
             formControlName="maxAutoscaleSeats"
             type="number"
             [min]="(seats() ?? 0) + 1"
-            [max]="seatLimitCap()"
+            [max]="maxAutoscaleSeatsCap()"
             step="1"
           />
           <bit-hint>

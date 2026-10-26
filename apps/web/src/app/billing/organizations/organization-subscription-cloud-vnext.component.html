@@ -94,7 +94,7 @@
           @if (!showSecretsManagerSubscribe()) {
             <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
           }
-          <app-privileged-controls-purchase
+          <billing-privileged-controls-purchase
             [plan]="orgSub.plan"
             [organizationId]="org.id"
             [customerDiscount]="customerDiscount()"
