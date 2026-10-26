@@ -269,9 +269,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * Top-level classifier for accept-flow errors. Branches, in order:
    *   1. Not an `AcceptInviteLinkError` → `unexpected` with an extracted message.
    *   2. A typed variant the SDK parsed from the server's error code (or the client-side
-   *      `RecoveryKeyMismatch` check) → its matching kind. The client doesn't parse the
-   *      response body for these; the SDK does. The kinds drive localized UI copy because
-   *      the SDK messages are English only.
+   *      `RecoveryKeyMismatch` check) → its matching kind.
    *   3. `Api` variant → the legacy error body, which the `/accept` endpoint still sends
    *      until PM-43102 ships. Delegated to {@link classifyOpenOrgInviteLegacyApiError}.
    *   4. Anything else → `unexpected` with the SDK message. This covers `Unknown` (whose
