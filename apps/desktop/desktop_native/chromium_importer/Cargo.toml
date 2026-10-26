@@ -37,7 +37,7 @@ aes-gcm = { workspace = true }
 base64 = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
-verifysign = "=0.2.4"
+verifysign = "=1.0.1"
 windows = { workspace = true, features = [
     "Win32_Security_Cryptography",
     "Win32_UI_Shell",
