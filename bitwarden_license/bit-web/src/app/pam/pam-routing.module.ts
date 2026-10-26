@@ -26,15 +26,6 @@ const routes: Routes = [
         children: [],
       },
       {
-        path: "rotation",
-        canActivate: [
-          canAccessFeature(FeatureFlag.PamAccessConnector),
-          organizationPermissionsGuard((org) => org.canManageRotation),
-        ],
-        data: { titleId: "pamRotation" },
-        loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
-      },
-      {
         path: "audit",
         canActivate: [organizationPermissionsGuard((org) => org.usePam && org.canAccessEventLogs)],
         component: AccessAuditComponent,
@@ -45,10 +36,10 @@ const routes: Routes = [
       {
         path: "rotation",
         canActivate: [
-          canAccessFeature(FeatureFlag.PamRotation),
-          organizationPermissionsGuard((org) => org.canManageAccessConnectors),
+          canAccessFeature(FeatureFlag.PamAccessConnector),
+          organizationPermissionsGuard((org) => org.canManageRotation),
         ],
-        data: { titleId: "pamRotationTitle" },
+        data: { titleId: "pamRotation" },
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
       },
       {
