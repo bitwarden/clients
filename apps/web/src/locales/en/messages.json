@@ -15835,6 +15835,9 @@
   "restartSubscription": {
     "message": "Restart your subscription"
   },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "We couldn't load your billing details. Close this dialog and try again."
+  },
   "suspendedManagedOrgMessage": {
     "message": "Contact $PROVIDER$ for assistance.",
     "placeholders": {

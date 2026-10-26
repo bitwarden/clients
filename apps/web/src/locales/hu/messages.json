@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "LastPass email cím"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Megosztott mappák is"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Megőrzött mappa struktúrájú bejelentkezések, kártyák, személyazonosságok, biztonságos jegyzetek és TOTP elemek."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Elfogadva: $FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Fiók helyreállítás lezelése"
   },
+  "manageAccessRules": {
+    "message": "Hozzáférési szabályok kezelése"
+  },
+  "manageRotation": {
+    "message": "Forgatás kezelése"
+  },
   "disableRequiredError": {
     "message": "A szabály letiltása előtt manuálisan le kell tiltani $POLICYNAME$ házirendet.",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Adjunk hozzá egy megosztott mappát a széfelemek más tagokkal történő biztonságos megosztásához."
   },
+  "pinned": {
+    "message": "Kitűzött",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Kitűzés az oldalsávra",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Levétel az oldalsávról",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ kitűzésre került az oldalsávra.",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ levéltelre került az oldalsávról.",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Keressünk egy megosztott mappát ebben a széfben és válasszuk ki",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "az Opciók menüből.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "A megosztott mappák kitűzése az oldalsávra a szűrésükért."
+  },
   "noMembersAdded": {
     "message": "Nem lett tag hozzáadva."
   },
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Titkos kód kezelő csomag ár"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls csomag ár",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Jelszókezelő"
@@ -17546,6 +17650,63 @@
   "importingYourAccount": {
     "message": "A iók importálása folyamatban van..."
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
   "passcode": {
     "message": "Belépési kód"
   },
@@ -17802,6 +17963,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Hozzáférési kérelmek"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ perc",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 óra"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "mostantól indul"
+  },
+  "pamInboxStartToday": {
+    "message": "ma"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "holnap"
+  },
+  "pamInboxStartInDays": {
+    "message": "$DAYS$ nap múlva",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Nem sikerült elindítani a hozzáférést."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "A jóváhagyott hozzáférési ablak még nem indult el."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "A jóváhagyott hozzáférési ablak már véget ért."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Ez a kérés még nem lett jóváhagyva."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "A kérés a továbbiakban már nem aktivált."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Ezen kérés hozzáférése már használatban volt és már nem aktív."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Egyszerre csak 1 felhasználó férhet hozzá aktívan ehhez az elemhez. Próbáljuk újra, ha az aktuális hozzáférés véget ér."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Az elemhez való hozzáférés nem engedélyezett a jelenlegi hálózatról."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Az elemhez a hozzáférés jelenleg nem engedélyezett."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Ehhez az elemhez a hozzáférés jelenleg nem engedélyezett."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Privileged Controls licensz szükséges. Kérjük meg az adminisztrátort, hogy aktiválja licenszet.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Már aktív hozzáférés van ehhez az elemhez."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Erre az elemre már van jóváhagyott kérelem."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Erre az elemre már van függőben lévő kérés."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$ napja",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$ órája",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Éppen most"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$ perce",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Hozzáférési szabályok"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Titkos kód kezelő arányos díj"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Privileged Controls arányos díjszabás",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Szolgáltatás fiókok arányos díj"

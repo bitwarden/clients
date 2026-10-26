@@ -4573,7 +4573,7 @@
     "message": "La datumo estas ne ĝuste aranĝita. Bonvole kontrolu vian enportan dosieron kaj provu denove."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Tiu ĉi dosiero uzas nesubtenatajn ĉifradajn agordojn kaj ne povas esti importita."
   },
   "importNothingError": {
     "message": "Nenio estis enportita."
@@ -4885,7 +4885,7 @@
     "message": "Sekureco pro desegno"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "Tutvoje ĉifrita transigo. Bitwarden neniam ricevos vian ensaluton por $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4897,7 +4897,7 @@
     "message": "Ni petos vian ensaluton"
   },
   "importDataLoginInfoBody": {
-    "message": "In the next step, log in to your $VENDOR$ account.",
+    "message": "En la sekvonta paŝo, ensalutu en vian konton de $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4906,7 +4906,7 @@
     }
   },
   "importDataEverythingTransfersTitle": {
-    "message": "Everything transfers"
+    "message": "Ĉio estos transigita"
   },
   "importDataEverythingTransfersBody": {
     "message": "Ensalutoj, kartoj, identoj, sekuraj notoj, kaj TOTP, kun la strukturo de ilia dosierujo."
@@ -5280,7 +5280,7 @@
     "message": "Enmetu la YubiKey asociitan kun via LastPass-konto en la USB-ingon de via komputilo, poste tuŝu ĝian butonon."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "Malsukcesis importi $COUNT$ erojn aŭ trezorejojn de 1Password",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5289,52 +5289,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "Okazis eraro. Kontrolu viajn akreditilojn kaj reprovu."
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "Estas subtenate ensaluti nur per pasvorto."
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "Estas subtenate ensaluti nur per pasvorto. Reprovu aŭ uzu alian metodon por importi."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "Enigu validan retadreson aŭ uzu alian metodon por importi."
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "Okazis eraro. Reprovu aŭ uzu alian metodon por importi."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "Retadreso necesas."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Enigu validan retadreson."
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "Adreso de ensaluto necesas."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "Enigu validan adreson de ensaluto."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Sekreta ŝlosilo necesas."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Enigu validan sekretan ŝlosilon."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Pasvorto necesas."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Enigu validan kontrolo-kodon."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Adreso de ensaluto"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password retadreso"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "Enigu la retadreson kiun vi uzas por ensaluti en 1Password"
   },
   "secretKey": {
     "message": "Sekreta ŝlosilo"
@@ -6272,13 +6272,13 @@
     "message": "Konfirmi"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Ŝalti aŭtentajpan fulmoklavon (Funkcia Antaŭrigardo)"
+    "message": "Ŝalti fulmoklavon por aŭtomata-tajpadon (Funkcia Antaŭrigardo)"
   },
   "enableAutotypeGaShortcut": {
-    "message": "Enable autotype shortcut"
+    "message": "Ŝalti fulmoklavon por aŭtomata-tajpadon"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Certiĝu, ke vi estas en la ĝusta kampo antaŭ uzi la fulmoklavon por eviti plenigi datumojn en la malĝustan lokon."
+    "message": "Certiĝu, ke vi estas en la ĝusta kampo antaŭ ol uzi la fulmoklavon por eviti plenigi datumojn en la malĝustan lokon."
   },
   "editShortcut": {
     "message": "Redakti fulmoklavon"
@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Aldonu komunan dosierujon por sekure kunhavigi trezorajn erojn kun aliaj membroj."
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pin to sidebar",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Unpin from sidebar",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pinned to sidebar",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ unpinned from sidebar",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Find a shared folder in this vault and select",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "from the Options menu.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
+  },
   "sendPasswordHelperText": {
     "message": "Individuoj devos enigi la pasvorton por vidi ĉi tiun Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7049,7 +7092,7 @@
     }
   },
   "confirmPasskeyRegistrationMfaMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "message": "krei novan pasoŝlosilon ĉe $RPID$ por $USERNAME$. $RPID$ petas tiun ĉi kontrolon pro MFA",
     "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7063,7 +7106,7 @@
     }
   },
   "confirmPasskeyOverwriteMfaMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "message": "anstataŭigi pasoŝlosilon ĉe $RPID$ por $USERNAME$. $RPID$ petas tiun ĉi kontrolon pro MFA",
     "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7077,7 +7120,7 @@
     }
   },
   "confirmPasskeyAssertionMfaMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "message": "ensaluti kiel $USERNAME$ per via pasoŝlosilo ĉe $RPID$. $RPID$ petas tiun ĉi kontrolon pro MFA",
     "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7091,7 +7134,7 @@
     }
   },
   "confirmPasskeyRegistrationMfaWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
+    "message": "Konfirmu vian identecon por krei novan pasoŝlosilon ĉe $RPID$ por $USERNAME$. $RPID$ petas tiun ĉi kontrolon pro MFA.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -7105,7 +7148,7 @@
     }
   },
   "confirmPasskeyOverwriteMfaWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
+    "message": "Konfirmu vian identecon por anstataŭigi pasoŝlosilon ĉe $RPID$ por $USERNAME$. $RPID$ petas tiun ĉi kontrolon pro MFA.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7119,7 +7162,7 @@
     }
   },
   "confirmPasskeyAssertionMfaWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
+    "message": "Konfirmu vian identecon por ensaluti kiel $USERNAME$ per via pasoŝlosilo ĉe $RPID$. $RPID$ petas tiun ĉi kontrolon pro MFA.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7159,15 +7202,15 @@
     "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
   },
   "shareLinkExpiryHint": {
-    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "message": "Tiu ĉi ligilo eksvalidiĝos post tiu ĉi dato, sed ricevantoj povas konservi informojn antaŭe kunhavigitajn. Regeneru la akreditilon por preventi atingon.",
     "description": "Hint text explaining share link expiry behavior and how to revoke access"
   },
   "linkExpiresAfter": {
-    "message": "Link expires after",
+    "message": "Ligilo eksvalidiĝos post",
     "description": "Label for the expiry duration select field when creating a share link"
   },
   "oneTimeShare": {
-    "message": "One time share",
+    "message": "Unufoja kunhavigo",
     "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
   },
   "activeLinks": {
@@ -7179,7 +7222,7 @@
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
-    "message": "Unable to create share link",
+    "message": "Malsukcesis krei kunhavigan ligilon",
     "description": "Toast message shown after a new share link fails to create"
   },
   "linkSavedAndCopied": {
@@ -7231,7 +7274,7 @@
     "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
   },
   "newExperienceDialogImgAlt": {
-    "message": "A preview of the redesigned Bitwarden vault.",
+    "message": "Antaŭrigardo de la redesegnita Bitwarden-trezorejo.",
     "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
   },
   "exploreTheNewVault": {
@@ -7263,37 +7306,43 @@
     "message": "Aldoni novajn pasvortojn, notojn, kaj aliajn al via trezorejo. Ĉio estas protektita de tutvoja ĉifrado."
   },
   "coachmarkShareWithCollectionsTitle": {
-    "message": "Safely share items with others"
+    "message": "Sekure kunhavi erojn kun aliaj"
   },
   "coachmarkShareWithCollectionsDescription": {
-    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+    "message": "Per movi eron en kolekton, vi povas sekure kunhavigi ĝin kun aliaj personoj en via organizaĵo."
   },
   "coachmarkShareWithSharedFoldersDescription": {
-    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+    "message": "Per movi eron en komunan dosierujon, vi povas sekure kunhavigi ĝin kun aliaj membroj de la trezorejo."
   },
   "coachmarkMonitorSecurityTitle": {
-    "message": "Monitor your password security"
+    "message": "Observi vian pasvortan sekurecon"
   },
   "coachmarkMonitorSecurityDescription": {
-    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+    "message": "Tenu la sekurecon de viaj trezorejaj eroj fortaj per la kontrolado de raportoj de vundebloj."
   },
   "whatsNew": {
     "message": "Kio novas"
   },
   "tourTheNewVaultDescription": {
-    "message": "With updated navigation and design, it's easier than ever to find what you need."
+    "message": "Per ĝisdatigitaj navigado kaj desegno, estas pli facile trovi kion vi bezonas."
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "Ĉiuj viaj trezorejoj en unu loko"
   },
   "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+    "message": "Personaj, familiaj, kaj negocaj trezorejoj nun estas listigitaj ĉi tie."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Kolektoj kaj dosierujoj havas novajn nomojn"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "La samaj funkcioj, pli klaraj nomoj. Kolektoj nune nomiĝas komunaj dosierujoj. Dosierujoj nune nomiĝas miaj dosierujoj."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Miksi kaj kombini filtrilojn"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Elektu plurajn filtrilojn samtempe por precize trovi la rezultojn kiuj vi volas. La filtriloj ne estos forigitaj, eĉ post kiam vi fornavigas."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ de $TOTAL$",
