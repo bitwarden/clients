@@ -97,6 +97,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
+  host: { "data-testid": "lock-screen" },
   imports: [
     CommonModule,
     JslibModule,
