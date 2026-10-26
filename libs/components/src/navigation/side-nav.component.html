@@ -71,20 +71,23 @@
               aria-controls="bit-side-nav"
             ></button>
           </div>
+          <!-- Pinned so rows scroll beneath it; keeps its wider 48px collapsed column.
+               Border is an overlay so toggling it never shifts rows; hidden when empty to avoid doubling the header's. -->
+          <div
+            class="tw-relative tw-w-full tw-shrink-0 tw-bg-bg-nav tw-py-2 empty:tw-pb-0 after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0 after:tw-h-px after:tw-bg-border-nav-divider after:tw-opacity-0 after:tw-content-[''] motion-safe:after:tw-transition-opacity data-[header-border=true]:after:tw-opacity-100 empty:after:tw-hidden"
+            [class]="open ? 'tw-px-2' : 'tw-px-[calc((100%_-_3rem)/2)]'"
+            [attr.data-header-border]="headerBorder() === 'always' || scrolled().top"
+          >
+            <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
+          </div>
           <!-- No overscroll-none: it would trap wheel scroll that must chain to the column.
                Collapsed only: reserve gutters so classic scrollbars never squish the rail icons. -->
           <div
             class="tw-flex-1 tw-overflow-auto"
             [class]="open ? shrinkToFit : 'tw-min-h-0 [scrollbar-gutter:stable_both-edges]'"
             id="bit-side-nav--scroll"
+            cdkScrollable
           >
-            <!-- Switcher keeps its wider 48px collapsed column. -->
-            <div
-              class="tw-w-full tw-bg-bg-nav tw-pt-2"
-              [class]="open ? 'tw-px-2' : 'tw-px-[calc((100%_-_3rem)/2)]'"
-            >
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
-            </div>
             <div
               data-testid="side-nav-body"
               class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
