@@ -1,7 +1,8 @@
 //! Secure password storage and retrieval using platform keychains.
 //!
 //! Builds with the `file_secure_storage` feature swap the keychain for a plaintext file when
-//! `BITWARDEN_SECURE_STORAGE_FILE` is set, so debug runs do not overwrite the production app's entries:
+//! `BITWARDEN_SECURE_STORAGE_FILE` is set, so debug runs do not overwrite the production app's
+//! entries:
 //!
 //! ```text
 //!   get/set/delete_password
