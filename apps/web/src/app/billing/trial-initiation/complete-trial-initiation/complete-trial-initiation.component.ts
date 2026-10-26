@@ -53,21 +53,10 @@ export class CompleteTrialInitiationComponent {
   inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   initializing = true;
 
-  /** True, registering a password is in progress */
-  submitting = false;
-
-  orgInfoSubLabel = "";
-  orgId = "";
-  billingSubLabel = "";
-  loading = false;
-
-  orgInfoFormGroup = this.formBuilder.group({
-    name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
-    billingEmail: [""],
-  });
-
-  protected readonly ProductType = ProductType;
-
+  /** Password Manager or Secrets Manager */
+  product?: ProductType;
+  /** The tier of product being subscribed to */
+  productTier!: ProductTierType;
   /** Product tiers that show the multi-step trial flow for Password Manager. */
   private readonly stepperProductTiers: ProductTierType[] = [
     ProductTierType.Teams,
@@ -75,13 +64,11 @@ export class CompleteTrialInitiationComponent {
     ProductTierType.Families,
   ];
 
-  /** Password Manager or Secrets Manager */
-  product?: ProductType;
-  /** The tier of product being subscribed to */
-  productTier!: ProductTierType;
-
   /** Display multi-step trial flow when true */
   useTrialStepper = false;
+
+  /** True, registering a password is in progress */
+  submitting = false;
 
   /** True when PAM billing support is enabled */
   pamBillingSupportEnabled = false;
@@ -89,7 +76,10 @@ export class CompleteTrialInitiationComponent {
   /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
   includesPrivilegedControls = false;
 
+  orgInfoSubLabel = "";
+  orgId = "";
   orgLabel = "";
+  billingSubLabel = "";
 
   /** User's email address associated with the trial */
   email = "";
@@ -97,9 +87,17 @@ export class CompleteTrialInitiationComponent {
   emailVerificationToken?: string;
   /** Present when the trial was set up by sales rather than self-serve email verification */
   salesAssistedToken?: string;
+  loading = false;
 
   trialLength!: number;
   paymentOptional = false;
+
+  orgInfoFormGroup = this.formBuilder.group({
+    name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
+    billingEmail: [""],
+  });
+
+  protected readonly ProductType = ProductType;
 
   constructor(
     protected router: Router,
