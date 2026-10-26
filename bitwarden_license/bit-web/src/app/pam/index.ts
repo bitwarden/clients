@@ -71,6 +71,8 @@ export { requestedWindowSeconds } from "./helpers/requested-window";
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
+export { RotationSdkService } from "./rotation/rotation-sdk.service";
+export type { RotationConfigDescription } from "./rotation/rotation-sdk.service";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
