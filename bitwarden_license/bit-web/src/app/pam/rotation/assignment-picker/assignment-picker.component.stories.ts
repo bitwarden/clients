@@ -28,7 +28,7 @@ interface ConnectorRow extends AssignmentPickerRow {
 
 const TARGET_COLUMNS: AssignmentPickerColumn[] = [
   { headerKey: "pamAccessConnectorAssignTargetLabel" },
-  { headerKey: "pamTargetSystemKindColumn" },
+  { headerKey: "pamTargetSystemTypeColumn" },
 ];
 
 const CONNECTOR_COLUMNS: AssignmentPickerColumn[] = [
