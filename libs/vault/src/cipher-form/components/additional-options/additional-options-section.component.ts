@@ -67,17 +67,6 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
-  /**
-   * True when the cipher can hold the HTTP authentication setting. Organization-owned and legacy-format
-   * ciphers can't; this is always true until the cipher's encryption format is available to the
-   * form.
-   */
-  private readonly httpAuthenticationSupported = true;
-
-  /**
-   * The Safari extension does not respond to HTTP authentication prompts, so the setting is not
-   * offered there. Other clients still offer it because the setting syncs to other browsers.
-   */
   private readonly isSafariExtension =
     this.platformUtilsService.getClientType() === ClientType.Browser &&
     this.platformUtilsService.isSafari();
@@ -87,18 +76,17 @@ export class AdditionalOptionsSectionComponent implements OnInit {
    * behind a dev flag while their storage work is completed.
    */
   protected readonly showHTTPAuthenticationCipherSetting = toSignal(
-    this.configService
-      .getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse)
-      .pipe(
-        map(
-          (httpAuthenticationEnabled) =>
-            httpAuthenticationEnabled &&
-            devFlagEnabled("httpAuthenticationCipherControls") &&
-            this.httpAuthenticationSupported &&
-            !this.isSafariExtension &&
-            this.cipherFormContainer.config.cipherType === CipherType.Login,
-        ),
+    this.configService.getFeatureFlag$(FeatureFlag.EnableBasicAuthResponse).pipe(
+      map(
+        (httpAuthenticationEnabled) =>
+          httpAuthenticationEnabled &&
+          devFlagEnabled("httpAuthenticationCipherControls") &&
+          // The Safari extension does not respond to HTTP authentication
+          // prompts, so the setting is not offered there.
+          !this.isSafariExtension &&
+          this.cipherFormContainer.config.cipherType === CipherType.Login,
       ),
+    ),
     { initialValue: false },
   );
 
@@ -133,7 +121,8 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   ) {
     this.cipherFormContainer.registerChildForm("additionalOptions", this.additionalOptionsForm);
 
-    // The HTTP authentication value is not stored on the cipher, so it is not patched here.
+    // TODO(PM-45263): Patch the HTTP authentication value once it is stored on the cipher, and hide
+    // the setting for organization-owned and legacy-format ciphers, which can't hold it.
     this.additionalOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.cipherFormContainer.patchCipher((cipher) => {
         cipher.notes = value.notes;

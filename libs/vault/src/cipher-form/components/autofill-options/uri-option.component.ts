@@ -245,7 +245,6 @@ export class UriOptionComponent implements ControlValueAccessor {
       return this.handleDefaultMatch(previous);
     }
 
-    // Completes synchronously so the next change is not held behind a pending promise
     this.handleAdvancedMatch(previous, current);
 
     return EMPTY;
