@@ -30,6 +30,7 @@ const routes: Routes = [
     path: "pam",
     children: [
       { path: "access-rules", component: StoryContentComponent },
+      { path: "audit", component: StoryContentComponent },
       { path: "rotation", component: StoryContentComponent },
     ],
   },
@@ -89,6 +90,7 @@ export default {
             new I18nMockService({
               privilegedControls: "Privileged Controls",
               pamAccessRules: "Access rules",
+              pamAuditLog: "Audit log",
               pamRotation: "Rotation",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
@@ -135,6 +137,11 @@ export const Default: Story = {
 export const WithRotation: Story = {
   decorators: [featureFlags({ rotationEnabled: true })],
   args: { organization: organization(true, true) },
+};
+
+export const AccessRulesOnly: Story = {
+  decorators: [featureFlags()],
+  args: { organization: organization(true, false) },
 };
 
 /** Can author rules but not manage rotation, so Rotation stays hidden despite its flag. */

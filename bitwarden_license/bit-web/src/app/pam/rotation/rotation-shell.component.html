@@ -1,6 +1,14 @@
 <app-header [title]="'pamRotation' | i18n">
   <div slot="subtitle">{{ "pamRotationSubtitle" | i18n }}</div>
-  <bit-tab-nav-bar slot="tabs" [label]="'pamRotation' | i18n"></bit-tab-nav-bar>
+  <bit-tab-nav-bar slot="tabs" [label]="'pamRotation' | i18n">
+    <bit-tab-link route="access-connectors">{{
+      "pamRotationTabAccessConnectors" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
+    <bit-tab-link route="managed-credentials" [berryValue]="awaitingManualCount()">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-tab-link>
+  </bit-tab-nav-bar>
 </app-header>
 
 <router-outlet></router-outlet>

@@ -8,6 +8,9 @@ export function pamLandingRoute(organization: Organization): string | undefined 
   if (organization.canManageAccessRules) {
     return "access-rules";
   }
+  if (organization.usePam && organization.canAccessEventLogs) {
+    return "audit";
+  }
   if (organization.canManageRotation) {
     return "rotation";
   }
