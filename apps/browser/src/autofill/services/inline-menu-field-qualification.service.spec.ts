@@ -1402,6 +1402,33 @@ describe("InlineMenuFieldQualificationService", () => {
     });
   });
 
+  describe("isTotpField", () => {
+    it("returns true for a field whose id and name mark a TOTP and whose label also offers a backup code", () => {
+      const field = mock<AutofillField>({
+        type: "text",
+        htmlID: "totp",
+        htmlName: "otp",
+        autoCompleteType: "one-time-code",
+        "label-left": "Authenticator or backup code",
+        placeholder: "Enter your authenticator or backup code",
+      });
+
+      expect(inlineMenuFieldQualificationService.isTotpField(field)).toBe(true);
+    });
+
+    it("returns false for a recovery-only field even when it is marked as a one-time code", () => {
+      const field = mock<AutofillField>({
+        type: "text",
+        htmlID: "backup-code",
+        htmlName: "backup_code",
+        autoCompleteType: "one-time-code",
+        "label-left": "Backup code",
+      });
+
+      expect(inlineMenuFieldQualificationService.isTotpField(field)).toBe(false);
+    });
+  });
+
   describe("hasCurrentPasswordAutocomplete", () => {
     it("returns true when the autocomplete attribute contains `current-password`", () => {
       const field = mock<AutofillField>({
