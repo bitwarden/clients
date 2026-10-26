@@ -12,10 +12,17 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
+use serde::{Deserialize, Serialize};
 
 use crate::password::PASSWORD_NOT_FOUND;
 
-type Store = BTreeMap<String, BTreeMap<String, String>>;
+/// Contents of the password file.
+#[derive(Default, Serialize, Deserialize)]
+#[serde(transparent)]
+struct Store {
+    /// service -> account -> password
+    services: BTreeMap<String, BTreeMap<String, String>>,
+}
 
 /// Serializes read-modify-write cycles within this process.
 static LOCK: Mutex<()> = Mutex::new(());
@@ -24,7 +31,8 @@ static LOCK: Mutex<()> = Mutex::new(());
 pub fn get_password(path: &Path, service: &str, account: &str) -> Result<String> {
     let _guard = LOCK.lock().map_err(|_| anyhow!("Lock poisoned"))?;
 
-    read(path)?
+    Store::read(path)?
+        .services
         .get(service)
         .and_then(|accounts| accounts.get(account))
         .cloned()
@@ -35,21 +43,22 @@ pub fn get_password(path: &Path, service: &str, account: &str) -> Result<String>
 pub fn set_password(path: &Path, service: &str, account: &str, password: &str) -> Result<()> {
     let _guard = LOCK.lock().map_err(|_| anyhow!("Lock poisoned"))?;
 
-    let mut store = read(path)?;
+    let mut store = Store::read(path)?;
     store
+        .services
         .entry(service.to_owned())
         .or_default()
         .insert(account.to_owned(), password.to_owned());
 
-    write(path, &store)
+    store.write(path)
 }
 
 /// Deletes a password from the file.
 pub fn delete_password(path: &Path, service: &str, account: &str) -> Result<()> {
     let _guard = LOCK.lock().map_err(|_| anyhow!("Lock poisoned"))?;
 
-    let mut store = read(path)?;
-    let Some(accounts) = store.get_mut(service) else {
+    let mut store = Store::read(path)?;
+    let Some(accounts) = store.services.get_mut(service) else {
         return Err(anyhow!(PASSWORD_NOT_FOUND));
     };
     if accounts.remove(account).is_none() {
@@ -58,50 +67,53 @@ pub fn delete_password(path: &Path, service: &str, account: &str) -> Result<()> 
 
     // Drop empty services to keep the file tidy.
     if accounts.is_empty() {
-        store.remove(service);
+        store.services.remove(service);
     }
 
-    write(path, &store)
+    store.write(path)
 }
 
-fn read(path: &Path) -> Result<Store> {
-    // Prevent path traversal attacks by rejecting paths containing '..'.
-    if path
-        .components()
-        .any(|c| c == std::path::Component::ParentDir)
-    {
-        return Err(anyhow!("Invalid input: {}", path.display()));
-    }
-    match fs::read_to_string(path) {
-        Ok(json) => Ok(serde_json::from_str(&json)?),
-        Err(e) if e.kind() == ErrorKind::NotFound => Ok(Store::new()),
-        Err(e) => Err(e.into()),
-    }
-}
-
-/// Writes to a sibling temp file, then renames, so a crash never leaves a half-written store.
-fn write(path: &Path, store: &Store) -> Result<()> {
-    if let Some(dir) = path.parent() {
-        fs::create_dir_all(dir)?;
+impl Store {
+    /// Loads the store. A missing file is an empty store.
+    fn read(path: &Path) -> Result<Self> {
+        // Prevent path traversal attacks by rejecting paths containing '..'.
+        if path
+            .components()
+            .any(|c| c == std::path::Component::ParentDir)
+        {
+            return Err(anyhow!("Invalid input: {}", path.display()));
+        }
+        match fs::read_to_string(path) {
+            Ok(json) => Ok(serde_json::from_str(&json)?),
+            Err(e) if e.kind() == ErrorKind::NotFound => Ok(Self::default()),
+            Err(e) => Err(e.into()),
+        }
     }
 
-    let tmp = path.with_extension("tmp");
-    let mut options = fs::OpenOptions::new();
-    options.write(true).create(true).truncate(true);
+    /// Writes to a sibling temp file, then renames, so a crash never leaves a half-written store.
+    fn write(&self, path: &Path) -> Result<()> {
+        if let Some(dir) = path.parent() {
+            fs::create_dir_all(dir)?;
+        }
 
-    // Owner-only, like a keyring entry.
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        options.mode(0o600);
+        let tmp = path.with_extension("tmp");
+        let mut options = fs::OpenOptions::new();
+        options.write(true).create(true).truncate(true);
+
+        // Owner-only, like a keyring entry.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+
+        let mut file = options.open(&tmp)?;
+        file.write_all(serde_json::to_string_pretty(self)?.as_bytes())?;
+        file.sync_all()?;
+        fs::rename(&tmp, path)?;
+
+        Ok(())
     }
-
-    let mut file = options.open(&tmp)?;
-    file.write_all(serde_json::to_string_pretty(store)?.as_bytes())?;
-    file.sync_all()?;
-    fs::rename(&tmp, path)?;
-
-    Ok(())
 }
 
 #[cfg(test)]
