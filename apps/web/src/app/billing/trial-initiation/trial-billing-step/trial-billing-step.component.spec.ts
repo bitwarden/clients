@@ -328,8 +328,23 @@ describe("TrialBillingStepComponent", () => {
       fixture.detectChanges();
       flushMicrotasks();
 
-      expect(component["previewErrored"]()).toBe(true);
+      expect(component["canSubmit"]()).toBe(false);
       // bit-button reflects disabled as aria-disabled, not the native attribute.
+      const submit = fixture.nativeElement.querySelector("button[type='submit']");
+      expect(submit.getAttribute("aria-disabled")).toBe("true");
+    }));
+
+    it("disables submit while the preview cart is loading", fakeAsync(() => {
+      enableFlags();
+      mockTrialBillingStepService.previewPurchase.mockReturnValue(new Promise<Cart>(() => {}));
+
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      fixture.detectChanges();
+      flushMicrotasks();
+      fixture.detectChanges();
+      flushMicrotasks();
+
+      expect(component["canSubmit"]()).toBe(false);
       const submit = fixture.nativeElement.querySelector("button[type='submit']");
       expect(submit.getAttribute("aria-disabled")).toBe("true");
     }));

@@ -94,7 +94,7 @@
           bitFormButton
           buttonType="primary"
           type="submit"
-          [disabled]="previewErrored()"
+          [disabled]="!canSubmit()"
         >
           {{ (trial().length > 0 ? "startTrial" : "submit") | i18n }}
         </button>

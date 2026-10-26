@@ -208,9 +208,10 @@ export class TrialBillingStepComponent implements OnInit {
     );
   }
 
-  /** Blocks submit while a rendered preview cart is erroring. */
-  protected previewErrored(): boolean {
-    return this.previewCart()?.hasError() ?? false;
+  /** Submit is allowed unless a rendered preview cart is still loading, erroring, or empty. */
+  protected canSubmit(): boolean {
+    const cart = this.previewCart();
+    return cart == null || cart.canSubmit();
   }
 
   submit = async (): Promise<void> => {

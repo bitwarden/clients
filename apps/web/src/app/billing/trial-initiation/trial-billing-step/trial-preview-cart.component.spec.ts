@@ -129,6 +129,22 @@ describe("TrialPreviewCartComponent", () => {
     });
   }));
 
+  it("does not refetch when an input re-emits an equal-content billing address", fakeAsync(() => {
+    mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
+
+    setInputs();
+    fixture.detectChanges();
+    flushMicrotasks();
+    expect(mockTrialBillingStepService.previewPurchase).toHaveBeenCalledTimes(1);
+
+    // A fresh object with identical content — as getRawValue() re-emits — must not refetch.
+    fixture.componentRef.setInput("billingAddress", { country: "US", postalCode: "12345" });
+    fixture.detectChanges();
+    flushMicrotasks();
+
+    expect(mockTrialBillingStepService.previewPurchase).toHaveBeenCalledTimes(1);
+  }));
+
   it("does not preview until the billing address is valid", fakeAsync(() => {
     setInputs({ billingAddress: { country: "US" } });
     fixture.detectChanges();
@@ -185,6 +201,34 @@ describe("TrialPreviewCartComponent", () => {
     expect(fixture.nativeElement.querySelector("billing-cart-summary")).toBeTruthy();
   }));
 
+  it("allows submit only once the cart resolves", fakeAsync(() => {
+    let resolvePreview!: (cart: Cart) => void;
+    mockTrialBillingStepService.previewPurchase.mockReturnValue(
+      new Promise<Cart>((resolve) => {
+        resolvePreview = resolve;
+      }),
+    );
+
+    setInputs();
+    fixture.detectChanges();
+    flushMicrotasks();
+    expect(component.canSubmit()).toBe(false); // still loading
+
+    resolvePreview(mockCart);
+    flushMicrotasks();
+    fixture.detectChanges();
+    expect(component.canSubmit()).toBe(true);
+  }));
+
+  it("does not allow submit without a resolved cart", fakeAsync(() => {
+    setInputs({ billingAddress: { country: "US" } });
+    fixture.detectChanges();
+    flushMicrotasks();
+
+    expect(mockTrialBillingStepService.previewPurchase).not.toHaveBeenCalled();
+    expect(component.canSubmit()).toBe(false);
+  }));
+
   it("notifies and shows a generic callout with a Try again link when the preview fails", fakeAsync(() => {
     mockTrialBillingStepService.previewPurchase.mockRejectedValue(new Error("preview failed"));
 
@@ -196,7 +240,7 @@ describe("TrialPreviewCartComponent", () => {
     expect(mockBillingNotificationService.showError).toHaveBeenCalledWith(
       "invoicePreviewErrorMessage",
     );
-    expect(component.hasError()).toBe(true);
+    expect(component.canSubmit()).toBe(false);
     const callout = fixture.nativeElement.querySelector("bit-callout");
     expect(callout.textContent).toContain("invoicePreviewErrorMessage");
     expect(

@@ -44,19 +44,22 @@ export class TrialPreviewCartComponent {
   private readonly billingNotificationService = inject(BillingNotificationService);
   private readonly trialBillingStepService = inject(TrialBillingStepService);
 
-  private readonly previewParams = computed<PreviewParams | undefined>(() => {
-    const trial = this.trial();
-    const billingAddress = this.billingAddress();
-    if (trial.length !== 0 || !billingAddress?.country || !billingAddress?.postalCode) {
-      return undefined;
-    }
-    return {
-      trial,
-      cadence: this.cadence(),
-      billingAddress,
-      coupons: this.eligibleDiscounts().map((d) => d.stripeCouponId),
-    };
-  });
+  private readonly previewParams = computed<PreviewParams | undefined>(
+    () => {
+      const trial = this.trial();
+      const billingAddress = this.billingAddress();
+      if (trial.length !== 0 || !billingAddress?.country || !billingAddress?.postalCode) {
+        return undefined;
+      }
+      return {
+        trial,
+        cadence: this.cadence(),
+        billingAddress,
+        coupons: this.eligibleDiscounts().map((d) => d.stripeCouponId),
+      };
+    },
+    { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+  );
 
   protected readonly preview = resource({
     params: this.previewParams,
@@ -85,7 +88,10 @@ export class TrialPreviewCartComponent {
       : "invoicePreviewErrorMessage";
   };
 
-  readonly hasError = computed(() => this.preview.error() != null);
+  /** The preview has a resolved cart to submit on — not loading, not errored, has a value. */
+  readonly canSubmit = computed(
+    () => !this.preview.isLoading() && this.preview.error() == null && this.preview.hasValue(),
+  );
 
   protected readonly previewErrorMessageKey = computed(() =>
     this.getPreviewErrorMessageKey(this.preview.error()),
