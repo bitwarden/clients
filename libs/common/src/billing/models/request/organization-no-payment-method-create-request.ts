@@ -24,6 +24,8 @@ export class OrganizationNoPaymentMethodCreateRequest {
   additionalSmSeats: number = 0;
   additionalServiceAccounts: number = 0;
   isFromSecretsManagerTrial: boolean = false;
+  usePrivilegedControls: boolean = false;
+  pamSeatMinimum?: number;
   initiationPath!: InitiationPath;
   trialLength?: number;
 

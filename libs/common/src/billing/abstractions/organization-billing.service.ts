@@ -17,6 +17,8 @@ export type PlanInformation = {
   isFromSecretsManagerTrial?: boolean;
   secretsManagerSeats?: number;
   secretsManagerServiceAccounts?: number;
+  subscribeToPrivilegedControls?: boolean;
+  pamSeatMinimum?: number;
   storage?: number;
 };
 

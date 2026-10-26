@@ -347,6 +347,28 @@ describe("OrganizationBillingService", () => {
     });
 
     describe("purchaseSubscription", () => {
+      it("maps Privileged Controls fields onto the create request", async () => {
+        const subscription = {
+          ...mockSubscription,
+          plan: {
+            type: PlanType.EnterpriseAnnually,
+            passwordManagerSeats: 1,
+            subscribeToPrivilegedControls: true,
+            pamSeatMinimum: 6,
+          },
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: { postalCode: "12345", country: "US" },
+          },
+        } as SubscriptionInformation;
+
+        await sut.purchaseSubscription(subscription, mockUserId);
+
+        expect(organizationApiService.create).toHaveBeenCalledWith(
+          expect.objectContaining({ usePrivilegedControls: true, pamSeatMinimum: 6 }),
+        );
+      });
+
       it("sets the correct organization keys on the organization creation request", async () => {
         const subscriptionWithPayment = {
           ...mockSubscription,

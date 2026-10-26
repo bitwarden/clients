@@ -3,6 +3,10 @@ export type OrganizationSubscriptionPlan = {
   cadence: "annually" | "monthly";
 };
 
+export type PrivilegedControlsSelection = {
+  seatMinimum?: number;
+};
+
 export type OrganizationSubscriptionPurchase = OrganizationSubscriptionPlan & {
   passwordManager: {
     seats: number;
@@ -14,4 +18,5 @@ export type OrganizationSubscriptionPurchase = OrganizationSubscriptionPlan & {
     additionalServiceAccounts: number;
     standalone: boolean;
   };
+  privilegedControls?: PrivilegedControlsSelection;
 };
