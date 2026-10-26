@@ -500,7 +500,9 @@ export class CipherView implements View, InitializerMetadata {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
-      notes: this.notes,
+      // Empty notes are converted to undefined to prevent the SDK from encrypting
+      // them as a non-null value, which would incorrectly populate copyableFields.
+      notes: this.notes || undefined,
       type: this.type ?? CipherType.Login,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
