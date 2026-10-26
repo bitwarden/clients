@@ -151,8 +151,8 @@ export class CipherService implements CipherServiceAbstraction {
   }, this.clearCipherViewsForUser$);
 
   /**
-   * Decrypted list views including restricted ciphers, for the vault lists and their filters;
-   * everything else uses {@link cipherListViews$}.
+   * Decrypted list views including restricted ciphers, for the vault list UIs named on the
+   * abstraction; everything else uses {@link cipherListViews$}.
    */
   cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
@@ -777,7 +777,6 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
-    leaseGated?: boolean,
   ): Promise<CipherView> {
     if (orgAdmin) {
       return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
@@ -810,7 +809,6 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
       originalCipherView,
       orgAdmin,
-      leaseGated,
     );
     return resultCipherView;
   }
@@ -1086,33 +1084,27 @@ export class CipherService implements CipherServiceAbstraction {
 
   /**
    * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} (full sync)
-   * stays authoritative.
+   * stays authoritative. The check reads the stored copy in the same state update as the write.
+   *
+   * Server ask: a storable single-item read for push sync. `GET /ciphers/{id}/details` returns the
+   * restricted copy unless the reveal opts in to the full cipher (fallback: push sync sends
+   * `?storable=true`). PAM to confirm the callers of `/details`.
+   *
+   * SDK ask (`bitwarden-vault`): guard every stored write response at the repository level
+   * (`edit_partial`, `update_collection`, restore, archive, delete, `move_many`), not only
+   * `submit_cipher_edit` and share.
    */
   async upsert(
     cipher: CipherData | CipherData[],
     userId?: UserId,
   ): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
-    const keepsStored = (stored: CipherData | undefined, incoming: CipherData) =>
-      stored?.partialData != null && incoming.partialData == null;
-    const logKept = (count: number) =>
-      this.logService.debug(`Kept ${count} stored restricted cipher(s); did not save a full copy.`);
-
-    // When every item is kept, skip the write: an unchanged record clears the cache but emits
-    // nothing in the extension, the case replace() also guards against.
-    userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
-    const stored = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
-    if (ciphers.length > 0 && ciphers.every((c) => keepsStored(stored[c.id as CipherId], c))) {
-      logKept(ciphers.length);
-      return stored;
-    }
-
     const kept: CipherId[] = [];
     const res = await this.updateEncryptedCipherState((current) => {
       ciphers.forEach((c) => {
         const id = c.id as CipherId;
-        if (keepsStored(current[id], c)) {
-          kept.push(id);
+        if (current[id]?.partialData != null && c.partialData == null) {
+          kept.push(id); // never replace a stored restricted copy with a full one
           return;
         }
         current[id] = c;
@@ -1120,7 +1112,9 @@ export class CipherService implements CipherServiceAbstraction {
       return current;
     }, userId);
     if (kept.length > 0) {
-      logKept(kept.length);
+      this.logService.debug(
+        `Kept ${kept.length} stored restricted cipher(s); did not save a full copy.`,
+      );
     }
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data

@@ -310,13 +310,7 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.updateWithServer(cipherView, userId);
 
-      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(
-        cipherView,
-        userId,
-        undefined,
-        undefined,
-        undefined,
-      );
+      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(cipherView, userId, undefined, undefined);
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
     });
@@ -345,36 +339,9 @@ describe("Cipher Service", () => {
         userId,
         originalCipherView,
         true,
-        undefined,
       );
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
-    });
-
-    it("should delegate a lease-gated save to cipherSdkService when feature flag is disabled", async () => {
-      sdkCrudFeatureFlag$.next(false);
-
-      const testCipher = new Cipher(cipherData);
-      const cipherView = new CipherView(testCipher);
-      const originalCipherView = new CipherView(testCipher);
-
-      const cipherSdkServiceSpy = jest
-        .spyOn(cipherSdkService, "updateWithServer")
-        .mockResolvedValue(new CipherView(testCipher));
-      const encryptSpy = jest.spyOn(cipherService, "encrypt");
-      const apiSpy = jest.spyOn(apiService, "putCipher");
-
-      await cipherService.updateWithServer(cipherView, userId, originalCipherView, false, true);
-
-      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(
-        cipherView,
-        userId,
-        originalCipherView,
-        false,
-        true,
-      );
-      expect(encryptSpy).not.toHaveBeenCalled();
-      expect(apiSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -1644,20 +1611,6 @@ describe("Cipher Service", () => {
       expect(logService.debug).toHaveBeenCalledWith(
         "Kept 1 stored restricted cipher(s); did not save a full copy.",
       );
-    });
-
-    it("skips the write and keeps the cache when every item is kept", async () => {
-      stateProvider.singleUser
-        .getFake(userId, ENCRYPTED_CIPHERS)
-        .nextState({ [restrictedId]: stored(restrictedId, true) });
-      const clearCache = jest.spyOn(cipherService, "clearCache");
-
-      await cipherService.upsert(stored(restrictedId, false, "incoming"), userId);
-
-      expect(clearCache).not.toHaveBeenCalled();
-      expect(
-        stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextMock,
-      ).not.toHaveBeenCalled();
     });
 
     it("replaces a stored restricted copy with an incoming restricted copy", async () => {
