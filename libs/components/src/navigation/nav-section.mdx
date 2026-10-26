@@ -12,11 +12,17 @@ import { NavigationModule } from "@bitwarden/components";
 <Description />
 
 `bit-nav-section` groups related navigation items beneath an uppercased heading. Provide the heading
-via the required `label` input and an optional leading `icon`. When the side nav is collapsed the
+via the optional `label` input and an optional leading `icon`. When the side nav is collapsed the
 heading is visually hidden (`sr-only`) while the grouped items keep their icons in the rail.
 
 <Primary />
 <Controls />
+
+## No Label
+
+Omit `label` to get the section's row spacing with no heading or group role.
+
+<Canvas of={stories.NoLabel} />
 
 ## Empty State
 

@@ -9,9 +9,8 @@ import { SideNavService } from "./side-nav.service";
 let nextId = 0;
 
 /**
- * A titled section grouping for the side navigation. Renders an uppercase heading and
- * semantically groups the projected nav items beneath it. When the side nav is collapsed the
- * heading is visually hidden (sr-only) while the grouped items keep their icons visible in the rail.
+ * Side-nav row grouping with an optional uppercase heading. With a label, its items form a named
+ * group whose heading goes sr-only in the collapsed rail.
  */
 @Component({
   selector: "bit-nav-section",
@@ -26,8 +25,8 @@ export class NavSectionComponent {
   /** `true` when this section is rendered inside a `bit-nav-group`. */
   protected readonly isInNavGroup = this.parentNavGroup != null;
 
-  /** Section heading text, e.g. "Manage". Displayed uppercased via CSS. */
-  readonly label = input.required<string>();
+  /** Section heading, e.g. "Manage". Omit for unheaded rows with no group role. */
+  readonly label = input<string>();
 
   /** Optional icon rendered before the label, e.g. "bwi-folder". */
   readonly icon = input<BitwardenIcon>();
