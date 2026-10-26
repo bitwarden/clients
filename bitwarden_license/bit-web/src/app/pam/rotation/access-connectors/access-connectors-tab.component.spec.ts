@@ -43,7 +43,7 @@ describe("AccessConnectorsTabComponent", () => {
     return {
       id,
       name,
-      statusLabelKey: "pamAccessConnectorStatusActive",
+      statusLabelKey: "active",
       isConnected: true,
       assignmentNames: [],
       enabled: true,
@@ -803,9 +803,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
     return {
       id,
       name,
-      statusLabelKey: enabled
-        ? "pamAccessConnectorStatusActive"
-        : "pamAccessConnectorStatusInactive",
+      statusLabelKey: enabled ? "active" : "inactive",
       isConnected,
       assignmentNames: [],
       enabled,
@@ -898,8 +896,8 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
   it("derives the status options from the loaded rows, sorted by label", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
     expect(component.statusOptions()).toEqual([
-      { value: "pamAccessConnectorStatusActive", label: "pamAccessConnectorStatusActive" },
-      { value: "pamAccessConnectorStatusInactive", label: "pamAccessConnectorStatusInactive" },
+      { value: "active", label: "active" },
+      { value: "inactive", label: "inactive" },
     ]);
   });
 
@@ -920,7 +918,7 @@ describe("AccessConnectorsTabComponent toolbar filters", () => {
 
   it("narrows rows to the selected status", () => {
     setup([enabledConnected, enabledOffline, disabledOffline]);
-    chip("status").toggle("pamAccessConnectorStatusInactive");
+    chip("status").toggle("inactive");
     fixture.detectChanges();
     expect(visibleIds()).toEqual([uuidAsString(connectorId("c-3"))]);
   });
@@ -958,7 +956,7 @@ describe("AccessConnectorsTabComponent assigned targets column", () => {
     return {
       id: connectorId(id),
       name: id,
-      statusLabelKey: "pamAccessConnectorStatusActive",
+      statusLabelKey: "active",
       isConnected: true,
       assignmentNames,
       enabled: true,
@@ -1108,9 +1106,7 @@ describe("AccessConnectorsTabComponent table", () => {
     return {
       id: connectorId(id),
       name,
-      statusLabelKey: enabled
-        ? "pamAccessConnectorStatusActive"
-        : "pamAccessConnectorStatusInactive",
+      statusLabelKey: enabled ? "active" : "inactive",
       isConnected,
       assignmentNames,
       enabled,
@@ -1340,21 +1336,21 @@ describe("AccessConnectorsTabComponent table", () => {
     expect(cellTexts(render())).toEqual([
       [
         "Prod on-prem",
-        "pamAccessConnectorStatusActive",
+        "active",
         "pamAccessConnectorConnected",
         "pamAccessConnectorAssignmentCountSingular:1",
         "",
       ],
       [
         "EU region",
-        "pamAccessConnectorStatusActive",
+        "active",
         "pamAccessConnectorDisconnected",
         "pamAccessConnectorAssignmentCount:2",
         "",
       ],
       [
         "Staging",
-        "pamAccessConnectorStatusInactive",
+        "inactive",
         "pamAccessConnectorDisconnected",
         "pamAccessConnectorAssignmentsNone",
         "",
@@ -1439,7 +1435,7 @@ describe("AccessConnectorsTabComponent table", () => {
       }
     ).searchControl.setValue("r");
     chip("connection").toggle(false);
-    chip("status").toggle("pamAccessConnectorStatusActive");
+    chip("status").toggle("active");
     fixture.detectChanges();
 
     expect(rowNames(el)).toEqual(["EU region"]);
@@ -1551,7 +1547,7 @@ describe("AccessConnectorsTabComponent table", () => {
 
     it("keeps the row actions reachable from a row the toolbar narrowed to", () => {
       const el = render();
-      chip("status").toggle("pamAccessConnectorStatusInactive");
+      chip("status").toggle("inactive");
       fixture.detectChanges();
 
       expect(rowNames(el)).toEqual(["Staging"]);
