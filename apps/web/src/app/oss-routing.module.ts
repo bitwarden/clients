@@ -626,6 +626,18 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
+        path: "privileged-controls-trial-initiation",
+        canActivate: [unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+          pageIcon: BusinessWelcome,
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
         path: "browser-extension-prompt",
         data: {
           pageIcon: BrowserExtensionIcon,

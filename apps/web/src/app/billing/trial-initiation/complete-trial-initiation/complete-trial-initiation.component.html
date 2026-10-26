@@ -29,6 +29,16 @@
         ></auth-input-password>
       </app-vertical-step>
       <app-vertical-step label="Organization Information" [subLabel]="orgInfoSubLabel">
+        @if (includesPrivilegedControls) {
+          <bit-callout
+            type="info"
+            [title]="null"
+            [accessibleName]="'privilegedControls' | i18n"
+            class="tw-mb-3 tw-block"
+          >
+            {{ "trialIncludesPrivilegedControls" | i18n }}
+          </bit-callout>
+        }
         <app-org-info [nameOnly]="true" [formGroup]="orgInfoFormGroup"></app-org-info>
         <button
           type="button"

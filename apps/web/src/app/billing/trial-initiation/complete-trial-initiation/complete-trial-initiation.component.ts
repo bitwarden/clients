@@ -1,8 +1,9 @@
 import { StepperSelectionEvent } from "@angular/cdk/stepper";
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -23,17 +24,19 @@ import {
   ProductTierType,
   ProductType,
 } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
-import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import { Trial } from "@bitwarden/web-vault/app/billing/trial-initiation/trial-billing-step/trial-billing-step.service";
 
 import { RouterService } from "../../../core/router.service";
 import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
+
+import { parseTrialInitiationParams, TrialInitiationParams } from "./trial-initiation-params";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -42,7 +45,7 @@ import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.c
   templateUrl: "complete-trial-initiation.component.html",
   standalone: false,
 })
-export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
+export class CompleteTrialInitiationComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("stepper", { static: false }) verticalStepper!: VerticalStepperComponent;
@@ -50,30 +53,43 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   initializing = true;
 
-  /** Password Manager or Secrets Manager */
-  product?: ProductType;
-  /** The tier of product being subscribed to */
-  productTier!: ProductTierType;
-  /** Product types that display steppers for Password Manager */
-  stepperProductTypes: ProductTierType[] = [
+  /** True, registering a password is in progress */
+  submitting = false;
+
+  orgInfoSubLabel = "";
+  orgId = "";
+  billingSubLabel = "";
+  loading = false;
+
+  orgInfoFormGroup = this.formBuilder.group({
+    name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
+    billingEmail: [""],
+  });
+
+  protected readonly ProductType = ProductType;
+
+  /** Product tiers that show the multi-step trial flow for Password Manager. */
+  private readonly stepperProductTiers: ProductTierType[] = [
     ProductTierType.Teams,
     ProductTierType.Enterprise,
     ProductTierType.Families,
   ];
 
+  /** Password Manager or Secrets Manager */
+  product?: ProductType;
+  /** The tier of product being subscribed to */
+  productTier!: ProductTierType;
+
   /** Display multi-step trial flow when true */
   useTrialStepper = false;
 
-  /** True, registering a password is in progress */
-  submitting = false;
+  /** True when PAM billing support is enabled */
+  pamBillingSupportEnabled = false;
 
-  /** Valid product types, used to filter out invalid query parameters */
-  validProducts = [ProductType.PasswordManager, ProductType.SecretsManager];
+  /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
+  includesPrivilegedControls = false;
 
-  orgInfoSubLabel = "";
-  orgId = "";
   orgLabel = "";
-  billingSubLabel = "";
 
   /** User's email address associated with the trial */
   email = "";
@@ -81,19 +97,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   emailVerificationToken?: string;
   /** Present when the trial was set up by sales rather than self-serve email verification */
   salesAssistedToken?: string;
-  loading = false;
-  productTierValue?: ProductTierType;
 
   trialLength!: number;
   paymentOptional = false;
-
-  orgInfoFormGroup = this.formBuilder.group({
-    name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
-    billingEmail: [""],
-  });
-
-  private destroy$ = new Subject<void>();
-  protected readonly ProductType = ProductType;
 
   constructor(
     protected router: Router,
@@ -108,79 +114,68 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private configService: ConfigService,
     private accountService: AccountService,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((qParams) => {
-      // Retrieve email from query params
-      if (qParams.email != null && qParams.email.indexOf("@") > -1) {
-        this.email = qParams.email;
-        this.orgInfoFormGroup.controls.billingEmail.setValue(qParams.email);
-      }
-
-      // Show email validation toast when coming from email
-      if (qParams.fromEmail && qParams.fromEmail === "true") {
-        this.toastService.showToast({
-          title: "",
-          message: this.i18nService.t("emailVerifiedV2"),
-          variant: "success",
-        });
-      }
-
-      if (qParams.token != null) {
-        this.emailVerificationToken = qParams.token;
-      }
-
-      if (qParams.salesAssistedToken != null) {
-        this.salesAssistedToken = qParams.salesAssistedToken;
-      }
-
-      const product = parseInt(qParams.product);
-
-      // Get product from query params, default to password manager
-      this.product = this.validProducts.includes(product) ? product : ProductType.PasswordManager;
-
-      const productTierParam = parseInt(qParams.productTier) as ProductTierType;
-      this.productTierValue = productTierParam;
-
-      /** Only show the trial stepper for a subset of types */
-      const showPasswordManagerStepper = this.stepperProductTypes.includes(productTierParam);
-
-      /** All types of secret manager should see the trial stepper */
-      const showSecretsManagerStepper = this.product === ProductType.SecretsManager;
-
-      if ((showPasswordManagerStepper || showSecretsManagerStepper) && !isNaN(productTierParam)) {
-        this.productTier = productTierParam;
-
-        this.orgLabel = this.planTypeDisplay;
-
-        this.useTrialStepper = true;
-      }
-
-      // We can assume the default trial length if the query param is not present or invalid
-      // Validation for trial length is done in the backend, to double-check this
-      this.trialLength = qParams.trialLength
-        ? parseInt(qParams.trialLength)
-        : DEFAULT_TRIAL_LENGTH_DAYS;
-      this.paymentOptional = qParams.paymentOptional === "true";
-
-      // Are they coming from an email for sponsoring a families organization
-      // After logging in redirect them to setup the families sponsorship
-      this.setupFamilySponsorship(qParams.sponsorshipToken);
-    });
+  ) {
+    combineLatest([
+      this.route.queryParams,
+      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
+    ])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([queryParams, pamBillingSupportEnabled]) => {
+        this.pamBillingSupportEnabled = pamBillingSupportEnabled;
+        this.applyParams(parseTrialInitiationParams(queryParams));
+      });
 
     this.orgInfoFormGroup.controls.name.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.orgInfoFormGroup.controls.name.markAsTouched();
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.orgInfoFormGroup.controls.name.markAsTouched());
+  }
+
+  private applyParams(params: TrialInitiationParams): void {
+    if (params.email) {
+      this.email = params.email;
+      this.orgInfoFormGroup.controls.billingEmail.setValue(params.email);
+    }
+
+    if (params.emailVerified) {
+      this.toastService.showToast({
+        title: "",
+        message: this.i18nService.t("emailVerifiedV2"),
+        variant: "success",
       });
+    }
+
+    this.emailVerificationToken = params.emailVerificationToken;
+    this.salesAssistedToken = params.salesAssistedToken;
+    this.product = params.product;
+
+    this.includesPrivilegedControls = this.shouldIncludePrivilegedControls(params);
+    this.trialLength = params.trialLength;
+    this.paymentOptional = params.paymentOptional;
+
+    // Stepper visibility is a view decision derived from the product and tier; the tier and its
+    // label are only relevant while the stepper is shown.
+    this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
+    if (this.useTrialStepper && params.productTier !== undefined) {
+      this.productTier = params.productTier;
+      this.orgLabel = this.planTypeDisplay;
+    }
+
+    // Coming from an email for sponsoring a families organization: after logging in,
+    // redirect them to set up the families sponsorship.
+    this.setupFamilySponsorship(params.sponsorshipToken);
 
     this.initializing = false;
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  /** Whether to show the multi-step trial flow for the given product and tier. */
+  private showsTrialStepper(
+    product: ProductType,
+    productTier: ProductTierType | undefined,
+  ): boolean {
+    return (
+      productTier !== undefined &&
+      (this.stepperProductTiers.includes(productTier) || product === ProductType.SecretsManager)
+    );
   }
 
   /** Handle manual stepper change */
@@ -229,6 +224,15 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         subscribeToSecretsManager: true,
         isFromSecretsManagerTrial: true,
         secretsManagerSeats: 1,
+      };
+    }
+
+    if (this.includesPrivilegedControls) {
+      plan = {
+        ...plan,
+        subscribeToPrivilegedControls: true,
+        // PAM seats at a minimum of 1, matching PM, so PM seats are never fewer than PAM seats.
+        pamSeatMinimum: 1,
       };
     }
 
@@ -376,7 +380,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
    *    `DeepLinkRedirectService.persistPostLoginRedirectUrl`, so `deepLinkGuard` replays it.
    * 2. If no: remove this method and the `sponsorshipToken` query param handling.
    */
-  private setupFamilySponsorship(sponsorshipToken: string) {
+  private setupFamilySponsorship(sponsorshipToken: string | undefined) {
     if (sponsorshipToken != null) {
       const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
         queryParams: { plan: sponsorshipToken },
@@ -413,6 +417,17 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       });
   }
 
+  private shouldIncludePrivilegedControls(params: TrialInitiationParams): boolean {
+    // Privileged Controls is only available for Enterprise Password Manager trials
+
+    return (
+      this.pamBillingSupportEnabled &&
+      this.product === ProductType.PasswordManager &&
+      params.productTier === ProductTierType.Enterprise &&
+      params.privilegedControlsRequested
+    );
+  }
+
   get trial(): Trial {
     const product =
       this.product === ProductType.PasswordManager ? "passwordManager" : "secretsManager";
@@ -432,6 +447,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       product,
       tier,
       length: this.trialLength,
+      privilegedControls: this.includesPrivilegedControls ? { seatMinimum: 1 } : undefined,
     };
   }
 }

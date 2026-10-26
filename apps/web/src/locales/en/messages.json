@@ -5502,6 +5502,9 @@
   "trialConfirmationEmail": {
     "message": "We've sent a confirmation email to your team's billing email at "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Your trial includes Privileged Controls."
+  },
   "monthly": {
     "message": "Monthly"
   },
