@@ -398,8 +398,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     }
 
     this.viewState.set(AcceptOrgOpenInviteViewState.Loading);
-    // The service kept the stashed invite on `email-not-verified`, so this retry skips
-    // the MP-policy detour and does not log the user out.
     await this.acceptInviteAndHandleResult(invite);
   };
 
