@@ -1,5 +1,6 @@
 import { BrowserContext, expect, Page } from "@playwright/test";
 
+import { CURRENT_ACCOUNT_BUTTON } from "../browser/account-switcher";
 import { extensionShutdown, popupUrl, reachLoginPage, reopenPopup } from "../browser/fixtures";
 import { enableFlags, FeatureFlag } from "../feature-flags";
 import { LoginPage, logInToWebVault } from "../login";
@@ -68,10 +69,9 @@ export async function logInToWeb(context: BrowserContext): Promise<Page> {
  */
 export async function openExtensionVault(extension: Extension) {
   await extension.popup.goto(`${extension.url}${EXTENSION_VAULT_ROUTE}`);
+  await extension.popup.waitForURL(EXTENSION_VAULT_URL);
   // Route transitions briefly render two pages.
-  await expect(
-    extension.popup.getByRole("heading", { name: "Vault", exact: true }).first(),
-  ).toBeVisible();
+  await expect(extension.popup.getByTestId(CURRENT_ACCOUNT_BUTTON).first()).toBeVisible();
 }
 
 /**
