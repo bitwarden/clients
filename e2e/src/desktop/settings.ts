@@ -3,11 +3,13 @@ import { ElectronApplication, expect, Page } from "@playwright/test";
 import { clickMenuItem, MenuItem } from "./app-menu";
 import { Biometrics } from "./biometrics";
 
+const SETTINGS_DIALOG = "settings-dialog";
 const BIOMETRIC_CHECKBOX = "settings-biometric-checkbox";
-// Settings and the set-PIN dialog both name their control "pin": a checkbox, then the field.
-const PIN_CHECKBOX = 'input[type="checkbox"][formcontrolname="pin"]';
-const PIN_INPUT = 'input[type="password"][formcontrolname="pin"]';
-const PIN_ON_RESTART_CHECKBOX = 'input[formcontrolname="requireMasterPasswordOnClientRestart"]';
+const PIN_CHECKBOX = "settings-pin-checkbox";
+const SET_PIN_DIALOG = "set-pin-dialog";
+const SET_PIN_INPUT = "set-pin-input";
+const SET_PIN_ON_RESTART_CHECKBOX = "set-pin-require-master-password-checkbox";
+const SET_PIN_SUBMIT_BUTTON = "set-pin-submit-button";
 
 /** Drives the desktop settings dialog (apps/desktop/src/app/accounts/settings-dialog.component). */
 export class DesktopSettings {
@@ -34,19 +36,18 @@ export class DesktopSettings {
 
   /** Sets a PIN that survives an app restart, through the set-PIN dialog stacked on settings. */
   async setPin(pin: string) {
-    await this.dialog().locator(PIN_CHECKBOX).check();
+    await this.dialog().getByTestId(PIN_CHECKBOX).check();
 
-    const setPin = this.window.getByRole("dialog").filter({ has: this.window.locator(PIN_INPUT) });
-    await setPin.locator(PIN_INPUT).fill(pin);
-    await setPin.locator(PIN_ON_RESTART_CHECKBOX).uncheck();
-    await setPin.getByRole("button", { name: "Ok", exact: true }).click();
+    const setPin = this.window.getByTestId(SET_PIN_DIALOG);
+    await setPin.getByTestId(SET_PIN_INPUT).fill(pin);
+    await setPin.getByTestId(SET_PIN_ON_RESTART_CHECKBOX).uncheck();
+    await setPin.getByTestId(SET_PIN_SUBMIT_BUTTON).click();
 
     await expect(setPin).toBeHidden();
-    await expect(this.dialog().locator(PIN_CHECKBOX)).toBeChecked();
+    await expect(this.dialog().getByTestId(PIN_CHECKBOX)).toBeChecked();
   }
 
-  // The settings dialog is the first one; the set-PIN dialog stacks on top of it.
   private dialog() {
-    return this.window.getByRole("dialog").first();
+    return this.window.getByTestId(SETTINGS_DIALOG);
   }
 }
