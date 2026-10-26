@@ -13,9 +13,7 @@
         bitBadge
         [variant]="enabled() ? 'success' : 'secondary'"
         id="access-connector-detail_badge_status"
-        >{{
-          (enabled() ? "pamAccessConnectorStatusActive" : "pamAccessConnectorStatusInactive") | i18n
-        }}</span
+        >{{ (enabled() ? "active" : "inactive") | i18n }}</span
       >
     }
   </span>
@@ -133,7 +131,7 @@
                   id="access-connector-detail_checkbox_active"
                   formControlName="active"
                 />
-                <bit-label>{{ "pamAccessConnectorStatusActive" | i18n }}</bit-label>
+                <bit-label>{{ "active" | i18n }}</bit-label>
                 <bit-hint>{{ "pamAccessConnectorActiveHint" | i18n }}</bit-hint>
               </bit-form-control>
             </bit-card>
@@ -188,7 +186,6 @@
             idPrefix="access-connector-detail"
             headingKey="pamAccessConnectorAssignments"
             selectLabelKey="pamAccessConnectorAssignSelectLabel"
-            assignLabelKey="pamAccessConnectorAssignConfirm"
             unassignLabelKey="pamAccessConnectorUnassign"
             emptyKey="pamAccessConnectorAssignmentsEmpty"
             goToLabelKey="pamAccessConnectorAssignGoToTargetSystems"
