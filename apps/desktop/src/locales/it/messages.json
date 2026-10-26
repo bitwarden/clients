@@ -1,6 +1,6 @@
 {
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo Bitwarden"
   },
   "bitwarden": {
     "message": "Bitwarden"
@@ -1393,7 +1393,7 @@
     "message": "That file type isn't accepted for this source. Choose a different file"
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content"
+    "message": "Esporta il contenuto esportato"
   },
   "fileTypeNotSupported": {
     "message": "This file type isn't supported. Select a $TYPES$ file",
@@ -2129,7 +2129,7 @@
     "message": "Passkey provider"
   },
   "passkeyProviderDesc": {
-    "message": "Use Bitwarden to save and sign in with passkeys in other apps."
+    "message": "Usa Bitwarden per salvare e accedere con le chiavi di accesso in altre applicazioni."
   },
   "turnedOn": {
     "message": "On"
@@ -2138,7 +2138,7 @@
     "message": "Off"
   },
   "manageInSystemSettings": {
-    "message": "Manage in system settings"
+    "message": "Gestisci nelle impostazioni di sistema"
   },
   "mayOpenSystemSettings": {
     "message": "May open the system settings app.",
@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Aggiungi una cartella condivisa per condividere in modo sicuro gli elementi della cassaforte con altri membri."
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pin to sidebar",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Unpin from sidebar",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pinned to sidebar",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ unpinned from sidebar",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Find a shared folder in this vault and select",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "from the Options menu.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
+  },
   "sendPasswordHelperText": {
     "message": "I destinatari dovranno inserire la password per visualizzare questo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7294,6 +7337,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

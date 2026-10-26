@@ -605,6 +605,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.accountCryptographicStateService,
       this.biometricsService,
+      this.sdkService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -819,6 +820,8 @@ export class ServiceContainer {
       this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
+      this.sdkService,
       this.autoUnlockService,
     );
 

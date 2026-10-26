@@ -10,7 +10,6 @@ import {
 
 import { DeviceType } from "../../../enums";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
@@ -139,11 +138,18 @@ export abstract class SdkService {
 
   /**
    * Unlock the user's live client.
+   *
+   * Returns the unlocked client, or `null` when the live client is not used and the caller should
+   * fall back to the register client.
+   *
    * @param userId The user whose client to unlock
    * @param request The data needed to unlock the client
-   * @returns The user key, or `null` if no client was unlocked
+   * @returns The unlocked client, or `null` to fall back to the register client
    */
-  abstract unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null>;
+  abstract unlock(
+    userId: UserId,
+    request: SdkUnlockRequest,
+  ): Promise<Rc<PasswordManagerClient> | null>;
 
   /**
    * Clear the in-memory user key (lock).
