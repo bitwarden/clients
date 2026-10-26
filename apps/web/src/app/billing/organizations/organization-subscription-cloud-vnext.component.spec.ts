@@ -26,6 +26,8 @@ import { AdjustSubscription } from "./adjust-subscription.component";
 import { OrganizationSubscriptionCloudVNextComponent } from "./organization-subscription-cloud-vnext.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
 import { PrivilegedControlsAdjustSubscriptionComponent } from "./privileged-controls-adjust-subscription.component";
+import * as restartSubscriptionDialog from "./restart-subscription-dialog.component";
+import { RestartSubscriptionDialogResultType } from "./restart-subscription-dialog.component";
 import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
 import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
 import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/components";
@@ -112,6 +114,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   let router: jest.Mocked<Router>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
   let configService: jest.Mocked<ConfigService>;
+  let previewCartFlag$: BehaviorSubject<boolean>;
+  let openRestartDialog: jest.SpyInstance;
 
   const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
@@ -217,6 +221,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     return component;
   };
 
+  afterEach(() => {
+    openRestartDialog.mockRestore();
+  });
+
   beforeEach(async () => {
     dataService = mock<OrganizationSubscriptionDataService>();
     dataService.getSubscriptionPreview.mockResolvedValue(mockSubscriptionPreview);
@@ -233,8 +241,16 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     // undefined, which crashes any template that renders an <a [routerLink]>.
     router.events = new Subject();
     platformUtilsService = mock<PlatformUtilsService>();
+    previewCartFlag$ = new BehaviorSubject<boolean>(false);
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    configService.getFeatureFlag$.mockImplementation((flag) =>
+      flag === FeatureFlag.PM36631_PreviewDrivenCart ? previewCartFlag$ : of(false),
+    );
+    openRestartDialog = jest
+      .spyOn(restartSubscriptionDialog, "openRestartSubscriptionDialog")
+      .mockReturnValue({
+        closed: of(RestartSubscriptionDialogResultType.Submitted),
+      } as ReturnType<typeof restartSubscriptionDialog.openRestartSubscriptionDialog>);
 
     await TestBed.configureTestingModule({
       imports: [OrganizationSubscriptionCloudVNextComponent],
@@ -256,6 +272,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         { provide: ConfigService, useValue: configService },
         DatePipe,
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -687,12 +704,18 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(reinstate).toHaveBeenCalled();
     });
 
-    it("opens change plan on the upgrade and resubscribe actions", () => {
+    it("opens change plan on the upgrade action", () => {
       createComponent();
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
       component.handleCardAction(SubscriptionCardActions.UpgradePlan);
+      expect(changePlan).toHaveBeenCalledTimes(1);
+    });
+
+    it("routes the resubscribe action through resubscribe", () => {
+      createComponent();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
       component.handleCardAction(SubscriptionCardActions.Resubscribe);
-      expect(changePlan).toHaveBeenCalledTimes(2);
+      expect(resubscribe).toHaveBeenCalledTimes(1);
     });
 
     it("navigates to billing history on the manage-invoices action", () => {
@@ -1133,35 +1156,102 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
   });
 
-  describe("upgrade deep link", () => {
-    it("does not auto-open change plan without the upgrade query param", async () => {
-      createComponent();
+  describe("resubscribe", () => {
+    const createLoaded = async (status: string) => {
+      createComponent({
+        subscription: buildSubscriptionResponse({ subscription: { status } as any }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it.each(["canceled", "incomplete_expired"])(
+      "opens the restart dialog for a %s subscription when the flag is on",
+      async (status) => {
+        previewCartFlag$.next(true);
+        await createLoaded(status);
+        const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+        const reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+
+        await component.resubscribe();
+
+        expect(openRestartDialog).toHaveBeenCalledWith(TestBed.inject(DialogService), {
+          data: {
+            organizationId: "org-123",
+            subscription: component.organizationSubscription(),
+          },
+        });
+        expect(changePlan).not.toHaveBeenCalled();
+        expect(reload).toHaveBeenCalled();
+      },
+    );
+
+    it("does not refresh when the restart dialog is closed without submitting", async () => {
+      previewCartFlag$.next(true);
+      openRestartDialog.mockReturnValue({
+        closed: of(RestartSubscriptionDialogResultType.Closed),
+      } as ReturnType<typeof restartSubscriptionDialog.openRestartSubscriptionDialog>);
+      await createLoaded("canceled");
+      const reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+
+      await component.resubscribe();
+
+      expect(openRestartDialog).toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
+    });
+
+    it("opens change plan for an ended subscription when the flag is off", async () => {
+      await createLoaded("canceled");
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+
+      await component.resubscribe();
+
+      expect(openRestartDialog).not.toHaveBeenCalled();
+      expect(changePlan).toHaveBeenCalledWith(undefined);
+    });
+
+    it("opens change plan for an active subscription when the flag is on", async () => {
+      previewCartFlag$.next(true);
+      await createLoaded("active");
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+
+      await component.resubscribe(ProductTierType.Enterprise);
+
+      expect(openRestartDialog).not.toHaveBeenCalled();
+      expect(changePlan).toHaveBeenCalledWith(ProductTierType.Enterprise);
+    });
+  });
+
+  describe("upgrade deep link", () => {
+    it("does not auto-open the upgrade flow without the upgrade query param", async () => {
+      createComponent();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(changePlan).not.toHaveBeenCalled();
+      expect(resubscribe).not.toHaveBeenCalled();
     });
 
-    it("auto-opens change plan once the subscription loads when ?upgrade is present", async () => {
+    it("auto-opens the upgrade flow once the subscription loads when ?upgrade is present", async () => {
       const queryParamMap = new BehaviorSubject(convertToParamMap({}));
       activatedRoute.queryParamMap = queryParamMap;
 
       createComponent({ detectChanges: true });
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
       queryParamMap.next(convertToParamMap({ upgrade: "true" }));
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(changePlan).toHaveBeenCalledWith(undefined);
+      expect(resubscribe).toHaveBeenCalledWith(undefined);
     });
 
-    it("passes the deep-link productTierType to change plan", async () => {
+    it("passes the deep-link productTierType to resubscribe", async () => {
       const queryParamMap = new BehaviorSubject(convertToParamMap({}));
       activatedRoute.queryParamMap = queryParamMap;
 
       createComponent({ detectChanges: true });
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
       queryParamMap.next(
         convertToParamMap({
           upgrade: "true",
@@ -1171,7 +1261,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(changePlan).toHaveBeenCalledWith(ProductTierType.Enterprise);
+      expect(resubscribe).toHaveBeenCalledWith(ProductTierType.Enterprise);
     });
 
     it("ignores an invalid productTierType and falls back to the current tier", async () => {
@@ -1179,7 +1269,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       activatedRoute.queryParamMap = queryParamMap;
 
       createComponent({ detectChanges: true });
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
       queryParamMap.next(
         convertToParamMap({
           upgrade: "true",
@@ -1189,7 +1279,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(changePlan).toHaveBeenCalledWith(undefined);
+      expect(resubscribe).toHaveBeenCalledWith(undefined);
     });
 
     it("treats an empty productTierType as absent and falls back to the current tier", async () => {
@@ -1197,7 +1287,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       activatedRoute.queryParamMap = queryParamMap;
 
       createComponent({ detectChanges: true });
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      const resubscribe = jest.spyOn(component, "resubscribe").mockResolvedValue();
       queryParamMap.next(
         convertToParamMap({
           upgrade: "true",
@@ -1207,7 +1297,26 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(changePlan).toHaveBeenCalledWith(undefined);
+      expect(resubscribe).toHaveBeenCalledWith(undefined);
+    });
+
+    it("opens the restart dialog for ?upgrade when the subscription has ended and the flag is on", async () => {
+      previewCartFlag$.next(true);
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent({
+        subscription: buildSubscriptionResponse({ subscription: { status: "canceled" } as any }),
+        detectChanges: true,
+      });
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      queryParamMap.next(convertToParamMap({ upgrade: "true" }));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(openRestartDialog).toHaveBeenCalled();
+      expect(changePlan).not.toHaveBeenCalled();
     });
   });
 

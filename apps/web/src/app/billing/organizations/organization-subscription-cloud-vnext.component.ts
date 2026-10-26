@@ -63,6 +63,10 @@ import {
 } from "./privileged-controls-adjust-subscription.component";
 import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
 import {
+  openRestartSubscriptionDialog,
+  RestartSubscriptionDialogResultType,
+} from "./restart-subscription-dialog.component";
+import {
   SecretsManagerAdjustSubscriptionComponent,
   SecretsManagerSubscriptionOptions,
 } from "./sm-adjust-subscription.component";
@@ -76,6 +80,8 @@ const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
   PlanType.TeamsStarter2023,
   PlanType.TeamsStarter,
 ];
+
+const ENDED_STATUSES: (string | undefined)[] = ["canceled", "incomplete_expired"];
 
 const QUERY_PARAM_UPGRADE = "upgrade";
 const QUERY_PARAM_PRODUCT_TIER = "productTierType";
@@ -547,8 +553,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
         void this.reinstate();
         return;
       case SubscriptionCardActions.UpgradePlan:
-      case SubscriptionCardActions.Resubscribe:
         void this.changePlan();
+        return;
+      case SubscriptionCardActions.Resubscribe:
+        void this.resubscribe();
         return;
       case SubscriptionCardActions.ManageInvoices:
         void this.router.navigate(["../history"], { relativeTo: this.route });
@@ -584,6 +592,31 @@ export class OrganizationSubscriptionCloudVNextComponent {
       return;
     }
     this.refreshAll();
+  };
+
+  /**
+   * Restarts an ended subscription through the restart dialog when the preview-driven cart is on,
+   * and otherwise opens the change plan dialog.
+   * @param preSelectedProductTier Optional pre-selected product tier for the change plan dialog.
+   * Ignored for an ended subscription, which always restarts on its own plan.
+   */
+  readonly resubscribe = async (preSelectedProductTier?: ProductTierType): Promise<void> => {
+    const previewCartEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
+    );
+    const subscription = this.organizationSubscription();
+    const status = subscription?.subscription?.status;
+    if (previewCartEnabled && subscription != null && ENDED_STATUSES.includes(status)) {
+      const reference = openRestartSubscriptionDialog(this.dialogService, {
+        data: { organizationId: this.organizationId, subscription },
+      });
+      const result = await lastValueFrom(reference.closed);
+      if (result === RestartSubscriptionDialogResultType.Submitted) {
+        this.refreshAll();
+      }
+      return;
+    }
+    await this.changePlan(preSelectedProductTier);
   };
 
   readonly reinstate = async () => {
@@ -739,7 +772,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
     this.refreshAll();
   }
 
-  /** Opens the change plan dialog if the upgrade query parameter is present. */
+  /**
+   * Opens the change plan dialog, or the restart dialog for an ended subscription, if the upgrade
+   * query parameter is present.
+   */
   private openChangePlanIfUpgradeRequested() {
     this.route.queryParamMap
       .pipe(
@@ -754,7 +790,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         take(1),
         takeUntilDestroyed(),
       )
-      .subscribe((preSelectedProductTier) => void this.changePlan(preSelectedProductTier));
+      .subscribe((preSelectedProductTier) => void this.resubscribe(preSelectedProductTier));
   }
 
   private toProductTier(value: string | null): ProductTierType | undefined {
