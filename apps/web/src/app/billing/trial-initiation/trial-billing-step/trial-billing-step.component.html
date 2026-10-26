@@ -2,37 +2,45 @@
   <ng-container *ngTemplateOutlet="loadingSpinner" />
 } @else {
   @let prices = prices$ | async;
+  @let previewPricingEnabled = previewPricingEnabled$ | async;
   <form [formGroup]="formGroup" [bitSubmit]="submit">
     <div class="tw-container tw-mb-3">
       <!-- Cadence -->
       <div class="tw-mb-6">
         <div class="tw-mb-3 tw-flex tw-items-center">
           <h2 class="!tw-m-0 tw-text-base tw-font-medium">{{ "billingPlanLabel" | i18n }}</h2>
-          <div class="tw-flex tw-gap-1 tw-ml-2">
-            @for (discount of cartDiscounts(); track discount) {
-              <billing-discount-badge [discount]="discount"></billing-discount-badge>
-            }
-          </div>
+          <!-- The preview cart renders its own discount badges; only badge the header on the legacy path. -->
+          @if (!previewPricingEnabled) {
+            <div class="tw-flex tw-gap-1 tw-ml-2">
+              @for (discount of cartDiscounts(); track discount) {
+                <billing-discount-badge [discount]="discount"></billing-discount-badge>
+              }
+            </div>
+          }
         </div>
         <bit-radio-group [formControl]="formGroup.controls.cadence">
           <div class="tw-mb-1 tw-items-center">
-            <bit-radio-button id="annual-cadence-button" [value]="'annually'">
+            <bit-form-control [inline]="true" disableMargin>
+              <input type="radio" bitRadio id="annual-cadence-button" [value]="'annually'" />
               <bit-label>
-                {{ "annual" | i18n }} -
-                {{ prices.annually | currency: "$" }}
-                /{{ "yr" | i18n }}
+                {{ "annual" | i18n }}
+                @if (!previewPricingEnabled) {
+                  - {{ prices?.annually | currency: "$" }} /{{ "yr" | i18n }}
+                }
               </bit-label>
-            </bit-radio-button>
+            </bit-form-control>
           </div>
-          @if (prices.monthly) {
+          @if (prices?.monthly) {
             <div class="tw-mb-1 tw-items-center">
-              <bit-radio-button id="monthly-cadence-button" [value]="'monthly'">
+              <bit-form-control [inline]="true" disableMargin>
+                <input type="radio" bitRadio id="monthly-cadence-button" [value]="'monthly'" />
                 <bit-label>
-                  {{ "monthly" | i18n }} -
-                  {{ prices.monthly | currency: "$" }}
-                  /{{ "monthAbbr" | i18n }}
+                  {{ "monthly" | i18n }}
+                  @if (!previewPricingEnabled) {
+                    - {{ prices?.monthly | currency: "$" }} /{{ "monthAbbr" | i18n }}
+                  }
                 </bit-label>
-              </bit-radio-button>
+              </bit-form-control>
             </div>
           }
         </bit-radio-group>
@@ -49,31 +57,45 @@
         ></app-enter-billing-address>
 
         @if (trial().length === 0) {
-          @let label =
-            trial().product === "passwordManager"
-              ? "passwordManagerPlanPrice"
-              : "secretsManagerPlanPrice";
-          <div id="price" class="tw-my-4">
-            @let selectionTaxAmounts = selectionCosts$ | async;
-            <div class="tw-text-muted tw-text-base">
-              {{ label | i18n }}: {{ selectionPrice$ | async | currency: "USD $" }}
-              <div>
-                {{ "estimatedTax" | i18n }}:
-                {{ selectionTaxAmounts.tax | currency: "USD $" }}
+          @if (previewPricingEnabled) {
+            <app-trial-preview-cart
+              [trial]="trial()"
+              [cadence]="cadenceValue()"
+              [billingAddress]="billingAddressValue()"
+              [eligibleDiscounts]="eligibleDiscounts()"
+            />
+          } @else {
+            @let label =
+              trial().product === "passwordManager"
+                ? "passwordManagerPlanPrice"
+                : "secretsManagerPlanPrice";
+            <div id="price" class="tw-my-4">
+              <div class="tw-text-muted tw-text-base">
+                {{ label | i18n }}: {{ selectionPrice$ | async | currency: "USD $" }}
+                <div>
+                  {{ "estimatedTax" | i18n }}:
+                  {{ (selectionCosts$ | async)?.tax | currency: "USD $" }}
+                </div>
               </div>
+              <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
+              <p class="tw-text-lg">
+                <strong>{{ "total" | i18n }}: </strong>
+                @let interval = formGroup.value.cadence === "annually" ? "year" : "month";
+                {{ (selectionCosts$ | async)?.total | currency: "USD $" }}/{{ interval | i18n }}
+              </p>
             </div>
-            <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
-            <p class="tw-text-lg">
-              <strong>{{ "total" | i18n }}: </strong>
-              @let interval = formGroup.value.cadence === "annually" ? "year" : "month";
-              {{ selectionTaxAmounts.total | currency: "USD $" }}/{{ interval | i18n }}
-            </p>
-          </div>
+          }
         }
       </div>
       <!-- Submit -->
       <div class="tw-flex tw-space-x-2">
-        <button bitButton bitFormButton buttonType="primary" type="submit">
+        <button
+          bitButton
+          bitFormButton
+          buttonType="primary"
+          type="submit"
+          [disabled]="previewErrored()"
+        >
           {{ (trial().length > 0 ? "startTrial" : "submit") | i18n }}
         </button>
         <button bitButton type="button" buttonType="secondary" (click)="stepBack()">
