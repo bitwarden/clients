@@ -375,6 +375,25 @@ describe("TrialBillingStepComponent", () => {
 
       expect(fixture.nativeElement.querySelector("billing-discount-badge")).toBeTruthy();
     }));
+
+    it("keeps legacy plan prices and badges for a free trial even with both flags on", fakeAsync(() => {
+      // The preview cart only renders for a direct purchase, so a trial must keep legacy pricing.
+      enableFlags();
+      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+
+      fixture.componentRef.setInput("trial", { ...mockDirectPurchase, length: 7 });
+      fixture.detectChanges();
+      discountSubject$.next([mockFamiliesDiscount]);
+      flushMicrotasks();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-trial-preview-cart")).toBeNull();
+      expect(fixture.nativeElement.querySelector("billing-discount-badge")).toBeTruthy();
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain("$40.00"); // annual radio keeps its plan price
+      expect(text).toContain("$2.00"); // monthly radio keeps its plan price
+    }));
   });
 
   describe("submit — coupon error recovery", () => {
