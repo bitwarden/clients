@@ -489,7 +489,7 @@ describe("MasterPasswordLockComponent", () => {
       component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
 
       const submitPromise = component.submit();
-      // Allow the component's spinner delay to elapse; the frame itself is still held back.
+      // Let the component's timers elapse; the frame itself is still held back.
       await new Promise((resolve) => setTimeout(resolve, BUTTON_SPINNER_DELAY_MS * 2));
 
       expect(renderFrame).toBeDefined();
