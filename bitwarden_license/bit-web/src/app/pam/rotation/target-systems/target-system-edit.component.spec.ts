@@ -1385,9 +1385,7 @@ describe("TargetSystemEditComponent — assigned access connectors", () => {
       }),
     ]);
 
-    expect(component.assignedConnectorRows()[0].statusLabelKey).toBe(
-      "pamAccessConnectorStatusInactive",
-    );
+    expect(component.assignedConnectorRows()[0].statusLabelKey).toBe("inactive");
   });
 
   it("offers assignment for any automatic target, active or not", async () => {

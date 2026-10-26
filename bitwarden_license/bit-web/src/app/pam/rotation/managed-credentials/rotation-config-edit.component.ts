@@ -51,7 +51,7 @@ import { classifyRotationError } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
-import { RotationScheduleInputComponent } from "../rotation-schedule-input.component";
+import { RotationScheduleInputComponent } from "../rotation-schedule-input/rotation-schedule-input.component";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";

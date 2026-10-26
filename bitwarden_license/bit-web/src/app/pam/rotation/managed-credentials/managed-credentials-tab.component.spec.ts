@@ -536,7 +536,7 @@ describe("ManagedCredentialsTabComponent", () => {
     }
 
     it("shows only the active badge for an enabled, idle credential", () => {
-      expectOnlyBadge(statusCell(makeRow()), "pamRotationConfigStatusActive", "bwi-check-circle");
+      expectOnlyBadge(statusCell(makeRow()), "active", "bwi-check-circle");
     });
 
     it("shows only the paused badge for a disabled credential", () => {
@@ -828,7 +828,7 @@ describe("ManagedCredentialsTabComponent", () => {
         .map((option) => option.componentInstance.value());
 
       expect(values).toEqual([
-        "pamRotationConfigStatusActive",
+        "active",
         "pamRotationConfigStatusPaused",
         "pamRotationConfigRotatingBadge",
         "pamRotationConfigRotationDueBadge",
@@ -1215,7 +1215,7 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(cells[0].slice(0, 7)).toEqual([
         "Prod DB service account",
         "Prod Entra pamTargetSystemMethodAutomatic",
-        "pamRotationConfigStatusActive",
+        "active",
         "pamRotationScheduleDaily",
         "yes",
         "Mar 1, 2026",
@@ -1295,12 +1295,12 @@ describe("ManagedCredentialsTabComponent", () => {
         "pamRotationConfigRotatingBadge",
         "pamRotationConfigStatusPaused",
         "pamRotationConfigRotationDueBadge",
-        "pamRotationConfigStatusActive",
+        "active",
       ]);
 
       clickSort(el, "status");
       expect(renderedStatuses(el)).toEqual([
-        "pamRotationConfigStatusActive",
+        "active",
         "pamRotationConfigRotationDueBadge",
         "pamRotationConfigStatusPaused",
         "pamRotationConfigRotatingBadge",

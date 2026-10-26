@@ -1234,7 +1234,7 @@ describe("AccessConnectorDetailComponent", () => {
         (fixture.nativeElement as HTMLElement).querySelector(
           "#access-connector-detail_badge_status",
         )?.textContent,
-      ).toContain("pamAccessConnectorStatusActive");
+      ).toContain("active");
     });
   });
 

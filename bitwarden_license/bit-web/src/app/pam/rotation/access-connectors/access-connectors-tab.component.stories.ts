@@ -17,10 +17,7 @@ function row(accessConnector: AccessConnector, assignmentNames: string[] = []): 
   return {
     id: accessConnector.id,
     name: accessConnector.name,
-    statusLabelKey:
-      accessConnector.status === "enabled"
-        ? "pamAccessConnectorStatusActive"
-        : "pamAccessConnectorStatusInactive",
+    statusLabelKey: accessConnector.status === "enabled" ? "active" : "inactive",
     isConnected: accessConnector.isConnected,
     assignmentNames,
     enabled: accessConnector.status === "enabled",
@@ -149,8 +146,8 @@ export default {
               pamAccessConnectorActivate: "Activate",
               pamAccessConnectorDeleteAccessConnector: "Delete access connector",
               pamAccessConnectorNoResults: "No access connectors match your search.",
-              pamAccessConnectorStatusActive: "Active",
-              pamAccessConnectorStatusInactive: "Inactive",
+              active: "Active",
+              inactive: "Inactive",
             }),
         },
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
