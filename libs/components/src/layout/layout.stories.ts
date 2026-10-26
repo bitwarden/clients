@@ -161,6 +161,30 @@ export const HeaderBorderAlwaysVfo1: Story = {
   }),
 };
 
+/** Tall switcher content scrolls within a capped row so body rows stay reachable. */
+export const ExpandedSwitcherVfo1: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo, orgs: Array.from({ length: 20 }, (_, i) => i) },
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav headerBorder="always">
+          <bit-nav-logo [openIcon]="logo" [route]="['']" label="Admin Console"></bit-nav-logo>
+          <bit-nav-group slot="product-switcher" text="Acme Inc." icon="bwi-business" [open]="true">
+            @for (org of orgs; track org) {
+            <bit-nav-item text="Organization {{ org }}"></bit-nav-item>
+            }
+          </bit-nav-group>
+          <bit-nav-item text="Members" icon="bwi-user"></bit-nav-item>
+          <bit-nav-item text="Groups" icon="bwi-users"></bit-nav-item>
+          <bit-nav-item text="Settings" icon="bwi-cog"></bit-nav-item>
+        </bit-side-nav>
+        <bit-callout title="Foobar"> Hello world! </bit-callout>
+      </bit-layout>
+    `,
+  }),
+};
+
 export const SkipLinks: Story = {
   ...WithContent,
   play: async () => {
