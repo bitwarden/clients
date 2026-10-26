@@ -48,6 +48,7 @@ describe("PamOrgNavSlotComponent", () => {
           useValue: new I18nMockService({
             privilegedControls: "Privileged Controls",
             pamAccessRules: "Access rules",
+            pamAuditLog: "Audit log",
             pamRotation: "Rotation",
           }),
         },
@@ -106,6 +107,25 @@ describe("PamOrgNavSlotComponent", () => {
     expect(fixture.debugElement.nativeElement.classList).toContain("tw-contents");
   });
 
+  it("shows only Access rules when the org cannot read event logs", () => {
+    fixture.componentRef.setInput("organization", org(true, false));
+    fixture.detectChanges();
+    expect(navItemRoutes()).toEqual(["pam/access-rules"]);
+  });
+
+  it("shows only Audit log when the org cannot manage access rules", () => {
+    fixture.componentRef.setInput("organization", org(false, true));
+    fixture.detectChanges();
+    expect(navGroup()).not.toBeNull();
+    expect(navItemRoutes()).toEqual(["pam/audit"]);
+  });
+
+  it("shows both items when the org has both permissions", () => {
+    fixture.componentRef.setInput("organization", org(true, true));
+    fixture.detectChanges();
+    expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit"]);
+  });
+
   describe("rotation", () => {
     it("gates on the rotation feature flag", () => {
       fixture.detectChanges();
@@ -116,7 +136,7 @@ describe("PamOrgNavSlotComponent", () => {
       rotationEnabled$.next(true);
       fixture.componentRef.setInput("organization", org(true, true));
       fixture.detectChanges();
-      expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/rotation"]);
+      expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit", "pam/rotation"]);
     });
 
     it("hides Rotation when its flag is off", () => {
@@ -124,6 +144,13 @@ describe("PamOrgNavSlotComponent", () => {
       fixture.componentRef.setInput("organization", org(true, true));
       fixture.detectChanges();
       expect(navItemRoutes()).not.toContain("pam/rotation");
+    });
+
+    it("hides Rotation when the org cannot manage rotation", () => {
+      rotationEnabled$.next(true);
+      fixture.componentRef.setInput("organization", org(false, true));
+      fixture.detectChanges();
+      expect(navItemRoutes()).toEqual(["pam/audit"]);
     });
 
     // A Custom user with ManageAccessRules authors rules but cannot manage connectors, so
