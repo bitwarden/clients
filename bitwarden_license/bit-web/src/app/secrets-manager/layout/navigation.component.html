@@ -1,6 +1,17 @@
 <app-side-nav>
   <bit-nav-logo [openIcon]="logo" route="." [label]="'secretsManager' | i18n"></bit-nav-logo>
   <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
+  <!-- vfo1: an unlabeled section gives the rows section row spacing. -->
+  @if (vfo1Enabled()) {
+    <bit-nav-section>
+      <ng-container *ngTemplateOutlet="navRows" />
+    </bit-nav-section>
+  } @else {
+    <ng-container *ngTemplateOutlet="navRows" />
+  }
+</app-side-nav>
+
+<ng-template #navRows>
   <bit-nav-item
     icon="bwi-collection"
     [text]="'projects' | i18n"
@@ -62,4 +73,4 @@
       [relativeTo]="route.parent"
     ></bit-nav-item>
   </bit-nav-group>
-</app-side-nav>
+</ng-template>
