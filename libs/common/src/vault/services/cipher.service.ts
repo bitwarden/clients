@@ -23,6 +23,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
@@ -148,39 +149,47 @@ export class CipherService implements CipherServiceAbstraction {
    * Like {@link cipherListViews$}, but retains PAM-gated ("partial") rows. Opt-in: only the vault
    * list should consume it.
    *
-   * This uses the SDK for decryption.
+   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViewsWithPartials$` observable will be emitted.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViewsWithPartials$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
-    return combineLatest([
-      this.encryptedCiphersState(userId).state$,
-      this.localData$(userId),
-      this.keyService.cipherDecryptionKeys$(userId, true),
-    ]).pipe(
-      filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
-      map(([cipherDataState, localData]) =>
-        Object.values(cipherDataState).map(
-          (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
-        ),
-      ),
-      tap(() => {
-        decryptMeasurement = this.logService.startMeasurement(
-          PERF_TRACK_GROUP,
-          PERF_TRACK,
-          "listViewDecrypt",
+    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
+      switchMap((useSdk) => {
+        if (!useSdk) {
+          return this.cipherViewsWithPartials$(userId);
+        }
+
+        return combineLatest([
+          this.encryptedCiphersState(userId).state$,
+          this.localData$(userId),
+          this.keyService.cipherDecryptionKeys$(userId, true),
+        ]).pipe(
+          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+          map(([cipherDataState, localData]) =>
+            Object.values(cipherDataState).map(
+              (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
+            ),
+          ),
+          tap(() => {
+            decryptMeasurement = this.logService.startMeasurement(
+              PERF_TRACK_GROUP,
+              PERF_TRACK,
+              "listViewDecrypt",
+            );
+          }),
+          switchMap(async (ciphers) => {
+            return await this.decryptCiphersWithSdk(ciphers, userId);
+          }),
+          tap(([decrypted, failures]) => {
+            void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
+
+            decryptMeasurement.finish([["Items", decrypted.length]]);
+          }),
+          map(([decrypted]) => decrypted),
         );
       }),
-      switchMap(async (ciphers) => {
-        return await this.decryptCiphersWithSdk(ciphers, userId);
-      }),
-      tap(([decrypted, failures]) => {
-        void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
-
-        decryptMeasurement.finish([["Items", decrypted.length]]);
-      }),
-      map(([decrypted]) => decrypted),
     );
   }, this.clearCipherViewsForUser$);
 
@@ -189,7 +198,7 @@ export class CipherService implements CipherServiceAbstraction {
    * ("partial") rows.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * This uses the SDK for decryption.
+   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
