@@ -4,6 +4,7 @@
     type="button"
     class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-primary-600"
     (click)="currentAccountClicked()"
+    data-testid="current-account-button"
   >
     <span class="tw-sr-only"> {{ "bitwardenAccount" | i18n }} {{ currentAccount.email }}</span>
     <!-- TODO: remove size binding and lock to "sm" when VFO1Foundation flag is removed -->
