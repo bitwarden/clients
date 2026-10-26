@@ -105,6 +105,7 @@ import {
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -171,6 +172,10 @@ import {
   Vfo1TerminologyService,
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
+  VFO1_FILTERS_STEP,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -231,6 +236,10 @@ import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP, VFO1_FILTERS_STEP],
+  }),
   safeProvider({
     provide: CipherFormGenerationService,
     useClass: DesktopCredentialGenerationService,
@@ -440,6 +449,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       AccountCryptographicStateService,
       BiometricsService,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -464,6 +474,7 @@ const safeProviders: SafeProvider[] = [
       SharedUnlockSettingsService,
       UnlockService,
       ConfigService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -479,7 +490,9 @@ const safeProviders: SafeProvider[] = [
       Fido2AuthenticatorServiceAbstraction,
       AccountService,
       AuthService,
+      EnvironmentService,
       PlatformUtilsService,
+      DesktopFido2UserInterfaceService,
     ],
   }),
   safeProvider({

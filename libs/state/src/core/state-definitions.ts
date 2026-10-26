@@ -272,6 +272,11 @@ export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
   "disk",
   { web: "disk-local" },
 );
+export const VAULT_PINNED_SHARED_FOLDERS_DISK = new StateDefinition(
+  "vaultPinnedSharedFolders",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
   "disk",
@@ -291,3 +296,4 @@ export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const SHARED_UNLOCK_SETTINGS_DISK = new StateDefinition("sharedUnlockSettings", "disk");
+export const SHARED_UNLOCK_DISK = new StateDefinition("sharedUnlock", "disk");

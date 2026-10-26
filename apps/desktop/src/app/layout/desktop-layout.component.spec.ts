@@ -5,8 +5,10 @@ import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -23,10 +25,12 @@ import {
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import {
+  PinnedSharedFoldersService,
   CoachmarkService,
   VaultNavItemType,
   VaultNavService,
   VaultsNavViewModel,
+  VaultTourCalloutComponent,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
@@ -82,6 +86,7 @@ describe("DesktopLayoutComponent", () => {
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   const flag$ = new BehaviorSubject<boolean>(false);
+  const importUpgradeFlag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>({
     vaults: [
       {
@@ -138,11 +143,14 @@ describe("DesktopLayoutComponent", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     flag$.next(false);
+    importUpgradeFlag$.next(false);
     canArchive$.next(true);
     archivedCiphers$.next([]);
 
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(flag$);
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+      flag === FeatureFlag.ImportUpgrade ? importUpgradeFlag$ : flag$,
+    );
 
     i18nService.t.mockImplementation((key: string) => key);
     platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
@@ -159,6 +167,18 @@ describe("DesktopLayoutComponent", () => {
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
         { provide: ConfigService, useValue: configService },
         { provide: VaultNavService, useValue: vaultNavService },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+        },
+        {
+          // Nothing pinned and the hint dismissed, so the nav's Pinned section stays out of these tests.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => of([]),
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
@@ -183,7 +203,7 @@ describe("DesktopLayoutComponent", () => {
         add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
       })
       .overrideComponent(DesktopSideNavComponent, {
-        remove: { imports: [AccountSwitcherV2Component] },
+        remove: { imports: [AccountSwitcherV2Component, VaultTourCalloutComponent] },
         add: { schemas: [CUSTOM_ELEMENTS_SCHEMA] },
       })
       .compileComponents();
@@ -298,6 +318,32 @@ describe("DesktopLayoutComponent", () => {
 
       expect(router.navigate).toHaveBeenCalledWith(["/import"]);
       expect(dialogService.open).not.toHaveBeenCalled();
+    });
+  });
+
+  // TODO: remove once pm-35053-import-upgrade is retired
+  describe("import nav item", () => {
+    const importNavItem = (): HTMLElement => {
+      const element = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
+        (el) => (el as HTMLElement).textContent?.trim().split("\n")[0].trim() === "importNoun",
+      ) as HTMLElement | undefined;
+      if (!element) {
+        throw new Error('No bit-nav-item found with first-line text "importNoun".');
+      }
+      return element;
+    };
+
+    it("renders a button that runs openImport when the import upgrade flag is off", () => {
+      expect(importNavItem().querySelector("button")).toBeTruthy();
+      expect(importNavItem().querySelector("a")).toBeNull();
+    });
+
+    it("renders a link to the new import page when the import upgrade flag is on", () => {
+      importUpgradeFlag$.next(true);
+      fixture.detectChanges();
+
+      expect(importNavItem().querySelector("a")).toBeTruthy();
+      expect(importNavItem().querySelector("button")).toBeNull();
     });
   });
 });

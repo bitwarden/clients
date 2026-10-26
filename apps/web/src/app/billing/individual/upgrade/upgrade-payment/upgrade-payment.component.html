@@ -57,7 +57,7 @@
     <section>
       @if (previewFailed()) {
         <bit-callout type="danger" data-testid="invoice-preview-error">
-          {{ "invoicePreviewErrorMessage" | i18n }}
+          {{ previewErrorMessageKey() | i18n }}
         </bit-callout>
       }
       <billing-cart-summary
@@ -79,7 +79,9 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading() || !isFormValid() || !(hasEnoughAccountCredit$ | async)"
+      [disabled]="
+        loading() || !isFormValid() || previewFailed() || !(hasEnoughAccountCredit$ | async)
+      "
       type="submit"
     >
       {{ "upgrade" | i18n }}

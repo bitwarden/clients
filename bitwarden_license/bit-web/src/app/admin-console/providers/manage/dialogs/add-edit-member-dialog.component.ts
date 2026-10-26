@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -8,12 +9,20 @@ import { ProviderUserInviteRequest } from "@bitwarden/common/admin-console/model
 import { ProviderUserUpdateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  A11yTitleDirective,
+  AsyncActionsModule,
+  ButtonModule,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  RadioButtonModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 export type AddEditMemberDialogParams = {
@@ -34,7 +43,18 @@ export enum AddEditMemberDialogResultType {
 @Component({
   selector: "add-edit-member-dialog",
   templateUrl: "add-edit-member-dialog.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DialogModule,
+    FormFieldModule,
+    RadioButtonModule,
+    ButtonModule,
+    IconButtonModule,
+    AsyncActionsModule,
+    A11yTitleDirective,
+    I18nPipe,
+  ],
 })
 export class AddEditMemberDialogComponent {
   editing = false;

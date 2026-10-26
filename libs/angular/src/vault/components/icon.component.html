@@ -21,7 +21,7 @@
       <div
         [ngClass]="{
           'tw-flex tw-items-center tw-justify-center': coloredIcon(),
-          'tw-bg-illustration-bg-primary tw-rounded-full':
+          'tw-bg-illustration-fill-primary tw-rounded-full':
             data.icon?.startsWith('bwi-') && coloredIcon(),
         }"
         [ngStyle]="iconStyle()"
@@ -29,7 +29,7 @@
         <i
           class="tw-text-muted bwi bwi-lg {{ data.icon }}"
           [ngStyle]="{
-            color: coloredIcon() ? 'rgb(var(--color-illustration-outline))' : null,
+            color: coloredIcon() ? 'var(--color-illustration-stroke)' : null,
             width: data.icon?.startsWith('credit-card') && coloredIcon() ? '36px' : null,
             height: data.icon?.startsWith('credit-card') && coloredIcon() ? '30px' : null,
             fontSize: size() ? size() + 'px' : null,

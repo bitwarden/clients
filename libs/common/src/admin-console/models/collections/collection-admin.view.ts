@@ -139,6 +139,7 @@ export class CollectionAdminView extends CollectionView {
     view.type = collection.type;
     view.externalId = collection.externalId;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
 
     view.groups = collection.groups
       ? collection.groups.map((g) => new CollectionAccessSelectionView(g))

@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -44,7 +53,7 @@ export const NEW_EXPERIENCE_LEARN_MORE_URL = "https://bitwarden.com/blog/2026-de
  * Announces the redesigned vault to users who created their account before the redesign shipped.
  *
  * The nudge is dismissed only by an explicit action: exploring, learning more, or the header close
- * button. The dialog is opened with `disableClose` so escape and backdrop clicks can't close it
+ * button. Exploring leaves the dismissal to the opener, which starts the walkthrough first. The dialog is opened with `disableClose` so escape and backdrop clicks can't close it
  * without one of those, which also hides `bit-dialog`'s built-in close button — this component
  * renders its own in its place.
  *
@@ -74,8 +83,32 @@ export class NewExperienceDialogComponent {
 
   protected readonly learnMoreUrl = NEW_EXPERIENCE_LEARN_MORE_URL;
 
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly footer = viewChild.required<ElementRef<HTMLElement>>("footer");
+
+  /**
+   * Whether the footer actions have wrapped onto separate rows. They only stretch to full width
+   * when stacked; CSS can't detect a wrapped flex row, so the footer is measured instead.
+   */
+  protected readonly stacked = signal(false);
+
+  constructor() {
+    afterNextRender(() => {
+      const footer = this.footer().nativeElement;
+      const update = () => {
+        const first = footer.firstElementChild as HTMLElement | null;
+        const last = footer.lastElementChild as HTMLElement | null;
+        this.stacked.set(first != null && last != null && last.offsetTop > first.offsetTop);
+      };
+
+      const resizeObserver = new ResizeObserver(update);
+      resizeObserver.observe(footer);
+      this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+    });
+  }
+
   protected async explore() {
-    await this.dismiss(NewExperienceDialogResult.Explore);
+    await this.dialogRef.close(NewExperienceDialogResult.Explore);
   }
 
   /**

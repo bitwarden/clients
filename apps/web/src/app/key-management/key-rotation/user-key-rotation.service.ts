@@ -99,14 +99,13 @@ export class UserKeyRotationService {
   shouldUseSdkKeyRotation$(userId: UserId): Observable<boolean> {
     return combineLatest([
       this.keyService.userKey$(userId),
-      this.configService.getFeatureFlag$(FeatureFlag.SdkKeyRotation),
       this.configService.getFeatureFlag$(FeatureFlag.ForceUpgradeV2Encryption),
     ]).pipe(
-      map(([userKey, sdkKeyRotation, forceUpgradeV2]) => {
+      map(([userKey, forceUpgradeV2]) => {
         if (userKey == null) {
           return false;
         }
-        return !this.isV1User(userKey) || (sdkKeyRotation && forceUpgradeV2);
+        return !this.isV1User(userKey) || forceUpgradeV2;
       }),
     );
   }
@@ -144,7 +143,7 @@ export class UserKeyRotationService {
           timeout: 15000,
         });
 
-        await this.logoutService.logout(user.id);
+        await this.logoutService.logout(user.id, "userKeyRotation");
       }
       return;
     }
@@ -217,7 +216,7 @@ export class UserKeyRotationService {
       timeout: 15000,
     });
 
-    await this.logoutService.logout(user.id);
+    await this.logoutService.logout(user.id, "userKeyRotation");
   }
 
   protected async ensureIsAllowedToRotateUserKey(): Promise<void> {

@@ -53,6 +53,11 @@ export class CipherResponse extends BaseResponse {
   reprompt: CipherRepromptType;
   key: string;
   data?: string;
+  /**
+   * Raw JSON payload the server returns on PAM-gated rows in place of the sensitive fields: the
+   * encrypted name and, for logins, the encrypted URIs. Its presence marks the row as gated.
+   */
+  partialData?: string;
 
   constructor(response: any) {
     super(response);
@@ -135,5 +140,12 @@ export class CipherResponse extends BaseResponse {
     this.reprompt = this.getResponseProperty("Reprompt") || CipherRepromptType.None;
     this.key = this.getResponseProperty("Key") || null;
     this.data = this.getResponseProperty("Data");
+
+    // Keep the envelope verbatim; the SDK parses it and produces the partial decrypted view.
+    const partialData = this.getResponseProperty("PartialData");
+    if (partialData != null) {
+      this.partialData =
+        typeof partialData === "string" ? partialData : JSON.stringify(partialData);
+    }
   }
 }

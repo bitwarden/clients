@@ -664,6 +664,10 @@
   "resetSearch": {
     "message": "Suche zurücksetzen"
   },
+  "clearSearchTooltip": {
+    "message": "Zum Löschen hier klicken oder die Esc-Taste drücken.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "archiveNoun": {
     "message": "Archiv",
     "description": "Noun"
@@ -1462,16 +1466,16 @@
     "message": "Weitere Optionen"
   },
   "fillAssistActiveNoticeV2": {
-    "message": "Auto-Ausfüllen verwendet auf dieser Seite die Ausfüllhilfe."
+    "message": "Auto-Ausfüllen verwendet auf dieser Seite Fill Assist."
   },
   "activateFillAssistV2": {
-    "message": "Ausfüllhilfe einschalten"
+    "message": "Fill Assist aktivieren"
   },
   "activateFillAssistDescriptionV2": {
-    "message": "Die Ausfüllhilfe verbessert die Genauigkeit von Auto-Ausfüllen auf unterstützten Websites durch die Anwendung Website-spezifischer Regeln. Bei der Nutzung dieser Funktion werden keine Daten erfasst oder gespeichert."
+    "message": "Fill Assist verbessert die Genauigkeit von Auto-Ausfüllen auf unterstützten Websites durch die Anwendung Website-spezifischer Regeln. Bei der Nutzung dieser Funktion werden keine Daten erfasst oder gespeichert."
   },
   "aboutFillAssistLabelV2": {
-    "message": "Über die Ausfüllhilfe"
+    "message": "Über Fill Assist"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
     "message": "Websites erlauben, Felder zum Auto-Ausfüllen auszuschließen"
@@ -1484,6 +1488,17 @@
   },
   "honorDataBitwardenAutofillAttributeHint": {
     "message": "Alle Span-Elemente verwenden, die eine Website mit dem Attribut \"data-bwautofill\" markiert."
+  },
+  "enableBasicAuthResponseLabel": {
+    "message": "Anmeldefelder im Browser automatisch Ausfüllen",
+    "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "enableBasicAuthResponseHint": {
+    "message": "Auf Aufforderungen zur einfachen HTTP-Authentifizierung reagieren, wenn ein Zugangsdaten-Eintrag in deinem Tresor mit der Website übereinstimmt."
+  },
+  "enableBasicAuthResponseWarning": {
+    "message": "Websites können diese Aufforderungen ohne dein Wissen auslösen, wodurch deine Zugangsdaten kompromittiert werden könnten.",
+    "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
@@ -1539,6 +1554,9 @@
   },
   "importSourceBreadcrumb": {
     "message": "Quelle auswählen"
+  },
+  "importData": {
+    "message": "Daten importieren"
   },
   "importSourceSelectTitle": {
     "message": "Wähle deine Quelle aus"
@@ -1641,9 +1659,6 @@
   },
   "addSharedFolder": {
     "message": "Geteilten Ordner hinzufügen"
-  },
-  "newSharedFolder": {
-    "message": "Neuer geteilter Ordner"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden für Unternehmen erlaubt es dir, deine Tresor-Einträge mit anderen zu teilen, indem du eine Organisation verwendest. Erfahre mehr auf der bitwarden.com Website."
@@ -1759,6 +1774,27 @@
   },
   "selectFile": {
     "message": "Wähle eine Datei"
+  },
+  "selectFileUnsupportedType": {
+    "message": "Dieser Dateityp wird für diese Quelle nicht unterstützt. Wähle eine andere Datei aus"
+  },
+  "pasteContentRequired": {
+    "message": "Füge den exportierten Inhalt ein"
+  },
+  "fileTypeNotSupported": {
+    "message": "Dieser Dateityp wird nicht unterstützt. Wähle eine $TYPES$-Datei aus",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "Der eingefügte Inhalt stimmt nicht mit dem ausgewählten Format überein"
+  },
+  "errorReadingFile": {
+    "message": "Die ausgewählte Datei konnte nicht gelesen werden"
   },
   "itemsTransferred": {
     "message": "Einträge wurden übertragen"
@@ -2548,42 +2584,6 @@
     "message": "Reisepass hinzufügen",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Neue Zugangsdaten",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Neue Karte",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Neue Identität",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Neue Notiz",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Neue sichere Notiz",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Neuer SSH-Schlüssel",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Neues Bankkonto",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Neuer Führerschein",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Neuer Reisepass",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Neuer Text",
     "description": "Header for new text send"
@@ -2591,22 +2591,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Neue Datei",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Zugangsdaten bearbeiten",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Karte bearbeiten",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Identität bearbeiten",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Notiz bearbeiten",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Sichere Notiz bearbeiten",
@@ -4298,6 +4282,30 @@
       }
     }
   },
+  "forwarderUnsafeUrl": {
+    "message": "Diese URL ist nicht zulässig. Sie muss https verwenden und darf nicht auf eine Adresse in einem lokalen oder privaten Netzwerk verweisen.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Gib eine gültige URL ein",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Unsichere URL erkannt",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Diese URL ist möglicherweise unsicher oder verweist auf ein privates Netzwerk. Die Nutzung kann zur Kompromittierung privater Daten führen. Fahre nur fort, wenn du diesem Server vertraust.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "URL vertrauen",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Diese URL wurde als vertrauenswürdig markiert. Du kannst sie jederzeit bearbeiten.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
+  },
   "forwarderUnknownError": {
     "message": "Unbekannter $SERVICENAME$-Fehler aufgetreten.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
@@ -5085,6 +5093,9 @@
   "importFormatError": {
     "message": "Die Daten sind nicht richtig formatiert. Kontrolliere bitte deine Import-Datei und versuche es erneut."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Diese Datei verwendet nicht unterstützte Verschlüsselungseinstellungen und kann daher nicht importiert werden."
+  },
   "importNothingError": {
     "message": "Es wurde nichts importiert."
   },
@@ -5165,19 +5176,6 @@
   },
   "learnAboutImportOptions": {
     "message": "Erfahre mehr über deine Importoptionen"
-  },
-  "selectImportFolder": {
-    "message": "Ordner auswählen"
-  },
-  "selectImportCollection": {
-    "message": "Sammlung auswählen"
-  },
-  "selectImportSharedFolder": {
-    "message": "Wähle einen geteilten Ordner aus"
-  },
-  "importTargetMyFolder": {
-    "message": "Mein Ordner",
-    "description": "Label for the import destination folder selector when importing into the user's own vault. The title-case F is intentional here; use 'myFolder' for the sentence-case form."
   },
   "importTargetHintCollection": {
     "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
@@ -5304,6 +5302,140 @@
   },
   "importHelpCenterLinkText": {
     "message": "Hilfezentrum"
+  },
+  "uploadFile": {
+    "message": "Datei hochladen"
+  },
+  "pasteAsPlainText": {
+    "message": "Als Klartext einfügen"
+  },
+  "plainText": {
+    "message": "Klartext"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "importManuallyInstead": {
+    "message": "Stattdessen manuell importieren"
+  },
+  "directlyImportInstead": {
+    "message": "Stattdessen direkt importieren"
+  },
+  "fastest": {
+    "message": "Am schnellsten"
+  },
+  "importDataTitle": {
+    "message": "Importiere deine Daten"
+  },
+  "importDataDirectTitle": {
+    "message": "Importiere deine Daten in wenigen Minuten"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importiere alle Einträge direkt aus",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": ", um alle deine Daten zu erhalten.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Von $VENDOR$ importieren oder Exportinhalt kopieren und ihn hier einfügen.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Wähle das Profil aus, aus dem du Passwörter importieren möchtest."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Es wurden keine Browserprofile gefunden"
+  },
+  "importDataLoginTitle": {
+    "message": "Bei $VENDOR$ anmelden",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "Deine Zugangsdaten werden bei der Übertragung verschlüsselt und niemals gespeichert."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Von Grund auf sicher"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Ende-zu-Ende verschlüsselte Übergabe. Bitwarden sieht zu keinem Zeitpunkt deine $VENDOR$-Zugangsdaten.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "Wir werden nach deinen Zugangsdaten fragen"
+  },
+  "importDataLoginInfoBody": {
+    "message": "Melde dich im nächsten Schritt bei deinem $VENDOR$-Konto an.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Alles wird übertragen"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Zugangsdaten, Karten, Identitäten, sichere Notizen und TOTPs unter Beibehaltung ihrer Ordnerstruktur."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+  },
+  "importAcceptedFormats": {
+    "message": "Akzeptiert: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ Dateityp",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "Der Vorgang ist genau derselbe wie beim Import aus Google Chrome.",
@@ -5505,11 +5637,44 @@
   "keePassMasterPassword": {
     "message": "KeePass-Master-Passwort"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$-Passwort",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Ein Passwort ist erforderlich."
+  },
+  "filePasswordRequired": {
+    "message": "Ein Dateipasswort ist erforderlich"
+  },
+  "filePasswordInvalid": {
+    "message": "Gib ein gültiges Dateipasswort ein."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "Die hochgeladene Datei ist passwortgeschützt. Gib das Passwort ein, um fortzufahren."
+  },
+  "selectProfile": {
+    "message": "Profil auswählen"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Gib ein gültiges Passwort ein"
+  },
+  "importAccountMismatchError": {
+    "message": "Diese Datei kann nur in das Konto importiert werden, aus dem sie exportiert wurde."
+  },
   "addKeyFile": {
     "message": "Schlüsseldatei hinzufügen"
   },
   "keyFileUpload": {
     "message": "Schlüsseldatei hochladen"
+  },
+  "keyFileUploadV2": {
+    "message": "Schlüsseldatei"
   },
   "kdbxFileUpload": {
     "message": "KDBX-Datei hochladen"
@@ -5637,8 +5802,92 @@
   "lastPassEmail": {
     "message": "LastPass E-Mail-Adresse"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Importiere dein Konto..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "LastPass Multifaktor-Authentifizierung erforderlich"
@@ -5679,14 +5928,71 @@
   "lastPassYubikeyDesc": {
     "message": "Stecke den YubiKey, der mit deinem LastPass Konto verknüpft ist, in den USB-Port deines Computers und drücke dann den Knopf des YubiKey."
   },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password-Einträge oder -Tresore konnten nicht importiert werden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Es ist ein Fehler aufgetreten. Überprüfe deine Zugangsdaten und versuche es erneut."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Nur die Anmeldung mit Passwort wird unterstützt."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Nur die Anmeldung mit Passwort wird unterstützt. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Gib eine gültige E-Mail-Adresse ein oder verwende eine andere Importmethode."
+  },
+  "onePasswordImportError": {
+    "message": "Es ist ein Fehler aufgetreten. Versuche es erneut oder verwende eine andere Importmethode."
+  },
+  "emailIsRequired": {
+    "message": "Eine E-Mail-Adresse ist erforderlich."
+  },
+  "enterValidEmailAddress": {
+    "message": "Gib eine gültige E-Mail-Adresse ein."
+  },
+  "signInAddressIsRequired": {
+    "message": "Eine Anmeldeadresse ist erforderlich."
+  },
+  "enterValidSignInAddress": {
+    "message": "Gib eine gültige Anmeldeadresse ein."
+  },
+  "secretKeyIsRequired": {
+    "message": "Ein geheimer Schlüssel ist erforderlich."
+  },
+  "enterValidSecretKey": {
+    "message": "Gib einen gültigen geheimen Schlüssel ein."
+  },
+  "passwordIsRequired": {
+    "message": "Ein Passwort ist erforderlich."
+  },
+  "enterValidVerificationCode": {
+    "message": "Gib einen gültigen Verifizierungscode ein."
+  },
+  "signInAddress": {
+    "message": "Anmeldeadresse"
+  },
+  "onePasswordEmail": {
+    "message": "1Password E-Mail-Adresse"
+  },
+  "onePasswordEmailHint": {
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei 1Password anmeldest"
+  },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Geheimer Schlüssel"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Geheimer Schlüssel und Passwort"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Dein Konto ist durch einen geheimen Schlüssel und ein Passwort geschützt. Du musst beides eingeben, um fortzufahren."
   },
   "keeperEmail": {
     "message": "Keeper E-Mail-Adresse"
@@ -7743,17 +8049,17 @@
   "sharedUnlock": {
     "message": "Geteilter Entsperrzustand"
   },
-  "sharedUnlockWithDesktop": {
-    "message": "Entsperrzustand mit Desktop-App teilen"
+  "syncUnlockWithDesktop": {
+    "message": "Synchronisierung der Entsperrung mit der Desktop-App"
   },
-  "sharedUnlockWithDesktopDescription": {
-    "message": "Wenn diese Option aktiviert ist, wird der Entsperrzustand mit der Bitwarden-Desktop-App geteilt."
+  "syncUnlockWithDesktopDescription": {
+    "message": "Die Bitwarden-Browsererweiterung und die Desktop-App lassen sich gemeinsam sperren und entsperren."
   },
-  "sharedUnlockWithWeb": {
-    "message": "Entsperrzustand mit Web-Tresor teilen"
+  "syncUnlockWithWeb": {
+    "message": "Synchronisierung der Entsperrung mit der Web-App"
   },
-  "sharedUnlockWithWebDescription": {
-    "message": "Wenn diese Option aktiviert ist, wird der Entsperrzustand mit den Bitwarden-Web-Tresoren geteilt."
+  "syncUnlockWithWebDescription": {
+    "message": "Die Bitwarden-Browsererweiterung und die Web-App lassen sich gemeinsam sperren und entsperren."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Das Teilen des Ensperrzustands ist nicht verfügbar, da du dich entschieden hast, dir dieses Gerät nicht zu merken. Um diese Einstellung zu aktivieren, melde dich bitte erneut an."
@@ -8251,5 +8557,64 @@
   },
   "unknownCipher": {
     "message": "Unbekannter Eintrag. Du musst möglicherweise eine Berechtigung anfordern, um auf diesen Eintrag zuzugreifen."
+  },
+  "newExperienceDialogTitle": {
+    "message": "Bitwarden hat ein neues Design",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "Bessere Benutzererfahrung, dieselbe bewährte Sicherheit. Der Bitwarden-Tresor wurde auf Grundlage deines Feedbacks neu gestaltet, sodass du Dinge leichter findest und alles so funktioniert, wie du es erwartest.",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Eine Vorschau auf den neu gestalteten Bitwarden-Tresor.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Erkunde den neuen Tresor",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ von $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Zwischen Tresoren wechseln"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "Mit dem neuen Tresor-Umschalter kannst du schnell zwischen deinem privaten Tresor oder einen Tresor wechseln, den du mit anderen teilst."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Filter kombinieren"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Wähle mehrere Filter gleichzeitig aus, um die Ergebnisse genau auf deine Wünsche einzugrenzen. Die Filter bleiben auch dann aktiv, wenn du die Seite verlässt."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Sammlungen und Ordner haben neue Namen"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Gleiche Funktionen, klarere Bezeichnungen. \"Sammlungen\" heißen nun \"geteilte Ordner\". \"Ordner\" heißen nun \"Meine Ordner\"."
+  },
+  "customize": {
+    "message": "Anpassen"
+  },
+  "customizeYourView": {
+    "message": "Ansicht anpassen"
+  },
+  "showColumns": {
+    "message": "Spalten anzeigen"
+  },
+  "resetToDefault": {
+    "message": "Auf Standard zurücksetzen"
   }
 }
