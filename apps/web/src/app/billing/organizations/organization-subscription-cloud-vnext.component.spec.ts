@@ -1,6 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
@@ -80,6 +81,8 @@ class MockPrivilegedControlsPurchaseComponent {
   readonly plan = input<unknown>();
   readonly organizationId = input<unknown>();
   readonly customerDiscount = input<unknown>();
+  readonly passwordManagerSeats = input<unknown>();
+  readonly passwordManagerMaxAutoscaleSeats = input<unknown>();
   readonly purchased = output<void>();
 }
 
@@ -907,7 +910,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         plan: {
           ...base.plan,
           productTier: ProductTierType.Enterprise,
-          PrivilegedControls: { seatPrice: 120, defaultSeatMinimum: 10 },
+          PrivilegedControls: { seatPrice: 120 },
           ...planOverrides,
         } as OrganizationSubscriptionResponse["plan"],
         ...overrides,
@@ -988,6 +991,20 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         subscription: buildEnterpriseSubscription({}, { subscription: { cancelled: true } as any }),
       });
       expect(component.showPrivilegedControlsPurchase()).toBe(false);
+    });
+
+    it("passes the Password Manager seats and seat limit to the purchase block", async () => {
+      await render({
+        organization: buildEligibleOrganization(),
+        subscription: buildEnterpriseSubscription({}, { seats: 25, maxAutoscaleSeats: 40 }),
+      });
+      fixture.detectChanges();
+
+      const block: MockPrivilegedControlsPurchaseComponent = fixture.debugElement.query(
+        By.directive(MockPrivilegedControlsPurchaseComponent),
+      ).componentInstance;
+      expect(block.passwordManagerSeats()).toBe(25);
+      expect(block.passwordManagerMaxAutoscaleSeats()).toBe(40);
     });
 
     const moreFromBitwardenHeadings = (): HTMLElement[] =>

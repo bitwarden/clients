@@ -98,6 +98,8 @@
             [plan]="orgSub.plan"
             [organizationId]="org.id"
             [customerDiscount]="customerDiscount()"
+            [passwordManagerSeats]="orgSub.seats"
+            [passwordManagerMaxAutoscaleSeats]="orgSub.maxAutoscaleSeats"
             (purchased)="subscriptionAdjusted()"
           />
         </div>

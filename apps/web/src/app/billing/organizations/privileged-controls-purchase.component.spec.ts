@@ -25,18 +25,25 @@ describe("PrivilegedControlsPurchaseComponent", () => {
   const buildPlan = (overrides: { isAnnual?: boolean; seatPrice?: number } = {}): PlanResponse =>
     ({
       isAnnual: overrides.isAnnual ?? true,
-      PrivilegedControls: { seatPrice: overrides.seatPrice ?? 120, defaultSeatMinimum: 10 },
+      PrivilegedControls: { seatPrice: overrides.seatPrice ?? 120 },
     }) as PlanResponse;
 
   const createComponent = (options?: {
     plan?: PlanResponse;
     customerDiscount?: BillingCustomerDiscount | null;
+    passwordManagerSeats?: number;
+    passwordManagerMaxAutoscaleSeats?: number | null;
   }) => {
     fixture = TestBed.createComponent(PrivilegedControlsPurchaseComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("plan", options?.plan ?? buildPlan());
     fixture.componentRef.setInput("organizationId", organizationId);
     fixture.componentRef.setInput("customerDiscount", options?.customerDiscount ?? null);
+    fixture.componentRef.setInput("passwordManagerSeats", options?.passwordManagerSeats ?? 50);
+    fixture.componentRef.setInput(
+      "passwordManagerMaxAutoscaleSeats",
+      options?.passwordManagerMaxAutoscaleSeats ?? null,
+    );
     fixture.detectChanges();
   };
 
@@ -93,18 +100,35 @@ describe("PrivilegedControlsPurchaseComponent", () => {
   });
 
   describe("form", () => {
-    it("defaults seats to the minimum", () => {
+    it("defaults seats to 1", () => {
       createComponent();
-      expect(form().controls.seats.value).toBe(10);
+      expect(form().controls.seats.value).toBe(1);
     });
 
-    it("accepts seats at the minimum and rejects one below", () => {
+    it("accepts 1 seat", () => {
       createComponent();
-      enableAndFill(10, null);
-      expect(form().controls.seats.hasError("min")).toBe(false);
+      enableAndFill(1, null);
+      expect(form().controls.seats.valid).toBe(true);
+    });
 
-      form().controls.seats.setValue(9);
+    it("rejects zero seats", () => {
+      createComponent();
+      enableAndFill(0, null);
       expect(form().controls.seats.hasError("min")).toBe(true);
+    });
+
+    it("accepts seats equal to the Password Manager seat count", () => {
+      createComponent({ passwordManagerSeats: 50 });
+      enableAndFill(50, null);
+      expect(form().controls.seats.valid).toBe(true);
+    });
+
+    it("rejects seats above the Password Manager seat count", () => {
+      createComponent({ passwordManagerSeats: 50 });
+      enableAndFill(51, null);
+      expect(form().controls.seats.getError("seatsAbovePasswordManagerSeats")).toEqual({
+        message: "privilegedControlsSeatsAbovePasswordManagerSeats",
+      });
     });
 
     it("rejects seats above 100,000", () => {
@@ -147,6 +171,28 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       createComponent();
       enableAndFill(12, 20.5);
       expect(form().controls.maxAutoscaleSeats.hasError("seatLimitNotAboveSeats")).toBe(true);
+    });
+
+    it("caps the seat limit at the Password Manager seat limit when one is set", () => {
+      createComponent({ passwordManagerSeats: 50, passwordManagerMaxAutoscaleSeats: 30 });
+      enableAndFill(12, 30);
+      expect(form().controls.maxAutoscaleSeats.valid).toBe(true);
+
+      form().controls.maxAutoscaleSeats.setValue(31);
+      expect(form().controls.maxAutoscaleSeats.getError("seatLimitAbovePasswordManager")).toEqual({
+        message: "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit",
+      });
+    });
+
+    it("caps the seat limit at the Password Manager seat count when there is no Password Manager seat limit", () => {
+      createComponent({ passwordManagerSeats: 50, passwordManagerMaxAutoscaleSeats: null });
+      enableAndFill(12, 50);
+      expect(form().controls.maxAutoscaleSeats.valid).toBe(true);
+
+      form().controls.maxAutoscaleSeats.setValue(51);
+      expect(form().controls.maxAutoscaleSeats.getError("seatLimitAbovePasswordManager")).toEqual({
+        message: "privilegedControlsSeatLimitAbovePasswordManagerSeats",
+      });
     });
 
     it("flags the seat limit when seats are raised to it", () => {
@@ -239,9 +285,9 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       });
     });
 
-    it("does not purchase when seats are below the minimum", async () => {
-      createComponent();
-      enableAndFill(9, null);
+    it("does not purchase when seats are above the Password Manager seat count", async () => {
+      createComponent({ passwordManagerSeats: 50 });
+      enableAndFill(51, null);
 
       await component["submit"]();
 

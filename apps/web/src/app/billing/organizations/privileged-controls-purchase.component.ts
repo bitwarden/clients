@@ -46,14 +46,15 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
   readonly plan = input.required<PlanResponse>();
   readonly organizationId = input.required<OrganizationId>();
   readonly customerDiscount = input<BillingCustomerDiscount | null>(null);
+  readonly passwordManagerSeats = input.required<number>();
+  readonly passwordManagerMaxAutoscaleSeats = input<number | null>(null);
 
   readonly purchased = output<void>();
 
-  protected readonly maxQuantity = MAX_PURCHASABLE_QUANTITY;
   protected readonly logo = PrivilegedControlsAlt;
 
-  protected readonly seatMinimum = computed(
-    () => this.plan().PrivilegedControls.defaultSeatMinimum,
+  protected readonly seatLimitCap = computed(
+    () => this.passwordManagerMaxAutoscaleSeats() ?? this.passwordManagerSeats(),
   );
 
   protected readonly seatPrice = computed(() =>
@@ -70,8 +71,9 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
     enabled: new FormControl(false, { nonNullable: true }),
     seats: new FormControl<number | null>(null, [
       Validators.required,
-      (control: AbstractControl) => this.validateSeatMinimum(control),
+      Validators.min(1),
       Validators.max(MAX_PURCHASABLE_QUANTITY),
+      (control: AbstractControl) => this.validateSeats(control),
     ]),
     maxAutoscaleSeats: new FormControl<number | null>(null, [
       Validators.max(MAX_PURCHASABLE_QUANTITY),
@@ -95,7 +97,7 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
   ngOnInit() {
     const { enabled, seats, maxAutoscaleSeats } = this.formGroup.controls;
 
-    seats.setValue(this.seatMinimum());
+    seats.setValue(1);
 
     this.toggleFields(enabled.value);
     enabled.valueChanges
@@ -145,15 +147,24 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
     }
   }
 
-  private validateSeatMinimum(control: AbstractControl): ValidationErrors | null {
+  private validateSeats(control: AbstractControl): ValidationErrors | null {
     if (control.value == null) {
       return null;
     }
     if (!Number.isInteger(control.value)) {
       return { wholeNumber: { message: this.i18nService.t("integerInputError") } };
     }
-    const minimum = this.seatMinimum();
-    return control.value < minimum ? { min: { min: minimum, actual: control.value } } : null;
+    const passwordManagerSeats = this.passwordManagerSeats();
+    return control.value > passwordManagerSeats
+      ? {
+          seatsAbovePasswordManagerSeats: {
+            message: this.i18nService.t(
+              "privilegedControlsSeatsAbovePasswordManagerSeats",
+              passwordManagerSeats,
+            ),
+          },
+        }
+      : null;
   }
 
   private validateSeatLimit(control: AbstractControl): ValidationErrors | null {
@@ -161,12 +172,23 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
       return null;
     }
     const seats = control.parent?.get("seats")?.value ?? 0;
-    return !Number.isInteger(control.value) || control.value <= seats
-      ? {
-          seatLimitNotAboveSeats: {
-            message: this.i18nService.t("privilegedControlsSeatLimitNotAboveSeats"),
-          },
-        }
-      : null;
+    if (!Number.isInteger(control.value) || control.value <= seats) {
+      return {
+        seatLimitNotAboveSeats: {
+          message: this.i18nService.t("privilegedControlsSeatLimitNotAboveSeats"),
+        },
+      };
+    }
+    const cap = this.seatLimitCap();
+    if (control.value <= cap) {
+      return null;
+    }
+    const messageKey =
+      this.passwordManagerMaxAutoscaleSeats() == null
+        ? "privilegedControlsSeatLimitAbovePasswordManagerSeats"
+        : "privilegedControlsSeatLimitAbovePasswordManagerSeatLimit";
+    return {
+      seatLimitAbovePasswordManager: { message: this.i18nService.t(messageKey, cap) },
+    };
   }
 }

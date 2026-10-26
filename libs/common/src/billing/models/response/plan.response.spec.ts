@@ -10,12 +10,10 @@ describe("PlanResponse", () => {
         StripeSeatPlanId: "privileged-controls-enterprise-seat-annually",
         SeatPrice: 120,
         BaseSeats: 0,
-        DefaultSeatMinimum: 10,
       },
     });
 
     expect(response.PrivilegedControls.seatPrice).toBe(120);
-    expect(response.PrivilegedControls.defaultSeatMinimum).toBe(10);
     expect(response.PrivilegedControls.baseSeats).toBe(0);
     expect(response.PrivilegedControls.stripeSeatPlanId).toBe(
       "privileged-controls-enterprise-seat-annually",
