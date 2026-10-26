@@ -1,13 +1,17 @@
-import { readFileSync, rmSync } from "node:fs";
+import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { BrowserContext, Page, chromium, expect, test as base } from "@playwright/test";
 
-import { pruneVideo, startTrace, stopTrace, videoDir } from "../artifacts";
-import { BROWSER_BUILD_DIR, E2E_STATE_DIR } from "../paths";
+import { pruneVideo, videoDir } from "../artifacts";
+import { BROWSER_BUILD_DIR, CHROME_PROFILE_DIR, E2E_STATE_DIR } from "../paths";
 import { IS_DEV_SERVER } from "../server";
 
-const PROFILE_DIR = resolve(E2E_STATE_DIR, "chrome-profile");
+// A copy of the build whose manifest grants nativeMessaging, see `NativeMessaging.Granted`.
+const GRANTED_BUILD_DIR = resolve(E2E_STATE_DIR, "browser-build-native-messaging");
+const NATIVE_MESSAGING_PERMISSION = "nativeMessaging";
+// Where the desktop app's native IPC listens; the proxy Chromium spawns inherits it.
+const IPC_SOCKET_DIR = E2E_STATE_DIR;
 const EXTENSION_SCHEME = "chrome-extension://";
 const SERVICE_WORKER_TIMEOUT_MS = 30_000;
 const ONBOARDING_TIMEOUT_MS = 60_000;
@@ -34,13 +38,40 @@ async function enableDeveloperMode(context: BrowserContext) {
   await page.close();
 }
 
+/** Whether the extension holds the optional nativeMessaging permission it needs to reach desktop. */
+export const NativeMessaging = Object.freeze({
+  Optional: "optional",
+  // Granting asks through a Chromium prompt Playwright cannot answer, so the manifest requires it.
+  Granted: "granted",
+} as const);
+export type NativeMessaging = (typeof NativeMessaging)[keyof typeof NativeMessaging];
+
+/** Copies the build, moving nativeMessaging from optional to required permissions. */
+function grantedBuild(): string {
+  rmSync(GRANTED_BUILD_DIR, { recursive: true, force: true });
+  cpSync(BROWSER_BUILD_DIR, GRANTED_BUILD_DIR, { recursive: true });
+
+  const path = join(GRANTED_BUILD_DIR, "manifest.json");
+  const manifest = JSON.parse(readFileSync(path, "utf8"));
+  manifest.optional_permissions = manifest.optional_permissions.filter(
+    (p: string) => p !== NATIVE_MESSAGING_PERMISSION,
+  );
+  manifest.permissions.push(NATIVE_MESSAGING_PERMISSION);
+  writeFileSync(path, JSON.stringify(manifest, null, 2));
+
+  return GRANTED_BUILD_DIR;
+}
+
 async function launch(
   baseURL: string | undefined,
   recordVideoDir: string,
+  nativeMessaging: NativeMessaging,
 ): Promise<BrowserContext> {
-  rmSync(PROFILE_DIR, { recursive: true, force: true });
+  rmSync(CHROME_PROFILE_DIR, { recursive: true, force: true });
+  const extensionDir =
+    nativeMessaging === NativeMessaging.Granted ? grantedBuild() : BROWSER_BUILD_DIR;
 
-  return chromium.launchPersistentContext(PROFILE_DIR, {
+  return chromium.launchPersistentContext(CHROME_PROFILE_DIR, {
     channel: "chromium",
     headless: false,
     // The local dev server serves a self-signed certificate.
@@ -48,10 +79,8 @@ async function launch(
     // Lets suites that also drive the web vault use relative URLs in this context.
     baseURL,
     recordVideo: { dir: recordVideoDir },
-    args: [
-      `--load-extension=${BROWSER_BUILD_DIR}`,
-      `--disable-extensions-except=${BROWSER_BUILD_DIR}`,
-    ],
+    env: { ...process.env, BITWARDEN_IPC_SOCKET_DIR: IPC_SOCKET_DIR },
+    args: [`--load-extension=${extensionDir}`, `--disable-extensions-except=${extensionDir}`],
   });
 }
 
@@ -157,15 +186,19 @@ export async function reachLoginPage(page: Page) {
 }
 
 /** `popup` is the extension popup opened as a full page, which is how Playwright can drive it. */
-export const test = base.extend<{ context: BrowserContext; popup: Page }>({
-  context: async ({ baseURL }, use, testInfo) => {
-    const context = await launch(baseURL, videoDir(testInfo));
-    await startTrace(context);
+export const test = base.extend<{
+  nativeMessaging: NativeMessaging;
+  context: BrowserContext;
+  popup: Page;
+}>({
+  nativeMessaging: [NativeMessaging.Optional, { option: true }],
+  context: async ({ baseURL, nativeMessaging }, use, testInfo) => {
+    // Playwright traces this context itself: it comes from its instrumented `chromium`.
+    const context = await launch(baseURL, videoDir(testInfo), nativeMessaging);
     await enableDeveloperMode(context);
 
     await use(context);
 
-    await stopTrace(context, testInfo);
     await context.close();
     pruneVideo(testInfo);
   },
