@@ -1,3 +1,5 @@
+import { app } from "electron";
+
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -15,9 +17,19 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
 
+/**
+ * How long a platform biometrics status is reused before the OS is asked again. The lock screen
+ * and the settings dialog poll the status every second, and each OS check is expensive: on macOS
+ * it creates a new LocalAuthentication context, and on Linux it opens a Secret Service session and
+ * queries polkit.
+ */
+const BiometricsStatusCacheMs = 30_000;
+
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
+  private biometricsStatusCacheMs = BiometricsStatusCacheMs;
+  private cachedBiometricsStatus: { status: BiometricsStatus; expiresAt: number } | null = null;
 
   constructor(
     private i18nService: I18nService,
@@ -35,6 +47,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
       );
       const automationBiometricsService = new AutomationBiometricsService(this.logService);
       this.osBiometricsService = automationBiometricsService;
+      // Automation can change the reported status at any time, so always ask it.
+      this.biometricsStatusCacheMs = 0;
       new AutomationBiometricsIPCListener(
         automationBiometricsService,
         this.logService,
@@ -55,6 +69,10 @@ export class MainBiometricsService extends DesktopBiometricsService {
     } else {
       throw new Error("Unsupported platform");
     }
+
+    // The platform status can change while the app is running, for example after the user sets up
+    // Touch ID or Windows Hello in the OS settings, so check again whenever the user comes back.
+    app.on("browser-window-focus", () => this.clearCachedBiometricsStatus());
   }
 
   /**
@@ -63,9 +81,22 @@ export class MainBiometricsService extends DesktopBiometricsService {
    * - HardwareUnavailable: Biometrics are not available on the platform
    * - ManualSetupNeeded: In order to use biometrics, the user must perform manual steps (linux only)
    * - AutoSetupNeeded: In order to use biometrics, the user must perform automatic steps (linux only)
+   * The status is reused for {@link BiometricsStatusCacheMs}, or until an app window gains focus or
+   * biometrics setup runs.
    * @returns the status of the biometrics of the platform
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
+    const now = Date.now();
+    if (this.cachedBiometricsStatus != null && now < this.cachedBiometricsStatus.expiresAt) {
+      return this.cachedBiometricsStatus.status;
+    }
+
+    const status = await this.getPlatformBiometricsStatus();
+    this.cachedBiometricsStatus = { status, expiresAt: now + this.biometricsStatusCacheMs };
+    return status;
+  }
+
+  private async getPlatformBiometricsStatus(): Promise<BiometricsStatus> {
     if (!(await this.osBiometricsService.supportsBiometrics())) {
       return BiometricsStatus.HardwareUnavailable;
     } else {
@@ -104,7 +135,11 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async setupBiometrics(): Promise<void> {
-    return await this.osBiometricsService.runSetup();
+    try {
+      return await this.osBiometricsService.runSetup();
+    } finally {
+      this.clearCachedBiometricsStatus();
+    }
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -158,5 +193,9 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return await this.osBiometricsService.hasPersistentKey(userId);
+  }
+
+  private clearCachedBiometricsStatus(): void {
+    this.cachedBiometricsStatus = null;
   }
 }

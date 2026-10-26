@@ -1,3 +1,4 @@
+import { app } from "electron";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,6 +14,7 @@ import {
 import { EncryptionType, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { WindowMain } from "../../main/window.main";
+import { isDev } from "../../utils";
 
 import { MainBiometricsService } from "./main-biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
@@ -22,6 +24,7 @@ import { OsBiometricService } from "./os-biometrics.service";
 jest.mock("electron", () => ({
   app: {
     getName: jest.fn().mockReturnValue("Bitwarden"),
+    on: jest.fn(),
   },
   systemPreferences: {
     canPromptTouchID: jest.fn(),
@@ -34,6 +37,15 @@ jest.mock("@bitwarden/desktop-napi", () => {
     passwords: jest.fn(),
   };
 });
+
+jest.mock("../../utils", () => ({
+  ...jest.requireActual("../../utils"),
+  isDev: jest.fn().mockReturnValue(false),
+}));
+
+jest.mock("./automation-biometrics-ipc.listener", () => ({
+  AutomationBiometricsIPCListener: jest.fn().mockImplementation(() => ({ init: jest.fn() })),
+}));
 
 jest.mock("./native-v2", () => ({
   LinuxBiometricsSystem: jest.fn(),
@@ -130,6 +142,7 @@ describe("MainBiometricsService", function () {
         innerService.supportsBiometrics.mockResolvedValue(supportsBiometric as boolean);
         innerService.needsSetup.mockResolvedValue(needsSetup as boolean);
         innerService.canAutoSetup.mockResolvedValue(canAutoSetup as boolean);
+        (sut as any).clearCachedBiometricsStatus();
 
         const actual = await sut.getBiometricsStatus();
         expect(actual).toBe(expected);
@@ -191,6 +204,125 @@ describe("MainBiometricsService", function () {
         const actual = await sut.getBiometricsStatusForUser(userId);
         expect(actual).toBe(expected);
       }
+    });
+  });
+
+  describe("platform biometrics status caching", () => {
+    let sut: MainBiometricsService;
+    let innerService: MockProxy<OsBiometricService>;
+    let onWindowFocus: () => void;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.mocked(app.on).mockClear();
+      sut = new MainBiometricsService(
+        i18nService,
+        windowMain,
+        logService,
+        process.platform,
+        biometricStateService,
+      );
+      onWindowFocus = jest
+        .mocked(app.on)
+        .mock.calls.find(([event]) => event === "browser-window-focus")![1] as () => void;
+
+      innerService = mock<OsBiometricService>();
+      innerService.supportsBiometrics.mockResolvedValue(true);
+      innerService.needsSetup.mockResolvedValue(false);
+      (sut as any).osBiometricsService = innerService;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("reuses the platform status instead of asking the OS on every call", async () => {
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.Available);
+      innerService.supportsBiometrics.mockResolvedValue(false);
+      jest.advanceTimersByTime(29_000);
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.Available);
+      expect(innerService.supportsBiometrics).toHaveBeenCalledTimes(1);
+    });
+
+    it("asks the OS again once the cached status expires", async () => {
+      await sut.getBiometricsStatus();
+      innerService.supportsBiometrics.mockResolvedValue(false);
+      jest.advanceTimersByTime(30_000);
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.HardwareUnavailable);
+      expect(innerService.supportsBiometrics).toHaveBeenCalledTimes(2);
+    });
+
+    it("asks the OS again after an app window gains focus", async () => {
+      await sut.getBiometricsStatus();
+      innerService.supportsBiometrics.mockResolvedValue(false);
+
+      onWindowFocus();
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.HardwareUnavailable);
+    });
+
+    it("asks the OS again after running biometrics setup", async () => {
+      innerService.needsSetup.mockResolvedValue(true);
+      innerService.canAutoSetup.mockResolvedValue(true);
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.AutoSetupNeeded);
+      innerService.needsSetup.mockResolvedValue(false);
+
+      await sut.setupBiometrics();
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.Available);
+    });
+
+    it("asks the OS again after biometrics setup fails", async () => {
+      await sut.getBiometricsStatus();
+      innerService.runSetup.mockRejectedValue(new Error("Failed to set up polkit policy"));
+      innerService.supportsBiometrics.mockResolvedValue(false);
+
+      await expect(sut.setupBiometrics()).rejects.toThrow("Failed to set up polkit policy");
+
+      expect(await sut.getBiometricsStatus()).toBe(BiometricsStatus.HardwareUnavailable);
+    });
+
+    it("does not cache the status reported by automation biometrics", async () => {
+      const originalEnv = process.env;
+      process.env = { ...originalEnv, USE_AUTOMATION_BIOMETRICS: "true" };
+      jest.mocked(isDev).mockReturnValue(true);
+      try {
+        const automationSut = new MainBiometricsService(
+          i18nService,
+          windowMain,
+          logService,
+          process.platform,
+          biometricStateService,
+        );
+        const automationService = (automationSut as any).osBiometricsService;
+        automationService.setMockStatus(BiometricsStatus.Available);
+        expect(await automationSut.getBiometricsStatus()).toBe(BiometricsStatus.Available);
+
+        automationService.setMockStatus(BiometricsStatus.HardwareUnavailable);
+
+        expect(await automationSut.getBiometricsStatus()).toBe(
+          BiometricsStatus.HardwareUnavailable,
+        );
+      } finally {
+        process.env = originalEnv;
+        jest.mocked(isDev).mockReturnValue(false);
+      }
+    });
+
+    it("uses the cached platform status when checking a user's status", async () => {
+      const userId = newGuid() as UserId;
+      biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+      innerService.getBiometricsFirstUnlockStatusForUser.mockResolvedValue(
+        BiometricsStatus.Available,
+      );
+
+      await sut.getBiometricsStatusForUser(userId);
+      await sut.getBiometricsStatusForUser(userId);
+
+      expect(innerService.supportsBiometrics).toHaveBeenCalledTimes(1);
+      expect(innerService.getBiometricsFirstUnlockStatusForUser).toHaveBeenCalledTimes(2);
     });
   });
 
