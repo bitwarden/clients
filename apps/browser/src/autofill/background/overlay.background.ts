@@ -88,6 +88,7 @@ import {
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
   areKeyValuesNull,
@@ -292,6 +293,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     /** Publishes the retry queued for after the unlock. */
     private intraprocessMessageSender: IntraprocessMessageSender,
     private messageListener: MessageListener,
+    private revealedAutofillCipherService: RevealedAutofillCipherService,
   ) {
     this.initOverlayEventObservables();
   }
@@ -584,7 +586,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
+      await this.revealedAutofillCipherService.getAllDecryptedForUrlIncludingRevealed(
+        currentTab.url || "",
+        activeUserId,
+      )
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return this.cardAndIdentityCiphers
@@ -608,11 +613,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ])
+      await this.revealedAutofillCipherService.getAllDecryptedForUrlIncludingRevealed(
+        currentTab.url || "",
+        userId,
+        [CipherType.Card, CipherType.Identity, CipherType.SshKey],
+      )
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     if (!this.cardAndIdentityCiphers) {

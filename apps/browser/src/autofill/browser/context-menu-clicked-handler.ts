@@ -46,6 +46,7 @@ import {
   RETRY_SENDER,
 } from "../background/abstractions/notification.background";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillCipherTypeId } from "../types";
 import {
@@ -118,6 +119,7 @@ export class ContextMenuClickedHandler {
     private triageService: AutofillTriageService,
     private webmapperDrafts: WebmapperDraftService,
     private intraprocessMessageSender: IntraprocessMessageSender,
+    private revealedAutofillCipherService: RevealedAutofillCipherService,
   ) {}
 
   async run(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
@@ -210,7 +212,8 @@ export class ContextMenuClickedHandler {
 
       cipher = ciphers[0];
     } else {
-      const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      const ciphers =
+        await this.revealedAutofillCipherService.getAllDecryptedIncludingRevealed(activeUserId);
       cipher = ciphers.find(({ id }) => id === menuItemId);
     }
 

@@ -66,11 +66,13 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 
 import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddLoginMessageData,
+  AddLoginNotificationData,
   AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
@@ -179,6 +181,7 @@ export default class NotificationBackground {
     private fido2Background: Fido2Background,
     private intraprocessMessageSender: IntraprocessMessageSender,
     private messageListener: MessageListener,
+    private revealedAutofillCipherService: RevealedAutofillCipherService,
   ) {}
 
   init() {
@@ -630,6 +633,30 @@ export default class NotificationBackground {
       return;
     }
     await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
+  }
+
+  /**
+   * True when the form's username or a password matches a revealed view for the form's URL. Such a
+   * form gets no prompt: a save would copy the restricted secret out, or write over the cipher.
+   */
+  async matchesRevealedLogin(
+    form: AddLoginNotificationData & { newPassword?: string },
+  ): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (userId == null) {
+      return false;
+    }
+    const username = form.username?.toLowerCase();
+    const passwords = [form.password, form.newPassword].filter((p) => !!p);
+    const matches = (await this.revealedAutofillCipherService.getRevealed(userId)).filter(
+      (c) =>
+        (!!username && c.login?.username?.toLowerCase() === username) ||
+        (!!c.login?.password && passwords.includes(c.login.password)),
+    );
+    return (
+      matches.length > 0 &&
+      (await this.cipherService.filterCiphersForUrl(matches, form.uri)).length > 0
+    );
   }
 
   private async pushAddLoginToQueue(
@@ -1283,6 +1310,10 @@ export default class NotificationBackground {
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
+        if (await this.matchesRevealedLogin(queueMessage.data)) {
+          continue;
+        }
+
         const allCiphers = await this.cipherService.getAllDecryptedForUrl(
           queueMessage.data.uri,
           activeUserId,

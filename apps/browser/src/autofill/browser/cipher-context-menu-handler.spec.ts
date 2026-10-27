@@ -7,6 +7,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
+
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 
 import { CipherContextMenuHandler } from "./cipher-context-menu-handler";
 import { MainContextMenuHandler } from "./main-context-menu-handler";
@@ -34,6 +37,7 @@ describe("CipherContextMenuHandler", () => {
       authService,
       cipherService,
       accountService,
+      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
     );
   });
 
