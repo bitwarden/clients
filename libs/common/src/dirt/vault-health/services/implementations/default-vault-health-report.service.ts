@@ -138,6 +138,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       await this.vaultHealthReportApiService.restoreExcludedCipher(cipherId);
     } catch (error) {
       this.logService.error("Failed to restore excluded cipher", error);
+      throw error;
     }
 
     // TODO: refresh the report for the user after restoring the excluded cipher
