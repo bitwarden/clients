@@ -114,6 +114,7 @@ export class PopoverService {
 
     let overlayRef: OverlayRef | null = null;
     let closeEvents: Subscription | null = null;
+    let spotlightMoves: Subscription | null = null;
     let attachedTo: HTMLElement | undefined;
 
     const ref = new PopoverRef(() => {
@@ -134,8 +135,12 @@ export class PopoverService {
         this.spotlightService.showSpotlight(element);
       }
       attachedTo = element;
-      overlayRef = this.overlay.create(this.overlayConfig(element, options));
-      overlayRef.attach(new TemplatePortal(popover.templateRef(), viewContainerRef));
+      const created = this.overlay.create(this.overlayConfig(element, options));
+      overlayRef = created;
+      created.attach(new TemplatePortal(popover.templateRef(), viewContainerRef));
+      if (spotlight) {
+        spotlightMoves = this.spotlightService.moved$.subscribe(() => created.updatePosition());
+      }
       closeEvents = this.closeEvents(
         overlayRef,
         popover,
@@ -157,6 +162,8 @@ export class PopoverService {
       // Unsubscribe first, so the detachment doesn't read as a close
       closeEvents?.unsubscribe();
       closeEvents = null;
+      spotlightMoves?.unsubscribe();
+      spotlightMoves = null;
       overlayRef.dispose();
       overlayRef = null;
       attachedTo = undefined;

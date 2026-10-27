@@ -1217,6 +1217,33 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
+  describe("on a folder's own page", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Folder,
+        folderId: "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a",
+      });
+    });
+
+    it("drops the My folders column, which would only repeat the folder", () => {
+      expect(component["visibleColumns"]()).not.toContain("myFolders");
+    });
+
+    it("shows the My folders column on every other page", () => {
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.AllItems });
+
+      expect(component["visibleColumns"]()).toContain("myFolders");
+    });
+
+    it("drops the My folders chip", () => {
+      fixture.detectChanges();
+
+      expect(() => filterControl("folder")).toThrow(
+        'No FilterControl registered under key "folder"',
+      );
+    });
+  });
+
   describe("resolving display names", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [

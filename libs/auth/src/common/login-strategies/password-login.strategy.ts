@@ -16,6 +16,7 @@ import {
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
@@ -161,13 +162,13 @@ export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyDa
       if (useSdkForPrelogin) {
         return this.legacyCompatKeyService.makeMasterKey(
           masterPassword,
-          preFetchedPreloginData.salt,
+          preFetchedPreloginData.salt as MasterPasswordSalt,
           preFetchedPreloginData.kdfConfig,
         );
       } else {
         return this.legacyCompatKeyService.makeMasterKey(
           masterPassword,
-          email,
+          this.masterPasswordService.emailToSalt(email),
           preFetchedPreloginData.kdfConfig,
         );
       }
@@ -187,13 +188,13 @@ export class PasswordLoginStrategy extends LoginStrategy<PasswordLoginStrategyDa
     if (useSdkForPrelogin) {
       return this.legacyCompatKeyService.makeMasterKey(
         masterPassword,
-        preloginData.salt,
+        preloginData.salt as MasterPasswordSalt,
         preloginData.kdfConfig,
       );
     } else {
       return this.legacyCompatKeyService.makeMasterKey(
         masterPassword,
-        email,
+        this.masterPasswordService.emailToSalt(email),
         preloginData.kdfConfig,
       );
     }
