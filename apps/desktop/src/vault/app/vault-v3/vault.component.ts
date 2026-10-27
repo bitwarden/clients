@@ -882,7 +882,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
 
     // Desktop has no prompt service to sequence onboarding, so the page opens this itself.
-    const openedNewExperience = await this.newExperienceDialogService.conditionallyOpen(
+    const newExperienceResult = await this.newExperienceDialogService.conditionallyOpen(
       activeUserId,
       {
         lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
@@ -890,7 +890,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       },
     );
 
-    if ((currentParams.itemId || currentParams.cipherId) && !openedNewExperience) {
+    if ((currentParams.itemId || currentParams.cipherId) && newExperienceResult == null) {
       const id = currentParams.itemId ?? currentParams.cipherId;
       const userId = await firstValueFrom(this.userId$);
       const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, id));
@@ -898,7 +898,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         await this.viewCipher(cipher);
       }
     }
-    if (openedNewExperience) {
+    if (newExperienceResult != null) {
       this.sideNavService.open.set(true);
     }
   }

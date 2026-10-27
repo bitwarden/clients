@@ -5304,16 +5304,16 @@
     "message": "Yardım Merkezi"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "Dosya yükle"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Düz metin olarak yapıştır"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Düz metin"
   },
   "profile": {
-    "message": "Profile"
+    "message": "Profil"
   },
   "importManuallyInstead": {
     "message": "Import manually instead"
@@ -5322,10 +5322,10 @@
     "message": "Directly import instead"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "En Hızlı"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Verilerinizi içe aktarın"
   },
   "importDataDirectTitle": {
     "message": "Import your data in minutes"
@@ -5354,7 +5354,7 @@
     "message": "No browser profiles were found"
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "$VENDOR$'a giriş yap",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5369,7 +5369,7 @@
     "message": "Secure by design"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "Uçtan uca şifrelenmiş aktarım. Bitwarden $VENDOR$ hesap bilgilerinizi asla görmez.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5378,7 +5378,7 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Hesap bilgilerinizi isteyeceğiz"
   },
   "importDataLoginInfoBody": {
     "message": "In the next step, log in to your $VENDOR$ account.",
@@ -5394,6 +5394,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Accepted: $FORMATS$",
@@ -5623,22 +5647,22 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Şifre gereklidir."
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "Dosya parolası gereklidir"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "Geçerli bir dosya parolası giriniz."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "Yüklenen dosya şifre korumalıdır. Devam etmek için şifreyi girin."
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "Profil seç"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Geçerli bir şifre girin"
   },
   "importAccountMismatchError": {
     "message": "This file can only be imported into the account it was exported from."
@@ -5650,7 +5674,7 @@
     "message": "Anahtar dosya yükleme"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "Anahtar dosyası"
   },
   "kdbxFileUpload": {
     "message": "KDBX dosya yükleme"
@@ -5778,8 +5802,92 @@
   "lastPassEmail": {
     "message": "LastPass E-postası"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Hesabınız içe aktarılıyor..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "LastPass çok faktörlü kimlik doğrulaması gerekli"
@@ -5845,7 +5953,7 @@
     "message": "An error has occurred. Try again or use a different import method."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "E-posta gereklidir."
   },
   "enterValidEmailAddress": {
     "message": "Enter a valid email address."
@@ -5863,16 +5971,16 @@
     "message": "Enter a valid secret key."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Şifre gereklidir."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Geçerli bir doğrulama kodu giriniz."
   },
   "signInAddress": {
     "message": "Sign-in address"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password e-postası"
   },
   "onePasswordEmailHint": {
     "message": "Enter the email you use to log in to 1Password"
@@ -8465,6 +8573,37 @@
   "exploreTheNewVault": {
     "message": "Yeni kasayı keşfedin",
     "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$/$TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Kasalar arasında geçiş yapın"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "customize": {
     "message": "Özelleştir"
