@@ -271,10 +271,6 @@ export class GroupsV2Component {
 
     if (result == GroupAddEditDialogResultType.Saved) {
       this.refreshGroups$.next();
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("groupEdited"),
-      });
     } else if (result == GroupAddEditDialogResultType.Deleted) {
       this.removeGroup(group);
     }
