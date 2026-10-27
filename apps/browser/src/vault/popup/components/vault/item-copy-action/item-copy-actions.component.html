@@ -1,4 +1,6 @@
-<vault-item-copy-actions
-  [cipher]="cipher()"
-  [showQuickCopyActions]="(showQuickCopyActions$ | async) ?? false"
-></vault-item-copy-actions>
+@if (!restricted()) {
+  <vault-item-copy-actions
+    [cipher]="cipher()"
+    [showQuickCopyActions]="(showQuickCopyActions$ | async) ?? false"
+  ></vault-item-copy-actions>
+}
