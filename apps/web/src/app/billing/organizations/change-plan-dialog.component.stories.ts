@@ -206,7 +206,7 @@ const mockCart: Cart = {
   total: 300,
 };
 const mockInvoicePreviewService: Partial<InvoicePreviewService> = {
-  previewPlanChangeCart: () => Promise.resolve(mockCart),
+  previewPlanChangeCart: () => Promise.resolve({ cart: mockCart, prorationDate: undefined }),
 };
 
 export default {
