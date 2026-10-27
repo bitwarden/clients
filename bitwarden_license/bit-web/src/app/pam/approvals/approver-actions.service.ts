@@ -9,6 +9,10 @@ import type { AccessDecisionVerdict } from "../abstractions/access-lease";
 import { decideAccessErrorMessageKey } from "../helpers/decide-access-error";
 
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
+import {
+  WithdrawApprovalDialogComponent,
+  WithdrawApprovalDialogParams,
+} from "./withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 /** Raised once the approver confirms and the mutation starts; lowered once it settles. */
 export type ApproverActionBusy = (busy: boolean) => void;
@@ -77,25 +81,22 @@ export class ApproverActionsService {
   }
 
   /**
-   * Confirm and withdraw an approval the requester has not started. The confirm names the item,
-   * so pass as `cipherName` the text the caller shows for it.
+   * Confirm and withdraw an approval the requester has not started. The dialog collects the
+   * reason the server requires from an approver, and `run` gets it.
    */
   async withdrawApproval(
-    cipherName: string,
-    run: () => Promise<void>,
+    params: WithdrawApprovalDialogParams,
+    run: (reason: string) => Promise<void>,
     busy: ApproverActionBusy,
   ): Promise<void> {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxWithdrawApproval" },
-      content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: [cipherName] },
-      acceptButtonText: { key: "pamInboxWithdrawApproval" },
-      type: "warning",
-    });
-    if (!confirmed) {
+    const result = await firstValueFrom(
+      WithdrawApprovalDialogComponent.open(this.dialogService, { data: params }).closed,
+    );
+    if (!result?.confirmed) {
       return;
     }
     await this.perform(
-      run,
+      () => run(result.reason),
       busy,
       "pamInboxApprovalWithdrawnToast",
       () => "pamInboxWithdrawApprovalFailed",
