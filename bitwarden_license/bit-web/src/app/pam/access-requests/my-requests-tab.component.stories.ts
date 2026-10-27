@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideRouter, withHashLocation } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
@@ -140,6 +141,8 @@ export default {
         provideStoryChangeDetection(),
         importProvidersFrom(PreloadedEnglishI18nModule),
         provideStoryLogService(),
+        // The item links need a router; the wildcard and hash keep a click inside the story.
+        provideRouter([{ path: "**", children: [] }], withHashLocation()),
       ],
     }),
   ],
