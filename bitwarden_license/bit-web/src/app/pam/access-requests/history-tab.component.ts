@@ -396,10 +396,17 @@ export class HistoryTabComponent {
     if (!this.canCancelApproval(row) || this.isActing(row)) {
       return;
     }
+    const parties = this.inbox.managedRequestParties(String(row.id));
     await this.approverActions.withdrawApproval(
-      // The same expression the Item column renders, so the dialog names the item as its row does.
-      row.cipherName ?? row.cipherId,
-      () => this.inbox.cancelApproval(row.id as AccessRequestId),
+      {
+        // The same expression the Item column renders, so the dialog names the item as its row does.
+        itemName: row.cipherName ?? row.cipherId,
+        organizationName: parties?.organizationName ?? null,
+        collectionName: row.collectionName,
+        requesterName: parties?.requesterName ?? "",
+        cipher: this.cipherFor(row.cipherId),
+      },
+      (reason) => this.inbox.cancelApproval(row.id as AccessRequestId, reason),
       rowBusy(this.acting, String(row.id)),
     );
   }

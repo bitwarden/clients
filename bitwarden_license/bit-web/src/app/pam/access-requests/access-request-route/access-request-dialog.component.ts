@@ -417,9 +417,16 @@ export class AccessRequestDialogComponent implements OnInit {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
+    const request = this.request();
     await this.approverActions.withdrawApproval(
-      this.cipherName() ?? "",
-      () => this.detail.withdrawApproval(),
+      {
+        itemName: this.cipherName() ?? "",
+        organizationName: this.organizationName(),
+        collectionName: this.collectionName(),
+        requesterName: this.requesterDisplay() ?? "",
+        cipher: request == null ? undefined : this.cipherFor(request.cipherId),
+      },
+      (reason) => this.detail.withdrawApproval(reason),
       (busy) => this.withdrawing.set(busy),
     );
   }

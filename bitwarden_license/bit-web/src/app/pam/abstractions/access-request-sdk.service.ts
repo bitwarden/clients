@@ -16,7 +16,11 @@ export abstract class AccessRequestSdkService {
   abstract listMyAccessRequests(): Promise<AccessRequestView[]>;
   abstract getAccessRequest(id: AccessRequestId): Promise<AccessRequestView>;
   abstract activateAccessRequest(id: AccessRequestId): Promise<AccessLeaseView>;
-  abstract cancelAccessRequest(id: AccessRequestId): Promise<void>;
+  /**
+   * The requester cancels their own request without a `reason`. A managing approver withdrawing
+   * an approval must pass one, which the server records on their deny decision.
+   */
+  abstract cancelAccessRequest(id: AccessRequestId, reason?: string): Promise<void>;
 
   /** Takes a plain `string`, since the OSS seam tokens never carry the SDK's branded `CipherId`. */
   abstract getCipherAccessState(cipherId: string): Promise<CipherAccessStateView>;

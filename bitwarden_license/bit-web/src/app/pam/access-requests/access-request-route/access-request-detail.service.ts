@@ -202,12 +202,12 @@ export class AccessRequestDetailService {
   }
 
   /** Withdraws an approval the requester has not started yet. */
-  async withdrawApproval(): Promise<void> {
+  async withdrawApproval(reason: string): Promise<void> {
     const id = this._request$.value?.id;
     if (id == null) {
       return;
     }
-    await this.inbox.cancelApproval(id);
+    await this.inbox.cancelApproval(id, reason);
     await this.fetch(id);
   }
 

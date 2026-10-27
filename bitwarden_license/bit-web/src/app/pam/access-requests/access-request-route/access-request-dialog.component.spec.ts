@@ -11,6 +11,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import type { AccessRequestView } from "../../abstractions/access-lease";
 import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
+import { WithdrawApprovalDialogComponent } from "../../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
 import { lapsedGrantBadge } from "../my-access-row";
@@ -740,7 +741,10 @@ describe("AccessRequestDialogComponent", () => {
       });
     });
 
-    it("offers Withdraw approval on an unstarted approval they manage, after confirming", async () => {
+    it("offers Withdraw approval on an unstarted approval they manage, sending the reason", async () => {
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, reason: "Approved by mistake" }),
+      } as any);
       detail.request$.next(request({ status: "approved" }));
       detail.managed$.next(true);
       create();
@@ -748,8 +752,44 @@ describe("AccessRequestDialogComponent", () => {
       expect(footerButton("withdraw-approval")).not.toBeNull();
       await component["withdrawApproval"]();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-      expect(detail.withdrawApproval).toHaveBeenCalled();
+      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
+        data: expect.objectContaining({
+          itemName: "Prod database",
+          organizationName: "Meridian Group",
+          collectionName: "Production",
+          requesterName: "Grace",
+        }),
+      });
+      expect(detail.withdrawApproval).toHaveBeenCalledWith("Approved by mistake");
+    });
+
+    it("ignores a second Withdraw approval click while one is in flight", async () => {
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, reason: "Approved by mistake" }),
+      } as any);
+      detail.withdrawApproval.mockReturnValue(new Promise(() => {}));
+      detail.request$.next(request({ status: "approved" }));
+      detail.managed$.next(true);
+      create();
+
+      void component["withdrawApproval"]();
+      await Promise.resolve();
+      await Promise.resolve();
+      await component["withdrawApproval"]();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(detail.withdrawApproval).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not withdraw when the withdraw dialog is dismissed", async () => {
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+      detail.request$.next(request({ status: "approved" }));
+      detail.managed$.next(true);
+      create();
+
+      await component["withdrawApproval"]();
+
+      expect(detail.withdrawApproval).not.toHaveBeenCalled();
     });
 
     it("offers Revoke on a live lease they manage, even past the requested window", async () => {
