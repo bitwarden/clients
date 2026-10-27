@@ -1,7 +1,6 @@
 import { FormContent } from "@bitwarden/common/autofill/types";
 
 import { FormFieldElement } from "../types";
-import { elementIsFillableFormField } from "../utils";
 
 import { CollectAutofillContentService } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -21,13 +20,15 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
   async qualifyRule(url: string, matchedRule: FormContent[]): Promise<QualificationResult> {
     const startTime = performance.now();
+    // Hostname only. URL paths and queries can carry sensitive values.
+    const domain = new URL(url).hostname;
     const structural = await this.checkStructural(matchedRule);
     if (!structural.ok) {
       const pageDetails =
         await this.collectAutofillContentService.collectHeuristicPageDetailsBypass();
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
       console.debug("[RuleQualificationService] structural miss", {
-        url,
+        domain,
         durationMs: performance.now() - startTime,
         inScopeForms: structural.inScopeForms.forms.size,
       });
@@ -42,7 +43,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         );
       // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
       console.debug("[RuleQualificationService] in_scope_extras miss", {
-        url,
+        domain,
         durationMs: performance.now() - startTime,
         inScopeForms: structural.inScopeForms.forms.size,
       });
@@ -51,7 +52,7 @@ export class DefaultRuleQualificationService implements RuleQualificationService
 
     // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
     console.debug("[RuleQualificationService] proceedTargeted", {
-      url,
+      domain,
       durationMs: performance.now() - startTime,
       inScopeForms: structural.inScopeForms.forms.size,
     });
@@ -84,7 +85,15 @@ export class DefaultRuleQualificationService implements RuleQualificationService
         // segment missing). queryDeepSelector resolves valid cases and returns
         // null for broken chains.
         const element = this.domQueryService.queryDeepSelector(selector) as HTMLElement | null;
-        if (!element || this.domElementVisibilityService.isElementHiddenByCss(element)) {
+        // `isElementHiddenByCss` covers display, visibility, opacity, and
+        // clip-path, but not `input type="hidden"`. The eligibility probe
+        // treats both as unresolved.
+        const isHiddenInput = element instanceof HTMLInputElement && element.type === "hidden";
+        if (
+          !element ||
+          isHiddenInput ||
+          this.domElementVisibilityService.isElementHiddenByCss(element)
+        ) {
           return { ok: false, inScopeForms: { forms: inScopeForms } };
         }
 
@@ -180,11 +189,16 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    * field caches as a side effect, and those caches must stay empty on the
    * heuristic bypass path. Adding a `skipCaching` branch to the shared path
    * would clutter it for just one caller.
+   *
+   * Uses the collect service's `isElementFormFieldElement` so the extras check
+   * matches the heuristic pass definition of a fillable field. Without
+   * this, submit buttons and hidden inputs would read as extras and almost
+   * every real-world rule would fail Half 2.
    */
   private detectHeuristicFieldsInForm(form: HTMLFormElement): FormFieldElement[] {
     const candidates = form.querySelectorAll("input, select, textarea");
     return Array.from(candidates).filter((element) =>
-      elementIsFillableFormField(element as FormFieldElement),
+      this.collectAutofillContentService.isElementFormFieldElement(element),
     ) as FormFieldElement[];
   }
 }

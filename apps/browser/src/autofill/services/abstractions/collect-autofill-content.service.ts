@@ -40,6 +40,12 @@ interface CollectAutofillContentService extends AutofillMonitor {
    * the rule qualification service. Called once at DI setup.
    */
   setRuleQualificationService(ruleQualificationService: RuleQualificationService): void;
+  /**
+   * Returns whether the element is a form field the heuristic collection pass
+   * would consider fillable. Exposed so the rule qualification service can
+   * apply the same filter when checking in-scope extras.
+   */
+  isElementFormFieldElement(element: Element): boolean;
 }
 
 export {

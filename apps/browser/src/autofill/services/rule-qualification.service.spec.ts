@@ -27,11 +27,42 @@ describe("DefaultRuleQualificationService", () => {
     },
   ];
 
+  // Mirrors the real `isElementFormFieldElement` filter on the collect service:
+  // excludes ignored input types and `data-bwignore` elements.
+  const IGNORED_INPUT_TYPES = new Set([
+    "hidden",
+    "submit",
+    "reset",
+    "button",
+    "image",
+    "file",
+    "search",
+    "url",
+    "date",
+    "time",
+    "datetime",
+    "datetime-local",
+    "week",
+    "color",
+    "range",
+  ]);
+  const realisticIsElementFormFieldElement = (element: Element): boolean => {
+    const tagName = element.tagName.toLowerCase();
+    if (element.hasAttribute("data-bwignore")) {
+      return false;
+    }
+    if (tagName === "input") {
+      return !IGNORED_INPUT_TYPES.has((element as HTMLInputElement).type);
+    }
+    return tagName === "textarea" || tagName === "select";
+  };
+
   beforeEach(() => {
     document.body.innerHTML = "";
 
     collectService = mock<CollectAutofillContentService>();
     collectService.collectHeuristicPageDetailsBypass.mockResolvedValue(samplePageDetails);
+    collectService.isElementFormFieldElement.mockImplementation(realisticIsElementFormFieldElement);
 
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = mock<DomElementVisibilityService>();
@@ -98,7 +129,10 @@ describe("DefaultRuleQualificationService", () => {
       expect(collectService.collectHeuristicPageDetailsBypass).toHaveBeenCalledWith();
     });
 
-    it("returns fallback with missReason structural when a declared selector resolves but is hidden", async () => {
+    it("returns fallback with missReason structural when a declared selector resolves to an input[type=hidden]", async () => {
+      // Exercises the real `type="hidden"` check in Half 1. The visibility
+      // service's `isElementHiddenByCss` only inspects CSS, so a hidden-type
+      // input would silently qualify without the dedicated check.
       const form = document.createElement("form");
       const hidden = document.createElement("input");
       hidden.type = "hidden";
@@ -106,6 +140,23 @@ describe("DefaultRuleQualificationService", () => {
       document.body.append(form);
 
       domQueryService.queryDeepSelector.mockReturnValue(hidden);
+
+      const result = await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(result).toEqual({
+        kind: "fallback",
+        missReason: "structural",
+        pageDetails: samplePageDetails,
+      });
+    });
+
+    it("returns fallback with missReason structural when a declared selector resolves but is CSS-hidden", async () => {
+      const form = document.createElement("form");
+      const field = document.createElement("input");
+      form.append(field);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockReturnValue(field);
       domElementVisibilityService.isElementHiddenByCss.mockReturnValue(true);
 
       const result = await service.qualifyRule("https://example.com", buildLoginRule());
@@ -187,6 +238,34 @@ describe("DefaultRuleQualificationService", () => {
           detectedFields: expect.any(Map),
         }),
       );
+    });
+
+    it("qualifies a realistic login form containing a submit button and hidden token", async () => {
+      // Regression guard. Earlier the detector used a coarse filter that counted
+      // every input/select/textarea as a fillable field, so a standard login
+      // form with a CSRF hidden input and a submit button failed Half 2 on
+      // every page load. The real heuristic filter excludes those types.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      user.id = "user";
+      const pass = document.createElement("input");
+      pass.id = "pass";
+      pass.type = "password";
+      const csrf = document.createElement("input");
+      csrf.type = "hidden";
+      csrf.name = "csrf_token";
+      const submit = document.createElement("input");
+      submit.type = "submit";
+      form.append(user, pass, csrf, submit);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+
+      const result = await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
     });
   });
 
@@ -276,7 +355,7 @@ describe("DefaultRuleQualificationService", () => {
       debugSpy.mockRestore();
     });
 
-    it("logs the proceedTargeted outcome with duration and in-scope form count", async () => {
+    it("logs the proceedTargeted outcome with domain, duration, and in-scope form count", async () => {
       const form = document.createElement("form");
       const user = document.createElement("input");
       const pass = document.createElement("input");
@@ -287,32 +366,34 @@ describe("DefaultRuleQualificationService", () => {
         selector === "#user" ? user : selector === "#pass" ? pass : null,
       );
 
-      await service.qualifyRule("https://example.com", buildLoginRule());
+      await service.qualifyRule("https://example.com/login?token=secret", buildLoginRule());
 
       expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining("proceedTargeted"),
         expect.objectContaining({
+          domain: "example.com",
           durationMs: expect.any(Number),
           inScopeForms: expect.any(Number),
         }),
       );
     });
 
-    it("logs the structural miss outcome with duration and in-scope form count", async () => {
+    it("logs the structural miss outcome with domain, duration, and in-scope form count", async () => {
       domQueryService.queryDeepSelector.mockReturnValue(null);
 
-      await service.qualifyRule("https://example.com", buildLoginRule());
+      await service.qualifyRule("https://example.com/login?token=secret", buildLoginRule());
 
       expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining("structural miss"),
         expect.objectContaining({
+          domain: "example.com",
           durationMs: expect.any(Number),
           inScopeForms: expect.any(Number),
         }),
       );
     });
 
-    it("logs the in_scope_extras miss outcome with duration and in-scope form count", async () => {
+    it("logs the in_scope_extras miss outcome with domain, duration, and in-scope form count", async () => {
       const form = document.createElement("form");
       const user = document.createElement("input");
       const pass = document.createElement("input");
@@ -324,11 +405,12 @@ describe("DefaultRuleQualificationService", () => {
         selector === "#user" ? user : selector === "#pass" ? pass : null,
       );
 
-      await service.qualifyRule("https://example.com", buildLoginRule());
+      await service.qualifyRule("https://example.com/login?token=secret", buildLoginRule());
 
       expect(debugSpy).toHaveBeenCalledWith(
         expect.stringContaining("in_scope_extras miss"),
         expect.objectContaining({
+          domain: "example.com",
           durationMs: expect.any(Number),
           inScopeForms: expect.any(Number),
         }),

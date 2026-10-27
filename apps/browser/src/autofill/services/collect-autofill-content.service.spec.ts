@@ -525,7 +525,7 @@ describe("CollectAutofillContentService", () => {
         expect(ruleQualificationService.qualifyRule).toHaveBeenCalledTimes(1);
       });
 
-      it("does not run qualification when the service has not been wired", async () => {
+      it("falls through to the targeted-fill path when the qualification service has not been wired", async () => {
         // Fresh instance without setRuleQualificationService call
         const freshService = new CollectAutofillContentService(
           mock<DomElementVisibilityService>(),
@@ -533,11 +533,16 @@ describe("CollectAutofillContentService", () => {
           mock<AutofillOverlayContentService>(),
         );
         jest.spyOn(freshService as any, "sendExtensionMessage").mockResolvedValue({ result: null });
+        const targetedSpy = jest
+          .spyOn(freshService as any, "getTargetedPageDetails")
+          .mockResolvedValue(targetedPageDetails);
         freshService["pageTargetingRules"] = sampleRule;
         freshService["ruleFailureFallback"] = true;
 
-        await expect(freshService.getPageDetails()).resolves.toBeDefined();
-        expect(ruleQualificationService.qualifyRule).not.toHaveBeenCalled();
+        const result = await freshService.getPageDetails();
+
+        expect(targetedSpy).toHaveBeenCalledWith(sampleRule);
+        expect(result).toBe(targetedPageDetails);
       });
     });
 

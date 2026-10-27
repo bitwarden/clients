@@ -1530,12 +1530,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Checks if the passed node is a form field element.
-   * @param {Element} element the element to check.
-   * @returns {boolean} whether the element is a form field element.
-   * @private
+   * Checks if the passed node is a form field element. Mirrors the filter used
+   * by the heuristic collection pass: excludes ignored input types and
+   * `data-bwignore` elements.
+   * @param element the element to check.
+   * @returns whether the element is a form field element.
    */
-  private isElementFormFieldElement(element: Element): boolean {
+  isElementFormFieldElement(element: Element): boolean {
     const nodeTagName = element.tagName.toLowerCase();
 
     const nodeIsSpanElementWithAutofillAttribute =
