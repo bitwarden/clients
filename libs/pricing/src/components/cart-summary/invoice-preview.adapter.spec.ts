@@ -823,6 +823,23 @@ describe("adaptInvoicePreviewToCart", () => {
       expect(cart.passwordManager.seats.discounts).toEqual([lineDiscount]);
       expect(cart.discounts).toBeUndefined();
     });
+
+    it("leaves per-line discounts on the line when restarting a subscription", () => {
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50, discounts: [lineDiscount] },
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.RestartSubscription,
+        logService,
+      );
+
+      expect(cart.passwordManager.seats.discounts).toEqual([lineDiscount]);
+      expect(cart.discounts).toBeUndefined();
+    });
   });
 
   describe("applied balance, amount due, and total", () => {

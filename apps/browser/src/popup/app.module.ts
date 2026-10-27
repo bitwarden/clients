@@ -26,7 +26,7 @@ import {
   CalloutModule,
   LinkModule,
 } from "@bitwarden/components";
-import { KEEPER_SSO_TAB_MONITOR } from "@bitwarden/importer-ui";
+import { KEEPER_SSO_TAB_MONITOR, LASTPASS_IMPORT_PAGE_FOCUS } from "@bitwarden/importer-ui";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
@@ -41,6 +41,7 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 import { BrowserKeeperSsoTabMonitor } from "../tools/popup/settings/import/browser-keeper-sso-tab-monitor";
+import { BrowserLastPassImportPageFocus } from "../tools/popup/settings/import/browser-lastpass-import-page-focus";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -97,6 +98,7 @@ import "../platform/popup/locales";
     CurrencyPipe,
     DatePipe,
     { provide: KEEPER_SSO_TAB_MONITOR, useClass: BrowserKeeperSsoTabMonitor },
+    { provide: LASTPASS_IMPORT_PAGE_FOCUS, useClass: BrowserLastPassImportPageFocus },
     { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
     safeProvider({
       provide: VaultHealthReportService,
