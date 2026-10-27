@@ -26,6 +26,7 @@ import {
   defer,
   map,
   tap,
+  BehaviorSubject,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -56,6 +57,7 @@ import {
 } from "../../../payment/components";
 import { MaskedPaymentMethod } from "../../../payment/types";
 import { invoicePreviewErrorMessageKey } from "../../../shared/invoice-preview-error-message-key";
+import { isInvoicePreviewExpiredError } from "../../../shared/invoice-preview-expired-error";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
 
 import {
@@ -163,10 +165,16 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
   /** Server cart on the flag-on path; null when the flag is off, the address is incomplete, or the preview failed. */
   private readonly previewCart = signal<Cart | null>(null);
+  /** Proration date of {@link previewCart}; sent on upgrade so the charge matches the quote shown. */
+  private readonly previewProrationDate = signal<string | undefined>(undefined);
 
   /** Flag-on preview failed; the summary is replaced by an error callout rather than the local estimate. */
   protected readonly previewFailed = signal(false);
   protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
+
+  /** The server rejected the upgrade because the quote is stale; cleared when a new preview resolves. */
+  protected readonly previewExpired = signal(false);
+  private readonly previewRefresh$ = new BehaviorSubject<void>(undefined);
 
   // Use defer to lazily create the observable when subscribed to
   protected readonly estimatedInvoice$ = defer(() =>
@@ -175,13 +183,16 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         startWith(this.formGroup.controls.billingAddress.value),
       ),
       this.previewDrivenCart$,
+      this.previewRefresh$,
     ]).pipe(
       debounceTime(1000),
       switchMap(([, previewDrivenCart]) => {
         if (!previewDrivenCart) {
           // A runtime flip to off must drop the server cart, or the kill switch leaves it pinned.
           this.previewCart.set(null);
+          this.previewProrationDate.set(undefined);
           this.previewFailed.set(false);
+          this.previewExpired.set(false);
           return this.refreshInvoicePreview$();
         }
         return this.refreshPreviewCart$();
@@ -368,6 +379,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         });
         return;
       }
+      if (isInvoicePreviewExpiredError(error)) {
+        this.previewExpired.set(true);
+        return;
+      }
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("upgradeErrorMessage"),
@@ -384,12 +399,17 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       organizationName,
       this.selectedPlan()!.tier,
       billingAddress,
+      this.previewProrationDate(),
     );
 
     return {
       status: this.getUpgradeStatus(this.selectedPlanId()),
       organizationId,
     };
+  }
+
+  protected refreshExpiredPreview(): void {
+    this.previewRefresh$.next();
   }
 
   private getUpgradeStatus(planId: string): PremiumOrgUpgradePaymentStatus {
@@ -543,16 +563,20 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       !billingAddress.postalCode
     ) {
       this.previewCart.set(null);
+      this.previewProrationDate.set(undefined);
       this.previewFailed.set(false);
+      this.previewExpired.set(false);
       return of(this.getEmptyInvoicePreview());
     }
 
     return from(
       this.premiumOrgUpgradeService.previewInvoiceCart(this.selectedPlan()!, billingAddress),
     ).pipe(
-      tap((cart) => {
-        this.previewCart.set(cart);
+      tap((result) => {
+        this.previewCart.set(result.cart);
+        this.previewProrationDate.set(result.prorationDate);
         this.previewFailed.set(false);
+        this.previewExpired.set(false);
       }),
       map(() => this.getEmptyInvoicePreview()),
       catchError((error: unknown) => {
@@ -564,7 +588,9 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
           message: this.i18nService.t(key),
         });
         this.previewCart.set(null);
+        this.previewProrationDate.set(undefined);
         this.previewFailed.set(true);
+        this.previewExpired.set(false);
         return of(this.getEmptyInvoicePreview());
       }),
     );
