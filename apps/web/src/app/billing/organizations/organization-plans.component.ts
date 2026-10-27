@@ -94,10 +94,11 @@ import {
 
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
-import { InvoicePreviewService } from "../services/invoice-preview.service";
+import { InvoicePreviewService, QuotedCart } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
 import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
+import { isInvoicePreviewExpiredError } from "../shared/invoice-preview-expired-error";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -378,6 +379,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     .pipe(distinctUntilChanged());
 
   private readonly previewCart = signal<Cart | null>(null);
+  /** Proration date of {@link previewCart}; sent on upgrade so the charge matches the quote shown. */
+  private readonly previewProrationDate = signal<string | undefined>(undefined);
+  /** The server rejected the upgrade because the quote is stale; cleared when a new preview resolves. */
+  protected readonly previewExpired = signal(false);
+  private readonly previewRefresh$ = new Subject<void>();
 
   protected readonly previewFailed = signal(false);
   protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
@@ -649,6 +655,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.billingFormGroup.valueChanges,
         this.secretsManagerForm.valueChanges,
         this.eligibleDiscounts$,
+        this.previewRefresh$,
       ),
       this.previewDrivenCart$,
     ])
@@ -657,6 +664,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         switchMap(([, previewDrivenCart]) => {
           if (!this.usePreviewDrivenCart(previewDrivenCart)) {
             this.previewCart.set(null);
+            this.previewProrationDate.set(undefined);
+            this.previewExpired.set(false);
             this.previewFailed.set(false);
             return from(this.refreshSalesTax());
           }
@@ -858,7 +867,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.previewFailed()) {
+    if (this.previewFailed() || this.previewExpired()) {
       return;
     }
 
@@ -950,9 +959,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         });
         return;
       }
+      if (isInvoicePreviewExpiredError(error)) {
+        this.previewExpired.set(true);
+        return;
+      }
       throw error;
     }
   };
+
+  protected refreshExpiredPreview(): void {
+    this.previewRefresh$.next();
+  }
 
   private getPlanFromLegacyEnum(): OrganizationSubscriptionPlan {
     switch (this.formGroup.value.plan) {
@@ -1007,6 +1024,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       selectedPlan.productTier === ProductTierType.TeamsStarter
     ) {
       this.previewCart.set(null);
+      this.previewProrationDate.set(undefined);
+      this.previewExpired.set(false);
       this.previewFailed.set(false);
       return of(undefined);
     }
@@ -1015,7 +1034,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return of(undefined);
     }
 
-    return defer(() => {
+    return defer((): Observable<QuotedCart> => {
       const billingAddress = getBillingAddressFromForm(
         this.billingFormGroup.controls.billingAddress,
       );
@@ -1044,10 +1063,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
           billingAddress,
         }),
-      );
+      ).pipe(map((cart) => ({ cart, prorationDate: undefined })));
     }).pipe(
-      tap((cart) => {
-        this.previewCart.set(this.withSponsorshipDiscount(cart));
+      tap((result) => {
+        this.previewCart.set(this.withSponsorshipDiscount(result.cart));
+        this.previewProrationDate.set(result.prorationDate);
+        this.previewExpired.set(false);
         this.previewFailed.set(false);
       }),
       map((): void => undefined),
@@ -1060,6 +1081,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           message: this.i18nService.t(key),
         });
         this.previewCart.set(null);
+        this.previewProrationDate.set(undefined);
+        this.previewExpired.set(false);
         this.previewFailed.set(true);
         return of(undefined);
       }),
@@ -1529,6 +1552,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       organizationName,
       tier,
       billingAddress,
+      this.previewProrationDate(),
     );
   }
 }
