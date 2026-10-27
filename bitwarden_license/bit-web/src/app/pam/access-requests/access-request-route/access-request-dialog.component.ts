@@ -552,9 +552,21 @@ export class AccessRequestDialogComponent implements OnInit {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
-    await this.approverActions.withdrawApproval(
-      this.cipherName() ?? "",
-      () => this.detail.withdrawApproval(),
+    this.confirmingWithdraw.set(true);
+  }
+
+  /** Returns to the request, keeping the note so re-opening the confirmation does not lose it. */
+  protected cancelWithdraw(): void {
+    this.confirmingWithdraw.set(false);
+  }
+
+  protected async confirmWithdraw(): Promise<void> {
+    if (!this.withdrawReasonGiven() || this.withdrawing()) {
+      return;
+    }
+    const reason = this.withdrawReason.value.trim();
+    const withdrawn = await this.approverActions.withdrawApproval(
+      () => this.detail.withdrawApproval(reason),
       (busy) => this.withdrawing.set(busy),
     );
     // A failure keeps the confirmation, and the reason, open so the approver can retry as is.
