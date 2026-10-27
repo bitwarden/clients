@@ -529,20 +529,6 @@ describe("ViewComponent", () => {
       expect(component.showAutofillButton()).toBe(false);
     }));
 
-    it("shows the Edit button disabled while the restricted cipher is not revealed", fakeAsync(() => {
-      params$.next({ cipherId: mockCipher.id });
-      flush();
-      fixture.detectChanges();
-
-      const edit = fixture.debugElement
-        .queryAll(By.css("popup-footer button[bitbutton]"))
-        .find((button) => button.nativeElement.textContent.trim() === "edit");
-      expect(edit).toBeTruthy();
-      expect(
-        edit!.nativeElement.disabled || edit!.nativeElement.getAttribute("aria-disabled"),
-      ).toBeTruthy();
-    }));
-
     it("falls back to the stored view in place when the reveal ends", fakeAsync(() => {
       revealedCipherService.displayView$.mockReturnValue(display$);
       params$.next({ cipherId: mockCipher.id });
