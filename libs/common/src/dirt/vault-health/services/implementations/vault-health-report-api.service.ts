@@ -6,7 +6,7 @@ export class VaultHealthReportApiService {
   async restoreExcludedCipher(cipherId: string): Promise<void> {
     const response = await this.apiService.send(
       "PUT",
-      `/cipher/${cipherId}/unexclude`,
+      `/ciphers/${cipherId}/unexclude`,
       null,
       true,
       true,
