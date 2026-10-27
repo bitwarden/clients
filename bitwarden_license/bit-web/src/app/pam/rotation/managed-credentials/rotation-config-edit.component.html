@@ -360,6 +360,7 @@
                 bitButton
                 buttonType="primary"
                 bitFormButton
+                [disabled]="detail.config.hasActiveJob"
                 id="rotation-config-edit_button_save"
               >
                 {{ "save" | i18n }}

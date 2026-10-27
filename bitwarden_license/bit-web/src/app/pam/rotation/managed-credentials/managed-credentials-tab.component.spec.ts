@@ -216,9 +216,9 @@ describe("ManagedCredentialsTabComponent", () => {
   }
 
   describe("initialization", () => {
-    it("calls configsService.load with the organizationId from route params", () => {
+    it("leaves the configs load to the rotation shell", () => {
       setupTestBed();
-      expect(configsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+      expect(configsService.load).not.toHaveBeenCalled();
     });
   });
 
@@ -290,7 +290,8 @@ describe("ManagedCredentialsTabComponent", () => {
         .click();
       await fixture.whenStable();
 
-      expect(configsService.load).toHaveBeenCalledTimes(2);
+      expect(configsService.load).toHaveBeenCalledTimes(1);
+      expect(configsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
   });
 

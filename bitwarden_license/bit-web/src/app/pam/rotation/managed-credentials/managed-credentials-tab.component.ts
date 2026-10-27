@@ -249,8 +249,9 @@ export class ManagedCredentialsTabComponent {
   }
 
   constructor() {
+    // The rotation shell loads the configs on mount, so the tab only adds its collections.
     effect(() => {
-      void this.loadAll(this.organizationId());
+      void this.loadCollections(this.organizationId());
     });
   }
 

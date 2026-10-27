@@ -19154,7 +19154,7 @@
     "message": "Remove managed credential"
   },
   "pamRotationConfigDeleteConfirmContent": {
-    "message": "This removes rotation management for this credential. The cipher stays in your vault and the rotation history remains in the audit log."
+    "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
@@ -19235,7 +19235,7 @@
     "message": "Settings unavailable"
   },
   "pamRotationConfigAccountLockedContent": {
-    "message": "Account settings cannot be changed while a rotation job is in progress."
+    "message": "Changes can't be saved while a rotation job is in progress. You can save again once the job finishes or times out."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Integrity check failed"

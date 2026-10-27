@@ -232,7 +232,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /**
    * The two edit cards as one form, since the server takes schedule and account in one write.
-   * Separate groups let the account half disable alone while a job runs.
+   * While a job runs the account half is disabled and Save is off, since every update re-seals
+   * the config and the server refuses that until the job ends.
    */
   protected readonly editForm = this.formBuilder.group({
     settings: this.settingsForm,
