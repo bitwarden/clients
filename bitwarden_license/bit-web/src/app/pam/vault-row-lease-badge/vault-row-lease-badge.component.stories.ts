@@ -1,21 +1,24 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { NEVER, of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 
-import type { AccessBadgeState } from "@bitwarden/bit-pam";
-import { MyAccessRequestsService } from "@bitwarden/bit-pam-components";
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
+type BadgeState = string | { active: { expiresAt: string } };
+
 const PAM_ORGANIZATION_ID = "org-1";
 
-/** Only `partial` and `id` decide whether a row looks up a badge. */
+/** Only `partial` and `id` decide whether a row fetches. */
 function gatedCipher(): CipherView {
   const cipher = new CipherView();
   cipher.id = "cipher-1";
@@ -33,15 +36,14 @@ function ungatedCipher(): CipherView {
 }
 
 /**
- * `state` is the gated row's badge from the caller's requests, or none for a row they hold nothing
- * on. It is a factory so an active lease's `expiresAt` is relative to render time; one built at
+ * `state` is a factory so an active lease's `expiresAt` is relative to render time; one built at
  * module load could already read "Session ended". `organizations` decides which rows may draw the
  * em dash.
  */
 function pam(
   options: {
     enabled?: boolean;
-    state?: () => AccessBadgeState;
+    state?: () => BadgeState;
     fails?: boolean;
     organizations?: { id: string; usePam: boolean }[];
   } = {},
@@ -57,13 +59,19 @@ function pam(
     providers: [
       { provide: ConfigService, useValue: { getFeatureFlag$: () => of(enabled) } },
       {
-        provide: MyAccessRequestsService,
+        provide: AccessRequestSdkService,
         useValue: {
-          // A failed read emits nothing, as the service keeps no list it could not load.
-          badges$: fails ? NEVER : of(new Map(state == null ? [] : [[gatedCipher().id, state()]])),
+          getCipherAccessState: () =>
+            fails
+              ? Promise.reject(new Error("access-state read failed"))
+              : Promise.resolve({ badgeState: state?.() } as unknown as CipherAccessStateView),
         },
       },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: AccessRefreshService,
+        useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
+      },
       {
         provide: OrganizationService,
         useValue: {
@@ -101,12 +109,12 @@ export const CollectionRowUngoverned: Story = {
 /** A gated cipher with no request or lease against it yet. */
 export const CipherRowPrivileged: Story = {
   args: { cipher: gatedCipher() },
-  decorators: [pam()],
+  decorators: [pam({ state: () => "privileged" })],
 };
 
 export const CipherRowPending: Story = {
   args: { cipher: gatedCipher() },
-  decorators: [pam({ state: () => ({ kind: "pending" }) })],
+  decorators: [pam({ state: () => "pending" })],
 };
 
 export const CipherRowActiveLease: Story = {
@@ -114,32 +122,33 @@ export const CipherRowActiveLease: Story = {
   decorators: [
     pam({
       state: () => ({
-        kind: "active",
-        expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+        active: { expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() },
       }),
     }),
   ],
 };
 
-/** Not gated, so no badge lookup; the em dash marks it as checked. */
+/** Not gated, so no access-state request; the em dash marks it as checked. */
 export const UngatedCipher: Story = {
   args: { cipher: ungatedCipher() },
-  decorators: [pam()],
+  decorators: [pam({ state: () => "privileged" })],
 };
 
 /** Renders nothing, not the em dash, since the row's organization does not use PAM. */
 export const UngatedCipherInNonPamOrganization: Story = {
   args: { cipher: ungatedCipher() },
-  decorators: [pam({ organizations: [{ id: PAM_ORGANIZATION_ID, usePam: false }] })],
+  decorators: [
+    pam({ state: () => "privileged", organizations: [{ id: PAM_ORGANIZATION_ID, usePam: false }] }),
+  ],
 };
 
-/** With the PAM flag off nothing renders, and no row looks up a badge. */
+/** With the PAM flag off nothing renders, and no row issues a request. */
 export const FeatureFlagOff: Story = {
   args: { cipher: gatedCipher() },
-  decorators: [pam({ enabled: false })],
+  decorators: [pam({ enabled: false, state: () => "privileged" })],
 };
 
-/** A failed read of the caller's requests renders nothing: the badge is decoration and fails quietly. */
+/** A failed read renders nothing, since the badge is decoration and should fail quietly. */
 export const ReadFails: Story = {
   args: { cipher: gatedCipher() },
   decorators: [pam({ fails: true })],

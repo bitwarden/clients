@@ -1,4 +1,8 @@
-import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
+import type {
+  AccessLeaseId,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+
 import { emptyResolvedNames } from "../access-requests/access-name-resolver.service";
 
 import { toApprovalRow } from "./approval-row";
