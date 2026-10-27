@@ -2735,6 +2735,7 @@ describe("OrganizationPlansComponent", () => {
           newOrgName,
           "teams",
           expect.objectContaining({ country: "US", postalCode: "12345" }),
+          undefined,
         );
         expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
         expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -3125,9 +3126,10 @@ describe("OrganizationPlansComponent", () => {
 
     describe("premium upgrade branch", () => {
       it("previews through the invoice preview service, not the legacy proration endpoint", fakeAsync(() => {
-        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(
-          premiumUpgradeCart,
-        );
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue({
+          cart: premiumUpgradeCart,
+          prorationDate: undefined,
+        });
         hasPremiumPersonallySubject.next(true);
 
         fixture.detectChanges();
@@ -3152,9 +3154,10 @@ describe("OrganizationPlansComponent", () => {
       }));
 
       it("renders the server cart verbatim, including the credit row and collapsed seat line", fakeAsync(() => {
-        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(
-          premiumUpgradeCart,
-        );
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue({
+          cart: premiumUpgradeCart,
+          prorationDate: undefined,
+        });
         hasPremiumPersonallySubject.next(true);
 
         fixture.detectChanges();
@@ -3695,6 +3698,181 @@ describe("OrganizationPlansComponent", () => {
           expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
         }));
       });
+    });
+
+    describe("expired preview (PM-44621)", () => {
+      const quote = { cart: premiumUpgradeCart, prorationDate: "2026-10-27T15:04:05Z" };
+      const refreshedQuote = { cart: premiumUpgradeCart, prorationDate: "2026-10-27T15:10:00Z" };
+      const expiredError = new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: { InvoicePreviewExpired: ["The invoice preview has expired."] },
+        },
+        400,
+      );
+
+      const submitButton = (): HTMLElement | null =>
+        fixture.nativeElement.querySelector('button[type="submit"]');
+      const expiredCallout = (): HTMLElement | null =>
+        fixture.nativeElement.querySelector("[data-testid='invoice-preview-expired']");
+
+      const startPremiumUpgrade = () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        patchOrganizationForm(component, {
+          name: "My Org",
+          productTier: ProductTierType.Teams,
+          plan: PlanType.TeamsAnnually,
+        });
+        component.changedProduct();
+        patchBillingAddress(component);
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
+        tick(1500);
+      };
+
+      const previewThenSubmitExpired = () => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValueOnce(quote);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValueOnce(expiredError);
+        startPremiumUpgrade();
+        void component.submit();
+        tick();
+        fixture.detectChanges();
+      };
+
+      it("Premium → org upgrade sends the preview's proration date", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(quote);
+        startPremiumUpgrade();
+
+        void component.submit();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "user-id" }),
+          "My Org",
+          "teams",
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+          "2026-10-27T15:04:05Z",
+        );
+      }));
+
+      it("organization checkout sends no proration date", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+        fixture.detectChanges();
+        flushMicrotasks();
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalled();
+        expect(component["previewCart"]()).toBe(scenarioACart);
+        expect(component["previewProrationDate"]()).toBeUndefined();
+      }));
+
+      it("legacy org upgrade sends no proration date", async () => {
+        setupMockUpgradeOrganization(mockOrganizationApiService, organizationsSubject, {
+          maxStorageGb: 2,
+        });
+        const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+        upgradeFixture.componentRef.setInput("organizationId", "org-123");
+        upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[0]);
+        upgradeFixture.detectChanges();
+        await upgradeFixture.whenStable();
+        const upgradeComponent = upgradeFixture.componentInstance;
+        upgradeComponent["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        upgradeComponent["formGroup"].controls.plan.setValue(PlanType.TeamsAnnually);
+
+        await upgradeComponent.submit();
+
+        expect(mockOrganizationApiService.upgrade).toHaveBeenCalledTimes(1);
+        expect(mockOrganizationApiService.upgrade.mock.calls[0][1]).not.toHaveProperty(
+          "prorationDate",
+        );
+      });
+
+      it("expired quote shows the callout and disables submit without throwing", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValueOnce(quote);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValueOnce(expiredError);
+        startPremiumUpgrade();
+
+        let rejected = false;
+        component.submit().catch(() => (rejected = true));
+        tick();
+        fixture.detectChanges();
+
+        expect(rejected).toBe(false);
+        expect(component["previewExpired"]()).toBe(true);
+        expect(expiredCallout()).not.toBeNull();
+        expect(mockToastService.showToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "error" }),
+        );
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+      }));
+
+      it("does not upgrade when submitted again while the quote is out of date", fakeAsync(() => {
+        previewThenSubmitExpired();
+
+        void component.submit();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledTimes(1);
+      }));
+
+      it("Refresh clears the callout once the new preview resolves and sends the new date", fakeAsync(() => {
+        previewThenSubmitExpired();
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValueOnce(
+          refreshedQuote,
+        );
+
+        component["refreshExpiredPreview"]();
+        tick(500);
+        fixture.detectChanges();
+
+        expect(component["previewExpired"]()).toBe(true);
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+
+        tick(1000);
+        fixture.detectChanges();
+
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledTimes(2);
+        expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenNthCalledWith(
+          2,
+          {
+            targetProductTierType: ProductTierType.Teams,
+            billingAddress: { country: "US", postalCode: "12345" },
+          },
+          "Teams",
+        );
+        expect(component["previewExpired"]()).toBe(false);
+        expect(expiredCallout()).toBeNull();
+
+        void component.submit();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenLastCalledWith(
+          expect.objectContaining({ id: "user-id" }),
+          "My Org",
+          "teams",
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+          "2026-10-27T15:10:00Z",
+        );
+      }));
+
+      it("other upgrade errors still propagate without the out-of-date callout", fakeAsync(() => {
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(quote);
+        const serverError = new ErrorResponse({ Message: "Internal error" }, 500);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValue(serverError);
+        startPremiumUpgrade();
+
+        let thrown: unknown;
+        component.submit().catch((error: unknown) => (thrown = error));
+        tick();
+
+        expect(thrown).toBe(serverError);
+        expect(component["previewExpired"]()).toBe(false);
+      }));
     });
 
     it("drops the server cart and resumes the legacy path when the flag flips off at runtime", fakeAsync(async () => {
