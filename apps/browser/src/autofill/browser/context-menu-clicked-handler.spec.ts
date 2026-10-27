@@ -18,17 +18,19 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
-import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillTriageFieldResult } from "../types/autofill-triage";
 import { emptyDraft, WebmapperDraft } from "../webmapper/draft";
@@ -60,12 +62,6 @@ describe("ContextMenuClickedHandler", () => {
     };
   };
 
-  /** Serves `ciphers` to lookups by id, as the vault would. */
-  const serveCiphers = (policy: MockProxy<FillCipherPolicy>, ciphers: CipherView[]) =>
-    policy.ciphersForIds.mockImplementation(async (_userId, ids) =>
-      ciphers.filter((cipher) => ids.includes(cipher.id)),
-    );
-
   const createCipher = (data?: {
     id?: CipherView["id"];
     username?: CipherView["login"]["username"];
@@ -93,7 +89,7 @@ describe("ContextMenuClickedHandler", () => {
   let autofill: AutofillAction;
   let collectAutofillTriage: jest.Mock<ReturnType<CollectAutofillTriageAction>, [number, number?]>;
   let authService: MockProxy<AuthService>;
-  let fillCipherPolicy: MockProxy<FillCipherPolicy>;
+  let cipherService: MockProxy<CipherService>;
   let accountService: FakeAccountService;
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
@@ -110,7 +106,7 @@ describe("ContextMenuClickedHandler", () => {
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
     collectAutofillTriage = jest.fn<ReturnType<CollectAutofillTriageAction>, [number, number?]>();
     authService = mock();
-    fillCipherPolicy = mock();
+    cipherService = mock();
     accountService = mockAccountServiceWith(mockUserId as UserId);
     totpService = mock();
     eventCollectionService = mock();
@@ -125,6 +121,7 @@ describe("ContextMenuClickedHandler", () => {
       autofill,
       collectAutofillTriage,
       authService,
+      cipherService,
       totpService,
       eventCollectionService,
       userVerificationService,
@@ -132,7 +129,7 @@ describe("ContextMenuClickedHandler", () => {
       triageService,
       webmapperDrafts,
       intraprocessMessageSender,
-      fillCipherPolicy,
+      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
     );
   });
 
@@ -160,7 +157,7 @@ describe("ContextMenuClickedHandler", () => {
           data: createData(`${COPY_USERNAME_ID}_${NOOP_COMMAND_SUFFIX}`, COPY_USERNAME_ID),
           tab: {} as any,
           expectNotCalled: () => {
-            expect(fillCipherPolicy.ciphersForUrl).not.toHaveBeenCalled();
+            expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
             expect(copyToClipboard).not.toHaveBeenCalled();
           },
         },
@@ -185,7 +182,7 @@ describe("ContextMenuClickedHandler", () => {
           extra: () => expect(totpService.getCode$).not.toHaveBeenCalled(),
         },
       ])("breaks silently when cipher is missing for $label", async ({ parentId, extra }) => {
-        serveCiphers(fillCipherPolicy, []);
+        cipherService.getAllDecrypted.mockResolvedValue([]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -215,7 +212,7 @@ describe("ContextMenuClickedHandler", () => {
       ])("breaks silently when $label property is missing", async ({ parentId, unset, isTotp }) => {
         const cipher = createCipher();
         unset(cipher);
-        serveCiphers(fillCipherPolicy, [cipher]);
+        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
 
         await expect(runWithUrl(createData(`${parentId}_1`, parentId))).resolves.toBeUndefined();
 
@@ -238,7 +235,7 @@ describe("ContextMenuClickedHandler", () => {
 
     it("attempts to autofill the correct cipher", async () => {
       const cipher = createCipher();
-      serveCiphers(fillCipherPolicy, [cipher]);
+      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
@@ -247,20 +244,20 @@ describe("ContextMenuClickedHandler", () => {
       expect(autofill).toHaveBeenCalledWith({ id: 5 }, cipher);
     });
 
-    it("looks up the cipher the user picked by id as a user fill", async () => {
-      serveCiphers(fillCipherPolicy, [createCipher()]);
+    it("autofills a revealed cipher the user picked by id", async () => {
+      const revealed = createCipher();
+      cipherService.getAllDecrypted.mockResolvedValue([]);
+      jest.spyOn(sut["revealedAutofillCipherService"], "getRevealed").mockResolvedValue([revealed]);
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
-      expect(fillCipherPolicy.ciphersForIds).toHaveBeenCalledWith(
-        mockUserId,
-        ["1"],
-        CipherUse.UserFill,
-      );
+      expect(autofill).toHaveBeenCalledWith({ id: 5 }, revealed);
     });
 
     it("copies username to clipboard", async () => {
-      serveCiphers(fillCipherPolicy, [createCipher({ username: "TEST_USERNAME" })]);
+      cipherService.getAllDecrypted.mockResolvedValue([
+        createCipher({ username: "TEST_USERNAME" }),
+      ]);
 
       await sut.run(createData(`${COPY_USERNAME_ID}_1`, COPY_USERNAME_ID), {
         url: "https://test.com",
@@ -275,7 +272,9 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies password to clipboard", async () => {
-      serveCiphers(fillCipherPolicy, [createCipher({ password: "TEST_PASSWORD" })]);
+      cipherService.getAllDecrypted.mockResolvedValue([
+        createCipher({ password: "TEST_PASSWORD" }),
+      ]);
 
       await sut.run(createData(`${COPY_PASSWORD_ID}_1`, COPY_PASSWORD_ID), {
         url: "https://test.com",
@@ -290,7 +289,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("copies totp code to clipboard", async () => {
-      serveCiphers(fillCipherPolicy, [createCipher({ totp: "TEST_TOTP_SEED" })]);
+      cipherService.getAllDecrypted.mockResolvedValue([createCipher({ totp: "TEST_TOTP_SEED" })]);
 
       jest.spyOn(totpService, "getCode$").mockImplementation((seed: string) => {
         if (seed === "TEST_TOTP_SEED") {
@@ -319,7 +318,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("attempts to find a cipher when noop but unlocked", async () => {
-      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
         {
           ...createCipher({ username: "NOOP_USERNAME" }),
           reprompt: CipherRepromptType.None,
@@ -330,13 +329,12 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        CipherUse.UserFill,
-        { includeOtherTypes: [] },
+        [],
       );
 
       expect(copyToClipboard).toHaveBeenCalledTimes(1);
@@ -348,7 +346,7 @@ describe("ContextMenuClickedHandler", () => {
     });
 
     it("attempts to find a cipher when noop but unlocked", async () => {
-      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([
         {
           ...createCipher({ username: "NOOP_USERNAME" }),
           reprompt: CipherRepromptType.Password,
@@ -359,13 +357,12 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        CipherUse.UserFill,
-        { includeOtherTypes: [] },
+        [],
       );
     });
 

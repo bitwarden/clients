@@ -1,12 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, firstValueFrom, map, mergeMap } from "rxjs";
+import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -45,7 +44,6 @@ import { completePendingDefaultPasswordManagerApply } from "../autofill/default-
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
-import { CipherUse } from "../autofill/services/abstractions/fill-cipher-policy";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
 import { getSubFrameUrlVariations } from "../autofill/utils/url-variations";
@@ -56,7 +54,6 @@ import BrowserInitialInstallService from "../platform/services/browser-initial-i
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { isValidVaultReferrer } from "../platform/utils/valid-vault-referrer";
 import { getWebExtSender } from "../platform/utils/web-ext-sender";
-import { GET_CIPHER_LIST_VIEWS } from "../vault/services/foreground-cipher.service";
 
 import MainBackground from "./main.background";
 
@@ -126,7 +123,6 @@ export default class RuntimeBackground {
         "fillCipherForPopup",
         "getBitwardenAutofillAttributeSettings",
         VaultMessages.checkBwInstalled,
-        GET_CIPHER_LIST_VIEWS,
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -183,17 +179,6 @@ export default class RuntimeBackground {
         }
         return await this.autofillOrchestrator.collectPageDetails(targetTab);
       }
-      case GET_CIPHER_LIST_VIEWS: {
-        // The list views are decrypted vault data, so only extension pages get them.
-        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
-          return [];
-        }
-        return await firstValueFrom(
-          this.main.cipherService
-            .cipherListViewsIncludingRestricted$(msg.userId)
-            .pipe(filter((views) => views != null)),
-        );
-      }
       case "fillCipherForPopup": {
         // The popup keeps the reprompt and TOTP copy in the foreground but dispatches the fill here.
         // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
@@ -212,11 +197,11 @@ export default class RuntimeBackground {
         if (activeUserId == null) {
           return AUTOFILL_DENIED;
         }
-        const [cipher] = await this.main.fillCipherPolicy.ciphersForIds(
-          activeUserId,
-          [msg.cipherId],
-          CipherUse.UserFill,
-        );
+        const ciphers =
+          await this.main.revealedAutofillCipherService.getAllDecryptedIncludingRevealed(
+            activeUserId,
+          );
+        const cipher = ciphers.find((candidate) => candidate.id === msg.cipherId);
         if (cipher == null) {
           return AUTOFILL_DENIED;
         }
@@ -294,13 +279,10 @@ export default class RuntimeBackground {
         // Rules are matched against the sender frame's URL rather than the tab's to minimize
         // selector collisions between frames with similar in-frame markup.
         const senderURL = await BrowserApi.getSenderFrameUrl(sender);
-        const targetingRules =
+        const targetingRulesForUrl =
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
-        const ruleFailureFallback = await this.configService.getFeatureFlag(
-          FeatureFlag.FillAssistRuleFallback,
-        );
 
-        return { targetingRules, ruleFailureFallback };
+        return targetingRulesForUrl;
       }
       case "getBitwardenAutofillAttributeSettings": {
         const [honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute] = await Promise.all([
@@ -516,7 +498,12 @@ export default class RuntimeBackground {
         break;
       case "syncCompleted":
         if (msg.successfully) {
+          setTimeout(async () => {
+            await this.main.refreshMenu();
+          }, 2000);
           await this.configService.ensureConfigFetched();
+          await this.main.updateOverlayCiphers();
+
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
@@ -543,6 +530,9 @@ export default class RuntimeBackground {
         break;
       }
       case "bgUpdateContextMenu":
+      case "editedCipher":
+      case "addedCipher":
+      case "deletedCipher":
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {
