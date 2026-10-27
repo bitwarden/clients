@@ -9,7 +9,7 @@ import {
   ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   AccessRuleSdkService,
   AccessRuleView,
-} from "@bitwarden/bit-pam";
+} from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

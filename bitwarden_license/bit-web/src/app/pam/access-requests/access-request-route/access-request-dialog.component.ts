@@ -24,14 +24,15 @@ import {
   humanApprover,
   reasonText,
   relativeStart,
-} from "@bitwarden/bit-pam";
-import type { AccessApprover, AccessDecisionVerdict, AccessBadgeState } from "@bitwarden/bit-pam";
-import {
-  AccessStateBadgeComponent,
-  DurationShortPipe,
-  RemainingTimePipe,
-  TimestampPipe,
-} from "@bitwarden/bit-pam-components";
+} from "@bitwarden/bit-common/pam";
+import type {
+  AccessApprover,
+  AccessDecisionVerdict,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import type { AccessBadgeState } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { DurationShortPipe } from "@bitwarden/bit-common/pam/date/duration-short.pipe";
+import { RemainingTimePipe } from "@bitwarden/bit-common/pam/date/remaining-time.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -53,18 +54,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  AccessRequestView,
-  activateAccessErrorMessageKey,
-  durationText,
-  exactWindow,
-  humanApprover,
-  reasonText,
-  relativeStart,
-} from "../..";
-import type { AccessApprover, AccessDecisionVerdict } from "../../abstractions/access-lease";
-import type { AccessBadgeState } from "../../access-state-badge/access-badge-state";
-import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";

@@ -1,8 +1,7 @@
+import { AccessRequestId } from "@bitwarden/bit-common/pam";
+import { ENDING_SOON_THRESHOLD_MS } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { requestedWindowSeconds } from "@bitwarden/bit-common/pam/helpers/requested-window";
 import { IconTileOptions } from "@bitwarden/components";
-
-import { AccessRequestId } from "..";
-import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
-import { requestedWindowSeconds } from "../helpers/requested-window";
 
 import { isRedeemableGrant, MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { REQUEST_STATUS_LOOK } from "./request-status-look";
