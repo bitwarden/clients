@@ -493,14 +493,19 @@ downstream outcomes:
 3. Server accepts the user into the org as a side effect of JIT account
    setup — see [The two acceptance mechanisms > 2. Server-side acceptance
    as a side effect of account setup](#2-server-side-acceptance-as-a-side-effect-of-account-setup)
-   for the MP / TDE / KC breakdown. Same server commands, same client-side
-   cleanup services, invite-kind-agnostic.
+   for the MP / TDE / KC breakdown. Same client-side cleanup services as
+   direct invites, but the cleanup now depends on the invite kind and the
+   `InviteLinkAutoConfirm` feature flag (step 4).
 4. Client-side cleanup (MP: `WebSetInitialPasswordService`; TDE:
    `WebLoginDecryptionOptionsService`; KC: `ConfirmKeyConnectorDomainComponent`
-   override) sees the stashed open invite and drops both the persisted
-   `/join` deep-link URL and the stash via `clearOrganizationInvite`, which
-   clears both state keys. `deepLinkGuard` therefore does not replay `/join`
-   and `authedHandler` does not re-fire `acceptOpenOrgInvite`.
+   override) sees the stashed open invite.
+   - With `InviteLinkAutoConfirm` off, it drops both the persisted `/join`
+     deep-link URL and the stash via `clearOrganizationInvite`, which clears
+     both state keys. `deepLinkGuard` therefore does not replay `/join` and
+     `authedHandler` does not re-fire `acceptOpenOrgInvite`.
+   - With the flag on, it keeps both. `deepLinkGuard` replays `/join` and
+     `AcceptOrgOpenInviteComponent.authedHandler` runs `acceptOpenOrgInvite`
+     (see [Why three cleanup points](#why-three-cleanup-points)).
 
 #### SSO-required org, existing user (MP detour to /login)
 
