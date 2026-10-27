@@ -13,6 +13,7 @@ describe("GetCommand", () => {
 
   describe("template aliases", () => {
     it.each([
+      ["folder", "my-folder"],
       ["collection", "shared-folder"],
       ["item-collections", "item-shared-folders"],
       ["org-collection", "org-shared-folder"],

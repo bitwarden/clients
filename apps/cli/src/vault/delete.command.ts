@@ -41,6 +41,7 @@ export class DeleteCommand {
       case "attachment":
         return await this.deleteAttachment(id, normalizedOptions);
       case "folder":
+      case "my-folder":
         return await this.deleteFolder(id);
       case "org-collection":
       case "org-shared-folder":

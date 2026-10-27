@@ -56,6 +56,7 @@ export class ListCommand {
       case "items":
         return await this.listCiphers(normalizedOptions);
       case "folders":
+      case "my-folders":
         return await this.listFolders(normalizedOptions);
       case "collections":
       case "shared-folders":

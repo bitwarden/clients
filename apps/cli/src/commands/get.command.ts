@@ -104,6 +104,7 @@ export class GetCommand extends DownloadCommand {
       case "attachment":
         return await this.getAttachment(id, normalizedOptions);
       case "folder":
+      case "my-folder":
         return await this.getFolder(id);
       case "collection":
       case "shared-folder":
@@ -636,6 +637,7 @@ export class GetCommand extends DownloadCommand {
         break;
       }
       case "folder":
+      case "my-folder":
         template = FolderExport.template();
         break;
       case "collection":

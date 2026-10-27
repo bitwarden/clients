@@ -90,6 +90,7 @@ export class CreateCommand {
       case "attachment":
         return await this.createAttachment(normalizedOptions, additionalData);
       case "folder":
+      case "my-folder":
         return await this.createFolder(req);
       case "org-collection":
       case "org-shared-folder":

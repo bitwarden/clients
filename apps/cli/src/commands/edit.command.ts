@@ -93,6 +93,7 @@ export class EditCommand {
       case "item-shared-folders":
         return await this.editCipherCollections(id, req);
       case "folder":
+      case "my-folder":
         return await this.editFolder(id, req);
       case "org-collection":
       case "org-shared-folder":
