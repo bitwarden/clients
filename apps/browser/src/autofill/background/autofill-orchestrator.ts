@@ -36,6 +36,7 @@ import {
   AutofillService,
   PageDetail,
 } from "../services/abstractions/autofill.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import {
   AUTOFILL_ABSENT,
@@ -160,6 +161,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     private platformUtilsService: PlatformUtilsService,
     private updateOverlayCiphers: () => Promise<void>,
     private logService: LogService,
+    private revealedAutofillCipherService: RevealedAutofillCipherService,
     /** Injected wall-clock source (epoch ms), overridable so time-dependent selection is testable. */
     private now: () => number = () => Date.now(),
   ) {}
@@ -504,7 +506,11 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     reason: FillReason,
   ): Promise<CipherView | undefined> {
     if (reason === FillReason.userCommand) {
-      return (await this.cipherService.getNextCipherForUrl(tabUrl, activeUserId)) ?? undefined;
+      // Only a user command rotates through revealed views; auto-submit and page load never do.
+      return this.revealedAutofillCipherService.getNextCipherForUrlIncludingRevealed(
+        tabUrl,
+        activeUserId,
+      );
     }
     const isAutomatic = reason === FillReason.automatic;
     const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
@@ -617,7 +623,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    * through the ciphers that fit a page across repeated fills — not a record that a cipher was used.
    */
   private cycleFillableCipher(key: string): void {
-    this.cipherService.updateLastUsedIndexForUrl(key);
+    this.revealedAutofillCipherService.updateLastUsedIndexForUrl(key);
   }
 
   private activeUserId(): Promise<UserId | null> {
