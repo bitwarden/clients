@@ -9,9 +9,9 @@ export type InlineMenuExtensionMessageHandlers = {
 
 export interface AutofillInlineMenuContentService extends AutofillMonitor {
   messageHandlers: InlineMenuExtensionMessageHandlers;
-  isElementInlineMenu(element: HTMLElement): boolean;
+  isElementInlineMenu(element: Element): boolean;
   getOwnedTagNames: () => string[];
-  getUnownedTopLayerItems: (includeCandidates?: boolean) => NodeListOf<Element>;
+  getUnownedTopLayerItems: (includeCandidates?: boolean) => Element[];
   refreshTopLayerPosition: () => void;
   destroy(): void;
 }

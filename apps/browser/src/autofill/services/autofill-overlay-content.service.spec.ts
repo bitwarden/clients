@@ -2019,7 +2019,7 @@ describe("AutofillOverlayContentService", () => {
 
   describe("getUnownedTopLayerItems", () => {
     it("returns unowned top layer items from the inline menu content service", () => {
-      const mockElements = document.querySelectorAll("div");
+      const mockElements = Array.from(document.querySelectorAll("div"));
       inlineMenuContentService.getUnownedTopLayerItems.mockReturnValue(mockElements);
 
       const result = autofillOverlayContentService.getUnownedTopLayerItems(true);

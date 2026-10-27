@@ -3957,6 +3957,64 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("top layer candidate ownership", () => {
+    let inlineMenuElement: HTMLDivElement;
+    let pagePopoverElement: HTMLDivElement;
+
+    beforeEach(() => {
+      // Firefox renders the inline menu as plain `div` elements, matching common page popovers
+      inlineMenuElement = document.createElement("div");
+      inlineMenuElement.setAttribute("popover", "manual");
+      pagePopoverElement = document.createElement("div");
+      pagePopoverElement.setAttribute("popover", "manual");
+      jest
+        .spyOn(autofillOverlayContentService, "isElementInlineMenu")
+        .mockImplementation((element) => element === inlineMenuElement);
+    });
+
+    it("listens to a page popover that shares the inline menu tag name", () => {
+      expect(
+        collectAutofillContentService["shouldListenToTopLayerCandidate"](pagePopoverElement),
+      ).toBe(true);
+    });
+
+    it("does not listen to the inline menu elements", () => {
+      expect(
+        collectAutofillContentService["shouldListenToTopLayerCandidate"](inlineMenuElement),
+      ).toBe(false);
+    });
+
+    it("refreshes the inline menu layer position when a page popover with the same tag name opens", () => {
+      jest.useFakeTimers();
+      const refreshMenuLayerPositionSpy = jest
+        .spyOn(autofillOverlayContentService, "refreshMenuLayerPosition")
+        .mockImplementation();
+
+      collectAutofillContentService["setupTopLayerCandidateListener"](pagePopoverElement);
+      expect(refreshMenuLayerPositionSpy).toHaveBeenCalledTimes(1);
+
+      const toggleEvent = new Event("toggle");
+      Object.defineProperty(toggleEvent, "newState", { value: "open" });
+      pagePopoverElement.dispatchEvent(toggleEvent);
+      jest.advanceTimersByTime(100);
+
+      expect(refreshMenuLayerPositionSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not set up a listener for the inline menu elements", () => {
+      const refreshMenuLayerPositionSpy = jest
+        .spyOn(autofillOverlayContentService, "refreshMenuLayerPosition")
+        .mockImplementation();
+
+      collectAutofillContentService["setupTopLayerCandidateListener"](inlineMenuElement);
+
+      expect(refreshMenuLayerPositionSpy).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["topLayerListenedElements"].has(inlineMenuElement)).toBe(
+        false,
+      );
+    });
+  });
+
   describe("childList gate is wired into mutation handling", () => {
     const childListMutationFor = (...added: Node[]): MutationRecord => {
       const container = document.createElement("div");
