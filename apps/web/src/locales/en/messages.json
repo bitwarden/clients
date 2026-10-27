@@ -17180,6 +17180,12 @@
   "invoicePreviewErrorMessage": {
     "message": "Encountered an error while generating the invoice preview."
   },
+  "invoicePreviewOutOfDate": {
+    "message": "Your invoice preview is out of date"
+  },
+  "refreshPreview": {
+    "message": "Refresh preview"
+  },
   "planProratedMembershipInMonths": {
     "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
     "placeholders": {
