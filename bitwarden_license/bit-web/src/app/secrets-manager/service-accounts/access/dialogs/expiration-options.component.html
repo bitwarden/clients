@@ -15,6 +15,7 @@
       bitInput
       type="datetime-local"
       [min]="currentDate | date: 'YYYY-MM-ddThh:mm'"
+      [max]="maxDate | date: 'YYYY-MM-ddThh:mm'"
       formControlName="expireDateTime"
     />
   </bit-form-field>
