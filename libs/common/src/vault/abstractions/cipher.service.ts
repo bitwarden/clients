@@ -61,7 +61,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   /**
    * Like {@link cipherListViews$}, but includes restricted ciphers.
    * Consumers: vault list UIs (web VFO1 `vault-next`, `MyFolders`, `SharedFolders`, the web vault
-   * filter, desktop `vault-v3`). Add a new consumer to this list.
+   * filter, desktop `vault-v3`, the browser popup `VaultPopupItemsService`). Add a new consumer to
+   * this list.
    */
   abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
@@ -113,7 +114,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
    * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers.
-   * Named non-list consumers: the PAM access-name resolver (shows names of restricted ciphers).
+   * Named non-list consumers: the PAM access-name resolver (shows names of restricted ciphers), the
+   * browser popup item view (shows the restricted cipher, or its revealed view).
    */
   abstract getAllDecryptedForIdsIncludingRestricted(
     userId: UserId,

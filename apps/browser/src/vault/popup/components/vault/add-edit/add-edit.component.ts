@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
+import { Component, inject, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -21,10 +21,12 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/commo
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -218,6 +220,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private fido2PopoutSessionData: Fido2SessionData;
 
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly revealedCipherService = inject(RevealedCipherService);
   protected userCanArchive$ = this.userId$.pipe(
     switchMap((userId) => this.archiveService.userCanArchive$(userId)),
   );
@@ -368,6 +371,16 @@ export class AddEditComponent implements OnInit, OnDestroy {
         await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
       }
       return;
+    }
+
+    // The revealed view of a restricted cipher is a separate copy. Read it again, so the view shows
+    // the save.
+    if (
+      this.config.originalCipher != null &&
+      RestrictedCipherPolicy.isRestricted(this.config.originalCipher)
+    ) {
+      const userId = await firstValueFrom(this.userId$);
+      await this.revealedCipherService.refresh(userId, cipher.id as CipherId);
     }
 
     // When the cipher is in edit / partial edit, the previous page was the view-cipher page.

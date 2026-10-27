@@ -5,7 +5,7 @@ import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
@@ -31,12 +31,17 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -120,7 +125,12 @@ export class ViewComponent {
   private activeUserId: UserId;
 
   headerText: string;
+  /** The shown view: the revealed view of a restricted cipher while one exists, else the stored one. */
   cipher: CipherView;
+  /** The stored copy, which stays restricted while {@link cipher} is its revealed view. */
+  private storedCipher: CipherView;
+  protected readonly RestrictedCipherAction = RestrictedCipherAction;
+  private readonly revealedCipherService = inject(RevealedCipherService);
   organization$: Observable<Organization>;
   canDeleteCipher$: Observable<boolean>;
   collections$: Observable<CollectionView[]>;
@@ -175,7 +185,10 @@ export class ViewComponent {
             this.accountService.activeAccount$.pipe(getUserId),
           );
 
-          const cipher = await this.getCipherData(params.cipherId, this.activeUserId);
+          const stored = await this.getCipherData(params.cipherId, this.activeUserId);
+          const cipher = await firstValueFrom(
+            this.revealedCipherService.displayView$(this.activeUserId, stored),
+          );
           this.headerText = this.setHeader(cipher.type);
 
           // Handling the load action needs to take place before setting `this.cipher`,
@@ -198,25 +211,32 @@ export class ViewComponent {
             }
           }
 
-          return cipher;
-        }),
-        filterOutNullish(),
-        switchMap(async (cipher) => {
-          this.cipher = cipher;
-
-          this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
-
-          this.showFooter$ = of(
-            cipher &&
-              (!cipher.isDeleted ||
-                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
-          );
-
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
             cipher.id,
             false,
             cipher.organizationId,
+          );
+
+          return stored;
+        }),
+        filterOutNullish(),
+        // Swaps the revealed view in and out in place as a lease on a restricted cipher starts or ends.
+        switchMap((stored) => {
+          this.storedCipher = stored;
+          return this.revealedCipherService.displayView$(this.activeUserId, stored);
+        }),
+        switchMap(async (cipher) => {
+          this.cipher = cipher;
+
+          this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
+            this.storedCipher,
+          );
+
+          this.showFooter$ = of(
+            cipher &&
+              (!cipher.isDeleted ||
+                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
         }),
         takeUntilDestroyed(),
@@ -242,12 +262,17 @@ export class ViewComponent {
   }
 
   async getCipherData(id: string, userId: UserId) {
-    return await firstValueFrom(
-      this.cipherService.cipherViews$(userId).pipe(
-        filterOutNullish(),
-        map((ciphers) => ciphers.find((c) => c.id === id)),
-      ),
-    );
+    const [cipher] = await this.cipherService.getAllDecryptedForIdsIncludingRestricted(userId, [
+      id,
+    ]);
+    return cipher;
+  }
+
+  /** False when the restricted-cipher rule blocks the action. */
+  protected allows(action: RestrictedCipherAction): boolean {
+    const stored = this.storedCipher ?? this.cipher;
+    const revealedView = this.cipher === stored ? undefined : this.cipher;
+    return RestrictedCipherPolicy.allows(stored, action, revealedView);
   }
 
   async editCipher() {
@@ -351,7 +376,12 @@ export class ViewComponent {
       [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
     ).includes(CipherViewLikeUtils.getType(this.cipher));
 
-    return validAutofillType && !(this.cipher.isArchived || this.cipher.isDeleted);
+    // A restricted cipher without a revealed view has nothing to fill.
+    return (
+      validAutofillType &&
+      !RestrictedCipherPolicy.isRestricted(this.cipher) &&
+      !(this.cipher.isArchived || this.cipher.isDeleted)
+    );
   }
 
   async doAutofill() {
@@ -383,7 +413,10 @@ export class ViewComponent {
       data: {
         currentUrl: currentTab?.url || "",
         savedUris: this.cipher.login?.uris?.filter((u) => u.uri) ?? [],
-        viewOnly: !this.cipher.edit,
+        // Adding the URL saves the cipher outside the edit form, which a restricted cipher refuses.
+        viewOnly:
+          !this.cipher.edit ||
+          RestrictedCipherPolicy.isRestricted(this.storedCipher ?? this.cipher),
       },
     });
 

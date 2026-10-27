@@ -20,6 +20,7 @@ import {
 } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -79,12 +80,17 @@ describe("VaultPopupItemsService", () => {
   const userId = Utils.newGuid() as UserId;
   const accountServiceMock = mockAccountServiceWith(userId);
 
+  const revealedCipherService = mock<RevealedCipherService>();
+  let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
     isCipherRestricted: jest.fn().mockReturnValue(false),
   };
 
   beforeEach(() => {
+    revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    revealedCipherService.revealed$.mockReturnValue(revealed$);
     allCiphers = cipherFactory(10);
     const cipherList = Object.values(allCiphers);
     // First 2 ciphers are autofill
@@ -99,7 +105,9 @@ describe("VaultPopupItemsService", () => {
 
     const cipherList$ = new BehaviorSubject<CipherView[]>(cipherList);
 
-    cipherServiceMock.cipherListViews$.mockReturnValue(cipherList$.asObservable());
+    cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
+      cipherList$.asObservable(),
+    );
 
     ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>({});
     localDataSubject = new BehaviorSubject<Record<CipherId, LocalData>>({});
@@ -170,6 +178,7 @@ describe("VaultPopupItemsService", () => {
 
     testBed = TestBed.configureTestingModule({
       providers: [
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: CipherService, useValue: cipherServiceMock },
         { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
         { provide: SearchService, useValue: searchService },
@@ -354,6 +363,55 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
+  describe("restricted ciphers", () => {
+    const restrictedRow = () =>
+      Object.assign(new CipherView(), { id: "restricted" as CipherId, partial: true });
+
+    beforeEach(() => {
+      searchService.searchCiphers.mockImplementation(
+        async (_userId, _filter, _text, ciphers) => ciphers,
+      );
+    });
+
+    it("lists restricted ciphers", async () => {
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of([restrictedRow()]));
+      ciphersSubject.next({});
+
+      const ciphers = await firstValueFrom(service.filteredCiphers$);
+
+      expect(ciphers.map((c) => c.id)).toEqual(["restricted"]);
+      expect(cipherServiceMock.cipherListViewsIncludingRestricted$).toHaveBeenCalled();
+      expect(cipherServiceMock.cipherListViews$).not.toHaveBeenCalled();
+    });
+
+    it("swaps the revealed view in for its restricted row, keeping the row's organization", async () => {
+      const row = Object.assign(restrictedRow(), { organizationId: "org1" });
+      const revealed = Object.assign(new CipherView(), { id: "restricted" as CipherId });
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of([row]));
+      revealed$.next(new Map([["restricted" as CipherId, revealed]]));
+      ciphersSubject.next({});
+
+      const [shown] = await firstValueFrom(service.filteredCiphers$);
+
+      expect(shown).toBe(revealed);
+      expect(shown.organization).toEqual(mockOrg);
+    });
+
+    it("leaves restricted ciphers out of the trash", async () => {
+      const deletedRow = Object.assign(restrictedRow(), { deletedDate: new Date() });
+      const deleted = Object.assign(new CipherView(), { deletedDate: new Date() });
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
+        of([deletedRow, deleted]),
+      );
+      ciphersSubject.next({});
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+
+      expect(deletedCiphers).toHaveLength(1);
+      expect(deletedCiphers[0].id).not.toBe("restricted");
+    });
+  });
+
   describe("favoriteCiphers$", () => {
     it("should exclude autofill ciphers", (done) => {
       service.favoriteCiphers$.subscribe((ciphers) => {
@@ -383,7 +441,7 @@ describe("VaultPopupItemsService", () => {
 
   describe("emptyVault$", () => {
     it("should return true if there are no ciphers", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of([]));
       service.emptyVault$.pipe(take(1)).subscribe((empty) => {
         expect(empty).toBe(true);
         done();
@@ -391,7 +449,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return false if there are ciphers", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
         of([{ id: "1", type: CipherType.Login, name: "Login 1" }] as CipherView[]),
       );
 
@@ -402,7 +460,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return true when all ciphers are deleted/archived", (done) => {
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
         of([
           { id: "1", type: CipherType.Login, name: "Login 1", isDeleted: true },
           { id: "2", type: CipherType.Login, name: "Login 2", isDeleted: true },
@@ -440,7 +498,7 @@ describe("VaultPopupItemsService", () => {
       deletedCipher.deletedDate = new Date();
       const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
-      cipherServiceMock.cipherListViews$.mockReturnValue(of(ciphers));
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(of(ciphers));
       ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
@@ -457,7 +515,7 @@ describe("VaultPopupItemsService", () => {
       revokedOrgCipher.deletedDate = new Date();
       revokedOrgCipher.organizationId = "revokedOrg";
 
-      cipherServiceMock.cipherListViews$.mockReturnValue(
+      cipherServiceMock.cipherListViewsIncludingRestricted$.mockReturnValue(
         of([personalCipher, memberOrgCipher, revokedOrgCipher]),
       );
       ciphersSubject.next({});
