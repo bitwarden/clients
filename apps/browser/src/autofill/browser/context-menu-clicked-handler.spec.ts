@@ -24,11 +24,13 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillTriageFieldResult } from "../types/autofill-triage";
 import { emptyDraft, WebmapperDraft } from "../webmapper/draft";
@@ -127,6 +129,7 @@ describe("ContextMenuClickedHandler", () => {
       triageService,
       webmapperDrafts,
       intraprocessMessageSender,
+      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
     );
   });
 
@@ -239,6 +242,16 @@ describe("ContextMenuClickedHandler", () => {
       expect(autofill).toHaveBeenCalledTimes(1);
 
       expect(autofill).toHaveBeenCalledWith({ id: 5 }, cipher);
+    });
+
+    it("autofills a revealed cipher the user picked by id", async () => {
+      const revealed = createCipher();
+      cipherService.getAllDecrypted.mockResolvedValue([]);
+      jest.spyOn(sut["revealedAutofillCipherService"], "getRevealed").mockResolvedValue([revealed]);
+
+      await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
+
+      expect(autofill).toHaveBeenCalledWith({ id: 5 }, revealed);
     });
 
     it("copies username to clipboard", async () => {
