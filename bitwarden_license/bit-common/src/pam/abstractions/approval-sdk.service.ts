@@ -1,4 +1,4 @@
-import type { AccessDecisionRequest, AccessRequestRevokeRequest } from "@bitwarden/sdk-internal";
+import type { AccessDecisionRequest } from "@bitwarden/sdk-internal";
 
 import type { AccessRequestId, AccessRequestView } from "./access-lease";
 
@@ -17,10 +17,4 @@ export abstract class ApprovalSdkService {
    * onto the row already held rather than replacing it.
    */
   abstract decide(id: AccessRequestId, request: AccessDecisionRequest): Promise<AccessRequestView>;
-
-  /**
-   * Withdraws an approval the requester has not started. The server records it as the approver's
-   * deny decision and shows the reason to the requester.
-   */
-  abstract revoke(id: AccessRequestId, request: AccessRequestRevokeRequest): Promise<void>;
 }

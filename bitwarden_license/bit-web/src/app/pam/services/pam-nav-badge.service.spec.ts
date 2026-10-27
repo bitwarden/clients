@@ -1,14 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
-import {
-  AccessEventService,
-  AccessRequestSdkService,
-  ApprovalSdkService,
-  DefaultAccessRefreshService,
-} from "@bitwarden/bit-pam";
-import type { AccessRequestStatus, AccessRequestView } from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService } from "@bitwarden/bit-pam-components";
+import { AccessEventService } from "@bitwarden/bit-common/pam/abstractions/access-event.service";
+import type {
+  AccessRequestStatus,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import { ApprovalSdkService } from "@bitwarden/bit-common/pam/abstractions/approval-sdk.service";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
