@@ -400,7 +400,25 @@
           </bit-callout>
         } @else if (planChangeCart.hasValue()) {
           <div class="tw-mt-4">
-            <billing-cart-summary [cart]="planChangeCart.value()" />
+            <billing-cart-summary [cart]="planChangeCart.value().cart" />
+            @if (isPreviewExpired()) {
+              <bit-callout
+                type="warning"
+                class="tw-mt-4 tw-block"
+                data-testid="invoice-preview-expired"
+              >
+                {{ "invoicePreviewOutOfDate" | i18n }}
+                <button
+                  bitButton
+                  type="button"
+                  buttonType="secondary"
+                  class="tw-mt-2 tw-block"
+                  (click)="refreshExpiredPreview()"
+                >
+                  {{ "refreshPreview" | i18n }}
+                </button>
+              </bit-callout>
+            }
             @if (isFreeUpgradeWithTrial) {
               <bit-callout
                 type="info"

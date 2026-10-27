@@ -396,7 +396,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("enables submit once the preview has loaded", () => {
       previewCartFlag$.next(true);
-      (component as any).planChangeCart = { hasValue: () => true };
+      (component as any).planChangeCart = { hasValue: () => true, isLoading: () => false };
 
       expect((component as any).isSubmitDisabled).toBe(false);
     });
@@ -513,6 +513,152 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       TestBed.tick();
 
       expect((component as any).previewErrorMessageKey).toBe("invoicePreviewErrorMessage");
+    });
+
+    describe("expired preview (PM-44621)", () => {
+      const firstDate = "2026-10-27T15:04:05Z";
+      const refreshedDate = "2026-10-27T15:40:00Z";
+      const cart = {} as any;
+      let organizationApiService: jest.Mocked<OrganizationApiServiceAbstraction>;
+      let toastService: jest.Mocked<ToastService>;
+
+      const expiredError = () =>
+        new ErrorResponse(
+          {
+            Message: "The model state is invalid.",
+            ValidationErrors: { InvoicePreviewExpired: ["The invoice preview has expired."] },
+          },
+          400,
+        );
+
+      const settle = async () => {
+        TestBed.tick();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        TestBed.tick();
+      };
+
+      const prepareUpgrade = () => {
+        selectEnterpriseAnnual();
+        component.selectedPlan = {
+          type: PlanType.EnterpriseAnnually,
+          productTier: ProductTierType.Enterprise,
+          PasswordManager: { baseStorageGb: 1, hasPremiumAccessOption: false },
+        } as any;
+        component.organization = {
+          useSecretsManager: false,
+          hasPublicAndPrivateKeys: true,
+          productTierType: ProductTierType.Teams,
+        } as any;
+        component.paymentMethod = {} as any;
+      };
+
+      const loadPreview = async (prorationDate: string | undefined) => {
+        invoicePreviewService.previewPlanChangeCart.mockResolvedValueOnce({ cart, prorationDate });
+        (component as any).refreshPlanChangePreview();
+        await settle();
+      };
+
+      const sentRequest = (call = 0): OrganizationUpgradeRequest =>
+        organizationApiService.upgrade.mock.calls[call][1];
+
+      const expireQuote = async () => {
+        organizationApiService.upgrade.mockRejectedValueOnce(expiredError());
+        await component.submit();
+      };
+
+      beforeEach(() => {
+        organizationApiService = TestBed.inject(
+          OrganizationApiServiceAbstraction,
+        ) as jest.Mocked<OrganizationApiServiceAbstraction>;
+        toastService = TestBed.inject(ToastService) as jest.Mocked<ToastService>;
+        prepareUpgrade();
+      });
+
+      it("sends the preview's proration date on upgrade", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+
+        await (component as any).updateOrganization();
+
+        expect(organizationApiService.upgrade).toHaveBeenCalledWith(
+          "organization-id",
+          expect.objectContaining({ prorationDate: firstDate }),
+        );
+      });
+
+      it("sends no proration date when the preview cart is off", async () => {
+        await (component as any).updateOrganization();
+
+        expect(sentRequest()).not.toHaveProperty("prorationDate");
+      });
+
+      it("shows the out-of-date callout and disables submit when the quote has expired", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+
+        await expect(expireQuote()).resolves.toBeUndefined();
+
+        expect((component as any).isPreviewExpired()).toBe(true);
+        expect((component as any).isSubmitDisabled).toBe(true);
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("rethrows other submit errors unchanged", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        const error = new ErrorResponse({ Message: "Internal error" }, 500);
+        organizationApiService.upgrade.mockRejectedValueOnce(error);
+
+        await expect(component.submit()).rejects.toBe(error);
+        expect((component as any).isPreviewExpired()).toBe(false);
+      });
+
+      it("Refresh re-fetches the preview, clears the callout, and sends the new date", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+        invoicePreviewService.previewPlanChangeCart.mockResolvedValueOnce({
+          cart,
+          prorationDate: refreshedDate,
+        });
+
+        (component as any).refreshExpiredPreview();
+        await settle();
+
+        expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
+        expect((component as any).isPreviewExpired()).toBe(false);
+        expect((component as any).isSubmitDisabled).toBe(false);
+
+        await (component as any).updateOrganization();
+        expect(sentRequest(1).prorationDate).toBe(refreshedDate);
+      });
+
+      it("keeps submit disabled while the refreshed preview is loading", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+        invoicePreviewService.previewPlanChangeCart.mockReturnValueOnce(new Promise(() => {}));
+
+        (component as any).refreshExpiredPreview();
+        TestBed.tick();
+
+        expect((component as any).isSubmitDisabled).toBe(true);
+      });
+
+      it("a failed refresh shows the preview-error callout", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+        invoicePreviewService.previewPlanChangeCart.mockRejectedValueOnce(
+          new Error("preview failed"),
+        );
+
+        (component as any).refreshExpiredPreview();
+        await settle();
+
+        expect((component as any).planChangeCart.error()).toBeTruthy();
+        expect((component as any).isSubmitDisabled).toBe(true);
+      });
     });
   });
 
