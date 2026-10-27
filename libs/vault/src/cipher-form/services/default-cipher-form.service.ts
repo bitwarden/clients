@@ -5,8 +5,12 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherId, UserId, OrganizationId } from "@bitwarden/common/types/guid";
+import {
+  CipherService,
+  RestrictedCipherWriteError,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,9 +28,20 @@ export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
   private taskService: TaskService = inject(TaskService);
+  private revealedCipherService: RevealedCipherService = inject(RevealedCipherService);
 
+  /** A restricted cipher resolves to a copy of its revealed view, since the form mutates it. */
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (cipher.isPartial) {
+      const revealed = await this.revealedCipherService.getOrReveal(
+        activeUserId,
+        cipher.id as CipherId,
+      );
+      if (revealed != null) {
+        return CipherView.fromSdkCipherView(revealed.toSdkCipherView());
+      }
+    }
     return await this.cipherService.decrypt(cipher, activeUserId);
   }
 
@@ -43,6 +58,7 @@ export class DefaultCipherFormService implements CipherFormService {
     if (config.originalCipher == null) {
       throw new Error("Original cipher is required for updating an existing cipher");
     }
+    // For a restricted cipher this is a copy of the revealed view, the original its edit needs.
     const originalCipherView = await this.decryptCipher(config.originalCipher);
 
     // Updating an existing cipher
@@ -65,16 +81,23 @@ export class DefaultCipherFormService implements CipherFormService {
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
-      const savedCipherView = await this.cipherService.updateWithServer(
+      // Returned as is: the result of a restricted cipher's save is restricted, and encrypting it
+      // for a decrypt round trip would throw after the server accepted the write.
+      const saved = await this.cipherService.updateWithServer(
         cipher,
         activeUserId,
         originalCipherView,
         config.admin,
       );
-      savedCipher = await this.cipherService
-        .encrypt(savedCipherView, activeUserId)
-        .then((res) => res.cipher);
+      await this.markAssociatedTaskAsComplete(activeUserId, cipher, config);
+      return saved;
     } else {
+      // The collection save would re-encrypt the restricted result of the first write, so refuse
+      // before either write rather than half-apply the change.
+      if (config.originalCipher.isPartial) {
+        throw new RestrictedCipherWriteError();
+      }
+
       // Updating a cipher with collection changes is not supported with a single request currently
       // Save the new collectionIds before overwriting
       const newCollectionIdsToSave = cipher.collectionIds;
@@ -124,10 +147,7 @@ export class DefaultCipherFormService implements CipherFormService {
     updatedCipher: CipherView,
     config: CipherFormConfig,
   ) {
-    const decryptedOriginalCipherCipher = await this.cipherService.decrypt(
-      config.originalCipher,
-      userId,
-    );
+    const decryptedOriginalCipherCipher = await this.decryptCipher(config.originalCipher);
 
     const associatedPendingTask = await firstValueFrom(
       this.taskService

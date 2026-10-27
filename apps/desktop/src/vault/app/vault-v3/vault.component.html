@@ -9,6 +9,8 @@
     <app-header [title]="title()">
       @if (showBreadcrumbs()) {
         <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()" />
+      } @else if (scopedFolderId(); as folderId) {
+        <vault-my-folder-breadcrumbs slot="breadcrumbs" [folderId]="folderId" />
       } @else if (headerTile(); as tile) {
         <bit-icon-tile
           slot="title-prefix"
@@ -19,6 +21,10 @@
           size="sm"
           aria-hidden="true"
         />
+      }
+
+      @if (scopedFolderId(); as folderId) {
+        <vault-my-folder-menu slot="title-suffix" [folderId]="folderId" />
       }
       @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
@@ -36,18 +42,19 @@
   @if (vfo1Foundation()) {
     <!--
       Padded to the page gutters rather than the table's own container, so it lines up with the
-      header above it. Renders nothing outside a shared folder, leaving no gap in its place.
+      header above it. Renders nothing outside a folder, leaving no gap in its place.
 
       Kept at its natural height: the grid is uncapped — its accordion is `height="auto"`, so
       "Show all" grows it without bound — and shrinking it would clip cards. The table below
       absorbs the space it takes instead, down to its own floor (MIN_TABLE_HEIGHT), past which the
       page scrolls.
     -->
-    <vault-shared-folder-card-grid
+    <vault-card-grid
       class="tw-block tw-shrink-0 tw-px-8"
       [collections]="scopedCollections"
+      [folders]="folders()"
       [scope]="vaultScope()"
-    ></vault-shared-folder-card-grid>
+    ></vault-card-grid>
     <!-- Remounted per scope: the table reads its filters from the URL once, at mount. -->
     <app-vault-list-table
       *vaultRemountOn="filterScopeKey()"
@@ -66,6 +73,7 @@
       [organizationName]="emptyVaultOrganizationName()"
       [defaultCollectionId]="defaultCollectionId()"
       [sharedFolderName]="emptySharedFolderName"
+      [folderName]="emptyFolderName()"
       [hasMultipleVaults]="hasMultipleVaults()"
       [myVaultItemCount]="myVaultItemCount()"
       (onEvent)="onVaultItemsEvent($event)"

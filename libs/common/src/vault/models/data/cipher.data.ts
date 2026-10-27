@@ -48,7 +48,7 @@ export class CipherData {
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: string;
   data?: string;
-  /** Raw JSON-string partial-data envelope for PAM-gated rows; see {@link CipherResponse.partialData}. */
+  /** Raw JSON partial-data envelope for PAM-gated rows; see {@link CipherResponse.partialData}. */
   partialData?: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {

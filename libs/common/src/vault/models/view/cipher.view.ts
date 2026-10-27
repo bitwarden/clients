@@ -32,6 +32,12 @@ import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
 
+/**
+ * `SdkCipherView` plus the PAM `partial` flag until the published `sdk-internal` declares it;
+ * optional, so a plain `SdkCipherView` stays assignable. Same stopgap as in `domain/cipher.ts`.
+ */
+type SdkCipherViewWithPartial = SdkCipherView & { partial?: boolean };
+
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
@@ -66,10 +72,7 @@ export class CipherView implements View, InitializerMetadata {
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: SymmetricCryptoKey;
 
-  /**
-   * True when the server gated this cipher: only the name and (for logins) URIs are populated.
-   * The row badge, the cipher-view banner, and edit-blocking key off this.
-   */
+  /** True when decrypted from a PAM-gated cipher; only the name and login URIs are populated. */
   partial = false;
 
   /**
@@ -100,7 +103,7 @@ export class CipherView implements View, InitializerMetadata {
     this.archivedDate = c.archivedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
-    // The SDK decrypt path sets this from the SDK view instead, see fromSdkCipherView.
+    // The SDK decrypt path sets `partial` from the SDK view instead; see `fromSdkCipherView`.
     this.partial = c.isPartial;
   }
 
@@ -294,7 +297,7 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(obj: SdkCipherView): CipherView | undefined {
+  static fromSdkCipherView(obj: SdkCipherViewWithPartial): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }
@@ -497,7 +500,9 @@ export class CipherView implements View, InitializerMetadata {
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       name: this.name ?? "",
-      notes: this.notes,
+      // Empty notes are converted to undefined to prevent the SDK from encrypting
+      // them as a non-null value, which would incorrectly populate copyableFields.
+      notes: this.notes || undefined,
       type: this.type ?? CipherType.Login,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
