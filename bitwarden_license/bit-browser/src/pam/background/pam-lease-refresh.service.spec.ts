@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, map, of, Subject, Subscription } from "rxjs";
 
-import { AccessLeaseSdkService } from "@bitwarden/bit-pam";
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
 import { BrowserTaskSchedulerService } from "@bitwarden/browser/platform/services/abstractions/browser-task-scheduler.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -41,6 +41,7 @@ describe("PamLeaseRefreshService", () => {
   let lastSync$: BehaviorSubject<Date | null>;
   let messages$: Subject<Message<Record<string, unknown>>>;
   let taskSchedulerService: MockProxy<BrowserTaskSchedulerService>;
+  let leasedCiphersChanged: jest.Mock<Promise<void>, []>;
   let service: PamLeaseRefreshService;
 
   const lease = (cipherId: string, overrides: Partial<AccessLeaseView> = {}) =>
@@ -90,6 +91,7 @@ describe("PamLeaseRefreshService", () => {
     taskSchedulerService = mock<BrowserTaskSchedulerService>();
     taskSchedulerService.setTimeout.mockReturnValue(new Subscription());
     taskSchedulerService.clearScheduledAlarm.mockResolvedValue();
+    leasedCiphersChanged = jest.fn().mockResolvedValue(undefined);
 
     service = new PamLeaseRefreshService(
       stateProvider,
@@ -103,6 +105,7 @@ describe("PamLeaseRefreshService", () => {
       new MessageListener(messages$),
       taskSchedulerService,
       mock<LogService>(),
+      leasedCiphersChanged,
     );
   });
 
@@ -206,7 +209,7 @@ describe("PamLeaseRefreshService", () => {
       expect(accessLeaseSdkService.listMyLeases).toHaveBeenCalledTimes(2);
     });
 
-    it("re-fetches a held copy when its cipher is edited", async () => {
+    it("re-fetches a held copy when its cipher is edited and rebuilds the caches once", async () => {
       await seedLeases(stateProvider, userId, [leaseEntry("kept"), leaseEntry("other")]);
       accessLeaseSdkService.listMyLeases.mockResolvedValue([lease("kept"), lease("other")]);
       subscription = service.start();
@@ -223,6 +226,7 @@ describe("PamLeaseRefreshService", () => {
       expect(apiService.getFullCipherDetails).toHaveBeenCalledTimes(1);
       expect(apiService.getFullCipherDetails).toHaveBeenCalledWith("kept");
       expect((await stored())?.leases.kept.cipher.revisionDate).toBe(at(0));
+      expect(leasedCiphersChanged).toHaveBeenCalledTimes(1);
     });
 
     it("re-fetches a held copy when the popup asks for its cipher", async () => {
@@ -261,9 +265,10 @@ describe("PamLeaseRefreshService", () => {
 
       expect(accessLeaseSdkService.listMyLeases).toHaveBeenCalledTimes(1);
       expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
+      expect(leasedCiphersChanged).not.toHaveBeenCalled();
     });
 
-    it("drops a revoked lease on refresh", async () => {
+    it("rebuilds the caches once when a refresh drops a revoked lease", async () => {
       await seedLeases(stateProvider, userId, [leaseEntry("kept"), leaseEntry("revoked")]);
       accessLeaseSdkService.listMyLeases.mockResolvedValue([lease("kept")]);
 
@@ -271,9 +276,10 @@ describe("PamLeaseRefreshService", () => {
       await awaitAsync();
 
       expect(await storedIds()).toEqual(["kept"]);
+      expect(leasedCiphersChanged).toHaveBeenCalledTimes(1);
     });
 
-    it("prunes a lapsed lease when the expiry task runs, and reschedules", async () => {
+    it("rebuilds the caches once when a lease lapses, and the expiry task prunes it", async () => {
       jest.useFakeTimers({ now: NOW });
       await seedLeases(stateProvider, userId, [
         leaseEntry("first", at(60_000)),
@@ -285,6 +291,7 @@ describe("PamLeaseRefreshService", () => {
       ]);
       subscription = service.start();
       await jest.advanceTimersByTimeAsync(0);
+      expect(leasedCiphersChanged).not.toHaveBeenCalled();
       expect(taskSchedulerService.clearScheduledAlarm).toHaveBeenCalled();
       expect(taskSchedulerService.setTimeout).toHaveBeenCalledTimes(1);
       expect(taskSchedulerService.setTimeout).toHaveBeenCalledWith(
@@ -298,6 +305,7 @@ describe("PamLeaseRefreshService", () => {
       await jest.advanceTimersByTimeAsync(0);
 
       expect(await storedIds()).toEqual(["second"]);
+      expect(leasedCiphersChanged).toHaveBeenCalledTimes(1);
       expect(taskSchedulerService.setTimeout).toHaveBeenLastCalledWith(
         ScheduledTaskNames.pamLeaseExpiry,
         60 * 60_000 - 60_000,

@@ -1,9 +1,9 @@
-import { AccessLeasesSdkService } from "@bitwarden/bit-pam";
+// Deep import: the `pam` barrel pulls Angular components into the worker bundle.
+import { AccessLeasesSdkService } from "@bitwarden/bit-common/pam/services/access-leases-sdk.service";
 import OssMainBackground from "@bitwarden/browser/background/main.background";
 
 import { PamLeaseRefreshService } from "../pam/background/pam-lease-refresh.service";
 import { BrowserRevealedCipherService } from "../pam/browser-revealed-cipher.service";
-import { PamFillCipherPolicy } from "../pam/pam-fill-cipher-policy";
 
 export default class MainBackground {
   private ossMain = new OssMainBackground({
@@ -21,8 +21,6 @@ export default class MainBackground {
         messageSender,
         logService,
       ),
-    fillCipherPolicy: ({ cipherService, revealedCipherService }) =>
-      new PamFillCipherPolicy(cipherService, revealedCipherService),
   });
 
   private pamLeaseRefreshService = new PamLeaseRefreshService(
@@ -41,6 +39,10 @@ export default class MainBackground {
     this.ossMain.messageListener,
     this.ossMain.taskSchedulerService,
     this.ossMain.logService,
+    async () => {
+      await this.ossMain.updateOverlayCiphers();
+      await this.ossMain.refreshMenu();
+    },
   );
 
   async bootstrap() {
