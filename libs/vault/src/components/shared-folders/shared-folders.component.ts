@@ -302,9 +302,6 @@ export class SharedFoldersComponent {
     () => this.collectionDialog != null && (this.organization()?.canCreateNewCollections ?? false),
   );
 
-  /** Always true: Pin needs no dialog, so the row menu always has something to offer. */
-  protected readonly showRowMenu = true;
-
   /**
    * Whether the bulk actions bar offers Edit access. Left out entirely when the member can edit
    * none of the listed folders: a permanently disabled button is worth less than the checkbox
