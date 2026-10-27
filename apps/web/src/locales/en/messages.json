@@ -2091,6 +2091,12 @@
   "deletedItem": {
     "message": "Item sent to trash"
   },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "deletedItems": {
     "message": "Items sent to trash"
   },
@@ -18755,5 +18761,297 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "pamRotation": {
+    "message": "Rotation"
+  },
+  "pamRotationSubtitle": {
+    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Rotation schedule"
+  },
+  "pamRotationScheduleNone": {
+    "message": "None"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Hourly"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Every 6 hours"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Daily"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Weekly"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Monthly"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Custom"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Custom cron expression"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Enter a Quartz 6-field cron expression (e.g. 0 0 */4 * * ?). The server enforces a minimum 15-minute interval."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "No scheduled rotation. This credential rotates only when you start one, or when access ends if that option is on."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Rotates once an hour, on the hour."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Rotates every 6 hours, on the hour."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Rotates once a day, at midnight."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Rotates once a week, at midnight on Sunday."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Rotates once a month, at midnight on the 1st."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Rotates every day, at $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Rotates every $COUNT$ days, at $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Rotates every month, at $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Rotates every $COUNT$ months, at $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Custom Quartz schedule: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Schedules run in UTC, not your local time zone."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Interval"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Repeat every"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Unit"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Days"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Months"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Time of day (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Intervals are anchored to the calendar. Day intervals restart on the 1st of each month, and month intervals run on the 1st and restart in January."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Enter how often the rotation repeats and the time of day."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Enter a whole number."
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Type"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Assign access connectors"
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Access connectors can only be assigned to target systems set to automatic rotation."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Only active access connectors can be assigned to this target system."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatic"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manual"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Custom script"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "This policy is too weak. Increase the length or include more character types."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "This target system's technology could not be confirmed to match. Reload the page and try again."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Connection"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Assigned targets"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Connected"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Disconnected"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Target systems can only be assigned while the access connector is active."
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Target system"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Assign target systems"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Only target systems set to automatic rotation can be assigned."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "There are no automatic target systems to assign. Create one on the Target systems tab."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Go to Target systems"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Couldn't load target systems. Refresh the page to try again."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "No target systems assigned."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Remove $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Deactivate access connector?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Deactivate $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can activate it again later.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Delete access connector?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Unable to load"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Check your connection and try again. If the problem continues, refresh the page."
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Paused"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Rotating"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Rotation due"
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "This target system does not confirm it supports terminating sessions. Clear the session-termination option, or update the target system first."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "The selected target system's settings could not be verified. Fix the target system before saving."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "This managed credential's item or target system could not be confirmed to match. Reload the page and try again."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Assigned access connectors"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "No access connectors are assigned to this target system."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "The access connectors for this target system could not be loaded."
   }
 }
