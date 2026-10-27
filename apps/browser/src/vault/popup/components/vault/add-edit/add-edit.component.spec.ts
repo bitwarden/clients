@@ -17,6 +17,7 @@ import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -55,6 +56,7 @@ describe("AddEditComponent", () => {
   let vaultPopupAutofillService: MockProxy<VaultPopupAutofillService>;
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
+  const revealedCipherService = mock<RevealedCipherService>();
   const buildConfig = jest.fn((mode) => Promise.resolve({ ...buildConfigResponse, mode }));
   const queryParams$ = new BehaviorSubject({});
   const disable = jest.fn();
@@ -68,6 +70,7 @@ describe("AddEditComponent", () => {
 
   beforeEach(async () => {
     buildConfig.mockClear();
+    revealedCipherService.refresh.mockClear();
     disable.mockClear();
     navigate.mockClear();
     back.mockClear();
@@ -102,6 +105,7 @@ describe("AddEditComponent", () => {
         { provide: Router, useValue: { navigate } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: CipherService, useValue: cipherServiceMock },
         { provide: EventCollectionService, useValue: { collect } },
         { provide: LogService, useValue: mock<LogService>() },
@@ -404,6 +408,25 @@ describe("AddEditComponent", () => {
 
       expect(navigate).not.toHaveBeenCalled();
       expect(back).toHaveBeenCalled();
+    });
+
+    it("reads the revealed view again after saving a restricted cipher", async () => {
+      component.config.mode = "edit";
+      component.config.originalCipher = Object.assign(new Cipher(), { partialData: {} });
+
+      await component.onCipherSaved({ id: "123-456-789" } as CipherView);
+
+      expect(revealedCipherService.refresh).toHaveBeenCalledWith(expect.anything(), "123-456-789");
+      expect(back).toHaveBeenCalled();
+    });
+
+    it("does not read a revealed view after saving a cipher that is not restricted", async () => {
+      component.config.mode = "edit";
+      component.config.originalCipher = new Cipher();
+
+      await component.onCipherSaved({ id: "123-456-789" } as CipherView);
+
+      expect(revealedCipherService.refresh).not.toHaveBeenCalled();
     });
 
     it.each<CipherFormMode>(["add", "edit", "partial-edit"])(
