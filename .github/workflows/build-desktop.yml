@@ -2520,11 +2520,10 @@ jobs:
           persist-credentials: false
 
       - name: Download deb artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/artifacts/linux/deb
-          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
 
       - name: Install deps
         run: |
@@ -2563,11 +2562,10 @@ jobs:
           persist-credentials: false
 
       - name: Download appimage artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/artifacts/linux/appimage
-          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
 
       - name: Install deps
         run: |
@@ -2604,11 +2602,10 @@ jobs:
           persist-credentials: false
 
       - name: Download appimage artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/artifacts/linux/appimage
-          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
 
       - name: Install deps
         run: |
@@ -2659,11 +2656,10 @@ jobs:
           persist-credentials: false
 
       - name: Download flatpak artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
           path: apps/desktop/artifacts/linux/flatpak/
-          artifacts: com.bitwarden.${{ matrix.os == 'ubuntu-22.04' && 'desktop' || 'desktop-arm64' }}.flatpak
 
       - name: Install deps
         run: |
@@ -2711,11 +2707,10 @@ jobs:
           persist-credentials: false
 
       - name: Download snap artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
           path: apps/desktop/artifacts/linux/snap
-          artifacts: bitwarden_${{ env._PACKAGE_VERSION }}_${{ env._CPU_ARCH }}.snap
 
       - name: Install deps
         run: |
@@ -2755,11 +2750,10 @@ jobs:
           persist-credentials: false
 
       - name: Download dmg artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/artifacts/macos/dmg
-          artifacts: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
 
       - name: Install dmg
         working-directory: apps/desktop/artifacts/macos/dmg
@@ -2812,11 +2806,10 @@ jobs:
           persist-credentials: false
 
       - name: Download portable artifact
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          run_id: ${{ github.run_id }}
+          name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/artifacts/windows/portable
-          artifacts: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
 
       - name: Run Portable exe
         working-directory: apps/desktop/artifacts/windows/portable
