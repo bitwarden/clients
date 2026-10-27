@@ -4,7 +4,7 @@ import type {
   AccessRequestId,
   AccessRequestStatus,
   AccessRequestView,
-} from "@bitwarden/bit-pam";
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 import { ResolvedNames } from "../access-requests/access-name-resolver.service";

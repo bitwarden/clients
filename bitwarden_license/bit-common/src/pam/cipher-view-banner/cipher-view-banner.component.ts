@@ -33,62 +33,13 @@ import {
 
 import {
   type AccessApprovalMode,
-  AccessLeaseSdkService,
-  AccessRefreshService,
   type AccessRequestCreateRequest,
-  AccessRequestSdkService,
-  DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
-  LeasingErrorService,
-  REQUEST_ACCESS_DURATION_PRESETS,
-  type RequestDurationOption,
-  type RequestWindowProblem,
-  activateAccessErrorMessageKey,
-  apiErrorBodyMessage,
-  classifyRequestAccessError,
-  composeRequestWindow,
-  defaultRequestWindow,
-  liveActiveLease,
-  rereadOnLapse,
-  requestDurationOptions,
-  requestedWindowSeconds,
-  snapToNearestDuration,
-  startTimeSlots,
-  toDateInputValue,
-  toTimeInputValue,
-  windowEndAt,
-  ENDING_SOON_THRESHOLD_MS,
-  formatCompoundDuration,
-  formatDuration,
-  formatRemaining,
-  isGovernedCipher,
-  isUnlicensedError,
-  callerOrganizations$,
-  unlicensedForPam,
-} from "@bitwarden/bit-pam";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId } from "@bitwarden/common/types/guid";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  AsyncActionsModule,
-  ButtonModule,
-  CardComponent,
-  DialogService,
-  FormFieldModule,
-  IconButtonModule,
-  IconModule,
-  IconTileComponent,
-  ToastService,
-  TypographyModule,
-} from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
-
+} from "../abstractions/access-lease";
+import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import { apiErrorBodyMessage } from "../abstractions/api-error";
+import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import {
   ACCESS_BADGE_LOOK,
@@ -97,6 +48,30 @@ import {
 import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
+import { formatCompoundDuration, formatDuration } from "../date/format-duration";
+import { formatRemaining } from "../date/format-remaining";
+import { activateAccessErrorMessageKey } from "../helpers/activate-access-error";
+import { isGovernedCipher } from "../helpers/governed-cipher";
+import { liveActiveLease, rereadOnLapse } from "../helpers/lease-liveness";
+import {
+  DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
+  REQUEST_ACCESS_DURATION_PRESETS,
+  type RequestDurationOption,
+  requestDurationOptions,
+  snapToNearestDuration,
+} from "../helpers/lease-window.utils";
+import { isUnlicensedError } from "../helpers/pam-license-error";
+import { classifyRequestAccessError } from "../helpers/request-access-error";
+import {
+  type RequestWindowProblem,
+  composeRequestWindow,
+  defaultRequestWindow,
+  startTimeSlots,
+  toDateInputValue,
+  toTimeInputValue,
+  windowEndAt,
+} from "../helpers/request-access-window";
+import { requestedWindowSeconds } from "../helpers/requested-window";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 

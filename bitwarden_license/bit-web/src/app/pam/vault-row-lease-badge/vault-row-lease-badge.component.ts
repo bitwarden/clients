@@ -2,14 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { catchError, combineLatest, from, map, merge, Observable, of, switchMap } from "rxjs";
 
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
 import {
-  AccessRefreshService,
-  AccessRequestSdkService,
   AccessBadgeState,
   cipherAccessBadgeState,
-  rereadOnLapse,
-} from "@bitwarden/bit-pam";
-import { AccessBadgeTickerService, AccessStateBadgeComponent } from "@bitwarden/bit-pam-components";
+} from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { rereadOnLapse } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";

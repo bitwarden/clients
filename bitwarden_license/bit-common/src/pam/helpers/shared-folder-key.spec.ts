@@ -6,7 +6,7 @@ import { SHARED_FOLDER_KEY_PAIRS, sharedFolderKey } from "./shared-folder-key";
 type Messages = Record<string, { message: string; placeholders?: Record<string, unknown> }>;
 
 const messages: Messages = JSON.parse(
-  readFileSync(join(__dirname, "../../../../../../apps/web/src/locales/en/messages.json"), "utf8"),
+  readFileSync(join(__dirname, "../../../../../apps/web/src/locales/en/messages.json"), "utf8"),
 );
 
 describe("sharedFolderKey", () => {

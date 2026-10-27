@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
-import { AccessCondition } from "@bitwarden/bit-pam";
+import { AccessCondition } from "@bitwarden/bit-common/pam/abstractions/access-rule";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ApprovalMethodPipe } from "./approval-method.pipe";
