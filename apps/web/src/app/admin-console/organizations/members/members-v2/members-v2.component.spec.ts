@@ -4,18 +4,28 @@ import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { MaxCheckedCount } from "../../../common/people-table-data-source";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
-import { OrganizationMembersService } from "../services";
+import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
+import { MemberDialogManagerService, OrganizationMembersService } from "../services";
+import { MemberActionsService } from "../services/member-actions/member-actions.service";
 
 import { MembersV2Component } from "./members-v2.component";
 
@@ -40,6 +50,11 @@ describe("MembersV2Component", () => {
   let component: any;
   let memberService: MockProxy<OrganizationMembersService>;
   let i18nService: MockProxy<I18nService>;
+  let memberActionsService: MockProxy<MemberActionsService>;
+  let memberDialogManager: MockProxy<MemberDialogManagerService>;
+  let billingConstraint: MockProxy<BillingConstraintService>;
+  let toastService: MockProxy<ToastService>;
+  const billingMetadata = {} as OrganizationBillingMetadataResponse;
 
   async function setup(organization: Partial<Organization>, members: OrganizationUserView[]) {
     memberService = mock<OrganizationMembersService>();
@@ -48,6 +63,19 @@ describe("MembersV2Component", () => {
     i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string, ...args: unknown[]) => [key, ...args].join(" "));
     Object.defineProperty(i18nService, "collator", { value: new Intl.Collator("en") });
+
+    memberActionsService = mock<MemberActionsService>();
+    memberDialogManager = mock<MemberDialogManagerService>();
+    billingConstraint = mock<BillingConstraintService>();
+    billingConstraint.seatLimitReached.mockResolvedValue(false);
+    toastService = mock<ToastService>();
+
+    const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
+    organizationMetadataService.getOrganizationMetadata$.mockReturnValue(of(billingMetadata));
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const userNamePipe = mock<UserNamePipe>();
+    userNamePipe.transform.mockReturnValue("Alice");
 
     const organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(
@@ -65,6 +93,15 @@ describe("MembersV2Component", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: OrganizationMembersService, useValue: memberService },
         { provide: I18nService, useValue: i18nService },
+        { provide: MemberActionsService, useValue: memberActionsService },
+        { provide: MemberDialogManagerService, useValue: memberDialogManager },
+        { provide: BillingConstraintService, useValue: billingConstraint },
+        { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
+        { provide: PolicyService, useValue: policyService },
+        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
+        { provide: ToastService, useValue: toastService },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: UserNamePipe, useValue: userNamePipe },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -91,6 +128,18 @@ describe("MembersV2Component", () => {
       await setup({ useGroups: true }, []);
 
       expect(component.displayedColumns()).toEqual(["name", "status", "type", "groupNames"]);
+    });
+
+    it("adds Options when the admin can manage users", async () => {
+      await setup({ useGroups: true, canManageUsers: true }, []);
+
+      expect(component.displayedColumns()).toEqual([
+        "name",
+        "status",
+        "type",
+        "groupNames",
+        "options",
+      ]);
     });
 
     it("shows Collections when the organization doesn't use groups", async () => {
@@ -180,6 +229,152 @@ describe("MembersV2Component", () => {
 
     it("uses the singular for one member", () => {
       expect(component.rangeLabel({ start: 1, end: 1, total: 1 })).toBe("memberCountSingular");
+    });
+  });
+
+  describe("row actions", () => {
+    const user = member({ id: "member-1" as Guid });
+    let organization: Organization;
+
+    beforeEach(async () => {
+      await setup({ canManageUsers: true, useGroups: true }, [user]);
+      organization = component.organization();
+      memberService.loadUsers.mockClear();
+    });
+
+    it("opens the edit dialog on the given tab", async () => {
+      await component.edit(user, organization, MemberDialogTab.Groups);
+
+      expect(memberDialogManager.openEditDialog).toHaveBeenCalledWith(
+        user,
+        organization,
+        billingMetadata,
+        MemberDialogTab.Groups,
+      );
+    });
+
+    it("opens the edit dialog on the Details tab by default", async () => {
+      await component.edit(user, organization);
+
+      expect(memberDialogManager.openEditDialog).toHaveBeenCalledWith(
+        user,
+        organization,
+        billingMetadata,
+        MemberDialogTab.Details,
+      );
+    });
+
+    it.each([
+      MemberDialogResult.Saved,
+      MemberDialogResult.Deleted,
+      MemberDialogResult.Revoked,
+      MemberDialogResult.Restored,
+    ])("reloads after the edit dialog closes with %s", async (result) => {
+      memberDialogManager.openEditDialog.mockResolvedValue(result);
+
+      await component.edit(user, organization);
+
+      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+    });
+
+    it("doesn't reload when the edit dialog is dismissed", async () => {
+      memberDialogManager.openEditDialog.mockResolvedValue(undefined);
+
+      await component.edit(user, organization);
+
+      expect(memberService.loadUsers).not.toHaveBeenCalled();
+    });
+
+    it("revokes after confirmation, toasts and reloads", async () => {
+      memberDialogManager.openRevokeUserConfirmationDialog.mockResolvedValue(true);
+      memberActionsService.revokeUser.mockResolvedValue({ success: true });
+
+      await component.revoke(user, organization);
+
+      expect(memberActionsService.revokeUser).toHaveBeenCalledWith(organization, user.id);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "revokedUserId Alice",
+      });
+      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+    });
+
+    it("does nothing when the revoke confirmation is cancelled", async () => {
+      memberDialogManager.openRevokeUserConfirmationDialog.mockResolvedValue(false);
+
+      await component.revoke(user, organization);
+
+      expect(memberActionsService.revokeUser).not.toHaveBeenCalled();
+      expect(memberService.loadUsers).not.toHaveBeenCalled();
+    });
+
+    it("reloads after removing a member", async () => {
+      memberDialogManager.openRemoveUserConfirmationDialog.mockResolvedValue(true);
+      memberActionsService.removeUser.mockResolvedValue({ success: true });
+
+      await component.remove(user, organization);
+
+      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+    });
+
+    it("reloads after deleting a member", async () => {
+      memberDialogManager.openDeleteUserConfirmationDialog.mockResolvedValue(true);
+      memberActionsService.deleteUser.mockResolvedValue({ success: true });
+
+      await component.deleteUser(user, organization);
+
+      expect(memberActionsService.deleteUser).toHaveBeenCalledWith(organization, user.id);
+      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+    });
+
+    it("toasts the error and doesn't reload when an action fails", async () => {
+      memberActionsService.reinviteUser.mockReturnValue(of({ success: false, error: "Oops" }));
+
+      await component.reinvite(user, organization);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({ variant: "error", message: "Oops" });
+      expect(memberService.loadUsers).not.toHaveBeenCalled();
+    });
+
+    it("doesn't send an invite when the seat limit blocks it", async () => {
+      billingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.sendInvite(user, organization);
+
+      expect(memberActionsService.sendInvite).not.toHaveBeenCalled();
+    });
+
+    it("checks the restore seat limit before restoring", async () => {
+      memberActionsService.restoreUser.mockResolvedValue({ success: true });
+
+      await component.restore(user, organization);
+
+      expect(billingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        organization,
+        "restore",
+      );
+      expect(memberActionsService.restoreUser).toHaveBeenCalledWith(organization, user.id);
+      expect(memberService.loadUsers).toHaveBeenCalledTimes(1);
+    });
+
+    it("doesn't confirm when the member has no public key", async () => {
+      memberActionsService.getPublicKeyForConfirm.mockResolvedValue(null);
+
+      await component.confirm(user, organization);
+
+      expect(memberActionsService.confirmUser).not.toHaveBeenCalled();
+    });
+
+    it("checks account recovery with the reset password policy", async () => {
+      memberActionsService.allowResetPassword.mockReturnValue(true);
+
+      expect(component.allowResetPassword(user, organization)).toBe(true);
+      expect(memberActionsService.allowResetPassword).toHaveBeenCalledWith(
+        user,
+        organization,
+        false,
+      );
     });
   });
 });

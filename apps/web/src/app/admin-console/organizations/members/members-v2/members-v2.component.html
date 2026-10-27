@@ -1,3 +1,6 @@
+@let organization = this.organization();
+@let canManage = showUserManagementControls();
+
 <app-header></app-header>
 
 <bit-table-v2
@@ -22,7 +25,18 @@
         [id]="row | avatarId"
         [color]="row.avatarColor"
       ></bit-avatar>
-      {{ row.name ?? row.email }}
+      @if (canManage && organization) {
+        <button
+          type="button"
+          bitLink
+          [attr.id]="'members-v2_button_edit-member-' + row.id"
+          (click)="edit(row, organization)"
+        >
+          {{ row.name ?? row.email }}
+        </button>
+      } @else {
+        {{ row.name ?? row.email }}
+      }
       @if (row.name) {
         <span slot="secondary">{{ row.email }}</span>
       }
@@ -43,7 +57,21 @@
   <!-- Role -->
   <bit-column sortable width="minmax(120px, 1fr)">
     <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type | userType }}</bit-cell>
+    <bit-cell *bitCellDef="table.columns.type; let row">
+      @if (canManage && organization) {
+        <button
+          type="button"
+          bitLink
+          linkType="secondary"
+          [attr.id]="'members-v2_button_edit-role-' + row.id"
+          (click)="edit(row, organization, memberTab.Details)"
+        >
+          {{ row.type | userType }}
+        </button>
+      } @else {
+        {{ row.type | userType }}
+      }
+    </bit-cell>
   </bit-column>
 
   <!-- Groups: shown for organizations that use groups -->
@@ -51,7 +79,16 @@
     <bit-header-cell>{{ "groups" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.groupNames; let row">
       <ng-container
-        *ngTemplateOutlet="firstNameBadge; context: { $implicit: row.groupNames }"
+        *ngTemplateOutlet="
+          editableBadges;
+          context: {
+            $implicit: row,
+            names: row.groupNames,
+            tab: memberTab.Groups,
+            idName: 'groups',
+            label: 'groups' | i18n,
+          }
+        "
       ></ng-container>
     </bit-cell>
   </bit-column>
@@ -61,13 +98,210 @@
     <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.collectionNames; let row">
       <ng-container
-        *ngTemplateOutlet="firstNameBadge; context: { $implicit: row.collectionNames }"
+        *ngTemplateOutlet="
+          editableBadges;
+          context: {
+            $implicit: row,
+            names: row.collectionNames,
+            tab: memberTab.Collections,
+            idName: 'collections',
+            label: 'collections' | vfo1I18n: 'sharedFolders',
+          }
+        "
       ></ng-container>
+    </bit-cell>
+  </bit-column>
+
+  <!-- Options: only displayed for admins who can manage users -->
+  <bit-column width="minmax(80px, 1fr)">
+    <bit-header-cell>
+      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+    </bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.options; let row">
+      @if (organization) {
+        <div slot="end">
+          <button
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            [attr.id]="'members-v2_button_options-' + row.id"
+            [label]="'optionsForItem' | i18n: row.name ?? row.email"
+            [bitMenuTriggerFor]="rowMenu"
+          ></button>
+          <bit-menu #rowMenu>
+            @if (row.canSendInvite) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_send-invite-' + row.id"
+                (click)="isProcessing() ? null : sendInvite(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-envelope" />
+                {{ "sendInvite" | i18n }}
+              </button>
+            }
+            @if (row.canReinvite) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_resend-invitation-' + row.id"
+                (click)="isProcessing() ? null : reinvite(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-envelope" />
+                {{ "resendInvitation" | i18n }}
+              </button>
+            }
+            @if (row.canConfirm) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_confirm-' + row.id"
+                (click)="isProcessing() ? null : confirm(row, organization)"
+              >
+                <span class="tw-text-success">
+                  <bit-icon slot="start" fixedWidth name="bwi-check" />
+                  {{ "confirm" | i18n }}
+                </span>
+              </button>
+            }
+            @if (row.canConfirm || row.canReinvite || row.canSendInvite) {
+              <bit-menu-divider></bit-menu-divider>
+            }
+            <button
+              type="button"
+              bitMenuItem
+              [attr.id]="'members-v2_menu-item_member-role-' + row.id"
+              (click)="isProcessing() ? null : edit(row, organization, memberTab.Details)"
+            >
+              <bit-icon slot="start" fixedWidth name="bwi-user" />
+              {{ "memberRole" | i18n }}
+            </button>
+            @if (organization.useGroups) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_groups-' + row.id"
+                (click)="isProcessing() ? null : edit(row, organization, memberTab.Groups)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-users" />
+                {{ "groups" | i18n }}
+              </button>
+            }
+            <button
+              type="button"
+              bitMenuItem
+              [attr.id]="'members-v2_menu-item_collections-' + row.id"
+              (click)="isProcessing() ? null : edit(row, organization, memberTab.Collections)"
+            >
+              <bit-icon slot="start" fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" />
+              {{ "collections" | vfo1I18n: "sharedFolders" }}
+            </button>
+            <bit-menu-divider></bit-menu-divider>
+            @if (organization.useEvents && row.status === userStatusType.Confirmed) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_event-logs-' + row.id"
+                (click)="isProcessing() ? null : openEventsDialog(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-file-text" />
+                {{ "eventLogs" | i18n }}
+              </button>
+            }
+            @if (allowResetPassword(row, organization)) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_recover-account-' + row.id"
+                (click)="isProcessing() ? null : resetPassword(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-key" />
+                {{ "recoverAccount" | i18n }}
+              </button>
+            }
+            @if (row.canRestore) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_restore-' + row.id"
+                (click)="isProcessing() ? null : restore(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-plus-circle" />
+                {{ "restoreAccess" | i18n }}
+              </button>
+            }
+            @if (row.canRevoke) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'members-v2_menu-item_revoke-' + row.id"
+                (click)="isProcessing() ? null : revoke(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-minus-circle" />
+                {{ "revokeAccess" | i18n }}
+              </button>
+            }
+            <!-- Claimed members can't be removed, only deleted. -->
+            @if (row.canRemove) {
+              <button
+                type="button"
+                bitMenuItem
+                variant="danger"
+                [attr.id]="'members-v2_menu-item_remove-' + row.id"
+                (click)="isProcessing() ? null : remove(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-close" />
+                {{ "remove" | i18n }}
+              </button>
+            } @else {
+              <button
+                type="button"
+                bitMenuItem
+                variant="danger"
+                [attr.id]="'members-v2_menu-item_delete-' + row.id"
+                (click)="isProcessing() ? null : deleteUser(row, organization)"
+              >
+                <bit-icon slot="start" fixedWidth name="bwi-trash" />
+                {{ "delete" | i18n }}
+              </button>
+            }
+          </bit-menu>
+        </div>
+      }
     </bit-cell>
   </bit-column>
 
   <bit-table-paginator [pageSize]="10" [rangeLabel]="rangeLabel"></bit-table-paginator>
 </bit-table-v2>
+
+<!-- The badges, as a button that opens the edit dialog on `tab` for admins who can manage users. -->
+<ng-template
+  #editableBadges
+  let-row
+  let-names="names"
+  let-tab="tab"
+  let-idName="idName"
+  let-label="label"
+>
+  @if (canManage && organization) {
+    <button
+      type="button"
+      class="tw-flex tw-min-h-6 tw-w-full tw-min-w-0 tw-rounded tw-border-none tw-bg-transparent tw-p-0 tw-text-start focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+      [attr.id]="'members-v2_button_edit-' + idName + '-' + row.id"
+      (click)="edit(row, organization, tab)"
+    >
+      <!-- Names the button when there are no badges to read out. -->
+      @if (names.length === 0) {
+        <span class="tw-sr-only">{{ label }}</span>
+      }
+      <ng-container
+        *ngTemplateOutlet="firstNameBadge; context: { $implicit: names }"
+      ></ng-container>
+    </button>
+  } @else {
+    <ng-container *ngTemplateOutlet="firstNameBadge; context: { $implicit: names }"></ng-container>
+  }
+</ng-template>
 
 <!-- The first name as a badge, then "+N" for the rest. -->
 <ng-template #firstNameBadge let-names>
