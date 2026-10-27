@@ -65,7 +65,13 @@ on first SSO login), the **server** accepts the user into the org as a side
 effect of finishing account setup. The client never re-fires acceptance for
 these users — the cleanup services drop the stashed invite and the deep-link
 redirect URL so the guard doesn't replay the accept route. Applies to both
-invite kinds equally.
+invite kinds equally, with one exception: while the `InviteLinkAutoConfirm`
+feature flag is on, the cleanup services keep a stashed **open** invite and
+its `/join` redirect, so the guard sends the user to
+`AcceptOrgOpenInviteComponent`, which runs the Admin Console accept flow
+(see [Why three cleanup points](#why-three-cleanup-points)). This relies on
+the clients calling the `sso-jit-provision-finish` endpoints so the server
+leaves the open invite user in the Invited state.
 
 Which acceptance path runs depends on the org's configured **member
 decryption option** — the mechanism users employ to decrypt their vaults
@@ -198,7 +204,7 @@ decryption. After SSO they land in a "set initial password" flow.
 6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
-7. Client-side cleanup, in `WebSetInitialPasswordService`, when an invite is stashed (see [Why three cleanup points](#why-three-cleanup-points)):
+7. Client-side cleanup, in `WebSetInitialPasswordService`, when an invite is stashed and is not a kept open invite (see [Why three cleanup points](#why-three-cleanup-points)):
    - `routerService.getAndClearLoginRedirectUrl()` — drops the `/accept-organization` redirect
    - `organizationInviteService.clearOrganizationInvite()` — drops both invite stashes
 8. User lands in `/vault`
@@ -227,7 +233,7 @@ The flow below covers the net-new TDE case:
 3. Server JIT-provisions the user
 4. Client routes through [`LoginDecryptionOptionsComponent`](../../../../../../libs/auth/src/angular/login-decryption-options/login-decryption-options.component.ts) for TDE setup
 5. Server accepts the user into the org during admin-recovery enrollment (see the admin-recovery gloss under "The two acceptance mechanisms")
-6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`, when an invite is stashed:
+6. Client-side cleanup, in `WebLoginDecryptionOptionsService.handleCreateUserSuccess`, when an invite is stashed and is not a kept open invite:
    - `routerService.getAndClearLoginRedirectUrl()`
    - `organizationInviteService.clearOrganizationInvite()`
 7. User completes device-trust setup and lands in `/vault`
@@ -244,7 +250,7 @@ the org's self-hosted Key Connector service; the client never derives an MP.
 4. Client routes to [`ConfirmKeyConnectorDomainComponent`](../../../../../../libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.ts). The JIT-vs-returning branch is driven by `NEW_SSO_USER_KEY_CONNECTOR_CONVERSION` state stashed by `SsoLoginStrategy` when the identity token's wrapped user key is null.
 5. User confirms hostname → `keyConnectorService.convertNewSsoUserToKeyConnector(userId)` POSTs the master-key encryption key to Key Connector, then POSTs the wrapped user key + account keys to Bitwarden via `POST /accounts/set-key-connector-key`.
 6. Server's `SetKeyConnectorKeyCommand` writes the crypto and accepts the user into the org as a side effect (via `AcceptOrgUserByOrgSsoIdAsync`).
-7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override (`onBeforeNavigation`), when an invite is stashed:
+7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override (`onBeforeNavigation`), when an invite is stashed and is not a kept open invite:
    - `routerService.getAndClearLoginRedirectUrl()`
    - `organizationInviteService.clearOrganizationInvite()`
 8. User lands in `/vault`
@@ -257,7 +263,12 @@ override of `ConfirmKeyConnectorDomainComponent` — different services own
 the three account-setup paths.
 
 All three run the same cleanup — `getAndClearLoginRedirectUrl()` plus
-`clearOrganizationInvite()` — and only when an invite is stashed. Every stash
+`clearOrganizationInvite()` — and only when an invite is stashed. The one
+exception: when the `InviteLinkAutoConfirm` feature flag is on and the stashed
+invite is an open invite, all three skip the cleanup. The stashed invite and
+its `/join` redirect survive, so `deepLinkGuard` replays `/join` and
+`AcceptOrgOpenInviteComponent` takes over. Direct invites are still cleaned up
+with the flag on, and open invites are still cleaned up with the flag off. Every stash
 of an invite also persists that invite's accept URL as the login redirect, so
 a stashed invite marks the redirect as the invite's. Without a stashed invite,
 the redirect is an unrelated deep link (e.g. `/settings/account`) that
