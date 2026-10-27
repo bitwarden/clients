@@ -27,6 +27,7 @@ import {
   fromUnstartedApproval,
 } from "../approvals/approver-row";
 import { toManagedLeaseRow } from "../approvals/managed-lease-row";
+import { WithdrawApprovalDialogComponent } from "../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
@@ -109,6 +110,7 @@ describe("ApprovalsTabComponent", () => {
     decide: jest.Mock;
     revokeLease: jest.Mock;
     cancelApproval: jest.Mock;
+    managedRequestParties: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
@@ -212,6 +214,10 @@ describe("ApprovalsTabComponent", () => {
       decide: jest.fn().mockResolvedValue(undefined),
       revokeLease: jest.fn().mockResolvedValue(undefined),
       cancelApproval: jest.fn().mockResolvedValue(undefined),
+      managedRequestParties: jest.fn().mockReturnValue({
+        requesterName: "Grace Hopper",
+        organizationName: "Meridian Group",
+      }),
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -538,19 +544,37 @@ describe("ApprovalsTabComponent", () => {
       expect(inbox.decide).not.toHaveBeenCalled();
     });
 
-    it("withdraws an approval not yet started, once confirmed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
+    it("asks for a reason before withdrawing an approval not yet started, then sends it", async () => {
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, reason: "Approved by mistake" }),
+      } as never);
       inbox.approverRows$.next([ready()]);
       create();
 
       query('[data-testid="approvals-withdraw-req-1"]')?.click();
       await settle();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ title: { key: "pamInboxWithdrawApproval" } }),
-      );
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("req-1");
+      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
+        data: expect.objectContaining({
+          itemName: "Prod database",
+          organizationName: "Meridian Group",
+          collectionName: "Production",
+          requesterName: "Grace Hopper",
+        }),
+      });
+      expect(inbox.cancelApproval).toHaveBeenCalledWith("req-1", "Approved by mistake");
       expect(inbox.revokeLease).not.toHaveBeenCalled();
+    });
+
+    it("does not withdraw the approval when the dialog is dismissed", async () => {
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
+      inbox.approverRows$.next([ready()]);
+      create();
+
+      query('[data-testid="approvals-withdraw-req-1"]')?.click();
+      await settle();
+
+      expect(inbox.cancelApproval).not.toHaveBeenCalled();
     });
 
     it("ends a running lease, once confirmed", async () => {

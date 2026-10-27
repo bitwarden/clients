@@ -336,9 +336,16 @@ export class ApprovalsTabComponent {
     if (row.kind !== "ready" || this.isActing(row)) {
       return;
     }
+    const parties = this.inbox.managedRequestParties(row.id);
     await this.approverActions.withdrawApproval(
-      row.cipherName,
-      () => this.inbox.cancelApproval(row.requestId),
+      {
+        itemName: row.cipherName,
+        organizationName: parties?.organizationName ?? null,
+        collectionName: row.collectionName,
+        requesterName: parties?.requesterName ?? "",
+        cipher: this.cipherFor(row.cipherId),
+      },
+      (reason) => this.inbox.cancelApproval(row.requestId, reason),
       rowBusy(this.acting, row.id),
     );
   }
