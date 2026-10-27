@@ -3,7 +3,14 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Router, Routes, convertToParamMap, provideRouter } from "@angular/router";
+import {
+  ActivatedRoute,
+  Route,
+  Router,
+  Routes,
+  convertToParamMap,
+  provideRouter,
+} from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -1011,7 +1018,7 @@ describe("RotationConfigEditComponent — tab routes", () => {
 
   // Drops route providers and guards, so only the paths under test remain.
   const pathsOnly = (config: Routes): Routes =>
-    config.map((route) => ({
+    config.map((route): Route => ({
       ...route,
       providers: undefined,
       canDeactivate: undefined,
