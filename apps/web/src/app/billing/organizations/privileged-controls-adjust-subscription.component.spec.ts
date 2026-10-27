@@ -31,7 +31,8 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
     interval: "year",
     seatCount: 15,
     maxAutoscaleSeats: undefined,
-    seatMinimum: 10,
+    passwordManagerSeats: 20,
+    passwordManagerMaxAutoscaleSeats: undefined,
     seatPrice: 5,
     ...overrides,
   });
@@ -135,28 +136,25 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
     });
   });
 
-  describe("seat floor", () => {
-    it("rejects reductions below the seat minimum", async () => {
-      await render(buildOptions({ seatCount: 15, seatMinimum: 10 }));
+  describe("seat cap", () => {
+    it("requires at least one seat", async () => {
+      await render(buildOptions({ seatCount: 15 }));
 
-      setValue({ seatCount: 9 });
+      setValue({ seatCount: 0 });
       expect(formGroup().controls.seatCount.hasError("min")).toBe(true);
 
-      setValue({ seatCount: 10 });
-      expect(formGroup().controls.seatCount.valid).toBe(true);
-
-      setValue({ seatCount: 20 });
+      setValue({ seatCount: 1 });
       expect(formGroup().controls.seatCount.valid).toBe(true);
     });
 
-    it("allows additions when the organization is below its seat minimum", async () => {
-      await render(buildOptions({ seatCount: 8, seatMinimum: 10 }));
+    it("rejects more seats than the Password Manager seat count", async () => {
+      await render(buildOptions({ seatCount: 15, passwordManagerSeats: 20 }));
 
-      setValue({ seatCount: 9 });
+      setValue({ seatCount: 21 });
+      expect(formGroup().controls.seatCount.hasError("max")).toBe(true);
+
+      setValue({ seatCount: 20 });
       expect(formGroup().controls.seatCount.valid).toBe(true);
-
-      setValue({ seatCount: 7 });
-      expect(formGroup().controls.seatCount.hasError("min")).toBe(true);
     });
 
     it("requires a seat count", async () => {
@@ -177,10 +175,10 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
       });
     });
 
-    it("renders the seat minimum hint", async () => {
-      await render(buildOptions({ seatMinimum: 10 }));
+    it("renders the Password Manager seat count as the maximum hint", async () => {
+      await render(buildOptions({ passwordManagerSeats: 20 }));
 
-      expect(text()).toContain("minimumSeatsCount:10");
+      expect(text()).toContain("maximumSeatsCount:20");
     });
   });
 
@@ -233,6 +231,39 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
       setValue({ seatCount: 21 });
 
       expect(formGroup().controls.maxAutoscaleSeats.hasError("min")).toBe(true);
+    });
+
+    it("forces the seat limit on when Password Manager has a limit", async () => {
+      await render(
+        buildOptions({ maxAutoscaleSeats: undefined, passwordManagerMaxAutoscaleSeats: 30 }),
+      );
+
+      expect(formGroup().getRawValue().limitSeats).toBe(true);
+      expect(formGroup().controls.limitSeats.disabled).toBe(true);
+      expect(formGroup().controls.maxAutoscaleSeats.enabled).toBe(true);
+      expect(formGroup().controls.maxAutoscaleSeats.hasError("required")).toBe(true);
+      expect(component["unchanged"]()).toBe(false);
+      expect(text()).toContain("maximumSeatsCount:30");
+    });
+
+    it("rejects a seat limit above the Password Manager limit", async () => {
+      await render(buildOptions({ maxAutoscaleSeats: 25, passwordManagerMaxAutoscaleSeats: 30 }));
+
+      setValue({ maxAutoscaleSeats: 31 });
+      expect(formGroup().controls.maxAutoscaleSeats.hasError("max")).toBe(true);
+
+      setValue({ maxAutoscaleSeats: 30 });
+      expect(formGroup().controls.maxAutoscaleSeats.valid).toBe(true);
+    });
+
+    it("leaves the seat limit optional when Password Manager has no limit", async () => {
+      await render(buildOptions({ maxAutoscaleSeats: 25 }));
+
+      expect(formGroup().controls.limitSeats.enabled).toBe(true);
+
+      setValue({ limitSeats: false });
+
+      expect(formGroup().valid).toBe(true);
     });
   });
 
@@ -384,7 +415,7 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
 
     it("does not call the server when the form is invalid", async () => {
       await render();
-      setValue({ seatCount: 9 });
+      setValue({ seatCount: 0 });
 
       await submitForm();
 

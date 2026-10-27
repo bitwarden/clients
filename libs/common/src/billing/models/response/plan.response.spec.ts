@@ -3,12 +3,11 @@ import { PlanResponse, PrivilegedControlsPlanFeaturesResponse } from "./plan.res
 describe("PlanResponse", () => {
   it("parses PrivilegedControls when present", () => {
     const response = new PlanResponse({
-      PrivilegedControls: { SeatPrice: 5, DefaultSeatMinimum: 10 },
+      PrivilegedControls: { SeatPrice: 5 },
     });
 
     expect(response.PrivilegedControls).toBeInstanceOf(PrivilegedControlsPlanFeaturesResponse);
     expect(response.PrivilegedControls!.seatPrice).toBe(5);
-    expect(response.PrivilegedControls!.defaultSeatMinimum).toBe(10);
   });
 
   it("leaves PrivilegedControls undefined when absent", () => {
@@ -26,7 +25,7 @@ describe("PlanResponse", () => {
   it("still parses SecretsManager alongside PrivilegedControls", () => {
     const response = new PlanResponse({
       SecretsManager: { StripeSeatPlanId: "sm-seat", SeatPrice: 7, BaseSeats: 1 },
-      PrivilegedControls: { SeatPrice: 5, DefaultSeatMinimum: 10 },
+      PrivilegedControls: { SeatPrice: 5 },
     });
 
     expect(response.SecretsManager.stripeSeatPlanId).toBe("sm-seat");

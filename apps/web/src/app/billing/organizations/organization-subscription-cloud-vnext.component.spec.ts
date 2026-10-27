@@ -151,7 +151,6 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       smServiceAccountsGrace: 0,
       pamSeats: 15,
       maxAutoscalePamSeats: undefined,
-      pamSeatMinimum: 10,
       isOnPamSalesInitiatedTrial: false,
       customerDiscount: null,
       plan: {
@@ -172,7 +171,6 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         },
         PrivilegedControls: {
           seatPrice: 5,
-          defaultSeatMinimum: 10,
         },
       },
       subscription: {
@@ -1057,32 +1055,23 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.privilegedControlsOptions()).toEqual({
         seatCount: 15,
         maxAutoscaleSeats: 25,
-        seatMinimum: 10,
+        passwordManagerSeats: 10,
+        passwordManagerMaxAutoscaleSeats: 20,
         seatPrice: 5,
         interval: "year",
       });
     });
 
-    it("prefers the organization's seat minimum over the plan default", async () => {
+    it("passes no Password Manager limit when the organization has none", async () => {
       createComponent({
-        subscription: buildSubscriptionResponse({ pamSeatMinimum: 5 }),
+        subscription: buildSubscriptionResponse({ maxAutoscaleSeats: null as unknown as number }),
         detectChanges: true,
       });
       await fixture.whenStable();
 
-      expect(component.privilegedControlsOptions()?.seatMinimum).toBe(5);
-    });
-
-    it("falls back to the plan's default seat minimum", async () => {
-      const subscription = buildSubscriptionResponse({ pamSeatMinimum: undefined });
-      subscription.plan = {
-        ...subscription.plan,
-        PrivilegedControls: { ...subscription.plan.PrivilegedControls!, defaultSeatMinimum: 12 },
-      } as any;
-      createComponent({ subscription, detectChanges: true });
-      await fixture.whenStable();
-
-      expect(component.privilegedControlsOptions()?.seatMinimum).toBe(12);
+      expect(
+        component.privilegedControlsOptions()?.passwordManagerMaxAutoscaleSeats,
+      ).toBeUndefined();
     });
 
     it("uses a monthly interval for a monthly plan", async () => {

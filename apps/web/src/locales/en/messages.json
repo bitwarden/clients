@@ -7509,8 +7509,8 @@
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
   },
-  "minimumSeatsCount": {
-    "message": "Minimum $COUNT$ seats",
+  "maximumSeatsCount": {
+    "message": "Maximum $COUNT$ seats",
     "placeholders": {
       "count": {
         "content": "$1",

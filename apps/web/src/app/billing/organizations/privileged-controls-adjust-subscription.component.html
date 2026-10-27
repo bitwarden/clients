@@ -7,10 +7,11 @@
       formControlName="seatCount"
       type="number"
       step="1"
-      [min]="seatFloor()"
+      [min]="1"
+      [max]="options().passwordManagerSeats"
     />
     <bit-hint>
-      <div>{{ "minimumSeatsCount" | i18n: options().seatMinimum }}</div>
+      <div>{{ "maximumSeatsCount" | i18n: options().passwordManagerSeats }}</div>
       <div>
         <strong>{{ "total" | i18n }}:</strong>
         {{ formValue().seatCount ?? 0 }} &times; {{ options().seatPrice | currency: "$" }} =
@@ -38,8 +39,12 @@
         type="number"
         step="1"
         [min]="formValue().seatCount"
+        [max]="options().passwordManagerMaxAutoscaleSeats ?? null"
       />
       <bit-hint>
+        @if (limitRequired()) {
+          <div>{{ "maximumSeatsCount" | i18n: options().passwordManagerMaxAutoscaleSeats }}</div>
+        }
         <strong>{{ "maxSeatCost" | i18n }}:</strong>
         {{ formValue().maxAutoscaleSeats ?? 0 }} &times; {{ options().seatPrice | currency: "$" }} =
         {{ maxSeatTotalCost() | currency: "$" }} / {{ options().interval | i18n }}

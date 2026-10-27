@@ -22,7 +22,6 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   pamSeats?: number;
   maxAutoscalePamSeats?: number;
   isOnPamSalesInitiatedTrial?: boolean;
-  pamSeatMinimum?: number;
 
   constructor(response: any) {
     super(response);
@@ -49,7 +48,6 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
     this.maxAutoscalePamSeats = this.getResponseProperty("MaxAutoscalePamSeats") ?? undefined;
     this.isOnPamSalesInitiatedTrial =
       this.getResponseProperty("IsOnPamSalesInitiatedTrial") ?? undefined;
-    this.pamSeatMinimum = this.getResponseProperty("PamSeatMinimum") ?? undefined;
   }
 }
 

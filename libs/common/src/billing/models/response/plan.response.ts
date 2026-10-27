@@ -76,12 +76,10 @@ export class PlanResponse extends BaseResponse {
 
 export class PrivilegedControlsPlanFeaturesResponse extends BaseResponse {
   seatPrice: number;
-  defaultSeatMinimum: number;
 
   constructor(response: any) {
     super(response);
     this.seatPrice = this.getResponseProperty("SeatPrice");
-    this.defaultSeatMinimum = this.getResponseProperty("DefaultSeatMinimum");
   }
 }
 

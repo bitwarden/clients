@@ -37,7 +37,8 @@ export interface PrivilegedControlsSubscriptionOptions {
   interval: "year" | "month";
   seatCount: number;
   maxAutoscaleSeats: number | undefined;
-  seatMinimum: number;
+  passwordManagerSeats: number;
+  passwordManagerMaxAutoscaleSeats: number | undefined;
   seatPrice: number;
 }
 
@@ -76,8 +77,8 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
     { initialValue: this.formGroup.getRawValue() },
   );
 
-  protected readonly seatFloor = computed(() =>
-    Math.min(this.options().seatMinimum, this.options().seatCount),
+  protected readonly limitRequired = computed(
+    () => this.options().passwordManagerMaxAutoscaleSeats != null,
   );
 
   protected readonly seatTotalCost = computed(
@@ -102,8 +103,7 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
   constructor() {
     effect(() => {
       const options = this.options();
-      const seatFloor = this.seatFloor();
-      untracked(() => this.resetForm(options, seatFloor));
+      untracked(() => this.resetForm(options));
     });
 
     this.formGroup.valueChanges
@@ -136,17 +136,24 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
     this.adjusted.emit();
   };
 
-  private resetForm(options: PrivilegedControlsSubscriptionOptions, seatFloor: number) {
+  private resetForm(options: PrivilegedControlsSubscriptionOptions) {
+    const limitRequired = options.passwordManagerMaxAutoscaleSeats != null;
     this.formGroup.controls.seatCount.setValidators([
       Validators.required,
-      Validators.min(seatFloor),
+      Validators.min(1),
+      Validators.max(options.passwordManagerSeats),
       this.wholeNumberValidator,
     ]);
     this.formGroup.patchValue({
       seatCount: options.seatCount,
-      limitSeats: options.maxAutoscaleSeats != null,
+      limitSeats: limitRequired || options.maxAutoscaleSeats != null,
       maxAutoscaleSeats: options.maxAutoscaleSeats ?? null,
     });
+    if (limitRequired) {
+      this.formGroup.controls.limitSeats.disable({ emitEvent: false });
+    } else {
+      this.formGroup.controls.limitSeats.enable({ emitEvent: false });
+    }
   }
 
   private updateSeatLimitControl() {
@@ -154,9 +161,11 @@ export class PrivilegedControlsAdjustSubscriptionComponent {
     const control = this.formGroup.controls.maxAutoscaleSeats;
 
     if (limitSeats) {
+      const passwordManagerLimit = this.options().passwordManagerMaxAutoscaleSeats;
       control.setValidators([
         Validators.required,
         Validators.min(seatCount ?? 0),
+        ...(passwordManagerLimit == null ? [] : [Validators.max(passwordManagerLimit)]),
         this.wholeNumberValidator,
       ]);
       control.enable({ emitEvent: false });

@@ -503,7 +503,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
       return {
         seatCount: sub.pamSeats,
         maxAutoscaleSeats: sub.maxAutoscalePamSeats,
-        seatMinimum: sub.pamSeatMinimum ?? privilegedControls.defaultSeatMinimum,
+        passwordManagerSeats: sub.seats,
+        passwordManagerMaxAutoscaleSeats: sub.maxAutoscaleSeats ?? undefined,
         seatPrice: privilegedControls.seatPrice,
         interval: plan.isAnnual ? "year" : "month",
       };
