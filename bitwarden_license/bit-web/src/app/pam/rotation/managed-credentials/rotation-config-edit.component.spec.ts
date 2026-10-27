@@ -18,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, TabsModule, ToastService } from "@bitwarden/components";
+import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import { OrgCiphersService } from "../org-ciphers.service";
@@ -158,7 +159,7 @@ function setup(options: SetupOptions = {}) {
   const orgCiphersService = {
     ciphers$: new BehaviorSubject([] as CipherView[]),
     editableCiphers$: new BehaviorSubject([] as CipherView[]),
-    cipherNameById$: new BehaviorSubject(new Map<string, string>()),
+    cipherNameById$: new BehaviorSubject(new Map<CipherId, string>()),
     loading$: new BehaviorSubject(false),
     load: jest.fn().mockResolvedValue(undefined),
   };
@@ -526,6 +527,27 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     const { fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
     expect(rotationSdk.getConfig).toHaveBeenCalledWith(ORG_ID, configId("cfg-1"));
+  });
+
+  it("loads the org's ciphers on init, to name the config's vault item", async () => {
+    const { fixture, orgCiphersService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    expect(orgCiphersService.load).toHaveBeenCalledWith(ORG_ID);
+  });
+
+  it("shows the vault item's name, not its id, under Credential", async () => {
+    const { fixture, orgCiphersService } = setup({
+      configId: configId("cfg-1"),
+      existingConfig: loadedConfig({ cipherId: CIPHER_ID }),
+      template: "real",
+    });
+    orgCiphersService.cipherNameById$.next(new Map([[CIPHER_ID, "Prod DB service account"]]));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    expect(text).toContain("Prod DB service account");
+    expect(text).not.toContain(String(CIPHER_ID));
   });
 
   it("patches settingsForm from the loaded config", async () => {

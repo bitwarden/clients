@@ -166,6 +166,18 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   private readonly config = computed(() => this.existingConfig()?.config ?? null);
 
+  private readonly cipherNameById = toSignal(this.orgCiphersService.cipherNameById$, {
+    initialValue: new Map<CipherId, string>(),
+  });
+
+  /** The vault item's name, or its id when the item isn't among the org's loaded ciphers. */
+  protected readonly cipherName = computed(() => {
+    const config = this.config();
+    return config == null
+      ? ""
+      : (this.cipherNameById().get(config.cipherId) ?? String(config.cipherId));
+  });
+
   /** `true` once loaded if the blob failed to verify — a config always has one, unlike a target. */
   protected readonly configSealUnverified = computed(
     () => this.config() != null && this.config()?.sealed == null,
@@ -297,6 +309,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     const [detail] = await Promise.all([
       this.rotationSdk.getConfig(this.organizationId, this.configId!),
       this.targetSystemsService.load(this.organizationId),
+      this.orgCiphersService.load(this.organizationId),
     ]);
     this.existingConfig.set(detail);
     this.settingsForm.patchValue({
