@@ -8,6 +8,7 @@ import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { limitPerformanceMeasurements } from "@bitwarden/logging";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
@@ -34,6 +35,7 @@ export class InitService {
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations

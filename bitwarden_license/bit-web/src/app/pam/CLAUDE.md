@@ -9,10 +9,10 @@ create/edit page, and the IP-allowlist editor. Gated behind `FeatureFlag.Pam`
 - `abstractions/` / `helpers/` — framework-agnostic contract layer: domain
   types and error helpers (`abstractions/access-rule.ts`), the abstract
   `AccessRuleSdkService` contract (`abstractions/access-rule-sdk.service.ts`),
-  and pure helpers (`helpers/`). Re-exported via `index.ts`. No Angular APIs
-  here; keep it that way so this stays unit-testable without a TestBed. Was
-  its own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was
-  its only consumer.
+  and pure helpers (`helpers/`). Re-exported via `index.ts`. No Angular
+  runtime APIs here; keep it that way so this stays unit-testable without a
+  TestBed. Type-only imports of component-library option shapes (e.g.
+  `SimpleDialogOptions`) are fine, since they are erased at compile time.
 - `access-rules/` — list (`access-rules.component` + `.service`) and the
   routed create/edit page (`access-rule-edit.component`), at `access-rules`,
   `access-rules/new`, `access-rules/:accessRuleId`.
@@ -51,6 +51,11 @@ unit tests. Keep new re-exports of SDK shapes type-only for the same reason.
 `access-rules` additionally requires `organizationPermissionsGuard((org) =>
 org.canManageAccessRules)`. Mounting this module (`organizations-routing.module.ts`)
 and calling `providePam()` from `app.module.ts` happen elsewhere.
+
+Routed edit pages take `canDeactivate: [unsavedChangesDialogGuard]` (`unsaved-changes.guard.ts`)
+and implement `HasUnsavedChangesDialog`: `unsavedChanges()` returns `false`, `true` for the
+default discard dialog, or options overriding it. Cancel just navigates and lets the guard ask.
+The guard stands down on lock and logout.
 
 `provide-pam.ts` binds `AccessRuleSdkService` (`./index`) to
 `AccessRulesSdkService`, which serves CRUD via the Rust SDK's

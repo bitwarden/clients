@@ -209,6 +209,11 @@ export const NestedGroups: StoryObj<NavGroupComponent> = {
   }),
 };
 
+export const NestedGroupsVfo1: StoryObj<NavGroupComponent> = {
+  ...NestedGroups,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const ForcedActive: StoryObj<NavGroupComponent> = {
   render: (args) => ({
     props: args,

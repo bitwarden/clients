@@ -64,7 +64,7 @@ type UsersRow = { id: number; name: string; email: string; starred: boolean };
     <bit-column sortable>
       <bit-header-cell>Status</bit-header-cell>
       <bit-cell *bitCellDef="table().columns.other; let row">
-        <span class="tw-rounded tw-bg-primary-100 tw-px-2 tw-py-0.5 tw-text-xs">
+        <span class="tw-rounded tw-bg-bg-brand-soft tw-px-2 tw-py-0.5 tw-text-xs">
           {{ row.other }}
         </span>
       </bit-cell>
@@ -791,7 +791,7 @@ class DemoSearchableTableComponent {
   ],
   template: `
     <bit-layout>
-      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-main">{{ url() }}</p>
+      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-fg-heading">{{ url() }}</p>
       <bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
@@ -1926,6 +1926,33 @@ export const FillPageResizedViewport: Story = {
           </bit-table-v2>
         </bit-page>
       </bit-layout>
+    `,
+  }),
+};
+
+/**
+ * A crowded `fill` table keeps a minimum height instead of shrinking, and the frame scrolls to
+ * reach it. The header keeps its full height; the empty state scrolls beneath it.
+ */
+export const FillCrowdedEmpty: Story = {
+  render: () => ({
+    props: { table: emptyTable },
+    template: `
+      <div class="tw-flex tw-flex-col tw-overflow-auto" style="height: 480px">
+        <div class="tw-mb-4 tw-flex tw-h-96 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-bg-secondary">
+          Content above the table
+        </div>
+        <bit-table-v2 [tableDef]="table" height="fill">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      </div>
     `,
   }),
 };

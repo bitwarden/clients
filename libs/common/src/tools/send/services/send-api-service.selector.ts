@@ -31,7 +31,9 @@ import { SendSdkApiService } from "./send-sdk-api.service";
  * A "cross-instance Send" is a Send hosted on a different Bitwarden server than the client is
  * signed in to — typically the CLI receiving a self-hosted or EU-cloud Send link. Callers signal
  * this by passing `apiUrl`; those calls always route to legacy regardless of the flag, since the
- * SDK client only targets its own configured environment.
+ * SDK client only targets its own configured environment. With the flag on, the CLI's receive
+ * command bypasses this service for cross-instance Sends and uses a receive-scoped SDK client
+ * (`SendReceiveClient`) pointed at the Send's server instead.
  */
 export class SendApiServiceSelector implements SendApiServiceAbstraction {
   private readonly service$: Observable<SendApiServiceAbstraction>;

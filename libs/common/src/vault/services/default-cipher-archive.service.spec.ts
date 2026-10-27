@@ -231,6 +231,22 @@ describe("DefaultCipherArchiveService", () => {
         true,
       );
     });
+
+    it("archives a restricted cipher, since archive is a user field", async () => {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
+      );
+
+      await service.archiveWithServer(cipherId, userId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/ciphers/archive",
+        expect.any(CipherBulkArchiveRequest),
+        true,
+        true,
+      );
+    });
   });
 
   describe("unarchiveWithServer", () => {
@@ -289,6 +305,22 @@ describe("DefaultCipherArchiveService", () => {
         expect.objectContaining({
           ids: cipherIds,
         }),
+        true,
+        true,
+      );
+    });
+
+    it("unarchives a restricted cipher, since archive is a user field", async () => {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({ [cipherId]: { id: cipherId, partialData: "{}" } as any }),
+      );
+
+      await service.unarchiveWithServer(cipherId, userId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/ciphers/unarchive",
+        expect.any(CipherBulkUnarchiveRequest),
         true,
         true,
       );

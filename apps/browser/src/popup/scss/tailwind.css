@@ -101,25 +101,6 @@
 }
 
 @layer components {
-  /** Safari Support */
-  html.browser_safari .tw-styled-scrollbar::-webkit-scrollbar {
-    @apply tw-overflow-auto;
-  }
-  html.browser_safari .tw-styled-scrollbar::-webkit-scrollbar-thumb {
-    @apply tw-bg-secondary-500 tw-rounded-lg tw-border-4 tw-border-solid tw-border-transparent tw-bg-clip-content;
-  }
-  html.browser_safari .tw-styled-scrollbar::-webkit-scrollbar-track {
-    @apply tw-bg-background-alt;
-  }
-  html.browser_safari .tw-styled-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply tw-bg-secondary-600;
-  }
-
-  /* FireFox & Chrome support */
-  html:not(.browser_safari) .tw-styled-scrollbar {
-    scrollbar-color: rgb(var(--color-secondary-500)) rgb(var(--color-background-alt));
-  }
-
   #web-authn-frame {
     width: 100%;
     height: 40px;
@@ -149,7 +130,7 @@
     height: 100%;
     width: 100%;
 
-    @apply tw-text-muted;
+    @apply tw-text-fg-body-subtle;
   }
 
   /**

@@ -1,7 +1,18 @@
 import { PositionIdentifier } from "@bitwarden/components";
 
 /** Identifies a specific step in the coachmark tour */
-export type CoachmarkStepId = "importData" | "addItem" | "shareWithCollections" | "monitorSecurity";
+export type CoachmarkStepId =
+  | "importData"
+  | "addItem"
+  | "shareWithCollections"
+  | "monitorSecurity"
+  | "switchProducts"
+  | "vaultList"
+  /** Used by the VFO1 walkthrough and extension vault tour. The new-user tour uses `shareWithCollections`. */
+  | "sharedFolders"
+  | "filters"
+  //extension vault tour
+  | "switchVaults";
 
 /** Configuration for a single coachmark step */
 export interface CoachmarkStep {

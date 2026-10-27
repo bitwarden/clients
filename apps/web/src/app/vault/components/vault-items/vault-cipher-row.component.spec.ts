@@ -211,6 +211,45 @@ describe("VaultCipherRowComponent", () => {
     });
   });
 
+  describe("showFavorite", () => {
+    let cipher: CipherView;
+
+    beforeEach(() => {
+      cipher = new CipherView();
+      cipher.id = "cipher-1";
+      cipher.name = "Test Cipher";
+      cipher.type = CipherType.Login;
+      cipher.deletedDate = null;
+      cipher.archivedDate = null;
+
+      component.cipher = cipher;
+      component.viewingOrgVault = false;
+    });
+
+    it("returns true in the individual vault", () => {
+      expect(component["showFavorite"]).toBe(true);
+    });
+
+    it("returns false when viewing the org vault", () => {
+      component.viewingOrgVault = true;
+
+      expect(component["showFavorite"]).toBe(false);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      cipher.deletedDate = new Date();
+
+      expect(component["showFavorite"]).toBe(false);
+    });
+
+    it("returns false when cipher is archived and user cannot archive", () => {
+      cipher.archivedDate = new Date();
+      component.userCanArchive = false;
+
+      expect(component["showFavorite"]).toBe(false);
+    });
+  });
+
   describe("lease badge slot (VAULT_ROW_LEASE_BADGE)", () => {
     async function setupBadge(provideBadge: boolean): Promise<void> {
       TestBed.resetTestingModule();

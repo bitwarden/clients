@@ -72,16 +72,8 @@ import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.
 import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
-import { AttachmentRequest } from "../vault/models/request/attachment.request";
-import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
-import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherRequest } from "../vault/models/request/cipher.request";
-import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
@@ -172,63 +164,18 @@ export abstract class ApiService {
     attachmentId: string,
     emergencyAccessId?: string,
   ): Promise<AttachmentResponse>;
-  abstract getAttachmentDataAdmin(
-    cipherId: string,
-    attachmentId: string,
-  ): Promise<AttachmentResponse>;
-  abstract getCiphersOrganization(
-    organizationId: string,
-    includeMemberItems?: boolean,
-  ): Promise<ListResponse<CipherResponse>>;
-  abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
-  abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;
-  abstract postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse>;
-  abstract putCipher(id: string, request: CipherRequest): Promise<CipherResponse>;
-  abstract putPartialCipher(id: string, request: CipherPartialRequest): Promise<CipherResponse>;
-  abstract putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse>;
   abstract deleteCipher(id: string): Promise<any>;
-  abstract deleteCipherAdmin(id: string): Promise<any>;
-  abstract deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,
   ): Promise<any>;
-  abstract putDeleteCipher(id: string): Promise<any>;
-  abstract putDeleteCipherAdmin(id: string): Promise<any>;
-  abstract putDeleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putRestoreCipher(id: string): Promise<CipherResponse>;
-  abstract putRestoreCipherAdmin(id: string): Promise<CipherResponse>;
-  abstract putRestoreManyCiphers(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>>;
-  abstract putRestoreManyCiphersAdmin(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>>;
 
-  abstract postCipherAttachment(
-    id: string,
-    request: AttachmentRequest,
-  ): Promise<AttachmentUploadDataResponse>;
-  abstract deleteCipherAttachment(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse>;
-  abstract deleteCipherAttachmentAdmin(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse>;
   abstract postShareCipherAttachment(
     id: string,
     attachmentId: string,
     data: FormData,
     organizationId: string,
   ): Promise<any>;
-  abstract renewAttachmentUploadUrl(
-    id: string,
-    attachmentId: string,
-  ): Promise<AttachmentUploadDataResponse>;
   abstract postAttachmentFile(
     id: string,
     attachmentId: string,

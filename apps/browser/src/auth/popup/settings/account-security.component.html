@@ -55,7 +55,13 @@
                 !(sharedUnlockFeatureEnabled$ | async)
               "
             >
-              <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
+              <input
+                bitCheckbox
+                id="pin"
+                type="checkbox"
+                formControlName="pin"
+                data-testid="account-security-pin-checkbox"
+              />
               <bit-label for="pin" class="tw-whitespace-normal">{{
                 "unlockWithPin" | i18n
               }}</bit-label>
@@ -85,6 +91,7 @@
                   id="allowSharingUnlockStateWithDesktop"
                   type="checkbox"
                   formControlName="allowSharingUnlockStateWithDesktop"
+                  data-testid="account-security-desktop-sync-checkbox"
                 />
                 <bit-label for="allowSharingUnlockStateWithDesktop" class="tw-whitespace-normal">
                   {{ "syncUnlockWithDesktop" | i18n }}
@@ -101,6 +108,7 @@
                   id="allowSharingUnlockStateWithWeb"
                   type="checkbox"
                   formControlName="allowSharingUnlockStateWithWeb"
+                  data-testid="account-security-web-sync-checkbox"
                 />
                 <bit-label for="allowSharingUnlockStateWithWeb" class="tw-whitespace-normal">
                   {{ "syncUnlockWithWeb" | i18n }}

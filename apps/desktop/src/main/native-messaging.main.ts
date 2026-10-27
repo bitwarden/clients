@@ -17,6 +17,7 @@ import { ipc, windows_registry } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../utils";
 
+import { isWindowsStore } from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 export class NativeMessagingMain {
@@ -182,10 +183,12 @@ export class NativeMessagingMain {
   }
 
   async generateManifests() {
-    const binaryPath = this.binaryPath();
-    if (!existsSync(binaryPath)) {
-      throw new Error(`Unable to find proxy binary: ${binaryPath}`);
+    const proxyPath = this.binaryPath();
+    if (!existsSync(proxyPath)) {
+      throw new Error(`Unable to find proxy binary: ${proxyPath}`);
     }
+    // Browsers may not launch executables inside the Appx, only its execution aliases.
+    const binaryPath = isWindowsStore() ? this.appxProxyAliasPath() : proxyPath;
 
     // When debugging against a dedicated chrome profile, only that profile gets a
     // manifest, so the real browser installs are left untouched.
@@ -196,7 +199,7 @@ export class NativeMessagingMain {
 
     switch (process.platform) {
       case "win32": {
-        const destination = path.join(this.userPath, "browsers");
+        const destination = this.windowsManifestDirectory();
         await this.writeManifest(
           path.join(destination, "firefox.json"),
           await this.generateFirefoxJson(binaryPath),
@@ -381,8 +384,9 @@ export class NativeMessagingMain {
   async removeManifests() {
     switch (process.platform) {
       case "win32": {
-        await this.removeIfExists(path.join(this.userPath, "browsers", "firefox.json"));
-        await this.removeIfExists(path.join(this.userPath, "browsers", "chrome.json"));
+        const destination = this.windowsManifestDirectory();
+        await this.removeIfExists(path.join(destination, "firefox.json"));
+        await this.removeIfExists(path.join(destination, "chrome.json"));
 
         const nmhs = this.getWindowsNMHS();
         for (const [, [key, subkey]] of Object.entries(nmhs)) {
@@ -652,6 +656,40 @@ export class NativeMessagingMain {
     }
 
     return path.join(path.dirname(this.exePath), `desktop_proxy${ext}`);
+  }
+
+  /**
+   * Where the manifests the registry points browsers at are written.
+   *
+   * The Appx's writes to new AppData folders are redirected into the package, where browsers
+   * looking at the original path won't find them. So the Appx writes them into its package folder
+   * directly, and registers that path. Its install directory is named for the package full name,
+   * `<name>_<version>_<arch>_<resourceId>_<publisherId>`, and its family name is
+   * `<name>_<publisherId>`.
+   */
+  private windowsManifestDirectory() {
+    if (!isWindowsStore()) {
+      return path.join(this.userPath, "browsers");
+    }
+
+    const [, name, publisherId] = process.resourcesPath.match(
+      /\\WindowsApps\\([^_\\]+)_[^\\]*_([^_\\]+)\\/,
+    );
+    return path.join(
+      process.env.LOCALAPPDATA,
+      "Packages",
+      `${name}_${publisherId}`,
+      "LocalState",
+      "browsers",
+    );
+  }
+
+  /** The proxy's execution alias, as declared in custom-appx-extensions.*.xml. */
+  private appxProxyAliasPath() {
+    const alias = process.resourcesPath.includes("8bitSolutionsLLC.BitwardenBeta_")
+      ? "bitwarden_beta_desktop_proxy.exe"
+      : "bitwarden_desktop_proxy.exe";
+    return path.join(process.env.LOCALAPPDATA, "Microsoft", "WindowsApps", alias);
   }
 
   private homedir() {

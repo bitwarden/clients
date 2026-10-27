@@ -230,12 +230,17 @@ export default class RuntimeBackground {
         }
         break;
       }
-      case AutofillMessageCommand.pageTransitionDetected:
+      case AutofillMessageCommand.pageTransitionDetected: {
         // A page-lifecycle monitor reports a transition as a fact. The service
         // buffers it against monitoring state and `AutofillOrchestrator` decides whether
         // it warrants a collection.
-        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, sender.url);
+        //
+        // The frame's live URL is reported because a same-document navigation leaves
+        // `sender.url` pinned to the URL the frame was committed at.
+        const frameUrl = await BrowserApi.getSenderFrameUrl(sender);
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, frameUrl);
         break;
+      }
       case BiometricsCommands.AuthenticateWithBiometrics: {
         return await this.main.biometricsService.authenticateWithBiometrics();
       }
@@ -261,7 +266,9 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        const senderURL = await this.resolveSenderFrameUrl(sender);
+        // Rules are matched against the sender frame's URL rather than the tab's to minimize
+        // selector collisions between frames with similar in-frame markup.
+        const senderURL = await BrowserApi.getSenderFrameUrl(sender);
         const targetingRulesForUrl =
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
 
@@ -301,34 +308,6 @@ export default class RuntimeBackground {
         break;
       }
     }
-  }
-
-  /** Resolves the URL currently loaded in the frame a message came from. */
-  private async resolveSenderFrameUrl(
-    sender: chrome.runtime.MessageSender,
-  ): Promise<string | undefined> {
-    const tabId = sender.tab?.id;
-    const frameId = sender.frameId;
-
-    if (tabId != null && frameId != null) {
-      // `frame.url` takes precedence over `tab.url` to minimize selector
-      // collisions between frames with similar in-frame markup. `frame.url`
-      // takes precedence over `sender.url` because the sender's value is pinned
-      // to the frame URI when the port was opened.
-      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
-        .then((frame) => frame?.url)
-        .catch((): undefined => undefined);
-
-      if (frameUrl) {
-        return frameUrl;
-      }
-    }
-
-    if (frameId === 0 && sender.tab?.url) {
-      return sender.tab.url;
-    }
-
-    return sender.url ?? sender.tab?.url;
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(

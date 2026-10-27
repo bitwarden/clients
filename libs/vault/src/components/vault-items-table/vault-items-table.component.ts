@@ -55,6 +55,7 @@ import {
   IconTileComponent,
   IconTileOptions,
   LinkModule,
+  PopoverService,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -84,6 +85,8 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 import { VaultItem } from "../vault-item";
 import {
@@ -223,6 +226,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     BitTableV2Component,
     ButtonModule,
     ChipGroupComponent,
+    CoachmarkComponent,
     EmptyVaultComponent,
     FilterMenuModule,
     I18nPipe,
@@ -351,6 +355,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The account's active My vault items, which an org page's rows leave out. */
   readonly myVaultItemCount = input(0);
 
+  /** The user's own folder the current vault scope names. */
+  readonly folderName = input<string>();
+
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 
@@ -437,6 +444,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
+   *  - My folders is omitted on a folder's own page, where it would only repeat the folder
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -445,6 +453,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
+    }
+    if (!this.showMyFolders()) {
+      hidden.add("myFolders");
     }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
@@ -478,6 +489,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly favoritesDisabledTooltip = computed(() =>
     this.noFavorites() ? this.i18nService.t("favoritesFilterTooltip") : "",
   );
+
+  protected readonly showMyFolders = computed(() => this.scope()?.type !== VaultScopeType.Folder);
 
   /** Whether the My folders chip has nothing to offer — see {@link noFavorites}. */
   protected readonly noFolders = computed(() => this.folders().length === 0);
@@ -819,6 +832,28 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * memoized search result has to be computed outside the per-row call.
    */
   private readonly tableComponent = viewChild(BitTableV2Component<C>);
+
+  private readonly coachmark = inject(CoachmarkService);
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild<CoachmarkComponent>("filtersCoachmark");
+
+  /** Spotlights the filter chips, or the filter button when collapsed, during the walkthrough's filters step. */
+  private readonly showFiltersCoachmark = effect((onCleanup) => {
+    const popover = this.filtersCoachmark()?.popover();
+    const toolbar = this.toolbar();
+    if (!popover || !toolbar || !this.coachmark.isStepActive("filters")) {
+      return;
+    }
+
+    const anchor = computed(() => toolbar.filterChips() ?? toolbar.filterButton());
+    const ref = this.popoverService.open(popover, anchor, {
+      spotlight: true,
+      closeOnBackdropClick: false,
+      position: this.coachmark.getStepPosition("filters"),
+    });
+    onCleanup(() => ref.close());
+  });
 
   /**
    * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking

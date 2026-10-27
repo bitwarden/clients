@@ -1,4 +1,5 @@
 import { Component, inject } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
@@ -17,8 +18,15 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
+import {
+  ALL_ITEMS_SCOPE,
+  parseVaultScope,
+  VAULT_BASE_ROUTE,
+  vaultScopeCommands,
+} from "@bitwarden/vault";
 
 import { HealthAccessService } from "../dirt/health/popup/services/health-access.service";
+import { VaultPopupListTableFiltersService } from "../vault/popup/services/vault-popup-list-table-filters.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -36,6 +44,8 @@ export class TabsV2Component {
 
   private sendPolicyService = inject(SendPolicyService);
   private healthAccessService = inject(HealthAccessService);
+  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
+  private readonly vaultBasePath = inject(VAULT_BASE_ROUTE);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   private hasActiveBadges$ = this.userId$.pipe(
@@ -59,12 +69,15 @@ export class TabsV2Component {
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
     this.healthNavButton$.pipe(startWith(undefined)),
+    toObservable(this.listFiltersService.cachedVaultScopeId).pipe(startWith(null)),
   ]).pipe(
-    map(([showBerry, sendEnabled, healthNavButton]) => {
+    map(([showBerry, sendEnabled, healthNavButton, scopeId]) => {
+      const scope = parseVaultScope(scopeId) ?? ALL_ITEMS_SCOPE;
+      const vaultPage = vaultScopeCommands(scope, this.vaultBasePath).join("/");
       const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
-          page: "/tabs/vault",
+          page: vaultPage,
           icon: VaultInactive,
           iconActive: VaultActive,
         },
