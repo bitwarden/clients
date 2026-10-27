@@ -20,7 +20,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -62,8 +62,11 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
   priority = 30;
   component = SendControlsPolicyComponent;
 
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.SendControls);
+  override display$(
+    _organization: Organization,
+    _configService: ConfigService,
+  ): Observable<boolean> {
+    return of(true);
   }
 
   override enabled(policy: PolicyResponse | PolicyStatusResponse): boolean {

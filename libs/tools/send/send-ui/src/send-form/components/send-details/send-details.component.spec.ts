@@ -8,7 +8,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -75,12 +74,7 @@ describe("SendDetailsComponent", () => {
       getSendUrl: () => "https://send.bitwarden.com/",
     } as any);
     mockAccountService.activeAccount$ = of({ id: "userId" } as Account);
-    mockConfigService.getFeatureFlag$.mockImplementation((key) => {
-      if (key === FeatureFlag.SendControls) {
-        return of(true);
-      }
-      return of(false);
-    });
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
     mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
     mockBillingStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
