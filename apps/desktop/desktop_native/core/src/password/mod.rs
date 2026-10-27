@@ -19,6 +19,10 @@ use anyhow::Result;
 /// Error message returned when a password is not found in the system keychain.
 pub const PASSWORD_NOT_FOUND: &str = "Password not found.";
 
+// Plaintext secrets must never ship. Guards against e.g. `--all-features` in a release build.
+#[cfg(all(not(debug_assertions), feature = "file_secure_storage"))]
+compile_error!("File secure storage is only available in debug builds");
+
 /// Env var holding the path of the debug password file.
 #[cfg(feature = "file_secure_storage")]
 const DEBUG_FILE_ENV: &str = "BITWARDEN_SECURE_STORAGE_FILE";
