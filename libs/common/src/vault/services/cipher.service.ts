@@ -117,7 +117,7 @@ export class CipherService implements CipherServiceAbstraction {
    * Keep this the only full-view decrypt subscription so decryption, the decrypted-cipher cache
    * and the overlay refresh run once.
    */
-  private cipherViewsWithPartials$ = perUserCache$(
+  protected cipherViewsWithPartials$ = perUserCache$(
     (userId: UserId): Observable<CipherView[] | null> => {
       return combineLatest([
         this.encryptedCiphersState(userId).state$,
@@ -152,7 +152,9 @@ export class CipherService implements CipherServiceAbstraction {
    * Decrypted list views including PAM-gated ("partial") rows, for the web vault list and its
    * filters; everything else uses {@link cipherListViews$}.
    */
-  cipherListViewsWithPartials$ = perUserCache$((userId: UserId) => {
+  cipherListViewsWithPartials$: (
+    userId: UserId,
+  ) => Observable<CipherListView[] | CipherView[] | null> = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
 
     return combineLatest([
