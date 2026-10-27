@@ -1077,6 +1077,28 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         tick(1000);
       }));
 
+      it("does not upgrade when submitted again while the quote is out of date", fakeAsync(() => {
+        previewThenSubmitExpired();
+
+        void component["submit"]();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledTimes(1);
+      }));
+
+      it("falls back to the preview-failed state when the refresh fails", fakeAsync(() => {
+        previewThenSubmitExpired();
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
+
+        component["refreshExpiredPreview"]();
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(component["previewFailed"]()).toBe(true);
+        expect(component["previewExpired"]()).toBe(false);
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+      }));
+
       it("other upgrade errors still show upgradeErrorMessage", fakeAsync(() => {
         mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
         mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValue(
