@@ -7,7 +7,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/route
 import { mockAccountServiceWith } from "@bitwarden/common/../spec/fake-account-service";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -930,7 +930,14 @@ describe("SharedFoldersComponent", () => {
       );
     }
 
-    it("drops the options column entirely for a client with neither dialog", async () => {
+    /** The ids of the items in the first row's open menu, in order. */
+    function openMenuItemIds(): string[] {
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+      return Array.from(document.querySelectorAll("[bitMenuItem]")).map((item) => item.id);
+    }
+
+    it("keeps the options column for a client with neither dialog, since Pin needs none", async () => {
       await setup({
         collections: [collection()],
         dialogs: { collection: false, bulkDelete: false },
@@ -941,22 +948,11 @@ describe("SharedFoldersComponent", () => {
         bitTable()
           .effectiveColumns()
           .map((column) => column.name()),
-      ).toEqual(["name", "permissions", "items"]);
-      expect(menuTriggers()).toHaveLength(0);
-      expect(fixture.nativeElement.textContent as string).not.toContain("options");
+      ).toEqual(["name", "permissions", "items", "options"]);
+      expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("gives the items column the flexible track while the options column is dropped", async () => {
-      await setup({
-        collections: [collection()],
-        dialogs: { collection: false, bulkDelete: false },
-      });
-      fixture.detectChanges();
-
-      expect(bitTable().gridTemplateColumns()).toContain("minmax(100px, 1fr)");
-    });
-
-    it("keeps the options column narrow once either dialog is provided", async () => {
+    it("keeps the options column narrow and the items column fixed", async () => {
       await setup({ collections: [collection()] });
       fixture.detectChanges();
 
@@ -996,22 +992,126 @@ describe("SharedFoldersComponent", () => {
       });
     });
 
-    it("offers no menu at all for a folder the member can neither edit nor delete", async () => {
+    it("offers only Pin to sidebar for a folder the member can neither edit nor delete", async () => {
       await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
       fixture.detectChanges();
 
       expect(row("col-1").canEdit).toBe(false);
       expect(row("col-1").canDelete).toBe(false);
-      expect(menuTriggers()).toHaveLength(0);
+      expect(menuTriggers()).toHaveLength(1);
+      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
     });
 
-    it("projects nothing into the cell's end slot for a folder the member can neither edit nor delete", async () => {
+    it("offers only Pin to sidebar for a client with neither dialog", async () => {
+      await setup({
+        collections: [collectionWith(SharedFolderPermission.Manage)],
+        dialogs: { collection: false, bulkDelete: false },
+      });
+      fixture.detectChanges();
+
+      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
+    });
+
+    it("offers Pin to sidebar and Delete for a client with only a bulk delete dialog", async () => {
+      await setup({
+        collections: [collectionWith(SharedFolderPermission.Manage)],
+        dialogs: { collection: false, bulkDelete: true },
+      });
+      fixture.detectChanges();
+
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_delete-col-1",
+      ]);
+    });
+
+    it("offers Edit and Access but not Delete when the organization limits collection deletion", async () => {
+      await setup({
+        collections: [collectionWith(SharedFolderPermission.Manage)],
+        organizations: [organization({ limitCollectionDeletion: true })],
+      });
+      fixture.detectChanges();
+
+      expect(row("col-1").canEdit).toBe(true);
+      expect(row("col-1").canDelete).toBe(false);
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_edit-col-1",
+        "shared-folders_menu-item_access-col-1",
+      ]);
+    });
+
+    it("puts Pin to sidebar before Edit, Access, and Delete", async () => {
+      await setup({ collections: [collectionWith(SharedFolderPermission.Manage)] });
+      fixture.detectChanges();
+
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_edit-col-1",
+        "shared-folders_menu-item_access-col-1",
+        "shared-folders_menu-item_delete-col-1",
+      ]);
+    });
+
+    it("still projects into the cell's end slot for a folder the member can neither edit nor delete, for Pin", async () => {
       // Scoped to `bit-row`, not the whole fixture — the toolbar's Add button also uses `slot="end"`.
       await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
       fixture.detectChanges();
 
       const rowElement = fixture.debugElement.query(By.css("bit-row")).nativeElement as HTMLElement;
-      expect(rowElement.querySelector("[slot=end]")).toBeNull();
+      expect(rowElement.querySelector("[slot=end]")).not.toBeNull();
+    });
+
+    /** Opens the first row's menu and clicks the item with `id`. */
+    async function clickMenuItem(id: string): Promise<void> {
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+      const item = document.querySelector<HTMLElement>(`#${id}`);
+      if (item == null) {
+        throw new Error(`No menu item "${id}"`);
+      }
+      item.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it("pins an unpinned folder for the active user from the row menu", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      fixture.detectChanges();
+
+      await clickMenuItem("shared-folders_menu-item_pin-col-a");
+
+      expect(await firstValueFrom(pinnedSharedFolders.pinnedIds$("user-1" as UserId))).toEqual([
+        "col-a",
+      ]);
+    });
+
+    it("offers Unpin from sidebar for a pinned folder, and unpins it", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
+      fixture.detectChanges();
+
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+      const pinItem = document.querySelector("#shared-folders_menu-item_pin-col-a");
+      expect(pinItem?.textContent).toContain("unpinFromSidebar");
+
+      (pinItem as HTMLElement).click();
+      await fixture.whenStable();
+
+      expect(await firstValueFrom(pinnedSharedFolders.pinnedIds$("user-1" as UserId))).toEqual([]);
+    });
+
+    it("labels the item Pin to sidebar for an unpinned folder", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      fixture.detectChanges();
+
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+
+      const pinItem = document.querySelector("#shared-folders_menu-item_pin-col-a");
+      expect(pinItem?.textContent).toContain("pinToSidebar");
+      expect(pinItem?.textContent).not.toContain("unpinFromSidebar");
     });
   });
 

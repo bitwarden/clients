@@ -137,8 +137,8 @@ export type SharedFoldersTableFilters = {
  *
  * Every write goes through a dialog the client supplies as a token, so a client that provides none
  * offers no write action it can't carry out — see {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. The Options column
- * needs either `COLLECTION_DIALOG` or `BULK_DELETE_DIALOG` — see {@link showOptions}.
+ * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. Pin/Unpin needs no
+ * dialog and is always offered, regardless of what else the row menu can do.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  */
@@ -294,33 +294,16 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * Whether the Options column is offered at all — true if either dialog is supplied. Gated on
-   * tokens rather than per-row permissions, so filtering can't resize the column.
-   */
-  protected readonly showOptions = this.collectionDialog != null || this.bulkDeleteDialog != null;
-
-  /**
    * Whether the toolbar offers its Add button, on the organization's own collection creation
-   * permission — so this page and the organization vault's Add agree on who may add a folder.
-   * `false` while the organization list loads, and for a `:vaultId` that resolves to nothing:
-   * either way the dialog would have no organization to save to. Gated on `collectionDialog`
-   * specifically, not `showOptions`: creating a folder always needs the collection dialog.
+   * permission. `false` while the organization list loads, or for a `:vaultId` that resolves to
+   * nothing — either way there's no organization to save to.
    */
   protected readonly canAdd = computed(
     () => this.collectionDialog != null && (this.organization()?.canCreateNewCollections ?? false),
   );
 
-  /**
-   * Whether a row's menu shows anything. The template needs this itself, not just the menu
-   * component: an always-present but internally-empty host element defeats the cell's CSS collapse
-   * (`empty:tw-hidden` in `bit-cell.component.html`).
-   */
-  protected showRowMenu(row: SharedFolderRow): boolean {
-    return (
-      (this.collectionDialog != null && row.canEdit) ||
-      (this.bulkDeleteDialog != null && row.canDelete)
-    );
-  }
+  /** Always true: Pin needs no dialog, so the row menu always has something to offer. */
+  protected readonly showRowMenu = true;
 
   /**
    * Whether the bulk actions bar offers Edit access. Left out entirely when the member can edit
@@ -359,12 +342,6 @@ export class SharedFoldersComponent {
   protected readonly selection = computed<SelectionConfig<SharedFolderRow> | undefined>(() =>
     this.showBulkEditAccess() || this.showBulkDelete() ? this.multiSelect : undefined,
   );
-
-  /**
-   * The Items column's track. The flexible track normally belongs to Options; with no Options
-   * column Items takes it, so the columns still span the table.
-   */
-  protected readonly itemsWidth = this.showOptions ? "minmax(100px, 160px)" : "minmax(100px, 1fr)";
 
   /**
    * The permissions the chip offers: those the rows carry, in {@link SHARED_FOLDER_PERMISSIONS}
