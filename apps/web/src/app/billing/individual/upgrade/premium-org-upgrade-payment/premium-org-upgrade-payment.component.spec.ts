@@ -351,6 +351,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
           city: "Beverly Hills",
           state: "CA",
         }),
+        undefined,
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -658,6 +659,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       total: 22,
       credit: { translationKey: "premiumSubscriptionCredit", value: 6.67 },
     };
+    const serverQuote = { cart: serverCart, prorationDate: "2026-10-27T15:04:05Z" };
 
     const completeTheForm = () =>
       component["formGroup"].patchValue({
@@ -678,7 +680,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     });
 
     it("should build the cart from the server preview", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
 
       completeTheForm();
       tick(1500);
@@ -695,7 +697,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     }));
 
     it("should hand the selected plan and the form's billing address to the upgrade service", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
 
       completeTheForm();
       tick(1500);
@@ -710,12 +712,15 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     it("should render the server cart's seat label verbatim", fakeAsync(() => {
       // The adapter owns the prorated-months label; the component must not relabel the seat line.
       mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
-        ...serverCart,
-        passwordManager: {
-          seats: {
-            ...serverCart.passwordManager.seats,
-            translationKey: "planProratedMembershipInMonths",
-            translationParams: ["Teams", "8 months"],
+        ...serverQuote,
+        cart: {
+          ...serverCart,
+          passwordManager: {
+            seats: {
+              ...serverCart.passwordManager.seats,
+              translationKey: "planProratedMembershipInMonths",
+              translationParams: ["Teams", "8 months"],
+            },
           },
         },
       });
@@ -743,7 +748,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     }));
 
     it("should preview once the billing address is complete, before the organization name is entered", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
 
       component["formGroup"].patchValue({
         billingAddress: { country: "US", postalCode: "12345" },
@@ -854,7 +859,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       it("should enable submit once a later preview succeeds", fakeAsync(() => {
         mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
-        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverCart);
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverQuote);
 
         completeTheForm();
         tick(1500);
@@ -881,7 +886,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
     it("should restore the cart summary once a later preview succeeds", fakeAsync(() => {
       mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValueOnce(new Error("500"));
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverCart);
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverQuote);
 
       completeTheForm();
       tick(1500);
@@ -918,7 +923,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     }));
 
     it("should not re-run the preview when the flag re-emits the same value", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
       completeTheForm();
       tick(1500);
       fixture.detectChanges();
@@ -933,7 +938,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     }));
 
     it("should drop the server cart and revert to the legacy path when the flag flips off", fakeAsync(() => {
-      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverCart);
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
       completeTheForm();
       tick(1500);
       fixture.detectChanges();
@@ -966,6 +971,130 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(mockPremiumOrgUpgradeService.previewInvoiceCart).not.toHaveBeenCalled();
       expect(mockPremiumOrgUpgradeService.previewProratedInvoice).toHaveBeenCalled();
     }));
+
+    describe("expired preview (PM-44621)", () => {
+      const expiredError = new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: { InvoicePreviewExpired: ["The invoice preview has expired."] },
+        },
+        400,
+      );
+      const refreshedQuote = { cart: serverCart, prorationDate: "2026-10-27T15:10:00Z" };
+
+      const submitButton = (): HTMLElement | null =>
+        fixture.nativeElement.querySelector('button[type="submit"]');
+
+      beforeEach(() => {
+        mockPremiumOrgUpgradeService.isUnverifiedBankAccount.mockReturnValue(false);
+        mockPremiumOrgUpgradeService.isBankAccountNotSupportedError.mockReturnValue(false);
+      });
+
+      const previewThenSubmitExpired = () => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(serverQuote);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValueOnce(expiredError);
+        completeTheForm();
+        tick(1500);
+        void component["submit"]();
+        tick();
+        fixture.detectChanges();
+      };
+
+      it("sends the preview's proration date on upgrade", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("new-org-id");
+
+        completeTheForm();
+        tick(1500);
+        void component["submit"]();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+          mockAccount,
+          "Test Org",
+          "teams",
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+          "2026-10-27T15:04:05Z",
+        );
+      }));
+
+      it("shows the out-of-date callout, no error toast, and disables Upgrade on an expired quote", fakeAsync(() => {
+        previewThenSubmitExpired();
+
+        expect(component["previewExpired"]()).toBe(true);
+        expect(
+          fixture.nativeElement.querySelector("[data-testid='invoice-preview-expired']"),
+        ).not.toBeNull();
+        expect(mockToastService.showToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ message: "upgradeErrorMessage" }),
+        );
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+      }));
+
+      it("Refresh re-fetches with the same address, clears the callout, and sends the new date", fakeAsync(() => {
+        previewThenSubmitExpired();
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(refreshedQuote);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValueOnce("new-org-id");
+
+        component["refreshExpiredPreview"]();
+        tick(1500);
+        fixture.detectChanges();
+
+        expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledTimes(2);
+        expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ tier: "teams" }),
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        );
+        expect(component["previewExpired"]()).toBe(false);
+        expect(
+          fixture.nativeElement.querySelector("[data-testid='invoice-preview-expired']"),
+        ).toBeNull();
+
+        void component["submit"]();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenLastCalledWith(
+          mockAccount,
+          "Test Org",
+          "teams",
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+          "2026-10-27T15:10:00Z",
+        );
+      }));
+
+      it("keeps Upgrade disabled until the refreshed preview resolves", fakeAsync(() => {
+        previewThenSubmitExpired();
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValueOnce(refreshedQuote);
+
+        component["refreshExpiredPreview"]();
+        tick(500);
+        fixture.detectChanges();
+
+        expect(component["previewExpired"]()).toBe(true);
+        expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+
+        tick(1000);
+      }));
+
+      it("other upgrade errors still show upgradeErrorMessage", fakeAsync(() => {
+        mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue(serverQuote);
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValue(
+          new ErrorResponse({ Message: "Internal error" }, 500),
+        );
+
+        completeTheForm();
+        tick(1500);
+        void component["submit"]();
+        tick();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "upgradeErrorMessage",
+        });
+        expect(component["previewExpired"]()).toBe(false);
+      }));
+    });
   });
 
   describe("ngAfterViewInit", () => {

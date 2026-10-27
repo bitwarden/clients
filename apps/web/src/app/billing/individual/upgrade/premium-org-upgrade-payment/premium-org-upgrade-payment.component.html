@@ -48,6 +48,20 @@
         [hidePricingTerm]="true"
         [class.tw-hidden]="previewFailed()"
       ></billing-cart-summary>
+      @if (previewExpired()) {
+        <bit-callout type="warning" class="tw-mt-4 tw-block" data-testid="invoice-preview-expired">
+          {{ "invoicePreviewOutOfDate" | i18n }}
+          <button
+            bitButton
+            type="button"
+            buttonType="secondary"
+            class="tw-mt-2 tw-block"
+            (click)="refreshExpiredPreview()"
+          >
+            {{ "refreshPreview" | i18n }}
+          </button>
+        </bit-callout>
+      }
     </section>
   </ng-container>
   <ng-container bitDialogFooter>
@@ -55,7 +69,7 @@
       bitButton
       bitFormButton
       buttonType="primary"
-      [disabled]="loading() || !isFormValid() || previewFailed()"
+      [disabled]="loading() || !isFormValid() || previewFailed() || previewExpired()"
       type="submit"
     >
       {{ "upgrade" | i18n }}
