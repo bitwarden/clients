@@ -290,6 +290,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   protected readonly isPreviewExpired = computed(
     () =>
+      this.planChangeCart.hasValue() &&
       this.expiredProrationDate() != null &&
       this.expiredProrationDate() === this.planChangeCart.value()?.prorationDate,
   );
@@ -928,6 +929,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.formGroup.markAllAsTouched();
     this.billingFormGroup.markAllAsTouched();
     if (this.formGroup.invalid || (this.billingFormGroup.invalid && !this.paymentMethod)) {
+      return;
+    }
+    if (this.isSubmitDisabled) {
       return;
     }
 

@@ -645,6 +645,30 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         expect((component as any).isSubmitDisabled).toBe(true);
       });
 
+      it("does not submit again once the quote has expired", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+
+        await component.submit();
+
+        expect(organizationApiService.upgrade).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not submit, or throw, when the preview is in an error state", async () => {
+        previewCartFlag$.next(true);
+        invoicePreviewService.previewPlanChangeCart.mockRejectedValueOnce(
+          new Error("preview failed"),
+        );
+        (component as any).refreshPlanChangePreview();
+        await settle();
+        expect((component as any).planChangeCart.error()).toBeTruthy();
+
+        await expect(component.submit()).resolves.toBeUndefined();
+
+        expect(organizationApiService.upgrade).not.toHaveBeenCalled();
+      });
+
       it("a failed refresh shows the preview-error callout", async () => {
         previewCartFlag$.next(true);
         await loadPreview(firstDate);
