@@ -236,6 +236,8 @@ export const CIPHERS_DISK_LOCAL = new StateDefinition("ciphersLocal", "disk", {
 export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
   browser: "memory-large-object",
 });
+// Session memory only: `RevealedCipherService` forbids `memory-large-object` and disk.
+export const PAM_LEASED_CIPHERS_MEMORY = new StateDefinition("pamLeasedCiphers", "memory");
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
