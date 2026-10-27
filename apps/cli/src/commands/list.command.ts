@@ -12,7 +12,9 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -45,6 +47,7 @@ export class ListCommand {
     private keyService: KeyService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -167,7 +170,10 @@ export class ListCommand {
       folders = CliUtils.searchFolders(folders, options.search);
     }
 
-    const res = new ListResponse(folders.map((o) => new FolderResponse(o)));
+    const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+      FeatureFlag.VFO1Foundation,
+    );
+    const res = new ListResponse(folders.map((o) => new FolderResponse(o, useSharedFoldersTerm)));
     return Response.success(res);
   }
 
@@ -190,7 +196,12 @@ export class ListCommand {
       collections = CliUtils.searchCollections(collections, options.search);
     }
 
-    const res = new ListResponse(collections.map((o) => new CollectionResponse(o)));
+    const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+      FeatureFlag.VFO1Foundation,
+    );
+    const res = new ListResponse(
+      collections.map((o) => new CollectionResponse(o, useSharedFoldersTerm)),
+    );
     return Response.success(res);
   }
 
@@ -236,7 +247,12 @@ export class ListCommand {
       if (options.search != null && options.search.trim() !== "") {
         decCollections = CliUtils.searchCollections(decCollections, options.search);
       }
-      const res = new ListResponse(decCollections.map((o) => new CollectionResponse(o)));
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new ListResponse(
+        decCollections.map((o) => new CollectionResponse(o, useSharedFoldersTerm)),
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

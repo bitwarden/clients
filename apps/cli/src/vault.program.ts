@@ -89,7 +89,10 @@ export class VaultProgram extends BaseProgram {
       .description("List an array of objects from the vault.")
       .option("--search <search>", "Perform a search on the listed objects.")
       .option("--url <url>", "Filter items of type login with a url-match search.")
-      .option("--folderid <folderid>", "Filter items by folder id.")
+      .option(
+        "--folderid <folderid>",
+        `Filter items by ${useSharedFoldersTerm ? "my folder" : "folder"} id.`,
+      )
       .addOption(
         new Option("--collectionid <collectionid>", "Filter items by collection id.").hideHelp(
           useSharedFoldersTerm,
@@ -159,6 +162,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.keyService,
           this.serviceContainer.cliRestrictedItemTypesService,
           this.serviceContainer.cipherArchiveService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, cmd);
 
@@ -358,6 +362,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.policyService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);

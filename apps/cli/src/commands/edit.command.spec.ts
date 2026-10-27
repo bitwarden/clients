@@ -6,6 +6,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -39,6 +41,7 @@ describe("EditCommand", () => {
   const policyService = mock<PolicyService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const cipherAuthorizationService = mock<CipherAuthorizationService>();
+  const configService = mock<ConfigService>();
 
   const userId = "user-id" as UserId;
   const validOrgId = "11111111-1111-1111-1111-111111111111" as OrganizationId;
@@ -93,6 +96,7 @@ describe("EditCommand", () => {
       policyService,
       billingAccountProfileStateService,
       cipherAuthorizationService,
+      configService,
     );
   });
 
@@ -453,6 +457,24 @@ describe("EditCommand", () => {
       const data = result.data as any;
       expect(data.groups).toEqual([]);
       expect(data.users).toEqual([]);
+    });
+  });
+
+  describe("response object term", () => {
+    it.each([
+      [false, "org-collection"],
+      [true, "org-shared-folder"],
+    ])("with vfo1-foundation=%s returns object %s", async (flag, expected) => {
+      configService.getFeatureFlag.mockImplementation(async (f) =>
+        f === FeatureFlag.VFO1Foundation ? flag : false,
+      );
+      const result = await command["editOrganizationCollection"](
+        validCollectionId,
+        makeRequest(),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      expect((result.data as any).object).toBe(expected);
     });
   });
 

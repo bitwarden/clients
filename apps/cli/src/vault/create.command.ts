@@ -206,7 +206,10 @@ export class CreateCommand {
       const folderData = await this.folderApiService.save(folder, activeUserId);
       const newFolder = new Folder(folderData);
       const decFolder = await newFolder.decrypt(userKey);
-      const res = new FolderResponse(decFolder);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new FolderResponse(decFolder, useSharedFoldersTerm);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -284,7 +287,15 @@ export class CreateCommand {
       const serverUsers = response.users.map(
         (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
       );
-      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new OrganizationCollectionResponse(
+        view,
+        serverGroups,
+        serverUsers,
+        useSharedFoldersTerm,
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

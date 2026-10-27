@@ -11,9 +11,11 @@ import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -48,6 +50,7 @@ export class EditCommand {
     private policyService: PolicyService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private configService: ConfigService,
   ) {}
 
   async run(
@@ -249,7 +252,10 @@ export class EditCommand {
       const folder = await this.folderApiService.save(encFolder, activeUserId);
       const updatedFolder = new Folder(folder);
       const decFolder = await updatedFolder.decrypt(userKey);
-      const res = new FolderResponse(decFolder);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new FolderResponse(decFolder, useSharedFoldersTerm);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -333,7 +339,15 @@ export class EditCommand {
       const serverUsers = response.users.map(
         (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
       );
-      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new OrganizationCollectionResponse(
+        view,
+        serverGroups,
+        serverUsers,
+        useSharedFoldersTerm,
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

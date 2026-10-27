@@ -6,6 +6,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -93,6 +94,20 @@ describe("CreateCommand", () => {
       cliRestrictedItemTypesService,
       configService,
     );
+  });
+
+  describe("createOrganizationCollection response object term", () => {
+    it.each([
+      [false, "org-collection"],
+      [true, "org-shared-folder"],
+    ])("with vfo1-foundation=%s returns object %s", async (flag, expected) => {
+      configService.getFeatureFlag.mockImplementation(async (f) =>
+        f === FeatureFlag.VFO1Foundation ? flag : false,
+      );
+      const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
+      expect(result.success).toBe(true);
+      expect((result.data as any).object).toBe(expected);
+    });
   });
 
   describe("createOrganizationCollection", () => {

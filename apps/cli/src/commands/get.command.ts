@@ -450,7 +450,10 @@ export class GetCommand extends DownloadCommand {
     if (decFolder == null) {
       return Response.notFound();
     }
-    const res = new FolderResponse(decFolder);
+    const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+      FeatureFlag.VFO1Foundation,
+    );
+    const res = new FolderResponse(decFolder, useSharedFoldersTerm);
     return Response.success(res);
   }
 
@@ -486,7 +489,10 @@ export class GetCommand extends DownloadCommand {
     if (decCollection == null) {
       return Response.notFound();
     }
-    const res = new CollectionResponse(decCollection);
+    const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+      FeatureFlag.VFO1Foundation,
+    );
+    const res = new CollectionResponse(decCollection, useSharedFoldersTerm);
     return Response.success(res);
   }
 
@@ -530,7 +536,15 @@ export class GetCommand extends DownloadCommand {
           : response.users.map(
               (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
             );
-      const res = new OrganizationCollectionResponse(decCollection, groups, users);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new OrganizationCollectionResponse(
+        decCollection,
+        groups,
+        users,
+        useSharedFoldersTerm,
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
