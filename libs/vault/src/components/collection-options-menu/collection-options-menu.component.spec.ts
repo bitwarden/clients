@@ -69,7 +69,9 @@ function organization(overrides: Partial<Organization> = {}): Organization {
 
 type SetupOptions = {
   collection?: CollectionView;
-  organization?: Organization;
+  /** Omit to default to a resolved organization; pass `undefined` explicitly to simulate the
+   * input not having resolved yet. */
+  organization?: Organization | undefined;
   /** Which dialogs the client provides — omitting one is how desktop looks today. */
   dialogs?: { collection?: boolean; bulkDelete?: boolean };
   showPin?: boolean;
@@ -85,7 +87,8 @@ describe("CollectionOptionsMenuComponent", () => {
   let toastService: MockProxy<ToastService>;
 
   async function setup(options: SetupOptions = {}): Promise<void> {
-    const { collection: col = collection(), organization: org = organization() } = options;
+    const { collection: col = collection() } = options;
+    const org = "organization" in options ? options.organization : organization();
     const { collection: withCollectionDialog = true, bulkDelete: withBulkDeleteDialog = true } =
       options.dialogs ?? {};
     const { showPin = false, pinnedIds = [] } = options;
@@ -183,6 +186,12 @@ describe("CollectionOptionsMenuComponent", () => {
 
     expect(trigger()).not.toBeNull();
     expect(component["showEditActions"]()).toBe(true);
+    expect(component["showDeleteAction"]()).toBe(false);
+  });
+
+  it("hides Delete while the organization input hasn't resolved yet, even though canDelete() is permissive without one", async () => {
+    await setup({ organization: undefined });
+
     expect(component["showDeleteAction"]()).toBe(false);
   });
 

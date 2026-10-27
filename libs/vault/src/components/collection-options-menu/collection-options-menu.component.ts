@@ -76,8 +76,14 @@ export class CollectionOptionsMenuComponent {
     () => this.collectionDialog != null && this.collection().canEdit(this.organization()),
   );
 
+  /** Requires `organization()` to have resolved: `canDelete(undefined)` treats an unresolved
+   * organization as having no deletion limit, which would let this render enabled right before
+   * `delete()`'s own `organization() == null` guard turns the click into a no-op. */
   protected readonly showDeleteAction = computed(
-    () => this.bulkDeleteDialog != null && this.collection().canDelete(this.organization()),
+    () =>
+      this.bulkDeleteDialog != null &&
+      this.organization() != null &&
+      this.collection().canDelete(this.organization()),
   );
 
   /** Pin isn't permission-gated like Edit/Delete, so the default collection needs excluding here. */
