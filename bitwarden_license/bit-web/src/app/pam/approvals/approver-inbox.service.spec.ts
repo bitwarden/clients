@@ -379,10 +379,29 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("cancels an approval via access_requests().cancel()", async () => {
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+    it("cancels an approval via access_requests().cancel() with the reason", async () => {
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Approved by mistake");
+    });
+
+    it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
+      approvalApi.listHistory.mockClear();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          status: "denied",
+          decisions: [
+            humanDecision({ id: "approver-1", verdict: "deny", comment: "Approved by mistake" }),
+          ],
+        }),
+      ]);
+
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+
+      expect(approvalApi.listHistory).toHaveBeenCalledTimes(1);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history[0].status).toBe("denied");
     });
 
     it("names the requester and organization of a managed request", async () => {
@@ -437,7 +456,7 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
 
       expect(accessRefresh.notifyAccessChanged).toHaveBeenCalledTimes(2);
     });
@@ -445,9 +464,9 @@ describe("ApproverInboxService", () => {
     it("restores the row and rethrows when cancelling an approval fails", async () => {
       requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
 
-      await expect(service.cancelApproval("req-1" as unknown as AccessRequestId)).rejects.toThrow(
-        "boom",
-      );
+      await expect(
+        service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed"),
+      ).rejects.toThrow("boom");
       const history = await firstValueFrom(service.historyRows$);
       expect(history[0].status).toBe("approved");
     });
@@ -457,7 +476,7 @@ describe("ApproverInboxService", () => {
         "req-1" as unknown as AccessRequestId,
         "lease-1" as unknown as AccessLeaseId,
       );
-      await service.cancelApproval("req-1" as unknown as AccessRequestId);
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
 
       // `decide` is the only mutation on `ApprovalSdkService`.
       expect(approvalApi.decide).not.toHaveBeenCalled();
