@@ -322,7 +322,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       return;
     }
 
-    if (this.previewFailed()) {
+    if (this.previewFailed() || this.previewExpired()) {
       return;
     }
 
