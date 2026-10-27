@@ -497,7 +497,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
-    deps: [RouterService, OrganizationInviteService],
+    deps: [RouterService, OrganizationInviteService, ConfigService],
   }),
   safeProvider({
     provide: IpcService,
