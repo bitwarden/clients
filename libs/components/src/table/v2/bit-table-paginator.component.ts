@@ -18,6 +18,16 @@ import { SelectModule } from "../../select";
 
 import { BitTableV2Component } from "./table-v2.component";
 
+/** The rows a paginator is showing, passed to its {@link BitTablePaginatorComponent.rangeLabel}. */
+export type TablePaginatorRange = {
+  /** 1-based index of the first row shown (0 when there are no rows). */
+  start: number;
+  /** 1-based index of the last row shown (0 when there are no rows). */
+  end: number;
+  /** Total row count across all pages. */
+  total: number;
+};
+
 /** Default page sizes offered in the size select. */
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -60,6 +70,13 @@ export class BitTablePaginatorComponent {
    */
   readonly length = input<number>();
 
+  /**
+   * Formats the row range shown beside the size select, e.g. "1–10 of 150 members". Omit to show
+   * no range. A function rather than a message key so the consumer owns the noun and its plural
+   * forms, including the empty case (`total` 0).
+   */
+  readonly rangeLabel = input<(range: TablePaginatorRange) => string>();
+
   /** Whether the consumer paginates server-side (an explicit {@link length} was given). */
   readonly manual = computed(() => this.length() != null);
 
@@ -80,6 +97,11 @@ export class BitTablePaginatorComponent {
   /** 1-based index of the last row shown. */
   readonly rangeEnd = computed(() =>
     Math.min((this.currentPage() + 1) * this.pageSize(), this.total()),
+  );
+
+  /** The {@link rangeLabel} text for the current page, or `undefined` when none is set. */
+  protected readonly rangeText = computed(() =>
+    this.rangeLabel()?.({ start: this.rangeStart(), end: this.rangeEnd(), total: this.total() }),
   );
 
   /** Whether a previous page exists. */
