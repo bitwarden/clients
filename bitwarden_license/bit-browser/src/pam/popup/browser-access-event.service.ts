@@ -1,6 +1,6 @@
 import { distinctUntilChanged, map, NEVER, Observable, share, skip, switchMap } from "rxjs";
 
-import { AccessEventService } from "@bitwarden/bit-pam";
+import { AccessEventService } from "@bitwarden/bit-common/pam/abstractions/access-event.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { StateProvider } from "@bitwarden/common/platform/state";

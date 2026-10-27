@@ -16,7 +16,9 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccessLeaseSdkService, isLeaseLive } from "@bitwarden/bit-pam";
+// Deep imports: the `pam` barrel pulls Angular components into the worker bundle.
+import { AccessLeaseSdkService } from "@bitwarden/bit-common/pam/abstractions/access-lease-sdk.service";
+import { isLeaseLive } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
 import { BrowserTaskSchedulerService } from "@bitwarden/browser/platform/services/abstractions/browser-task-scheduler.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -38,7 +40,12 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import type { AccessLeaseView } from "@bitwarden/sdk-internal";
 
 import { PAM_REFRESH_LEASES } from "../lease-messages";
-import { LEASED_CIPHERS, LeasedCipherEntry, liveLeasedCiphers } from "../leased-cipher.state";
+import {
+  LEASED_CIPHERS,
+  LeasedCipherEntry,
+  liveLeasedCiphers,
+  liveLeases$,
+} from "../leased-cipher.state";
 
 type RefreshRequest = { refetch?: string; onlyIfHeld?: boolean };
 
@@ -64,6 +71,8 @@ export class PamLeaseRefreshService {
     private messageListener: MessageListener,
     private taskSchedulerService: BrowserTaskSchedulerService,
     private logService: LogService,
+    /** Rebuilds the background's cipher caches (inline menu, context menu). */
+    private leasedCiphersChanged: () => Promise<void>,
   ) {
     // Registered during construction, so an alarm that wakes the worker finds its handler.
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.pamLeaseExpiry, () =>
@@ -77,7 +86,10 @@ export class PamLeaseRefreshService {
         map(unlockedUserIds),
         distinctUntilChanged((a, b) => a.join() === b.join()),
         switchMap((userIds) =>
-          merge(this.expiryAlarm$(userIds), ...userIds.map((userId) => this.refreshes$(userId))),
+          merge(
+            this.expiryAlarm$(userIds),
+            ...userIds.flatMap((userId) => [this.refreshes$(userId), this.cacheRebuilds$(userId)]),
+          ),
         ),
       )
       .subscribe();
@@ -144,6 +156,19 @@ export class PamLeaseRefreshService {
         })),
       ),
     ).pipe(concatMap(({ refetch, onlyIfHeld }) => this.refresh(userId, refetch, onlyIfHeld)));
+  }
+
+  /** The one rebuild path: a refresh, a prune, or a lapse that changes the live copies. */
+  private cacheRebuilds$(userId: UserId): Observable<void> {
+    return liveLeases$(this.stateProvider, userId).pipe(
+      // A woken worker builds its caches fresh.
+      skip(1),
+      concatMap(() =>
+        this.leasedCiphersChanged().catch((error) =>
+          this.logService.error(`[PAM] Failed to rebuild leased cipher caches: ${error}`),
+        ),
+      ),
+    );
   }
 
   /** Backstop alarm at the earliest lease end, which wakes the worker to prune session storage. */
@@ -235,7 +260,7 @@ export class PamLeaseRefreshService {
     }
   }
 
-  /** Drops lapsed copies from session storage; `start`'s streams then reschedule. */
+  /** Drops lapsed copies from session storage; `start`'s streams then rebuild and reschedule. */
   private async pruneLapsed(): Promise<void> {
     try {
       const now = Date.now();
