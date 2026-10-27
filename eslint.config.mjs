@@ -442,6 +442,7 @@ export default tseslint.config(
       "apps/web/**/*.html",
       "apps/browser/**/*.html",
       "bitwarden_license/bit-web/**/*.html",
+      "bitwarden_license/bit-common/**/*.html",
       "libs/**/*.html",
     ],
     rules: {

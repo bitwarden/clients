@@ -2,7 +2,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { AccessRefreshService, AccessRequestSdkService } from "..";
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 /**
  * Withdraws the caller's outstanding request for a gated cipher, for entry points that start from a

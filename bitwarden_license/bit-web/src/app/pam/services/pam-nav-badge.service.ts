@@ -16,6 +16,15 @@ import {
   take,
 } from "rxjs";
 
+import {
+  AccessEventService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  AccessRequestView,
+  ApprovalSdkService,
+  isActionableRequest,
+} from "@bitwarden/bit-common/pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -25,15 +34,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 
-import {
-  AccessEventService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-  AccessRequestView,
-  ApprovalSdkService,
-  isActionableRequest,
-} from "..";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
 

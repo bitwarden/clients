@@ -1,6 +1,7 @@
 import { filter, map, merge, Observable, Subject } from "rxjs";
 
-import { AccessEventService, AccessRefreshService } from "..";
+import { AccessEventService } from "../abstractions/access-event.service";
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
 
 /**
  * Merges local mutations with the server push, per subscription, so a client that never opens a

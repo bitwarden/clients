@@ -10,7 +10,7 @@ import type {
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
 
-import { ApprovalSdkService } from "..";
+import { ApprovalSdkService } from "../abstractions/approval-sdk.service";
 
 export class ApprovalsSdkService implements ApprovalSdkService {
   constructor(

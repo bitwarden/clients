@@ -15,7 +15,7 @@ import type {
   CipherId as SdkCipherId,
 } from "@bitwarden/sdk-internal";
 
-import { AccessRequestSdkService } from "..";
+import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 export class AccessRequestsSdkService implements AccessRequestSdkService {
   /**

@@ -3,11 +3,11 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import type { AccessRuleView } from "@bitwarden/bit-common/pam/abstractions/access-rule";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { AccessRuleView } from "../abstractions/access-rule";
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";

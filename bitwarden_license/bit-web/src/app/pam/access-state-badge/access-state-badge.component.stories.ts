@@ -1,10 +1,9 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { AccessBadgeState } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
-
-import { AccessBadgeState } from "./access-badge-state";
-import { AccessStateBadgeComponent } from "./access-state-badge.component";
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;

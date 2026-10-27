@@ -3,14 +3,14 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AccessRuleSdkService } from "@bitwarden/bit-common/pam";
+import type { AccessRuleView } from "@bitwarden/bit-common/pam/abstractions/access-rule";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef } from "@bitwarden/components";
 
-import { AccessRuleSdkService } from "..";
-import type { AccessRuleView } from "../abstractions/access-rule";
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";

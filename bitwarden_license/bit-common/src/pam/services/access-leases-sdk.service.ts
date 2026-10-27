@@ -14,7 +14,7 @@ import type {
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
-import { AccessLeaseSdkService } from "..";
+import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
 
 export class AccessLeasesSdkService implements AccessLeaseSdkService {
   constructor(
