@@ -1,6 +1,6 @@
 ---
 name: writing-end-to-end-tests
-description: Write and run Playwright end-to-end tests in `e2e/` for the web vault, browser extension and desktop app. Use when adding or changing an e2e test, fixture or page helper.
+description: Write and run Playwright end-to-end tests in `e2e/` for the web vault, browser extension and desktop app. The suite is a key-management internal experiment: use only when already working in `e2e/`, not to start a test suite elsewhere.
 ---
 
 ## Layout
@@ -15,7 +15,8 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 
 - Locate with `page.getByTestId("...")`, backed by `data-testid` in the template.
 - No test id yet? Add one to the component template in the same change. Name it `<component>-<element>`, e.g. `lock-biometric-unlock-button`.
-- No CSS classes, DOM structure, `#id`, `formcontrolname` or visible text to find an element. Text and roles change with copy, i18n and layout.
+- For new locators: no CSS classes, DOM structure, `#id`, `formcontrolname` or visible text. Text and roles change with copy, i18n and layout.
+- Existing helpers predate this rule and still use CSS and role locators. Leave them alone unless you are adding the test id anyway.
 - Keep each test id in a named constant at the top of the helper or test.
 
 ## Writing tests
@@ -34,6 +35,9 @@ npm run test:e2e:web
 npm run test:e2e:browser   # builds the extension first
 npm run test:e2e:desktop   # builds desktop first
 npm run test:e2e:shared
+
+# Only the web suite is headless. On Linux without a display, wrap the
+# other three: xvfb-run -a npm run test:e2e:browser
 ```
 
 - One test: `cd e2e && npx playwright test -c playwright.<suite>.config.ts <path> -g "<title>"`. Rebuild the client first if its code changed.
