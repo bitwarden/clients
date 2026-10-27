@@ -257,6 +257,26 @@ describe("ImportDestinationComponent", () => {
       expect(component().destinationControl.value).toBe("myItems:a");
     });
 
+    it("names its own org on each My items card", async () => {
+      destinations$.next({
+        options: [
+          myItems("a", "Acme Co"),
+          organization("a", "Acme Co"),
+          myItems("b", "Org B"),
+          organization("b", "Org B"),
+        ],
+        hasStep: true,
+      });
+      await setup();
+
+      const myItemsCards = cards().filter((c) =>
+        c.nativeElement.textContent.includes("importMyItemsOption"),
+      );
+      expect(myItemsCards).toHaveLength(2);
+      expect(myItemsCards[0].nativeElement.textContent).toContain("importMyItemsOwnedBy:Acme Co");
+      expect(myItemsCards[1].nativeElement.textContent).toContain("importMyItemsOwnedBy:Org B");
+    });
+
     it.each([
       [ProductTierType.Free, "bwi-family"],
       [ProductTierType.Families, "bwi-family"],
@@ -607,6 +627,33 @@ describe("ImportDestinationComponent", () => {
       expect(importService.importImportResult).not.toHaveBeenCalled();
       expect(stagingService.current()).toBeDefined();
       expect(component().destinationControl.value).toBe("organization:a");
+      expect(continueSpy).not.toHaveBeenCalled();
+    });
+
+    it("keeps the destination, the checked box and the chosen folder when sharing is declined", async () => {
+      const alpha = folder("f1", "a", "Alpha");
+      destinations$.next({
+        options: [myVault, organization("a", "Acme Co", { sharedFolders: [alpha] })],
+        hasStep: true,
+      });
+      stageParsed();
+      await setup();
+      component().destinationControl.setValue("organization:a");
+      component().moveToSharedFolderControl.setValue(true);
+      component().sharedFolderControl.setValue(alpha);
+      fixture.detectChanges();
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      const continueSpy = jest.fn();
+      component().continue.subscribe(continueSpy);
+
+      await submit();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+      expect(component().destinationControl.value).toBe("organization:a");
+      expect(component().moveToSharedFolderControl.value).toBe(true);
+      expect(component().sharedFolderControl.value).toBe(alpha);
+      expect(importService.importImportResult).not.toHaveBeenCalled();
+      expect(stagingService.current()).toBeDefined();
       expect(continueSpy).not.toHaveBeenCalled();
     });
 
