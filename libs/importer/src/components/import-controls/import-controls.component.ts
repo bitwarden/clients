@@ -60,6 +60,7 @@ import {
   UpgradeImportType,
 } from "../../models";
 import {
+  countCipherTypes,
   ImportDestinationServiceAbstraction,
   ImporterProfile,
   ImportStagingServiceAbstraction,
@@ -173,8 +174,8 @@ export class ImportControlsComponent {
   /** The vendor chosen in step 1. */
   readonly importType = input.required<UpgradeImportType>();
 
-  /** Fires once the import succeeds, or once its items are staged for the user to choose their
-   *  location, not on button click. The host tells them apart by whether anything is staged. */
+  /** Fires when the import succeeds or its items are staged for location selection, not on button
+   *  click. The host tells them apart by whether anything is staged. */
   readonly continue = output<void>();
 
   /** Fires when the user clicks Back. */
@@ -392,7 +393,7 @@ export class ImportControlsComponent {
     this.destinationService.destinations$.pipe(
       map((value): DestinationsState => ({ status: "ready", value })),
       catchError((error: unknown) => {
-        // Name only: nothing else about this failure is worth logging.
+        // Name only: the message can carry organization or collection names.
         this.logService.error(
           "Error loading import destinations:",
           error instanceof Error ? error.name : "unknown error",
@@ -405,7 +406,7 @@ export class ImportControlsComponent {
 
   protected readonly destinationsPending = computed(() => this.destinations().status === "pending");
 
-  /** The user has a location to choose, so the import happens there instead of here. */
+  /** True when the user has a location to choose, so the import runs after that choice. */
   private readonly hasDestinationStep = computed(() => {
     const destinations = this.destinations();
     return destinations.status === "ready" && destinations.value.hasStep;
@@ -1020,14 +1021,14 @@ export class ImportControlsComponent {
   }
 
   // Pending and "error" both block, without blaming the org policy. A failed destination lookup
-  // fails closed too: it is also how the policy's effect on the location choices is known.
+  // blocks too, since it is also how the policy's effect on the available locations is known.
   private blockedByPersonalOwnershipPolicy(): boolean {
     const policyApplies = this.personalOwnershipPolicyApplies();
     const destinations = this.destinations();
     if (policyApplies === false && destinations.status !== "error") {
       return false;
     }
-    // With an importable org the user can choose My items, so the policy blocks only without one.
+    // The policy only forbids the personal vault: block only when there is no other location.
     if (policyApplies === true && this.stagesImport()) {
       return false;
     }
@@ -1333,8 +1334,7 @@ export class ImportControlsComponent {
         format,
         contents,
         filePassword,
-        itemCount:
-          result == null ? undefined : await this.destinationService.importableCount(result),
+        itemTypeCounts: result == null ? undefined : countCipherTypes(result.ciphers),
       });
     }
 

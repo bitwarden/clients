@@ -33,13 +33,25 @@ import { ImportShellProgressComponent } from "./import-shell-progress.component"
 const noStep: ImportDestinations = { options: [], hasStep: false };
 const withStep: ImportDestinations = {
   options: [
-    { id: "myVault", kind: ImportDestinationKind.MyVault, sharedFolders: [], restrictions: [] },
+    {
+      id: "myVault",
+      kind: ImportDestinationKind.MyVault,
+      sharedFolders: [],
+      restrictions: [],
+      removedTypes: [],
+    },
   ],
   hasStep: true,
 };
 const withMyItems: ImportDestinations = {
   options: [
-    { id: "myItems:a", kind: ImportDestinationKind.MyItems, sharedFolders: [], restrictions: [] },
+    {
+      id: "myItems:a",
+      kind: ImportDestinationKind.MyItems,
+      sharedFolders: [],
+      restrictions: [],
+      removedTypes: [],
+    },
   ],
   hasStep: true,
 };

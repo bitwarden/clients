@@ -266,35 +266,40 @@ describe("DefaultImportDestinationService", () => {
         ];
       });
 
-      // The import drops a restricted type whichever destination is picked, so a card for an org
-      // that allows the type must still warn.
-      it("names the types each restricting org removes, in cipher type order, on every card", async () => {
+      it("names the types the org removes, in cipher type order, on its own card", async () => {
         const result = await firstValueFrom(build().destinations$);
 
         const acme = result.options.find((o) => o.id === "organization:a")!;
-        const beta = result.options.find((o) => o.id === "organization:b")!;
-        const expected = [
+        expect(acme.restrictions).toEqual([
           { organizationName: "Acme", types: [CipherType.Card, CipherType.Passport] },
-        ];
-        expect(acme.restrictions).toEqual(expected);
-        expect(beta.restrictions).toEqual(expected);
+        ]);
       });
 
-      it("warns on a My items card too", async () => {
+      it("gives an org that allows the types no restrictions, whatever the other orgs remove", async () => {
+        const result = await firstValueFrom(build().destinations$);
+
+        const beta = result.options.find((o) => o.id === "organization:b")!;
+        expect(beta.restrictions).toEqual([]);
+      });
+
+      it("gives a My items card only its owning org's restrictions", async () => {
         collections = [
           ...collections,
           collection("my-a", "a", "me@example.com", {
             type: CollectionTypes.DefaultUserCollection,
           }),
+          collection("my-b", "b", "me@example.com", {
+            type: CollectionTypes.DefaultUserCollection,
+          }),
         ];
-        ownershipPolicies = [ownershipPolicy("a")];
+        ownershipPolicies = [ownershipPolicy("a"), ownershipPolicy("b")];
 
         const result = await firstValueFrom(build().destinations$);
 
-        const card = result.options.find((o) => o.id === "myItems:a")!;
-        expect(card.restrictions).toEqual([
+        expect(result.options.find((o) => o.id === "myItems:a")!.restrictions).toEqual([
           { organizationName: "Acme", types: [CipherType.Card, CipherType.Passport] },
         ]);
+        expect(result.options.find((o) => o.id === "myItems:b")!.restrictions).toEqual([]);
       });
 
       it("lists every restricting org on My vault", async () => {
@@ -305,20 +310,42 @@ describe("DefaultImportDestinationService", () => {
           { organizationName: "Acme", types: [CipherType.Card, CipherType.Passport] },
         ]);
       });
-    });
-  });
 
-  describe("importableCount", () => {
-    it("excludes the types a policy removes", async () => {
-      restricted = [{ cipherType: CipherType.Card, allowViewOrgIds: [] }];
-      const result = new ImportResult();
-      result.ciphers = [
-        cipher(CipherType.Login),
-        cipher(CipherType.Card),
-        cipher(CipherType.SecureNote),
-      ];
+      it("drops every restricted type on My vault, and only the org's own types on an org card", async () => {
+        const result = await firstValueFrom(build().destinations$);
 
-      expect(await build().importableCount(result)).toBe(2);
+        const byId = (id: string) => result.options.find((o) => o.id === id)!;
+        expect(byId("myVault").removedTypes).toEqual([CipherType.Passport, CipherType.Card]);
+        expect(byId("organization:a").removedTypes).toEqual([CipherType.Passport, CipherType.Card]);
+        expect(byId("organization:b").removedTypes).toEqual([]);
+      });
+
+      it("drops a My items card's owning org's types only", async () => {
+        collections = [
+          ...collections,
+          collection("my-b", "b", "me@example.com", {
+            type: CollectionTypes.DefaultUserCollection,
+          }),
+        ];
+        ownershipPolicies = [ownershipPolicy("b")];
+
+        const result = await firstValueFrom(build().destinations$);
+
+        expect(result.options.find((o) => o.id === "myItems:b")!.removedTypes).toEqual([]);
+      });
+
+      // The policy of an org the user has accepted but is not confirmed in is in `restricted$`
+      // but not among the member orgs, so no callout can name it.
+      it("drops a type on My vault even when no member org's callout names it", async () => {
+        restricted = [{ cipherType: CipherType.Identity, allowViewOrgIds: ["a", "b"] }];
+
+        const result = await firstValueFrom(build().destinations$);
+
+        const myVault = result.options.find((o) => o.id === "myVault")!;
+        expect(myVault.restrictions).toEqual([]);
+        expect(myVault.removedTypes).toEqual([CipherType.Identity]);
+        expect(result.options.find((o) => o.id === "organization:a")!.removedTypes).toEqual([]);
+      });
     });
   });
 
@@ -349,6 +376,17 @@ describe("DefaultImportDestinationService", () => {
       result.collectionRelationships = [[0, 0]];
 
       expect(await build().hasUnassignedItems(result)).toBe(false);
+    });
+
+    it("counts only the items the organization lets through", async () => {
+      // Acme removes cards; Beta allows them.
+      restricted = [{ cipherType: CipherType.Card, allowViewOrgIds: ["b"] }];
+      const result = new ImportResult();
+      result.ciphers = [cipher(CipherType.Login), cipher(CipherType.Card)];
+      result.collectionRelationships = [[0, 0]];
+
+      expect(await build().hasUnassignedItems(result, "a" as OrganizationId)).toBe(false);
+      expect(await build().hasUnassignedItems(result, "b" as OrganizationId)).toBe(true);
     });
   });
 });

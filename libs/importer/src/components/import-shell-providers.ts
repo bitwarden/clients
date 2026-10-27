@@ -14,9 +14,9 @@ import {
 
 import { ImportShellStagingService } from "./import-shell-staging.service";
 
-/** What the progress bar, credential parsing and location selection share. Provided by each app's
- *  import shell so the state lives and dies with the shell: the hand-off between them holds
- *  decrypted vault data.
+/** Providers shared by the progress bar, credential parsing and location selection. Each app's
+ *  import shell provides them so the state lives only as long as the shell: the hand-off between
+ *  the screens holds decrypted vault data.
  *
  *  `collectionService` is passed in because the importer can't import admin-console. */
 export const importShellProviders = (

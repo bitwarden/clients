@@ -44,6 +44,7 @@ const myVault: ImportDestinationOption = {
   kind: ImportDestinationKind.MyVault,
   sharedFolders: [],
   restrictions: [],
+  removedTypes: [],
 };
 
 const organization = (
@@ -58,6 +59,7 @@ const organization = (
   productTierType: ProductTierType.Enterprise,
   sharedFolders: [],
   restrictions: [],
+  removedTypes: [],
   ...extra,
 });
 
@@ -72,6 +74,7 @@ const myItems = (orgId: string, name: string): ImportDestinationOption => {
     defaultCollection,
     sharedFolders: [],
     restrictions: [],
+    removedTypes: [],
   };
 };
 
@@ -87,7 +90,14 @@ const withDestinations =
     destinations$ = source;
     const staged = new ImportResult();
     staged.success = true;
-    staged.ciphers = [new CipherView()];
+    staged.ciphers = [
+      CipherType.Login,
+      CipherType.Login,
+      CipherType.Login,
+      CipherType.Card,
+      CipherType.Card,
+      CipherType.Passport,
+    ].map((type) => Object.assign(new CipherView(), { type }));
     stagingService.stage({ kind: "parsed", importType: "dashlane", result: staged });
     return storyFn(context);
   };
@@ -96,7 +106,6 @@ const stagingService = new DefaultImportStagingService();
 
 const destinationService = {
   destinations$: defer(() => destinations$()),
-  importableCount: async () => 74,
   hasUnassignedItems: async () => false,
 } as unknown as ImportDestinationServiceAbstraction;
 
@@ -228,8 +237,12 @@ export const CentralizedOwnershipTwoOrganizations: Story = {
   ],
 };
 
-/** My vault with an org that removes item types: one callout per restricting org. */
-export const RestrictedItemTypesOnMyVault: Story = {
+/**
+ * Orgs that remove item types. My vault lists every restricting org, each org card lists only its
+ * own restrictions, and an org that allows the types shows no callout. Select each card to compare
+ * the callout and the Import count.
+ */
+export const RestrictedItemTypes: Story = {
   decorators: [
     withDestinations(() =>
       ready([
@@ -239,8 +252,19 @@ export const RestrictedItemTypesOnMyVault: Story = {
             { organizationName: "Acme Co", types: [CipherType.Card] },
             { organizationName: "Beta Co", types: [CipherType.Passport, CipherType.Identity] },
           ],
+          removedTypes: [CipherType.Card, CipherType.Identity, CipherType.Passport],
         },
-        organization("a", "Acme Co"),
+        organization("a", "Acme Co", {
+          restrictions: [{ organizationName: "Acme Co", types: [CipherType.Card] }],
+          removedTypes: [CipherType.Card],
+        }),
+        organization("b", "Beta Co", {
+          restrictions: [
+            { organizationName: "Beta Co", types: [CipherType.Passport, CipherType.Identity] },
+          ],
+          removedTypes: [CipherType.Identity, CipherType.Passport],
+        }),
+        organization("c", "Gamma Co"),
       ]),
     ),
   ],
@@ -259,8 +283,17 @@ export const CentralizedOwnershipWithRestrictions: Story = {
               types: [CipherType.Card, CipherType.Identity, CipherType.BankAccount],
             },
           ],
+          removedTypes: [CipherType.Card, CipherType.Identity, CipherType.BankAccount],
         },
-        organization("a", "Acme Co"),
+        organization("a", "Acme Co", {
+          restrictions: [
+            {
+              organizationName: "Acme Co",
+              types: [CipherType.Card, CipherType.Identity, CipherType.BankAccount],
+            },
+          ],
+          removedTypes: [CipherType.Card, CipherType.Identity, CipherType.BankAccount],
+        }),
       ]),
     ),
   ],

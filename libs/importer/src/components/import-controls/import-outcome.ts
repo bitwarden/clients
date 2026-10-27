@@ -1,7 +1,7 @@
 import { ImportResult, SdkImportSummary } from "../../models";
 
 /**
- * `staged`: parsed and handed to location selection, which imports it.
+ * `staged`: handed to location selection, which imports it.
  * `cancelled`: feedback already shown, caller does nothing further.
  */
 export type ImportOutcome =

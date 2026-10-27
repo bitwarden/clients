@@ -29,7 +29,13 @@ export type ImportDestinationOption = {
   defaultCollection?: CollectionView;
   /** Shared folders in the org the user manages; empty for My vault and My items. */
   sharedFolders: readonly CollectionView[];
+  /**
+   * Orgs and types the callouts name. On My vault this leaves out orgs the user has accepted but is
+   * not confirmed in, though their policies still apply, so count from `removedTypes`, not this.
+   */
   restrictions: readonly ImportDestinationRestriction[];
+  /** The types an import into this card drops, by the same rule the import filter uses. */
+  removedTypes: readonly CipherType[];
 };
 
 export type ImportDestinations = {

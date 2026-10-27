@@ -30,6 +30,7 @@ import {
   ImportDestinationServiceAbstraction,
   ImportStagingServiceAbstraction,
   ImportUpgradeServiceAbstraction,
+  ItemTypeCounts,
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
 
@@ -53,6 +54,7 @@ const myVault: ImportDestinationOption = {
   kind: ImportDestinationKind.MyVault,
   sharedFolders: [],
   restrictions: [],
+  removedTypes: [],
 };
 
 function organization(
@@ -68,6 +70,7 @@ function organization(
     productTierType: ProductTierType.Teams,
     sharedFolders: [],
     restrictions: [],
+    removedTypes: [],
     ...extra,
   };
 }
@@ -86,6 +89,7 @@ function myItems(orgId: string, name: string): ImportDestinationOption {
     ),
     sharedFolders: [],
     restrictions: [],
+    removedTypes: [],
   };
 }
 
@@ -112,23 +116,20 @@ describe("ImportDestinationComponent", () => {
   const cards = () => fixture.debugElement.queryAll(By.css("bit-form-control-card"));
   const text = () => (fixture.nativeElement as HTMLElement).textContent ?? "";
 
-  const stageParsed = (result = new ImportResult()) => {
+  const stageParsed = (types: CipherType[] = [CipherType.Login]) => {
+    const result = new ImportResult();
     result.success = true;
-    result.ciphers = [cipher()];
+    result.ciphers = types.map(cipher);
     stagingService.stage({ kind: "parsed", importType: "dashlane", result });
     return result;
   };
 
   const setup = async (
-    options: {
-      destinationsSource?: ImportDestinationServiceAbstraction["destinations$"];
-      count?: number;
-    } = {},
+    options: { destinationsSource?: ImportDestinationServiceAbstraction["destinations$"] } = {},
   ) => {
     destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
       destinations$: options.destinationsSource ?? destinations$.asObservable(),
     });
-    destinationService.importableCount.mockResolvedValue(options.count ?? 74);
     destinationService.hasUnassignedItems.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
@@ -337,19 +338,105 @@ describe("ImportDestinationComponent", () => {
     });
 
     it("labels Import with the count of items that will import", async () => {
-      stageParsed();
+      stageParsed([CipherType.Login, CipherType.Login, CipherType.SecureNote]);
       await setup();
 
       expect(byId("import-destination_button_import").nativeElement.textContent).toContain(
-        "importItemsCount:74",
+        "importItemsCount:3",
       );
     });
 
     it("uses the singular label for one item", async () => {
       stageParsed();
-      await setup({ count: 1 });
+      await setup();
 
       expect(component().importLabel()).toBe("importItemsSingular");
+    });
+
+    describe("when the destinations restrict different types", () => {
+      const cardsRestrictedBy = (name: string) => [
+        { organizationName: name, types: [CipherType.Card] },
+      ];
+
+      beforeEach(() => {
+        destinations$.next({
+          options: [
+            {
+              ...myVault,
+              restrictions: cardsRestrictedBy("Acme Co"),
+              removedTypes: [CipherType.Card],
+            },
+            organization("a", "Acme Co", {
+              restrictions: cardsRestrictedBy("Acme Co"),
+              removedTypes: [CipherType.Card],
+            }),
+            organization("b", "Beta Co"),
+            myItems("c", "Gamma Co"),
+          ],
+          hasStep: true,
+        });
+        stageParsed([CipherType.Login, CipherType.Login, CipherType.Card, CipherType.Card]);
+      });
+
+      const select = (id: string) => {
+        component().destinationControl.setValue(id);
+        fixture.detectChanges();
+      };
+
+      it("shows the callout, and drops the restricted type from the count, on My vault", async () => {
+        await setup();
+
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
+        expect(component().importLabel()).toBe("importItemsCount:2");
+      });
+
+      it("counts from the types the import drops, even when no callout names the org removing them", async () => {
+        // An org whose policy applies but is not listed, such as one the user has not been confirmed in.
+        destinations$.next({
+          options: [{ ...myVault, restrictions: [], removedTypes: [CipherType.Card] }],
+          hasStep: true,
+        });
+        await setup();
+
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(0);
+        expect(component().importLabel()).toBe("importItemsCount:2");
+      });
+
+      it("shows the callout on the organization that restricts the type", async () => {
+        await setup();
+        select("organization:a");
+
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
+        expect(component().importLabel()).toBe("importItemsCount:2");
+      });
+
+      it("hides the callout, and keeps the type in the count, on an organization that allows it", async () => {
+        await setup();
+        select("organization:b");
+
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(0);
+        expect(component().importLabel()).toBe("importItemsCount:4");
+      });
+
+      it("follows the owning organization on a My items card", async () => {
+        await setup();
+        select("myItems:c");
+
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(0);
+        expect(component().importLabel()).toBe("importItemsCount:4");
+      });
+
+      it("changes the callout and the count as soon as the selection changes", async () => {
+        await setup();
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
+
+        select("organization:b");
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(0);
+
+        select("myVault");
+        expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
+        expect(component().importLabel()).toBe("importItemsCount:2");
+      });
     });
 
     it("shows plain Import when nothing is staged", async () => {
@@ -775,16 +862,16 @@ describe("ImportDestinationComponent", () => {
 
     describe("a staged file", () => {
       const importer = {} as any;
-      // `null` is a file credential parsing could not parse, so it has no count; `undefined` takes
+      // `null` is a file credential parsing could not parse, so it has no counts; `undefined` takes
       // the default.
-      const stageFile = (itemCount: number | null = 5) =>
+      const stageFile = (counts: ItemTypeCounts | null = { [CipherType.Login]: 5 }) =>
         stagingService.stage({
           kind: "file",
           importType: "dashlane",
           format: "dashlanecsv",
           contents: "a,b",
           filePassword: null,
-          itemCount: itemCount ?? undefined,
+          itemTypeCounts: counts ?? undefined,
         });
 
       beforeEach(() => {
@@ -853,15 +940,37 @@ describe("ImportDestinationComponent", () => {
         await submit();
 
         const parsed = await importService.parse.mock.results[0].value;
-        expect(destinationService.hasUnassignedItems).toHaveBeenCalledWith(parsed);
+        expect(destinationService.hasUnassignedItems).toHaveBeenCalledWith(parsed, "a");
       });
 
-      it("labels Import with the count credential parsing found, without counting again", async () => {
-        stageFile(1);
+      it("labels Import with the counts credential parsing found", async () => {
+        stageFile({ [CipherType.Login]: 1 });
         await setup();
 
         expect(component().importLabel()).toBe("importItemsSingular");
-        expect(destinationService.importableCount).not.toHaveBeenCalled();
+      });
+
+      it("drops a type the selected destination restricts from the label", async () => {
+        destinations$.next({
+          options: [
+            {
+              ...myVault,
+              restrictions: [{ organizationName: "Acme Co", types: [CipherType.Card] }],
+              removedTypes: [CipherType.Card],
+            },
+            organization("b", "Beta Co"),
+          ],
+          hasStep: true,
+        });
+        stageFile({ [CipherType.Login]: 2, [CipherType.Card]: 3 });
+        await setup();
+
+        expect(component().importLabel()).toBe("importItemsCount:2");
+
+        component().destinationControl.setValue("organization:b");
+        fixture.detectChanges();
+
+        expect(component().importLabel()).toBe("importItemsCount:5");
       });
 
       it("labels Import plainly when credential parsing could not parse the file", async () => {
@@ -878,7 +987,7 @@ describe("ImportDestinationComponent", () => {
           format: "dashlanecsv",
           contents: "a,b",
           filePassword: "file-secret",
-          itemCount: 5,
+          itemTypeCounts: { [CipherType.Login]: 5 },
         });
         await setup();
 

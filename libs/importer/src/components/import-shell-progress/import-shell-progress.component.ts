@@ -75,7 +75,7 @@ export class ImportShellProgressComponent {
     this.currentStep() === 3 || this.destinations().value?.hasStep ? 3 : 2,
   );
 
-  // "Location" wording whenever a My items card is offered (criteria 6442:149415).
+  // "Location" wording whenever a My items card is offered.
   private readonly destinationHeadingKey = computed(() =>
     this.destinations().value?.options.some((o) => o.kind === ImportDestinationKind.MyItems)
       ? "selectLocation"

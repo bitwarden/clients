@@ -14,6 +14,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { KeeperAuthError, KeeperAuthErrorCode } from "../../importers/keeper/access";
@@ -3595,7 +3597,9 @@ describe("ImportControlsComponent", () => {
 
   describe("with location selection", () => {
     const withStep: ImportDestinations = {
-      options: [{ id: "myVault", kind: "myVault", sharedFolders: [], restrictions: [] }],
+      options: [
+        { id: "myVault", kind: "myVault", sharedFolders: [], restrictions: [], removedTypes: [] },
+      ],
       hasStep: true,
     };
 
@@ -3609,8 +3613,10 @@ describe("ImportControlsComponent", () => {
       const importer = {} as any;
       importService.getImporter.mockReturnValue(importer);
       const result = new ImportResult();
+      result.ciphers = [CipherType.Login, CipherType.Login, CipherType.Card].map((type) =>
+        Object.assign(new CipherView(), { type }),
+      );
       importService.parse.mockResolvedValue(result);
-      destinationService.importableCount.mockResolvedValue(3);
       const continueSpy = jest.fn();
       component().continue.subscribe(continueSpy);
 
@@ -3622,7 +3628,6 @@ describe("ImportControlsComponent", () => {
         undefined,
       );
       expect(importService.parse).toHaveBeenCalledWith(importer, "a,b");
-      expect(destinationService.importableCount).toHaveBeenCalledWith(result);
       expect(importService.import).not.toHaveBeenCalled();
       // The parse itself is not kept: location selection parses again.
       expect(stagingService.current()).toEqual({
@@ -3631,7 +3636,7 @@ describe("ImportControlsComponent", () => {
         format: expect.any(String),
         contents: "a,b",
         filePassword: null,
-        itemCount: 3,
+        itemTypeCounts: { [CipherType.Login]: 2, [CipherType.Card]: 1 },
       });
       expect(syncService.fullSync).not.toHaveBeenCalled();
       expect(dialogService.open).not.toHaveBeenCalled();
@@ -3672,9 +3677,8 @@ describe("ImportControlsComponent", () => {
       await component().onContinue();
 
       expect(stagingService.current()).toEqual(
-        expect.objectContaining({ kind: "file", contents: "a,b", itemCount: undefined }),
+        expect.objectContaining({ kind: "file", contents: "a,b", itemTypeCounts: undefined }),
       );
-      expect(destinationService.importableCount).not.toHaveBeenCalled();
       expect(toastService.showToast).not.toHaveBeenCalled();
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });

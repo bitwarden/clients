@@ -5,6 +5,8 @@ import { ImportResult } from "../models/import-result";
 import { UpgradeImportType } from "../models/import-upgrade-options";
 import { SdkImportCredentials } from "../sdk";
 
+import { ItemTypeCounts } from "./item-type-counts";
+
 /** A parsed import, staged for passing to a specific vault.
  * In memory only: it holds decrypted vault data and credentials. */
 export type StagedImport =
@@ -14,7 +16,7 @@ export type StagedImport =
       format: UpgradeImportType;
       contents: string;
       filePassword: string | null;
-      itemCount: number | undefined;
+      itemTypeCounts: ItemTypeCounts | undefined;
     }
   /** Fetched and converted without an organization*/
   | { kind: "parsed"; importType: UpgradeImportType; result: ImportResult }

@@ -27,6 +27,8 @@ import {
   ImportDestinationCollections,
   ImportDestinationServiceAbstraction,
 } from "./import-destination.service.abstraction";
+import { countAfterRemoval, countCipherTypes } from "./item-type-counts";
+import { restrictedTypesForDestination } from "./restricted-types-for-destination";
 
 export class DefaultImportDestinationService implements ImportDestinationServiceAbstraction {
   constructor(
@@ -59,22 +61,17 @@ export class DefaultImportDestinationService implements ImportDestinationService
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  async importableCount(result: ImportResult): Promise<number> {
-    const restrictedTypes = await this.restrictedTypes();
-    return result.ciphers.filter((cipher) => !restrictedTypes.includes(cipher.type)).length;
-  }
-
-  async hasUnassignedItems(result: ImportResult): Promise<boolean> {
-    // Same rule as ImportService.importImportResult, which compares against the filtered count.
-    return result.collectionRelationships.length < (await this.importableCount(result));
-  }
-
-  private restrictedTypes() {
-    return firstValueFrom(
-      this.restrictedItemTypesService.restricted$.pipe(
-        map((restricted) => restricted.map((r) => r.cipherType)),
-      ),
+  async hasUnassignedItems(
+    result: ImportResult,
+    organizationId?: OrganizationId,
+  ): Promise<boolean> {
+    const restricted = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+    const importable = countAfterRemoval(
+      countCipherTypes(result.ciphers),
+      restrictedTypesForDestination(restricted, organizationId),
     );
+    // Same rule as ImportService.importImportResult, which compares against the filtered count.
+    return result.collectionRelationships.length < importable;
   }
 
   private build(
@@ -90,9 +87,6 @@ export class DefaultImportDestinationService implements ImportDestinationService
       collections.some((c) => c.organizationId === org.id && c.manage),
     );
     const policyApplies = ownershipOrgIds.size > 0;
-    // The import drops a restricted type whichever destination is picked, so every card warns about
-    // every restricting org.
-    const restrictions = this.restrictionsFor(sortedOrgs, restricted);
 
     const options: ImportDestinationOption[] = [];
     if (!policyApplies) {
@@ -100,7 +94,8 @@ export class DefaultImportDestinationService implements ImportDestinationService
         id: "myVault",
         kind: ImportDestinationKind.MyVault,
         sharedFolders: [],
-        restrictions,
+        restrictions: this.restrictionsFor(sortedOrgs, restricted),
+        removedTypes: restrictedTypesForDestination(restricted),
       });
     }
 
@@ -112,6 +107,9 @@ export class DefaultImportDestinationService implements ImportDestinationService
     for (const org of ordered) {
       const orgId = org.id as OrganizationId;
       const orgCollections = collections.filter((c) => c.organizationId === org.id);
+      // Items imported into an org follow that org's rule, not the other orgs'.
+      const restrictions = this.restrictionsFor([org], restricted);
+      const removedTypes = restrictedTypesForDestination(restricted, org.id);
 
       const defaultCollection = ownershipOrgIds.has(org.id)
         ? orgCollections.find((c) => c.isDefaultCollection)
@@ -126,6 +124,7 @@ export class DefaultImportDestinationService implements ImportDestinationService
           defaultCollection,
           sharedFolders: [],
           restrictions,
+          removedTypes,
         });
       }
 
@@ -143,6 +142,7 @@ export class DefaultImportDestinationService implements ImportDestinationService
           productTierType: org.productTierType,
           sharedFolders,
           restrictions,
+          removedTypes,
         });
       }
     }
@@ -159,10 +159,7 @@ export class DefaultImportDestinationService implements ImportDestinationService
     restricted: RestrictedCipherType[],
   ): ImportDestinationRestriction[] {
     return orgs.flatMap((org) => {
-      const types = restricted
-        .filter((r) => !r.allowViewOrgIds.includes(org.id))
-        .map((r) => r.cipherType)
-        .sort((a, b) => a - b);
+      const types = restrictedTypesForDestination(restricted, org.id).sort((a, b) => a - b);
       return types.length > 0 ? [{ organizationName: org.name, types }] : [];
     });
   }

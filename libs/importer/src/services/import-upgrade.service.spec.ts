@@ -4,6 +4,7 @@ if (!(Symbol as any).dispose) {
 }
 
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -12,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -209,6 +211,69 @@ describe("ImportUpgradeService", () => {
       expect(await failedWith(() => importService.validateParsed(failed))).toBeInstanceOf(
         ImportResultError,
       );
+    });
+  });
+
+  describe("importImportResult restricted types", () => {
+    let restrictedItemTypesService: ReturnType<typeof mock<RestrictedItemTypesService>>;
+    let accountService: ReturnType<typeof mock<AccountService>>;
+
+    const resultWith = (...types: CipherType[]) => {
+      const result = new ImportResult();
+      result.success = true;
+      result.ciphers = types.map((type) => Object.assign(new CipherView(), { type, name: "item" }));
+      return result;
+    };
+
+    beforeEach(() => {
+      restrictedItemTypesService = mock<RestrictedItemTypesService>();
+      accountService = mock<AccountService>();
+      accountService.activeAccount$ = of({ id: "user-1" } as any);
+      // Acme removes cards; Beta allows them.
+      (restrictedItemTypesService as any).restricted$ = of([
+        { cipherType: CipherType.Card, allowViewOrgIds: ["beta"] },
+      ]);
+
+      importService = new ImportUpgradeService(
+        mock<CipherService>(),
+        mock<FolderService>(),
+        mock<ImportApiServiceAbstraction>(),
+        i18nService,
+        mock<CollectionService>(),
+        mock<KeyService>(),
+        mock<EncryptService>(),
+        mock<KeyGenerationService>(),
+        accountService,
+        restrictedItemTypesService,
+        configService,
+        mock<SdkService>(),
+      );
+      importService["handleIndividualImport"] = jest.fn();
+      importService["handleOrganizationalImport"] = jest.fn();
+    });
+
+    it("removes every restricted type from a personal import", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
+    });
+
+    it("keeps a restricted type in an organization that allows it", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result, "beta" as OrganizationId, null, true);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login, CipherType.Card]);
+    });
+
+    it("removes a restricted type from an organization that does not allow it", async () => {
+      const result = resultWith(CipherType.Login, CipherType.Card);
+
+      await importService.importImportResult(result, "acme" as OrganizationId, null, true);
+
+      expect(result.ciphers.map((c) => c.type)).toEqual([CipherType.Login]);
     });
   });
 

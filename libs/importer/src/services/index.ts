@@ -33,4 +33,6 @@ export {
 } from "./import-staging.service.abstraction";
 export { DefaultImportStagingService } from "./default-import-staging.service";
 export { cloneImportResult } from "./clone-import-result";
+export { restrictedTypesForDestination } from "./restricted-types-for-destination";
+export { countAfterRemoval, countCipherTypes, ItemTypeCounts } from "./item-type-counts";
 export { readImportFileContents } from "./read-import-file-contents";

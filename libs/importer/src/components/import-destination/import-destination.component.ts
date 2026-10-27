@@ -17,7 +17,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { catchError, defer, from, map, of } from "rxjs";
+import { catchError, map, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -56,9 +56,12 @@ import {
 } from "../../models";
 import {
   cloneImportResult,
+  countAfterRemoval,
+  countCipherTypes,
   ImportDestinationServiceAbstraction,
   ImportStagingServiceAbstraction,
   ImportUpgradeServiceAbstraction,
+  ItemTypeCounts,
   StagedImport,
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
@@ -86,9 +89,9 @@ const errorName = (error: unknown): string =>
   error instanceof Error ? error.name : "unknown error";
 
 /**
- * Where the items staged by credential parsing land: My vault or My items, or an organization,
- * optionally inside one of its shared folders. Imports on Import, after the data-sharing
- * confirmation for organizations.
+ * Lets the user choose where the staged items land (My vault, My items, or an organization,
+ * optionally in one of its shared folders), then imports them. An organization requires
+ * confirming that the data may be shared with its members.
  */
 @Component({
   selector: "importer-destination",
@@ -150,22 +153,9 @@ export class ImportDestinationComponent {
     return state.status === "ready" ? state.value.options : [];
   });
 
-  // The count is only known for items parsed during credential parsing; an SDK import has none,
-  // and neither does a file only the organization's key can read.
-  private readonly itemCount = toSignal(
-    defer(() => {
-      const staged = this.stagingService.current();
-      switch (staged?.kind) {
-        case "file":
-          return of(staged.itemCount);
-        case "parsed":
-          return from(this.destinationService.importableCount(staged.result));
-        default:
-          return of(undefined);
-      }
-    }),
-    { initialValue: undefined },
-  );
+  // Per-type item counts. Unavailable for an SDK import and for a file only the organization's
+  // key can read.
+  private readonly typeCounts = this.stagedTypeCounts();
 
   protected readonly destinationControl = new FormControl("", { nonNullable: true });
   protected readonly moveToSharedFolderControl = new FormControl(false, { nonNullable: true });
@@ -230,7 +220,7 @@ export class ImportDestinationComponent {
     })),
   );
 
-  // Only an org with a shared folder the user manages offers the choice (criteria 6442:149327).
+  // Only an org with a shared folder the user manages offers the choice.
   protected readonly showMoveToSharedFolder = computed(() => {
     const option = this.selectedOption();
     return option?.kind === ImportDestinationKind.Organization && option.sharedFolders.length > 0;
@@ -251,10 +241,11 @@ export class ImportDestinationComponent {
   });
 
   protected readonly importLabel = computed(() => {
-    const count = this.itemCount();
-    if (count == null) {
+    if (this.typeCounts == null) {
       return this.i18nService.t("importVerb");
     }
+    // Same rule as the import filter, so the count matches what is imported.
+    const count = countAfterRemoval(this.typeCounts, this.selectedOption()?.removedTypes ?? []);
     return count === 1
       ? this.i18nService.t("importItemsSingular")
       : this.i18nService.t("importItemsCount", count.toString());
@@ -330,12 +321,14 @@ export class ImportDestinationComponent {
       return;
     }
 
-    // Before the dialog, so nobody confirms sharing and is then told it can't proceed. An SDK
-    // import has no items to inspect, and always refuses an organization without a target.
+    // Checked before the sharing dialog so the user isn't asked to confirm an import that will be
+    // refused. An SDK import has no items to inspect and is always refused for an org without a
+    // target.
     if (
       isOrganization &&
       sharedFolder == null &&
-      (items == null || (await this.destinationService.hasUnassignedItems(items)))
+      (items == null ||
+        (await this.destinationService.hasUnassignedItems(items, option.organizationId)))
     ) {
       this.toastService.showToast({
         variant: "error",
@@ -371,6 +364,18 @@ export class ImportDestinationComponent {
     this.continue.emit();
   };
 
+  private stagedTypeCounts(): ItemTypeCounts | undefined {
+    const staged = this.stagingService.current();
+    switch (staged?.kind) {
+      case "file":
+        return staged.itemTypeCounts;
+      case "parsed":
+        return countCipherTypes(staged.result.ciphers);
+      default:
+        return undefined;
+    }
+  }
+
   private confirmSharing(option: ImportDestinationOption): Promise<boolean> {
     return this.dialogService.openSimpleDialog({
       title: { key: "importToOrganization", placeholders: [option.organizationName ?? ""] },
@@ -401,9 +406,9 @@ export class ImportDestinationComponent {
     });
   }
 
-  // The items to import, shaped for the destination's organization: importers decide by it. Fresh
-  // on every attempt, because the import rewrites what it is given and a retry on the same object
-  // would apply the target twice. Undefined for an SDK import, which parses as it writes.
+  // The items to import, parsed or reshaped for the destination org (importers shape their output
+  // by it). Built fresh on each attempt: the import modifies its input, so a retry on the same
+  // object would apply the target twice. Undefined for an SDK import, which parses as it writes.
   private async prepare(
     staged: StagedImport,
     organizationId: OrganizationId | undefined,
