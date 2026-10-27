@@ -46,6 +46,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -62,9 +63,8 @@ import {
 } from "../enums/autofill-overlay.enum";
 import { AutofillOrchestrator, FillResult } from "../orchestration";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { CipherUse } from "../services/abstractions/fill-cipher-policy";
-import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../services/inline-menu-field-qualification.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -113,7 +113,6 @@ describe("OverlayBackground", () => {
   let domainSettingsService: DomainSettingsService;
   let logService: MockProxy<LogService>;
   let cipherService: MockProxy<CipherService>;
-  let fillCipherPolicy: DefaultFillCipherPolicy;
   let autofillService: MockProxy<AutofillService>;
   let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
@@ -264,8 +263,6 @@ describe("OverlayBackground", () => {
     // The overlay routes fills through the orchestrator; default to a filled-without-TOTP outcome so
     // handlers that destructure the result do not choke on the mock's undefined default.
     autofillOrchestrator.fillCipher.mockResolvedValue({ outcome: AutofillOutcome.Filled });
-    fillCipherPolicy = new DefaultFillCipherPolicy(cipherService);
-    jest.spyOn(fillCipherPolicy, "ciphersForUrl");
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -289,7 +286,7 @@ describe("OverlayBackground", () => {
       intraprocessMessageSender,
       // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
       new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
-      fillCipherPolicy,
+      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -1146,12 +1143,11 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
-        url,
-        mockUserId,
-        CipherUse.UserFill,
-        { includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey] },
-      );
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
+        CipherType.Card,
+        CipherType.Identity,
+        CipherType.SshKey,
+      ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1171,11 +1167,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
-        url,
-        mockUserId,
-        CipherUse.UserFill,
-      );
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, undefined);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1194,12 +1186,11 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
-        url,
-        mockUserId,
-        CipherUse.UserFill,
-        { includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey] },
-      );
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
+        CipherType.Card,
+        CipherType.Identity,
+        CipherType.SshKey,
+      ]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1908,57 +1899,6 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
-      });
-
-      it("leaves the password out of a new login draft the fill cipher policy does not offer", async () => {
-        jest.spyOn(fillCipherPolicy, "canOfferSave").mockResolvedValueOnce(false);
-
-        sendMockExtensionMessage(
-          {
-            command: "autofillOverlayAddNewVaultItem",
-            addNewCipherType: CipherType.Login,
-            login: {
-              uri: "https://tacos.com",
-              hostname: "",
-              username: "username",
-              password: "revealed",
-            },
-          },
-          sender,
-        );
-        jest.advanceTimersByTime(100);
-        await flushPromises();
-
-        expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(
-          { uri: "https://tacos.com", username: "username", password: "revealed" },
-          expect.anything(),
-        );
-        const { cipher } = jest.mocked(cipherService.setAddEditCipherInfo).mock.calls[0][0];
-        expect(cipher.login.username).toBe("username");
-        expect(cipher.login.password).toBe("");
-        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
-      });
-
-      it("keeps the password in a new login draft the fill cipher policy offers", async () => {
-        sendMockExtensionMessage(
-          {
-            command: "autofillOverlayAddNewVaultItem",
-            addNewCipherType: CipherType.Login,
-            login: {
-              uri: "https://tacos.com",
-              hostname: "",
-              username: "username",
-              password: "password",
-            },
-          },
-          sender,
-        );
-        jest.advanceTimersByTime(100);
-        await flushPromises();
-
-        const { cipher } = jest.mocked(cipherService.setAddEditCipherInfo).mock.calls[0][0];
-        expect(cipher.login.password).toBe("password");
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
 
@@ -3314,25 +3254,24 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("cipher change messages", () => {
+    describe("extension messages that trigger an update of the inline menu ciphers", () => {
       const extensionMessages = [
         "doFullSync",
         "addedCipher",
         "addEditCipherSubmitted",
         "editedCipher",
         "deletedCipher",
-        "bgSaveCipher",
-        "updateOverlayCiphers",
       ];
 
       beforeEach(() => {
         jest.spyOn(overlayBackground, "updateOverlayCiphers").mockImplementation();
       });
 
-      // `TabsBackground` refreshes the inline menu ciphers on `FillCipherPolicy.changed$`.
-      it.each(extensionMessages)("does not update the overlay ciphers for %s", (message) => {
-        sendMockExtensionMessage({ command: message });
-        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
+      extensionMessages.forEach((message) => {
+        it(`triggers an update of the overlay ciphers when the ${message} message is received`, () => {
+          sendMockExtensionMessage({ command: message });
+          expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
+        });
       });
     });
 
