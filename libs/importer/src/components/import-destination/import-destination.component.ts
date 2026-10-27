@@ -500,7 +500,18 @@ export class ImportDestinationComponent {
       case ImportDestinationKind.MyItems:
         return this.i18nService.t("importMyItemsOwnedBy", option.organizationName ?? "");
       case ImportDestinationKind.Organization:
-        return this.i18nService.t("importOrganizationVault");
+        return this.i18nService.t(this.organizationHintKey(option));
+    }
+  }
+
+  private organizationHintKey(option: ImportDestinationOption): string {
+    switch (option.productTierType) {
+      case ProductTierType.Free:
+        return "importSharedWithOnePerson";
+      case ProductTierType.Families:
+        return "importFamilyVault";
+      default:
+        return "importOrganizationVault";
     }
   }
 }

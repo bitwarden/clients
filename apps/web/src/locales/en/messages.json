@@ -3569,6 +3569,12 @@
   "importOrganizationVault": {
     "message": "Organization vault"
   },
+  "importSharedWithOnePerson": {
+    "message": "Shared with one person"
+  },
+  "importFamilyVault": {
+    "message": "Family vault"
+  },
   "importMoveAllItemsIntoSharedFolderA": {
     "message": "Move all items into a $ORGANIZATION$ shared folder",
     "description": "Checkbox label. Used when the organization name starts with a consonant; the 'An' variant is used for vowels.",

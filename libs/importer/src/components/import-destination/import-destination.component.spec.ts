@@ -269,6 +269,23 @@ describe("ImportDestinationComponent", () => {
       expect(component().cards()[0].icon).toBe("bwi-user");
     });
 
+    it.each([
+      [ProductTierType.Free, "importSharedWithOnePerson"],
+      [ProductTierType.Families, "importFamilyVault"],
+      [ProductTierType.Teams, "importOrganizationVault"],
+      [ProductTierType.Enterprise, "importOrganizationVault"],
+      [ProductTierType.TeamsStarter, "importOrganizationVault"],
+      [undefined, "importOrganizationVault"],
+    ])("shows the right subtitle for product tier %s", async (tier, hint) => {
+      destinations$.next({
+        options: [myVault, organization("a", "Acme Co", { productTierType: tier })],
+        hasStep: true,
+      });
+      await setup();
+
+      expect(component().cards()[1].hint).toBe(hint);
+    });
+
     it("shows a callout, with a policy help link, naming the org and the types it removes", async () => {
       destinations$.next({
         options: [

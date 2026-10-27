@@ -132,6 +132,8 @@ export default {
               importVisibleOnlyToYou: "Visible only to you",
               importMyItemsOwnedBy: (org?: string) => `Owned by ${org}, but visible only to you`,
               importOrganizationVault: "Organization vault",
+              importSharedWithOnePerson: "Shared with one person",
+              importFamilyVault: "Family vault",
               importMoveAllItemsIntoSharedFolderA: (org?: string) =>
                 `Move all items into a ${org} shared folder`,
               importMoveAllItemsIntoSharedFolderAn: (org?: string) =>
@@ -195,6 +197,10 @@ export const OrganizationWithSharedFolders: Story = {
         organization("b", "Beta Family", {
           productTierType: ProductTierType.Families,
           sharedFolders: [sharedFolder("f2", "b", "Home")],
+        }),
+        organization("c", "Joint", {
+          productTierType: ProductTierType.Free,
+          sharedFolders: [sharedFolder("f3", "c", "Shared")],
         }),
       ]),
     ),
