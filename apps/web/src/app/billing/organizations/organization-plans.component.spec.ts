@@ -3488,6 +3488,18 @@ describe("OrganizationPlansComponent", () => {
     });
 
     describe("preview failure", () => {
+      const addressError = new ErrorResponse(
+        {
+          Message: "The model state is invalid.",
+          ValidationErrors: {
+            BillingAddress: [
+              "Your location wasn't recognized. Please ensure your country and postal code are valid and try again.",
+            ],
+          },
+        },
+        400,
+      );
+
       beforeEach(async () => {
         fixture.detectChanges();
         await fixture.whenStable();
@@ -3514,6 +3526,60 @@ describe("OrganizationPlansComponent", () => {
         const host: HTMLElement = fixture.nativeElement;
         expect(host.querySelector('[data-testid="invoice-preview-error"]')).not.toBeNull();
         expect(host.querySelector("billing-cart-summary")?.classList).toContain("tw-hidden");
+      }));
+
+      it("toasts and shows the billing-details message when the preview rejects the billing address", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(addressError);
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "billingPreviewInvalidAddressError",
+        });
+
+        fixture.detectChanges();
+        const callout = fixture.nativeElement.querySelector(
+          '[data-testid="invoice-preview-error"]',
+        );
+        expect(callout.textContent).toContain("billingPreviewInvalidAddressError");
+      }));
+
+      it("keeps the generic message for a 400 about the purchase, not the address", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+          new ErrorResponse(
+            { Message: "Password Manager seats must be between 1 and 100,000." },
+            400,
+          ),
+        );
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "invoicePreviewErrorMessage",
+        });
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
+      }));
+
+      it("replaces an earlier address message with the generic message on a later failure", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
+          .mockRejectedValueOnce(addressError)
+          .mockRejectedValue(new Error("route not found"));
+
+        selectTeams();
+        enterValidAddress();
+        tick(1500);
+        expect(component["previewErrorMessageKey"]()).toBe("billingPreviewInvalidAddressError");
+
+        component["formGroup"].controls.additionalSeats.setValue(5);
+        tick(1500);
+
+        expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
       }));
 
       it("keeps the failure state while the billing address is being edited", fakeAsync(() => {
@@ -3575,6 +3641,60 @@ describe("OrganizationPlansComponent", () => {
 
         expect(component["previewCart"]()).toBe(scenarioACart);
       }));
+
+      describe("submit availability", () => {
+        const submitButton = (): HTMLElement | null =>
+          fixture.nativeElement.querySelector('button[type="submit"]');
+
+        const completeTheForm = () => {
+          component["formGroup"].patchValue({
+            name: "Test Org",
+            billingEmail: "test@example.com",
+          });
+          selectTeams();
+          enterValidAddress();
+        };
+
+        it("disables submit while the preview has failed", fakeAsync(() => {
+          mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+            new Error("route not found"),
+          );
+
+          completeTheForm();
+          tick(1500);
+          fixture.detectChanges();
+
+          expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
+        }));
+
+        it("enables submit once a later preview succeeds", fakeAsync(() => {
+          mockInvoicePreviewService.previewOrganizationCheckoutCart
+            .mockRejectedValueOnce(new Error("route not found"))
+            .mockResolvedValue(scenarioACart);
+
+          completeTheForm();
+          tick(1500);
+          component["formGroup"].controls.additionalSeats.setValue(5);
+          tick(1500);
+          fixture.detectChanges();
+
+          expect(submitButton()?.hasAttribute("aria-disabled")).toBe(false);
+        }));
+
+        it("does not create the organization when submitted while the preview has failed", fakeAsync(async () => {
+          mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+            new Error("route not found"),
+          );
+          mockOrganizationApiService.create.mockResolvedValue({ id: "new-org-id" } as any);
+
+          completeTheForm();
+          setupMockPaymentMethodComponent(component, "mock_token", "card");
+          tick(1500);
+          await component.submit();
+
+          expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
+        }));
+      });
     });
 
     it("drops the server cart and resumes the legacy path when the flag flips off at runtime", fakeAsync(async () => {

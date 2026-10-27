@@ -79,6 +79,19 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
+    ["pm-seat", InvoicePreviewFlowContext.RestartSubscription, "teams", "passwordManagerPlanPrice"],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.RestartSubscription,
+      "families",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "sm-seat",
+      InvoicePreviewFlowContext.RestartSubscription,
+      "enterprise",
+      "secretsManagerPlanPrice",
+    ],
     ["sm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "secretsManagerPlanPrice"],
     [
       "sm-seat",
@@ -234,6 +247,7 @@ describe("getCreditTranslationKey", () => {
     InvoicePreviewFlowContext.PremiumSubscriptionPage,
     InvoicePreviewFlowContext.PersonalCheckout,
     InvoicePreviewFlowContext.OrganizationCheckout,
+    InvoicePreviewFlowContext.RestartSubscription,
   ];
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
