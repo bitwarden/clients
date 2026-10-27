@@ -6,6 +6,8 @@ import {
   inject,
   input,
   output,
+  signal,
+  untracked,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { isActive, Router } from "@angular/router";
@@ -20,7 +22,11 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+import {
+  sharedFoldersCommands,
+  vaultScopeCommands,
+  VaultScopeType,
+} from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 
@@ -113,12 +119,17 @@ export class VaultPinnedNavComponent {
 
   /** Each folder's `isActive` signal. Rebuilt only when the pinned folders change. */
   private readonly folderActive = computed(() =>
-    [...this.routes().values()].map((route) =>
-      isActive(this.router.createUrlTree(route), this.router, EXACT_PATH),
-    ),
+    [...this.routes()].map(([id, route]) => ({
+      id,
+      active: isActive(this.router.createUrlTree(route), this.router, EXACT_PATH),
+    })),
   );
 
-  private readonly folderInView = computed(() => this.folderActive().some((active) => active()));
+  private readonly folderInView = computed(() => this.folderActive().some((f) => f.active()));
+
+  private readonly activeFolderId = computed(() => this.folderActive().find((f) => f.active())?.id);
+
+  private readonly previousActiveFolderId = signal<CollectionId | undefined>(undefined);
 
   /**
    * Whether the page in view is one of this section's folders, at any depth. The Shared folders
@@ -128,6 +139,16 @@ export class VaultPinnedNavComponent {
 
   constructor() {
     effect(() => this.folderInViewChange.emit(this.folderInView()));
+
+    effect(() => {
+      const previous = untracked(this.previousActiveFolderId);
+      this.previousActiveFolderId.set(this.activeFolderId());
+      if (previous != null && !this.collections().some((c) => c.id === previous)) {
+        void this.router.navigate(sharedFoldersCommands(this.organizationId()), {
+          replaceUrl: true,
+        });
+      }
+    });
   }
 
   protected async dismissEmptyState(): Promise<void> {

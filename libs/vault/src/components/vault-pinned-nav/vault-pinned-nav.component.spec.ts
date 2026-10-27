@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideRouter } from "@angular/router";
+import { NavigationEnd, provideRouter, Router } from "@angular/router";
 import {
   FakeAccountService,
   mockAccountServiceWith,
 } from "@bitwarden/common/../spec/fake-account-service";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -105,6 +105,7 @@ describe("VaultPinnedNavComponent", () => {
         },
         provideRouter([
           { path: "vault/:vaultId", component: DummyComponent },
+          { path: "vault/:vaultId/shared-folders", component: DummyComponent },
           { path: "vault/:vaultId/shared-folders/:collectionId", component: DummyComponent },
         ]),
       ],
@@ -210,6 +211,23 @@ describe("VaultPinnedNavComponent", () => {
 
       expect(document.querySelector("[id^='vault-pinned-nav_menu-item_edit-']")).not.toBeNull();
       expect(document.querySelector("[id^='vault-pinned-nav_menu-item_unpin-']")).toBeNull();
+    });
+
+    it("leaves a folder's page for the shared folders list once the folder is deleted", async () => {
+      await service.pin(userId, "3" as CollectionId);
+      await settle();
+      const router = TestBed.inject(Router);
+      await router.navigateByUrl("/vault/org-a/shared-folders/3");
+      await settle();
+
+      const redirected = firstValueFrom(
+        router.events.pipe(filter((event) => event instanceof NavigationEnd)),
+      );
+      collections$.next([collection("1", "Design"), collection("2", "Design/Brand")]);
+      await settle();
+      await redirected;
+
+      expect(router.url).toBe("/vault/org-a/shared-folders");
     });
 
     it("links a leaf folder to its folder in the organization's vault", async () => {

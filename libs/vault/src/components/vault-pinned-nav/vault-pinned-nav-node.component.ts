@@ -15,10 +15,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { sharedFoldersCommands } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
-import { CollectionActionResult, CollectionOptionsMenuComponent } from "../collection-options-menu";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 
 import { PinnedFolderNode } from "./pinned-shared-folder-nodes";
 
@@ -81,13 +80,5 @@ export class VaultPinnedNavNodeComponent {
       variant: "success",
       message: this.i18nService.t("folderUnpinnedFromSidebar", this.node().name),
     });
-  }
-
-  protected async onActionResult(result: CollectionActionResult): Promise<void> {
-    if (result.deleted && this.active()) {
-      await this.router.navigate(sharedFoldersCommands(result.organizationId), {
-        replaceUrl: true,
-      });
-    }
   }
 }
