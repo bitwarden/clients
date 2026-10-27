@@ -14,6 +14,19 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { filter } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
+import {
+  AccessRequestView,
+  activateAccessErrorMessageKey,
+  durationLabel,
+  exactWindow,
+  humanApprover,
+  reasonText,
+  relativeStart,
+} from "@bitwarden/bit-common/pam";
+import type { AccessDecisionVerdict } from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { DurationShortPipe } from "@bitwarden/bit-common/pam/date/duration-short.pipe";
+import { RemainingTimePipe } from "@bitwarden/bit-common/pam/date/remaining-time.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -33,21 +46,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  AccessRequestView,
-  activateAccessErrorMessageKey,
-  durationLabel,
-  exactWindow,
-  humanApprover,
-  reasonText,
-  relativeStart,
-} from "../..";
-import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
-import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
-import { DurationShortPipe } from "../../date/duration-short.pipe";
-import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
 import { emptyResolvedNames, organizationNameFor } from "../access-name-resolver.service";

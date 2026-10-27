@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import type { LabelValue } from "@bitwarden/bit-common/pam/helpers/approval-window";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { CardComponent, IconModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import type { LabelValue } from "../helpers/approval-window";
 
 import { SummaryFieldComponent } from "./summary-field.component";
 

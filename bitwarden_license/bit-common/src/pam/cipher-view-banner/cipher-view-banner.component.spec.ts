@@ -14,22 +14,19 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import {
-  AccessLeaseSdkService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-  LeasingErrorService,
-  REQUEST_ACCESS_SERVER_ERRORS,
-  composeRequestWindow,
-  toDateInputValue,
-} from "..";
 import type {
   AccessLeaseView,
   AccessPreCheckView,
   AccessRequestView,
   CipherAccessStateView,
 } from "../abstractions/access-lease";
+import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
+import { AccessRefreshService } from "../abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { formatDuration } from "../date/format-duration";
+import { REQUEST_ACCESS_SERVER_ERRORS } from "../helpers/request-access-error";
+import { composeRequestWindow, toDateInputValue } from "../helpers/request-access-window";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 import { MyLeasesService } from "../services/my-leases.service";

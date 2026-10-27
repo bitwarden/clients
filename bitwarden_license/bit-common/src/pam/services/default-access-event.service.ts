@@ -4,7 +4,7 @@ import { NotificationType } from "@bitwarden/common/enums/notification-type.enum
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { AccessEventService } from "..";
+import { AccessEventService } from "../abstractions/access-event.service";
 
 /**
  * Reads `notifications$` directly rather than adding a `processNotification` case, which would put

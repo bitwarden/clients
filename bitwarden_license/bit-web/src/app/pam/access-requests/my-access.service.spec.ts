@@ -2,19 +2,18 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, Subject } from "rxjs";
 
+import {
+  AccessEventService,
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+} from "@bitwarden/bit-common/pam";
 import type {
   AccessLeaseId,
   AccessLeaseView,
   AccessRequestId,
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
-
-import {
-  AccessEventService,
-  AccessLeaseSdkService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-} from "..";
 
 import {
   AccessNameResolverService,

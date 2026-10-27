@@ -2,6 +2,11 @@ import { provideZonelessChangeDetection } from "@angular/core";
 import { of } from "rxjs";
 
 import { LogoutService } from "@bitwarden/auth/common";
+import type {
+  AccessLeaseView,
+  AccessRequestDecisionView,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -10,11 +15,6 @@ import { Measurement } from "@bitwarden/logging";
 import { LockService } from "@bitwarden/unlock";
 import { ProductSwitcherService } from "@bitwarden/web-vault/app/layouts/product-switcher/shared/product-switcher.service";
 
-import type {
-  AccessLeaseView,
-  AccessRequestDecisionView,
-  AccessRequestView,
-} from "../abstractions/access-lease";
 import type { ResolvedNames } from "../access-requests/access-name-resolver.service";
 
 /**

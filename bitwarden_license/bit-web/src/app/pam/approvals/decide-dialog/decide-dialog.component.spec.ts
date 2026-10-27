@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
+import type {
+  AccessDecisionVerdict,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
-import type { AccessDecisionVerdict, AccessRequestView } from "../../abstractions/access-lease";
 import { emptyResolvedNames } from "../../access-requests/access-name-resolver.service";
 import { ApprovalRow, toApprovalRow } from "../approval-row";
 

@@ -1,18 +1,21 @@
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-
-import type { AccessRequestId, AccessRequestView } from "../abstractions/access-lease";
-import {
-  ResolvedNames,
-  organizationNameFor,
-} from "../access-requests/access-name-resolver.service";
-import { ElapsedLabel, elapsedLabel } from "../date/elapsed";
+import type {
+  AccessRequestId,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { ElapsedLabel, elapsedLabel } from "@bitwarden/bit-common/pam/date/elapsed";
 import {
   durationLabel,
   exactWindow,
   LabelValue,
   reasonText,
   relativeStart,
-} from "../helpers/approval-window";
+} from "@bitwarden/bit-common/pam/helpers/approval-window";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+
+import {
+  ResolvedNames,
+  organizationNameFor,
+} from "../access-requests/access-name-resolver.service";
 
 /**
  * A row in the approver's inbox. Display values are precomputed because `bitSortable` sorts on

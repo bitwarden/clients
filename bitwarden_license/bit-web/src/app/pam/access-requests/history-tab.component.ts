@@ -24,6 +24,13 @@ import {
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import type {
+  AccessLeaseId,
+  AccessRequestId,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { DurationShortPipe } from "@bitwarden/bit-common/pam/date/duration-short.pipe";
+import { RelativeTimePipe } from "@bitwarden/bit-common/pam/date/relative-time.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -50,14 +57,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../approvals/managed-lease-row";
-import { DurationShortPipe } from "../date/duration-short.pipe";
-import { RelativeTimePipe } from "../date/relative-time.pipe";
 
 import { MyAccessRequestRow, resolvedOrSubmittedMs } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
