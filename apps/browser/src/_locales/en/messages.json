@@ -8707,5 +8707,378 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Only 1 user can have active access to this item at a time. Try again once the current access ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minutes"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minutes"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hour"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hours"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 hours"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 hours"
+  },
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 days"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 days"
+  },
+  "pamAccessRuleDuration30d": {
+    "message": "30 days"
+  },
+  "pamWindowUntil": {
+    "message": "Until $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Access extended."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "You have active access to this item — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitle": {
+    "message": "Access to this item is ending soon — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
+  },
+  "pamApprovedRequestBannerHeading": {
+    "message": "Access approved"
+  },
+  "pamApprovedRequestBannerDuration": {
+    "message": "$DURATION$ of access",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "You can request access"
+  },
+  "pamUnlicensedBannerHeading": {
+    "message": "Privileged Controls license required",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerBody": {
+    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Requesting access is not available while unlicensed.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalSubmit": {
+    "message": "Request access"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Pick a duration. You'll get immediate access for that long."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Pick a window and tell the approver why you need access. They'll review and decide."
+  },
+  "requestAccessModalDuration": {
+    "message": "Duration"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Start date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEndDate": {
+    "message": "End date"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "End must be after the start."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (now)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Custom time…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Custom end date and time…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Show suggested start times"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Back to suggested durations"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, until $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Requesting $DURATION$ of access: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Reason"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Why do you need this?"
+  },
+  "requestAccessModalAutomaticReasonHint": {
+    "message": "This reason is saved with your access request."
+  },
+  "requestAccessModalHumanReasonHint": {
+    "message": "Approvers will see this reason when reviewing your request."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access. Try again."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "Access approved — select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Request submitted — awaiting approval."
   }
 }
