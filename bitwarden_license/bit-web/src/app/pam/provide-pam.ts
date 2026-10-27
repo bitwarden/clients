@@ -1,5 +1,26 @@
 import { NgZone } from "@angular/core";
 
+import {
+  AccessEventService,
+  ApprovalSdkService,
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  AccessRuleSdkService,
+  LeasingErrorService,
+} from "@bitwarden/bit-common/pam";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { CipherViewBannerComponent } from "@bitwarden/bit-common/pam/cipher-view-banner/cipher-view-banner.component";
+import { ItemDetailsStateBadgeComponent } from "@bitwarden/bit-common/pam/item-details-state-badge/item-details-state-badge.component";
+import { AccessLeasesSdkService } from "@bitwarden/bit-common/pam/services/access-leases-sdk.service";
+import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
+import { AccessRequestsSdkService } from "@bitwarden/bit-common/pam/services/access-requests-sdk.service";
+import { AccessRulesSdkService } from "@bitwarden/bit-common/pam/services/access-rules-sdk.service";
+import { ApprovalsSdkService } from "@bitwarden/bit-common/pam/services/approvals-sdk.service";
+import { DefaultAccessEventService } from "@bitwarden/bit-common/pam/services/default-access-event.service";
+import { DefaultAccessRefreshService } from "@bitwarden/bit-common/pam/services/default-access-refresh.service";
+import { DefaultLeasingErrorService } from "@bitwarden/bit-common/pam/services/default-leasing-error.service";
+import { MyLeasesService } from "@bitwarden/bit-common/pam/services/my-leases.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -30,26 +51,16 @@ import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/i
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
+import { AuditApiService } from "./access-audit/audit-api.service";
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
-import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
-import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
-import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
-import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
-import { AccessRequestCancelService } from "./services/access-request-cancel.service";
-import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
-import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
-import { ApprovalsSdkService } from "./services/approvals-sdk.service";
-import { DefaultAccessEventService } from "./services/default-access-event.service";
-import { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
-import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
+import { RotationSdkService } from "./rotation/rotation-sdk.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
-import { MyLeasesService } from "./services/my-leases.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
@@ -59,18 +70,6 @@ import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-ac
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { controlledAccessColumn } from "./vault-item-column/controlled-access-column";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
-
-import {
-  AccessEventService,
-  ApprovalSdkService,
-  AuditApiService,
-  AccessLeaseSdkService,
-  AccessRefreshService,
-  AccessRequestSdkService,
-  AccessRuleSdkService,
-  LeasingErrorService,
-  RotationSdkService,
-} from ".";
 
 /** PAM's root-level providers, including every OSS seam it fills. */
 export function providePam(): SafeProvider[] {

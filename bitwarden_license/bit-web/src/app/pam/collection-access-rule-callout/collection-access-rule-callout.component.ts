@@ -3,6 +3,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { combineLatest, map, of, switchMap } from "rxjs";
 
+import { AccessRuleView } from "@bitwarden/bit-common/pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,7 +11,6 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessRuleView } from "..";
 import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-summary";

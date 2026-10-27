@@ -7,6 +7,7 @@ const config = require("../../libs/components/tailwind.config.base");
 const webContent = [
   path.resolve(__dirname, "./src/**/*.{html,ts,mdx}"),
   path.resolve(__dirname, "../../bitwarden_license/bit-web/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../bitwarden_license/bit-common/src/pam/**/*.{html,ts}"),
 ];
 
 config.content = [...config.content, ...webContent];

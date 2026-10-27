@@ -12,7 +12,7 @@ import type {
   OrganizationId as SdkOrganizationId,
 } from "@bitwarden/sdk-internal";
 
-import { AccessRuleSdkService } from "..";
+import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 export class AccessRulesSdkService extends AccessRuleSdkService {
   constructor(

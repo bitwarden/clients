@@ -15,6 +15,31 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import {
+  AccessRuleId,
+  AccessRuleView,
+  AccessCondition,
+  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
+  ACCESS_RULE_DURATION_PRESETS,
+  ACCESS_RULE_NAME_MAX_LENGTH,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
+  accessRuleToFormValue,
+  AccessRuleSdkService,
+  AccessRuleErrorField,
+  AccessRuleErrorOutcome,
+  classifyAccessRuleError,
+  conflictingCollectionIds,
+  DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
+  EXTENSION_DURATION_OPTIONS,
+  formValueToRequest,
+  isAccessRuleNotFound,
+  isIpAllowlist,
+  isKnownAccessCondition,
+  NO_DURATION_CAP,
+  resolveCollectionNames,
+  snapToNearestAccessRuleDuration,
+} from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -48,31 +73,6 @@ import {
 import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  AccessRuleId,
-  AccessRuleView,
-  AccessCondition,
-  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
-  ACCESS_RULE_DURATION_PRESETS,
-  ACCESS_RULE_NAME_MAX_LENGTH,
-  accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessageKey,
-  accessRuleToFormValue,
-  AccessRuleSdkService,
-  AccessRuleErrorField,
-  AccessRuleErrorOutcome,
-  classifyAccessRuleError,
-  conflictingCollectionIds,
-  DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
-  EXTENSION_DURATION_OPTIONS,
-  formValueToRequest,
-  isAccessRuleNotFound,
-  isIpAllowlist,
-  isKnownAccessCondition,
-  NO_DURATION_CAP,
-  resolveCollectionNames,
-  snapToNearestAccessRuleDuration,
-} from "../..";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";

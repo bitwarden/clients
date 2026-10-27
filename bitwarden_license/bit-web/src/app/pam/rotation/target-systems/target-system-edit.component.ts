@@ -13,6 +13,7 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
+import { apiErrorBodyMessage } from "@bitwarden/bit-common/pam/abstractions/api-error";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -42,7 +43,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { apiErrorBodyMessage } from "../../abstractions/api-error";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import {
   accessConnectorConnectionLabelKey,

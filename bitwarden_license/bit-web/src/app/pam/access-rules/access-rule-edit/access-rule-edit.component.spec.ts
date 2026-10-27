@@ -5,12 +5,16 @@ import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { Observable, of, Subject, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import {
+  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
+  AccessRuleSdkService,
+  AccessRuleView,
+} from "@bitwarden/bit-common/pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
-import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "../..";
 import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
 

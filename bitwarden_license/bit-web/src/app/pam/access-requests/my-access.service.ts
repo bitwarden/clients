@@ -10,10 +10,6 @@ import {
   map,
 } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessEventService,
   AccessLeaseId,
@@ -23,7 +19,10 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
-} from "..";
+} from "@bitwarden/bit-common/pam";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
   AccessNameResolverService,

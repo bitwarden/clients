@@ -2,6 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { catchError, combineLatest, from, map, merge, Observable, of, switchMap } from "rxjs";
 
+import { AccessRefreshService } from "@bitwarden/bit-common/pam/abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "@bitwarden/bit-common/pam/abstractions/access-request-sdk.service";
+import {
+  AccessBadgeState,
+  cipherAccessBadgeState,
+} from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { rereadOnLapse } from "@bitwarden/bit-common/pam/helpers/lease-liveness";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -12,13 +21,6 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-
-import { AccessRefreshService } from "../abstractions/access-refresh.service";
-import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
-import { rereadOnLapse } from "../helpers/lease-liveness";
 
 /**
  * Structural, since the host passes its own `CollectionView`/`CollectionAdminView`, which this

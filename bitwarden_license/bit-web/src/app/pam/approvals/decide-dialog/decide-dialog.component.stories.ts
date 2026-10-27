@@ -1,10 +1,10 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import type { AccessRequestView } from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { AccessRequestView } from "../../abstractions/access-lease";
 import { emptyResolvedNames } from "../../access-requests/access-name-resolver.service";
 import { ApprovalRow, toApprovalRow } from "../approval-row";
 

@@ -2,10 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
+import { ExtendLeaseDialogComponent } from "@bitwarden/bit-common/pam/access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { DialogRef } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-
-import { ExtendLeaseDialogComponent } from "./extend-lease-dialog.component";
 
 /** The dialog resolves through `DialogRef`; nothing here needs to observe the result. */
 const dialogRef = { close: () => {} };
