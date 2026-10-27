@@ -4,6 +4,9 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -143,6 +146,13 @@ export default {
         provideStoryLogService(),
         // The item links need a router; the wildcard and hash keep a click inside the story.
         provideRouter([{ path: "**", children: [] }], withHashLocation()),
+        // `app-vault-icon` on each row reads these.
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }),
   ],
