@@ -375,6 +375,7 @@ import { AutofillTriageService } from "../autofill/services/autofill-triage.serv
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { RevealedAutofillCipherService } from "../autofill/services/revealed-autofill-cipher.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
 import { shouldAutoCopyTotp } from "../autofill/types/fill-result";
@@ -454,6 +455,7 @@ export default class MainBackground {
   environmentService: BrowserEnvironmentService;
   cipherSdkService: CipherSdkService;
   revealedCipherService: RevealedCipherService;
+  revealedAutofillCipherService: RevealedAutofillCipherService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -1245,6 +1247,10 @@ export default class MainBackground {
         messageSender: this.messagingService,
         logService: this.logService,
       }) ?? new NoopRevealedCipherService();
+    this.revealedAutofillCipherService = new RevealedAutofillCipherService(
+      this.cipherService,
+      this.revealedCipherService,
+    );
     this.folderService = new FolderService(
       this.keyService,
       this.encryptService,
@@ -1408,6 +1414,7 @@ export default class MainBackground {
       this.platformUtilsService,
       () => this.updateOverlayCiphers(),
       this.logService,
+      this.revealedAutofillCipherService,
     );
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1711,6 +1718,7 @@ export default class MainBackground {
       this.fido2Background,
       this.#intraprocessMessageSender,
       this.messageListener,
+      this.revealedAutofillCipherService,
     );
 
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
@@ -1760,6 +1768,7 @@ export default class MainBackground {
       this.autofillTriageService,
       new WebmapperDraftService(this.stateProvider),
       this.#intraprocessMessageSender,
+      this.revealedAutofillCipherService,
     );
 
     this.contextMenusBackground = new ContextMenusBackground(
@@ -1803,6 +1812,7 @@ export default class MainBackground {
       this.authService,
       this.cipherService,
       this.accountService,
+      this.revealedAutofillCipherService,
     );
 
     if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
@@ -2385,6 +2395,7 @@ export default class MainBackground {
       this.configService,
       this.#intraprocessMessageSender,
       this.messageListener,
+      this.revealedAutofillCipherService,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(

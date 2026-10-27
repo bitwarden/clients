@@ -490,6 +490,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationScenario[] } = { skippable: [] },
   ) => {
+    if (await this.notificationBackground.matchesRevealedLogin(modifyLoginData)) {
+      this.clearCompletedWebRequest(requestId, tab.id);
+      return "";
+    }
+
     const notificationCandidates = [
       {
         type: NotificationScenarios.Cipher,

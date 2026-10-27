@@ -9,6 +9,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { AutofillCipherTypeId } from "../types";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
@@ -19,6 +20,7 @@ export class CipherContextMenuHandler {
     private authService: AuthService,
     private cipherService: CipherService,
     private accountService: AccountService,
+    private revealedAutofillCipherService: RevealedAutofillCipherService,
   ) {}
 
   async update(url: string, currentUriIsBlocked: boolean = false) {
@@ -47,10 +49,11 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
-      CipherType.Card,
-      CipherType.Identity,
-    ]);
+    const ciphers = await this.revealedAutofillCipherService.getAllDecryptedForUrlIncludingRevealed(
+      url,
+      activeUserId,
+      [CipherType.Card, CipherType.Identity],
+    );
     ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphers.reduce(
