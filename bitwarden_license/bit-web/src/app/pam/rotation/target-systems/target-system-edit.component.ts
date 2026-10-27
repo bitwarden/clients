@@ -31,10 +31,13 @@ import {
   HeaderComponent,
   IconButtonModule,
   IconModule,
+  IconTileComponent,
+  MultiSelectModule,
   RadioButtonModule,
   SectionComponent,
   SectionHeaderComponent,
   SelectItemView,
+  SelectModule,
   SkeletonComponent,
   SkeletonTextComponent,
   ToastService,
@@ -59,7 +62,7 @@ import {
   THEN_MANAGED_CREDENTIAL,
   THEN_QUERY_PARAM,
 } from "../create-flow";
-import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
+import { DetailBreadcrumbComponent, DetailBreadcrumbStep } from "../detail-breadcrumb.component";
 import {
   AccessConnector,
   AccessConnectorId,
@@ -238,9 +241,12 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     HeaderComponent,
     IconButtonModule,
     IconModule,
+    IconTileComponent,
+    MultiSelectModule,
     RadioButtonModule,
     SectionComponent,
     SectionHeaderComponent,
+    SelectModule,
     SkeletonComponent,
     SkeletonTextComponent,
     TypographyModule,
@@ -269,6 +275,33 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
   private readonly then: string | undefined = this.route.snapshot.queryParams?.[THEN_QUERY_PARAM];
 
   protected readonly editing = this.targetSystemId != null;
+
+  /** Whether the admin came from the add-managed-credential form and goes back to it. */
+  protected readonly returnsToCredential = this.then === THEN_MANAGED_CREDENTIAL;
+
+  private readonly credentialsListRoute = rotationLink(
+    this.organizationId,
+    ROTATION_TABS.managedCredentials,
+  );
+
+  private readonly addCredentialRoute = [...this.credentialsListRoute, "new"];
+
+  protected readonly breadcrumbParentKey = this.returnsToCredential
+    ? "pamRotationTabManagedCredentials"
+    : "pamRotationTabTargetSystems";
+  protected readonly breadcrumbParentRoute: unknown[] = this.returnsToCredential
+    ? this.credentialsListRoute
+    : [".."];
+  protected readonly breadcrumbParentIcon = this.returnsToCredential
+    ? ("bwi-managed-credential" as const)
+    : undefined;
+  protected readonly breadcrumbStep: DetailBreadcrumbStep | undefined = this.returnsToCredential
+    ? {
+        labelKey: "pamRotationConfigCreateTitle",
+        route: this.addCredentialRoute,
+        tileIcon: "bwi-plus",
+      }
+    : undefined;
   protected readonly loading = signal(true);
 
   /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
@@ -501,6 +534,47 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
     () => !this.connectorsUnavailable() && this.eligibleConnectors().length === 0,
   );
 
+  /** The create form's picks; nothing is assigned until the target exists. */
+  protected readonly connectorsControl = this.formBuilder.nonNullable.control<SelectItemView[]>([]);
+
+  private readonly chosenConnectorItems = toSignal(this.connectorsControl.valueChanges, {
+    initialValue: this.connectorsControl.value,
+  });
+
+  protected readonly createConnectorOptions = computed<SelectItemView[]>(() =>
+    this.eligibleConnectors().map((connector) => ({
+      id: String(connector.id),
+      listName: connector.name,
+      labelName: connector.name,
+      icon: "bwi-access-connector",
+    })),
+  );
+
+  protected readonly chosenConnectors = computed(() => {
+    const byId = new Map(this.connectors().map((c) => [String(c.id), c]));
+    return this.chosenConnectorItems()
+      .map((item) => byId.get(item.id))
+      .filter((connector): connector is AccessConnector => connector != null);
+  });
+
+  protected readonly noneChosenConnected = computed(
+    () => this.chosenConnectors().length > 0 && !this.chosenConnectors().some((c) => c.isConnected),
+  );
+
+  /** The org has no access connectors of any kind, so there is nothing to choose. */
+  protected readonly orgHasNoConnectors = computed(
+    () => this.connectorsLoaded() && this.connectors().length === 0,
+  );
+
+  private readonly connectorsLoaded = signal(false);
+
+  protected readonly removeChosenConnector = (connectorId: AccessConnectorId): void => {
+    this.connectorsControl.setValue(
+      this.connectorsControl.value.filter((item) => item.id !== String(connectorId)),
+    );
+    this.connectorsControl.markAsDirty();
+  };
+
   protected readonly connectorColumns: readonly AssignmentPickerColumn[] = [
     { headerKey: "name" },
     { headerKey: "status" },
@@ -570,6 +644,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
         await Promise.all([this.loadSystem(), this.loadConnectors()]);
       } else {
         this.applyTemplate(this.route.snapshot.queryParams?.["template"] as string | undefined);
+        void this.loadConnectors();
       }
     } finally {
       this.loading.set(false);
@@ -632,6 +707,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
       this.connectors.set([]);
       this.connectorsUnavailable.set(true);
     }
+    this.connectorsLoaded.set(true);
   }
 
   private async loadManagedCredentials(): Promise<void> {
@@ -714,9 +790,21 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
               name,
               passwordPolicy,
             });
+      const assignmentFailure =
+        method === TargetSystemMethod.Automatic ? await this.assignChosenConnectors(created) : null;
+      if (assignmentFailure != null) {
+        this.markLiveFormsPristine();
+        this.showError(assignmentFailure.error);
+        await this.router.navigate(["target-systems", created.id], {
+          relativeTo: this.route.parent,
+        });
+        return;
+      }
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamTargetSystemCreated"),
+        message: this.i18nService.t(
+          this.returnsToCredential ? "pamTargetSystemAdded" : "pamTargetSystemCreated",
+        ),
       });
       await this.navigateAfterCreate(created);
     } catch (e) {
@@ -737,8 +825,19 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
     }
   };
 
+  private async assignChosenConnectors(
+    created: TargetSystemView,
+  ): Promise<{ error: unknown } | null> {
+    const chosen = this.chosenConnectors();
+    const { failure } = await this.writeEach(
+      chosen.map((connector) => connector.id),
+      (connectorId) => this.rotationSdk.assignTarget(this.organizationId, connectorId, created.id),
+    );
+    return failure ?? null;
+  }
+
   private navigateAfterCreate(created: TargetSystemView): Promise<boolean> {
-    if (this.then !== THEN_MANAGED_CREDENTIAL) {
+    if (!this.returnsToCredential) {
       return this.navigateToList();
     }
     this.markLiveFormsPristine();
@@ -947,7 +1046,11 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
 
   /** The form groups that hold user input for the current mode. */
   private liveForms(): AbstractControl[] {
-    const forms = [this.editing ? this.nameForm : this.createForm, this.policyForm];
+    const forms = [
+      this.editing ? this.nameForm : this.createForm,
+      this.policyForm,
+      ...(this.editing ? [] : [this.connectorsControl]),
+    ];
     // Harmless to include unconditionally; it's pristine except while finishing a kindless target.
     return this.showEditKindPicker() ? [...forms, this.editKindControl] : forms;
   }
@@ -962,6 +1065,11 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
 
   /** Leaves through the route's guard, which asks before discarding. */
   protected readonly cancel = async (): Promise<void> => {
+    if (this.returnsToCredential && !this.editing) {
+      this.markLiveFormsPristine();
+      await this.router.navigate(this.addCredentialRoute);
+      return;
+    }
     await this.router.navigate([".."], { relativeTo: this.route });
   };
 

@@ -18,6 +18,7 @@ import {
 import { leaveThroughGuard } from "../../testing/unsaved-changes";
 import type {
   AccessConnector,
+  AccessConnectorId,
   RotationConfigView,
   TargetSystemView,
   TargetSystemId,
@@ -136,8 +137,12 @@ async function setupCreateWithTemplate(template: string): Promise<
   };
 }
 
-async function setupCreateWithQueryParams(queryParams: Record<string, string>) {
+async function setupCreateWithQueryParams(
+  queryParams: Record<string, string>,
+  connectors: AccessConnector[] = [],
+) {
   const rotationSdk = mock<RotationSdkService>();
+  rotationSdk.listConnectors.mockResolvedValue(connectors);
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
     imports: [TargetSystemEditComponent, NoopAnimationsModule],
@@ -167,7 +172,13 @@ async function setupCreateWithQueryParams(queryParams: Record<string, string>) {
     router: TestBed.inject(Router),
     component: fixture.componentInstance as unknown as {
       createForm: { patchValue: (v: unknown) => void };
+      connectorsControl: { setValue: (v: SelectItemView[]) => void };
+      chosenConnectors: () => AccessConnector[];
+      noneChosenConnected: () => boolean;
+      orgHasNoConnectors: () => boolean;
+      removeChosenConnector: (id: AccessConnectorId) => void;
       submitCreate: () => Promise<void>;
+      cancel: () => Promise<void>;
     },
   };
 }
@@ -481,6 +492,209 @@ describe("TargetSystemEditComponent — create mode", () => {
     );
   });
 
+  it("toasts 'Target system added' when handing back to the credential page", async () => {
+    TestBed.resetTestingModule();
+    const { component, rotationSdk, router } = await setupCreateWithQueryParams({
+      then: "managed-credential",
+    });
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const toastService = TestBed.inject(ToastService);
+
+    component.createForm.patchValue({ name: "Manual System", method: TargetSystemMethod.Manual });
+    await component.submitCreate();
+
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamTargetSystemAdded",
+    });
+  });
+
+  it("keeps 'Target system created.' for a plain create", async () => {
+    TestBed.resetTestingModule();
+    const { component, rotationSdk, router } = await setupCreateWithQueryParams({});
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const toastService = TestBed.inject(ToastService);
+
+    component.createForm.patchValue({ name: "Manual System", method: TargetSystemMethod.Manual });
+    await component.submitCreate();
+
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamTargetSystemCreated",
+    });
+  });
+
+  it("returns Cancel to the credential create page without asking to discard", async () => {
+    TestBed.resetTestingModule();
+    const { fixture, component, router } = await setupCreateWithQueryParams({
+      then: "managed-credential",
+    });
+    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const dialogService = TestBed.inject(DialogService);
+
+    component.createForm.patchValue({ name: "Half typed" });
+    createFormOf(fixture).markAsDirty();
+    await component.cancel();
+
+    expect(nav).toHaveBeenCalledWith([
+      "/organizations",
+      ORG_ID,
+      "pam",
+      "rotation",
+      "managed-credentials",
+      "new",
+    ]);
+    await expect(leaveThroughGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("sends Cancel to the list when there is no ?then", async () => {
+    TestBed.resetTestingModule();
+    const { component, router } = await setupCreateWithQueryParams({});
+    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    await component.cancel();
+
+    expect(nav).toHaveBeenCalledWith(
+      [".."],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  describe("choosing access connectors on create", () => {
+    const connectedConnector = accessConnector({
+      id: connectorId("c-1"),
+      name: "Primary",
+      isConnected: true,
+    });
+    const offlineConnector = accessConnector({
+      id: connectorId("c-2"),
+      name: "Backup",
+      isConnected: false,
+    });
+    const inactiveConnector = accessConnector({
+      id: connectorId("c-3"),
+      name: "Retired",
+      status: AccessConnectorStatus.Disabled,
+    });
+
+    function pick(...connectors: AccessConnector[]): SelectItemView[] {
+      return connectors.map((c) => ({
+        id: String(c.id),
+        listName: c.name,
+        labelName: c.name,
+      }));
+    }
+
+    it("lists the chosen connectors and warns only while none of them is connected", async () => {
+      TestBed.resetTestingModule();
+      const { component } = await setupCreateWithQueryParams({}, [
+        connectedConnector,
+        offlineConnector,
+      ]);
+
+      component.connectorsControl.setValue(pick(offlineConnector));
+      expect(component.chosenConnectors().map((c) => c.name)).toEqual(["Backup"]);
+      expect(component.noneChosenConnected()).toBe(true);
+
+      component.connectorsControl.setValue(pick(offlineConnector, connectedConnector));
+      expect(component.chosenConnectors().map((c) => c.name)).toEqual(["Backup", "Primary"]);
+      expect(component.noneChosenConnected()).toBe(false);
+    });
+
+    it("removes a connector from the selection from its row", async () => {
+      TestBed.resetTestingModule();
+      const { component } = await setupCreateWithQueryParams({}, [
+        connectedConnector,
+        offlineConnector,
+      ]);
+      component.connectorsControl.setValue(pick(connectedConnector, offlineConnector));
+
+      component.removeChosenConnector(offlineConnector.id);
+
+      expect(component.chosenConnectors().map((c) => c.name)).toEqual(["Primary"]);
+    });
+
+    it("reports an org with no connectors, and not one that only has inactive ones", async () => {
+      TestBed.resetTestingModule();
+      const empty = await setupCreateWithQueryParams({}, []);
+      expect(empty.component.orgHasNoConnectors()).toBe(true);
+
+      TestBed.resetTestingModule();
+      const inactiveOnly = await setupCreateWithQueryParams({}, [inactiveConnector]);
+      expect(inactiveOnly.component.orgHasNoConnectors()).toBe(false);
+    });
+
+    it("assigns each chosen connector to the new target after creating it", async () => {
+      TestBed.resetTestingModule();
+      const created = makeSystem({ id: sysId("sys-new") });
+      const { component, rotationSdk, router } = await setupCreateWithQueryParams({}, [
+        connectedConnector,
+        offlineConnector,
+      ]);
+      rotationSdk.createTargetSystem.mockResolvedValue(created);
+      jest.spyOn(router, "navigate").mockResolvedValue(true);
+      component.createForm.patchValue({ name: "Entra", method: TargetSystemMethod.Automatic });
+      component.connectorsControl.setValue(pick(connectedConnector, offlineConnector));
+
+      await component.submitCreate();
+
+      expect(rotationSdk.assignTarget).toHaveBeenCalledTimes(2);
+      expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
+        ORG_ID,
+        connectedConnector.id,
+        created.id,
+      );
+      expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
+        ORG_ID,
+        offlineConnector.id,
+        created.id,
+      );
+    });
+
+    it("assigns nothing for a manual target", async () => {
+      TestBed.resetTestingModule();
+      const { component, rotationSdk, router } = await setupCreateWithQueryParams({}, [
+        connectedConnector,
+      ]);
+      rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+      jest.spyOn(router, "navigate").mockResolvedValue(true);
+      component.createForm.patchValue({ name: "Manual", method: TargetSystemMethod.Manual });
+      component.connectorsControl.setValue(pick(connectedConnector));
+
+      await component.submitCreate();
+
+      expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+    });
+
+    it("opens the created target's edit page and reports the error when an assignment fails", async () => {
+      TestBed.resetTestingModule();
+      const created = makeSystem({ id: sysId("sys-new") });
+      const { component, rotationSdk, router } = await setupCreateWithQueryParams(
+        { then: "managed-credential" },
+        [connectedConnector],
+      );
+      rotationSdk.createTargetSystem.mockResolvedValue(created);
+      rotationSdk.assignTarget.mockRejectedValue(new Error("refused"));
+      const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+      const toastService = TestBed.inject(ToastService);
+      component.createForm.patchValue({ name: "Entra", method: TargetSystemMethod.Automatic });
+      component.connectorsControl.setValue(pick(connectedConnector));
+
+      await component.submitCreate();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      expect(nav).toHaveBeenCalledWith(
+        ["target-systems", created.id],
+        expect.objectContaining({ relativeTo: ROUTE_PARENT }),
+      );
+    });
+  });
+
   /**
    * Two-phase create can leave the row in `pending_seal`; `TargetSystemCreateError` carries its
    * id, so this routes to the pending target's edit page instead of a stuck create form.
@@ -750,10 +964,10 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
   it("renders a consequence hint under each method radio", () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector("#target-system-edit_radio_automatic bit-hint")?.textContent).toContain(
-      "pamTargetSystemMethodAutomaticHint",
+      "pamTargetSystemMethodAutomaticDescription",
     );
     expect(el.querySelector("#target-system-edit_radio_manual bit-hint")?.textContent).toContain(
-      "pamTargetSystemMethodManualHint",
+      "pamTargetSystemMethodManualDescription",
     );
   });
 
@@ -769,10 +983,66 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
   });
 
-  it("offers Entra and a custom script as the only integrations", () => {
+  it("puts system type, ending sessions and access connectors in the General information card", () => {
     const el = fixture.nativeElement as HTMLElement;
-    const options = [...el.querySelectorAll("#target-system-edit_select_kind option")];
-    expect(options.map((o) => o.textContent?.trim())).toEqual([
+    const headings = [...el.querySelectorAll("h2")].map((h) => h.textContent?.trim());
+    expect(headings).toEqual(["pamTargetSystemGeneralInfoHeading", "pamTargetSystemPolicyHeading"]);
+
+    const card = el.querySelector("bit-card")!;
+    const labels = [...card.querySelectorAll("bit-label, [data-testid] p")].map((l) =>
+      l.textContent?.trim(),
+    );
+    expect(labels).toEqual(
+      expect.arrayContaining([
+        "name",
+        "pamTargetSystemMethodLabel",
+        "pamTargetSystemSystemTypeLabel",
+        "pamTargetSystemEndingSessions",
+        "pamTargetSystemAccessConnectors",
+      ]),
+    );
+  });
+
+  it("drops system type, ending sessions and access connectors for a manual target", () => {
+    patchMethod(TargetSystemMethod.Manual);
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).not.toContain("pamTargetSystemSystemTypeLabel");
+    expect(el.textContent).not.toContain("pamTargetSystemEndingSessions");
+    expect(el.textContent).not.toContain("pamTargetSystemAccessConnectors");
+    expect(el.textContent).toContain("pamTargetSystemPolicyHeading");
+    expect(el.textContent).not.toContain("pamTargetSystemPolicyManualHint");
+  });
+
+  it("shows Supported and the Entra helper for Entra, with no session-termination checkbox", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const block = el.querySelector('[data-testid="target-system-edit-ending-sessions"]')!;
+    expect(block.textContent).toContain("pamTargetSystemSessionTerminationSupported");
+    expect(block.textContent).toContain("pamTargetSystemEndingSessionsEntraHint");
+    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+  });
+
+  it("groups the password policy characters under one label with the short option names", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    const legend = [...el.querySelectorAll("legend")].find((l) =>
+      l.textContent?.includes("pamTargetSystemPolicyCharacters"),
+    );
+    expect(legend).toBeDefined();
+    const labels = [...legend!.closest("fieldset")!.querySelectorAll("bit-label")].map((l) =>
+      l.textContent?.trim(),
+    );
+    expect(labels).toEqual([
+      "pamTargetSystemPolicyUppercaseLetters",
+      "pamTargetSystemPolicyLowercaseLetters",
+      "pamTargetSystemPolicyDigitsOption",
+      "pamTargetSystemPolicySymbolsOption",
+    ]);
+  });
+
+  it("offers Entra and a custom script as the only integrations", () => {
+    const { kindOptions } = fixture.componentInstance as unknown as {
+      kindOptions: readonly { label: string }[];
+    };
+    expect(kindOptions.map((o) => o.label)).toEqual([
       "pamTargetSystemTypeEntra",
       "pamTargetSystemTypeCustomScript",
     ]);
