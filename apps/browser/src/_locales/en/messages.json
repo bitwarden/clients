@@ -8635,7 +8635,7 @@
     "description": "Toast message shown after an item is successfully restored from exclusion to the vault health report"
   },
   "itemRestoreFailed": {
-    "message": "Item not restored to list",
+    "message": "Error occurred. Try restoring again.",
     "description": "Toast message shown when an attempt fails to restore an excluded item to the vault health report"
   }
 }
