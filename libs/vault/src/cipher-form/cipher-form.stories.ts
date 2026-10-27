@@ -239,6 +239,7 @@ export default {
           useValue: {
             getClientType: () => ClientType.Browser,
             getDevice: () => DeviceType.ChromeExtension,
+            isSafari: () => false,
           },
         },
         {
