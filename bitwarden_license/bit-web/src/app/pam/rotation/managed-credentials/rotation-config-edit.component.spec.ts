@@ -1148,6 +1148,20 @@ describe("RotationConfigEditComponent — action row", () => {
     );
   });
 
+  it("disables Save while a rotation job is in flight, since the server refuses the update", async () => {
+    const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+
+    const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
+    expect(save.componentInstance.disabled()).toBe(true);
+  });
+
+  it("keeps Save live while no job is running", async () => {
+    const fixture = await renderPage();
+
+    const save = fixture.debugElement.query(By.css("#rotation-config-edit_button_save"));
+    expect(save.componentInstance.disabled()).toBe(false);
+  });
+
   it("keeps Delete live while no job is running", async () => {
     const fixture = await renderPage();
 
