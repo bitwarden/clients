@@ -268,19 +268,6 @@ export class ViewComponent {
     return cipher;
   }
 
-  /** Edit shows disabled while the restricted-cipher rule blocks it. */
-  protected canEdit(): boolean {
-    return this.allows(RestrictedCipherAction.Edit);
-  }
-
-  protected canRestore(): boolean {
-    return (
-      this.cipher.isDeleted &&
-      this.cipher.permissions.restore &&
-      this.allows(RestrictedCipherAction.Restore)
-    );
-  }
-
   /** False when the restricted-cipher rule blocks the action. */
   protected allows(action: RestrictedCipherAction): boolean {
     const stored = this.storedCipher ?? this.cipher;
