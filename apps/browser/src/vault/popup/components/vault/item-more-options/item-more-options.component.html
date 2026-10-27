@@ -18,19 +18,6 @@
           {{ "view" | i18n }}
         </button>
       }
-      @for (action of contributedActions; track action.id) {
-        @if (action.show?.(cipher) ?? true) {
-          <button
-            type="button"
-            bitMenuItem
-            [variant]="action.variant ?? 'primary'"
-            [disabled]="action.disabled?.(cipher) ?? false"
-            (click)="action.run(cipher)"
-          >
-            {{ action.label }}
-          </button>
-        }
-      }
       <button type="button" bitMenuItem (click)="toggleFavorite()">
         {{ favoriteText | i18n }}
       </button>
@@ -40,7 +27,7 @@
         </button>
       }
       @if (canEdit && canViewPassword) {
-        @if ((canClone$ | async) && allows(RestrictedCipherAction.Clone)) {
+        @if (canClone$ | async) {
           <a bitMenuItem (click)="clone()">
             {{ "clone" | i18n }}
           </a>
@@ -51,7 +38,7 @@
           </a>
         }
       }
-      @if (!isLocked && allows(RestrictedCipherAction.Share)) {
+      @if (allows(RestrictedCipherAction.Share)) {
         <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
           {{ "shareViaLink" | i18n }}
         </a>
@@ -76,7 +63,7 @@
         </button>
       }
     }
-    @if ((canDelete$ | async) && allows(RestrictedCipherAction.Delete)) {
+    @if (canDelete$ | async) {
       <button type="button" bitMenuItem variant="danger" (click)="delete()">
         {{ "delete" | i18n }}
       </button>
