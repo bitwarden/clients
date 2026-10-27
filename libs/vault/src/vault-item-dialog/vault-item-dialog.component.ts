@@ -14,7 +14,16 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  concatMap,
+  distinctUntilChanged,
+  EMPTY,
+  firstValueFrom,
+  Observable,
+  Subject,
+  switchMap,
+} from "rxjs";
 import { map } from "rxjs/operators";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -116,7 +125,7 @@ export const VaultItemDialogResult = {
   Saved: "saved",
 
   /**
-   * A cipher was deleted.
+   * A cipher was deleted, from this dialog or elsewhere, or the user lost access to it.
    */
   Deleted: "deleted",
 
@@ -372,6 +381,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.revealed ? this.cipher : undefined;
   }
 
+  /**
+   * The id of the cipher kept in sync with local state, so a background sync refreshes the dialog.
+   * Unset for new, admin console and restricted ciphers.
+   */
+  private readonly syncedCipherId$ = new BehaviorSubject<CipherId | undefined>(undefined);
+
+  /** True while this dialog deletes the cipher, which closes the dialog itself. */
+  private deleting = false;
+
   /** Settles once every view `displayView$` has delivered so far is applied. */
   private displayViewApplied: Promise<void> = Promise.resolve();
 
@@ -412,6 +430,29 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.premiumUpgradeService.upgradeConfirmed$
       .pipe(
         map((c) => c && (this.confirmedPremiumUpgrade = true)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
+    this.syncedCipherId$
+      .pipe(
+        distinctUntilChanged(),
+        switchMap((cipherId) =>
+          cipherId == null
+            ? EMPTY
+            : this.userId$.pipe(
+                switchMap((userId) =>
+                  this.cipherService
+                    .cipherView$(userId, cipherId)
+                    .pipe(map((view) => ({ userId, cipherId, view }))),
+                ),
+              ),
+        ),
+        concatMap(({ userId, cipherId, view }) =>
+          this.applySyncedView(userId, cipherId, view).catch((e: unknown) =>
+            this.logService.error(e),
+          ),
+        ),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -466,6 +507,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         false,
         this.cipher.organizationId,
       );
+
+      this.followLocalState(this.cipher);
     }
 
     this.showRestore = await this.canUserRestore();
@@ -548,6 +591,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
+    this.followLocalState(this.cipher);
 
     // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
     this.canEdit = await firstValueFrom(
@@ -593,9 +637,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.deleting = true;
     try {
       await this.deleteCipher();
     } catch (e) {
+      this.deleting = false;
       // Reporting Deleted would close the dialog on a delete the server refused.
       this.logService.error(e);
       this.toastService.showToast({
@@ -840,6 +886,90 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.canEdit = false;
     this.canDelete = false;
     this.updateTitle();
+  }
+
+  /**
+   * Keeps `cipher` in sync with local state, so changes from a background sync show without
+   * reopening the dialog. Admin console ciphers may not be in local state, and restricted ciphers
+   * follow `displayView$` instead.
+   */
+  private followLocalState(cipher: CipherView): void {
+    if (this.formConfig.isAdminConsole || this.formConfig.admin || this.storedView != null) {
+      return;
+    }
+    this.syncedCipherId$.next(cipher.id as CipherId);
+  }
+
+  /**
+   * Applies a view of the followed cipher from local state. Closes the dialog when the cipher is gone,
+   * and leaves an open form alone so a sync never discards the user's edits.
+   */
+  private async applySyncedView(
+    userId: UserId,
+    cipherId: CipherId,
+    view: CipherView | undefined,
+  ): Promise<void> {
+    if (view == null) {
+      // A cipher that became restricted leaves the decrypted views but stays in local state.
+      if (this.deleting || (await this.cipherService.get(cipherId, userId)) != null) {
+        return;
+      }
+      // Deleted elsewhere, or the user lost access to it.
+      this._cipherModified = false;
+      await this.dialogRef.close(VaultItemDialogResult.Deleted);
+      return;
+    }
+
+    if (this.editing || view.decryptionFailure || !this.changedSinceShown(view)) {
+      return;
+    }
+
+    const cipher = await this.cipherService.get(cipherId, userId);
+    const canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(view, this.params.isAdminConsoleAction),
+    );
+    const canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(view, this.params.isAdminConsoleAction),
+    );
+    // The user may have opened the form while the reads were in flight.
+    if (this.editing) {
+      return;
+    }
+
+    this.cipher = view;
+    if (cipher != null) {
+      this.formConfig.originalCipher = cipher;
+    }
+    this.collections = this.formConfig.collections.filter((c) =>
+      view.collectionIds?.includes(c.id),
+    );
+    this.organization = this.formConfig.organizations.find((o) => o.id === view.organizationId);
+    this.canEdit = canEdit;
+    this.canDelete = canDelete;
+    this.showRestore = await this.canUserRestore();
+    this.updateTitle();
+  }
+
+  /** True while the form is open or loading, which holds edits a refresh would discard. */
+  private get editing(): boolean {
+    return this.params.mode !== "view" || this.loadForm;
+  }
+
+  /**
+   * True when `view` differs from the shown cipher. A permission change from a collection access
+   * update leaves the revision date alone, so the permissions are compared too.
+   */
+  private changedSinceShown(view: CipherView): boolean {
+    if (this.cipher == null) {
+      return false;
+    }
+    return (
+      view.revisionDate?.getTime() > this.cipher.revisionDate?.getTime() ||
+      view.edit !== this.cipher.edit ||
+      view.viewPassword !== this.cipher.viewPassword ||
+      view.permissions?.delete !== this.cipher.permissions?.delete ||
+      view.permissions?.restore !== this.cipher.permissions?.restore
+    );
   }
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
