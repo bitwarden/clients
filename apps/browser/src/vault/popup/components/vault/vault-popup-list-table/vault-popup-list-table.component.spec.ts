@@ -25,10 +25,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
@@ -278,6 +280,7 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
+        { provide: RevealedCipherService, useClass: NoopRevealedCipherService },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "test-user-id" }) } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
