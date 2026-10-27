@@ -158,6 +158,7 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
   total: number;
   amountDue: number;
   nextPaymentAttempt?: Date;
+  prorationDate?: string;
 
   constructor(response: any) {
     super(response);
@@ -225,6 +226,12 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
       if (!isNaN(date.getTime())) {
         this.nextPaymentAttempt = date;
       }
+    }
+
+    // Kept as the server's string so it can be echoed back exactly; a Date round trip could alter it.
+    const prorationDate = this.getResponseProperty("ProrationDate");
+    if (prorationDate && !isNaN(new Date(prorationDate).getTime())) {
+      this.prorationDate = prorationDate;
     }
   }
 }
