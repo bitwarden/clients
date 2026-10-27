@@ -46,6 +46,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -62,6 +63,7 @@ import {
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/inline-menu-field-qualification.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -285,6 +287,7 @@ describe("OverlayBackground", () => {
       intraprocessMessageSender,
       // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
       new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
+      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -1095,7 +1098,7 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, undefined);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([

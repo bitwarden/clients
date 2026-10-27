@@ -32,6 +32,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
 
@@ -40,6 +41,7 @@ import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
 import {
   crossContextBoundary,
@@ -148,6 +150,7 @@ describe("NotificationBackground", () => {
       intraprocessMessageSender,
       // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
       new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
+      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
     );
   });
 
@@ -244,6 +247,41 @@ describe("NotificationBackground", () => {
       const cipherView = notificationBackground["convertAddLoginQueueMessageToCipherView"](message);
 
       expect(cipherView.name).toEqual("fallback-domain.com");
+    });
+  });
+
+  describe("matchesRevealedLogin", () => {
+    const uri = "https://example.com";
+
+    beforeEach(() => {
+      jest
+        .spyOn(notificationBackground["revealedAutofillCipherService"], "getRevealed")
+        .mockResolvedValue([
+          mock<CipherView>({ login: { username: "Admin", password: "revealed" } }),
+        ]);
+      cipherService.filterCiphersForUrl.mockImplementation(async (ciphers, url) =>
+        url === uri ? ciphers : [],
+      );
+    });
+
+    it.each([
+      [true, "the revealed username, in any case", { username: "ADMIN", password: "other" }],
+      [true, "a password-only form", { username: "", password: "revealed" }],
+      [
+        true,
+        "a change-password form with no username",
+        { password: "old", newPassword: "revealed" },
+      ],
+      [false, "another username and password", { username: "other", password: "other" }],
+      [
+        false,
+        "another site",
+        { username: "Admin", password: "revealed", uri: "https://other.com" },
+      ],
+    ])("is %s for %s", async (expected, _, form) => {
+      const data = { uri, username: "", password: "", ...form };
+
+      expect(await notificationBackground.matchesRevealedLogin(data)).toBe(expected);
     });
   });
 
@@ -2607,6 +2645,33 @@ describe("NotificationBackground", () => {
               },
             },
           );
+        });
+
+        it("drops a locked save that matches a revealed login", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const data = { username: "test", password: "revealed", uri: "https://example.com" };
+          notificationBackground["notificationQueue"] = [
+            mock<AddLoginQueueMessage>({
+              type: NotificationType.AddLogin,
+              tab,
+              domain: "example.com",
+              data,
+              wasVaultLocked: true,
+            }),
+          ];
+          const matchesRevealedLogin = jest
+            .spyOn(notificationBackground, "matchesRevealedLogin")
+            .mockResolvedValueOnce(true);
+
+          sendMockExtensionMessage({ command: "bgSaveCipher", edit: false }, sender);
+          await flushPromises();
+
+          expect(matchesRevealedLogin).toHaveBeenCalledWith(data);
+          expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
+          expect(updatePasswordSpy).not.toHaveBeenCalled();
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {

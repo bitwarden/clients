@@ -742,6 +742,29 @@ describe("OverlayNotificationsBackground", () => {
         expect(cipherNotificationSpy).toHaveBeenCalled();
       });
 
+      it("triggers no notification for a form that matches a revealed login", async () => {
+        const matchesRevealedLogin = jest
+          .spyOn(notificationBackground, "matchesRevealedLogin")
+          .mockResolvedValueOnce(true);
+        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
+          callback(mock<chrome.tabs.Tab>({ status: "complete", url: sender.url }));
+        });
+
+        triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.OnCompletedDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        expect(matchesRevealedLogin).toHaveBeenCalledWith(
+          expect.objectContaining({ username: "username", password: "password" }),
+        );
+        expect(cipherNotificationSpy).not.toHaveBeenCalled();
+      });
+
       it("initializes the notification immediately when the tab's navigation is complete", async () => {
         sendMockExtensionMessage(
           {
