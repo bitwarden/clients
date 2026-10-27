@@ -76,7 +76,6 @@ export class MembersV2Component {
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  // TODO: replace with the no-members illustration from Figma.
   protected readonly emptyIcon = RegistrationUserAddIcon;
 
   private readonly organization$ = this.route.params.pipe(
