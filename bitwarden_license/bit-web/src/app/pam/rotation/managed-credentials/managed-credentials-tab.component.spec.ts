@@ -320,12 +320,25 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  describe("rotateNow", () => {
-    beforeEach(() => setupTestBed());
+  describe("confirmRotateNow (confirmed)", () => {
+    beforeEach(() => setupTestBed(true));
+
+    it("opens a warning dialog before rotating", async () => {
+      const row = makeRow();
+      await component.confirmRotateNow(row);
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "pamRotationConfigRotateNow" },
+          content: { key: "pamRotationConfigRotateNowConfirmContent" },
+          acceptButtonText: { key: "pamRotationConfigRotateNow" },
+          type: "warning",
+        }),
+      );
+    });
 
     it("calls service.rotateNow and shows a success toast", async () => {
       const row = makeRow();
-      await component.rotateNow(row);
+      await component.confirmRotateNow(row);
       expect(configsService.rotateNow).toHaveBeenCalledWith(row.config);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
@@ -335,7 +348,7 @@ describe("ManagedCredentialsTabComponent", () => {
     it("shows an error toast when rotateNow throws", async () => {
       configsService.rotateNow.mockRejectedValue(new Error("fail"));
       const row = makeRow();
-      await component.rotateNow(row);
+      await component.confirmRotateNow(row);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "error" }),
       );
@@ -351,7 +364,7 @@ describe("ManagedCredentialsTabComponent", () => {
           { name: "RotationError", variant: "Api" },
         ),
       );
-      await component.rotateNow(makeRow());
+      await component.confirmRotateNow(makeRow());
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         message: "A rotation for this credential is already in progress.",
@@ -360,11 +373,22 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("falls back to the generic message for an error with no server reason", async () => {
       configsService.rotateNow.mockRejectedValue(new Error("fail"));
-      await component.rotateNow(makeRow());
+      await component.confirmRotateNow(makeRow());
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         message: "unexpectedError",
       });
+    });
+  });
+
+  describe("confirmRotateNow (canceled)", () => {
+    beforeEach(() => setupTestBed(false));
+
+    it("does not rotate when the dialog is canceled", async () => {
+      const row = makeRow();
+      await component.confirmRotateNow(row);
+      expect(configsService.rotateNow).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
     });
   });
 
@@ -439,8 +463,8 @@ describe("ManagedCredentialsTabComponent", () => {
       configsService.rotateNow.mockReturnValue(pending.promise);
       const row = makeRow();
 
-      const first = component.rotateNow(row);
-      const second = component.rotateNow(row);
+      const first = component.confirmRotateNow(row);
+      const second = component.confirmRotateNow(row);
       pending.settle();
       await Promise.all([first, second]);
 
@@ -465,14 +489,14 @@ describe("ManagedCredentialsTabComponent", () => {
       configsService.rotateNow.mockReturnValue(pending.promise);
       const row = makeRow();
 
-      const first = component.rotateNow(row);
+      const first = component.confirmRotateNow(row);
       expect(component.isRowBusy(row.id)).toBe(true);
 
       pending.settle();
       await first;
       expect(component.isRowBusy(row.id)).toBe(false);
 
-      await component.rotateNow(row);
+      await component.confirmRotateNow(row);
       expect(configsService.rotateNow).toHaveBeenCalledTimes(2);
     });
 
@@ -1274,7 +1298,7 @@ describe("ManagedCredentialsTabComponent", () => {
       );
     });
 
-    it("rotates now and confirms a removal from the row menu", async () => {
+    it("confirms a rotation and a removal from the row menu", async () => {
       const el = render();
       menuItems(el, 0);
       document
@@ -1284,7 +1308,10 @@ describe("ManagedCredentialsTabComponent", () => {
         .click();
       await fixture.whenStable();
 
-      expect(configsService.rotateNow).toHaveBeenCalledWith(active.config);
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "pamRotationConfigRotateNow" } }),
+      );
+      expect(configsService.rotateNow).not.toHaveBeenCalled();
 
       menuItems(el, 0);
       document

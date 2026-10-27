@@ -20376,6 +20376,9 @@
   "pamRotationConfigRotateNowSuccess": {
     "message": "Rotation dispatched."
   },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotating this credential will also sign out anyone still using the current password."
+  },
   "pamRotationConfigRecordManual": {
     "message": "Record manual rotation"
   },
