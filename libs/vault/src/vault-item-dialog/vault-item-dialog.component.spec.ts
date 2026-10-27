@@ -574,23 +574,37 @@ describe("VaultItemDialogComponent", () => {
       });
 
       it("refreshes the cipher from local state and switches to view mode", async () => {
+        const storedCipher = { id: "cipher-id" } as unknown as Cipher;
         const refreshedCipherView = { id: "cipher-id", attachments: [] } as any;
-        cipherServiceMock.cipherView$.mockReturnValue(of(refreshedCipherView));
+        cipherServiceMock.get.mockResolvedValue(storedCipher);
+        cipherServiceMock.decrypt.mockResolvedValue(refreshedCipherView);
 
         await component.cancel();
 
-        expect(cipherServiceMock.cipherView$).toHaveBeenCalledWith("test-user-id", "cipher-id");
+        expect(cipherServiceMock.get).toHaveBeenCalledWith("cipher-id", "test-user-id");
         expect(component["cipher"]).toBe(refreshedCipherView);
+        expect(component["formConfig"].originalCipher).toBe(storedCipher);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 
       it("leaves the existing cipher in place when local state has no cipher", async () => {
         const originalCipher = component["cipher"];
-        cipherServiceMock.cipherView$.mockReturnValue(of(undefined));
+        cipherServiceMock.get.mockResolvedValue(null);
 
         await component.cancel();
 
         expect(component["cipher"]).toBe(originalCipher);
+        expect((component as any).changeMode).toHaveBeenCalledWith("view");
+      });
+
+      it("switches to view mode after a failed save left the decrypted cache empty", async () => {
+        // A failed save clears the cache, and cipherView$ then never emits.
+        cipherServiceMock.cipherView$.mockReturnValue(NEVER);
+        cipherServiceMock.get.mockResolvedValue({ id: "cipher-id" } as unknown as Cipher);
+        cipherServiceMock.decrypt.mockResolvedValue({ id: "cipher-id" } as any);
+
+        await component.cancel();
+
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 

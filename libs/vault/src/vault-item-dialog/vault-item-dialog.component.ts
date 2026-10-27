@@ -751,13 +751,18 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     // Refresh from local state so attachments modified during edit aren't stale in view mode.
     // A restricted cipher already shows the current view from displayView$.
+    // Reads the stored cipher rather than `cipherView$`: a failed save clears the decrypted cache,
+    // which then stays empty until local state changes, so waiting on it would hang.
     if (this.storedView == null) {
       const activeUserId = await firstValueFrom(this.userId$);
-      const latestCipher = await firstValueFrom(
-        this.cipherService.cipherView$(activeUserId, this.cipher.id as CipherId),
-      );
-      if (latestCipher != null) {
+      const storedCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+      const latestCipher =
+        storedCipher == null
+          ? undefined
+          : await this.cipherService.decrypt(storedCipher, activeUserId);
+      if (latestCipher != null && !latestCipher.decryptionFailure) {
         this.cipher = latestCipher;
+        this.formConfig.originalCipher = storedCipher;
       }
     }
 
