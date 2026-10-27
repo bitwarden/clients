@@ -12,7 +12,7 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import type { AccessDecisionVerdict } from "@bitwarden/bit-pam";
+import type { AccessDecisionVerdict } from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,

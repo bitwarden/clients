@@ -1,7 +1,7 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-import { AccessBadgeState } from "@bitwarden/bit-pam";
-import { AccessStateBadgeComponent } from "@bitwarden/bit-pam-components";
+import { AccessBadgeState } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
 

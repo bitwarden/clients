@@ -10,11 +10,8 @@ import {
   switchMap,
 } from "rxjs";
 
-import { AccessRefreshService, AccessRequestSdkService, rereadOnLapse } from "@bitwarden/bit-pam";
-import {
-  AccessBadgeTickerService,
-  AccessRequestCancelService,
-} from "@bitwarden/bit-pam-components";
+import { AccessRefreshService, AccessRequestSdkService } from "@bitwarden/bit-common/pam";
+import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/access-request-cancel.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -38,7 +35,6 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
     private readonly accessRefreshService: AccessRefreshService,
     private readonly accessRequestCancelService: AccessRequestCancelService,
     private readonly configService: ConfigService,
-    private readonly ticker: AccessBadgeTickerService,
   ) {}
 
   cancelableRequest$(cipher: CipherViewLike): Observable<boolean> {
@@ -76,8 +72,7 @@ export class DefaultVaultRowAccessActionsService implements VaultRowAccessAction
         if (!enabled) {
           return of(false);
         }
-        const read$ = () => from(this.accessRequestSdkService.getCipherAccessState(cipherId));
-        return rereadOnLapse(read$, this.ticker.ticks$).pipe(
+        return from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
           map((state) => state.pendingRequest != null || state.approvedRequest != null),
           // An unreadable state offers no menu entry rather than an error, like the vault-row
           // badge.

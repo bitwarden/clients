@@ -15,6 +15,18 @@ import { EMPTY, filter, map, shareReplay, startWith, switchMap, take } from "rxj
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import {
+  AccessLeaseId,
+  AccessRequestId,
+  activateAccessErrorMessageKey,
+} from "@bitwarden/bit-common/pam";
+import { AccessBadgeState } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { DurationCompoundPipe } from "@bitwarden/bit-common/pam/date/duration-compound.pipe";
+import { DurationShortPipe } from "@bitwarden/bit-common/pam/date/duration-short.pipe";
+import { RequestedWindowPipe } from "@bitwarden/bit-common/pam/date/requested-window.pipe";
+import { selectedFilterStrings } from "@bitwarden/bit-common/pam/helpers/selected-filter-strings";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -46,15 +58,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
-
-import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
-import { AccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
-import { DurationCompoundPipe } from "../date/duration-compound.pipe";
-import { DurationShortPipe } from "../date/duration-short.pipe";
-import { RequestedWindowPipe } from "../date/requested-window.pipe";
-import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
 import { announcementHoldMs } from "./announcement-hold";
 import {
