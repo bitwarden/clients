@@ -96,9 +96,10 @@
             id="bit-side-nav--scroll"
             cdkScrollable
           >
+            <!-- Rows sit tight; top-level sections widen the gap to space themselves apart. -->
             <div
               data-testid="side-nav-body"
-              class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
+              class="tw-flex tw-flex-col tw-gap-0.5 has-[bit-nav-section:not(bit-nav-group_*)]:tw-gap-2 tw-pb-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
               [class]="open ? 'tw-px-3' : railPadding"
             >
               <ng-container *ngTemplateOutlet="navContent"></ng-container>

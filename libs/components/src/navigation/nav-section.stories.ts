@@ -95,26 +95,6 @@ export const Default: StoryObj<NavSectionComponent> = {
   }),
 };
 
-/** Without a `label`, the section renders no heading or group role, only its tight row spacing. */
-export const NoLabel: StoryObj<NavSectionComponent> = {
-  globals: enabledFlags(FeatureFlag.VFO1Foundation),
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-side-nav>
-        <bit-nav-section>
-          <bit-nav-item text="Collections" route="collections" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-item text="Members" route="members" icon="bwi-user"></bit-nav-item>
-          <bit-nav-item text="Groups" route="groups" icon="bwi-users"></bit-nav-item>
-          <bit-nav-group text="Settings" route="settings" icon="bwi-cog">
-            <bit-nav-item text="Policies" route="settings/policies"></bit-nav-item>
-          </bit-nav-group>
-        </bit-nav-section>
-      </bit-side-nav>
-    `,
-  }),
-};
-
 /**
  * A section with no items renders a dismissible empty state via `bit-nav-section-empty`. The close
  * button is only shown when the consumer binds `(dismiss)`.
