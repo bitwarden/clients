@@ -162,7 +162,7 @@ export const Filtered: Story = {
   play: async ({ canvasElement }) => {
     const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
     await userEvent.click(trigger);
-    await userEvent.click(await within(document.body).findByText("Production"));
+    await userEvent.click(await within(document.body).findByRole("radio", { name: /^Production/ }));
     await userEvent.keyboard("{Escape}");
   },
 };
