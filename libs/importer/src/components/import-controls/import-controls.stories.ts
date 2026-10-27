@@ -20,9 +20,10 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
-import { KeeperDirectImportService } from "../keeper/keeper-direct-import.service";
+import { KEEPER_SSO_TAB_MONITOR } from "../keeper/services/keeper-sso-tab-monitor";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
+import { KeeperDirectImportUpgradeService } from "./direct/keeper/keeper-direct-import-upgrade.service";
 import { ImportControlsComponent } from "./import-controls.component";
 
 function buildOption(overrides: Partial<ImportOption> & { id: string }): ImportOption {
@@ -227,6 +228,14 @@ function decoratorsFor(
           provide: PlatformUtilsService,
           useValue: { getClientType: () => clientType } as Partial<PlatformUtilsService>,
         },
+        // Root-provided, so it can't see the platform service above.
+        {
+          provide: KEEPER_SSO_TAB_MONITOR,
+          useValue: {
+            launchAndWaitForToken: () => Promise.reject(new Error("No SSO tab in Storybook")),
+            cancel: (): void => undefined,
+          },
+        },
         {
           provide: LogService,
           useValue: { error: action("LogService.error") } as Partial<LogService>,
@@ -259,10 +268,10 @@ function decoratorsFor(
           useValue: { theme$: of(ThemeTypes.Light) } as Partial<AbstractThemingService>,
         },
         {
-          provide: KeeperDirectImportService,
+          provide: KeeperDirectImportUpgradeService,
           useValue: {
             handleImport: () => Promise.reject(new Error("Not wired up in Storybook.")),
-          } as Partial<KeeperDirectImportService>,
+          } as Partial<KeeperDirectImportUpgradeService>,
         },
         {
           provide: LastPassDirectImportService,
@@ -329,8 +338,12 @@ function decoratorsFor(
               pasteAsPlainText: "Paste as plain text",
               plainText: "Plain text",
               profile: "Profile",
-              keeperEmail: "Email",
-              dataCenterLocation: "Data center location",
+              email: "Email",
+              keeperLoginServerLabel: "Server",
+              keeperLoginEmailRequired: "Email is required.",
+              keeperLoginEmailInvalid: "Enter a valid email address.",
+              lastPassLoginEmailRequired: "Email is required.",
+              lastPassLoginEmailInvalid: "Enter a valid email address.",
               lastPassEmail: "Email",
               includeSharedFolders: "Include shared folders",
               importManuallyInstead: "Import manually instead",
@@ -345,15 +358,15 @@ function decoratorsFor(
               importDataLoginTitle: (vendor?: string) => `Log in to ${vendor}`,
               importDataLoginSubtitle:
                 "Your credentials are encrypted in transit and never stored.",
-              importDataSecureByDesignTitle: "Secure by design",
-              importDataSecureByDesignBody: (vendor?: string) =>
-                `End-to-end encrypted handoff. Bitwarden never sees your ${vendor} login details.`,
-              importDataLoginInfoTitle: "We'll ask for your login info",
-              importDataLoginInfoBody: (vendor?: string) =>
-                `In the next step, log in to your ${vendor} account.`,
-              importDataEverythingTransfersTitle: "Everything transfers",
-              importDataEverythingTransfersBody:
-                "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved.",
+              importDataSecureByDesignTitleV2: "Fast and secure",
+              importDataSecureByDesignBodyV2:
+                "This process is end-to-end encrypted. No export file needed.",
+              importDataLoginInfoTitleV2: "All you need is your login",
+              importDataLoginInfoBodyV2: (vendor?: string) =>
+                `In the next step, you'll enter your ${vendor} login details.`,
+              importDataAutomaticTransferTitle: "What will transfer",
+              importDataAutomaticTransferBody:
+                "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded.",
               importHelpCenterInstructions: (vendor?: string) =>
                 `See detailed ${vendor} instructions in our`,
               importHelpCenterLinkText: "Help Center",

@@ -1,7 +1,7 @@
 import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import * as oauth from "oauth4webapi";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -17,8 +17,10 @@ import { DialogService } from "@bitwarden/components";
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
+import { LastPassPasswordPromptComponent } from "./dialog/lastpass-password-prompt.component";
 import { LastPassDirectImportUIService } from "./lastpass-direct-import-ui.service";
 import { LastPassDirectImportService } from "./lastpass-direct-import.service";
+import { LastPassLoginSession } from "./lastpass-login-session";
 
 jest.mock("oauth4webapi", () => ({
   __esModule: true,
@@ -158,6 +160,28 @@ describe("LastPassDirectImportService", () => {
       expect(flow.nonce).toBe("nonce-456");
       expect(flow.userState).toEqual({ email: "user@example.com" });
     });
+
+    it("does not publish a flow, or log an error, for a login the user already left", async () => {
+      const session = mock<LastPassLoginSession>({ userLeft: true });
+
+      await expect(
+        (service as any).createOidcSigninRequest("user@example.com", session),
+      ).rejects.toThrow("SSO auth cancelled");
+
+      expect((service as any).oidcFlow).toBeUndefined();
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
+    it("still logs a failure for a login the user has not left", async () => {
+      const session = mock<LastPassLoginSession>({ userLeft: false });
+      mockedOauth.discoveryRequest.mockRejectedValue(new Error("network down"));
+
+      await expect(
+        (service as any).createOidcSigninRequest("user@example.com", session),
+      ).rejects.toThrow("network down");
+
+      expect(logService.error).toHaveBeenCalledWith("Unable to generate OIDC sign in request");
+    });
   });
 
   describe("processOidcSigninResponse", () => {
@@ -240,6 +264,327 @@ describe("LastPassDirectImportService", () => {
           LastPassK1: "k1-bytes",
         }),
         userState: { email: "user@example.com" },
+      });
+    });
+  });
+
+  describe("handleImport", () => {
+    const EMAIL = "user@example.com";
+    let vault: {
+      userType: { isFederated: jest.Mock };
+      setUserTypeContext: jest.Mock;
+      open: jest.Mock;
+      openFederated: jest.Mock;
+      accountsToExportedCsvString: jest.Mock;
+    };
+
+    const sessionWith = (userLeft = false) => mock<LastPassLoginSession>({ userLeft });
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+
+    beforeEach(() => {
+      appIdService.getAppId.mockResolvedValue("app-id");
+      cryptoFunctionService.hash.mockResolvedValue(new Uint8Array([1, 2, 3]));
+      vault = {
+        userType: { isFederated: jest.fn().mockReturnValue(false) },
+        setUserTypeContext: jest.fn().mockResolvedValue(undefined),
+        open: jest.fn().mockResolvedValue(undefined),
+        openFederated: jest.fn().mockResolvedValue(undefined),
+        accountsToExportedCsvString: jest.fn().mockReturnValue("csv"),
+      };
+      (service as any).vault = vault;
+    });
+
+    describe("without a session", () => {
+      it("asks for the password in a dialog and hands MFA to the dialog UI service", async () => {
+        const passwordPrompt = jest
+          .spyOn(LastPassPasswordPromptComponent, "open")
+          .mockResolvedValue("hunter2");
+
+        const csv = await service.handleImport(EMAIL, false);
+
+        expect(passwordPrompt).toHaveBeenCalledWith(dialogService);
+        expect(vault.open).toHaveBeenCalledWith(
+          EMAIL,
+          "hunter2",
+          expect.anything(),
+          lastPassDirectImportUIService,
+          { parseSecureNotesToAccount: false },
+        );
+        expect(csv).toBe("csv");
+      });
+
+      it("waits for SSO behind a dialog", async () => {
+        vault.userType.isFederated.mockReturnValue(true);
+        jest
+          .spyOn(service as any, "createOidcSigninRequest")
+          .mockResolvedValue({ url: "https://idp.example.com/auth" });
+        dialogService.openSimpleDialogRef.mockReturnValue({
+          closed: new Subject(),
+          close: jest.fn(),
+        } as any);
+
+        const login = (service as any).handleFederatedLogin(EMAIL);
+        await flush();
+        (service as any)._ssoImportCallback$.next({ oidcCode: "code", oidcState: "state" });
+
+        await expect(login).resolves.toEqual({ oidcCode: "code", oidcState: "state" });
+        expect(dialogService.openSimpleDialogRef).toHaveBeenCalledTimes(1);
+        expect(platformUtilsService.launchUri).toHaveBeenCalledWith("https://idp.example.com/auth");
+      });
+    });
+
+    describe("with a session", () => {
+      let passwordPrompt: jest.SpyInstance;
+
+      beforeEach(() => {
+        passwordPrompt = jest.spyOn(LastPassPasswordPromptComponent, "open");
+      });
+
+      it("asks the session for the password and hands it MFA, never opening a dialog", async () => {
+        const session = sessionWith();
+        session.promptForPassword.mockResolvedValue("hunter2");
+
+        const csv = await service.handleImport(EMAIL, false, session);
+
+        expect(session.promptForPassword).toHaveBeenCalledWith({ previousPasswordRejected: false });
+        expect(vault.open).toHaveBeenCalledWith(EMAIL, "hunter2", expect.anything(), session, {
+          parseSecureNotesToAccount: false,
+        });
+        expect(passwordPrompt).not.toHaveBeenCalled();
+        expect(vault.accountsToExportedCsvString).toHaveBeenCalledWith(true);
+        expect(csv).toBe("csv");
+      });
+
+      it("includes shared folders when asked to", async () => {
+        const session = sessionWith();
+        session.promptForPassword.mockResolvedValue("hunter2");
+
+        await service.handleImport(EMAIL, true, session);
+
+        expect(vault.accountsToExportedCsvString).toHaveBeenCalledWith(false);
+      });
+
+      it("asks for the password again, flagged as rejected, after a wrong one", async () => {
+        const session = sessionWith();
+        session.promptForPassword.mockResolvedValueOnce("wrong").mockResolvedValueOnce("right");
+        vault.open.mockRejectedValueOnce("Invalid password");
+
+        await service.handleImport(EMAIL, false, session);
+
+        expect(session.promptForPassword).toHaveBeenNthCalledWith(1, {
+          previousPasswordRejected: false,
+        });
+        expect(session.promptForPassword).toHaveBeenNthCalledWith(2, {
+          previousPasswordRejected: true,
+        });
+        expect(vault.open).toHaveBeenCalledTimes(2);
+        expect(vault.open).toHaveBeenLastCalledWith(
+          EMAIL,
+          "right",
+          expect.anything(),
+          session,
+          expect.anything(),
+        );
+      });
+
+      it.each(["Second factor code is incorrect", "Out of band authentication failed"])(
+        "logs in again with the same password after a typed code fails with '%s'",
+        async (message) => {
+          const session = sessionWith();
+          session.promptForPassword.mockResolvedValue("hunter2");
+          session.rejectSubmittedCode.mockReturnValue(true);
+          vault.open.mockRejectedValueOnce(message);
+
+          await service.handleImport(EMAIL, false, session);
+
+          expect(session.promptForPassword).toHaveBeenCalledTimes(1);
+          expect(session.rejectSubmittedCode).toHaveBeenCalledTimes(1);
+          expect(vault.open).toHaveBeenCalledTimes(2);
+          expect(vault.open).toHaveBeenLastCalledWith(
+            EMAIL,
+            "hunter2",
+            expect.anything(),
+            session,
+            expect.anything(),
+          );
+        },
+      );
+
+      it.each(["Second factor code is incorrect", "Out of band authentication failed"])(
+        "ends the import, without logging in again, when '%s' follows no typed code",
+        async (message) => {
+          const session = sessionWith();
+          session.promptForPassword.mockResolvedValue("hunter2");
+          session.rejectSubmittedCode.mockReturnValue(false);
+          vault.open.mockRejectedValue(message);
+
+          await expect(service.handleImport(EMAIL, false, session)).rejects.toBe(message);
+
+          expect(session.rejectSubmittedCode).toHaveBeenCalledTimes(1);
+          expect(vault.open).toHaveBeenCalledTimes(1);
+          expect(logService.error).toHaveBeenCalledWith("Unable to open LastPass vault");
+        },
+      );
+
+      it("asks for the code again only as often as the user types one", async () => {
+        const session = sessionWith();
+        session.promptForPassword.mockResolvedValue("hunter2");
+        session.rejectSubmittedCode.mockReturnValueOnce(true).mockReturnValueOnce(false);
+        vault.open.mockRejectedValue("Second factor code is incorrect");
+
+        await expect(service.handleImport(EMAIL, false, session)).rejects.toBe(
+          "Second factor code is incorrect",
+        );
+
+        expect(vault.open).toHaveBeenCalledTimes(2);
+      });
+
+      it("ends the import on any other failure, without retrying", async () => {
+        const session = sessionWith();
+        session.promptForPassword.mockResolvedValue("hunter2");
+        vault.open.mockRejectedValue(new Error("Invalid username"));
+
+        await expect(service.handleImport(EMAIL, false, session)).rejects.toThrow(
+          "Invalid username",
+        );
+
+        expect(vault.open).toHaveBeenCalledTimes(1);
+        expect(logService.error).toHaveBeenCalledWith("Unable to open LastPass vault");
+      });
+
+      it("does not retry a rejection that came from the user leaving", async () => {
+        const session = sessionWith(true);
+        session.promptForPassword.mockResolvedValue("hunter2");
+        vault.open.mockRejectedValue("Invalid password");
+
+        await expect(service.handleImport(EMAIL, false, session)).rejects.toBe("Invalid password");
+
+        expect(session.promptForPassword).toHaveBeenCalledTimes(1);
+        expect(vault.open).toHaveBeenCalledTimes(1);
+      });
+
+      it("stops when the user leaves the password prompt", async () => {
+        const session = sessionWith();
+        session.promptForPassword.mockRejectedValue(new Error("Login cancelled by the user"));
+
+        await expect(service.handleImport(EMAIL, false, session)).rejects.toThrow(
+          "Login cancelled by the user",
+        );
+
+        expect(vault.open).not.toHaveBeenCalled();
+      });
+
+      describe("SSO", () => {
+        beforeEach(() => {
+          vault.userType.isFederated.mockReturnValue(true);
+          jest
+            .spyOn(service as any, "createOidcSigninRequest")
+            .mockResolvedValue({ url: "https://idp.example.com/auth" });
+        });
+
+        it("captures the import page, opens the IdP, then returns once the callback arrives", async () => {
+          const session = sessionWith();
+          session.prepareSso.mockResolvedValue();
+          session.waitForSsoCancel.mockReturnValue(new Promise<never>(() => undefined));
+
+          const login = (service as any).handleFederatedLogin(EMAIL, session);
+          await flush();
+          (service as any)._ssoImportCallback$.next({ oidcCode: "code", oidcState: "state" });
+
+          await expect(login).resolves.toEqual({ oidcCode: "code", oidcState: "state" });
+          expect(session.prepareSso.mock.invocationCallOrder[0]).toBeLessThan(
+            platformUtilsService.launchUri.mock.invocationCallOrder[0],
+          );
+          expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
+            "https://idp.example.com/auth",
+          );
+          expect(session.completeSso).toHaveBeenCalledTimes(1);
+          expect(dialogService.openSimpleDialogRef).not.toHaveBeenCalled();
+        });
+
+        it("drops the pending sign-in and rejects when the user leaves", async () => {
+          const session = sessionWith();
+          session.prepareSso.mockResolvedValue();
+          session.waitForSsoCancel.mockRejectedValue(new Error("SSO auth cancelled"));
+          (service as any).oidcFlow = { state: "state-xyz" };
+
+          await expect((service as any).handleFederatedLogin(EMAIL, session)).rejects.toThrow(
+            "SSO auth cancelled",
+          );
+
+          expect((service as any).oidcFlow).toBeUndefined();
+          expect(session.completeSso).not.toHaveBeenCalled();
+        });
+
+        it("does not open the identity provider if the user left while the request was being built", async () => {
+          const session = sessionWith();
+          const flow = { state: "state-a" };
+          (service as any).oidcFlow = flow;
+          session.prepareSso.mockImplementation(async () => {
+            (session as any).userLeft = true;
+          });
+
+          await expect((service as any).handleFederatedLogin(EMAIL, session)).rejects.toThrow(
+            "SSO auth cancelled",
+          );
+
+          expect(platformUtilsService.launchUri).not.toHaveBeenCalled();
+          expect(session.waitForSsoCancel).not.toHaveBeenCalled();
+          expect(session.completeSso).not.toHaveBeenCalled();
+          expect((service as any).oidcFlow).toBeUndefined();
+        });
+
+        it("leaves a newer login's flow alone when it cancels", async () => {
+          const session = sessionWith();
+          const newerFlow = { state: "state-b" };
+          (service as any).oidcFlow = { state: "state-a" };
+          session.prepareSso.mockImplementation(async () => {
+            (session as any).userLeft = true;
+            (service as any).oidcFlow = newerFlow;
+          });
+
+          await expect((service as any).handleFederatedLogin(EMAIL, session)).rejects.toThrow(
+            "SSO auth cancelled",
+          );
+
+          expect((service as any).oidcFlow).toBe(newerFlow);
+        });
+
+        it("leaves a newer login's flow alone when the wait is cancelled", async () => {
+          const session = sessionWith();
+          const newerFlow = { state: "state-b" };
+          (service as any).oidcFlow = { state: "state-a" };
+          session.prepareSso.mockResolvedValue();
+          session.waitForSsoCancel.mockImplementation(async () => {
+            (service as any).oidcFlow = newerFlow;
+            throw new Error("SSO auth cancelled");
+          });
+
+          await expect((service as any).handleFederatedLogin(EMAIL, session)).rejects.toThrow(
+            "SSO auth cancelled",
+          );
+
+          expect((service as any).oidcFlow).toBe(newerFlow);
+        });
+
+        it("hands the session to the federated login as its UI", async () => {
+          const session = sessionWith();
+          jest.spyOn(service as any, "processOidcSigninResponse").mockResolvedValue({
+            id_token: "id",
+            access_token: "access",
+            profile: {},
+            userState: { email: EMAIL },
+          });
+
+          await (service as any).handleFederatedImport("code", "state", false, session);
+
+          expect(vault.openFederated).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            session,
+            { parseSecureNotesToAccount: false },
+          );
+        });
       });
     });
   });

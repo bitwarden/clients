@@ -1,5 +1,5 @@
 import { PortalModule } from "@angular/cdk/portal";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 import { action } from "storybook/actions";
@@ -46,6 +46,7 @@ import { RoutedVaultFilterService } from "../../services/routed-vault-filter.ser
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import { ASSIGN_COLLECTIONS_DIALOG } from "../../tokens/assign-collections-dialog.token";
 import { BULK_DELETE_DIALOG } from "../../tokens/bulk-delete-dialog.token";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { VaultBatchActionComponent } from "../vault-batch-bar/vault-batch-action.component";
 
 import {
@@ -533,6 +534,18 @@ export default {
     applicationConfig({
       providers: [
         {
+          provide: CoachmarkService,
+          useValue: {
+            isStepActive: () => false,
+            getStepPosition: () => undefined,
+            getStepTitle: () => "",
+            getStepDescription: () => "",
+            getStepLearnMoreUrl: () => undefined,
+            currentStepNumber: signal(0),
+            totalSteps: signal(0),
+          } as Partial<CoachmarkService>,
+        },
+        {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
@@ -620,9 +633,12 @@ export default {
               noItemsInVaults: "Your vaults are empty",
               noItemsInOrganizationVault: (name) => `No items in ${name}`,
               noItemsInSharedFolder: (name) => `No items in ${name}`,
+              noItemsInFolder: (name) => `No items in ${name}`,
               emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
               emptySharedFolderDescription: (name) =>
                 `Add items to this shared folder, then give access to other ${name} members.`,
+              emptyFolderDescription:
+                "Add items to this folder. You’ll be able to quickly access them using vault filters.",
               noItemsInTrash: "No items in trash",
               noItemsInTrashDescription:
                 "Items you delete will appear here and be permanently deleted after 30 days.",

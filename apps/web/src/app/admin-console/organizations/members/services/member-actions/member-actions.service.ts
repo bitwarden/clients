@@ -31,6 +31,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   asUuid,
@@ -80,6 +82,7 @@ export class MemberActionsService {
   private memberDialogManager = inject(MemberDialogManagerService);
   private accountService = inject(AccountService);
   private sdkService = inject(SdkService);
+  private i18nService = inject(I18nService);
 
   readonly isProcessing = signal(false);
 
@@ -110,7 +113,7 @@ export class MemberActionsService {
       await this.organizationUserApiService.postOrganizationUserInvite(organizationId, request);
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.errorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -123,7 +126,7 @@ export class MemberActionsService {
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.errorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -136,7 +139,7 @@ export class MemberActionsService {
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.errorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -150,7 +153,7 @@ export class MemberActionsService {
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.errorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -163,7 +166,7 @@ export class MemberActionsService {
       this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.errorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -228,7 +231,7 @@ export class MemberActionsService {
       );
       return { success: true };
     } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
+      return { success: false, error: this.errorMessage(error) };
     } finally {
       this.endProcessing();
     }
@@ -261,7 +264,10 @@ export class MemberActionsService {
     );
   }
 
-  /** Lets the admin retry the failed members. The original outcome is reported either way. */
+  /**
+   * Lets the admin retry the failed members. Members that were retried are reported with their
+   * retry outcome, so the result reflects every invite that was sent.
+   */
   private offerResend(
     organization: Organization,
     users: OrganizationUserView[],
@@ -269,10 +275,19 @@ export class MemberActionsService {
   ): Observable<BulkActionResult> {
     return this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result).pipe(
       take(1),
-      concatMap((resendUsers) =>
-        resendUsers.length > 0 ? this.bulkReinvite(organization, resendUsers) : of(undefined),
-      ),
-      map(() => result),
+      concatMap((resendUsers) => {
+        if (resendUsers.length === 0) {
+          return of(result);
+        }
+
+        const retriedIds = new Set<string>(resendUsers.map((u) => u.id));
+        return this.bulkReinvite(organization, resendUsers).pipe(
+          map((retry): BulkActionResult => ({
+            successful: [...result.successful, ...retry.successful],
+            failed: [...result.failed.filter((f) => !retriedIds.has(f.id)), ...retry.failed],
+          })),
+        );
+      }),
     );
   }
 
@@ -395,20 +410,36 @@ export class MemberActionsService {
    * The server's own message inside that body is the one worth showing; anything else passes through.
    */
   private sdkErrorMessage(error: unknown): string {
-    const message = (error as Error).message ?? String(error);
+    const message = this.errorMessage(error);
     const bodyStart = message.indexOf("{");
     if (bodyStart === -1) {
       return message;
     }
 
     try {
-      const body = JSON.parse(message.slice(bodyStart, message.lastIndexOf("}") + 1)) as {
-        message?: unknown;
-      };
-      return typeof body.message === "string" ? body.message : message;
+      const body: unknown = JSON.parse(message.slice(bodyStart, message.lastIndexOf("}") + 1));
+      return new ErrorResponse(body, 0).getSingleMessage() || message;
     } catch {
       return message;
     }
+  }
+
+  /**
+   * Turns a caught error into text that can be shown to the user. An `ErrorResponse` without a top-level
+   * `Message` carries no `message`, and stringifying an object yields "[object Object]", so anything without
+   * a usable message falls back to a generic one.
+   */
+  private errorMessage(error: unknown): string {
+    if (error instanceof ErrorResponse) {
+      return error.getSingleMessage() || this.i18nService.t("unexpectedError");
+    }
+    if (typeof error === "string" && error !== "") {
+      return error;
+    }
+    const message = (error as { message?: unknown } | null)?.message;
+    return typeof message === "string" && message !== ""
+      ? message
+      : this.i18nService.t("unexpectedError");
   }
 
   /**

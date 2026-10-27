@@ -55,6 +55,7 @@ import {
   IconTileComponent,
   IconTileOptions,
   LinkModule,
+  PopoverService,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
@@ -84,8 +85,15 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { CoachmarkComponent } from "../coachmark/coachmark.component";
+import { CoachmarkService } from "../coachmark/coachmark.service";
 import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 import { VaultItem } from "../vault-item";
+import {
+  BULK_BAR_CLEARANCE,
+  VAULT_TABLE_MIN_HEIGHT,
+  VAULT_TABLE_ROW_HEIGHT,
+} from "../vault-table-sizing";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
@@ -104,32 +112,6 @@ export const VAULT_FILTER_NAMESPACE = "vault";
  * selection itself, since capping a downstream view lets a bulk delete silently skip checked rows.
  */
 export const MAX_SELECTION_COUNT = 500;
-
-/**
- * Bottom margin (px) held while the bulk-actions bar shows — its height (53). The bar is
- * `position: fixed`, so without this the last row sits underneath it and is unreachable.
- */
-const BULK_BAR_CLEARANCE = 53;
-
-/** Fixed height (px) of a row. The table virtualizes, so rows can't size to their content. */
-const ROW_HEIGHT = 56;
-
-/** Rows the table stays tall enough to show. */
-const MIN_ROWS = 5;
-
-/**
- * Height (px) of the chrome above the rows: the toolbar's search row (a 40px field plus `py-5`)
- * and its 60px filter row, then the 48px header row. Approximate by design — it only backs a
- * minimum, so chrome that grows later costs a fraction of a row rather than breaking the layout.
- */
-const TABLE_CHROME_HEIGHT = 188;
-
-/**
- * Floor (px) for the table's height. Content above it on the page — the shared folder card grid
- * most of all — takes its natural height, so without a floor the table is what gives way, down to
- * a row or two on a short viewport. Below this the page scrolls instead.
- */
-const MIN_TABLE_HEIGHT = MIN_ROWS * ROW_HEIGHT + TABLE_CHROME_HEIGHT;
 
 export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 
@@ -244,6 +226,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     BitTableV2Component,
     ButtonModule,
     ChipGroupComponent,
+    CoachmarkComponent,
     EmptyVaultComponent,
     FilterMenuModule,
     I18nPipe,
@@ -289,8 +272,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
-  protected readonly rowHeight = ROW_HEIGHT;
-  protected readonly minTableHeight = MIN_TABLE_HEIGHT;
+  protected readonly rowHeight = VAULT_TABLE_ROW_HEIGHT;
+  protected readonly minTableHeight = VAULT_TABLE_MIN_HEIGHT;
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
@@ -371,6 +354,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** The account's active My vault items, which an org page's rows leave out. */
   readonly myVaultItemCount = input(0);
+
+  /** The user's own folder the current vault scope names. */
+  readonly folderName = input<string>();
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
@@ -458,6 +444,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * The relevant columns to be displayed based on the current ciphers provided.
    *  - Vault is omitted if all ciphers belong to the same Vault
    *  - Shared Folders is omitted if all ciphers are individually owned
+   *  - My folders is omitted on a folder's own page, where it would only repeat the folder
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
@@ -466,6 +453,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
     if (!this.showSharedFolders()) {
       hidden.add("sharedFolders");
+    }
+    if (!this.showMyFolders()) {
+      hidden.add("myFolders");
     }
     return this.displayedColumns().filter((column) => !hidden.has(column));
   });
@@ -499,6 +489,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly favoritesDisabledTooltip = computed(() =>
     this.noFavorites() ? this.i18nService.t("favoritesFilterTooltip") : "",
   );
+
+  protected readonly showMyFolders = computed(() => this.scope()?.type !== VaultScopeType.Folder);
 
   /** Whether the My folders chip has nothing to offer — see {@link noFavorites}. */
   protected readonly noFolders = computed(() => this.folders().length === 0);
@@ -840,6 +832,28 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * memoized search result has to be computed outside the per-row call.
    */
   private readonly tableComponent = viewChild(BitTableV2Component<C>);
+
+  private readonly coachmark = inject(CoachmarkService);
+  private readonly popoverService = inject(PopoverService);
+  private readonly toolbar = viewChild(BitTableToolbarComponent);
+  private readonly filtersCoachmark = viewChild<CoachmarkComponent>("filtersCoachmark");
+
+  /** Spotlights the filter chips, or the filter button when collapsed, during the walkthrough's filters step. */
+  private readonly showFiltersCoachmark = effect((onCleanup) => {
+    const popover = this.filtersCoachmark()?.popover();
+    const toolbar = this.toolbar();
+    if (!popover || !toolbar || !this.coachmark.isStepActive("filters")) {
+      return;
+    }
+
+    const anchor = computed(() => toolbar.filterChips() ?? toolbar.filterButton());
+    const ref = this.popoverService.open(popover, anchor, {
+      spotlight: true,
+      closeOnBackdropClick: false,
+      position: this.coachmark.getStepPosition("filters"),
+    });
+    onCleanup(() => ref.close());
+  });
 
   /**
    * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking

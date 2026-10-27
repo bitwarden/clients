@@ -51,4 +51,65 @@ describe("SpotlightService", () => {
     expect(document.querySelectorAll(".bit-spotlight-backdrop")).toHaveLength(1);
     next.remove();
   });
+
+  describe("target movement", () => {
+    const moveTarget = (top: number) =>
+      jest.spyOn(target, "getBoundingClientRect").mockReturnValue({
+        left: 0,
+        top,
+        width: 10,
+        height: 10,
+      } as DOMRect);
+
+    it("refreshes when the target moves without resizing", () => {
+      moveTarget(0);
+      const moved = jest.fn();
+      service.moved$.subscribe(moved);
+      service.showSpotlight(target);
+
+      jest.advanceTimersToNextFrame();
+      expect(moved).not.toHaveBeenCalled();
+
+      moveTarget(100);
+      jest.advanceTimersToNextFrame();
+      expect(moved).toHaveBeenCalledTimes(1);
+    });
+
+    it("stops scheduling frames once the spotlight is hidden", () => {
+      moveTarget(0);
+      const timersBefore = jest.getTimerCount();
+      service.showSpotlight(target);
+
+      service.hideSpotlight();
+      jest.advanceTimersByTime(100);
+
+      expect(jest.getTimerCount()).toBe(timersBefore);
+    });
+  });
+
+  describe("data-spotlight-target", () => {
+    let inner: HTMLElement;
+
+    beforeEach(() => {
+      inner = target.appendChild(document.createElement("span"));
+      inner.setAttribute("data-spotlight-target", "");
+      inner.scrollIntoView = jest.fn();
+      target.scrollIntoView = jest.fn();
+    });
+
+    it("resolves to the inner target when the host has data-spotlight-host", () => {
+      target.setAttribute("data-spotlight-host", "");
+      service.showSpotlight(target);
+
+      expect(inner.scrollIntoView).toHaveBeenCalled();
+      expect(target.scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    it("ignores the inner target when the host lacks data-spotlight-host", () => {
+      service.showSpotlight(target);
+
+      expect(target.scrollIntoView).toHaveBeenCalled();
+      expect(inner.scrollIntoView).not.toHaveBeenCalled();
+    });
+  });
 });

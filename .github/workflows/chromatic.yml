@@ -1,7 +1,7 @@
 # This workflow will run in the context of the source of the PR.
 # On a PR from a fork, the pull_request workflow is skipped because the fork will not have access to
-# secrets. To run it successfully from a fork, manually re-run the chromatic-target.yml workflow 
-# which will have run and failed on a fork. See chromatic-target.yml for re-run instructions.
+# secrets. To run Chromatic for a fork PR, review it and add the "ci:signed-build" label to run
+# "chromatic-target.yml".
 
 name: Chromatic
 
