@@ -1,7 +1,12 @@
+import { TemplatePortal } from "@angular/cdk/portal";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  TemplateRef,
   TrackByFunction,
+  ViewContainerRef,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -9,19 +14,18 @@ import {
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, lastValueFrom, map, switchMap } from "rxjs";
+import { RouterLink } from "@angular/router";
+import { combineLatest, lastValueFrom, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BitCellComponent,
   BitCellDefDirective,
+  BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableToolbarComponent,
@@ -31,16 +35,27 @@ import {
   ButtonModule,
   DialogService,
   IconButtonModule,
+  IconTileComponent,
+  LayoutFooterService,
+  LinkModule,
   SearchModule,
   SelectionConfig,
-  ToastService,
+  SkeletonTextComponent,
+  TooltipDirective,
   defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
+import { folderCommands } from "../../models/vault-scope";
+import { MyFolderActionsService } from "../../services/my-folder-actions.service";
 import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
+import {
+  BULK_BAR_CLEARANCE,
+  VAULT_TABLE_MIN_HEIGHT,
+  VAULT_TABLE_ROW_HEIGHT,
+} from "../vault-table-sizing";
 
 import { EmptyFoldersComponent } from "./empty-folders.component";
 
@@ -55,9 +70,17 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
   selector: "vault-my-folders",
   templateUrl: "./my-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    // Inline rather than a `tw-min-h-*` utility: it has to beat the `tw-min-h-0` above, which
+    // otherwise lets the flex parent shrink the table to nothing.
+    "[style.minHeight.px]": "minTableHeight",
+    "[style.marginBottom.px]": "bulkBarClearance()",
+  },
   imports: [
     BitCellComponent,
     BitCellDefDirective,
+    BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
     BitTableToolbarComponent,
@@ -68,18 +91,25 @@ import { EmptyFoldersComponent } from "./empty-folders.component";
     EmptyFoldersComponent,
     I18nPipe,
     IconButtonModule,
+    IconTileComponent,
+    LinkModule,
+    RouterLink,
     SearchModule,
+    SkeletonTextComponent,
+    TooltipDirective,
   ],
 })
 export class MyFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly dialogService = inject(DialogService);
-  private readonly folderApiService = inject(FolderApiServiceAbstraction);
+  private readonly folderActions = inject(MyFolderActionsService);
   private readonly folderService = inject(FolderService);
-  private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
-  private readonly toastService = inject(ToastService);
+  private readonly layoutFooter = inject(LayoutFooterService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
   private readonly tableRef = viewChild(BitTableV2Component<FolderTableRow>);
 
@@ -102,6 +132,8 @@ export class MyFoldersComponent {
 
   protected readonly hasItems = computed(() => this.rows().length > 0);
 
+  protected readonly folderCommands = folderCommands;
+
   protected readonly search = computed(
     () => (this.tableRef()?.filterValues() as { search?: string } | undefined)?.search,
   );
@@ -112,7 +144,14 @@ export class MyFoldersComponent {
 
   protected readonly trackById: TrackByFunction<FolderTableRow> = (_, row) => row.id;
 
+  protected readonly rowHeight = VAULT_TABLE_ROW_HEIGHT;
+  protected readonly minTableHeight = VAULT_TABLE_MIN_HEIGHT;
+
   protected readonly selected = computed(() => this.tableRef()?.selectionModel()?.selected() ?? []);
+
+  protected readonly bulkBarClearance = computed(() =>
+    this.selected().length > 0 ? BULK_BAR_CLEARANCE : 0,
+  );
 
   constructor() {
     // Keep the table selection in sync with the rows. If the rows change (e.g., a folder is deleted), we need to update the selection to remove any rows that no longer exist.
@@ -134,6 +173,20 @@ export class MyFoldersComponent {
         model.select(...current);
       });
     });
+
+    // The bar is `position: fixed`, but inline it would sit inside the layout's <main>, whose
+    // `contain: strict` makes it the containing block — so the hidden bar, translated below the
+    // fold, would add scroll height to the page. The layout's footer region, a sibling of <main>,
+    // escapes that. Matches `bit-vault-batch-action`.
+    afterNextRender(() => {
+      const portal = new TemplatePortal(this.bulkBarTemplate(), this.viewContainerRef);
+      this.layoutFooter.attach(portal);
+      this.destroyRef.onDestroy(() => this.layoutFooter.detach(portal));
+    });
+  }
+
+  protected clearSelection(): void {
+    this.tableRef()?.selectionModel()?.clear();
   }
 
   protected readonly filter = (row: FolderTableRow, values: { search?: string }) =>
@@ -151,31 +204,11 @@ export class MyFoldersComponent {
   }
 
   protected async editFolder(row: FolderTableRow): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const folder = await firstValueFrom(this.folderService.getDecrypted$(row.id, userId));
-
-    if (folder == null) {
-      return;
-    }
-
-    await lastValueFrom(
-      AddEditFolderDialogComponent.open(this.dialogService, {
-        editFolderConfig: { folder: { ...folder } },
-        hideDelete: true,
-      }).closed,
-    );
+    await this.folderActions.edit(row.id);
   }
 
   protected async deleteFolder(row: FolderTableRow): Promise<void> {
-    const confirmed = await lastValueFrom(
-      openDeleteFolderDialog(this.dialogService, { folderName: row.displayName }).closed,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    await this.deleteFolders([row.id], "deletedFolder");
+    await this.folderActions.delete(row);
   }
 
   protected readonly deleteSelected = async (): Promise<void> => {
@@ -198,33 +231,9 @@ export class MyFoldersComponent {
       return;
     }
 
-    await this.deleteFolders(
+    await this.folderActions.deleteFolders(
       selected.map((row) => row.id),
       "foldersDeleted",
     );
   };
-
-  private async deleteFolders(ids: string[], successMessageKey: string): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    try {
-      if (ids.length === 1) {
-        await this.folderApiService.delete(ids[0], userId);
-      } else {
-        await this.folderApiService.deleteMany(ids, userId);
-      }
-    } catch (e) {
-      this.logService.error("Error deleting folders", e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("errorOccurred"),
-      });
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t(successMessageKey),
-    });
-  }
 }
