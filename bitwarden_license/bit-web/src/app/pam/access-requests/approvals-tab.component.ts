@@ -12,6 +12,15 @@ import { EMPTY, distinctUntilChanged, filter, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
+import type {
+  AccessDecisionVerdict,
+  AccessLeaseId,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
+import { AccessBadgeState } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "@bitwarden/bit-common/pam/access-state-badge/access-badge-ticker.service";
+import { AccessStateBadgeComponent } from "@bitwarden/bit-common/pam/access-state-badge/access-state-badge.component";
+import { RequestedWindowPipe } from "@bitwarden/bit-common/pam/date/requested-window.pipe";
+import { selectedFilterStrings } from "@bitwarden/bit-common/pam/helpers/selected-filter-strings";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
@@ -42,10 +51,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
-import type { AccessDecisionVerdict, AccessLeaseId } from "../abstractions/access-lease";
-import { AccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
@@ -55,8 +60,6 @@ import {
   approverRowStatus,
   compareApproverStatus,
 } from "../approvals/approver-row";
-import { RequestedWindowPipe } from "../date/requested-window.pipe";
-import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
 import { APPROVER_READY_LABEL_KEY, REQUEST_STATUS_LOOK } from "./request-status-look";
 

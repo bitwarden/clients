@@ -3,8 +3,8 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { AccessRuleSdkService } from "@bitwarden/bit-pam";
-import type { AccessRuleView } from "@bitwarden/bit-pam";
+import { AccessRuleSdkService } from "@bitwarden/bit-common/pam";
+import type { AccessRuleView } from "@bitwarden/bit-common/pam/abstractions/access-rule";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

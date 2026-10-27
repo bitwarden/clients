@@ -17,7 +17,7 @@ import { NoResults } from "@bitwarden/assets/svg";
 import {
   accessConnectorDeactivateConfirmOptions,
   accessConnectorDeleteConfirmOptions,
-} from "@bitwarden/bit-pam-components";
+} from "@bitwarden/bit-common/pam/helpers/access-connector-confirm";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
