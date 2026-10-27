@@ -4860,9 +4860,6 @@
   "importDataMayBeShared": {
     "message": "Your data may be shared with members of this organization."
   },
-  "importUnassignedItemsErrorV2": {
-    "message": "File contains unassigned items. To continue, move your file into a shared folder."
-  },
   "importItemTypesRestricted": {
     "message": "$ORGANIZATION$ doesn’t allow you to import $ITEM_TYPES$. If they are in your import, they will be skipped.",
     "placeholders": {

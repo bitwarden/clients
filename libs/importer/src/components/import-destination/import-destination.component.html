@@ -46,9 +46,10 @@
 
         @if (showMoveToSharedFolder()) {
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-            <div>
+            <div class="tw-flex tw-flex-col tw-gap-4">
               <bit-form-control>
                 <input
+                  #moveToSharedFolder
                   bitCheckbox
                   type="checkbox"
                   [formControl]="moveToSharedFolderControl"
@@ -58,7 +59,7 @@
               </bit-form-control>
 
               @if (showSharedFolder()) {
-                <bit-form-field>
+                <bit-form-field disableMargin>
                   <bit-label>{{ "sharedFolder" | i18n }}</bit-label>
                   <bit-select
                     [formControl]="sharedFolderControl"
@@ -68,7 +69,9 @@
                       <bit-option [value]="folder" [label]="folder.name" />
                     }
                   </bit-select>
-                  <bit-hint>{{ "importSharedFolderHint" | i18n }}</bit-hint>
+                  <bit-hint class="tw-text-fg-body tw-leading-4">{{
+                    "importSharedFolderHint" | i18n
+                  }}</bit-hint>
                 </bit-form-field>
               }
             </div>

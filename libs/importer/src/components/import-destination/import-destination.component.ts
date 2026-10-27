@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { DOCUMENT } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -5,8 +6,10 @@ import {
   computed,
   DestroyRef,
   effect,
+  ElementRef,
   inject,
   output,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
@@ -39,6 +42,7 @@ import {
   LinkModule,
   RadioButtonModule,
   SegmentedCardComponent,
+  SelectComponent,
   SelectModule,
   SpinnerComponent,
   ToastService,
@@ -122,6 +126,7 @@ export class ImportDestinationComponent {
   private readonly toastService = inject(ToastService);
   private readonly syncService = inject(SyncService);
   private readonly document = inject(DOCUMENT);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly destinationService = inject(ImportDestinationServiceAbstraction);
   private readonly stagingService = inject(ImportStagingServiceAbstraction);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
@@ -162,14 +167,17 @@ export class ImportDestinationComponent {
 
   // Custom validator first so its message wins; Validators.required kept so the asterisk renders.
   private readonly sharedFolderRequiredValidator: ValidatorFn = (control: AbstractControl) =>
-    control.value != null
-      ? null
-      : { sharedFolderRequired: { message: this.i18nService.t("importSharedFolderRequired") } };
+    control.value != null ? null : this.sharedFolderRequiredError();
 
   protected readonly sharedFolderControl = new FormControl<CollectionView | null>(null, [
     this.sharedFolderRequiredValidator,
     Validators.required,
   ]);
+
+  private readonly moveToSharedFolderInput = viewChild("moveToSharedFolder", {
+    read: ElementRef<HTMLInputElement>,
+  });
+  private readonly sharedFolderSelect = viewChild(SelectComponent);
 
   protected readonly formGroup = new FormGroup({
     destination: this.destinationControl,
@@ -307,7 +315,7 @@ export class ImportDestinationComponent {
     }
 
     if (this.showSharedFolder() && this.sharedFolderControl.invalid) {
-      this.sharedFolderControl.markAsTouched();
+      this.requireSharedFolder();
       return;
     }
     const sharedFolder = this.showSharedFolder() ? this.sharedFolderControl.value : null;
@@ -330,11 +338,7 @@ export class ImportDestinationComponent {
       (items == null ||
         (await this.destinationService.hasUnassignedItems(items, option.organizationId)))
     ) {
-      this.toastService.showToast({
-        variant: "error",
-        title: undefined,
-        message: this.i18nService.t("importUnassignedItemsErrorV2"),
-      });
+      this.requireSharedFolder();
       return;
     }
 
@@ -384,6 +388,25 @@ export class ImportDestinationComponent {
       acceptButtonText: { key: "continue" },
       cancelButtonText: { key: "cancel" },
     });
+  }
+
+  private sharedFolderRequiredError() {
+    return { sharedFolderRequired: { message: this.i18nService.t("importSharedFolderRequired") } };
+  }
+
+  // Shows the inline error on the control the user can act on, and focuses it: the dropdown when
+  // the box is checked, otherwise the checkbox, since the dropdown is hidden until it is checked.
+  private requireSharedFolder(): void {
+    if (this.showSharedFolder()) {
+      this.sharedFolderControl.markAsTouched();
+      this.sharedFolderSelect()?.select().focus();
+      return;
+    }
+    this.moveToSharedFolderControl.setErrors(this.sharedFolderRequiredError());
+    this.moveToSharedFolderControl.markAsTouched();
+    this.moveToSharedFolderInput()?.nativeElement.focus();
+    // The checkbox's error text has no live region, so screen readers need it announced.
+    void this.liveAnnouncer.announce(this.i18nService.t("importSharedFolderRequired"), "assertive");
   }
 
   private reportFailure(error: unknown): void {

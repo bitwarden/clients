@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -110,6 +111,7 @@ describe("ImportDestinationComponent", () => {
   let toastService: MockProxy<ToastService>;
   let syncService: MockProxy<SyncService>;
   let logService: MockProxy<LogService>;
+  let liveAnnouncer: MockProxy<LiveAnnouncer>;
 
   const component = () => fixture.componentInstance as any;
   const byId = (id: string) => fixture.debugElement.query(By.css(`#${id}`));
@@ -142,6 +144,7 @@ describe("ImportDestinationComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: SyncService, useValue: syncService },
         { provide: LogService, useValue: logService },
+        { provide: LiveAnnouncer, useValue: liveAnnouncer },
         {
           provide: I18nService,
           useValue: mock<I18nService>({
@@ -172,6 +175,7 @@ describe("ImportDestinationComponent", () => {
     syncService = mock<SyncService>();
     syncService.fullSync.mockResolvedValue(true);
     logService = mock<LogService>();
+    liveAnnouncer = mock<LiveAnnouncer>();
   });
 
   describe("rendering", () => {
@@ -683,21 +687,150 @@ describe("ImportDestinationComponent", () => {
       expect(target).toBe(alpha);
     });
 
-    it("shows the unassigned-items toast, before the dialog, and imports nothing", async () => {
-      stageParsed();
-      await setup();
-      destinationService.hasUnassignedItems.mockResolvedValue(true);
-      component().destinationControl.setValue("organization:a");
-      fixture.detectChanges();
+    describe("shared folder errors", () => {
+      const checkboxId = "import-destination_input_move-to-shared-folder";
+      const selectId = "import-destination_select_shared-folder";
+      const requiredError = { sharedFolderRequired: { message: "importSharedFolderRequired" } };
+      const withSharedFolder = () =>
+        destinations$.next({
+          options: [
+            myVault,
+            organization("a", "Acme Co", { sharedFolders: [folder("f1", "a", "Alpha")] }),
+            organization("b", "Beta Co", { sharedFolders: [folder("f2", "b", "Beta folder")] }),
+          ],
+          hasStep: true,
+        });
+      const selectOrganization = (id = "organization:a") => {
+        component().destinationControl.setValue(id);
+        fixture.detectChanges();
+      };
+      const inlineErrorText = () =>
+        (fixture.nativeElement as HTMLElement).textContent?.includes("importSharedFolderRequired");
 
-      await submit();
+      beforeEach(() => withSharedFolder());
 
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "importUnassignedItemsErrorV2" }),
-      );
-      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-      expect(importService.importImportResult).not.toHaveBeenCalled();
-      expect(stagingService.current()).toBeDefined();
+      it("shows an inline error under the unchecked checkbox when items would be unassigned", async () => {
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrganization();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(component().moveToSharedFolderControl.errors).toEqual(requiredError);
+        expect(component().moveToSharedFolderControl.touched).toBe(true);
+        expect(inlineErrorText()).toBe(true);
+        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(importService.importImportResult).not.toHaveBeenCalled();
+        expect(stagingService.current()).toBeDefined();
+      });
+
+      it("announces the checkbox error, which has no live region of its own", async () => {
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrganization();
+
+        await submit();
+
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+          "importSharedFolderRequired",
+          "assertive",
+        );
+      });
+
+      it("keeps the dropdown hidden and moves focus to the checkbox", async () => {
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrganization();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(byId(selectId)).toBeNull();
+        expect(document.activeElement).toBe(byId(checkboxId).nativeElement);
+      });
+
+      it("shows the same inline error for a file the SDK imports, which can't go to an org without a folder", async () => {
+        stagingService.stage({
+          kind: "sdk",
+          format: "keepasskdbx",
+          file: new Uint8Array([1]),
+          credentials: { kind: "password", password: "pw" },
+        });
+        await setup();
+        selectOrganization();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(component().moveToSharedFolderControl.errors).toEqual(requiredError);
+        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(importService.importWithSdk).not.toHaveBeenCalled();
+      });
+
+      it("shows the error on the dropdown, and focuses it, when the box is checked and no folder is chosen", async () => {
+        stageParsed();
+        await setup();
+        selectOrganization();
+        component().moveToSharedFolderControl.setValue(true);
+        fixture.detectChanges();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(component().sharedFolderControl.touched).toBe(true);
+        expect(inlineErrorText()).toBe(true);
+        expect(byId(selectId).nativeElement.contains(document.activeElement)).toBe(true);
+        // The dropdown's own error is already a live region.
+        expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(importService.importImportResult).not.toHaveBeenCalled();
+      });
+
+      it("clears the error when the box is checked", async () => {
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrganization();
+        await submit();
+
+        component().moveToSharedFolderControl.setValue(true);
+        fixture.detectChanges();
+
+        expect(component().moveToSharedFolderControl.errors).toBeNull();
+        expect(byId(selectId)).not.toBeNull();
+      });
+
+      it("clears the error when the destination changes, even back to the same org", async () => {
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrganization();
+        await submit();
+
+        selectOrganization("organization:b");
+        selectOrganization("organization:a");
+
+        expect(component().moveToSharedFolderControl.errors).toBeNull();
+        expect(component().moveToSharedFolderControl.touched).toBe(false);
+        expect(inlineErrorText()).toBe(false);
+      });
+
+      it("imports into the org without a folder when every item already has a collection", async () => {
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(false);
+        selectOrganization();
+
+        await submit();
+
+        expect(component().moveToSharedFolderControl.errors).toBeNull();
+        expect(importService.importImportResult).toHaveBeenCalled();
+      });
     });
 
     it("does not run the unassigned-items check for My vault", async () => {
@@ -771,16 +904,24 @@ describe("ImportDestinationComponent", () => {
         expect(importService.parse).not.toHaveBeenCalled();
       });
 
-      it("refuses an organization with no shared folder before the sharing dialog, as the SDK always would", async () => {
+      it("refuses an organization when no shared folder is chosen, before the sharing dialog, as the SDK always would", async () => {
+        destinations$.next({
+          options: [
+            myVault,
+            organization("a", "Acme Co", { sharedFolders: [folder("f1", "a", "Alpha")] }),
+          ],
+          hasStep: true,
+        });
         await setup();
         component().destinationControl.setValue("organization:a");
         fixture.detectChanges();
 
         await submit();
 
-        expect(toastService.showToast).toHaveBeenCalledWith(
-          expect.objectContaining({ variant: "error", message: "importUnassignedItemsErrorV2" }),
-        );
+        expect(component().moveToSharedFolderControl.errors).toEqual({
+          sharedFolderRequired: { message: "importSharedFolderRequired" },
+        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
         expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
         expect(importService.importWithSdk).not.toHaveBeenCalled();
         expect(stagingService.current()).toBeDefined();
