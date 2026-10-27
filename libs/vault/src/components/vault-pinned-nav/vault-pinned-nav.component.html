@@ -1,7 +1,12 @@
 @if (nodes().length > 0) {
   <bit-nav-section [label]="'pinned' | i18n" icon="bwi-pin">
     @for (node of nodes(); track node.id) {
-      <vault-pinned-nav-node [node]="node" [routes]="routes()" />
+      <vault-pinned-nav-node
+        [node]="node"
+        [pinned]="true"
+        [organization]="organization()"
+        [routes]="routes()"
+      />
     }
   </bit-nav-section>
 } @else if (!emptyStateDismissed()) {

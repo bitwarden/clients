@@ -1,0 +1,56 @@
+@if (showMenu()) {
+  <button
+    type="button"
+    [bitIconButton]="triggerIcon()"
+    [buttonType]="triggerButtonType()"
+    [size]="triggerSize()"
+    [bitMenuTriggerFor]="menu"
+    [label]="'optionsForItem' | i18n: collection().name"
+    [attr.id]="idPrefix() + '_button_options-' + collection().id"
+  ></button>
+  <bit-menu #menu>
+    @if (unpinnable()) {
+      <button
+        type="button"
+        bitMenuItem
+        [attr.id]="idPrefix() + '_menu-item_unpin-' + collection().id"
+        (click)="unpin.emit()"
+      >
+        <bit-icon slot="start" fixedWidth name="bwi-unpin" />
+        {{ "unpinFromSidebar" | i18n }}
+      </button>
+    }
+    @if (showEditActions()) {
+      <button
+        type="button"
+        bitMenuItem
+        [attr.id]="idPrefix() + '_menu-item_edit-' + collection().id"
+        (click)="editCollection(CollectionDialogTab.Info)"
+      >
+        <bit-icon slot="start" fixedWidth name="bwi-pencil-square" />
+        {{ "editInfo" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitMenuItem
+        [attr.id]="idPrefix() + '_menu-item_access-' + collection().id"
+        (click)="editCollection(CollectionDialogTab.Access)"
+      >
+        <bit-icon slot="start" fixedWidth name="bwi-users" />
+        {{ "editAccess" | i18n }}
+      </button>
+    }
+    @if (showDeleteAction()) {
+      <button
+        type="button"
+        bitMenuItem
+        variant="danger"
+        [attr.id]="idPrefix() + '_menu-item_delete-' + collection().id"
+        (click)="delete()"
+      >
+        <bit-icon slot="start" fixedWidth name="bwi-trash" />
+        {{ "delete" | i18n }}
+      </button>
+    }
+  </bit-menu>
+}

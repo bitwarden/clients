@@ -7,12 +7,13 @@ import {
   input,
   output,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { isActive, Router } from "@angular/router";
-import { switchMap } from "rxjs";
+import { combineLatest, map, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -44,6 +45,7 @@ export class VaultPinnedNavComponent {
 
   private readonly accountService = inject(AccountService);
   private readonly collectionService = inject(CollectionService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
   private readonly router = inject(Router);
 
@@ -65,6 +67,16 @@ export class VaultPinnedNavComponent {
   private readonly collections = toSignal(
     this.userId$.pipe(switchMap((userId) => this.collectionService.decryptedCollections$(userId))),
     { initialValue: [] },
+  );
+
+  protected readonly organization = toSignal(
+    combineLatest([this.userId$, toObservable(this.organizationId)]).pipe(
+      switchMap(([userId, organizationId]) =>
+        this.organizationService
+          .organizations$(userId)
+          .pipe(map((organizations) => organizations.find((org) => org.id === organizationId))),
+      ),
+    ),
   );
 
   /** The pinned folders that resolve in this organization. Stale ids never reach the nav. */

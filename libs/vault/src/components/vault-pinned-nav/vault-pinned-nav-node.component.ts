@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { isActive, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,16 +11,14 @@ import { CollectionId } from "@bitwarden/common/types/guid";
 import {
   HoverRevealContainerDirective,
   HoverRevealDirective,
-  IconButtonModule,
-  IconComponent,
-  MenuModule,
   NavigationModule,
   ToastService,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
+import { sharedFoldersCommands } from "../../models/vault-scope";
 import { EXACT_PATH } from "../../routing/exact-path";
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
+import { CollectionActionResult, CollectionOptionsMenuComponent } from "../collection-options-menu";
 
 import { PinnedFolderNode } from "./pinned-shared-folder-nodes";
 
@@ -38,16 +37,19 @@ import { PinnedFolderNode } from "./pinned-shared-folder-nodes";
   imports: [
     NgTemplateOutlet,
     NavigationModule,
-    IconButtonModule,
-    IconComponent,
-    MenuModule,
-    I18nPipe,
+    CollectionOptionsMenuComponent,
     HoverRevealContainerDirective,
     HoverRevealDirective,
   ],
 })
 export class VaultPinnedNavNodeComponent {
   readonly node = input.required<PinnedFolderNode>();
+
+  /** Whether the user pinned this folder itself, rather than it showing only beneath a pinned ancestor. */
+  readonly pinned = input(false);
+
+  /** `undefined` while the organization list is still loading. */
+  readonly organization = input<Organization | undefined>(undefined);
 
   /**
    * Route commands for every folder in the tree, by id. Handed down rather than built per node so
@@ -79,5 +81,13 @@ export class VaultPinnedNavNodeComponent {
       variant: "success",
       message: this.i18nService.t("folderUnpinnedFromSidebar", this.node().name),
     });
+  }
+
+  protected async onActionResult(result: CollectionActionResult): Promise<void> {
+    if (result.deleted && this.active()) {
+      await this.router.navigate(sharedFoldersCommands(result.organizationId), {
+        replaceUrl: true,
+      });
+    }
   }
 }

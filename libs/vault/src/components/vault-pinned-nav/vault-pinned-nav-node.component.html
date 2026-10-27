@@ -12,7 +12,7 @@
       <ng-container *ngTemplateOutlet="options" />
     </div>
     @for (child of node().children; track child.id) {
-      <vault-pinned-nav-node [node]="child" [routes]="routes()" />
+      <vault-pinned-nav-node [node]="child" [organization]="organization()" [routes]="routes()" />
     }
   </bit-nav-group>
 } @else {
@@ -29,23 +29,15 @@
 }
 
 <ng-template #options>
-  <button
-    type="button"
-    bitIconButton="bwi-ellipsis-h"
-    buttonType="side-nav"
-    size="xsmall"
-    [label]="'optionsForItem' | i18n: node().name"
-    [bitMenuTriggerFor]="menu"
-  ></button>
-  <bit-menu #menu>
-    <button
-      type="button"
-      bitMenuItem
-      [attr.id]="'vault-pinned-nav_menu-item_unpin-' + node().id"
-      (click)="unpin()"
-    >
-      <bit-icon slot="start" fixedWidth name="bwi-unpin" />
-      {{ "unpinFromSidebar" | i18n }}
-    </button>
-  </bit-menu>
+  <vault-collection-options-menu
+    idPrefix="vault-pinned-nav"
+    triggerIcon="bwi-ellipsis-h"
+    triggerButtonType="side-nav"
+    triggerSize="xsmall"
+    [collection]="node().collection"
+    [organization]="organization()"
+    [unpinnable]="pinned()"
+    (unpin)="unpin()"
+    (actionResult)="onActionResult($event)"
+  />
 </ng-template>
