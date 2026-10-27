@@ -137,7 +137,11 @@ export class TrialBillingStepComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.prices$ = this.trialBillingStepService.getPrices$(this.trial().product, this.trial().tier);
+    this.prices$ = this.trialBillingStepService.getPrices$(
+      this.trial().product,
+      this.trial().tier,
+      this.trial().privilegedControls != null,
+    );
 
     const billingAddressChanged$ = this.formGroup.controls.billingAddress.valueChanges.pipe(
       startWith(this.formGroup.controls.billingAddress.value),

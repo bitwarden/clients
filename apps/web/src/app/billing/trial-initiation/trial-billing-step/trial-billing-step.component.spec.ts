@@ -289,7 +289,7 @@ describe("TrialBillingStepComponent", () => {
       previewDrivenCart$.next(true);
     };
 
-    it("renders the preview cart and hides the legacy price block when both flags are on", fakeAsync(() => {
+    it("renders the preview cart and hides the radio and legacy prices when both flags are on", fakeAsync(() => {
       enableFlags();
       mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
 
@@ -301,6 +301,8 @@ describe("TrialBillingStepComponent", () => {
       expect(fixture.nativeElement.querySelector("app-trial-preview-cart")).toBeTruthy();
       expect(fixture.nativeElement.querySelector("billing-cart-summary")).toBeTruthy();
       expect(fixture.nativeElement.querySelector("#price")).toBeNull();
+      // The cart owns pricing here, so the radio drops its plan price to avoid double-printing.
+      expect(fixture.nativeElement.textContent).not.toContain("$40.00");
     }));
 
     it("renders the legacy radios and price block when a flag is off", fakeAsync(() => {
@@ -393,6 +395,33 @@ describe("TrialBillingStepComponent", () => {
       const text = fixture.nativeElement.textContent;
       expect(text).toContain("$40.00"); // annual radio keeps its plan price
       expect(text).toContain("$2.00"); // monthly radio keeps its plan price
+    }));
+  });
+
+  describe("plan pricing", () => {
+    it("asks for privileged-controls-inclusive pricing when the trial selected it", fakeAsync(() => {
+      fixture.componentRef.setInput("trial", {
+        ...mockDirectPurchase,
+        privilegedControls: { seatMinimum: 1 },
+      });
+      fixture.detectChanges();
+
+      expect(mockTrialBillingStepService.getPrices$).toHaveBeenCalledWith(
+        "passwordManager",
+        "enterprise",
+        true,
+      );
+    }));
+
+    it("asks for plan-only pricing when the trial has no privileged controls", fakeAsync(() => {
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      fixture.detectChanges();
+
+      expect(mockTrialBillingStepService.getPrices$).toHaveBeenCalledWith(
+        "passwordManager",
+        "enterprise",
+        false,
+      );
     }));
   });
 

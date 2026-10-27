@@ -48,7 +48,7 @@ describe("TrialBillingStepService", () => {
     },
     SecretsManager: null,
     PrivilegedControls: {
-      seatPrice: 5,
+      seatPrice: 100,
       defaultSeatMinimum: 8,
       promotionalSeatMinimums: [4, 6],
     },
@@ -61,6 +61,34 @@ describe("TrialBillingStepService", () => {
     PasswordManager: {
       basePrice: 0,
       seatPrice: 0.5,
+      baseSeats: 0,
+    },
+    SecretsManager: null,
+    PrivilegedControls: {
+      seatPrice: 11,
+    },
+  } as unknown as PlanResponse;
+  const mockTeamsPlan = {
+    type: PlanType.TeamsAnnually,
+    productTier: 2,
+    name: "Teams",
+    isAnnual: true,
+    PasswordManager: {
+      basePrice: 0,
+      seatPrice: 4,
+      baseSeats: 0,
+    },
+    SecretsManager: null,
+    PrivilegedControls: null,
+  } as unknown as PlanResponse;
+  const mockTeamsMonthlyPlan = {
+    type: PlanType.TeamsMonthly,
+    productTier: 2,
+    name: "Teams",
+    isAnnual: false,
+    PasswordManager: {
+      basePrice: 0,
+      seatPrice: 0.4,
       baseSeats: 0,
     },
     SecretsManager: null,
@@ -83,7 +111,13 @@ describe("TrialBillingStepService", () => {
     mockReset(mockAccountService);
 
     mockApiService.getPlans.mockResolvedValue({
-      data: [mockFamiliesPlan, mockEnterprisePlan, mockEnterpriseMonthlyPlan],
+      data: [
+        mockFamiliesPlan,
+        mockTeamsPlan,
+        mockTeamsMonthlyPlan,
+        mockEnterprisePlan,
+        mockEnterpriseMonthlyPlan,
+      ],
     } as any);
     mockAccountService.activeAccount$ = of(mockAccount as any);
 
@@ -247,6 +281,25 @@ describe("TrialBillingStepService", () => {
       const prices = await firstValueFrom(sut.getPrices$("passwordManager", "enterprise"));
 
       expect(prices).toEqual({ annually: 6, monthly: 0.5 });
+    });
+
+    it("folds the privileged controls seat price into an enterprise Password Manager price", async () => {
+      const prices = await firstValueFrom(sut.getPrices$("passwordManager", "enterprise", true));
+
+      // Enterprise PM seat (6 / 0.5) plus the PAM seat (100 / 11) at its one-seat minimum.
+      expect(prices).toEqual({ annually: 106, monthly: 11.5 });
+    });
+
+    it("leaves teams pricing unchanged since teams has no privileged controls", async () => {
+      const prices = await firstValueFrom(sut.getPrices$("passwordManager", "teams", true));
+
+      expect(prices).toEqual({ annually: 4, monthly: 0.4 });
+    });
+
+    it("leaves families pricing unchanged since families has no privileged controls", async () => {
+      const prices = await firstValueFrom(sut.getPrices$("passwordManager", "families", true));
+
+      expect(prices).toEqual({ annually: 40 });
     });
   });
 

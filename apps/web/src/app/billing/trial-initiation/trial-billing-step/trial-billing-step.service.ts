@@ -78,7 +78,7 @@ export class TrialBillingStepService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  getPrices$ = (product: Product, tier: Tier) =>
+  getPrices$ = (product: Product, tier: Tier, includePrivilegedControls = false) =>
     this.plans$.pipe(
       map((plans) => {
         switch (tier) {
@@ -102,9 +102,19 @@ export class TrialBillingStepService {
             );
             switch (product) {
               case "passwordManager": {
+                const enterprisePrivilegedControls =
+                  includePrivilegedControls && tier === "enterprise";
                 return {
-                  annually: annually!.PasswordManager.seatPrice,
-                  monthly: monthly!.PasswordManager.seatPrice,
+                  annually:
+                    annually!.PasswordManager.seatPrice +
+                    (enterprisePrivilegedControls
+                      ? (annually!.PrivilegedControls?.seatPrice ?? 0)
+                      : 0),
+                  monthly:
+                    monthly!.PasswordManager.seatPrice +
+                    (enterprisePrivilegedControls
+                      ? (monthly!.PrivilegedControls?.seatPrice ?? 0)
+                      : 0),
                 };
               }
               case "secretsManager": {
