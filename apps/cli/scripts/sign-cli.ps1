@@ -8,15 +8,7 @@ function SignExe {
 
         [Parameter(Mandatory=$false)]
         [ValidateScript({![string]::IsNullOrEmpty($_)})]
-        [string]$clientId,
-
-        [Parameter(Mandatory=$false)]
-        [ValidateScript({![string]::IsNullOrEmpty($_)})]
-        [string]$tenantId,
-
-        [Parameter(Mandatory=$false)]
-        [ValidateScript({![string]::IsNullOrEmpty($_)})]
-        [string]$clientSecret,
+        [string]$accessToken,
 
         [Parameter(Mandatory=$false)]
         [ValidateScript({![string]::IsNullOrEmpty($_)})]
@@ -37,8 +29,8 @@ function SignExe {
     )
 
     echo "Signing $exePath ..."
-    azuresigntool sign -kvu $vaultUrl -kvi $clientId -kvt $tenantId -kvs $clientSecret -kvc $certName -tr $timestampService $exePath
+    azuresigntool sign -kvu $vaultUrl -kva $accessToken -kvc $certName -tr $timestampService $exePath
 }
 
 
-SignExe -vaultUrl $env:SIGNING_VAULT_URL -clientId $env:SIGNING_CLIENT_ID -tenantId $env:SIGNING_TENANT_ID -clientSecret $env:SIGNING_CLIENT_SECRET -certName $env:SIGNING_CERT_NAME -exePath $env:EXE_PATH
+SignExe -vaultUrl $env:SIGNING_VAULT_URL -accessToken $env:SIGNING_ACCESS_TOKEN -certName $env:SIGNING_CERT_NAME -exePath $env:EXE_PATH
