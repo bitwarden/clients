@@ -16,6 +16,8 @@ import {
 } from "../../models";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
+import { VaultHealthReportApiService } from "./vault-health-report-api.service";
+
 /**
  * The scoped logins a report was built from: cipher id to revision. A revision
  * moves whenever a login is saved, so comparing fingerprints catches a password
@@ -47,6 +49,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
 
   constructor(
     private cipherRiskService: CipherRiskService,
+    private vaultHealthReportApiService: VaultHealthReportApiService,
     private logService: LogService,
   ) {}
 
@@ -122,6 +125,25 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     }
   }
 
+  /** The user's scan status and latest report; `idle` with no report until a build runs. */
+  getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState> {
+    return this.stateFor(userId).pipe(
+      map(({ status, report }) => ({ status, report })),
+      distinctUntilChanged((a, b) => a.status === b.status && a.report === b.report),
+    );
+  }
+
+  async restoreExcludedCipher(cipherId: string): Promise<void> {
+    try {
+      await this.vaultHealthReportApiService.restoreExcludedCipher(cipherId);
+    } catch (error) {
+      this.logService.error("Failed to restore excluded cipher", error);
+      throw error;
+    }
+
+    // TODO: refresh the report for the user after restoring the excluded cipher
+  }
+
   /**
    * This user's stream, created on first use. Created on read too, so a
    * subscriber that arrives before any build still receives its publishes.
@@ -133,14 +155,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       this.states.set(userId, state);
     }
     return state;
-  }
-
-  /** The user's scan status and latest report; `idle` with no report until a build runs. */
-  getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState> {
-    return this.stateFor(userId).pipe(
-      map(({ status, report }) => ({ status, report })),
-      distinctUntilChanged((a, b) => a.status === b.status && a.report === b.report),
-    );
   }
 
   /**
