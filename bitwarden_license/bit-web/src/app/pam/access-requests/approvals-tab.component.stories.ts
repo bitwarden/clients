@@ -151,6 +151,10 @@ function inbox(options: { rows?: () => ApproverRow[]; loading?: boolean } = {}) 
           decide: () => Promise.resolve(),
           revokeLease: () => Promise.resolve(),
           cancelApproval: () => Promise.resolve(),
+          managedRequestParties: () => ({
+            requesterName: "Grace Hopper",
+            organizationName: names.organizationNameById.get("org-1") ?? null,
+          }),
         }),
       },
       {
