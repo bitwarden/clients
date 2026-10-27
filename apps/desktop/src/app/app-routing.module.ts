@@ -52,6 +52,8 @@ import {
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
 import {
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   organizationVaultGuard,
@@ -547,6 +549,17 @@ export const routes: Routes = [
         component: MyFoldersComponent,
         canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
         data: { pageTitle: { key: "myFolders" } } satisfies RouteDataProperties,
+      },
+      // One of the user's folders.
+      {
+        path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+        component: VaultComponent,
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          vaultScopeGuard,
+          vaultFilterRestoreGuard,
+        ],
+        data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
       },
       {
         path: "send",
