@@ -70,7 +70,7 @@ export default {
 
 type Story = StoryObj<AccessRequestsComponent>;
 
-/** An approver with work on every tab; the My requests berry sums all three of its sections. */
+/** Work in every section; the My requests berry sums all three. */
 export const Default: Story = {
   decorators: shell({ pending: 2, extensions: 1, leases: 3 }),
 };
