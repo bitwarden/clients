@@ -1,0 +1,94 @@
+<app-header></app-header>
+
+<bit-bulk-actions-bar>
+  <bit-bulk-action
+    [action]="bulkDelete"
+    [label]="'delete' | i18n"
+    icon="bwi-trash"
+  ></bit-bulk-action>
+</bit-bulk-actions-bar>
+
+<bit-table-v2
+  [tableDef]="table"
+  [filter]="filterGroups"
+  [filters]="initialFilters"
+  [selection]="selection"
+  [loading]="loading()"
+>
+  <bit-table-toolbar>
+    <bit-search
+      [placeholder]="'searchGroups' | i18n"
+      [formControl]="searchControl"
+      class="tw-w-80"
+    ></bit-search>
+    <bit-filter-menu
+      key="collections"
+      [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
+      multiple
+      [options]="collectionFilterOptions()"
+    ></bit-filter-menu>
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      slot="end"
+      startIcon="bwi-plus"
+      (click)="add()"
+    >
+      {{ "addGroup" | i18n }}
+    </button>
+  </bit-table-toolbar>
+
+  <bit-column sortable defaultSort="asc" width="minmax(200px, 1fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.details; let row">
+      <button type="button" bitLink class="tw-font-medium" (click)="edit(row)">
+        {{ row.details.name }}
+      </button>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column width="minmax(240px, 2fr)">
+    <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.collectionBadges; let row">
+      <bit-badge-group
+        [badges]="row.collectionBadges"
+        (click)="edit(row, ModalTabType.Collections)"
+        class="tw-cursor-pointer"
+      ></bit-badge-group>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column width="80px">
+    <bit-header-cell
+      ><span class="tw-ms-auto">{{ "options" | i18n }}</span></bit-header-cell
+    >
+    <bit-cell *bitCellDef="table.columns.actions; let row">
+      <button
+        [bitMenuTriggerFor]="rowMenu"
+        type="button"
+        bitIconButton="bwi-ellipsis-v"
+        size="small"
+        label="{{ 'options' | i18n }}"
+        class="tw-ms-auto"
+      ></button>
+
+      <bit-menu #rowMenu>
+        <button type="button" bitMenuItem (click)="edit(row)">
+          <bit-icon name="bwi-pencil-square" slot="start" />
+          {{ "editInfo" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Members)">
+          <bit-icon name="bwi-user" slot="start" />
+          {{ "members" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Collections)">
+          <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+          {{ "collections" | vfo1I18n: "sharedFolders" }}
+        </button>
+      </bit-menu>
+    </bit-cell>
+  </bit-column>
+
+  <bit-table-paginator></bit-table-paginator>
+</bit-table-v2>

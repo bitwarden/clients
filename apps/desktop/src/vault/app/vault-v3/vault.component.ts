@@ -600,21 +600,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.activeUserId = activeUserId;
 
-    // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
 
     const incomingAddType = toCipherType(currentParams.addType);
     if (currentParams.action === "add" && incomingAddType) {
       await this.addCipher(incomingAddType).catch(() => {});
-    }
-
-    // Clear cipher selection on page load/reload to prevent flash of content
-    if (currentParams.itemId || currentParams.cipherId) {
-      await this.router.navigate([], {
-        queryParams: { itemId: null, cipherId: null, action: null },
-        queryParamsHandling: "merge",
-        replaceUrl: true,
-      });
     }
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -909,7 +899,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
       },
     );
-    if (newExperienceResult !== null) {
+
+    if ((currentParams.itemId || currentParams.cipherId) && newExperienceResult == null) {
+      const id = currentParams.itemId ?? currentParams.cipherId;
+      const userId = await firstValueFrom(this.userId$);
+      const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, id));
+      if (cipher) {
+        await this.viewCipher(cipher);
+      }
+    }
+    if (newExperienceResult != null) {
       this.sideNavService.open.set(true);
     }
   }
