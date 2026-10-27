@@ -15,6 +15,7 @@ crate-type = ["cdylib"]
 [features]
 default = []
 manual_test = []
+file_secure_storage = ["desktop_core/file_secure_storage"]
 
 [dependencies]
 anyhow = { workspace = true }

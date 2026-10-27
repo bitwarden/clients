@@ -11,7 +11,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  CipherService,
+  RestrictedCipherWriteError,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import {
@@ -25,6 +28,7 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
 } from "../cipher-view/attachments/attachments-v2.component";
+import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
 import { ArchiveCipherUtilitiesService } from "./archive-cipher-utilities.service";
 import { PasswordRepromptService } from "./password-reprompt.service";
@@ -86,7 +90,18 @@ export class CipherActionService {
     const fullCipher = await this.cipherService.getFullCipherView(cipher);
     fullCipher.favorite = !fullCipher.favorite;
 
-    await this.cipherService.updateWithServer(fullCipher, userId);
+    try {
+      await this.cipherService.updateWithServer(fullCipher, userId);
+    } catch (e) {
+      if (!(e instanceof RestrictedCipherWriteError)) {
+        throw e;
+      }
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("restrictedItemChangeRefused"),
+      });
+      return;
+    }
 
     this.toastService.showToast({
       variant: "success",
@@ -208,6 +223,10 @@ export class CipherActionService {
       });
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(deleteFailureMessageKey(cipher)),
+      });
     }
     this._cipherModified.next();
   }
