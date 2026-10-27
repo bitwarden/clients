@@ -66,16 +66,13 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import {
-  CipherUse,
-  FillCipherPolicy,
-  SaveCandidate,
-} from "../services/abstractions/fill-cipher-policy";
+import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 
 import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddLoginMessageData,
+  AddLoginNotificationData,
   AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
@@ -115,17 +112,6 @@ type CiphersByInputMatchCategory = {
   usernameOnlyMatches: CipherView["id"][];
   usernamePasswordMatches: CipherView["id"][];
 };
-
-/** The form values a save of this queue message would write to a cipher. */
-function saveCandidateFor(
-  queueMessage: AddLoginQueueMessage | AddChangePasswordNotificationQueueMessage,
-  tab: chrome.tabs.Tab,
-): SaveCandidate {
-  if (queueMessage.type === NotificationType.AddLogin) {
-    return queueMessage.data;
-  }
-  return { uri: tab.url ?? "", newPassword: queueMessage.data.newPassword };
-}
 
 export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
@@ -195,7 +181,7 @@ export default class NotificationBackground {
     private fido2Background: Fido2Background,
     private intraprocessMessageSender: IntraprocessMessageSender,
     private messageListener: MessageListener,
-    private fillCipherPolicy: FillCipherPolicy,
+    private revealedAutofillCipherService: RevealedAutofillCipherService,
   ) {}
 
   init() {
@@ -266,7 +252,7 @@ export default class NotificationBackground {
     }
 
     const [decryptedCiphers, organizations] = await Promise.all([
-      this.fillCipherPolicy.ciphersForUrl(currentTab.url, activeUserId, CipherUse.SavePrompt),
+      this.cipherService.getAllDecryptedForUrl(currentTab.url, activeUserId),
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
@@ -290,7 +276,7 @@ export default class NotificationBackground {
         const {
           data: { cipherIds },
         } = cipherQueueMessage;
-        const cipherViews = await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.SavePrompt);
+        const cipherViews = await this.cipherService.getAllDecrypted(activeUserId);
         return cipherViews
           .filter((cipher) => cipherIds.includes(cipher.id))
           .map((cipherView) => {
@@ -386,10 +372,9 @@ export default class NotificationBackground {
       return null;
     }
 
-    const urlCiphers: CipherView[] = await this.fillCipherPolicy.ciphersForUrl(
+    const urlCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
       modifyLoginData.uri,
       activeUserId,
-      CipherUse.SecurityTask,
     );
     if (!(urlCiphers?.length > 0)) {
       return null;
@@ -650,6 +635,30 @@ export default class NotificationBackground {
     await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
   }
 
+  /**
+   * True when the form's username or a password matches a revealed view for the form's URL. Such a
+   * form gets no prompt: a save would copy the restricted secret out, or write over the cipher.
+   */
+  async matchesRevealedLogin(
+    form: AddLoginNotificationData & { newPassword?: string },
+  ): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (userId == null) {
+      return false;
+    }
+    const username = form.username?.toLowerCase();
+    const passwords = [form.password, form.newPassword].filter((p) => !!p);
+    const matches = (await this.revealedAutofillCipherService.getRevealed(userId)).filter(
+      (c) =>
+        (!!username && c.login?.username?.toLowerCase() === username) ||
+        (!!c.login?.password && passwords.includes(c.login.password)),
+    );
+    return (
+      matches.length > 0 &&
+      (await this.cipherService.filterCiphersForUrl(matches, form.uri)).length > 0
+    );
+  }
+
   private async pushAddLoginToQueue(
     loginDomain: string,
     loginInfo: AddLoginMessageData,
@@ -774,10 +783,9 @@ export default class NotificationBackground {
       return true;
     }
 
-    const ciphersForURL: CipherView[] = await this.fillCipherPolicy.ciphersForUrl(
+    const ciphersForURL: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
       data.uri,
       activeUserId,
-      CipherUse.SavePrompt,
     );
 
     // Reducer structured to avoid subsequent array iterations
@@ -1278,17 +1286,6 @@ export default class NotificationBackground {
         continue;
       }
 
-      if (
-        !(await this.fillCipherPolicy.canOfferSave(
-          saveCandidateFor(queueMessage, tab),
-          activeUserId,
-        ))
-      ) {
-        this.notificationQueue.splice(i, 1);
-        await BrowserApi.tabSendMessageData(tab, "closeNotificationBar", { closedByUser: false });
-        return;
-      }
-
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
           data: { newPassword },
@@ -1313,10 +1310,13 @@ export default class NotificationBackground {
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
-        const allCiphers = await this.fillCipherPolicy.ciphersForUrl(
+        if (await this.matchesRevealedLogin(queueMessage.data)) {
+          continue;
+        }
+
+        const allCiphers = await this.cipherService.getAllDecryptedForUrl(
           queueMessage.data.uri,
           activeUserId,
-          CipherUse.SavePrompt,
         );
         const existingCipher = allCiphers.find(
           (c) =>
@@ -1479,9 +1479,6 @@ export default class NotificationBackground {
       const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
       cipherView.organizationId = organizationId;
       cipherView.folderId = folder;
-      if (userId && !(await this.fillCipherPolicy.canOfferSave(queueItem.data, userId))) {
-        cipherView.login.password = "";
-      }
 
       if (userId) {
         await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
@@ -1783,7 +1780,7 @@ export default class NotificationBackground {
             return EMPTY;
           }
           return Promise.all([
-            this.fillCipherPolicy.ciphersForUrl(tab.url!, userId, CipherUse.SecurityTask),
+            this.cipherService.getAllDecryptedForUrl(tab.url!, userId),
             this.getSecurityTasks(userId),
           ]);
         }),
