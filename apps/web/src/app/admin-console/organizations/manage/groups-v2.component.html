@@ -77,7 +77,15 @@
       <bit-menu #rowMenu>
         <button type="button" bitMenuItem (click)="edit(row)">
           <bit-icon name="bwi-pencil-square" slot="start" />
-          {{ "editGroup" | i18n }}
+          {{ "editInfo" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Members)">
+          <bit-icon name="bwi-user" slot="start" />
+          {{ "members" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Collections)">
+          <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+          {{ "collections" | vfo1I18n: "sharedFolders" }}
         </button>
         <button type="button" bitMenuItem variant="danger" (click)="confirmDelete([row])">
           <bit-icon name="bwi-trash" slot="start" />

@@ -64,7 +64,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -109,6 +109,7 @@ type GroupFilters = {
     BulkActionsBarComponent,
     BulkActionComponent,
     StatusLockupComponent,
+    Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -127,10 +128,10 @@ export class GroupsV2Component {
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
 
-  private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
-
   private readonly tableRef =
     viewChild.required<BitTableV2Component<GroupRow>>(BitTableV2Component);
+
+  private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
 
   protected readonly searchControl = new FormControl("");
 
