@@ -62,10 +62,11 @@ describe("ControlledAccessVaultFilterService", () => {
   });
 
   describe("options$", () => {
-    it("offers the sidebar's state groups, Privileged and My requests", async () => {
+    it("offers the sidebar's state groups: My requests, Privileged and Unavailable", async () => {
       expect(await firstValueFrom(service.options$)).toEqual([
         { id: MY_REQUESTS_FILTER_ID, name: "pamTabMyRequests", icon: "bwi-lock-encrypted" },
         { id: PRIVILEGED_FILTER_ID, name: "pamAccessBadgePrivileged", icon: "bwi-key" },
+        { id: UNAVAILABLE_FILTER_ID, name: "pamAccessBadgeUnavailable", icon: "bwi-lock" },
       ]);
     });
 
