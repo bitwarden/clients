@@ -20316,9 +20316,6 @@
   "pamRotationConfigColumnRotateOnAccessEnd": {
     "message": "Rotate on access end"
   },
-  "pamRotationConfigColumnLastRotation": {
-    "message": "Last rotation"
-  },
   "pamRotationConfigColumnLastRotated": {
     "message": "Last rotated"
   },
@@ -20423,6 +20420,90 @@
         "example": "3"
       }
     }
+  },
+  "pamRotationDetailNone": {
+    "message": "None"
+  },
+  "pamRotationDetailCalloutPaused": {
+    "message": "Rotation is paused, so this credential won't rotate on its schedule or when someone's access ends."
+  },
+  "pamRotationDetailCalloutRetrying": {
+    "message": "The first attempt failed, so Bitwarden is retrying. No action is needed unless all attempts fail."
+  },
+  "pamRotationDetailCalloutNoConnector": {
+    "message": "This target system has no access connector, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutDisconnected": {
+    "message": "The access connectors are disconnected, so this credential can't rotate."
+  },
+  "pamRotationDetailCalloutTimedOut": {
+    "message": "The last rotation didn't finish in time. Select $ACTION$ to try again.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Rotate now"
+      }
+    }
+  },
+  "pamRotationDetailCalloutDue": {
+    "message": "This credential was due $AGE$. Change its password, update the vault item, then mark it as rotated.",
+    "placeholders": {
+      "age": {
+        "content": "$1",
+        "example": "3 days ago"
+      }
+    }
+  },
+  "pamRotationDetailViewConnectors": {
+    "message": "View access connectors"
+  },
+  "pamRotationDetailConnectorsLabel": {
+    "message": "Access connectors for this target system"
+  },
+  "pamRotationDetailConnectorsHint": {
+    "message": "Every credential on this target system uses these."
+  },
+  "pamRotationDetailUsernameHintEntra": {
+    "message": "The account's sign-in name, for example name@company.onmicrosoft.com."
+  },
+  "pamRotationDetailUsernameHintCustomScript": {
+    "message": "The value your script uses to identify the account, for example its username."
+  },
+  "pamRotationDetailUsernameHintManual": {
+    "message": "The account's username on the target system, for your records. Bitwarden doesn't use it to rotate."
+  },
+  "pamRotationDetailUsernameHintDefault": {
+    "message": "The account's username on the target system, entered exactly as that system expects it."
+  },
+  "pamRotationDetailNextDue": {
+    "message": "Due $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Oct 1, 2026"
+      }
+    }
+  },
+  "pamRotationDetailDueSchedule": {
+    "message": "Due schedule"
+  },
+  "pamRotationHistoryColumnTrigger": {
+    "message": "Trigger"
+  },
+  "pamRotationHistoryRetrySucceeded": {
+    "message": "The first attempt failed; the retry succeeded."
+  },
+  "pamRotationDetailsDrawerTitle": {
+    "message": "Rotation details"
+  },
+  "pamRotationAttemptResultFailed": {
+    "message": "Failed"
+  },
+  "pamRotationAttemptResultSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationAttemptCauseTargetUnreachable": {
+    "message": "The target system didn't respond."
   },
   "pamRotationConfigRotateNowInProgress": {
     "message": "A rotation is in progress."
@@ -20547,20 +20628,8 @@
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "A rotation job is currently in progress. You can remove this credential from rotation once the access connector finishes it, or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
-  },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"
-  },
-  "pamRotationConfigDetailsHeading": {
-    "message": "Details"
-  },
-  "pamRotationConfigSettingsHeading": {
-    "message": "Rotation settings"
-  },
-  "pamRotationConfigAccountHeading": {
-    "message": "Account"
   },
   "pamRotationConfigTabConfiguration": {
     "message": "Configuration"
@@ -20568,26 +20637,11 @@
   "pamRotationConfigTabHistory": {
     "message": "History"
   },
-  "pamRotationConfigCipher": {
-    "message": "Credential"
-  },
   "pamRotationConfigTargetSystem": {
     "message": "Target system"
   },
   "pamRotationConfigTargetSystemPlaceholder": {
     "message": "Select a target system"
-  },
-  "pamRotationConfigAccountIdentity": {
-    "message": "Account identity"
-  },
-  "pamRotationConfigAccountIdentityHintConnector": {
-    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
-  },
-  "pamRotationConfigTerminateSessions": {
-    "message": "Terminate active sessions after rotation"
-  },
-  "pamRotationConfigTerminateSessionsHint": {
-    "message": "Requires the target system to support session termination."
   },
   "pamRotationConfigTerminationUnknownHint": {
     "message": "This target system's support for session termination could not be verified."
@@ -20595,17 +20649,8 @@
   "pamRotationConfigRotateOnAccessEnd": {
     "message": "Rotate when access ends"
   },
-  "pamRotationConfigRotateWhenAccessEndsHint": {
-    "message": "Automatically rotate this credential when PAM access to it ends."
-  },
   "pamRotationConfigSaved": {
     "message": "Managed credential saved."
-  },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Settings unavailable"
-  },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Changes can't be saved while a rotation job is in progress. You can save again once the job finishes or times out."
   },
   "pamRotationConfigIntegrityCheckFailedTitle": {
     "message": "Integrity check failed"
@@ -20730,15 +20775,6 @@
   "pamRotationFailureCauseTargetUnreachable": {
     "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
   },
-  "pamRotationFailureReportedDetail": {
-    "message": "Reported by the access connector: $REASON$",
-    "placeholders": {
-      "reason": {
-        "content": "$1",
-        "example": "target_rejected: LDAP result code 50"
-      }
-    }
-  },
   "pamRotationHistoryCaption": {
     "message": "Rotation jobs, newest first"
   },
@@ -20753,15 +20789,6 @@
   },
   "pamRotationHistoryAttemptsCaption": {
     "message": "Attempts, oldest first"
-  },
-  "pamRotationHistoryAttemptsAllAlike": {
-    "message": "Every attempt ended the same way."
-  },
-  "pamRotationJobDrawerTitle": {
-    "message": "Rotation job"
-  },
-  "pamRotationHistoryFailureHeading": {
-    "message": "Why it failed"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$s",
