@@ -1,6 +1,6 @@
 ---
 name: writing-end-to-end-tests
-description: Write and run Playwright end-to-end tests in `e2e/` for the web vault, browser extension and desktop app. The suite is a key-management internal experiment: use only when already working in `e2e/`, not to start a test suite elsewhere.
+description: Write and run Playwright end-to-end tests in `e2e/` for the web vault, browser extension and desktop app. The suite is a key-management internal experiment. Use only when already working in `e2e/`, not to start a test suite elsewhere.
 ---
 
 ## Layout
