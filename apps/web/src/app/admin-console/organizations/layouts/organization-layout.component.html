@@ -7,7 +7,7 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     @if (vfo1Enabled()) {
       <org-switcher
-        slot="product-switcher"
+        slot="header"
         [filter]="orgFilter"
         [hideNewButton]="hideNewOrgButton$ | async"
       ></org-switcher>

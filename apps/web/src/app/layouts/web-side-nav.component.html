@@ -10,8 +10,7 @@
     }
     <navigation-product-switcher [variant]="variant()"></navigation-product-switcher>
   </ng-container>
-  <!-- Re-projected like the logo so a consumer's switcher lands below the product switcher. -->
-  <ng-content select="[slot=product-switcher]" ngProjectAs="[slot=product-switcher]"></ng-content>
+  <ng-content select="[slot=header]" ngProjectAs="[slot=header]"></ng-content>
 
   <ng-container slot="account">
     @if (vfo1FoundationEnabled()) {

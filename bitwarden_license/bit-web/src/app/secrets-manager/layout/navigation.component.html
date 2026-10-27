@@ -1,11 +1,7 @@
 <app-side-nav headerBorder="always">
   <bit-nav-logo [openIcon]="logo" route="." [label]="'secretsManager' | i18n"></bit-nav-logo>
   @if (vfo1Enabled()) {
-    <org-switcher
-      slot="product-switcher"
-      [filter]="orgFilter"
-      [hideNewButton]="true"
-    ></org-switcher>
+    <org-switcher slot="header" [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
   } @else {
     <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
   }

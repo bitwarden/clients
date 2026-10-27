@@ -7,8 +7,9 @@
 @let shrinkToFit = open ? "[@container_(min-height:600px)]:tw-min-h-0" : "tw-min-h-0";
 
 <ng-template #logoContent><ng-content select="bit-nav-logo"></ng-content></ng-template>
-<ng-template #productSwitcherContent
+<ng-template #headerContent
   ><ng-content select="[slot=product-switcher]"></ng-content
+  ><ng-content select="[slot=header]"></ng-content
 ></ng-template>
 <ng-template #navContent><ng-content></ng-content></ng-template>
 <ng-template #footerContent><ng-content select="[slot=footer]"></ng-content></ng-template>
@@ -85,7 +86,7 @@
                   : 'tw-px-[calc((100%_-_3rem)/2)]'
               "
             >
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
+              <ng-container *ngTemplateOutlet="headerContent"></ng-container>
             </div>
           </div>
           <!-- No overscroll-none: it would trap wheel scroll that must chain to the column.
@@ -173,7 +174,7 @@
             <div
               class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
             >
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
+              <ng-container *ngTemplateOutlet="headerContent"></ng-container>
             </div>
           }
         </div>
