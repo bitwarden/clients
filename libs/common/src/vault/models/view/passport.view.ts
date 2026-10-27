@@ -49,7 +49,26 @@ export class PassportView extends ItemView implements SdkPassportView {
     return view;
   }
 
+  /**
+   * Converts the PassportView to an SDK PassportView.
+   * Empty strings are converted to undefined to prevent the SDK from encrypting
+   * them as non-null values, which would incorrectly populate copyableFields.
+   */
   toSdkPassportView(): SdkPassportView {
-    return this;
+    return {
+      surname: this.surname || undefined,
+      givenName: this.givenName || undefined,
+      dateOfBirth: this.dateOfBirth || undefined,
+      sex: this.sex || undefined,
+      birthPlace: this.birthPlace || undefined,
+      nationality: this.nationality || undefined,
+      issuingCountry: this.issuingCountry || undefined,
+      passportNumber: this.passportNumber || undefined,
+      passportType: this.passportType || undefined,
+      nationalIdentificationNumber: this.nationalIdentificationNumber || undefined,
+      issuingAuthority: this.issuingAuthority || undefined,
+      issueDate: this.issueDate || undefined,
+      expirationDate: this.expirationDate || undefined,
+    };
   }
 }

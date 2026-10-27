@@ -1237,6 +1237,12 @@
   "deletedItem": {
     "message": "Item sent to trash"
   },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "overwritePassword": {
     "message": "Overwrite password"
   },
@@ -8437,6 +8443,15 @@
   },
   "passwordHasAdditionalRisks": {
     "message": "This password has additional risks:"
+  },
+  "excludeFromList": {
+    "message": "Exclude from list"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Exclude anyway"
   },
   "reused": {
     "message": "Reused",

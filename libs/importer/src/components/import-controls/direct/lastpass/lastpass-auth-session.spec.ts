@@ -66,7 +66,7 @@ describe("LastPassAuthSession", () => {
       expect(lastStage()).toEqual({ kind: "code", previousCodeRejected: false });
       session.submit("123456");
 
-      await expect(result).resolves.toEqual(new OtpResult("123456", false));
+      await expect(result).resolves.toEqual(new OtpResult("123456"));
     });
 
     it("returns the library's cancel result when the user leaves", async () => {
@@ -96,7 +96,7 @@ describe("LastPassAuthSession", () => {
       expect(lastStage()).toEqual({ kind: "code", previousCodeRejected: false });
       session.submit("654321");
 
-      await expect(result).resolves.toEqual(new OobResult(false, "654321", false));
+      await expect(result).resolves.toEqual(new OobResult(false, "654321"));
     });
 
     it("returns the library's cancel result when the user leaves", async () => {

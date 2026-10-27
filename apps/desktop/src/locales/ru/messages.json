@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Добавьте общую папку, чтобы безопасно делиться элементами хранилища с другими участниками."
   },
+  "pinned": {
+    "message": "Закрепленные",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Закрепить в боковой панели",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Открепить от боковой панели",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ закреплен в боковой панели",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ откреплен из боковой панели",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Найдите общую папку в этом хранилище и выберите",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "из меню параметров.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Закрепите общие папки на боковой панели, чтобы отфильтровать их здесь."
+  },
   "sendPasswordHelperText": {
     "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7294,6 +7337,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Те же функции, но с более понятными названиями. Коллекции теперь называются Общими папками». Папки теперь называются Моими папками."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Комбинировать и сочетать фильтры"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Выберите сразу несколько фильтров, чтобы сузить поиск именно до тех результатов, которые вам нужны. Они останутся активными, даже если вы перейдете на другую страницу."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ из $TOTAL$",
