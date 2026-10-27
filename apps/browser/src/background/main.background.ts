@@ -628,6 +628,7 @@ export default class MainBackground {
       authService: AuthServiceAbstraction;
       cipherService: CipherServiceAbstraction;
       messageSender: MessageSender;
+      logService: LogServiceAbstraction;
     }) => RevealedCipherService;
   }) {
     // Downstream services receive this callback and invoke it directly instead of
@@ -1238,6 +1239,7 @@ export default class MainBackground {
         authService: this.authService,
         cipherService: this.cipherService,
         messageSender: this.messagingService,
+        logService: this.logService,
       }) ?? new NoopRevealedCipherService();
     this.folderService = new FolderService(
       this.keyService,
