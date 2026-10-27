@@ -633,9 +633,12 @@ export default {
               noItemsInVaults: "Your vaults are empty",
               noItemsInOrganizationVault: (name) => `No items in ${name}`,
               noItemsInSharedFolder: (name) => `No items in ${name}`,
+              noItemsInFolder: (name) => `No items in ${name}`,
               emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
               emptySharedFolderDescription: (name) =>
                 `Add items to this shared folder, then give access to other ${name} members.`,
+              emptyFolderDescription:
+                "Add items to this folder. You’ll be able to quickly access them using vault filters.",
               noItemsInTrash: "No items in trash",
               noItemsInTrashDescription:
                 "Items you delete will appear here and be permanently deleted after 30 days.",

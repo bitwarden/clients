@@ -15,6 +15,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
+  CipherActionService,
   CipherFormConfig,
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
@@ -34,6 +35,7 @@ describe("WebVaultItemActionsService", () => {
   const cipherId = "cipher-1" as CipherId;
 
   let service: WebVaultItemActionsService;
+  let cipherActionService: MockProxy<CipherActionService>;
   let cipherService: MockProxy<CipherService>;
   let cipherFormConfigService: MockProxy<DefaultCipherFormConfigService>;
   let dialogService: MockProxy<DialogService>;
@@ -77,6 +79,7 @@ describe("WebVaultItemActionsService", () => {
   };
 
   beforeEach(() => {
+    cipherActionService = mock<CipherActionService>();
     cipherService = mock<CipherService>();
     cipherFormConfigService = mock<DefaultCipherFormConfigService>();
     dialogService = mock<DialogService>();
@@ -119,6 +122,7 @@ describe("WebVaultItemActionsService", () => {
       providers: [
         WebVaultItemActionsService,
         { provide: AccountService, useValue: accountService },
+        { provide: CipherActionService, useValue: cipherActionService },
         { provide: CipherService, useValue: cipherService },
         { provide: DefaultCipherFormConfigService, useValue: cipherFormConfigService },
         { provide: DialogService, useValue: dialogService },
@@ -233,6 +237,16 @@ describe("WebVaultItemActionsService", () => {
         dialogService,
         expect.objectContaining({ mode: "view" }),
       );
+    });
+
+    it("hands the dialog a restore that restores the item", async () => {
+      await service.view(buildCipher());
+
+      const { restore } = itemDialogOpen.mock.calls[0][1];
+      const cipher = buildCipher();
+      await restore(cipher);
+
+      expect(cipherActionService.restore).toHaveBeenCalledWith(cipher);
     });
 
     it("builds a partial-edit config when the user cannot edit the item", async () => {
@@ -541,6 +555,19 @@ describe("WebVaultItemActionsService", () => {
       expect(formConfig.initialValues).toEqual({
         organizationId: "org-1",
         collectionIds: undefined,
+      });
+    });
+
+    it("seeds the folder in scope, with no organization", async () => {
+      const formConfig = {} as CipherFormConfig;
+      cipherFormConfigService.buildConfig.mockResolvedValue(formConfig);
+
+      await service.add(CipherType.Login, { folderId: "folder-1" });
+
+      expect(formConfig.initialValues).toEqual({
+        organizationId: undefined,
+        collectionIds: undefined,
+        folderId: "folder-1",
       });
     });
 

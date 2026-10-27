@@ -15,6 +15,8 @@ default = [
     "dep:zbus",
 ]
 manual_test = []
+# Store passwords in a plaintext JSON file instead of the OS keyring. Local debugging only.
+file_secure_storage = []
 
 [dependencies]
 anyhow = { workspace = true }
