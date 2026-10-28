@@ -47,10 +47,6 @@
     }
   }
 
-  bit-landing-layout > div {
-    min-height: calc(100vh - var(--private-access-banner-height, 0px)) !important;
-  }
-
   /**
    * Loading page
    */
