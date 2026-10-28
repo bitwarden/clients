@@ -2,6 +2,8 @@ import { RunGuardsAndResolvers, Routes } from "@angular/router";
 
 import { unsavedChangesDialogGuard } from "../unsaved-changes.guard";
 
+import { AccessConnectorDetailComponent } from "./access-connectors/access-connector-detail.component";
+import { AccessConnectorsTabComponent } from "./access-connectors/access-connectors-tab.component";
 import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
 import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
 import { RotationConfigEditComponent } from "./managed-credentials/rotation-config-edit.component";
@@ -9,6 +11,8 @@ import { RotationConfigsService } from "./managed-credentials/rotation-configs.s
 import { OrgCiphersService } from "./org-ciphers.service";
 import { ROTATION_TABS } from "./rotation-links";
 import { RotationShellComponent } from "./rotation-shell.component";
+import { TargetSystemEditComponent } from "./target-systems/target-system-edit.component";
+import { TargetSystemsTabComponent } from "./target-systems/target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /** Whether a navigation off a detail page leaves the record it was editing behind. */
@@ -44,6 +48,30 @@ export const rotationRoutes: Routes = [
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
+    path: `${ROTATION_TABS.targetSystems}/new`,
+    component: TargetSystemEditComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    data: { titleId: "pamTargetSystemCreateTitle" },
+  },
+  {
+    path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
+    component: TargetSystemEditComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    data: { titleId: "pamTargetSystemEditTitle" },
+  },
+  {
+    path: `${ROTATION_TABS.accessConnectors}/:accessConnectorId`,
+    pathMatch: "full",
+    redirectTo: `${ROTATION_TABS.accessConnectors}/:accessConnectorId/configuration`,
+  },
+  {
+    path: `${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`,
+    component: AccessConnectorDetailComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    runGuardsAndResolvers: recordChanged("accessConnectorId"),
+    data: { titleId: "pamAccessConnectorDetailTitle" },
+  },
+  {
     path: "",
     component: RotationShellComponent,
     providers: [
@@ -53,6 +81,17 @@ export const rotationRoutes: Routes = [
       OrgCiphersService,
     ],
     children: [
+      { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.accessConnectors },
+      {
+        path: ROTATION_TABS.accessConnectors,
+        component: AccessConnectorsTabComponent,
+        data: { titleId: "pamRotationTabAccessConnectors" },
+      },
+      {
+        path: ROTATION_TABS.targetSystems,
+        component: TargetSystemsTabComponent,
+        data: { titleId: "pamRotationTabTargetSystems" },
+      },
       {
         path: ROTATION_TABS.managedCredentials,
         component: ManagedCredentialsTabComponent,
