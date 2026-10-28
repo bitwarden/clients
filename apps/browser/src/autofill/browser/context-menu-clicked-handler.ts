@@ -46,7 +46,7 @@ import {
   RETRY_SENDER,
 } from "../background/abstractions/notification.background";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillCipherTypeId } from "../types";
 import {
@@ -119,7 +119,7 @@ export class ContextMenuClickedHandler {
     private triageService: AutofillTriageService,
     private webmapperDrafts: WebmapperDraftService,
     private intraprocessMessageSender: IntraprocessMessageSender,
-    private revealedAutofillCipherService: RevealedAutofillCipherService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   async run(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
@@ -204,16 +204,16 @@ export class ContextMenuClickedHandler {
       // This NOOP item has come through which is generally only for no access state but since we got here
       // we are actually unlocked we will do our best to find a good match of an item to autofill this is useful
       // in scenarios like unlock on autofill
-      const ciphers = await this.cipherService.getAllDecryptedForUrl(
+      const ciphers = await this.fillCipherPolicy.ciphersForUrl(
         tab.url,
         activeUserId,
-        additionalCiphersToGet,
+        CipherUse.UserFill,
+        { includeOtherTypes: additionalCiphersToGet },
       );
 
       cipher = ciphers[0];
     } else {
-      const ciphers =
-        await this.revealedAutofillCipherService.getAllDecryptedIncludingRevealed(activeUserId);
+      const ciphers = await this.fillCipherPolicy.ciphers(activeUserId, CipherUse.UserFill);
       cipher = ciphers.find(({ id }) => id === menuItemId);
     }
 

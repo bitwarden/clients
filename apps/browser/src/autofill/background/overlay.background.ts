@@ -87,8 +87,8 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
   areKeyValuesNull,
@@ -293,7 +293,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     /** Publishes the retry queued for after the unlock. */
     private intraprocessMessageSender: IntraprocessMessageSender,
     private messageListener: MessageListener,
-    private revealedAutofillCipherService: RevealedAutofillCipherService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {
     this.initOverlayEventObservables();
   }
@@ -586,9 +586,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const cipherViews = (
-      await this.revealedAutofillCipherService.getAllDecryptedForUrlIncludingRevealed(
+      await this.fillCipherPolicy.ciphersForUrl(
         currentTab.url || "",
         activeUserId,
+        CipherUse.UserFill,
       )
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
@@ -613,11 +614,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.revealedAutofillCipherService.getAllDecryptedForUrlIncludingRevealed(
-        currentTab.url || "",
-        userId,
-        [CipherType.Card, CipherType.Identity, CipherType.SshKey],
-      )
+      await this.fillCipherPolicy.ciphersForUrl(currentTab.url || "", userId, CipherUse.UserFill, {
+        includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey],
+      })
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     if (!this.cardAndIdentityCiphers) {
