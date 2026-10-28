@@ -49,8 +49,7 @@ describe("TrialBillingStepService", () => {
     SecretsManager: null,
     PrivilegedControls: {
       seatPrice: 100,
-      defaultSeatMinimum: 8,
-      promotionalSeatMinimums: [4, 6],
+      baseSeats: 0,
     },
   } as unknown as PlanResponse;
   const mockEnterpriseMonthlyPlan = {
@@ -66,6 +65,7 @@ describe("TrialBillingStepService", () => {
     SecretsManager: null,
     PrivilegedControls: {
       seatPrice: 11,
+      baseSeats: 0,
     },
   } as unknown as PlanResponse;
   const mockTeamsPlan = {

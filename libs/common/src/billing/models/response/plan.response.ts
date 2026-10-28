@@ -122,16 +122,12 @@ export class PrivilegedControlsPlanFeaturesResponse extends BaseResponse {
   stripeSeatPlanId: string;
   seatPrice: number;
   baseSeats: number;
-  defaultSeatMinimum: number;
-  promotionalSeatMinimums: number[];
 
   constructor(response: any) {
     super(response);
     this.stripeSeatPlanId = this.getResponseProperty("StripeSeatPlanId");
     this.seatPrice = this.getResponseProperty("SeatPrice");
     this.baseSeats = this.getResponseProperty("BaseSeats");
-    this.defaultSeatMinimum = this.getResponseProperty("DefaultSeatMinimum");
-    this.promotionalSeatMinimums = this.getResponseProperty("PromotionalSeatMinimums");
   }
 }
 
