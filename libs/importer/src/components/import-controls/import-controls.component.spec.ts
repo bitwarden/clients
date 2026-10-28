@@ -438,7 +438,7 @@ describe("ImportControlsComponent", () => {
       const callout = root.querySelector("bit-callout");
       expect(callout).toBeTruthy();
       expect(callout?.textContent?.trim().endsWith(".")).toBe(false);
-      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-sm");
+      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-[400px]");
       expect(root.querySelector("bit-select")?.textContent).toContain("selectProfile");
       expect(
         byId("importer-controls_button_import-manually-instead").nativeElement.getAttribute(
