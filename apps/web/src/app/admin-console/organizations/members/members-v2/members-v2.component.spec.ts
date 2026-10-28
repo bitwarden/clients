@@ -224,6 +224,46 @@ describe("MembersV2Component", () => {
     });
   });
 
+  describe("membership chips", () => {
+    const members = [
+      member({ id: "a" as Guid, groupNames: ["Sales", "Admins"] }),
+      member({ id: "b" as Guid, groupNames: ["Admins"] }),
+      member({ id: "c" as Guid, groupNames: [] }),
+    ];
+
+    beforeEach(async () => {
+      await setup({ useGroups: true }, members);
+    });
+
+    it("offers each group once, sorted, as a filter option", () => {
+      expect(component.groupNames()).toEqual(["Admins", "Sales"]);
+    });
+
+    it("builds a chip per group for each member", () => {
+      expect(component.groupChips().get(members[0])).toEqual([
+        { id: "Sales", label: "Sales", startIcon: "bwi-users" },
+        { id: "Admins", label: "Admins", startIcon: "bwi-users" },
+      ]);
+      expect(component.groupChips().get(members[2])).toEqual([]);
+    });
+
+    it("keeps every member when no group is selected", () => {
+      expect(members.filter((m) => component.filter(m, {}))).toEqual(members);
+      expect(members.filter((m) => component.filter(m, { groupNames: [] }))).toEqual(members);
+    });
+
+    it("keeps members in any selected group", () => {
+      expect(
+        members.filter((m) => component.filter(m, { groupNames: ["Sales"] })).map((m) => m.id),
+      ).toEqual(["a"]);
+      expect(
+        members
+          .filter((m) => component.filter(m, { groupNames: ["Sales", "Admins"] }))
+          .map((m) => m.id),
+      ).toEqual(["a", "b"]);
+    });
+  });
+
   describe("rangeLabel", () => {
     beforeEach(async () => {
       await setup({}, []);

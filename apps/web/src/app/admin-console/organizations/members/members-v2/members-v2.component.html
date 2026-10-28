@@ -8,8 +8,33 @@
   [displayedColumns]="displayedColumns()"
   [selection]="selection()"
   [loading]="!firstLoaded()"
+  [filter]="filter"
 >
-  <bit-table-toolbar [rangeLabel]="rangeLabel"></bit-table-toolbar>
+  <bit-table-toolbar [rangeLabel]="rangeLabel">
+    @if (organization()?.useGroups) {
+      <bit-filter-menu
+        key="groupNames"
+        icon="bwi-users"
+        [placeholderText]="'groups' | i18n"
+        multiple
+      >
+        @for (name of groupNames(); track name) {
+          <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    } @else {
+      <bit-filter-menu
+        key="collectionNames"
+        icon="bwi-collection-shared"
+        [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
+        multiple
+      >
+        @for (name of collectionNames(); track name) {
+          <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+  </bit-table-toolbar>
 
   <bit-status-lockup slot="empty">
     <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
@@ -80,18 +105,11 @@
   <bit-column sortable [sortFn]="sortByGroups" width="minmax(160px, 1fr)">
     <bit-header-cell>{{ "groups" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.groupNames; let row">
-      <ng-container
-        *ngTemplateOutlet="
-          editableBadges;
-          context: {
-            $implicit: row,
-            names: row.groupNames,
-            tab: memberTab.Groups,
-            idName: 'groups',
-            label: 'groups' | i18n,
-          }
-        "
-      ></ng-container>
+      <bit-chip-group
+        size="small"
+        [chips]="groupChips().get(row) ?? []"
+        (chipSelect)="filterBy('groupNames', $event.id)"
+      ></bit-chip-group>
     </bit-cell>
   </bit-column>
 
@@ -99,18 +117,11 @@
   <bit-column sortable [sortFn]="sortByCollections" width="minmax(160px, 1fr)">
     <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.collectionNames; let row">
-      <ng-container
-        *ngTemplateOutlet="
-          editableBadges;
-          context: {
-            $implicit: row,
-            names: row.collectionNames,
-            tab: memberTab.Collections,
-            idName: 'collections',
-            label: 'collections' | vfo1I18n: 'sharedFolders',
-          }
-        "
-      ></ng-container>
+      <bit-chip-group
+        size="small"
+        [chips]="collectionChips().get(row) ?? []"
+        (chipSelect)="filterBy('collectionNames', $event.id)"
+      ></bit-chip-group>
     </bit-cell>
   </bit-column>
 
@@ -281,45 +292,3 @@
 
   <bit-table-paginator [pageSize]="10"></bit-table-paginator>
 </bit-table-v2>
-
-<!-- The badges, as a button that opens the edit dialog on `tab` for admins who can manage users. -->
-<ng-template
-  #editableBadges
-  let-row
-  let-names="names"
-  let-tab="tab"
-  let-idName="idName"
-  let-label="label"
->
-  @if (canManage && organization) {
-    <button
-      type="button"
-      class="tw-flex tw-min-h-6 tw-w-full tw-min-w-0 tw-rounded tw-border-none tw-bg-transparent tw-p-0 tw-text-start focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
-      [attr.id]="'members-v2_button_edit-' + idName + '-' + row.id"
-      (click)="edit(row, organization, tab)"
-    >
-      <!-- Names the button when there are no badges to read out. -->
-      @if (names.length === 0) {
-        <span class="tw-sr-only">{{ label }}</span>
-      }
-      <ng-container
-        *ngTemplateOutlet="firstNameBadge; context: { $implicit: names }"
-      ></ng-container>
-    </button>
-  } @else {
-    <ng-container *ngTemplateOutlet="firstNameBadge; context: { $implicit: names }"></ng-container>
-  }
-</ng-template>
-
-<!-- The first name as a badge, then "+N" for the rest. -->
-<ng-template #firstNameBadge let-names>
-  @if (names.length > 0) {
-    <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-2">
-      <span bitBadge variant="secondary">{{ names[0] }}</span>
-      @if (names.length > 1) {
-        <span bitBadge variant="secondary" aria-hidden="true">+{{ names.length - 1 }}</span>
-        <span class="tw-sr-only">{{ "plusNMore" | i18n: (names.length - 1).toString() }}</span>
-      }
-    </span>
-  }
-</ng-template>
