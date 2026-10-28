@@ -32,7 +32,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
-import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
 
@@ -40,8 +39,8 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { FormData } from "../services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import AutofillService from "../services/autofill.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
 import {
   crossContextBoundary,
@@ -81,6 +80,7 @@ describe("NotificationBackground", () => {
   let externalMessages: Subject<Message<Record<string, unknown>>>;
   const autofillService = mock<AutofillService>();
   const cipherService = mock<CipherService>();
+  const fillCipherPolicy = mock<FillCipherPolicy>();
   const collectionService = mock<CollectionService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
@@ -128,6 +128,7 @@ describe("NotificationBackground", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     accountService.activeAccount$ = activeAccountSubject;
+    fillCipherPolicy.canOfferSave.mockResolvedValue(true);
     notificationBackground = new NotificationBackground(
       accountService,
       authService,
@@ -150,7 +151,7 @@ describe("NotificationBackground", () => {
       intraprocessMessageSender,
       // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
       new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
-      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
+      fillCipherPolicy,
     );
   });
 
@@ -251,37 +252,17 @@ describe("NotificationBackground", () => {
   });
 
   describe("matchesRevealedLogin", () => {
-    const uri = "https://example.com";
+    const form = { uri: "https://example.com", username: "admin", password: "secret" };
 
-    beforeEach(() => {
-      jest
-        .spyOn(notificationBackground["revealedAutofillCipherService"], "getRevealed")
-        .mockResolvedValue([
-          mock<CipherView>({ login: { username: "Admin", password: "revealed" } }),
-        ]);
-      cipherService.filterCiphersForUrl.mockImplementation(async (ciphers, url) =>
-        url === uri ? ciphers : [],
-      );
+    it("is true when the policy does not offer a save for the form", async () => {
+      fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
+
+      expect(await notificationBackground.matchesRevealedLogin(form)).toBe(true);
+      expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(form, userId);
     });
 
-    it.each([
-      [true, "the revealed username, in any case", { username: "ADMIN", password: "other" }],
-      [true, "a password-only form", { username: "", password: "revealed" }],
-      [
-        true,
-        "a change-password form with no username",
-        { password: "old", newPassword: "revealed" },
-      ],
-      [false, "another username and password", { username: "other", password: "other" }],
-      [
-        false,
-        "another site",
-        { username: "Admin", password: "revealed", uri: "https://other.com" },
-      ],
-    ])("is %s for %s", async (expected, _, form) => {
-      const data = { uri, username: "", password: "", ...form };
-
-      expect(await notificationBackground.matchesRevealedLogin(data)).toBe(expected);
+    it("is false when the policy offers a save for the form", async () => {
+      expect(await notificationBackground.matchesRevealedLogin(form)).toBe(false);
     });
   });
 
