@@ -17386,8 +17386,8 @@
   "coachmarkVaultListTitle": {
     "message": "All your vaults in one place"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Quickly see personal items or items in a vault you share with others."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Collections and folders have new names"
