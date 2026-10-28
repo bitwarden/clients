@@ -1263,14 +1263,12 @@ describe("AccessConnectorsTabComponent table", () => {
   describe("create action placement", () => {
     const BUTTON_ID = "#rotation-shell_button_new-access-connector";
 
-    it("puts the register action in the toolbar's end slot", () => {
+    it("leaves the register action to the rotation shell's Add menu, not the toolbar", () => {
       const el = render();
 
-      expect(endSlot(el).children).toHaveLength(1);
-      const button = endSlot(el).querySelector<HTMLButtonElement>(BUTTON_ID);
-      expect(button).not.toBeNull();
-      expect(text(button!)).toBe("pamAccessConnectorNew");
-      expect(button!.getAttribute("type")).toBe("button");
+      expect(el.querySelector("bit-table-toolbar")).not.toBeNull();
+      expect(el.querySelector(BUTTON_ID)).toBeNull();
+      expect(endSlot(el).children).toHaveLength(0);
     });
 
     it("leaves the register action to the empty state when there are no connectors", () => {
@@ -1279,37 +1277,6 @@ describe("AccessConnectorsTabComponent table", () => {
       expect(el.querySelector("bit-table-toolbar")).toBeNull();
       expect(el.querySelector(BUTTON_ID)).toBeNull();
       expect(el.querySelector("#access-connectors-tab_button_register-empty")).not.toBeNull();
-    });
-
-    it("opens the register dialog, refreshes the list and toasts from the end slot button", async () => {
-      const el = render();
-      dialogService.open.mockReturnValue({ closed: of(true) });
-      const service = TestBed.inject(AccessConnectorsService);
-      const toastService = TestBed.inject(ToastService);
-
-      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
-      await fixture.whenStable();
-
-      expect(dialogService.open).toHaveBeenCalled();
-      expect(service.registerCompleted).toHaveBeenCalledWith(ORGANIZATION_ID);
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variant: "success",
-          message: "pamAccessConnectorRegistered",
-        }),
-      );
-    });
-
-    it("refreshes nothing when the register dialog is dismissed", async () => {
-      const el = render();
-      const service = TestBed.inject(AccessConnectorsService);
-      const toastService = TestBed.inject(ToastService);
-
-      el.querySelector<HTMLButtonElement>(BUTTON_ID)!.click();
-      await fixture.whenStable();
-
-      expect(service.registerCompleted).not.toHaveBeenCalled();
-      expect(toastService.showToast).not.toHaveBeenCalled();
     });
   });
 

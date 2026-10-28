@@ -89,16 +89,6 @@
         [placeholder]="'pamAccessConnectorSearch' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      <button
-        slot="end"
-        type="button"
-        bitButton
-        buttonType="primary"
-        [bitAction]="registerAccessConnector"
-        id="rotation-shell_button_new-access-connector"
-      >
-        {{ "pamAccessConnectorNew" | i18n }}
-      </button>
       @if (statusOptions().length > 0) {
         <bit-filter-menu
           key="status"

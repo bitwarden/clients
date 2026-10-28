@@ -1,5 +1,44 @@
 <app-header [title]="'pamRotation' | i18n">
-  <div slot="subtitle">{{ "pamRotationSubtitle" | i18n }}</div>
+  <div slot="subtitle">{{ "pamRotationSubtitleManage" | i18n }}</div>
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    startIcon="bwi-plus"
+    [bitMenuTriggerFor]="addMenu"
+    id="rotation-shell_button_add"
+  >
+    {{ "add" | i18n }}
+  </button>
+  <bit-menu #addMenu>
+    <button
+      type="button"
+      bitMenuItem
+      (click)="createManagedCredential()"
+      id="rotation-shell_menu-item_add-managed-credential"
+    >
+      <bit-icon slot="start" name="bwi-managed-credential" class="tw-text-muted"></bit-icon>
+      {{ "pamRotationAddManagedCredential" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitMenuItem
+      (click)="createTargetSystem()"
+      id="rotation-shell_menu-item_add-target-system"
+    >
+      <bit-icon slot="start" name="bwi-target-system" class="tw-text-muted"></bit-icon>
+      {{ "pamRotationAddTargetSystem" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitMenuItem
+      (click)="registerAccessConnector()"
+      id="rotation-shell_menu-item_add-access-connector"
+    >
+      <bit-icon slot="start" name="bwi-access-connector" class="tw-text-muted"></bit-icon>
+      {{ "pamRotationAddAccessConnector" | i18n }}
+    </button>
+  </bit-menu>
   <bit-tab-nav-bar slot="tabs" [label]="'pamRotation' | i18n">
     <bit-tab-link route="access-connectors">{{
       "pamRotationTabAccessConnectors" | i18n
