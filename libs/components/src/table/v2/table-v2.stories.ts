@@ -48,10 +48,7 @@ import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
-import {
-  BitTablePaginatorComponent,
-  type TablePaginatorRange,
-} from "./bit-table-paginator.component";
+import { BitTablePaginatorComponent, type TableRowRange } from "./bit-table-paginator.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import { TableDef, defineTable } from "./table-def";
 import { BitTableV2Component } from "./table-v2.component";
@@ -2324,7 +2321,8 @@ const paginatedTable = defineTable<DemoRow>(
  * Project a `<bit-table-paginator>` and the table slices its filtered (and sorted)
  * rows to the page. The paginator owns the page state (`[(pageIndex)]`,
  * `[pageSize]`) and reads the total row count back from the table; the footer
- * shows the row range, a page-size select, prev/next, and a page input.
+ * shows a page-size select, prev/next, and a page input. A toolbar's `[rangeLabel]` shows
+ * the rows on the current page.
  */
 export const Pagination: Story = {
   render: () => ({
@@ -2332,11 +2330,12 @@ export const Pagination: Story = {
       table: paginatedTable,
       sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
       pageSizeOptions: [5, 10, 25],
-      rangeLabel: ({ start, end, total }: TablePaginatorRange) =>
+      rangeLabel: ({ start, end, total }: TableRowRange) =>
         total === 0 ? "0 rows" : `${start}–${end} of ${total} rows`,
     },
     template: `
       <bit-table-v2 [tableDef]="table">
+        <bit-table-toolbar [rangeLabel]="rangeLabel"></bit-table-toolbar>
         <bit-column sortable defaultSort="asc" [sortFn]="sortFn">
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -2349,11 +2348,7 @@ export const Pagination: Story = {
           <bit-header-cell>Other</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
-        <bit-table-paginator
-          [pageSize]="10"
-          [pageSizeOptions]="pageSizeOptions"
-          [rangeLabel]="rangeLabel"
-        ></bit-table-paginator>
+        <bit-table-paginator [pageSize]="10" [pageSizeOptions]="pageSizeOptions"></bit-table-paginator>
       </bit-table-v2>
     `,
   }),
