@@ -1,3 +1,4 @@
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -13,6 +14,7 @@ import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
+import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
@@ -140,6 +142,9 @@ export function providePam(): SafeProvider[] {
         ApprovalPrivilegeService,
         AccessEventService,
         AccessRefreshService,
+        AccessBadgeTickerService,
+        AccountService,
+        OrganizationService,
         ConfigService,
         LogService,
       ],

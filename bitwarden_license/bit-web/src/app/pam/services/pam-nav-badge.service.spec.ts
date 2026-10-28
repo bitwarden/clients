@@ -1,13 +1,18 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccessEventService } from "../abstractions/access-event.service";
 import type { AccessRequestStatus, AccessRequestView } from "../abstractions/access-lease";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { ApprovalSdkService } from "../abstractions/approval-sdk.service";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 
 import { DefaultAccessRefreshService } from "./default-access-refresh.service";
@@ -18,9 +23,16 @@ const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 let nextId = 0;
 
 /** An actionable request by both filters: pending or startable, and not timed out. */
-function request(status: AccessRequestStatus, id = `req-${++nextId}`): AccessRequestView {
-  return { id, status, leaseNotAfter: FUTURE } as unknown as AccessRequestView;
+function request(
+  status: AccessRequestStatus,
+  id = `req-${++nextId}`,
+  leaseNotAfter = FUTURE,
+): AccessRequestView {
+  return { id, status, leaseNotAfter } as unknown as AccessRequestView;
 }
+
+const pamOrg = { usePam: true } as Organization;
+const nonPamOrg = { usePam: false } as Organization;
 
 describe("DefaultPamNavBadgeService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
@@ -31,6 +43,8 @@ describe("DefaultPamNavBadgeService", () => {
   let canApprove$: BehaviorSubject<boolean>;
   let push$: Subject<void>;
   let inboxPush$: Subject<void>;
+  let ticks$: Subject<number>;
+  let organizations$: BehaviorSubject<Organization[]>;
   let accessEvents: AccessEventService;
   let accessRefresh: DefaultAccessRefreshService;
   let approvalPrivileges: ApprovalPrivilegeService;
@@ -55,6 +69,8 @@ describe("DefaultPamNavBadgeService", () => {
     canApprove$ = new BehaviorSubject<boolean>(true);
     push$ = new Subject<void>();
     inboxPush$ = new Subject<void>();
+    ticks$ = new Subject<number>();
+    organizations$ = new BehaviorSubject<Organization[]>([pamOrg]);
     accessEvents = {
       accessChanged$: () => push$.asObservable(),
       approverInboxChanged$: () => inboxPush$.asObservable(),
@@ -73,6 +89,11 @@ describe("DefaultPamNavBadgeService", () => {
       approvalPrivileges,
       accessEvents,
       accessRefresh,
+      { ticks$ } as unknown as AccessBadgeTickerService,
+      {
+        activeAccount$: new BehaviorSubject({ id: "user-id" as UserId }),
+      } as unknown as AccountService,
+      { organizations$: () => organizations$ } as unknown as OrganizationService,
       configService,
       logService,
     );
@@ -149,6 +170,76 @@ describe("DefaultPamNavBadgeService", () => {
     expect(seen).toEqual([0]);
     expect(requestsApi.listMyAccessRequests).not.toHaveBeenCalled();
     expect(approvalsApi.listInbox).not.toHaveBeenCalled();
+  });
+
+  it("reads nothing for a user in no PAM organization", async () => {
+    organizations$.next([nonPamOrg]);
+
+    const seen = watch();
+    await settle();
+
+    expect(seen).toEqual([0]);
+    expect(requestsApi.listMyAccessRequests).not.toHaveBeenCalled();
+    expect(approvalsApi.listInbox).not.toHaveBeenCalled();
+  });
+
+  it("does not re-read when the organizations re-emit with the same membership", async () => {
+    watch();
+    await settle();
+
+    organizations$.next([pamOrg, nonPamOrg]);
+    await settle();
+
+    expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+  });
+
+  it("drops the caller's request once its window ends, with no push", async () => {
+    const endMs = Date.parse(FUTURE);
+    requestsApi.listMyAccessRequests.mockResolvedValue([request("pending")]);
+    const seen = watch();
+    await settle();
+    expect(seen.at(-1)).toBe(1);
+
+    requestsApi.listMyAccessRequests.mockResolvedValue([request("expired")]);
+    ticks$.next(endMs - 1);
+    await settle();
+    expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+
+    ticks$.next(endMs);
+    await settle();
+
+    expect(seen.at(-1)).toBe(0);
+  });
+
+  it("drops an inbox request once its window ends, with no push", async () => {
+    approvalsApi.listInbox.mockResolvedValue([request("pending")]);
+    const seen = watch();
+    await settle();
+    expect(seen.at(-1)).toBe(1);
+
+    approvalsApi.listInbox.mockResolvedValue([]);
+    ticks$.next(Date.parse(FUTURE));
+    await settle();
+
+    expect(seen.at(-1)).toBe(0);
+  });
+
+  it("runs no clock while nothing is counted", async () => {
+    watch();
+    await settle();
+
+    expect(ticks$.observed).toBe(false);
+  });
+
+  it("does not wait on the clock for a pending request whose end has passed", async () => {
+    const past = new Date(Date.now() - 60 * 1000).toISOString();
+    requestsApi.listMyAccessRequests.mockResolvedValue([request("pending", "late", past)]);
+
+    const seen = watch();
+    await settle();
+
+    expect(seen.at(-1)).toBe(1);
+    expect(ticks$.observed).toBe(false);
   });
 
   it("re-reads and re-reports on a server push", async () => {

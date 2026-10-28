@@ -95,8 +95,13 @@ export class ApproverInboxService {
     ),
   );
 
-  /** How many requests await the caller's decision, for the Approvals tab badge. */
-  readonly pendingCount$: Observable<number> = this.inboxRows$.pipe(map((rows) => rows.length));
+  /**
+   * How many requests await the caller's decision, for the Approvals tab badge. Leaves out their
+   * own, which the tab lists but they can't decide.
+   */
+  readonly pendingCount$: Observable<number> = this.inboxRows$.pipe(
+    map((rows) => rows.filter((row) => row.canDecide).length),
+  );
 
   /** The decided requests on managed collections, newest first. */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([

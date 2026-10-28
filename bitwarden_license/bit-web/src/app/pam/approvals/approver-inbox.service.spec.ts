@@ -178,6 +178,17 @@ describe("ApproverInboxService", () => {
       expect(await firstValueFrom(service.pendingCount$)).toBe(2);
     });
 
+    it("leaves the caller's own requests out of the tab badge", async () => {
+      approvalApi.listInbox.mockResolvedValue([
+        request({ id: "mine", requesterId: ME }),
+        request({ id: "theirs", requesterId: "other" }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.pendingCount$)).toBe(1);
+    });
+
     it("exposes the managed ids so history knows which rows it may act on", async () => {
       approvalApi.listHistory.mockResolvedValue([request({ id: "managed-1", status: "denied" })]);
 
