@@ -367,11 +367,13 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import { DefaultAutofillLifecycleService } from "../autofill/services/autofill-lifecycle.service";
 import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
+import { DefaultFillCipherPolicy } from "../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { RevealedAutofillCipherService } from "../autofill/services/revealed-autofill-cipher.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
@@ -453,6 +455,7 @@ export default class MainBackground {
   cipherSdkService: CipherSdkService;
   revealedCipherService: RevealedCipherService;
   revealedAutofillCipherService: RevealedAutofillCipherService;
+  fillCipherPolicy: FillCipherPolicy;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -632,6 +635,10 @@ export default class MainBackground {
       messageSender: MessageSender;
       logService: LogServiceAbstraction;
     }) => RevealedCipherService;
+    fillCipherPolicy?: (deps: {
+      cipherService: CipherServiceAbstraction;
+      revealedCipherService: RevealedCipherService;
+    }) => FillCipherPolicy;
   }) {
     // Downstream services receive this callback and invoke it directly instead of
     // going through LogoutService, so the log line that lives in DefaultLogoutService
@@ -1247,6 +1254,11 @@ export default class MainBackground {
       this.cipherService,
       this.revealedCipherService,
     );
+    this.fillCipherPolicy =
+      overrides?.fillCipherPolicy?.({
+        cipherService: this.cipherService,
+        revealedCipherService: this.revealedCipherService,
+      }) ?? new DefaultFillCipherPolicy(this.cipherService);
     this.folderService = new FolderService(
       this.keyService,
       this.encryptService,
