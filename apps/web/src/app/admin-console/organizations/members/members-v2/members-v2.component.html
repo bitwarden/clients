@@ -112,13 +112,14 @@
     </bit-cell>
   </bit-column>
 
-  <!-- Options: only displayed for admins who can manage users -->
+  <!-- Options: only displayed for admins who can manage users or recover accounts -->
   <bit-column width="minmax(80px, 1fr)">
     <bit-header-cell>
       <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
     </bit-header-cell>
     <bit-cell *bitCellDef="table.columns.options; let row">
-      @if (organization) {
+      <!-- Without manage users permission, the menu only holds Recover account. -->
+      @if (organization && (canManage || allowResetPassword(row, organization))) {
         <div slot="end">
           <button
             type="button"
@@ -129,85 +130,88 @@
             [bitMenuTriggerFor]="rowMenu"
           ></button>
           <bit-menu #rowMenu>
-            @if (row.canSendInvite) {
+            @if (canManage) {
+              @if (row.canSendInvite) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_send-invite-' + row.id"
+                  (click)="isProcessing() ? null : sendInvite(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-envelope" />
+                  {{ "sendInvite" | i18n }}
+                </button>
+              }
+              @if (row.canReinvite) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_resend-invitation-' + row.id"
+                  (click)="isProcessing() ? null : reinvite(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-envelope" />
+                  {{ "resendInvitation" | i18n }}
+                </button>
+              }
+              @if (row.canConfirm) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_confirm-' + row.id"
+                  (click)="isProcessing() ? null : confirm(row, organization)"
+                >
+                  <span class="tw-text-success">
+                    <bit-icon slot="start" fixedWidth name="bwi-check" />
+                    {{ "confirm" | i18n }}
+                  </span>
+                </button>
+              }
+              @if (row.canConfirm || row.canReinvite || row.canSendInvite) {
+                <bit-menu-divider></bit-menu-divider>
+              }
               <button
                 type="button"
                 bitMenuItem
-                [attr.id]="'members-v2_menu-item_send-invite-' + row.id"
-                (click)="isProcessing() ? null : sendInvite(row, organization)"
+                [attr.id]="'members-v2_menu-item_member-role-' + row.id"
+                (click)="isProcessing() ? null : edit(row, organization, memberTab.Details)"
               >
-                <bit-icon slot="start" fixedWidth name="bwi-envelope" />
-                {{ "sendInvite" | i18n }}
+                <bit-icon slot="start" fixedWidth name="bwi-user" />
+                {{ "memberRole" | i18n }}
               </button>
-            }
-            @if (row.canReinvite) {
+              @if (organization.useGroups) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_groups-' + row.id"
+                  (click)="isProcessing() ? null : edit(row, organization, memberTab.Groups)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-users" />
+                  {{ "groups" | i18n }}
+                </button>
+              }
               <button
                 type="button"
                 bitMenuItem
-                [attr.id]="'members-v2_menu-item_resend-invitation-' + row.id"
-                (click)="isProcessing() ? null : reinvite(row, organization)"
+                [attr.id]="'members-v2_menu-item_collections-' + row.id"
+                (click)="isProcessing() ? null : edit(row, organization, memberTab.Collections)"
               >
-                <bit-icon slot="start" fixedWidth name="bwi-envelope" />
-                {{ "resendInvitation" | i18n }}
+                <bit-icon slot="start" fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" />
+                {{ "collections" | vfo1I18n: "sharedFolders" }}
               </button>
-            }
-            @if (row.canConfirm) {
-              <button
-                type="button"
-                bitMenuItem
-                [attr.id]="'members-v2_menu-item_confirm-' + row.id"
-                (click)="isProcessing() ? null : confirm(row, organization)"
-              >
-                <span class="tw-text-success">
-                  <bit-icon slot="start" fixedWidth name="bwi-check" />
-                  {{ "confirm" | i18n }}
-                </span>
-              </button>
-            }
-            @if (row.canConfirm || row.canReinvite || row.canSendInvite) {
               <bit-menu-divider></bit-menu-divider>
+              @if (organization.useEvents && row.status === userStatusType.Confirmed) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_event-logs-' + row.id"
+                  (click)="isProcessing() ? null : openEventsDialog(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-file-text" />
+                  {{ "eventLogs" | i18n }}
+                </button>
+              }
             }
-            <button
-              type="button"
-              bitMenuItem
-              [attr.id]="'members-v2_menu-item_member-role-' + row.id"
-              (click)="isProcessing() ? null : edit(row, organization, memberTab.Details)"
-            >
-              <bit-icon slot="start" fixedWidth name="bwi-user" />
-              {{ "memberRole" | i18n }}
-            </button>
-            @if (organization.useGroups) {
-              <button
-                type="button"
-                bitMenuItem
-                [attr.id]="'members-v2_menu-item_groups-' + row.id"
-                (click)="isProcessing() ? null : edit(row, organization, memberTab.Groups)"
-              >
-                <bit-icon slot="start" fixedWidth name="bwi-users" />
-                {{ "groups" | i18n }}
-              </button>
-            }
-            <button
-              type="button"
-              bitMenuItem
-              [attr.id]="'members-v2_menu-item_collections-' + row.id"
-              (click)="isProcessing() ? null : edit(row, organization, memberTab.Collections)"
-            >
-              <bit-icon slot="start" fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" />
-              {{ "collections" | vfo1I18n: "sharedFolders" }}
-            </button>
-            <bit-menu-divider></bit-menu-divider>
-            @if (organization.useEvents && row.status === userStatusType.Confirmed) {
-              <button
-                type="button"
-                bitMenuItem
-                [attr.id]="'members-v2_menu-item_event-logs-' + row.id"
-                (click)="isProcessing() ? null : openEventsDialog(row, organization)"
-              >
-                <bit-icon slot="start" fixedWidth name="bwi-file-text" />
-                {{ "eventLogs" | i18n }}
-              </button>
-            }
+            <!-- Account recovery is available to all users with the appropriate permissions. -->
             @if (allowResetPassword(row, organization)) {
               <button
                 type="button"
@@ -219,51 +223,53 @@
                 {{ "recoverAccount" | i18n }}
               </button>
             }
-            @if (row.canRestore) {
-              <button
-                type="button"
-                bitMenuItem
-                [attr.id]="'members-v2_menu-item_restore-' + row.id"
-                (click)="isProcessing() ? null : restore(row, organization)"
-              >
-                <bit-icon slot="start" fixedWidth name="bwi-plus-circle" />
-                {{ "restoreAccess" | i18n }}
-              </button>
-            }
-            @if (row.canRevoke) {
-              <button
-                type="button"
-                bitMenuItem
-                [attr.id]="'members-v2_menu-item_revoke-' + row.id"
-                (click)="isProcessing() ? null : revoke(row, organization)"
-              >
-                <bit-icon slot="start" fixedWidth name="bwi-minus-circle" />
-                {{ "revokeAccess" | i18n }}
-              </button>
-            }
-            <!-- Claimed members can't be removed, only deleted. -->
-            @if (row.canRemove) {
-              <button
-                type="button"
-                bitMenuItem
-                variant="danger"
-                [attr.id]="'members-v2_menu-item_remove-' + row.id"
-                (click)="isProcessing() ? null : remove(row, organization)"
-              >
-                <bit-icon slot="start" fixedWidth name="bwi-close" />
-                {{ "remove" | i18n }}
-              </button>
-            } @else {
-              <button
-                type="button"
-                bitMenuItem
-                variant="danger"
-                [attr.id]="'members-v2_menu-item_delete-' + row.id"
-                (click)="isProcessing() ? null : deleteUser(row, organization)"
-              >
-                <bit-icon slot="start" fixedWidth name="bwi-trash" />
-                {{ "delete" | i18n }}
-              </button>
+            @if (canManage) {
+              @if (row.canRestore) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_restore-' + row.id"
+                  (click)="isProcessing() ? null : restore(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-plus-circle" />
+                  {{ "restoreAccess" | i18n }}
+                </button>
+              }
+              @if (row.canRevoke) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'members-v2_menu-item_revoke-' + row.id"
+                  (click)="isProcessing() ? null : revoke(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-minus-circle" />
+                  {{ "revokeAccess" | i18n }}
+                </button>
+              }
+              <!-- Claimed members can't be removed, only deleted. -->
+              @if (row.canRemove) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  variant="danger"
+                  [attr.id]="'members-v2_menu-item_remove-' + row.id"
+                  (click)="isProcessing() ? null : remove(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-close" />
+                  {{ "remove" | i18n }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  bitMenuItem
+                  variant="danger"
+                  [attr.id]="'members-v2_menu-item_delete-' + row.id"
+                  (click)="isProcessing() ? null : deleteUser(row, organization)"
+                >
+                  <bit-icon slot="start" fixedWidth name="bwi-trash" />
+                  {{ "delete" | i18n }}
+                </button>
+              }
             }
           </bit-menu>
         </div>

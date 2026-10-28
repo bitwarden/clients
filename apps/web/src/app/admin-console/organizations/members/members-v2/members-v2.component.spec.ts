@@ -142,6 +142,18 @@ describe("MembersV2Component", () => {
       ]);
     });
 
+    it("adds Options when the admin can only recover accounts", async () => {
+      await setup({ useGroups: true, canManageUsers: false, canManageUsersPassword: true }, []);
+
+      expect(component.displayedColumns()).toEqual([
+        "name",
+        "status",
+        "type",
+        "groupNames",
+        "options",
+      ]);
+    });
+
     it("shows Collections when the organization doesn't use groups", async () => {
       await setup({ useGroups: false }, []);
 

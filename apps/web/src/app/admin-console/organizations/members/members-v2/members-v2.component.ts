@@ -143,6 +143,12 @@ export class MembersV2Component {
     () => this.organization()?.canManageUsers ?? false,
   );
 
+  /** Custom users with only "Manage account recovery" still need the menu for Recover account. */
+  protected readonly showOptionsColumn = computed(
+    () =>
+      this.showUserManagementControls() || (this.organization()?.canManageUsersPassword ?? false),
+  );
+
   /** Select all stops at {@link MaxCheckedCount}, the most members a bulk action accepts. */
   protected readonly selection = computed<SelectionConfig<OrganizationUserView> | undefined>(() =>
     this.showUserManagementControls() ? { multiple: true, max: MaxCheckedCount } : undefined,
@@ -150,14 +156,14 @@ export class MembersV2Component {
 
   /**
    * Groups for organizations that use them, otherwise collections, as in v1. Options only for
-   * admins who can manage users.
+   * admins who can manage users or recover accounts.
    */
   protected readonly displayedColumns = computed(() => [
     "name" as const,
     "status" as const,
     "type" as const,
     this.organization()?.useGroups ? ("groupNames" as const) : ("collectionNames" as const),
-    ...(this.showUserManagementControls() ? ["options" as const] : []),
+    ...(this.showOptionsColumn() ? ["options" as const] : []),
   ]);
 
   private readonly policies$ = combineLatest([this.userId$, this.organization$]).pipe(
