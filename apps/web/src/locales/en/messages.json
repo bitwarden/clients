@@ -18300,8 +18300,29 @@
   "pamAccessBadgeEnded": {
     "message": "Session ended"
   },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Access ended by requester"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "Access revoked"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Access request"
+  },
   "pamAccessRequestDetailsTitle": {
     "message": "Request details"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Decision log"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Access request not available"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "This access request isn't available to you, or it no longer exists."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Couldn't load this access request."
   },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."

@@ -5,6 +5,7 @@ import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { canViewApprovalsGuard } from "../approvals/can-view-approvals.guard";
 
 import { AccessNameResolverService } from "./access-name-resolver.service";
+import { AccessRequestRouteComponent } from "./access-request-route/access-request-route.component";
 import { AccessRequestsComponent } from "./access-requests.component";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
 import { HistoryTabComponent } from "./history-tab.component";
@@ -36,6 +37,13 @@ const routes: Routes = [
         path: "history",
         component: HistoryTabComponent,
         data: { titleId: "pamTabHistory" },
+      },
+      {
+        // A shareable link to one request; a shell child so the header and tab bar stay mounted
+        // underneath.
+        path: "requests/:id",
+        component: AccessRequestRouteComponent,
+        data: { titleId: "pamAccessRequestTitle" },
       },
     ],
   },
