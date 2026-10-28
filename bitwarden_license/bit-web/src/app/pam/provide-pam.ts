@@ -1,6 +1,7 @@
 import { NgZone } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -216,6 +217,9 @@ export function providePam(): SafeProvider[] {
         ApprovalPrivilegeService,
         AccessEventService,
         AccessRefreshService,
+        AccessBadgeTickerService,
+        AccountService,
+        OrganizationService,
         ConfigService,
         LogService,
       ],
