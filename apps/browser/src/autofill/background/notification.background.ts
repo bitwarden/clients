@@ -66,7 +66,7 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 
 import {
   AddChangePasswordNotificationQueueMessage,
@@ -251,7 +251,7 @@ export default class NotificationBackground {
     }
 
     const [decryptedCiphers, organizations] = await Promise.all([
-      this.cipherService.getAllDecryptedForUrl(currentTab.url, activeUserId),
+      this.fillCipherPolicy.ciphersForUrl(currentTab.url, activeUserId, CipherUse.SavePrompt),
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
@@ -275,18 +275,20 @@ export default class NotificationBackground {
         const {
           data: { cipherIds },
         } = cipherQueueMessage;
-        const cipherViews = await this.cipherService.getAllDecrypted(activeUserId);
-        return cipherViews
-          .filter((cipher) => cipherIds.includes(cipher.id))
-          .map((cipherView) => {
-            const organizationType = getOrganizationType(cipherView.organizationId);
-            return this.convertToNotificationCipherData(
-              cipherView,
-              iconsServerUrl,
-              showFavicons,
-              organizationType,
-            );
-          });
+        const cipherViews = await this.fillCipherPolicy.ciphersForIds(
+          activeUserId,
+          cipherIds,
+          CipherUse.SavePrompt,
+        );
+        return cipherViews.map((cipherView) => {
+          const organizationType = getOrganizationType(cipherView.organizationId);
+          return this.convertToNotificationCipherData(
+            cipherView,
+            iconsServerUrl,
+            showFavicons,
+            organizationType,
+          );
+        });
       } else {
         cipherView = this.convertAddLoginQueueMessageToCipherView(cipherQueueMessage);
       }
@@ -371,9 +373,10 @@ export default class NotificationBackground {
       return null;
     }
 
-    const urlCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+    const urlCiphers: CipherView[] = await this.fillCipherPolicy.ciphersForUrl(
       modifyLoginData.uri,
       activeUserId,
+      CipherUse.SecurityTask,
     );
     if (!(urlCiphers?.length > 0)) {
       return null;
@@ -758,9 +761,10 @@ export default class NotificationBackground {
       return true;
     }
 
-    const ciphersForURL: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+    const ciphersForURL: CipherView[] = await this.fillCipherPolicy.ciphersForUrl(
       data.uri,
       activeUserId,
+      CipherUse.SavePrompt,
     );
 
     // Reducer structured to avoid subsequent array iterations
@@ -1289,9 +1293,10 @@ export default class NotificationBackground {
           continue;
         }
 
-        const allCiphers = await this.cipherService.getAllDecryptedForUrl(
+        const allCiphers = await this.fillCipherPolicy.ciphersForUrl(
           queueMessage.data.uri,
           activeUserId,
+          CipherUse.SavePrompt,
         );
         const existingCipher = allCiphers.find(
           (c) =>
@@ -1755,7 +1760,7 @@ export default class NotificationBackground {
             return EMPTY;
           }
           return Promise.all([
-            this.cipherService.getAllDecryptedForUrl(tab.url!, userId),
+            this.fillCipherPolicy.ciphersForUrl(tab.url!, userId, CipherUse.SecurityTask),
             this.getSecurityTasks(userId),
           ]);
         }),
