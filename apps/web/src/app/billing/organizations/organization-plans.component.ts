@@ -1064,7 +1064,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
           billingAddress,
         }),
-      ).pipe(map((cart) => ({ cart, prorationDate: undefined })));
+      ).pipe(map((cart): QuotedCart => ({ cart, prorationDate: undefined })));
     }).pipe(
       tap((result) => {
         this.previewCart.set(this.withSponsorshipDiscount(result.cart));
