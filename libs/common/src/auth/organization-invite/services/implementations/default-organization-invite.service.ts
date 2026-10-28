@@ -25,6 +25,7 @@ import {
   OrganizationInviteLinkValidateEmailDomainRequest,
 } from "@bitwarden/organization-invite-link";
 import {
+  AcceptInviteLinkError,
   HighEntropySecret,
   isAcceptInviteLinkError,
   isRegistrationError,
@@ -276,21 +277,65 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   /**
    * Top-level classifier for accept-flow errors. Branches, in order:
    *   1. Not an `AcceptInviteLinkError` → `unexpected` with an extracted message.
-   *   2. `RecoveryKeyMismatch` → `recovery-key-mismatch`; signals org-key substitution.
-   *   3. Any other non-`Api` variant → `unexpected` with the SDK message.
-   *   4. `Api` variant → unwrap the `ApiError::Response` display string and delegate to
-   *      {@link classifyOpenOrgInviteAcceptApiError}, or `unexpected` if the format has drifted.
+   *   2. A typed variant the SDK parsed from the server's error code (or the client-side
+   *      `RecoveryKeyMismatch` check) → its matching kind.
+   *   3. `Api` variant → the legacy error body, which the `/accept` endpoint still sends
+   *      until PM-43102 ships. Delegated to {@link classifyOpenOrgInviteLegacyApiError}.
+   *   4. Anything else → `unexpected` with the SDK message. This covers `Unknown` (whose
+   *      message is the server's detail text), `InviteLinkConfirmationNotSupported`
+   *      (only occurs if an admin changes the invite during accept), client-side SDK
+   *      errors, and any variant a future SDK version adds.
    */
   private classifyOpenOrgInviteAcceptError(e: unknown): OpenOrgInviteAcceptError {
     if (!isAcceptInviteLinkError(e)) {
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
-    if (e.variant === "RecoveryKeyMismatch") {
-      return { kind: "recovery-key-mismatch" };
+    switch (e.variant) {
+      case "RecoveryKeyMismatch":
+        return { kind: "recovery-key-mismatch" };
+      case "LinkNotFound":
+        return { kind: "link-not-found" };
+      case "InviteLinkNotAvailable":
+        return { kind: "plan-not-supported" };
+      case "EmailNotVerified":
+        return { kind: "email-not-verified" };
+      case "EmailDomainNotAllowed":
+        return { kind: "email-domain-not-allowed" };
+      case "ProviderUsersCannotJoin":
+        return { kind: "provider-users-disallowed" };
+      case "OrganizationAccessRevoked":
+        return { kind: "org-access-revoked" };
+      case "AlreadyOrganizationMember":
+        return { kind: "already-member" };
+      // SeatAddFailed reads the same to the user as OrganizationHasNoAvailableSeats — both
+      // mean "seat unavailable"; the distinction is billing plumbing the user can't act on.
+      case "OrganizationHasNoAvailableSeats":
+      case "SeatAddFailed":
+        return { kind: "no-seats" };
+      case "ResetPasswordKeyRequired":
+        return { kind: "reset-password-key-required" };
+      case "MemberOfAnotherOrganization":
+        return { kind: "single-org-policy-violation-target-org" };
+      case "SingleOrganizationPolicy":
+        return { kind: "single-org-policy-violation-other-org" };
+      case "TwoFactorRequiredForMembership":
+        return { kind: "two-factor-required" };
+      case "OnlyOneFreeOrganizationAdminAllowed":
+        return { kind: "free-admin-limit-reached" };
+      case "Api":
+        return this.classifyOpenOrgInviteLegacyApiError(e);
+      default:
+        return { kind: "unexpected", errorMessage: e.message };
     }
-    if (e.variant !== "Api") {
-      return { kind: "unexpected", errorMessage: e.message };
-    }
+  }
+
+  /**
+   * Classifies an `Api`-variant accept error by parsing the legacy error body out of the
+   * SDK's display string. Used for responses the SDK could not map to a typed variant.
+   * Revisit once PM-43102 ships and the `/accept` endpoint returns coded errors. The
+   * auto-confirm kinds only come from this path today, as the SDK has no variant for them.
+   */
+  private classifyOpenOrgInviteLegacyApiError(e: AcceptInviteLinkError): OpenOrgInviteAcceptError {
     // Fragile client-side coupling to the SDK's `bitwarden-api-base::Error::Response`
     // Display format; accepted for MVP. Planned follow-up in next milestones: refactor
     // the SDK to expose a better typed error variant. If any extraction step fails,

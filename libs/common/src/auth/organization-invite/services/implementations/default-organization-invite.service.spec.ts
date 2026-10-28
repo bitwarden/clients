@@ -1032,7 +1032,8 @@ describe("DefaultOrganizationInviteService", () => {
 
     /**
      * Classifier cases — each rejection maps to a kind on {@link OpenOrgInviteAcceptResult}.
-     * The 400-branch server messages mirror the strings defined in
+     * Typed SDK variants map straight to a kind. The `Api` variant carries the legacy
+     * server error body, whose 400-branch messages mirror the strings defined in
      * `server/src/Core/AdminConsole/OrganizationFeatures/InviteLinks/Errors.cs` (and the
      * sibling AcceptMembership/AutoConfirmUser/SingleOrganizationPolicy error files); a
      * copy change on the server fails the corresponding test here alongside the
@@ -1163,17 +1164,97 @@ describe("DefaultOrganizationInviteService", () => {
         },
       );
 
-      it("returns email-not-verified and keeps the stashed open invite", async () => {
-        const open = createOpenOrgInvite({ organizationId });
-        await sut.setOrganizationInvite(open);
-        inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(
-          makeSdkApiError(400, emailNotVerifiedMessage),
+      it.each([
+        {
+          rejection: "the legacy Api error",
+          err: () => makeSdkApiError(400, emailNotVerifiedMessage),
+        },
+        {
+          rejection: "the typed SDK variant EmailNotVerified",
+          err: () => makeSdkError("EmailNotVerified", "sdk english message"),
+        },
+      ])(
+        "returns email-not-verified for $rejection and keeps the stashed open invite",
+        async ({ err }) => {
+          const open = createOpenOrgInvite({ organizationId });
+          await sut.setOrganizationInvite(open);
+          inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(err());
+
+          const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
+
+          expect(result).toEqual({ kind: "email-not-verified" });
+          expect(await sut.getOrganizationInvite()).toEqual(open);
+        },
+      );
+
+      it.each<{
+        variant: string;
+        expectedKind: OpenOrgInviteAcceptResult["kind"];
+      }>([
+        { variant: "RecoveryKeyMismatch", expectedKind: "recovery-key-mismatch" },
+        { variant: "LinkNotFound", expectedKind: "link-not-found" },
+        { variant: "InviteLinkNotAvailable", expectedKind: "plan-not-supported" },
+        { variant: "EmailDomainNotAllowed", expectedKind: "email-domain-not-allowed" },
+        { variant: "ProviderUsersCannotJoin", expectedKind: "provider-users-disallowed" },
+        { variant: "OrganizationAccessRevoked", expectedKind: "org-access-revoked" },
+        { variant: "AlreadyOrganizationMember", expectedKind: "already-member" },
+        { variant: "OrganizationHasNoAvailableSeats", expectedKind: "no-seats" },
+        { variant: "SeatAddFailed", expectedKind: "no-seats" },
+        { variant: "ResetPasswordKeyRequired", expectedKind: "reset-password-key-required" },
+        {
+          variant: "MemberOfAnotherOrganization",
+          expectedKind: "single-org-policy-violation-target-org",
+        },
+        {
+          variant: "SingleOrganizationPolicy",
+          expectedKind: "single-org-policy-violation-other-org",
+        },
+        { variant: "TwoFactorRequiredForMembership", expectedKind: "two-factor-required" },
+        {
+          variant: "OnlyOneFreeOrganizationAdminAllowed",
+          expectedKind: "free-admin-limit-reached",
+        },
+      ])(
+        "classifies the typed SDK variant $variant as $expectedKind",
+        async ({ variant, expectedKind }) => {
+          const result = await runWithRejection(makeSdkError(variant, "sdk english message"));
+          expect(result).toEqual({ kind: expectedKind });
+        },
+      );
+
+      it("returns unexpected with the server's detail text for the SDK Unknown variant", async () => {
+        const result = await runWithRejection(
+          makeSdkError("Unknown", "The server's detail for a code this SDK doesn't know"),
         );
+        expect(result).toEqual({
+          kind: "unexpected",
+          errorMessage: "The server's detail for a code this SDK doesn't know",
+        });
+      });
 
-        const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
+      it("returns unexpected for the SDK InviteLinkConfirmationNotSupported variant", async () => {
+        const result = await runWithRejection(
+          makeSdkError(
+            "InviteLinkConfirmationNotSupported",
+            "The invite link does not support confirmation",
+          ),
+        );
+        expect(result).toEqual({
+          kind: "unexpected",
+          errorMessage: "The invite link does not support confirmation",
+        });
+      });
 
-        expect(result).toEqual({ kind: "email-not-verified" });
-        expect(await sut.getOrganizationInvite()).toEqual(open);
+      it("returns unexpected for the SDK ParseFailure variant", async () => {
+        const result = await runWithRejection(
+          makeSdkError("ParseFailure", "Failed to parse `code`"),
+        );
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "Failed to parse `code`" });
+      });
+
+      it("returns unexpected for a variant a future SDK version adds", async () => {
+        const result = await runWithRejection(makeSdkError("SomeFutureVariant", "future error"));
+        expect(result).toEqual({ kind: "unexpected", errorMessage: "future error" });
       });
 
       it("returns recovery-key-mismatch for the SDK-native RecoveryKeyMismatch variant", async () => {
