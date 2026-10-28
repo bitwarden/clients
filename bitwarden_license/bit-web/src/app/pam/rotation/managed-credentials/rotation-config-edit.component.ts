@@ -93,6 +93,7 @@ import { showSkeletonWhile } from "../skeleton-delay";
 import { AssignConnectorDialogComponent } from "../target-systems/assign-connector-dialog.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
 import { RotationRowStatus } from "./rotation-config-row";
 import { RotationHistorySkeletonComponent } from "./rotation-history-skeleton.component";
 import { RotationHistoryComponent } from "./rotation-history.component";
@@ -616,7 +617,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       this.loadCollections(),
     ]);
     this.connectors.set(connectors);
-    await this.applyDetail(detail);
+    await this.loadDescriptionsAndApplyDetail(detail);
     this.settingsForm.patchValue({
       scheduleCron: detail.config.scheduleCron,
       rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
@@ -644,7 +645,8 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     }
   }
 
-  private async applyDetail(detail: RotationConfigDetailView): Promise<void> {
+  /** Fetches the config description, then stores it with the detail and refreshes the edit locks. */
+  private async loadDescriptionsAndApplyDetail(detail: RotationConfigDetailView): Promise<void> {
     const statuses = new Map(this.allTargetSystems().map((s) => [s.id, s.status]));
     const descriptions = await this.rotationSdk.describeConfigs([detail.config], statuses);
     this.description.set(descriptions.get(detail.config.id) ?? null);
@@ -654,7 +656,9 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
 
   /** Re-reads the config after an action, leaving what the operator has typed alone. */
   private async reloadConfig(): Promise<void> {
-    await this.applyDetail(await this.rotationSdk.getConfig(this.organizationId, this.configId!));
+    await this.loadDescriptionsAndApplyDetail(
+      await this.rotationSdk.getConfig(this.organizationId, this.configId!),
+    );
   }
 
   private applyEditLocks(config: RotationConfigView): void {
@@ -750,7 +754,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       await this.rotationSdk.createConfig(this.organizationId, request);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamRotationConfigAdded"),
+        message: this.i18nService.t("pamRotationConfigAddedSuccess"),
       });
       await this.navigateBack();
     } catch (e) {
@@ -794,11 +798,11 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
     }
   };
 
-  /** Seam for the Pause rotation confirmation, which resolves true until its dialog is designed. */
-  protected readonly openPauseDialog = (): Promise<boolean> => Promise.resolve(true);
+  protected readonly openPauseDialog = (): Promise<boolean> =>
+    confirmPauseRotation(this.dialogService);
 
-  /** Seam for the Rotate now confirmation shown when End active sessions is on. */
-  protected readonly openRotateNowDialog = (): Promise<boolean> => Promise.resolve(true);
+  protected readonly openRotateNowDialog = (): Promise<boolean> =>
+    confirmRotateNow(this.dialogService);
 
   private async runAction(action: () => Promise<void>, successKey: string): Promise<void> {
     try {
@@ -905,9 +909,9 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamRotationConfigDeleteConfirmTitle" },
-      content: { key: "pamRotationConfigDeleteConfirmContent" },
-      acceptButtonText: { key: "remove" },
+      title: { key: "pamRotationConfigRemoveConfirmTitle" },
+      content: { key: "pamRotationConfigRemoveConfirmContent" },
+      acceptButtonText: { key: "pamRotationConfigRemoveFromRotation" },
       cancelButtonText: { key: "cancel" },
       type: "warning",
     });
@@ -918,7 +922,7 @@ export class RotationConfigEditComponent implements HasUnsavedChangesDialog {
       await this.rotationSdk.deleteConfig(this.organizationId, this.configId!);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamRotationConfigDeleteSuccess"),
+        message: this.i18nService.t("pamRotationConfigRemoveSuccess"),
       });
       await this.navigateBack();
     } catch (e) {
