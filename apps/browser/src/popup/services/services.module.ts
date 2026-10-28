@@ -216,7 +216,9 @@ import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
+import { FillCipherPolicy } from "../../autofill/services/abstractions/fill-cipher-policy";
 import AutofillService from "../../autofill/services/autofill.service";
+import { DefaultFillCipherPolicy } from "../../autofill/services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
@@ -473,6 +475,11 @@ const safeProviders: SafeProvider[] = [
     provide: AutofillLifecycleService,
     useClass: NoopAutofillLifecycleService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: FillCipherPolicy,
+    useClass: DefaultFillCipherPolicy,
+    deps: [CipherService],
   }),
   safeProvider({
     provide: AutofillService,
