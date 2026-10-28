@@ -81,7 +81,7 @@ export const rotationRoutes: Routes = [
       OrgCiphersService,
     ],
     children: [
-      { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.accessConnectors },
+      { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.managedCredentials },
       {
         path: ROTATION_TABS.accessConnectors,
         component: AccessConnectorsTabComponent,

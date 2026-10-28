@@ -20614,17 +20614,26 @@
   "pamAccessConnectorTokenCopied": {
     "message": "Access connector token copied."
   },
-  "pamRotationConfigNew": {
-    "message": "New managed credential"
-  },
   "pamRotationConfigSearch": {
     "message": "Search managed credentials"
   },
   "pamRotationConfigEmptyState": {
     "message": "No managed credentials configured"
   },
+  "pamRotationConfigEmptyTitle": {
+    "message": "No managed credentials yet"
+  },
   "pamRotationConfigEmptyStateDescription": {
     "message": "Add a managed credential to start rotating it automatically."
+  },
+  "pamRotationConfigEmptyDescription": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends."
+  },
+  "pamRotationConfigEmptyStateGetStarted": {
+    "message": "Managed credentials help you change passwords on a schedule or when someone's access ends. To get started, add an access connector and a target system."
+  },
+  "pamRotationConfigAddAccessConnectorCta": {
+    "message": "Add access connector"
   },
   "pamRotationListLoadErrorTitle": {
     "message": "Unable to load"
@@ -20632,14 +20641,8 @@
   "pamRotationListLoadErrorDescription": {
     "message": "Check your connection and try again. If the problem continues, refresh the page."
   },
-  "pamRotationConfigNoTargetSystems": {
-    "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
-  },
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Set up a target system"
-  },
-  "pamRotationConfigNoResultsFiltered": {
-    "message": "No managed credentials match your filters."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Credential"
@@ -20830,6 +20833,9 @@
   "pamRotationHistoryColumnTrigger": {
     "message": "Trigger"
   },
+  "pamRotationHistoryColumnRotationTrigger": {
+    "message": "Rotation trigger"
+  },
   "pamRotationHistoryRetrySucceeded": {
     "message": "The first attempt failed; the retry succeeded."
   },
@@ -20953,8 +20959,14 @@
   "pamRotationConfigDeleteConfirmTitle": {
     "message": "Remove managed credential"
   },
+  "pamRotationConfigRemoveConfirmTitle": {
+    "message": "Remove from rotation"
+  },
   "pamRotationConfigDeleteConfirmContent": {
     "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
+  },
+  "pamRotationConfigRemoveConfirmContent": {
+    "message": "This credential and its settings will be removed from Managed credentials. The vault item won't change, and its history stays in the audit log."
   },
   "pamRotationConfigDeleteLockedTitle": {
     "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
@@ -20962,11 +20974,26 @@
   "pamRotationConfigDeleteSuccess": {
     "message": "Managed credential removed."
   },
+  "pamRotationConfigRemoveSuccess": {
+    "message": "Removed from rotation."
+  },
   "pamRotationConfigNeverRotated": {
     "message": "Never"
   },
+  "pamRotationConfigHistoryEmptyTitle": {
+    "message": "No rotations yet"
+  },
+  "pamRotationConfigAddEmptyCta": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigRotateNowConfirmContent": {
+    "message": "Rotating this credential will also sign out anyone still using the current password."
+  },
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
+  },
+  "pamRotationConfigHistoryEmptyState": {
+    "message": "Rotations for this credential will show up here."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"
@@ -21375,8 +21402,14 @@
   "pamRotationConfigAdded": {
     "message": "Managed credential added"
   },
+  "pamRotationConfigAddedSuccess": {
+    "message": "Managed credential added."
+  },
   "pamTargetSystemAdded": {
     "message": "Target system added"
+  },
+  "pamTargetSystemAddedSuccess": {
+    "message": "Target system added."
   },
   "pamTargetSystemNameHint": {
     "message": "Use a name your team will recognize, for example Entra ID production. It shows wherever you choose a target system."

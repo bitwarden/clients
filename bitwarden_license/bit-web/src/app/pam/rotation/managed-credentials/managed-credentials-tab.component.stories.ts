@@ -172,7 +172,10 @@ const ROWS: RotationConfigRow[] = [
   ),
 ];
 
-function rotationServices(rows: RotationConfigRow[]) {
+function rotationServices(
+  rows: RotationConfigRow[],
+  { connectors = [{ id: "ac-1" }], targetSystems = [sysId("1"), sysId("2"), sysId("3")] } = {},
+) {
   return moduleMetadata({
     imports: [RouterOutlet],
     providers: [
@@ -192,7 +195,16 @@ function rotationServices(rows: RotationConfigRow[]) {
           delete: () => Promise.resolve(),
         },
       },
-      { provide: AccessConnectorsService, useValue: { load: () => Promise.resolve() } },
+      {
+        provide: AccessConnectorsService,
+        useValue: {
+          accessConnectors$: of(connectors),
+          loading$: of(false),
+          loadError$: of(null),
+          load: () => Promise.resolve(),
+          registerCompleted: () => Promise.resolve(),
+        },
+      },
       {
         provide: OrgCiphersService,
         useValue: { ciphers$: of(rows.length > 0 ? CIPHERS : []), load: () => Promise.resolve() },
@@ -200,7 +212,7 @@ function rotationServices(rows: RotationConfigRow[]) {
       {
         provide: TargetSystemsService,
         useValue: {
-          systems$: of([{ id: sysId("1") }, { id: sysId("2") }, { id: sysId("3") }]),
+          systems$: of(targetSystems.map((id) => ({ id }))),
           loading$: of(false),
           loadError$: of(null),
           load: () => Promise.resolve(),
@@ -258,4 +270,9 @@ export const Default: Story = {
 /** Target systems exist, but no managed credential has been configured yet. */
 export const Empty: Story = {
   decorators: [rotationServices([])],
+};
+
+/** Nothing is set up yet, so the empty state asks for an access connector first. */
+export const EmptyNoPrerequisites: Story = {
+  decorators: [rotationServices([], { connectors: [], targetSystems: [] })],
 };
