@@ -20,6 +20,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+import { CipherUse } from "../services/abstractions/fill-cipher-policy";
+import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import { flushPromises } from "../spec/testing-utils";
 
 import WebRequestBackground, {
@@ -43,6 +45,7 @@ describe("WebRequestBackground", () => {
 
   let platformUtilsService: ReturnType<typeof mock<PlatformUtilsService>>;
   let cipherService: ReturnType<typeof mock<CipherService>>;
+  let fillCipherPolicy: DefaultFillCipherPolicy;
   let authService: ReturnType<typeof mock<AuthService>>;
   let accountService: ReturnType<typeof mock<AccountService>>;
   let autofillSettingsService: ReturnType<typeof mock<AutofillSettingsServiceAbstraction>>;
@@ -60,7 +63,7 @@ describe("WebRequestBackground", () => {
   const createWebRequestBackground = () =>
     new WebRequestBackground(
       platformUtilsService,
-      cipherService,
+      fillCipherPolicy,
       authService,
       accountService,
       webRequest as unknown as typeof chrome.webRequest,
@@ -86,6 +89,8 @@ describe("WebRequestBackground", () => {
     platformUtilsService.isFirefox.mockReturnValue(false);
     platformUtilsService.isSafari.mockReturnValue(false);
     cipherService = mock<CipherService>();
+    fillCipherPolicy = new DefaultFillCipherPolicy(cipherService);
+    jest.spyOn(fillCipherPolicy, "ciphersForUrl");
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
 
@@ -333,6 +338,12 @@ describe("WebRequestBackground", () => {
 
       await triggerAuthRequired();
 
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+        url,
+        userId,
+        CipherUse.AutomaticFill,
+        { defaultMatch: UriMatchStrategy.Host },
+      );
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
         url,
         userId,

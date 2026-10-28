@@ -39,8 +39,9 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { FormData } from "../services/abstractions/autofill.service";
-import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import AutofillService from "../services/autofill.service";
+import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
 import {
   crossContextBoundary,
@@ -128,6 +129,11 @@ describe("NotificationBackground", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     accountService.activeAccount$ = activeAccountSubject;
+    const storedCipherPolicy = new DefaultFillCipherPolicy(cipherService);
+    fillCipherPolicy.ciphers.mockImplementation((...args) => storedCipherPolicy.ciphers(...args));
+    fillCipherPolicy.ciphersForUrl.mockImplementation((...args) =>
+      storedCipherPolicy.ciphersForUrl(...args),
+    );
     fillCipherPolicy.canOfferSave.mockResolvedValue(true);
     notificationBackground = new NotificationBackground(
       accountService,
@@ -596,7 +602,11 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
+        expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+          tabUrl,
+          userId,
+          CipherUse.SecurityTask,
+        );
         expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
         expect(createNewTabSpy).toHaveBeenCalledWith(
           "https://jest-testing-website.com/.well-known/change-password",
@@ -643,7 +653,11 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
+        expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+          tabUrl,
+          userId,
+          CipherUse.SecurityTask,
+        );
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 
@@ -988,6 +1002,12 @@ describe("NotificationBackground", () => {
           getAllDecryptedForUrlSpy.mockResolvedValueOnce(storedCiphersForURL);
 
           await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+          expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+            formEntryData.uri,
+            userId,
+            CipherUse.SavePrompt,
+          );
 
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
           expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
@@ -2666,6 +2686,11 @@ describe("NotificationBackground", () => {
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
+          expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+            queueMessage.data.uri,
+            userId,
+            CipherUse.SavePrompt,
+          );
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
             queueMessage.data.password,
