@@ -4,11 +4,12 @@ import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@stor
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { I18nMockService } from "@bitwarden/components";
 
 import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
-import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
+import { CardGridComponent } from "./card-grid.component";
 
 const organizationId = "org-1" as OrganizationId;
 
@@ -77,6 +78,24 @@ const MANY_FOLDERS = childFolders([
 const NARROW_WRAPPER = "tw-max-w-xl";
 const NARROWEST_WRAPPER = "tw-max-w-sm";
 
+/**
+ * One of the user's own folders — what a My folder's page draws from instead of collections. Nested
+ * by name like the folder services hold them, so cards come out sorted by name.
+ */
+function myFolder(id: string, name: string): FolderView {
+  return Object.assign(new FolderView(), { id, name });
+}
+
+const MY_FOLDERS = [
+  myFolder("banking", "Banking"),
+  myFolder("checking", "Banking/Checking"),
+  myFolder("joint", "Banking/Checking/Joint"),
+  myFolder("savings", "Banking/Savings"),
+  myFolder("cards", "Banking/Savings/Cards"),
+  myFolder("investments", "Banking/Investments"),
+  myFolder("taxes", "Banking/Taxes"),
+];
+
 const LONG_NAME_FOLDERS = childFolders([
   "Engineering — Platform, Infrastructure, and Developer Experience",
   "Design — Brand, Product, and Marketing Systems",
@@ -84,8 +103,8 @@ const LONG_NAME_FOLDERS = childFolders([
 ]);
 
 export default {
-  title: "Vault/Shared Folder Card Grid",
-  component: SharedFolderCardGridComponent,
+  title: "Vault/Card Grid",
+  component: CardGridComponent,
   decorators: [
     moduleMetadata({
       imports: [RouterTestingModule],
@@ -100,6 +119,11 @@ export default {
               sharedFolderSingular: (count) => `${count} shared folder`,
               nestedSharedFolderCount: (count) => `${count} nested shared folders`,
               nestedSharedFolderSingular: "1 nested shared folder",
+              foldersInParent: (name) => `Folders in ${name}`,
+              folderCount: (count) => `${count} folders`,
+              folderSingular: (count) => `${count} folder`,
+              nestedFolderCount: (count) => `${count} nested folders`,
+              nestedFolderSingular: "1 nested folder",
               showAll: "Show all",
               showLess: "Show less",
             }),
@@ -112,14 +136,14 @@ export default {
     collections: DEFAULT_FOLDERS,
     scope: SCOPE,
   },
-} as Meta<SharedFolderCardGridComponent>;
+} as Meta<CardGridComponent>;
 
 /**
  * Both the accordion's open state and the overflow's are the component's own, but each takes its
  * starting value from an input — so a story renders the state it documents on its first frame
  * rather than painting a default and then clicking its way out of it.
  */
-type Story = StoryObj<SharedFolderCardGridComponent>;
+type Story = StoryObj<CardGridComponent>;
 
 /**
  * Five children — one full row of three plus a partial row, no overflow. Engineering and Design
@@ -130,6 +154,19 @@ export const Default: Story = {};
 export const SingleChild: Story = {
   args: {
     collections: childFolders(["Engineering"]),
+  },
+};
+
+/**
+ * A My folder's page: the same grid over the user's own folders, with the folder icon and the
+ * "Folders in …" and "nested folders" copy. Checking and Savings count the folders nested inside
+ * them beneath their names.
+ */
+export const MyFolders: Story = {
+  args: {
+    collections: [],
+    folders: MY_FOLDERS,
+    scope: { type: VaultScopeType.Folder, folderId: "banking" },
   },
 };
 

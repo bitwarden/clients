@@ -822,6 +822,14 @@
   color-scheme: dark;
 }
 
+@layer base {
+  /* Standard props keep macOS overlay scrollbars; any ::-webkit-scrollbar rule forces a classic, always-visible one. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-bg-gray) transparent;
+  }
+}
+
 @layer components {
   /**
   * tw-break-words does not work with table cells:

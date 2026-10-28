@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
+  CipherActionService,
   CipherFormConfig,
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
@@ -36,6 +37,7 @@ import { ItemDeepLink, ItemDeepLinkAction } from "../utils/item-deep-link";
 @Injectable()
 export class WebVaultItemActionsService {
   private readonly accountService = inject(AccountService);
+  private readonly cipherActionService = inject(CipherActionService);
   private readonly cipherService = inject(CipherService);
   private readonly cipherFormConfigService = inject(DefaultCipherFormConfigService);
   private readonly dialogService = inject(DialogService);
@@ -109,19 +111,20 @@ export class WebVaultItemActionsService {
   }
 
   /**
-   * Opens the add-item form, prefilled with the organization and shared folder in scope, when
-   * supplied.
+   * Opens the add-item form, prefilled with the organization, shared folder, and folder in scope,
+   * when supplied.
    */
   async add(
     cipherType?: CipherType,
-    scope?: { organizationId?: OrganizationId; collectionId?: CollectionId },
+    scope?: { organizationId?: OrganizationId; collectionId?: CollectionId; folderId?: string },
   ): Promise<void> {
     const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
 
-    if (scope?.organizationId) {
+    if (scope?.organizationId || scope?.folderId) {
       formConfig.initialValues = {
         organizationId: scope.organizationId,
         collectionIds: scope.collectionId ? [scope.collectionId] : undefined,
+        folderId: scope.folderId,
       };
     }
 
@@ -234,7 +237,11 @@ export class WebVaultItemActionsService {
         return;
       }
 
-      const dialogRef = VaultItemDialogComponent.open(this.dialogService, { mode, formConfig });
+      const dialogRef = VaultItemDialogComponent.open(this.dialogService, {
+        mode,
+        formConfig,
+        restore: (cipher) => this.cipherActionService.restore(cipher),
+      });
       const result = await lastValueFrom(dialogRef.closed);
 
       // The user is navigated to subscription settings elsewhere; leave the URL alone.

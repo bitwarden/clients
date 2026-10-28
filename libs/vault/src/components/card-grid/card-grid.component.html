@@ -3,8 +3,7 @@
 @if (count() > 0) {
   <bit-accordion
     class="tw-mb-8"
-    [title]="'sharedFoldersInParent' | i18n: parentName()"
-    variant="subtle"
+    [title]="titleKey() | i18n: parentName()"
     [open]="open()"
     height="auto"
   >
@@ -34,7 +33,7 @@
 
       @if (overflow.length > 0) {
         <button
-          id="shared-folder-card-grid_button_toggle-overflow"
+          id="card-grid_button_toggle-overflow"
           type="button"
           bitLink
           linkType="default"
@@ -58,19 +57,13 @@
       <a
         #cardLink
         bit-item-content
-        [id]="'shared-folder-card-grid_link_folder-' + folder.id"
+        [id]="'card-grid_link_folder-' + folder.id"
         [routerLink]="folder.commands"
       >
-        <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
+        <bit-icon-tile slot="start" [icon]="folder.icon"></bit-icon-tile>
         {{ folder.name }}
-        @if (folder.nestedSharedFolders > 0) {
-          <span slot="secondary">
-            {{
-              folder.nestedSharedFolders === 1
-                ? ("nestedSharedFolderSingular" | i18n)
-                : ("nestedSharedFolderCount" | i18n: folder.nestedSharedFolders)
-            }}
-          </span>
+        @if (folder.nestedCount > 0) {
+          <span slot="secondary">{{ nestedLabel(folder.nestedCount) }}</span>
         }
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
       </a>

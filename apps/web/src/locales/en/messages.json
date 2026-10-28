@@ -1259,6 +1259,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Folders in $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ nested shared folders",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -1272,6 +1300,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 nested shared folder",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ nested folders",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 nested folder",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "My folder"
@@ -2091,6 +2133,12 @@
   "deletedItem": {
     "message": "Item sent to trash"
   },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "deletedItems": {
     "message": "Items sent to trash"
   },
@@ -2573,6 +2621,20 @@
         "example": "Engineering"
       }
     }
+  },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
   },
   "emptyMyItems": {
     "message": "No items in My items"
@@ -17967,6 +18029,109 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
+  "pamTabMyRequests": {
+    "message": "My requests"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Extension requests"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "No active access"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Could not load your requests"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Pending"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "No pending requests"
+  },
+  "pamColumnItem": {
+    "message": "Item"
+  },
+  "pamColumnWindow": {
+    "message": "Window"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Requested window"
+  },
+  "pamColumnSubmitted": {
+    "message": "Submitted"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnActions": {
+    "message": "Actions"
+  },
+  "pamWindowUntil": {
+    "message": "Until $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Extended +$DURATION$ · until $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Activate within $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Access rule"
+  },
+  "pamResolverRequester": {
+    "message": "Requester"
+  },
+  "pamResolverUnknown": {
+    "message": "Unknown user"
+  },
+  "pamInboxInCollection": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReasonMissing": {
+    "message": "No reason provided"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Access requested"
+  },
+  "pamInboxRequester": {
+    "message": "Requester"
+  },
   "pamInboxDurationMinutes": {
     "message": "$MINUTES$ min",
     "placeholders": {
@@ -17975,6 +18140,12 @@
         "example": "30"
       }
     }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
   },
   "pamInboxDuration1Hour": {
     "message": "1 hour"
@@ -18009,6 +18180,93 @@
   "pamStartLeaseError": {
     "message": "Couldn't start access."
   },
+  "pamMyRequestsCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Could not cancel request"
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamStatusApproved": {
+    "message": "Approved"
+  },
+  "pamStatusActivated": {
+    "message": "Active"
+  },
+  "pamStatusDenied": {
+    "message": "Denied"
+  },
+  "pamStatusCanceled": {
+    "message": "Canceled"
+  },
+  "pamStatusExpired": {
+    "message": "Expired"
+  },
+  "pamStatusRevoked": {
+    "message": "Revoked"
+  },
+  "pamStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Session ended"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Request details"
+  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "The approved access window has not started yet."
   },
@@ -18040,6 +18298,27 @@
     "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
     "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
@@ -18057,6 +18336,9 @@
         "example": "2"
       }
     }
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Request reason"
   },
   "pamInboxElapsedHours": {
     "message": "$HOURS$h ago",
@@ -18731,6 +19013,15 @@
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden has a new look",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -18755,5 +19046,715 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "pamRotation": {
+    "message": "Rotation"
+  },
+  "pamRotationSubtitle": {
+    "message": "Add managed credentials and the target systems where those credentials live. Then, register access connectors to run inside your network and perform rotation. Once configured, credentials can be rotated on target systems automatically."
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Managed credentials"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Managed credentials loaded"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Page loaded"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Edit managed credential"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Add target system"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Rotation schedule"
+  },
+  "pamRotationScheduleNone": {
+    "message": "None"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Hourly"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Every 6 hours"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Daily"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Weekly"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Monthly"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Custom"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Custom cron expression"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Enter a Quartz 6-field cron expression (e.g. 0 0 */4 * * ?). The server enforces a minimum 15-minute interval."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "No scheduled rotation. This credential rotates only when you start one, or when access ends if that option is on."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Rotates once an hour, on the hour."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Rotates every 6 hours, on the hour."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Rotates once a day, at midnight."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Rotates once a week, at midnight on Sunday."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Rotates once a month, at midnight on the 1st."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Rotates every day, at $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Rotates every $COUNT$ days, at $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Rotates every month, at $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Rotates every $COUNT$ months, at $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Custom Quartz schedule: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Schedules run in UTC, not your local time zone."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Interval"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Repeat every"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Unit"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Days"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Months"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Time of day (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Intervals are anchored to the calendar. Day intervals restart on the 1st of each month, and month intervals run on the 1st and restart in January."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Enter how often the rotation repeats and the time of day."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Enter a whole number."
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Type"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "No target systems yet"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Assign access connectors"
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Access connectors can only be assigned to target systems set to automatic rotation."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Only active access connectors can be assigned to this target system."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatic"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manual"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Custom script"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "This policy is too weak. Increase the length or include more character types."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "This target system's technology could not be confirmed to match. Reload the page and try again."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Connection"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Assigned targets"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Connected"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Disconnected"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Target systems can only be assigned while the access connector is active."
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Target system"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Assign target systems"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Only target systems set to automatic rotation can be assigned."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "There are no automatic target systems to assign. Create one on the Target systems tab."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Go to Target systems"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Couldn't load target systems. Refresh the page to try again."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "No target systems assigned."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Remove $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Deactivate access connector?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Deactivate $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can activate it again later.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Delete access connector?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamRotationConfigNew": {
+    "message": "New managed credential"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Search managed credentials"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "No managed credentials configured"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Add a managed credential to start rotating it automatically."
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Unable to load"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Check your connection and try again. If the problem continues, refresh the page."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Set up a target system"
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "No managed credentials match your filters."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Credential"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Item"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Schedule"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Rotate on access end"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Last rotation"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Last rotated"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Next rotation"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Paused"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Rotating"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Rotation due"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Rotate now"
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Rotation dispatched."
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Mark as rotated"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Mark as rotated"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Record rotation"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Manual rotation recorded."
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Edit credential"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Remove from rotation"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Pause rotation"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Rotation paused."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Resume rotation"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Rotation resumed."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Remove managed credential"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "This removes rotation management for this credential. The item stays in your vault and the rotation history remains in the audit log."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Managed credential removed."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Never"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "No rotations have run yet."
+  },
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "A rotation job is currently in progress. You can remove this credential from rotation once the access connector finishes it, or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Credential details"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Details"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Rotation settings"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Account"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "History"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Credential"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Select a credential"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Select the vault item whose password will be rotated."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Select a target system"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Account identity"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Terminate active sessions after rotation"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Requires the target system to support session termination."
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "This target system's support for session termination could not be verified."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Rotate when access ends"
+  },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Automatically rotate this credential when PAM access to it ends."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Managed credential created."
+  },
+  "pamRotationConfigSaved": {
+    "message": "Managed credential saved."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Settings unavailable"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Changes can't be saved while a rotation job is in progress. You can save again once the job finishes or times out."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "This managed credential's settings could not be verified. Save to re-secure it."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "This target system does not confirm it supports terminating sessions. Clear the session-termination option, or update the target system first."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "The selected target system's settings could not be verified. Fix the target system before saving."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "This managed credential's item or target system could not be confirmed to match. Reload the page and try again."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "No rotation jobs recorded yet."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Source"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Attempts"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Scheduled"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "On demand"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Access ended"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Pending"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Claimed"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Timed out"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Executing"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Rotated"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Errored"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Abandoned"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Started"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Target unchanged"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Target updated"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Indeterminate"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Session termination not requested"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Sessions terminated"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Session termination failed"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "The access connector's account is not allowed to change this password. Grant it permission to reset the target account's password, then rotate again."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "The target system rejected the access connector's sign in. Check the credentials the connector uses for this target system, then rotate again."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "The target system rejected the new password. Check that this credential's password policy meets the target system's own password rules, then rotate again."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "The target system could not find the account to rotate. Check the account identity on this managed credential, then rotate again."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "The target system refused to make the change. This commonly means the new password broke a password rule, or the connection to the target system was not encrypted."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Reported by the access connector: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Rotation jobs, newest first"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Duration"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Attempt"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Result"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Attempts, oldest first"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Every attempt ended the same way."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Rotation job"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Why it failed"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$m $SECONDS$s",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$h $MINUTES$m",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "No active target systems to choose from."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Assigned access connectors"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "No access connectors are assigned to this target system."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "The access connectors for this target system could not be loaded."
   }
 }
