@@ -1,4 +1,4 @@
-import { filter, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -12,12 +12,8 @@ import { CipherUse, FillCipherPolicy, SaveCandidate } from "./abstractions/fill-
 export class DefaultFillCipherPolicy implements FillCipherPolicy {
   constructor(protected readonly cipherService: CipherService) {}
 
-  /** Emits after each decryption, so a lookup that follows reads the new ciphers. */
   changed$(userId: UserId): Observable<void> {
-    return this.cipherService.cipherViews$(userId).pipe(
-      filter((views) => views != null),
-      map((): void => undefined),
-    );
+    return this.cipherService.ciphers$(userId).pipe(map((): void => undefined));
   }
 
   ciphers(userId: UserId, use: CipherUse): Promise<CipherView[]> {
@@ -60,14 +56,6 @@ export class DefaultFillCipherPolicy implements FillCipherPolicy {
 
   async nextCipherForUrl(url: string, userId: UserId): Promise<CipherView | undefined> {
     return (await this.cipherService.getNextCipherForUrl(url, userId)) ?? undefined;
-  }
-
-  async nextCardCipher(userId: UserId): Promise<CipherView | undefined> {
-    return (await this.cipherService.getNextCardCipher(userId)) ?? undefined;
-  }
-
-  async nextIdentityCipher(userId: UserId): Promise<CipherView | undefined> {
-    return (await this.cipherService.getNextIdentityCipher(userId)) ?? undefined;
   }
 
   advanceRotation(url: string): void {
