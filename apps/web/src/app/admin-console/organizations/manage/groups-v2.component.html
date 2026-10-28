@@ -26,7 +26,7 @@
       key="collections"
       [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
       multiple
-      [options]="(collectionFilterOptions$ | async) ?? []"
+      [options]="collectionFilterOptions()"
     ></bit-filter-menu>
     <button
       bitButton

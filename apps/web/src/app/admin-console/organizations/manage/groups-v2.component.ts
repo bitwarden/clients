@@ -56,7 +56,6 @@ import {
   defineTable,
   DialogService,
   FilterMenuModule,
-  type FilterOptionNode,
   IconModule,
   MenuModule,
   SearchModule,
@@ -191,21 +190,22 @@ export class GroupsV2Component {
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
-  protected readonly collectionFilterOptions$: Observable<FilterOptionNode<string>[]> =
-    combineLatest([this.rowsData$, this.collectionMap$]).pipe(
-      map(([rows, collectionMap]) => {
-        const hasCollection = (row: GroupRow, collectionId: string) =>
-          row.details.collections.some((c) => c.id === collectionId);
+  private readonly collectionMap = toSignal(this.collectionMap$);
 
-        return Object.values(collectionMap)
-          .sort((a, b) => this.i18nService.collator?.compare(a.name, b.name) ?? 0)
-          .map((collection) => ({
-            value: collection.id,
-            label: collection.name,
-            count: rows.filter((row) => hasCollection(row, collection.id)).length,
-          }));
-      }),
-    );
+  protected readonly collectionFilterOptions = computed(() => {
+    const rows = this.rows();
+    const collectionMap = this.collectionMap() ?? {};
+    const hasCollection = (row: GroupRow, collectionId: string) =>
+      row.details.collections.some((c) => c.id === collectionId);
+
+    return Object.values(collectionMap)
+      .sort((a, b) => this.i18nService.collator?.compare(a.name, b.name) ?? 0)
+      .map((collection) => ({
+        value: collection.id,
+        label: collection.name,
+        count: rows.filter((row) => hasCollection(row, collection.id)).length,
+      }));
+  });
 
   private readonly fetchedRows = toSignal(this.rowsData$);
   protected readonly loading = computed(() => this.fetchedRows() == null);
