@@ -12638,6 +12638,10 @@
     "message": "Add Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
+  "seatLimit": {
+    "message": "Seat limit",
+    "description": "Upper limit of seats to allow through autoscaling"
+  },
   "whatsIncluded": {
     "message": "What's included"
   },

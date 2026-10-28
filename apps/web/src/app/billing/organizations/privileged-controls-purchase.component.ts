@@ -57,6 +57,12 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
     initialValue: this.enabledControl.value,
   });
 
+  protected readonly limitSubscriptionControl = new FormControl(false, { nonNullable: true });
+
+  protected readonly limitSubscription = toSignal(this.limitSubscriptionControl.valueChanges, {
+    initialValue: this.limitSubscriptionControl.value,
+  });
+
   protected readonly maxAutoscaleSeatsCap = computed(
     () => this.passwordManagerMaxAutoscaleSeats() ?? this.passwordManagerSeats(),
   );
@@ -107,6 +113,14 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
     this.seatsControl.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.maxAutoscaleSeatsControl.updateValueAndValidity());
+
+    this.limitSubscriptionControl.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((limitSubscription) => {
+        if (!limitSubscription) {
+          this.maxAutoscaleSeatsControl.setValue(null);
+        }
+      });
   }
 
   ngOnInit() {

@@ -247,17 +247,46 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       ).not.toBeNull();
     });
 
-    it("shows a hint under the seat limit field", () => {
+    it("hides the seat limit field until the subscription limit is checked", () => {
       createComponent();
       fixture.nativeElement.querySelector("#privileged-controls-purchase_input_enabled").click();
       fixture.detectChanges();
 
-      const maxAutoscaleSeatsInput: HTMLElement = fixture.nativeElement.querySelector(
-        "#privileged-controls-purchase_input_seat-limit",
+      expect(
+        fixture.nativeElement.querySelector("#privileged-controls-purchase_input_seat-limit"),
+      ).toBeNull();
+
+      fixture.nativeElement
+        .querySelector("#privileged-controls-purchase_input_limit-subscription")
+        .click();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("#privileged-controls-purchase_input_seat-limit"),
+      ).not.toBeNull();
+    });
+
+    it("shows the seat limit description under the subscription limit checkbox", () => {
+      createComponent();
+      fixture.nativeElement.querySelector("#privileged-controls-purchase_input_enabled").click();
+      fixture.detectChanges();
+
+      const limitSubscriptionInput: HTMLElement = fixture.nativeElement.querySelector(
+        "#privileged-controls-purchase_input_limit-subscription",
       );
-      expect(maxAutoscaleSeatsInput.closest("bit-form-field")?.textContent).toContain(
+      expect(limitSubscriptionInput.closest("bit-form-control")?.textContent).toContain(
         "privilegedControlsSeatLimitDesc",
       );
+    });
+
+    it("clears the seat limit when the subscription limit is unchecked", () => {
+      createComponent();
+      component["limitSubscriptionControl"].setValue(true);
+      enableAndFill(12, 20);
+
+      component["limitSubscriptionControl"].setValue(false);
+
+      expect(form().controls.maxAutoscaleSeats.value).toBeNull();
     });
   });
 
@@ -298,6 +327,20 @@ describe("PrivilegedControlsPurchaseComponent", () => {
       expect(billingClient.purchasePrivilegedControls).toHaveBeenCalledWith(organizationId, {
         seats: 15,
         maxAutoscaleSeats: 20,
+      });
+    });
+
+    it("sends a null seat limit when the subscription limit is unchecked", async () => {
+      createComponent();
+      component["limitSubscriptionControl"].setValue(true);
+      enableAndFill(15, 20);
+      component["limitSubscriptionControl"].setValue(false);
+
+      await component["submit"]();
+
+      expect(billingClient.purchasePrivilegedControls).toHaveBeenCalledWith(organizationId, {
+        seats: 15,
+        maxAutoscaleSeats: null,
       });
     });
 
