@@ -356,6 +356,21 @@ describe("VaultFilterComponent", () => {
 
       expect(filters.controlledAccessFilter).toBeUndefined();
     });
+
+    it("is added when a host fills the seam", async () => {
+      const cipherArchiveService = TestBed.inject(
+        CipherArchiveService,
+      ) as MockProxy<CipherArchiveService>;
+      cipherArchiveService.archivedCiphers$.mockReturnValue(of([]));
+      cipherArchiveService.userHasPremium$.mockReturnValue(of(true));
+      (component as any).controlledAccessFilter = providerWith([
+        { id: "privileged", name: "Privileged", icon: "bwi-key" },
+      ]);
+
+      const filters = await component.buildAllFilters();
+
+      expect(filters.controlledAccessFilter).toBeDefined();
+    });
   });
 
   describe("applyControlledAccessFilter", () => {
