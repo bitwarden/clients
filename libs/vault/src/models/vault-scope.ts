@@ -489,20 +489,11 @@ export function sharedFolderNameForScope(
   return collection ? sharedFolderName(collection) : undefined;
 }
 
-/** What a header's collection options menu acts on — see {@link collectionMenuTargetForScope}. */
 export type CollectionMenuTarget = {
   collection: CollectionView;
   organization: Organization | undefined;
 };
 
-/**
- * The real, non-default shared folder a scope has drilled into, plus its organization — for a
- * header's collection options menu. `undefined` unless the scope names an actual collection: not
- * the unresolved {@link MY_ITEMS_ROUTE} sentinel (see {@link ScopedCollectionId}), and not the
- * organization's default collection, which every action the menu offers already excludes (see
- * `CollectionView.canEdit`/`canDelete`, and `CollectionOptionsMenuComponent.showPinAction`) — so a
- * caller resolving the default collection anyway would render a host element with nothing inside.
- */
 export function collectionMenuTargetForScope(
   scope: VaultScope,
   collections: readonly CollectionView[],

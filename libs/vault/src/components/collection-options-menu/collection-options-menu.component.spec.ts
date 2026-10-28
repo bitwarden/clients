@@ -75,9 +75,6 @@ type SetupOptions = {
   showPin?: boolean;
   pinnedIds?: CollectionId[];
   showDelete?: boolean;
-  /** Defaults to an already-resolved active account. Override with a controllable stream (e.g. a
-   * `Subject`) to test behavior while `togglePin()`'s `await firstValueFrom(this.userId$)` is
-   * still pending. */
   activeAccount$?: Observable<{ id: UserId } | null>;
 };
 

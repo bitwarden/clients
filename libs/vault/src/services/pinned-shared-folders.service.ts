@@ -57,15 +57,8 @@ export class PinnedSharedFoldersService {
       .state$.pipe(map((ids) => ids ?? []));
   }
 
-  /**
-   * The active user's pinned folder ids, as a signal — the `activeAccount$` into
-   * {@link pinnedIds$} into `toSignal` composition that `CollectionOptionsMenuComponent` uses.
-   *
-   * Resolves to `[]` rather than using `getUserId` while no account is active (e.g. between
-   * `switchAccount(null)` and a new account finishing login) — this is a `providedIn: "root"`
-   * singleton, so a thrown error here would permanently end its subscription for the rest of the
-   * app session, unlike a component-scoped equivalent that gets torn down and recreated.
-   */
+  // Falls back to `[]` rather than `getUserId` erroring on no active account: this is a
+  // `providedIn: "root"` singleton, so a thrown error here would kill its subscription permanently.
   readonly activePinnedIds = toSignal(
     this.accountService.activeAccount$.pipe(
       switchMap((account) =>
