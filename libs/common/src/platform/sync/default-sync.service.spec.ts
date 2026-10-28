@@ -549,6 +549,53 @@ describe("DefaultSyncService", () => {
         expect(folderService.replace).toHaveBeenCalledWith({}, user2);
       });
 
+      it("sends no requests beyond the revision date check for a switched-to user whose vault is unchanged while another user's sync is in flight", async () => {
+        lastSyncDates[user2] = new Date(2);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(1).getTime());
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+
+        await expect(user2FullSync).resolves.toBe(false);
+        await user1FullSync;
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user2);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledWith(user1);
+      });
+
+      it("sends a separate token refresh and sync for a switched-to user whose vault changed while another user's sync is in flight", async () => {
+        lastSyncDates[user2] = new Date(1);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(2).getTime());
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(user1Sync.promise)
+          .mockResolvedValueOnce(syncResponseFor(user2));
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+
+        await expect(user2FullSync).resolves.toBe(true);
+        await user1FullSync;
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user2);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(2, user2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(2, user2);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user2);
+      });
+
       it("checks the last sync and revision date of the starting user when the active account changes mid-sync", async () => {
         lastSyncDates[user1] = new Date(2);
         apiService.getAccountRevisionDate.mockResolvedValue(new Date(1).getTime());
