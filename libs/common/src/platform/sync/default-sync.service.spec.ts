@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -48,7 +48,7 @@ import { LogService } from "../abstractions/log.service";
 import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { Utils } from "../misc/utils";
-import { StateProvider } from "../state";
+import { SingleUserState, StateProvider } from "../state";
 
 import { DefaultSyncService } from "./default-sync.service";
 import { SyncResponse } from "./sync.response";
@@ -465,56 +465,269 @@ describe("DefaultSyncService", () => {
     });
 
     describe("in-flight syncs", () => {
+      const user2 = "user2" as UserId;
+
+      let activeAccount: BehaviorSubject<Account>;
+      let lastSyncDates: Record<UserId, Date | null>;
+
+      const syncResponseFor = (userId: UserId) =>
+        new SyncResponse({
+          profile: {
+            id: userId,
+            accountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          folders: [],
+          collections: [],
+          ciphers: [],
+          sends: [],
+          domains: [],
+          policies: [],
+        });
+
+      const deferred = <T>() => {
+        let resolve!: (value: T) => void;
+        const promise = new Promise<T>((r) => (resolve = r));
+        return { promise, resolve };
+      };
+
+      const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
       beforeEach(() => {
-        jest.useFakeTimers();
+        activeAccount = new BehaviorSubject({ id: user1 } as Account);
+        accountService.activeAccount$ = activeAccount;
+        lastSyncDates = { [user1]: null, [user2]: null };
+        stateProvider.getUser.mockImplementation(
+          (userId) =>
+            ({
+              state$: of(lastSyncDates[userId]),
+              update: jest.fn(),
+            }) satisfies Partial<SingleUserState<Date | null>> as unknown as SingleUserState<any>,
+        );
       });
 
-      afterEach(() => {
-        jest.useRealTimers();
+      it("does not refresh the token when a sync for the same user is already in flight", async () => {
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const loginSync = sut.fullSync(true, { skipTokenRefresh: true });
+        await flushPromises();
+        const catchUpSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+        await Promise.all([loginSync, catchUpSync]);
+
+        expect(apiService.refreshIdentityToken).not.toHaveBeenCalled();
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("does not call getSync when one is already in progress", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+      it("syncs each user separately when the active account changes while a sync is in flight", async () => {
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(user1Sync.promise)
+          .mockResolvedValueOnce(syncResponseFor(user2));
 
-        jest.advanceTimersByTime(100);
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(true);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+        await Promise.all([user1FullSync, user2FullSync]);
 
-        await Promise.all(fullSyncPromises);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(1, user1);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(2, user2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(1, user1);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(2, user2);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user1);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user2);
+      });
+
+      it("sends no requests beyond the revision date check for a switched-to user whose vault is unchanged while another user's sync is in flight", async () => {
+        lastSyncDates[user2] = new Date(2);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(1).getTime());
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+
+        await expect(user2FullSync).resolves.toBe(false);
+        await user1FullSync;
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user2);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledWith(user1);
+      });
+
+      it("sends a separate token refresh and sync for a switched-to user whose vault changed while another user's sync is in flight", async () => {
+        lastSyncDates[user2] = new Date(1);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(2).getTime());
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(user1Sync.promise)
+          .mockResolvedValueOnce(syncResponseFor(user2));
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        const user2FullSync = sut.fullSync(false);
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+
+        await expect(user2FullSync).resolves.toBe(true);
+        await user1FullSync;
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user2);
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.refreshIdentityToken).toHaveBeenNthCalledWith(2, user2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenNthCalledWith(2, user2);
+        expect(folderService.replace).toHaveBeenCalledWith({}, user2);
+      });
+
+      it("checks the last sync and revision date of the starting user when the active account changes mid-sync", async () => {
+        lastSyncDates[user1] = new Date(2);
+        apiService.getAccountRevisionDate.mockResolvedValue(new Date(1).getTime());
+        const authStatus = new Subject<AuthenticationStatus>();
+        authService.authStatusFor$.mockReturnValueOnce(authStatus);
+
+        const user1FullSync = sut.fullSync(false);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        authStatus.next(AuthenticationStatus.Unlocked);
+
+        await expect(user1FullSync).resolves.toBe(false);
+        expect(apiService.getAccountRevisionDate).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).not.toHaveBeenCalled();
+      });
+
+      it("refreshes the token and fetches the sync for the starting user when the active account changes mid-sync", async () => {
+        const authStatus = new Subject<AuthenticationStatus>();
+        authService.authStatusFor$.mockReturnValueOnce(authStatus);
+
+        const user1FullSync = sut.fullSync(true);
+        await flushPromises();
+        activeAccount.next({ id: user2 } as Account);
+        authStatus.next(AuthenticationStatus.Unlocked);
+        await user1FullSync;
+
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledWith(user1);
+        expect(apiService.getSync).toHaveBeenCalledWith(user1);
+      });
+
+      it("sends one sync request for same-user syncs that overlap", async () => {
+        const user1Sync = deferred<SyncResponse>();
+        apiService.getSync.mockReturnValueOnce(user1Sync.promise);
+
+        const fullSyncs = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+        await flushPromises();
+        user1Sync.resolve(syncResponseFor(user1));
+        await Promise.all(fullSyncs);
 
         expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("does not call refreshIdentityToken when one is already in progress", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+      it("sends one token refresh for same-user syncs that overlap before the sync request is sent", async () => {
+        const refresh = deferred<void>();
+        apiService.refreshIdentityToken.mockReturnValueOnce(refresh.promise);
 
-        jest.advanceTimersByTime(100);
-
-        await Promise.all(fullSyncPromises);
+        const fullSyncs = [sut.fullSync(true), sut.fullSync(true)];
+        await flushPromises();
+        refresh.resolve();
+        await Promise.all(fullSyncs);
 
         expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
       });
 
-      it("resets the in-flight properties when the complete", async () => {
-        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(true)];
+      it("reuses the sync response for a same-user sync that starts while the response is processed", async () => {
+        const processing = deferred<void>();
+        cryptoSyncHandler.on_sync.mockReturnValueOnce(processing.promise);
 
-        await Promise.all(fullSyncPromises);
+        const firstSync = sut.fullSync(true);
+        await flushPromises();
+        const secondSync = sut.fullSync(true);
+        await flushPromises();
+        processing.resolve();
+        await Promise.all([firstSync, secondSync]);
 
-        expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
-        expect(sut["inFlightApiCalls"].sync).toBeNull();
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
+      });
+
+      it("sends new requests after a failed sync", async () => {
+        apiService.getSync.mockRejectedValueOnce(new Error("not connected"));
+
+        await expect(sut.fullSync(true)).resolves.toBe(false);
+        await expect(sut.fullSync(true)).resolves.toBe(true);
+
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(2);
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
+      });
+
+      it("clears the in-flight calls when the syncs complete", async () => {
+        await Promise.all([sut.fullSync(true), sut.fullSync(true)]);
+
+        expect(sut["inFlightApiCalls"].size).toBe(0);
+      });
+
+      it("keeps a newer sync's in-flight calls when an older sync for the same user completes", async () => {
+        // The first two syncs share one sync request. The second pauses in processing until a
+        // third sync has started a new request.
+        const firstRequest = deferred<SyncResponse>();
+        const secondRequest = deferred<SyncResponse>();
+        apiService.getSync
+          .mockReturnValueOnce(firstRequest.promise)
+          .mockReturnValueOnce(secondRequest.promise);
+        const secondSyncProcessing = deferred<void>();
+        cryptoSyncHandler.on_sync
+          .mockResolvedValueOnce(undefined)
+          .mockReturnValueOnce(secondSyncProcessing.promise);
+
+        const firstSync = sut.fullSync(true);
+        await flushPromises();
+        const secondSync = sut.fullSync(true);
+        await flushPromises();
+        firstRequest.resolve(syncResponseFor(user1));
+        await firstSync;
+
+        const thirdSync = sut.fullSync(true);
+        await flushPromises();
+        secondSyncProcessing.resolve();
+        await secondSync;
+
+        const fourthSync = sut.fullSync(true);
+        await flushPromises();
+        secondRequest.resolve(syncResponseFor(user1));
+        await Promise.all([thirdSync, fourthSync]);
+
+        expect(apiService.getSync).toHaveBeenCalledTimes(2);
       });
     });
 
     describe("mutate 'last update time'", () => {
-      let mockUserState: { update: jest.Mock };
+      let mockUserState: { state$: Observable<Date>; update: jest.Mock };
 
       const setupMockUserState = () => {
-        const mockUserState = { update: jest.fn() };
+        const mockUserState = { state$: of(new Date(1)), update: jest.fn() };
         jest.spyOn(stateProvider, "getUser").mockReturnValue(mockUserState as any);
         return mockUserState;
       };
 
       const setupSyncScenario = (revisionDate: Date, lastSyncDate: Date) => {
         jest.spyOn(apiService, "getAccountRevisionDate").mockResolvedValue(revisionDate.getTime());
-        jest.spyOn(sut as any, "getLastSync").mockResolvedValue(lastSyncDate);
+        mockUserState.state$ = of(lastSyncDate);
       };
 
       const expectUpdateCallCount = (
