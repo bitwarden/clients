@@ -72,7 +72,6 @@ import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddLoginMessageData,
-  AddLoginNotificationData,
   AtRiskPasswordQueueMessage,
   NotificationQueueMessageItem,
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
@@ -633,20 +632,6 @@ export default class NotificationBackground {
       return;
     }
     await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
-  }
-
-  /**
-   * True when the form's username or a password matches a revealed view for the form's URL. Such a
-   * form gets no prompt: a save would copy the restricted secret out, or write over the cipher.
-   */
-  async matchesRevealedLogin(
-    form: AddLoginNotificationData & { newPassword?: string },
-  ): Promise<boolean> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
-    if (userId == null) {
-      return false;
-    }
-    return !(await this.fillCipherPolicy.canOfferSave(form, userId));
   }
 
   private async pushAddLoginToQueue(
@@ -1300,7 +1285,7 @@ export default class NotificationBackground {
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
-        if (await this.matchesRevealedLogin(queueMessage.data)) {
+        if (!(await this.fillCipherPolicy.canOfferSave(queueMessage.data, activeUserId))) {
           continue;
         }
 

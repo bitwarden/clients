@@ -1,9 +1,12 @@
-import { Subject, switchMap, timer } from "rxjs";
+import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { generateDomainMatchPatterns, isInvalidResponseStatusCode } from "../utils";
 
 import {
@@ -36,6 +39,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   constructor(
     private logService: LogService,
     private notificationBackground: NotificationBackground,
+    private accountService: AccountService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   /**
@@ -490,7 +495,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationScenario[] } = { skippable: [] },
   ) => {
-    if (await this.notificationBackground.matchesRevealedLogin(modifyLoginData)) {
+    if (!(await this.canOfferSave(modifyLoginData))) {
       this.clearCompletedWebRequest(requestId, tab.id);
       return "";
     }
@@ -525,6 +530,15 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearCompletedWebRequest(requestId, tab.id);
     return results.join(" ");
   };
+
+  /**
+   * Asks the {@link FillCipherPolicy} whether the form may get an add or update prompt. With no
+   * active user, the prompt is not blocked.
+   */
+  private async canOfferSave(modifyLoginData: ModifyLoginCipherFormData): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    return userId == null || this.fillCipherPolicy.canOfferSave(modifyLoginData, userId);
+  }
 
   /**
    * Determines if the add login notification should be attempted based on the modified login form data.

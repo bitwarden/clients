@@ -251,21 +251,6 @@ describe("NotificationBackground", () => {
     });
   });
 
-  describe("matchesRevealedLogin", () => {
-    const form = { uri: "https://example.com", username: "admin", password: "secret" };
-
-    it("is true when the policy does not offer a save for the form", async () => {
-      fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
-
-      expect(await notificationBackground.matchesRevealedLogin(form)).toBe(true);
-      expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(form, userId);
-    });
-
-    it("is false when the policy offers a save for the form", async () => {
-      expect(await notificationBackground.matchesRevealedLogin(form)).toBe(false);
-    });
-  });
-
   describe("queueMessageIsFromTabOrigin", () => {
     const createQueueMessage = (tab: chrome.tabs.Tab, domain = "example.com") =>
       mock<AddLoginQueueMessage>({
@@ -2628,7 +2613,7 @@ describe("NotificationBackground", () => {
           );
         });
 
-        it("drops a locked save that matches a revealed login", async () => {
+        it("drops a locked save the fill cipher policy does not offer", async () => {
           const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const data = { username: "test", password: "revealed", uri: "https://example.com" };
@@ -2641,14 +2626,12 @@ describe("NotificationBackground", () => {
               wasVaultLocked: true,
             }),
           ];
-          const matchesRevealedLogin = jest
-            .spyOn(notificationBackground, "matchesRevealedLogin")
-            .mockResolvedValueOnce(true);
+          fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
 
           sendMockExtensionMessage({ command: "bgSaveCipher", edit: false }, sender);
           await flushPromises();
 
-          expect(matchesRevealedLogin).toHaveBeenCalledWith(data);
+          expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(data, userId);
           expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).not.toHaveBeenCalled();
           expect(editItemSpy).not.toHaveBeenCalled();

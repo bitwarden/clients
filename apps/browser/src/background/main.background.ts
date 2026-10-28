@@ -1715,6 +1715,8 @@ export default class MainBackground {
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
+      this.accountService,
+      this.fillCipherPolicy,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
