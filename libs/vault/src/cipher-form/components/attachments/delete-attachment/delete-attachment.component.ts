@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -90,6 +91,11 @@ export class DeleteAttachmentComponent {
       this.onDeletionSuccess.emit();
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message:
+          e instanceof ErrorResponse ? e.getSingleMessage() : this.i18nService.t("unexpectedError"),
+      });
     }
   };
 }

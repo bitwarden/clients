@@ -9,7 +9,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -23,8 +23,10 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { ButtonComponent, ToastService } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../..";
@@ -72,6 +74,7 @@ describe("CipherAttachmentsComponent", () => {
   const saveAttachmentWithServer = jest.fn().mockResolvedValue(cipherDomain);
 
   const apiService = mock<ApiService>();
+  const cipherAuthorizationService = mock<CipherAuthorizationService>();
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const organizations$ = new BehaviorSubject<Organization[]>([organization]);
@@ -82,6 +85,7 @@ describe("CipherAttachmentsComponent", () => {
     showToast.mockClear();
     saveAttachmentWithServer.mockClear().mockResolvedValue(cipherDomain);
     apiService.getFullCipherDetails.mockClear();
+    cipherAuthorizationService.canDeleteCipher$.mockReset().mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [CipherAttachmentsComponent],
@@ -111,6 +115,10 @@ describe("CipherAttachmentsComponent", () => {
         {
           provide: ApiService,
           useValue: apiService,
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: cipherAuthorizationService,
         },
         {
           provide: OrganizationService,
@@ -529,6 +537,47 @@ describe("CipherAttachmentsComponent", () => {
       // After removal, there should be no attachments displayed
       const attachmentItems = fixture.debugElement.queryAll(By.css('[data-testid="file-name"]'));
       expect(attachmentItems.length).toEqual(0);
+    });
+  });
+
+  describe("delete attachment visibility", () => {
+    const attachment = { id: "1234-5678", fileName: "test.txt" } as AttachmentView;
+
+    async function initialize(): Promise<void> {
+      cipherServiceDecrypt.mockResolvedValue({ ...cipherView, attachments: [attachment] });
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      fixture.detectChanges();
+      await waitForInitialization();
+    }
+
+    it("shows the delete button when the user can delete the cipher", async () => {
+      await initialize();
+
+      expect(fixture.debugElement.query(By.directive(DeleteAttachmentComponent))).not.toBeNull();
+    });
+
+    it("hides the delete button when the user cannot delete the cipher", async () => {
+      cipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(false));
+
+      await initialize();
+
+      expect(fixture.debugElement.query(By.directive(DeleteAttachmentComponent))).toBeNull();
+    });
+
+    it("checks delete permission in the admin context when in the admin console", async () => {
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      fixture.componentRef.setInput("admin", true);
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      apiService.getCipherAdmin.mockResolvedValue(new CipherResponse({}));
+      fixture.detectChanges();
+      await waitForInitialization();
+
+      expect(cipherAuthorizationService.canDeleteCipher$).toHaveBeenCalledWith(
+        expect.anything(),
+        true,
+      );
     });
   });
 
