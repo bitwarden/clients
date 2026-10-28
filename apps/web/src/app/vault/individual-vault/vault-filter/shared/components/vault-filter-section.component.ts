@@ -31,7 +31,10 @@ import {
   VaultControlledAccessFilter,
 } from "../../../vault-controlled-access-filter.token";
 
-import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./pam/vault-filter-gated-collection-indicator.token";
+import {
+  VAULT_FILTER_GATED_COLLECTION_INDICATOR,
+  VaultFilterGatedCollectionIndicator,
+} from "./pam/vault-filter-gated-collection-indicator.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -54,10 +57,8 @@ export class VaultFilterSectionComponent {
 
   protected readonly coachmarkService = inject(CoachmarkService);
 
-  protected readonly gatedCollectionIndicator: Type<unknown> | null = inject(
-    VAULT_FILTER_GATED_COLLECTION_INDICATOR,
-    { optional: true },
-  );
+  protected readonly gatedCollectionIndicator: Type<VaultFilterGatedCollectionIndicator> | null =
+    inject(VAULT_FILTER_GATED_COLLECTION_INDICATOR, { optional: true });
 
   private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
     VAULT_CONTROLLED_ACCESS_FILTER,
