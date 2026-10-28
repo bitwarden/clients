@@ -1232,6 +1232,9 @@
   "restrictedItemChangeRefused": {
     "message": "This item is restricted. Your change was not saved."
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
   },
