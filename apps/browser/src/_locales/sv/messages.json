@@ -8616,5 +8616,35 @@
   },
   "resetToDefault": {
     "message": "Återställ till standard"
+  },
+  "noItemsInFolder": {
+    "message": "Det finns inga objekt i $FOLDER_NAME$."
+  },
+  "emptyFolderDescription": {
+    "message": "Lägg till objekt i den här mappen. Du kan sedan snabbt komma åt dem med valvfilter."
+  },
+  "deleteItemError": {
+    "message": "Det gick inte att ta bort objektet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Det här objektet är begränsat. Ändringen sparades inte."
+  },
+  "excludeFromList": {
+    "message": "Uteslut från listan"
+  },
+  "excludeFromListDesc": {
+    "message": "Att utesluta löser inte risken för ditt lösenord. Byt först lösenord för att skydda kontot."
+  },
+  "excludeAnyway": {
+    "message": "Uteslut ändå"
+  },
+  "viewSharedItem": {
+    "message": "Visa delat objekt"
+  },
+  "copyShareLink": {
+    "message": "Kopiera delningslänk"
+  },
+  "unableToDetermineItemId": {
+    "message": "Det gick inte att fastställa objekt-ID"
   }
 }

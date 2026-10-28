@@ -7356,5 +7356,143 @@
         "example": "4"
       }
     }
+  },
+  "foldersInParent": {
+    "message": "Mappar i $NAME$"
+  },
+  "folderCount": {
+    "message": "$COUNT$ mappar"
+  },
+  "folderSingular": {
+    "message": "$COUNT$ mapp"
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ kapslade mappar"
+  },
+  "nestedFolderSingular": {
+    "message": "1 kapslad mapp"
+  },
+  "deleteItemError": {
+    "message": "Det gick inte att ta bort objektet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Det här objektet är begränsat. Ändringen sparades inte."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Snabbt och säkert"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Processen är krypterad från början till slut. Ingen exportfil behövs."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Allt du behöver är dina inloggningsuppgifter"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "I nästa steg anger du inloggningsuppgifterna för $VENDOR$."
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Detta överförs"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Dina inloggningar, andra objekt och mappar överförs. Inloggningsnycklar och bilagor kan utelämnas."
+  },
+  "lastPassLoginEmailRequired": {
+    "message": "E-postadress krävs."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Ange en giltig e-postadress."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Lösenord krävs."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Ange ett giltigt lösenord"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Ange en giltig verifieringskod."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Ange ditt LastPass-huvudlösenord."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Ange verifieringskoden nedan."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Väntar på SSO-autentisering"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "När du har loggat in fortsätter vi importen automatiskt."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "E-postadress krävs."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Ange en giltig e-postadress."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Metoden för tvåfaktorsautentisering stöds inte. Byt metod eller importera manuellt."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Metod för enhetsgodkännande"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Ange en giltig verifieringskod."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Verifieringskoden har skickats igen"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push-avisering har skickats till den godkända enheten."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Godkänn enheten genom att välja en metod nedan."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Kontrollera din e-post och ange verifieringskoden nedan."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Ange koden från din autentiseringsapp."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Ange koden som skickats i ett sms."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Ange ditt Keeper-huvudlösenord."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA har skickats"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Godkänn Keeper DNA-aviseringen på din enhet."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Din begäran om godkännande avbryts. Vill du fortsätta?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Vi har skickat en begäran om administratörsgodkännande till din administratör."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Lösenord krävs."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Ange ett giltigt lösenord."
+  },
+  "noItemsInFolder": {
+    "message": "Det finns inga objekt i $FOLDER_NAME$."
+  },
+  "emptyFolderDescription": {
+    "message": "Lägg till objekt i den här mappen. Du kan sedan snabbt komma åt dem med valvfilter."
+  },
+  "viewSharedItem": {
+    "message": "Visa delat objekt"
+  },
+  "copyShareLink": {
+    "message": "Kopiera delningslänk"
+  },
+  "unableToDetermineItemId": {
+    "message": "Det gick inte att fastställa objekt-ID"
   }
 }

@@ -18752,5 +18752,794 @@
   },
   "resetToDefault": {
     "message": "Återställ till standard"
+  },
+  "foldersInParent": {
+    "message": "Mappar i $NAME$"
+  },
+  "folderCount": {
+    "message": "$COUNT$ mappar"
+  },
+  "folderSingular": {
+    "message": "$COUNT$ mapp"
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ kapslade mappar"
+  },
+  "nestedFolderSingular": {
+    "message": "1 kapslad mapp"
+  },
+  "deleteItemError": {
+    "message": "Det gick inte att ta bort objektet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Det här objektet är begränsat. Ändringen sparades inte."
+  },
+  "noItemsInFolder": {
+    "message": "Det finns inga objekt i $FOLDER_NAME$."
+  },
+  "emptyFolderDescription": {
+    "message": "Lägg till objekt i den här mappen. Du kan sedan snabbt komma åt dem med valvfilter."
+  },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Det gick inte att läsa in dina faktureringsuppgifter. Stäng dialogrutan och försök igen."
+  },
+  "pamTabMyRequests": {
+    "message": "Mina begäranden"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Sök autentiseringsuppgift, samling eller begärare"
+  },
+  "pamCollectionFilter": {
+    "message": "Samling"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Begäranden om utökning"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Aktiv åtkomst"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "Ingen aktiv åtkomst"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Det gick inte att läsa in dina begäranden"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Väntande"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "Inga väntande begäranden"
+  },
+  "pamColumnItem": {
+    "message": "Objekt"
+  },
+  "pamColumnWindow": {
+    "message": "Tidsfönster"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Begärt tidsfönster"
+  },
+  "pamColumnSubmitted": {
+    "message": "Skickad"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnActions": {
+    "message": "Åtgärder"
+  },
+  "pamWindowUntil": {
+    "message": "Till $DATE$"
+  },
+  "pamExtendedBadge": {
+    "message": "Förlängd +$DURATION$ · till $DATE$"
+  },
+  "pamActivateWithin": {
+    "message": "Aktivera inom $REMAINING$"
+  },
+  "pamResolverAccessRule": {
+    "message": "Åtkomstregel"
+  },
+  "pamResolverRequester": {
+    "message": "Begärare"
+  },
+  "pamResolverUnknown": {
+    "message": "Okänd användare"
+  },
+  "pamInboxInCollection": {
+    "message": "i $COLLECTION$"
+  },
+  "pamInboxReasonMissing": {
+    "message": "Ingen anledning angavs"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Åtkomst begärd"
+  },
+  "pamInboxRequester": {
+    "message": "Begärare"
+  },
+  "pamStartLeaseButton": {
+    "message": "Starta åtkomst"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Åtkomst har startats."
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "Begäran avbröts"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Det gick inte att avbryta begäran"
+  },
+  "pamEndLeaseButton": {
+    "message": "Avsluta åtkomst"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Avsluta åtkomst?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Detta återkallar omedelbart din åtkomst. Åtgärden kan inte ångras."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Åtkomsten har avslutats."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Förläng"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Förläng åtkomst"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Förlängningens längd"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Anledning"
+  },
+  "pamStatusApproved": {
+    "message": "Godkänd"
+  },
+  "pamStatusActivated": {
+    "message": "Aktiv"
+  },
+  "pamStatusDenied": {
+    "message": "Avslagen"
+  },
+  "pamStatusCanceled": {
+    "message": "Avbruten"
+  },
+  "pamStatusExpired": {
+    "message": "Utgången"
+  },
+  "pamStatusRevoked": {
+    "message": "Återkallad"
+  },
+  "pamStatusUnknown": {
+    "message": "Okänd"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privilegierad"
+  },
+  "pamAccessBadgePending": {
+    "message": "Väntar på godkännande"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Inte tillgänglig"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Klar att användas"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ kvar"
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Avslutas snart • $DURATION$ kvar"
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Sessionen har avslutats"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Information om begäran"
+  },
+  "pendingStateCancelRequest": {
+    "message": "Avbryt begäran"
+  },
+  "pamKeepRequest": {
+    "message": "Behåll begäran"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Avbryt åtkomstbegäran"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Det här återkallar din begäran innan någon har fattat beslut om den. Du kan lämna in en ny begäran när som helst."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Du avsäger dig den åtkomst som redan har godkänts. Du kan lämna in en ny begäran, men den måste godkännas på nytt."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Begäran avbröts"
+  },
+  "pendingStateCancelError": {
+    "message": "Det gick inte att avbryta begäran."
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Anledning till begäran"
+  },
+  "viewSharedItem": {
+    "message": "Visa delat objekt"
+  },
+  "copyShareLink": {
+    "message": "Kopiera delningslänk"
+  },
+  "unableToDetermineItemId": {
+    "message": "Det gick inte att fastställa objekt-ID"
+  },
+  "pamRotation": {
+    "message": "Rotering"
+  },
+  "pamRotationSubtitle": {
+    "message": "Lägg till hanterade inloggningsuppgifter och de målsystem där de används. Registrera sedan åtkomstanslutningar som körs i ditt nätverk och utför rotering. När de har konfigurerats kan inloggningsuppgifter roteras automatiskt i målsystemen."
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Hanterade inloggningsuppgifter"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Hanterade inloggningsuppgifter har lästs in"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Sidan har lästs in"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Lägg till hanterad inloggningsuppgift"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Redigera hanterad inloggningsuppgift"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Lägg till målsystem"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Rotationsschema"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Ingen"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Varje timme"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Var sjätte timme"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Dagligen"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Veckovis"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Månadsvis"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Anpassat"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Anpassat cron-uttryck"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Ange ett Quartz-cron-uttryck med sex fält, till exempel 0 0 */4 * * ?. Servern tillämpar ett minimiintervall på 15 minuter."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Ange ett giltigt Quartz-cron-uttryck med sex eller sju blankstegsseparerade fält."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Ingen schemalagd rotering. Inloggningsuppgiften roteras bara när du startar en, eller när åtkomsten avslutas om det alternativet är aktiverat."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Roteras en gång i timmen, på hel timme."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Roteras var sjätte timme, på hel timme."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Roteras en gång om dagen vid midnatt."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Roteras en gång i veckan, vid midnatt på söndagar."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Roteras en gång i månaden, vid midnatt den första."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Roteras varje dag kl. $TIME$."
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Roteras var $COUNT$:e dag kl. $TIME$."
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Roteras varje månad kl. $TIME$."
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Roteras var $COUNT$:e månad kl. $TIME$."
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Anpassat Quartz-schema: $CRON$"
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Scheman körs i UTC, inte i din lokala tidszon."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Intervall"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Upprepa var"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Enhet"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Dagar"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Månader"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Tid på dygnet (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Intervaller följer kalendern. Dagsintervall börjar om den första varje månad och månadsintervall körs den första och börjar om i januari."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Ange hur ofta roteringen upprepas och tid på dygnet."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Ange ett heltal."
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Typ"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "Inga målsystem ännu"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Tilldela åtkomstanslutningar"
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Åtkomstanslutningar kan bara tilldelas målsystem som är inställda på automatisk rotering."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Endast aktiva åtkomstanslutningar kan tilldelas det här målsystemet."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Det finns inga aktiva åtkomstanslutningar att tilldela. Registrera en på fliken Åtkomstanslutningar eller aktivera en befintlig."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatisk"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manuell"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Anpassat skript"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)"
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Den här principen är för svag. Öka längden eller inkludera fler teckentyper."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "Det gick inte att bekräfta att målsystemets teknik stämmer överens. Läs in sidan på nytt och försök igen."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Anslutning"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Tilldelade mål"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Ansluten"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Frånkopplad"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Målsystem kan bara tilldelas när åtkomstanslutningen är aktiv."
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Målsystem"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Tilldela målsystem"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Endast målsystem som är inställda på automatisk rotering kan tilldelas."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "Det finns inga automatiska målsystem att tilldela. Skapa ett på fliken Målsystem."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Gå till Målsystem"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Det gick inte att läsa in målsystemen. Uppdatera sidan och försök igen."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "Inga målsystem har tilldelats."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Ta bort $NAME$"
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Inaktivera"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Inaktivera åtkomstanslutning?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Inaktivera $NAME$? Den slutar ta emot nya rotationsjobb och alla jobb den kör just nu släpps. Du kan aktivera den igen senare."
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Ta bort åtkomstanslutning?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Att ta bort $NAME$ är permanent och ogiltigförklarar dess inloggningsuppgifter. Åtkomstanslutningen har haft organisationsnyckeln i minnet. Om du misstänker en kompromettering ska du rotera organisationsnyckeln som skyddsåtgärd. Pågående rotationsjobb släpps. Registrera en ny åtkomstanslutning för att återuppta roteringen."
+  },
+  "pamRotationConfigNew": {
+    "message": "Ny hanterad inloggningsuppgift"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Sök hanterade inloggningsuppgifter"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "Inga hanterade inloggningsuppgifter har konfigurerats"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Lägg till en hanterad inloggningsuppgift för att börja rotera den automatiskt."
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Det gick inte att läsa in"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Kontrollera anslutningen och försök igen. Uppdatera sidan om problemet kvarstår."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Konfigurera ett målsystem innan du kan rotera inloggningsuppgifter. Ett målsystem anger var en inloggningsuppgift används och hur Bitwarden roterar den."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Konfigurera ett målsystem"
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "Inga hanterade inloggningsuppgifter matchar dina filter."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Inloggningsuppgift"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Objekt"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Målsystem"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Schema"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Rotera när åtkomsten avslutas"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Senaste rotering"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Senast roterad"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Nästa rotering"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Pausad"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Roterar"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Dags för rotering"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Rotera nu"
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Det går inte att rotera nu. Målsystemet är inaktivt eller roteringen är pausad eller redan pågår."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Roteringen har skickats."
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Markera som roterad"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Det finns ännu inget att markera. Det här blir tillgängligt när nästa manuella rotering ska göras."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Markera som roterad"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "Det här registrerar att inloggningsuppgiften roterades utanför Bitwarden och återställer schemat. Granskningsloggen visar den manuella roteringen."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Registrera rotering"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Manuell rotering har registrerats."
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Redigera inloggningsuppgift"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Ta bort från rotering"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Pausa rotering"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Roteringen har pausats."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Återuppta rotering"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Roteringen har återupptagits."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Ta bort hanterad inloggningsuppgift"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "Det här tar bort rotationshanteringen för inloggningsuppgiften. Objektet finns kvar i ditt valv och rotationshistoriken finns kvar i granskningsloggen."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Det går inte att ta bort medan en rotering pågår. Det här försvinner när det aktuella jobbet är klart eller tidsgränsen går ut."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Hanterad inloggningsuppgift har tagits bort."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Aldrig"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "Inga roteringar har körts ännu."
+  },
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "Ett rotationsjobb pågår. Du kan ta bort inloggningsuppgiften från rotering när åtkomstanslutningen har slutfört det eller tidsgränsen går ut. En paus stoppar bara nya jobb och avbryter inte det som redan körs."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Information om inloggningsuppgiften"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Information"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Rotationsinställningar"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Konto"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Konfiguration"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "Historik"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Inloggningsuppgift"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Välj en inloggningsuppgift"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Välj objektet i valvet vars lösenord ska roteras."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Målsystem"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Välj ett målsystem"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Kontoidentitet"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "Kontot som ska roteras i målsystemet, till exempel en UPN, SQL-inloggning eller ett skriptargument. Skickas oförändrat till åtkomstanslutningen."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Avsluta aktiva sessioner efter rotering"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Kräver att målsystemet har stöd för att avsluta sessioner."
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "Det gick inte att verifiera om målsystemet har stöd för att avsluta sessioner."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Rotera när åtkomsten avslutas"
+  },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Rotera automatiskt inloggningsuppgiften när PAM-åtkomsten till den avslutas."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Hanterad inloggningsuppgift har skapats."
+  },
+  "pamRotationConfigSaved": {
+    "message": "Hanterad inloggningsuppgift har sparats."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Inställningarna är inte tillgängliga"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Ändringar kan inte sparas medan ett rotationsjobb pågår. Du kan spara igen när jobbet är klart eller tidsgränsen går ut."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Integritetskontrollen misslyckades"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "Det gick inte att verifiera den hanterade inloggningsuppgiftens inställningar. Spara för att åter säkra den."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "Målsystemet bekräftar inte stöd för att avsluta sessioner. Avmarkera alternativet för sessionsavslutning eller uppdatera målsystemet först."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "Det gick inte att verifiera det valda målsystemets inställningar. Åtgärda målsystemet innan du sparar."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "Det gick inte att bekräfta att den hanterade inloggningsuppgiftens objekt eller målsystem stämmer överens. Läs in sidan på nytt och försök igen."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "Inga rotationsjobb har registrerats ännu."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Källa"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Försök"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Schemalagd"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "På begäran"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Åtkomsten avslutades"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Väntande"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Hämtat"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Lyckades"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Misslyckades"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Tidsgränsen överskreds"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Körs"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Roterad"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Fel uppstod"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Avbruten"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "Pågår"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Startad"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Målet är oförändrat"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Målet har uppdaterats"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Kan inte fastställas"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Avslutning av sessioner har inte begärts"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Sessioner har avslutats"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Det gick inte att avsluta sessionerna"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "Åtkomstanslutningens konto får inte ändra lösenordet. Ge det behörighet att återställa målkontots lösenord och rotera sedan igen."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "Målsystemet avvisade åtkomstanslutningens inloggning. Kontrollera inloggningsuppgifterna som anslutningen använder för målsystemet och rotera sedan igen."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "Målsystemet avvisade det nya lösenordet. Kontrollera att den här inloggningsuppgiftens lösenordspolicy uppfyller målsystemets egna lösenordsregler och rotera sedan igen."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "Målsystemet hittade inte kontot som ska roteras. Kontrollera kontoidentiteten för den här hanterade inloggningsuppgiften och rotera sedan igen."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "Målsystemet avvisade ändringen. Det betyder ofta att det nya lösenordet bröt mot en lösenordsregel eller att anslutningen till målsystemet inte var krypterad."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "Åtkomstanslutningen kunde inte nå målsystemet. Kontrollera målsystemets adress och att anslutningen kan nå det via nätverket och rotera sedan igen."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Rapporterat av åtkomstanslutningen: $REASON$"
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Rotationsjobb, senaste först"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Varaktighet"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Försök"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Resultat"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Försök, äldsta först"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Alla försök slutade på samma sätt."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Rotationsjobb"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Varför det misslyckades"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$ s"
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$ min $SECONDS$ s"
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$ h $MINUTES$ min"
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "Det finns inga aktiva målsystem att välja bland."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Tilldelade åtkomstanslutningar"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "Inga åtkomstanslutningar är tilldelade det här målsystemet."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "Åtkomstanslutningarna för det här målsystemet kunde inte läsas in."
   }
 }
