@@ -73,6 +73,7 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  collectionMenuTargetForScope,
   folderNameForScope,
   hasMultipleVaults,
   organizationNameForScope,
@@ -171,8 +172,16 @@ function selectionScopeDetail(scope: VaultScope): string {
       useAngularDecorators: true,
     }),
     VaultBatchBarService,
-    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
-    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
+    safeProvider({
+      provide: ASSIGN_COLLECTIONS_DIALOG,
+      useClass: AssignCollectionsWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
     safeProvider({
       provide: COLLECTION_DIALOG,
       useClass: CollectionWebDialogAdapter,
@@ -415,15 +424,15 @@ export class VaultNextComponent implements OnInit {
       : undefined;
   });
 
-  protected readonly currentCollection = computed(() => {
-    const id = this.scopedCollectionId();
-    return id == null ? undefined : this.scopedCollections().find((c) => c.id === id);
-  });
+  private readonly collectionMenuTarget = computed(() =>
+    collectionMenuTargetForScope(this.vaultScope(), this.scopedCollections(), this.organizations()),
+  );
 
-  protected readonly currentOrganization = computed(() => {
-    const orgId = this.scopedOrganizationId();
-    return orgId == null ? undefined : this.organizations().find((o) => o.id === orgId);
-  });
+  protected readonly currentCollection = computed(() => this.collectionMenuTarget()?.collection);
+
+  protected readonly currentOrganization = computed(
+    () => this.collectionMenuTarget()?.organization,
+  );
 
   /**
    * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
