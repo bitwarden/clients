@@ -960,6 +960,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         return;
       }
       if (isInvoicePreviewExpiredError(error)) {
+        this.logService.error("Invoice preview expired:", error);
         this.previewExpired.set(true);
         return;
       }

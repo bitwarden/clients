@@ -953,6 +953,13 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       const cart = component["cart"]();
       expect(cart.passwordManager.seats.cost).not.toBe(26.67);
       expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 10 });
+
+      mockPremiumOrgUpgradeService.isUnverifiedBankAccount.mockReturnValue(false);
+      mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("new-org-id");
+      void component["submit"]();
+      tick();
+
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization.mock.lastCall[4]).toBeUndefined();
     }));
 
     it("should not call the preview endpoint when the flag is off", fakeAsync(() => {
@@ -1026,7 +1033,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
           fixture.nativeElement.querySelector("[data-testid='invoice-preview-expired']"),
         ).not.toBeNull();
         expect(mockToastService.showToast).not.toHaveBeenCalledWith(
-          expect.objectContaining({ message: "upgradeErrorMessage" }),
+          expect.objectContaining({ variant: "error" }),
         );
         expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
       }));
