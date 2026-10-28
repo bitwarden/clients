@@ -12617,29 +12617,32 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsPurchaseDesc": {
-    "message": "For security and IT teams to control who can access sensitive credentials, when, and for how long."
+    "message": "Credential leasing, automated rotation, and more inside the password manager your team already uses."
   },
   "privilegedControlsFeatureAccessRules": {
-    "message": "Access rules for sensitive collections"
-  },
-  "privilegedControlsFeatureJustInTime": {
-    "message": "Just-in-time, time-limited access"
+    "message": "Access rules you can apply to sensitive shared folders"
   },
   "privilegedControlsFeatureApprovals": {
-    "message": "Approval workflows for access requests"
+    "message": "Requests and approval workflows"
   },
   "privilegedControlsFeatureIpRestrictions": {
     "message": "IP address restrictions"
   },
+  "privilegedControlsFeatureRotation": {
+    "message": "Automated credential rotation"
+  },
   "privilegedControlsFeatureAuditLog": {
-    "message": "Audit logging for every request and decision"
+    "message": "Audit logs for every request and decision"
   },
   "addPrivilegedControls": {
     "message": "Add Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
-  "costPerSeat": {
-    "message": "$COST$ per seat",
+  "whatsIncluded": {
+    "message": "What's included"
+  },
+  "pricePerMember": {
+    "message": "$COST$ per member",
     "placeholders": {
       "cost": {
         "content": "$1",
@@ -13492,6 +13495,10 @@
   },
   "subscribeToSecretsManager": {
     "message": "Subscribe to Secrets Manager"
+  },
+  "addSecretsManager": {
+    "message": "Add Secrets Manager",
+    "description": "'Secrets Manager' is a product name and should not be translated."
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."

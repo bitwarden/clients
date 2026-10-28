@@ -10,17 +10,18 @@
     <h4 bitTypography="h4">{{ "privilegedControlsForEnterprise" | i18n }}</h4>
     <div class="tw-text-muted">
       {{ "privilegedControlsPurchaseDesc" | i18n }}
+      <p class="tw-mb-0 tw-mt-3 tw-font-semibold">{{ "whatsIncluded" | i18n }}</p>
       <ul>
         <li>{{ "privilegedControlsFeatureAccessRules" | i18n }}</li>
-        <li>{{ "privilegedControlsFeatureJustInTime" | i18n }}</li>
         <li>{{ "privilegedControlsFeatureApprovals" | i18n }}</li>
         <li>{{ "privilegedControlsFeatureIpRestrictions" | i18n }}</li>
+        <li>{{ "privilegedControlsFeatureRotation" | i18n }}</li>
         <li>{{ "privilegedControlsFeatureAuditLog" | i18n }}</li>
       </ul>
     </div>
 
     <div class="tw-mb-5">
-      {{ "costPerSeat" | i18n: (monthlyCostPerSeat() | currency: "$") }} /{{ "month" | i18n }}
+      {{ "pricePerMember" | i18n: (monthlyCostPerSeat() | currency: "$") }} /{{ "month" | i18n }}
     </div>
 
     <bit-form-control>
