@@ -5,7 +5,7 @@ import { combineLatest, filter, map, take } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { TabsModule, ToastService, TypographyModule } from "@bitwarden/components";
+import { TabsModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
@@ -22,7 +22,7 @@ import { MyAccessService } from "./my-access.service";
   selector: "pam-access-requests",
   templateUrl: "./access-requests.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterModule, HeaderModule, TabsModule, TypographyModule, I18nPipe],
+  imports: [RouterModule, HeaderModule, TabsModule, I18nPipe],
 })
 export class AccessRequestsComponent implements OnInit {
   private readonly myAccess = inject(MyAccessService);
