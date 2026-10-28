@@ -568,6 +568,34 @@ describe("VaultComponent", () => {
     });
   });
 
+  describe("narrowToControlledAccess", () => {
+    const ciphers = [{ id: "a" }, { id: "b" }];
+
+    function narrow(filter: RoutedVaultFilterModel): Promise<unknown> {
+      return firstValueFrom((component as any).narrowToControlledAccess(ciphers, filter));
+    }
+
+    it("passes the list through when no host fills the seam", async () => {
+      expect(await narrow({ controlledAccess: "privileged" })).toBe(ciphers);
+    });
+
+    it("hands the list to the host for the selected option", async () => {
+      const narrow$ = jest.fn().mockReturnValue(of([ciphers[0]]));
+      (component as any).controlledAccessFilter = { options$: of([]), narrow$ };
+
+      expect(await narrow({ controlledAccess: "privileged" })).toEqual([ciphers[0]]);
+      expect(narrow$).toHaveBeenCalledWith("privileged", ciphers);
+    });
+
+    it("passes the list through while no option is selected", async () => {
+      const narrow$ = jest.fn();
+      (component as any).controlledAccessFilter = { options$: of([]), narrow$ };
+
+      expect(await narrow({})).toBe(ciphers);
+      expect(narrow$).not.toHaveBeenCalled();
+    });
+  });
+
   describe("deleteCipher", () => {
     let toastSpy: jest.SpyInstance;
     let translateSpy: jest.SpyInstance;
