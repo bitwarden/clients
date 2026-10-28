@@ -509,7 +509,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       return this.fillCipherPolicy.nextCipherForUrl(tabUrl, activeUserId);
     }
     const isAutomatic = reason === FillReason.automatic;
-    const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
+    const lastLaunchedCipher = await this.fillCipherPolicy.lastLaunchedForUrl(
       tabUrl,
       activeUserId,
       isAutomatic,
@@ -522,8 +522,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     ) {
       return lastLaunchedCipher;
     }
-    const cipher = await this.cipherService.getLastUsedForUrl(tabUrl, activeUserId, isAutomatic);
-    return cipher ?? undefined;
+    return this.fillCipherPolicy.lastUsedForUrl(tabUrl, activeUserId, isAutomatic);
   }
 
   /** Selects the next card or identity cipher and the cache key its rotation index advances under. */

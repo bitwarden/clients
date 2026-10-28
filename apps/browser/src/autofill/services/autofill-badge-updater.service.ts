@@ -10,6 +10,8 @@ import { Tab } from "../../platform/badge/badge-browser-api";
 import { BadgeService } from "../../platform/badge/badge.service";
 import { BadgeStatePriority } from "../../platform/badge/priority";
 
+import { CipherUse, FillCipherPolicy } from "./abstractions/fill-cipher-policy";
+
 const StateName = "autofill-badge-updater";
 
 export class AutofillBadgeUpdaterService {
@@ -19,6 +21,7 @@ export class AutofillBadgeUpdaterService {
     private cipherService: CipherService,
     private badgeSettingsService: BadgeSettingsServiceAbstraction,
     private logService: LogService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   init() {
@@ -55,7 +58,9 @@ export class AutofillBadgeUpdaterService {
       return;
     }
 
-    const ciphers = tab.url ? await this.cipherService.getAllDecryptedForUrl(tab.url, userId) : [];
+    const ciphers = tab.url
+      ? await this.fillCipherPolicy.ciphersForUrl(tab.url, userId, CipherUse.Badge)
+      : [];
     const cipherCount = ciphers.length;
 
     if (cipherCount === 0) {
