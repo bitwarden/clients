@@ -31,7 +31,11 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { SendPolicyService } from "@bitwarden/send-ui";
+import {
+  SendPolicyService,
+  UnsavedEditsDialogComponent,
+  UnsavedEditsDialogResult,
+} from "@bitwarden/send-ui";
 import { CipherViewComponent } from "@bitwarden/vault";
 
 import { ItemSendDrawerComponent, ItemSendDrawerResult } from "./item-send-drawer.component";
@@ -116,7 +120,8 @@ describe("ItemSendDrawerComponent", () => {
 
     send = createItemSend("send-id", cipher, deletionDate);
 
-    dialogRef = mock<DialogRef<ItemSendDrawerResult>>();
+    // No close predicate of its own, as the drawer is opened; a bare mock would invent one.
+    dialogRef = mock<DialogRef<ItemSendDrawerResult>>({ closePredicate: null as any });
     dialogService = mock<DialogService>();
     sendApiService = mock<SendApiService>();
     platformUtilsService = mock<PlatformUtilsService>();
@@ -388,12 +393,79 @@ describe("ItemSendDrawerComponent", () => {
       expect(query("item-send-drawer_button_save")).not.toBeNull();
     });
 
-    it("returns to view mode without saving when cancelled", () => {
+    it("returns to view mode without saving or asking when cancelled with no changes", async () => {
       query("item-send-drawer_button_cancel").nativeElement.click();
+      await fixture.whenStable();
       fixture.detectChanges();
 
+      expect(dialogService.open).not.toHaveBeenCalled();
       expect(sendApiService.saveView).not.toHaveBeenCalled();
       expect(query("item-send-drawer_button_edit")).not.toBeNull();
+    });
+
+    describe("with unsaved edits", () => {
+      function chooseInDiscardPrompt(result: UnsavedEditsDialogResult["result"]) {
+        dialogService.open.mockReturnValue({ closed: of({ result }) } as any);
+      }
+
+      beforeEach(() => {
+        component.form.controls.oneTimeShare.setValue(true);
+      });
+
+      it("asks before discarding them when cancelled, and keeps editing if the user says so", async () => {
+        chooseInDiscardPrompt(UnsavedEditsDialogResult.Back);
+
+        query("item-send-drawer_button_cancel").nativeElement.click();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(dialogService.open).toHaveBeenCalledWith(UnsavedEditsDialogComponent);
+        expect(query("item-send-drawer_button_save")).not.toBeNull();
+        expect(component.form.controls.oneTimeShare.value).toBe(true);
+      });
+
+      it("returns to view mode without saving when the user discards them", async () => {
+        chooseInDiscardPrompt(UnsavedEditsDialogResult.Discard);
+
+        query("item-send-drawer_button_cancel").nativeElement.click();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(sendApiService.saveView).not.toHaveBeenCalled();
+        expect(query("item-send-drawer_button_edit")).not.toBeNull();
+      });
+
+      it("does not ask once a change is undone", async () => {
+        component.form.controls.oneTimeShare.setValue(false);
+
+        query("item-send-drawer_button_cancel").nativeElement.click();
+        await fixture.whenStable();
+
+        expect(dialogService.open).not.toHaveBeenCalled();
+      });
+
+      it("asks before the drawer closes, and stays open if the user keeps editing", async () => {
+        chooseInDiscardPrompt(UnsavedEditsDialogResult.Back);
+
+        await expect(dialogRef.closePredicate!(undefined)).resolves.toBe(false);
+        expect(dialogService.open).toHaveBeenCalledWith(UnsavedEditsDialogComponent);
+      });
+
+      it("lets the drawer close when the user discards them", async () => {
+        chooseInDiscardPrompt(UnsavedEditsDialogResult.Discard);
+
+        await expect(dialogRef.closePredicate!(undefined)).resolves.toBe(true);
+      });
+
+      it("does not ask when the drawer closes because the Send was deleted", async () => {
+        await expect(dialogRef.closePredicate!(ItemSendDrawerResult.Deleted)).resolves.toBe(true);
+        expect(dialogService.open).not.toHaveBeenCalled();
+      });
+    });
+
+    it("lets the drawer close without asking when nothing changed", async () => {
+      await expect(dialogRef.closePredicate!(undefined)).resolves.toBe(true);
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 
@@ -470,6 +542,7 @@ describe("ItemSendDrawerComponent", () => {
 
     it("edits a link from the list", async () => {
       query("item-send-drawer_button_edit-link-other-id").nativeElement.click();
+      await fixture.whenStable();
       fixture.detectChanges();
 
       expect(query("item-send-drawer_button_save")).not.toBeNull();
@@ -482,6 +555,22 @@ describe("ItemSendDrawerComponent", () => {
         expect.objectContaining({ id: "other-id" }),
         null,
       );
+    });
+
+    it("asks before switching to another link with unsaved edits, and stays put if the user keeps editing", async () => {
+      query("item-send-drawer_button_edit").nativeElement.click();
+      fixture.detectChanges();
+      component.form.controls.oneTimeShare.setValue(true);
+      dialogService.open.mockReturnValue({
+        closed: of({ result: UnsavedEditsDialogResult.Back }),
+      } as any);
+
+      query("item-send-drawer_button_edit-link-other-id").nativeElement.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledWith(UnsavedEditsDialogComponent);
+      expect(component.form.controls.oneTimeShare.value).toBe(true);
+      expect(component.form.getRawValue().deletionDate).toBe(deletionDate.toString());
     });
 
     it("deletes another link without closing the drawer", async () => {

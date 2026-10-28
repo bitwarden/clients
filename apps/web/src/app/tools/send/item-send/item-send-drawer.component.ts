@@ -2,7 +2,7 @@ import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, firstValueFrom, map, merge, of, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, map, merge, of, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -45,7 +45,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { SendPolicyService } from "@bitwarden/send-ui";
+import {
+  SendPolicyService,
+  UnsavedEditsDialogComponent,
+  UnsavedEditsDialogResult,
+} from "@bitwarden/send-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import { CipherViewComponent, VaultViewPasswordHistoryService } from "@bitwarden/vault";
 
@@ -130,6 +134,8 @@ export class ItemSendDrawerComponent {
 
   /** Whether the advanced options are being edited. */
   protected readonly editing = signal(false);
+  /** The form's values when editing started, to tell whether the user has changed anything. */
+  private readonly valuesWhenEditingStarted = signal<string | undefined>(undefined);
 
   protected readonly cipherTypeIcon = computed<BitwardenIcon>(() => {
     switch (this.cipher()?.type) {
@@ -243,6 +249,13 @@ export class ItemSendDrawerComponent {
         }
       });
 
+    // Like the regular Send drawer, closing with unsaved edits asks before discarding them. A
+    // result means the drawer is closing because the Send was deleted, so there is nothing to keep.
+    const closePredicate = this.dialogRef.closePredicate;
+    this.dialogRef.closePredicate = async (result) =>
+      (closePredicate ? await closePredicate(result) : true) &&
+      (result != null || (await this.confirmDiscardEdits()));
+
     // Clear the "expires after deletion date" error once either date changes
     merge(this.form.controls.expiry.valueChanges, this.form.controls.deletionDate.valueChanges)
       .pipe(takeUntilDestroyed())
@@ -306,7 +319,10 @@ export class ItemSendDrawerComponent {
   }
 
   /** Switches the drawer to another link for the same item and starts editing it. */
-  protected editLink(link: SendView) {
+  protected async editLink(link: SendView) {
+    if (!(await this.confirmDiscardEdits())) {
+      return;
+    }
     this.send.set(link);
     this.edit();
   }
@@ -321,11 +337,32 @@ export class ItemSendDrawerComponent {
     this.form.controls.deletionDate.setValue(send.deletionDate.toString());
     this.form.controls.oneTimeShare.setValue(this.isOneTimeShare());
     this.form.controls.expiry.setErrors(null);
+    this.valuesWhenEditingStarted.set(JSON.stringify(this.form.getRawValue()));
     this.editing.set(true);
   }
 
-  protected cancelEdit() {
+  protected async cancelEdit() {
+    if (!(await this.confirmDiscardEdits())) {
+      return;
+    }
     this.editing.set(false);
+  }
+
+  /**
+   * Asks the user to confirm discarding unsaved edits, as the regular Send drawer does. Resolves
+   * `true` when there is nothing to lose or the user chooses to discard.
+   */
+  private async confirmDiscardEdits(): Promise<boolean> {
+    const hasUnsavedEdits =
+      this.editing() && JSON.stringify(this.form.getRawValue()) !== this.valuesWhenEditingStarted();
+    if (!hasUnsavedEdits) {
+      return true;
+    }
+    const dialogRef = this.dialogService.open<UnsavedEditsDialogResult>(
+      UnsavedEditsDialogComponent,
+    );
+    const choice = await lastValueFrom(dialogRef.closed);
+    return choice?.result === UnsavedEditsDialogResult.Discard;
   }
 
   protected readonly save = async () => {
