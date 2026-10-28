@@ -220,7 +220,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
     if (information.subscribeToPrivilegedControls) {
       request.usePrivilegedControls = true;
-      request.pamSeatMinimum = information.pamSeatMinimum;
+      request.pamSeats = information.pamSeats;
     }
 
     if (information.storage) {

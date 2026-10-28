@@ -354,7 +354,7 @@ describe("OrganizationBillingService", () => {
             type: PlanType.EnterpriseAnnually,
             passwordManagerSeats: 1,
             subscribeToPrivilegedControls: true,
-            pamSeatMinimum: 6,
+            pamSeats: 6,
           },
           payment: {
             paymentMethod: ["test-token", PaymentMethodType.Card],
@@ -365,7 +365,7 @@ describe("OrganizationBillingService", () => {
         await sut.purchaseSubscription(subscription, mockUserId);
 
         expect(organizationApiService.create).toHaveBeenCalledWith(
-          expect.objectContaining({ usePrivilegedControls: true, pamSeatMinimum: 6 }),
+          expect.objectContaining({ usePrivilegedControls: true, pamSeats: 6 }),
         );
       });
 

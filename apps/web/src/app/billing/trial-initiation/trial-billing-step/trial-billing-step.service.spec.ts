@@ -261,7 +261,7 @@ describe("TrialBillingStepService", () => {
           plan: expect.objectContaining({
             passwordManagerSeats: 1,
             subscribeToPrivilegedControls: true,
-            pamSeatMinimum: 1,
+            pamSeats: 1,
           }),
         }),
         "user-id",

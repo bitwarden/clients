@@ -426,7 +426,7 @@ describe("CompleteTrialInitiationComponent", () => {
         expect.objectContaining({
           passwordManagerSeats: 1,
           subscribeToPrivilegedControls: true,
-          pamSeatMinimum: 1,
+          pamSeats: 1,
         }),
       );
     });

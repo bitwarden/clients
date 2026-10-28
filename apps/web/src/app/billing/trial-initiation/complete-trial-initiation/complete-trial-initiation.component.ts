@@ -229,8 +229,7 @@ export class CompleteTrialInitiationComponent {
       plan = {
         ...plan,
         subscribeToPrivilegedControls: true,
-        // PAM seats at a minimum of 1, matching PM, so PM seats are never fewer than PAM seats.
-        pamSeatMinimum: 1,
+        pamSeats: 1,
       };
     }
 

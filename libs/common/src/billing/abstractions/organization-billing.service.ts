@@ -18,7 +18,7 @@ export type PlanInformation = {
   secretsManagerSeats?: number;
   secretsManagerServiceAccounts?: number;
   subscribeToPrivilegedControls?: boolean;
-  pamSeatMinimum?: number;
+  pamSeats?: number;
   storage?: number;
 };
 

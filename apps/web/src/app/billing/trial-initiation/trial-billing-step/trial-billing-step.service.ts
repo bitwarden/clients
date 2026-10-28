@@ -259,8 +259,7 @@ export class TrialBillingStepService {
         ? {
             ...basePlan,
             subscribeToPrivilegedControls: true,
-            // PAM seats at a minimum of 1, matching PM, so PM seats are never fewer than PAM seats.
-            pamSeatMinimum: 1,
+            pamSeats: 1,
           }
         : basePlan,
       payment: {
