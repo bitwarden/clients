@@ -46,7 +46,6 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
-import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -62,8 +61,9 @@ import {
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { CipherUse } from "../services/abstractions/fill-cipher-policy";
+import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../services/inline-menu-field-qualification.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -114,6 +114,7 @@ describe("OverlayBackground", () => {
   let domainSettingsService: DomainSettingsService;
   let logService: MockProxy<LogService>;
   let cipherService: MockProxy<CipherService>;
+  let fillCipherPolicy: DefaultFillCipherPolicy;
   let autofillService: MockProxy<AutofillService>;
   let configService: MockProxy<ConfigService>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
@@ -264,6 +265,8 @@ describe("OverlayBackground", () => {
     // The overlay routes fills through the orchestrator; default to a filled-without-TOTP outcome so
     // handlers that destructure the result do not choke on the mock's undefined default.
     autofillOrchestrator.fillCipher.mockResolvedValue({ outcome: AutofillOutcome.Filled });
+    fillCipherPolicy = new DefaultFillCipherPolicy(cipherService);
+    jest.spyOn(fillCipherPolicy, "ciphersForUrl");
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -287,7 +290,7 @@ describe("OverlayBackground", () => {
       intraprocessMessageSender,
       // Wired as `MainBackground` wires it, so ingest tagging is exercised rather than faked.
       new MessageListener(intraprocessMessageSender.messages$({ external$: externalMessages })),
-      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
+      fillCipherPolicy,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -1144,11 +1147,12 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ]);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+        url,
+        mockUserId,
+        CipherUse.UserFill,
+        { includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey] },
+      );
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1168,7 +1172,11 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, undefined);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+        url,
+        mockUserId,
+        CipherUse.UserFill,
+      );
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -1187,11 +1195,12 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ]);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
+        url,
+        mockUserId,
+        CipherUse.UserFill,
+        { includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey] },
+      );
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
