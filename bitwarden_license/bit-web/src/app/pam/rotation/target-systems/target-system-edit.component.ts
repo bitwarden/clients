@@ -803,7 +803,7 @@ export class TargetSystemEditComponent implements HasUnsavedChangesDialog {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          this.returnsToCredential ? "pamTargetSystemAdded" : "pamTargetSystemCreated",
+          this.returnsToCredential ? "pamTargetSystemAddedSuccess" : "pamTargetSystemCreated",
         ),
       });
       await this.navigateAfterCreate(created);
