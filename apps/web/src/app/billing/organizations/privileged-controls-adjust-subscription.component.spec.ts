@@ -233,17 +233,39 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
       expect(formGroup().controls.maxAutoscaleSeats.hasError("min")).toBe(true);
     });
 
-    it("forces the seat limit on when Password Manager has a limit", async () => {
+    it("leaves the seat limit off when Password Manager has a limit but Privileged Controls does not", async () => {
       await render(
         buildOptions({ maxAutoscaleSeats: undefined, passwordManagerMaxAutoscaleSeats: 30 }),
       );
 
-      expect(formGroup().getRawValue().limitSeats).toBe(true);
-      expect(formGroup().controls.limitSeats.disabled).toBe(true);
-      expect(formGroup().controls.maxAutoscaleSeats.enabled).toBe(true);
-      expect(formGroup().controls.maxAutoscaleSeats.hasError("required")).toBe(true);
-      expect(component["unchanged"]()).toBe(false);
+      expect(formGroup().getRawValue().limitSeats).toBe(false);
+      expect(formGroup().controls.limitSeats.enabled).toBe(true);
+      expect(formGroup().controls.maxAutoscaleSeats.disabled).toBe(true);
+      expect(formGroup().valid).toBe(true);
+      expect(component["unchanged"]()).toBe(true);
+    });
+
+    it("shows the Password Manager limit as the maximum hint once the limit is turned on", async () => {
+      await render(
+        buildOptions({ maxAutoscaleSeats: undefined, passwordManagerMaxAutoscaleSeats: 30 }),
+      );
+      expect(text()).not.toContain("maximumSeatsCount:30");
+
+      setValue({ limitSeats: true });
+
       expect(text()).toContain("maximumSeatsCount:30");
+    });
+
+    it("submits a null seat limit when Password Manager has a limit and the checkbox is unchecked", async () => {
+      await render(buildOptions({ maxAutoscaleSeats: 25, passwordManagerMaxAutoscaleSeats: 30 }));
+      setValue({ limitSeats: false });
+
+      await submitForm();
+
+      expect(organizationBillingClient.updatePrivilegedControlsSubscription).toHaveBeenCalledWith(
+        organizationId,
+        { seatAdjustment: 0, maxAutoscaleSeats: null },
+      );
     });
 
     it("rejects a seat limit above the Password Manager limit", async () => {

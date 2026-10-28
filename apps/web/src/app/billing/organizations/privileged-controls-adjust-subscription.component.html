@@ -42,7 +42,7 @@
         [max]="options().passwordManagerMaxAutoscaleSeats ?? null"
       />
       <bit-hint>
-        @if (limitRequired()) {
+        @if (options().passwordManagerMaxAutoscaleSeats != null) {
           <div>{{ "maximumSeatsCount" | i18n: options().passwordManagerMaxAutoscaleSeats }}</div>
         }
         <strong>{{ "maxSeatCost" | i18n }}:</strong>
