@@ -27,7 +27,7 @@
   }
 
   @if (formatChoiceActive()) {
-    <bit-form-field class="tw-mt-4 tw-max-w-sm">
+    <bit-form-field class="tw-mt-4 tw-max-w-[400px]">
       <bit-label>{{ "importVendorFileType" | i18n: vendorName() }}</bit-label>
       <bit-select formControlName="formatChoice" id="importer-controls_select_format-choice">
         @for (item of formatChoiceItems(); track item.id) {
@@ -38,7 +38,7 @@
   }
 
   @if (needsKdbxCredentials()) {
-    <bit-form-field class="tw-max-w-sm">
+    <bit-form-field class="tw-max-w-[400px]">
       <bit-label>{{ "keePassMasterPasswordV2" | i18n: vendorName() }}</bit-label>
       <input
         bitInput
@@ -71,7 +71,7 @@
   @if (method() === "file") {
     <!-- Replacing the upload control with no filename/re-pick affordance is confirmed-intentional, matches Figma. -->
     @if (needsFilePassword()) {
-      <bit-form-field class="tw-max-w-sm">
+      <bit-form-field class="tw-max-w-[400px]">
         <bit-label>{{ "filePassword" | i18n }}</bit-label>
         <input
           bitInput
