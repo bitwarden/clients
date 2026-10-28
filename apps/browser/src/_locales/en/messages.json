@@ -8628,8 +8628,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Switch between vaults"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
   },
   "coachmarkFiltersTitle": {
     "message": "Mix and match filters"
