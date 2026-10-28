@@ -308,6 +308,25 @@ describe("CollectAutofillContentService", () => {
       expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalled();
     });
 
+    it("waits for the cached field visibility recheck before returning page details", async () => {
+      document.body.innerHTML = `<form><input id="password" type="password" /></form>`;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as ElementWithOpId<FormFieldElement>;
+      const autofillField = createAutofillFieldMock({ opid: "__0", viewable: false });
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [passwordInput, autofillField],
+      ]);
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve(true), 0)));
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields[0].viewable).toBe(true);
+    });
+
     it("returns an object containing information about the current page as well as autofill data for the forms and fields of the page", async () => {
       const documentTitle = "Test Page";
       const formId = "validFormId";
@@ -1509,10 +1528,30 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["getAutofillFieldMaxLength"]).not.toHaveBeenCalled();
       expect(
         collectAutofillContentService["domElementVisibilityService"].isElementViewable,
-      ).not.toHaveBeenCalled();
+      ).toHaveBeenCalledWith(usernameInput);
       expect(collectAutofillContentService["getPropertyOrAttribute"]).not.toHaveBeenCalled();
       expect(collectAutofillContentService["getElementValue"]).not.toHaveBeenCalled();
       expect(autofillFieldItem).toEqual(existingFieldData);
+    });
+
+    it("rechecks the visibility of an existing autofill field item", async () => {
+      document.body.innerHTML = `<form><input id="password" type="password" /></form>`;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as ElementWithOpId<FillableFormFieldElement>;
+      const existingFieldData = createAutofillFieldMock({ viewable: false });
+      collectAutofillContentService["autofillFieldElements"].set(passwordInput, existingFieldData);
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockResolvedValue(true);
+
+      const autofillFieldItem = await collectAutofillContentService["buildAutofillFieldItem"](
+        passwordInput,
+        0,
+      );
+
+      expect(autofillFieldItem).toBe(existingFieldData);
+      expect(autofillFieldItem?.viewable).toBe(true);
     });
 
     it("returns the AutofillField base data values without the field labels or input values if the passed element is a span element", async () => {

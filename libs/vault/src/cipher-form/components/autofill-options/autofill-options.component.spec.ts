@@ -19,6 +19,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AutofillOptionsComponent } from "./autofill-options.component";
 
@@ -40,6 +41,7 @@ describe("AutofillOptionsComponent", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let configService: MockProxy<ConfigService>;
+  let httpAuthenticationService: MockProxy<CipherFormHTTPAuthenticationService>;
   let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
   let gaFeatureFlagSubject: BehaviorSubject<boolean>;
   const getInitialCipherView = jest.fn((): any => null);
@@ -61,6 +63,9 @@ describe("AutofillOptionsComponent", () => {
     autofillSettingsService.autofillOnPageLoadDefault$ = new BehaviorSubject(false);
     autofillSettingsService.autofillOnPageLoad$ = new BehaviorSubject(true);
 
+    httpAuthenticationService = mock<CipherFormHTTPAuthenticationService>();
+    httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(true);
+
     await TestBed.configureTestingModule({
       imports: [AutofillOptionsComponent],
       providers: [
@@ -75,6 +80,7 @@ describe("AutofillOptionsComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ConfigService, useValue: configService },
         { provide: SdkService, useValue: { client$: NEVER } },
+        { provide: CipherFormHTTPAuthenticationService, useValue: httpAuthenticationService },
       ],
     }).compileComponents();
 
@@ -297,6 +303,60 @@ describe("AutofillOptionsComponent", () => {
     expect(enable).toHaveBeenCalledWith({ emitEvent: false });
   });
 
+  describe("HTTP authentication", () => {
+    it("shares the URI match strategies when initialized from an existing cipher", () => {
+      getInitialCipherView.mockReturnValueOnce({
+        login: Object.assign(new LoginView(), {
+          uris: [
+            Object.assign(new LoginUriView(), {
+              uri: "https://example.com",
+              match: UriMatchStrategy.Host,
+            }),
+            Object.assign(new LoginUriView(), { uri: "https://example.org", match: null }),
+          ],
+        }),
+      });
+
+      fixture.detectChanges();
+
+      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+        UriMatchStrategy.Host,
+        null,
+      ]);
+    });
+
+    it("shares the URI match strategies when the URIs change", () => {
+      fixture.detectChanges();
+
+      component.autofillOptionsForm.controls.uris.at(0).setValue({
+        uri: "https://example.com",
+        matchDetection: UriMatchStrategy.Exact,
+      });
+
+      expect(httpAuthenticationService.updateUriMatchStrategies).toHaveBeenLastCalledWith([
+        UriMatchStrategy.Exact,
+      ]);
+    });
+
+    it("adds a URI requested by the user when the default match strategy is confirmed", async () => {
+      fixture.detectChanges();
+
+      await component.addUriFromUser({ uri: null, matchDetection: null });
+
+      expect(httpAuthenticationService.confirmDefaultMatchStrategy).toHaveBeenCalled();
+      expect(component.autofillOptionsForm.value.uris.length).toEqual(2);
+    });
+
+    it("does not add a URI requested by the user when the default match strategy is declined", async () => {
+      httpAuthenticationService.confirmDefaultMatchStrategy.mockResolvedValue(false);
+      fixture.detectChanges();
+
+      await component.addUriFromUser({ uri: null, matchDetection: null });
+
+      expect(component.autofillOptionsForm.value.uris.length).toEqual(1);
+    });
+  });
+
   // Autotype App Tests
   describe("showAddAppDropdown", () => {
     it("is false when device type is not Windows Desktop", () => {
@@ -418,7 +478,7 @@ describe("AutofillOptionsComponent", () => {
       expect(appBtn).toBeTruthy();
     });
 
-    it("clicking 'App' menu item calls addUri with the desktopapp:// prefix", () => {
+    it("clicking 'App' menu item calls addUri with the desktopapp:// prefix", async () => {
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
         flag === FeatureFlag.WindowsDesktopAutotypeGA
@@ -448,6 +508,7 @@ describe("AutofillOptionsComponent", () => {
       const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "app");
       expect(appBtn).toBeTruthy();
       appBtn.click();
+      await localFixture.whenStable();
 
       expect(localComponent.addUri).toHaveBeenCalledWith(
         { uri: DESKTOP_APP_URI_PREFIX, matchDetection: null },

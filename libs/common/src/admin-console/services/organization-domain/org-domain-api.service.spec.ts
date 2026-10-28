@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { lastValueFrom } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { ListResponse } from "../../../models/response/list.response";
@@ -49,23 +49,6 @@ const mockedGetAllByOrgIdResponse: any = {
       verifiedDate: null,
       lastCheckedDate: "2022-12-16T21:50:51.0933333Z",
       object: "organizationDomain",
-    },
-  ],
-  continuationToken: null as any,
-  object: "list",
-};
-
-const mockedGetAllMiniByOrgIdResponse: any = {
-  data: [
-    {
-      domainName: "test.com",
-      verifiedDate: null as any,
-      object: "organizationDomainMini",
-    },
-    {
-      domainName: "test2.com",
-      verifiedDate: "2022-12-17T09:37:10.9566667Z",
-      object: "organizationDomainMini",
     },
   ],
   continuationToken: null as any,
@@ -142,29 +125,6 @@ describe("Org Domain API Service", () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         expect(lastValueFrom(orgDomainService.orgDomains$)).resolves.toHaveLength(3);
       });
-  });
-
-  it("getAllMiniByOrgId retrieves slim org domains and leaves orgDomainSvc state untouched", async () => {
-    apiService.send.mockResolvedValue(mockedGetAllMiniByOrgIdResponse);
-
-    const orgDomainSvcReplaceSpy = jest.spyOn(orgDomainService, "replace");
-
-    const orgDomains = await orgDomainApiService.getAllMiniByOrgId("fakeOrgId");
-
-    expect(apiService.send).toHaveBeenCalledWith(
-      "GET",
-      "/organizations/fakeOrgId/domain/mini",
-      null,
-      true,
-      true,
-    );
-    expect(orgDomains.map((orgDomain) => orgDomain.domainName)).toEqual(["test.com", "test2.com"]);
-    expect(orgDomains[0].verifiedDate).toBeNull();
-    expect(orgDomains[1].verifiedDate).toBe("2022-12-17T09:37:10.9566667Z");
-
-    // The slim responses must not overwrite the full domains the domain verification page reads.
-    expect(orgDomainSvcReplaceSpy).not.toHaveBeenCalled();
-    await expect(firstValueFrom(orgDomainService.orgDomains$)).resolves.toHaveLength(0);
   });
 
   it("getByOrgIdAndOrgDomainId retrieves single org domain and calls orgDomainSvc upsert", () => {

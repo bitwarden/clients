@@ -5,8 +5,6 @@ import { KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { assertNonNullish } from "../../../auth/utils";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
@@ -25,7 +23,6 @@ export class MinimumKdfMigration implements EncryptedMigration {
     private readonly kdfConfigService: KdfConfigService,
     private readonly sdkService: SdkService,
     private readonly logService: LogService,
-    private readonly configService: ConfigService,
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly syncService: SyncService,
   ) {}
@@ -53,10 +50,6 @@ export class MinimumKdfMigration implements EncryptedMigration {
     }
 
     if (!(await this.localStateNeedsMigration(userId))) {
-      return "noMigrationNeeded";
-    }
-
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.ForceUpdateKDFSettings))) {
       return "noMigrationNeeded";
     }
 

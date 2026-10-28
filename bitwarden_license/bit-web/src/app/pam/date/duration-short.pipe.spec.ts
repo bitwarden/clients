@@ -10,8 +10,7 @@ describe("DurationShortPipe", () => {
     pipe = TestBed.runInInjectionContext(() => new DurationShortPipe());
   });
 
-  // Assert against Intl.NumberFormat's own output (see relative-time.pipe.spec.ts for the
-  // same approach) so this doesn't hardcode ICU's exact narrow-style wording.
+  // Asserts against Intl.NumberFormat's own output, so this doesn't hardcode ICU's narrow wording.
   const narrow = (value: number, unit: "day" | "hour" | "minute" | "second") =>
     new Intl.NumberFormat("en-US", { style: "unit", unit, unitDisplay: "narrow" }).format(value);
 

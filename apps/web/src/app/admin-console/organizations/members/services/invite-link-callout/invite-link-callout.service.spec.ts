@@ -18,8 +18,8 @@ import {
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 
 import { MemberDialogResult } from "../../components/member-dialog/member-dialog.types";
@@ -77,6 +77,8 @@ describe("InviteLinkCalloutService", () => {
     dialogService = mock<DialogService>();
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
+    router.navigateByUrl.mockResolvedValue(true);
+    (router as { url: string }).url = "/organizations/org-1/vault";
 
     TestBed.configureTestingModule({
       providers: [
@@ -167,7 +169,7 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() returns early without opening a dialog when the org already has an invite link configured", async () => {
     const organization = createOrganization();
     organizationInviteLinkService.inviteLink$.mockReturnValue(
-      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+      of(Object.assign(new OrganizationInviteLinkView({} as any), { id: "link-1" })),
     );
 
     await service.showIfEligible(organization);
@@ -178,7 +180,7 @@ describe("InviteLinkCalloutService", () => {
   it("showIfEligible() dismisses the callout for good when the org already has an invite link configured", async () => {
     const organization = createOrganization();
     organizationInviteLinkService.inviteLink$.mockReturnValue(
-      of(Object.assign(new OrganizationInviteLink({} as any), { id: "link-1" })),
+      of(Object.assign(new OrganizationInviteLinkView({} as any), { id: "link-1" })),
     );
 
     await service.showIfEligible(organization);
@@ -207,5 +209,15 @@ describe("InviteLinkCalloutService", () => {
       [],
       true,
     );
+  });
+
+  it("showIfEligible() returns the admin to the page they started on once the tour dialog closes", async () => {
+    const organization = createOrganization();
+    stubDialogClosed("showMeHow");
+    (router as { url: string }).url = "/organizations/org-1/vault";
+
+    await service.showIfEligible(organization);
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith("/organizations/org-1/vault");
   });
 });

@@ -165,6 +165,8 @@ export class OrganizationVaultExportService
                 exportPromises.push(
                   this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
                     if (
+                      // Gated ("partial") rows have no sensitive fields to export.
+                      !decCipher.partial &&
                       !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
                     ) {
                       decCiphers.push(decCipher);
@@ -215,7 +217,11 @@ export class OrganizationVaultExportService
         .filter((c) => c.deletedDate === null)
         .forEach((c) => {
           const cipher = new Cipher(new CipherData(c));
-          if (!this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
+          if (
+            // Gated ("partial") rows have no sensitive fields; they would export as blanks.
+            !cipher.isPartial &&
+            !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)
+          ) {
             ciphers.push(cipher);
           }
         });
@@ -294,6 +300,8 @@ export class OrganizationVaultExportService
 
     encCiphers = allCiphers.filter(
       (f) =>
+        // Gated ("partial") rows have no sensitive fields; they would export as blanks.
+        !f.isPartial &&
         f.deletedDate == null &&
         f.organizationId == organizationId &&
         encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&

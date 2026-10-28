@@ -22,6 +22,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use desktop_core::ipc::announcement::ClientAnnouncement;
 use futures::FutureExt;
 #[cfg(feature = "napi")]
 use napi_derive::napi;
@@ -57,6 +58,10 @@ static INIT: Once = Once::new();
 pub enum BitwardenError {
     Internal(String),
     Disconnected,
+    /// The vault holds a credential the relying party asked to exclude.
+    ExcludedCredentialMatched,
+    /// The vault holds none of the credentials the request asked for.
+    CredentialNotFound,
 }
 
 impl Display for BitwardenError {
@@ -65,6 +70,15 @@ impl Display for BitwardenError {
             Self::Internal(msg) => write!(f, "Internal error occurred: {msg}"),
             Self::Disconnected => {
                 write!(f, "Client is disconnected from autofill IPC service")
+            }
+            Self::ExcludedCredentialMatched => {
+                write!(
+                    f,
+                    "The vault holds a credential the relying party asked to exclude"
+                )
+            }
+            Self::CredentialNotFound => {
+                write!(f, "The vault holds none of the requested credentials")
             }
         }
     }
@@ -304,15 +318,17 @@ impl AutofillProviderClient {
                 .expect("Can't create runtime");
 
             rt.spawn(
-                desktop_core::ipc::client::connect(path.clone(), from_server_send, to_server_recv)
-                    .map(move |r| {
-                        if let Err(err) = r {
-                            tracing::error!(
-                                ?path,
-                                "Failed to connect to autofill IPC server: {err}"
-                            );
-                        }
-                    }),
+                desktop_core::ipc::client::connect(
+                    path.clone(),
+                    ClientAnnouncement::new_autofill(),
+                    from_server_send,
+                    to_server_recv,
+                )
+                .map(move |r| {
+                    if let Err(err) = r {
+                        tracing::error!(?path, "Failed to connect to autofill IPC server: {err}");
+                    }
+                }),
             );
 
             rt.block_on(async move {

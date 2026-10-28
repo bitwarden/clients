@@ -120,6 +120,16 @@ describe("WebProviderService", () => {
         sut.addOrganizationToProvider(providerId, organizationId, activeUserId),
       ).rejects.toThrow("Provider key not found");
     });
+
+    it("throws and does not call the API if the encrypted organization key is missing", async () => {
+      encryptService.wrapSymmetricKey.mockResolvedValue({} as EncString);
+
+      await expect(
+        sut.addOrganizationToProvider(providerId, organizationId, activeUserId),
+      ).rejects.toThrow("Encrypted organization key is null or undefined.");
+      expect(providerApiService.addOrganizationToProvider).not.toHaveBeenCalled();
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+    });
   });
 
   describe("createClientOrganization", () => {
@@ -235,5 +245,33 @@ describe("WebProviderService", () => {
         sut.createClientOrganization(providerId, name, ownerEmail, planType, seats, activeUserId),
       ).rejects.toThrow("Provider key not found");
     });
+
+    it.each([
+      {
+        missing: "Encrypted provider key",
+        arrange: () => encryptService.wrapSymmetricKey.mockResolvedValue({} as EncString),
+      },
+      {
+        missing: "Encrypted private key",
+        arrange: () =>
+          legacyCompatKeyService.makeKeyPair.mockResolvedValue([publicKey, {} as EncString]),
+      },
+      {
+        missing: "Encrypted collection name",
+        arrange: () => encryptService.encryptString.mockResolvedValue({} as EncString),
+      },
+    ])(
+      "throws and does not call the API if the $missing is missing",
+      async ({ missing, arrange }) => {
+        arrange();
+
+        await expect(
+          sut.createClientOrganization(providerId, name, ownerEmail, planType, seats, activeUserId),
+        ).rejects.toThrow(`${missing} is null or undefined.`);
+        expect(providerApiService.createProviderOrganization).not.toHaveBeenCalled();
+        expect(apiService.refreshIdentityToken).not.toHaveBeenCalled();
+        expect(syncService.fullSync).not.toHaveBeenCalled();
+      },
+    );
   });
 });

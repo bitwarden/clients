@@ -27,23 +27,12 @@ import { ProviderSubscriptionStatusComponent } from "../../billing/providers/sub
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
 import { EventsComponent } from "../../dirt/provider-events/events.component";
 
-import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
-import { CreateClientDialogComponent } from "./clients/create-client-dialog.component";
-import { ManageClientNameDialogComponent } from "./clients/manage-client-name-dialog.component";
-import { ManageClientSubscriptionDialogComponent } from "./clients/manage-client-subscription-dialog.component";
-import { AcceptProviderComponent } from "./manage/accept-provider.component";
-import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
-import { MembersComponent } from "./manage/members.component";
 import { ProviderActionsService } from "./manage/services/provider-actions/provider-actions.service";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { WebProviderService } from "./services/web-provider.service";
-import { AccountComponent } from "./settings/account.component";
-import { SetupProviderComponent } from "./setup/setup-provider.component";
-import { SetupComponent } from "./setup/setup.component";
-import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-provider.component";
 
 @NgModule({
   imports: [
@@ -67,23 +56,12 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     BulkRemoveDialogComponent,
   ],
   declarations: [
-    AcceptProviderComponent,
-    AccountComponent,
     EventsComponent,
-    MembersComponent,
-    SetupComponent,
-    SetupProviderComponent,
-    AddEditMemberDialogComponent,
-    AddExistingOrganizationDialogComponent,
-    CreateClientDialogComponent,
     InvoicesComponent,
-    ManageClientNameDialogComponent,
-    ManageClientSubscriptionDialogComponent,
     NoInvoicesComponent,
     ProviderBillingHistoryComponent,
     ProviderSubscriptionComponent,
     ProviderSubscriptionStatusComponent,
-    VerifyRecoverDeleteProviderComponent,
     SetupBusinessUnitComponent,
   ],
   providers: [WebProviderService, ProviderActionsService],

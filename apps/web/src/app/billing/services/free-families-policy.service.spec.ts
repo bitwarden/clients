@@ -6,7 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -17,21 +17,22 @@ describe("FreeFamiliesPolicyService", () => {
   let service: FreeFamiliesPolicyService;
   let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
-  let configService: MockProxy<ConfigService>;
+  let govModeService: MockProxy<GovModeService>;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
     policyService = mock<PolicyService>();
-    configService = mock<ConfigService>();
+    govModeService = mock<GovModeService>();
+    govModeService.isGovMode$.mockReturnValue(of(false));
     accountService = mockAccountServiceWith(userId);
 
     service = new FreeFamiliesPolicyService(
       policyService,
       organizationService,
       accountService,
-      configService,
+      govModeService,
     );
   });
 
@@ -162,6 +163,44 @@ describe("FreeFamiliesPolicyService", () => {
 
       // Test the method
       const result = await firstValueFrom(service.showSponsoredFamiliesDropdown$(of(organization)));
+      expect(result).toBe(false);
+    });
+
+    it("should return false in gov mode", async () => {
+      policyService.policiesByType$.mockReturnValue(of([]));
+      govModeService.isGovMode$.mockReturnValue(of(true));
+
+      const organization = {
+        id: "org-id",
+        productTierType: ProductTierType.Enterprise,
+        useAdminSponsoredFamilies: true,
+        isAdmin: true,
+        isOwner: false,
+        canManageUsers: false,
+      } as Organization;
+
+      const result = await firstValueFrom(service.showSponsoredFamiliesDropdown$(of(organization)));
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("showFreeFamilies$", () => {
+    beforeEach(() => {
+      policyService.policiesByType$.mockReturnValue(of([]));
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: "org-id", canManageSponsorships: true } as Organization]),
+      );
+    });
+
+    it("should return true when the user can manage sponsorships outside gov mode", async () => {
+      const result = await firstValueFrom(service.showFreeFamilies$);
+      expect(result).toBe(true);
+    });
+
+    it("should return false in gov mode", async () => {
+      govModeService.isGovMode$.mockReturnValue(of(true));
+
+      const result = await firstValueFrom(service.showFreeFamilies$);
       expect(result).toBe(false);
     });
   });

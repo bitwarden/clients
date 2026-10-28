@@ -1,6 +1,8 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { CommonModule } from "@angular/common";
 import { Component, inject, signal, WritableSignal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl } from "@angular/forms";
+import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
@@ -25,8 +27,27 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AvatarModule,
+  BadgeModule,
+  BerryComponent,
+  ButtonModule,
+  CalloutModule,
+  CheckboxModule,
+  DialogRef,
+  DialogService,
+  IconButtonModule,
+  IconModule,
+  LinkModule,
+  MenuModule,
+  ScrollLayoutDirective,
+  SearchModule,
+  TableModule,
+  ToastService,
+  ToggleGroupModule,
+} from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CloudBulkReinviteLimit,
   MaxCheckedCount,
@@ -39,6 +60,7 @@ import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/orga
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.types";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
   AddEditMemberDialogComponent,
@@ -57,7 +79,29 @@ interface BulkProviderFlags {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "members.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ScrollingModule,
+    HeaderModule,
+    SearchModule,
+    ToggleGroupModule,
+    BerryComponent,
+    CalloutModule,
+    ScrollLayoutDirective,
+    TableModule,
+    CheckboxModule,
+    MenuModule,
+    IconButtonModule,
+    IconModule,
+    AvatarModule,
+    LinkModule,
+    BadgeModule,
+    ButtonModule,
+    I18nPipe,
+    UserNamePipe,
+  ],
 })
 export class MembersComponent {
   protected apiService = inject(ApiService);

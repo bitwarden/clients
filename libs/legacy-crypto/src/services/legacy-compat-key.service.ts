@@ -2,6 +2,8 @@ import * as bigInt from "big-integer";
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+// Type-only: master-password.types imports KdfConfig from this package, so a value import would be circular.
+import type { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -9,7 +11,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
 // Type-only: @bitwarden/key-management re-exports this package, so a value import would be circular.
 import type { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
+import { LogService, measured, PerfTrackGroup } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
@@ -22,6 +24,9 @@ import { KdfConfig } from "../models/kdf-config";
 import { SymmetricCryptoKey } from "../models/symmetric-crypto-key";
 import { CsprngArray } from "../types/csprng";
 
+const PERF_TRACK_GROUP = PerfTrackGroup.Crypto;
+const PERF_TRACK = "Legacy Crypto";
+
 export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbstraction {
   constructor(
     private keyGenerationService: KeyGenerationService,
@@ -33,6 +38,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     private keyService: KeyService,
   ) {}
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeUserKey(masterKey: MasterKey): Promise<[UserKey, EncString]> {
     if (!masterKey) {
       throw new Error("MasterKey is required");
@@ -46,6 +52,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
   /**
    * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async deriveMasterKeyForUser(password: string, userId: UserId): Promise<MasterKey> {
     if (userId == null) {
       throw new Error("User ID is required.");
@@ -63,23 +70,31 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
       throw new Error("No kdf found for user " + userId);
     }
 
-    return await this.makeMasterKey(password, email, kdf);
+    // This path derives the salt from the account's email. makeMasterKey normalizes it.
+    return await this.makeMasterKey(password, email as MasterPasswordSalt, kdf);
   }
 
   /**
-   * Derive a master key from a password and email.
+   * Derive a master key from a password and salt.
    *
    * @deprecated Please use `makeMasterPasswordAuthenticationData`, `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` in @link MasterPasswordService instead.
    *
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
    */
-  async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
+  async makeMasterKey(
+    password: string,
+    salt: MasterPasswordSalt,
+    kdfConfig: KdfConfig,
+  ): Promise<MasterKey> {
     const start = new Date().getTime();
-    email = email.trim().toLowerCase();
+    // Callers can reach MasterPasswordSalt by type assertion, so normalization is not guaranteed
+    // upstream. Normalize here to match MasterPasswordService.
+    salt = salt.trim().toLowerCase() as MasterPasswordSalt;
     const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
-      email,
+      salt,
       kdfConfig,
     )) as MasterKey;
     const end = new Date().getTime();
@@ -91,6 +106,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
   /**
    * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey: UserKey,
@@ -108,6 +124,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
   /**
    * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
    */
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async hashMasterKey(password: string, key: MasterKey): Promise<string> {
     if (password == null) {
       throw new Error("password is required.");
@@ -127,6 +144,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     return Utils.fromBufferToB64(hash);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeDataEncKey<T extends OrgKey | UserKey>(
     key: T,
   ): Promise<[SymmetricCryptoKey, EncString]> {
@@ -141,6 +159,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     return [cek, wrappedCek];
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]> {
     if (userId == null) {
       throw new Error("UserId is required");
@@ -157,6 +176,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     return [encShareKey, shareKey as T];
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]> {
     if (publicKey == null) {
       throw new Error("Public key is required to generate a fingerprint.");
@@ -172,6 +192,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     return this.hashPhrase(userFingerprint);
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeKeyPair(key: SymmetricCryptoKey): Promise<[string, EncString]> {
     if (key == null) {
       throw new Error("'key' is a required parameter and must be non-null.");
@@ -183,6 +204,7 @@ export class DefaultLegacyCompatKeyService implements LegacyCompatKeyServiceAbst
     return [publicB64, privateEnc];
   }
 
+  @measured(PERF_TRACK_GROUP, PERF_TRACK)
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
     return await this.keyGenerationService.deriveKeyFromMaterial(
       keyMaterial,

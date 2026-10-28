@@ -10,6 +10,7 @@ import {
   AutofillIpcChannelIncoming,
   AutofillIpcChannelOutgoing,
   AutofillIpcDefinitionMap,
+  AutofillIpcErrorKind,
   AutofillIpcRequest,
   AutofillIpcResponse,
 } from "../models/autofill-ipc-channels";
@@ -102,28 +103,32 @@ export class DesktopAutofillMain {
       AutofillIpcChannelControl.GetAppWindowHandle,
       (): Uint8Array | null => this.windowMain.win?.getNativeWindowHandle() ?? null,
     );
+
+    ipcMain.handle(
+      AutofillIpcChannelControl.GetPasskeyProviderState,
+      (): Promise<passkey_authenticator.PasskeyProviderState> => passkey_authenticator.getState(),
+    );
   }
 
   /**
-   * Registers the native OS credential provider and starts the autofill IPC server. Idempotent:
-   * subsequent calls are ignored while already enabled.
+   * Registers the native OS credential provider and starts the autofill IPC server. Registration
+   * is re-submitted on every call, but the IPC server is only started once.
    *
-   * @returns whether native autofill is running after this call.
+   * @returns whether registration succeeded and native autofill is running after this call.
    */
   private async enable(): Promise<boolean> {
-    if (this.enabled) {
-      this.logService.info("Native autofill is already enabled, ignoring enable request");
-      return true;
-    }
-
-    if (process.platform === "win32") {
-      try {
-        passkey_authenticator.register();
-      } catch (err) {
-        this.logService.error("Failed to register windows passkey plugin:", err);
-        this.enabled = false;
+    try {
+      passkey_authenticator.register();
+    } catch (err) {
+      // The passkey plugin is not supported, so there is nothing to register.
+      if (!(err instanceof Error && err.message === passkey_authenticator.NOT_SUPPORTED)) {
+        this.logService.error("Failed to register passkey plugin:", err);
         return false;
       }
+    }
+
+    if (this.enabled) {
+      return true;
     }
 
     ipcMain.handle(
@@ -187,8 +192,14 @@ export class DesktopAutofillMain {
 
     ipcMain.on(AutofillIpcChannelOutgoing.Error, (_event, data) => {
       this.logService.debug("[DesktopAutofillMain]", AutofillIpcChannelOutgoing.Error, data);
-      const { clientId, sequenceNumber, error } = data;
-      this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+      const { clientId, sequenceNumber, error, kind } = data;
+      if (kind === AutofillIpcErrorKind.ExcludedCredentialMatched) {
+        this.ipcServer?.completeExcludedCredentialMatched(clientId, sequenceNumber);
+      } else if (kind === AutofillIpcErrorKind.CredentialNotFound) {
+        this.ipcServer?.completeCredentialNotFound(clientId, sequenceNumber);
+      } else {
+        this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+      }
     });
 
     this.enabled = true;

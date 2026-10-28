@@ -1,4 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -8,6 +12,7 @@ import {
   KitchenSinkDialogComponent,
   KitchenSinkDialogWithAutofocusComponent,
 } from "./kitchen-sink-main.component";
+import { KitchenSinkTableV2Component } from "./kitchen-sink-table-v2.component";
 import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
 import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
@@ -18,13 +23,18 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   imports: [
     KitchenSinkSharedModule,
     KitchenSinkTableComponent,
+    KitchenSinkTableV2Component,
     KitchenSinkToggleListComponent,
     KitchenSinkFormComponent,
   ],
   template: `
     <bit-section>
       <h2 bitTypography="h2" class="tw-mb-6">Table Example</h2>
-      <bit-kitchen-sink-table></bit-kitchen-sink-table>
+      @if (vfo1Enabled()) {
+        <bit-kitchen-sink-table-v2></bit-kitchen-sink-table-v2>
+      } @else {
+        <bit-kitchen-sink-table></bit-kitchen-sink-table>
+      }
 
       <button
         type="button"
@@ -97,6 +107,13 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 export class KitchenSinkVaultComponent {
   protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);

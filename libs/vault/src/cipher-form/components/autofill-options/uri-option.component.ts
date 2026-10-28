@@ -6,6 +6,7 @@ import {
   ElementRef,
   EventEmitter,
   forwardRef,
+  inject,
   Input,
   input,
   Output,
@@ -22,7 +23,7 @@ import {
   ValidationErrors,
   Validator,
 } from "@angular/forms";
-import { catchError, concatMap, EMPTY, map, pairwise, take } from "rxjs";
+import { catchError, concatMap, EMPTY, map, ObservableInput, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -46,6 +47,7 @@ import {
 } from "@bitwarden/components";
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
@@ -203,6 +205,11 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
 
   protected showMatchDetection = false;
 
+  /** The most recent match strategy, used to restore it when a change is declined or cancelled */
+  private lastMatchDetection: UriMatchStrategySetting = null;
+
+  private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
+
   protected toggleMatchDetection() {
     this.showMatchDetection = !this.showMatchDetection;
     if (this.showMatchDetection) {
@@ -278,33 +285,72 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
 
     this.uriForm.controls.matchDetection.valueChanges
       .pipe(
-        pairwise(),
-        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        concatMap((current) => this.handleMatchDetectionChange(current)),
         takeUntilDestroyed(),
       )
       .subscribe();
   }
 
-  private async handleAdvancedMatch(
-    previous: UriMatchStrategySetting,
-    current: UriMatchStrategySetting,
-  ) {
-    const valueChange = previous !== current;
+  /**
+   * Compares a user-selected match strategy against the last known strategy, which `writeValue` and silent
+   * restores also keep current, and runs the confirmation for the newly selected strategy.
+   */
+  private handleMatchDetectionChange(current: UriMatchStrategySetting): ObservableInput<void> {
+    const previous = this.lastMatchDetection;
+    this.lastMatchDetection = current;
+
+    if (previous === current) {
+      return EMPTY;
+    }
+
+    if (current == null) {
+      return this.handleDefaultMatch(previous);
+    }
+
+    this.handleAdvancedMatch(previous, current);
+
+    return EMPTY;
+  }
+
+  /**
+   * HTTP authentication can't be used while a URI uses the default match strategy. Switching to the default
+   * strategy while HTTP authentication is on asks the user to confirm turning HTTP authentication off; declining
+   * restores the previous strategy.
+   */
+  private async handleDefaultMatch(previous: UriMatchStrategySetting) {
+    if (await this.httpAuthenticationService.confirmDefaultMatchStrategy()) {
+      return;
+    }
+
+    this.restoreMatchDetection(previous);
+  }
+
+  private handleAdvancedMatch(previous: UriMatchStrategySetting, current: UriMatchStrategySetting) {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
 
-    if (!valueChange || !isAdvanced) {
+    if (!isAdvanced) {
       return;
     }
+
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
       contentKey: this.advancedOptionWarningMap[current],
-      onContinue: () => {
-        this.uriForm.controls.matchDetection.setValue(current);
-      },
+      // The control already holds the selected advanced strategy
+      onContinue: () => {},
       onCancel: () => {
-        this.uriForm.controls.matchDetection.setValue(previous);
+        this.restoreMatchDetection(previous);
       },
     });
+  }
+
+  /**
+   * Sets the match strategy without emitting a change, so restoring a declined strategy does not re-run the
+   * default or advanced option confirmations, then notifies the parent form of the restored value.
+   */
+  private restoreMatchDetection(value: UriMatchStrategySetting) {
+    this.uriForm.controls.matchDetection.setValue(value, { emitEvent: false });
+    this.lastMatchDetection = value;
+    this.onChange(this.uriForm.value);
   }
 
   focusInput() {
@@ -330,6 +376,7 @@ export class UriOptionComponent implements ControlValueAccessor, Validator {
       );
       // `setValue` validates `uri` before `matchDetection` changes.
       this.revalidateUri();
+      this.lastMatchDetection = value.matchDetection ?? null;
     }
   }
 

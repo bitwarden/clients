@@ -8,7 +8,7 @@ const baseMeta = policyDrawerMeta(new FillAssistPolicy());
 
 export default {
   ...baseMeta,
-  title: "Admin Console/Organizations/Policies/Activate fill assist",
+  title: "Admin Console/Organizations/Policies/Enable fill assist",
   args: { ...baseMeta.args, isCloud: true },
   argTypes: { ...baseMeta.argTypes, isCloud: { control: "boolean" } },
 } satisfies Meta<PolicyDialogStoryArgs>;

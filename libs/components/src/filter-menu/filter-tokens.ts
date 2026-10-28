@@ -35,8 +35,8 @@ export interface FilterHost {
   registerFilter(control: FilterControl): void;
   unregisterFilter(control: FilterControl): void;
   /**
-   * How many rows match if the chip's `key` is pinned to `value`, ignoring every other
-   * filter. `undefined` when the host can't count, so the chip falls back to an
+   * How many rows match if the chip's `key` is pinned to `value`, with every other active
+   * filter applied. `undefined` when the host can't count, so the chip falls back to an
    * option's explicit `count`.
    */
   optionCount?(key: string, value: unknown): number | undefined;
@@ -110,6 +110,11 @@ export interface FilterPresenter {
 
 /** Provided by a filter chip / toggle; injected by the responsive filter dialog. */
 export const FILTER_PRESENTER = new InjectionToken<FilterPresenter>("FilterPresenter");
+
+/** Options selected in a filter; a toggle has no labels, so its active state counts as one. */
+export function selectionCount(filter: FilterPresenter): number {
+  return Math.max(filter.selections().length, filter.active() ? 1 : 0);
+}
 
 /** A top-level entry projected into a `bit-filter-menu` — an option, a section, or a divider. */
 export interface FilterEntry {

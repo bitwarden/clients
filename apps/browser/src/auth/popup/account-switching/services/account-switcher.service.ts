@@ -59,6 +59,8 @@ export class AccountSwitcherService {
     private configService: ConfigService,
     authService: AuthService,
   ) {
+    // TODO: PM-44635 - Build from AccountSwitcherService.entries$ in @bitwarden/common/auth/account-switcher,
+    // which also owns the account limit.
     this.availableAccounts$ = combineLatest([
       accountService.accounts$,
       authService.authStatuses$,

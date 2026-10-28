@@ -162,7 +162,7 @@ Paljudes Keeltes
 Bitwardenit on tõlgitud juba 60 erinevasse keelde ja see arv kasvab, tänu meie globaalsele kogukonnale Crowdin platvormil.
 
 Kõigis Sinu Seadmetes
-Kaitse ja jaga oma tundliku informatsiooni Bitwardeni Hoidlas nii brauserist, telefonist, arvutist kui ka mujaltki.
+Kaitse ja jaga oma tundliku informatsiooni Bitwardeni Hoidlas nii veebilehitsejast, telefonist, arvutist kui ka mujaltki.
 
 Bitwarden hoiustab peale paroolide veel muudki
 Täielikult krüpteeritud andmehalduse lahendused Bitwardenilt võimendavad organisatsioone ja hoiustavad kõike, kaasa arvatud arendajate saladusi ja pääsuvõtmeid. Külasta veebilehte bitwarden.com, et uurida lähemalt Bitwarden Secrets Manageri kohta ja vaata lähemalt passwordless.dev!
@@ -181,7 +181,7 @@ Täielikult krüpteeritud andmehalduse lahendused Bitwardenilt võimendavad orga
     <value>Täida külastatavatel veebilehtedel oma kasutajakonto andmeid automaatselt ja lihtsalt</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Pääsed paroolihaldurile hõlpsasti ligi ka parema kliki menüüst</value>
+    <value>Pääsed paroolihaldurile hõlpsasti ligi ka parema-klõpsu menüüst</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>Loo automaatselt tugevaid, erinevaid ja turvalisi paroole</value>

@@ -24,6 +24,13 @@ describe("filePickerPopoutGuard", () => {
     url: "/add-send?type=1",
   } as RouterStateSnapshot;
 
+  // The Send popout is tagged so the created-Send view can tell a popout the extension opened for
+  // the user apart from one the user popped out themselves. Every other route stays untagged.
+  const fileSendPopoutOptions = {
+    singleActionKey: "send_AddFileSend",
+    forceCloseExistingWindows: true,
+  };
+
   beforeEach(() => {
     getDeviceSpy = jest.spyOn(BrowserPlatformUtilsService, "getDevice");
     inPopoutSpy = jest.spyOn(BrowserPopupUtils, "inPopout");
@@ -59,7 +66,10 @@ describe("filePickerPopoutGuard", () => {
       expect(getDeviceSpy).toHaveBeenCalledWith(window);
       expect(inPopoutSpy).toHaveBeenCalledWith(window);
       expect(inSidebarSpy).toHaveBeenCalledWith(window);
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -100,7 +110,10 @@ describe("filePickerPopoutGuard", () => {
 
       expect(getDeviceSpy).toHaveBeenCalledWith(window);
       expect(inPopoutSpy).toHaveBeenCalledWith(window);
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -124,7 +137,10 @@ describe("filePickerPopoutGuard", () => {
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
       // Safari requires popout, sidebar is not sufficient
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -157,7 +173,10 @@ describe("filePickerPopoutGuard", () => {
         const guard = filePickerPopoutGuard();
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#/add-send?type=1",
+          fileSendPopoutOptions,
+        );
         expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
@@ -215,7 +234,10 @@ describe("filePickerPopoutGuard", () => {
         const guard = filePickerPopoutGuard();
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#/add-send?type=1",
+          fileSendPopoutOptions,
+        );
         expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
@@ -279,7 +301,7 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import", {});
       expect(closePopupSpy).toHaveBeenCalledWith(window);
       expect(result).toBe(false);
     });
@@ -332,7 +354,10 @@ describe("filePickerPopoutGuard", () => {
         const guard = filePickerPopoutGuard();
         const result = await TestBed.runInInjectionContext(() => guard(mockRoute, importState));
 
-        expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#" + route);
+        expect(openPopoutSpy).toHaveBeenCalledWith(
+          "popup/index.html#" + route,
+          route === "/add-send" ? fileSendPopoutOptions : {},
+        );
         expect(closePopupSpy).toHaveBeenCalledWith(window);
         expect(result).toBe(false);
       },
@@ -354,7 +379,7 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       await TestBed.runInInjectionContext(() => guard(mockRoute, stateWithQuery));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import?foo=bar&baz=qux");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/import?foo=bar&baz=qux", {});
       expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
 
@@ -366,7 +391,7 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       await TestBed.runInInjectionContext(() => guard(mockRoute, stateWithoutQuery));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/simple-path");
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/simple-path", {});
       expect(closePopupSpy).toHaveBeenCalledWith(window);
     });
 
@@ -374,7 +399,10 @@ describe("filePickerPopoutGuard", () => {
       const guard = filePickerPopoutGuard();
       await TestBed.runInInjectionContext(() => guard(mockRoute, mockState));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=1");
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/add-send?type=1",
+        fileSendPopoutOptions,
+      );
       expect(openPopoutSpy).not.toHaveBeenCalledWith(expect.stringContaining("autoClosePopout"));
     });
   });
@@ -508,6 +536,7 @@ describe("filePickerPopoutGuard", () => {
           } else {
             expect(openPopoutSpy).toHaveBeenCalledWith(
               "popup/index.html#/add-send?type=1&isNew=true",
+              fileSendPopoutOptions,
             );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);
@@ -611,7 +640,10 @@ describe("filePickerPopoutGuard", () => {
             expect(closePopupSpy).not.toHaveBeenCalled();
             expect(result).toBe(true);
           } else {
-            expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send");
+            expect(openPopoutSpy).toHaveBeenCalledWith(
+              "popup/index.html#/add-send",
+              fileSendPopoutOptions,
+            );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);
           }
@@ -714,7 +746,10 @@ describe("filePickerPopoutGuard", () => {
             expect(closePopupSpy).not.toHaveBeenCalled();
             expect(result).toBe(true);
           } else {
-            expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/add-send?type=invalid");
+            expect(openPopoutSpy).toHaveBeenCalledWith(
+              "popup/index.html#/add-send?type=invalid",
+              fileSendPopoutOptions,
+            );
             expect(closePopupSpy).toHaveBeenCalledWith(window);
             expect(result).toBe(false);
           }
@@ -742,7 +777,7 @@ describe("filePickerPopoutGuard", () => {
           const guard = filePickerPopoutGuard();
           const result = await TestBed.runInInjectionContext(() => guard(mockRoute, routeState));
 
-          expect(openPopoutSpy).toHaveBeenCalledWith(`popup/index.html#${route}?type=0`);
+          expect(openPopoutSpy).toHaveBeenCalledWith(`popup/index.html#${route}?type=0`, {});
           expect(closePopupSpy).toHaveBeenCalledWith(window);
           expect(result).toBe(false);
         },

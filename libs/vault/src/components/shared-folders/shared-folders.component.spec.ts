@@ -1,8 +1,13 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { PortalModule } from "@angular/cdk/portal";
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
+import { mockAccountServiceWith } from "@bitwarden/common/../spec/fake-account-service";
+import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -15,17 +20,21 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BitTablePaginatorComponent,
   BitTableV2Component,
   DialogService,
   FilterControl,
+  FilterToggleComponent,
+  LayoutFooterService,
   MenuTriggerForDirective,
+  ToastService,
 } from "@bitwarden/components";
 
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
 import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
@@ -140,8 +149,20 @@ type SetupOptions = {
   };
 };
 
+/** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
+@Component({
+  selector: "test-footer-outlet",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class FooterOutletComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
+
 describe("SharedFoldersComponent", () => {
   let fixture: ComponentFixture<SharedFoldersComponent>;
+  let footerFixture: ComponentFixture<FooterOutletComponent>;
   let component: SharedFoldersComponent;
   let collections$: BehaviorSubject<CollectionView[]>;
   let ciphers$: BehaviorSubject<CipherView[] | null>;
@@ -149,6 +170,23 @@ describe("SharedFoldersComponent", () => {
   let collectionDialog: MockProxy<CollectionDialogRef>;
   let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let bulkEditAccessDialog: MockProxy<BulkEditCollectionAccessDialogRef>;
+  let pinnedSharedFolders: PinnedSharedFoldersService;
+  let toastService: MockProxy<ToastService>;
+
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
 
   async function setup(options: SetupOptions = {}): Promise<void> {
     const {
@@ -171,14 +209,26 @@ describe("SharedFoldersComponent", () => {
     collectionDialog = mock<CollectionDialogRef>();
     bulkDeleteDialog = mock<BulkDeleteDialogRef>();
     bulkEditAccessDialog = mock<BulkEditCollectionAccessDialogRef>();
+    toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
       imports: [SharedFoldersComponent],
       providers: [
         provideRouter([]),
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          // The pipe passes its unused placeholders as empty strings; only real arguments are shown.
+          useValue: {
+            t: (key: string, ...args: string[]) => [key, ...args.filter(Boolean)].join(":"),
+          },
+        },
         { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: StateProvider,
+          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
+        },
         {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ vaultId })) },
@@ -205,8 +255,18 @@ describe("SharedFoldersComponent", () => {
       ],
     }).compileComponents();
 
+    footerFixture = TestBed.createComponent(FooterOutletComponent);
     fixture = TestBed.createComponent(SharedFoldersComponent);
     component = fixture.componentInstance;
+    pinnedSharedFolders = TestBed.inject(PinnedSharedFoldersService);
+  }
+
+  /** The bulk actions bar, as rendered into the layout's footer region. */
+  function bulkBar(): HTMLElement | null {
+    // Runs the `afterNextRender` that hands the bar to the footer, then renders the footer.
+    TestBed.tick();
+    footerFixture.detectChanges();
+    return footerFixture.nativeElement.querySelector("bit-bulk-actions-bar");
   }
 
   afterEach(() => {
@@ -287,6 +347,32 @@ describe("SharedFoldersComponent", () => {
           .filtered()
           .map((r) => r.id),
       ).toEqual(["mine"]);
+    });
+
+    it("lists only top-level folders, with a nested folder count beneath each that has any", async () => {
+      await setup({
+        collections: [
+          collection({ id: "eng", name: "Engineering" }),
+          collection({ id: "backend", name: "Engineering/Backend" }),
+          collection({ id: "frontend", name: "Engineering/Frontend" }),
+          collection({ id: "finance", name: "Finance" }),
+          collection({ id: "payroll", name: "Finance/Payroll" }),
+          collection({ id: "sales", name: "Sales" }),
+        ],
+      });
+      fixture.detectChanges();
+
+      expect(
+        bitTable()
+          .filtered()
+          .map((r) => r.id),
+      ).toEqual(["eng", "finance", "sales"]);
+
+      const subtitles = Array.from(
+        fixture.nativeElement.querySelectorAll("bit-cell [slot=secondary]") as NodeListOf<Element>,
+        (element) => element.textContent?.trim(),
+      );
+      expect(subtitles).toEqual(["nestedSharedFolderCount:2", "nestedSharedFolderSingular"]);
     });
 
     it("lists nothing for a vaultId that names no organization", async () => {
@@ -588,6 +674,250 @@ describe("SharedFoldersComponent", () => {
     });
   });
 
+  describe("the Pinned toggle", () => {
+    const PINNED_USER = "user-1" as UserId;
+
+    async function setupPinnable(): Promise<void> {
+      await setup({
+        collections: [
+          collectionWith(SharedFolderPermission.Manage, { id: "a", name: "Engineering" }),
+          collectionWith(SharedFolderPermission.View, { id: "b", name: "Finance" }),
+          collectionWith(SharedFolderPermission.Manage, { id: "c", name: "Finance archive" }),
+        ],
+      });
+      await pinnedSharedFolders.pin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.pin(PINNED_USER, "c" as CollectionId);
+      fixture.detectChanges();
+    }
+
+    function names(): string[] {
+      return bitTable()
+        .filtered()
+        .map((r) => r.name);
+    }
+
+    it("is offered ahead of the Permissions chip, with the pin icon", async () => {
+      await setupPinnable();
+
+      const toggle = fixture.nativeElement.querySelector("bit-filter-toggle") as HTMLElement;
+      const menu = fixture.nativeElement.querySelector("bit-filter-menu") as HTMLElement;
+      expect(toggle).not.toBeNull();
+      expect(toggle.textContent).toContain("pinned");
+      expect(toggle.querySelector(".bwi-pin")).not.toBeNull();
+      expect(toggle.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it("is offered when the Permissions chip is hidden", async () => {
+      await setup({
+        collections: [
+          collectionWith(SharedFolderPermission.Manage, { id: "a" }),
+          collectionWith(SharedFolderPermission.Manage, { id: "b" }),
+        ],
+      });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("bit-filter-menu")).toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-filter-toggle")).not.toBeNull();
+    });
+
+    function pinnedToggle(): { button: HTMLButtonElement; tooltip: string } {
+      const toggle = fixture.debugElement.query(By.directive(FilterToggleComponent));
+      return {
+        button: toggle.nativeElement.querySelector("button") as HTMLButtonElement,
+        tooltip: (toggle.componentInstance as FilterToggleComponent).disabledTooltip(),
+      };
+    }
+
+    it("is offered, but disabled with a reason, while nothing is pinned", async () => {
+      await setup({ collections: [collection({ id: "a" })] });
+      fixture.detectChanges();
+
+      expect(filterControl("pinned")).toBeDefined();
+      const { button, tooltip } = pinnedToggle();
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltip).toBe("noPinnedFoldersTooltip");
+    });
+
+    it("is enabled, without a reason, once a folder is pinned", async () => {
+      await setupPinnable();
+
+      const { button, tooltip } = pinnedToggle();
+      expect(button.getAttribute("aria-disabled")).not.toBe("true");
+      expect(tooltip).toBe("");
+    });
+
+    it("is disabled again when the last pin is removed", async () => {
+      await setupPinnable();
+
+      await pinnedSharedFolders.unpin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.unpin(PINNED_USER, "c" as CollectionId);
+      fixture.detectChanges();
+
+      const { button, tooltip } = pinnedToggle();
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+      expect(tooltip).toBe("noPinnedFoldersTooltip");
+    });
+
+    it("stays enabled while on, so it can be turned off after the last pin is removed", async () => {
+      await setupPinnable();
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      await pinnedSharedFolders.unpin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.unpin(PINNED_USER, "c" as CollectionId);
+      fixture.detectChanges();
+
+      expect(pinnedToggle().button.getAttribute("aria-disabled")).not.toBe("true");
+
+      pinnedToggle().button.click();
+      fixture.detectChanges();
+
+      expect(filterControl("pinned").active()).toBe(false);
+    });
+
+    it("cannot be turned on by a click while nothing is pinned", async () => {
+      await setup({ collections: [collection({ id: "a" })] });
+      fixture.detectChanges();
+
+      pinnedToggle().button.click();
+      fixture.detectChanges();
+
+      expect(filterControl("pinned").active()).toBe(false);
+    });
+
+    it("keeps every row while off", async () => {
+      await setupPinnable();
+
+      expect(names()).toEqual(["Engineering", "Finance", "Finance archive"]);
+
+      filterControl("pinned").setValue(false);
+      fixture.detectChanges();
+      expect(names()).toHaveLength(3);
+    });
+
+    it("keeps only the pinned rows while on", async () => {
+      await setupPinnable();
+
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      expect(names()).toEqual(["Finance", "Finance archive"]);
+    });
+
+    it("follows a pin or unpin made while it is on", async () => {
+      await setupPinnable();
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      await pinnedSharedFolders.unpin(PINNED_USER, "b" as CollectionId);
+      await pinnedSharedFolders.pin(PINNED_USER, "a" as CollectionId);
+      fixture.detectChanges();
+
+      expect(names()).toEqual(["Engineering", "Finance archive"]);
+    });
+
+    it("intersects with the permissions chip and the search term", async () => {
+      await setupPinnable();
+
+      filterControl("pinned").setValue(true);
+      filterControl("permissions").setValue([SharedFolderPermission.Manage]);
+      fixture.detectChanges();
+      expect(names()).toEqual(["Finance archive"]);
+
+      filterControl("permissions").setValue(undefined);
+      searchControl().setValue("fin");
+      fixture.detectChanges();
+      expect(names()).toEqual(["Finance", "Finance archive"]);
+
+      searchControl().setValue("engineering");
+      fixture.detectChanges();
+      expect(names()).toEqual([]);
+    });
+
+    it("counts as an active chip filter, and Clear all resets it", async () => {
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering" })],
+      });
+      fixture.detectChanges();
+      const clearAll = (): HTMLButtonElement =>
+        fixture.nativeElement.querySelector("#shared-folders_button_clear-filters");
+
+      // Nothing pinned, so turning the toggle on leaves no rows and the empty state in view.
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+      expect(filterControl("pinned").active()).toBe(true);
+      expect(clearAll().classList).not.toContain("tw-hidden");
+
+      clearAll().click();
+      fixture.detectChanges();
+
+      expect(filterControl("pinned").active()).toBe(false);
+      expect(names()).toEqual(["Engineering"]);
+    });
+
+    it("shows the no-matches empty state when on with nothing pinned", async () => {
+      await setup({ collections: [collection({ id: "a", name: "Engineering" })] });
+      fixture.detectChanges();
+
+      filterControl("pinned").setValue(true);
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(names()).toEqual([]);
+      expect(text).toContain("noMatchingItems");
+      expect(text).toContain("clearFiltersOrTryAnother");
+    });
+
+    it("matches every row for an unset value", async () => {
+      await setup();
+      const stub = { id: "x" } as SharedFolderRow;
+
+      expect(applyFilter(stub, {})).toBe(true);
+      expect(applyFilter(stub, { pinned: false })).toBe(true);
+      expect(applyFilter(stub, { pinned: true })).toBe(false);
+    });
+  });
+
+  describe("the pin icon in the Name cell", () => {
+    const icon = (id: string): HTMLElement | null =>
+      fixture.nativeElement.querySelector(`#shared-folders_icon_pinned-${id}`);
+
+    it("shows after the name of a pinned row only", async () => {
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering" }), collection({ id: "b" })],
+      });
+      await pinnedSharedFolders.pin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+
+      expect(icon("a")).not.toBeNull();
+      expect(icon("a")?.getAttribute("aria-label")).toBe("pinned");
+      expect(icon("a")?.previousElementSibling?.id).toBe("shared-folders_link_name-a");
+      expect(icon("b")).toBeNull();
+    });
+
+    it("shows for a nested folder's row too", async () => {
+      await setup({ collections: [collection({ id: "a", name: "Engineering/Platform" })] });
+      await pinnedSharedFolders.pin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+
+      expect(icon("a")).not.toBeNull();
+    });
+
+    it("comes and goes as the pin state changes", async () => {
+      await setup({ collections: [collection({ id: "a" })] });
+      fixture.detectChanges();
+      expect(icon("a")).toBeNull();
+
+      await pinnedSharedFolders.pin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+      expect(icon("a")).not.toBeNull();
+
+      await pinnedSharedFolders.unpin("user-1" as UserId, "a" as CollectionId);
+      fixture.detectChanges();
+      expect(icon("a")).toBeNull();
+    });
+  });
+
   describe("row actions", () => {
     /**
      * Every row's Options menu trigger. Found by directive because `bitMenuTriggerFor` is bound,
@@ -603,7 +933,14 @@ describe("SharedFoldersComponent", () => {
       );
     }
 
-    it("drops the options column entirely for a client with no collection dialog", async () => {
+    /** The ids of the items in the first row's open menu, in order. */
+    function openMenuItemIds(): string[] {
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+      return Array.from(document.querySelectorAll("[bitMenuItem]")).map((item) => item.id);
+    }
+
+    it("keeps the options column for a client with no collection dialog", async () => {
       await setup({ collections: [collection()], dialogs: { collection: false } });
       fixture.detectChanges();
 
@@ -611,19 +948,11 @@ describe("SharedFoldersComponent", () => {
         bitTable()
           .effectiveColumns()
           .map((column) => column.name()),
-      ).toEqual(["name", "permissions", "items"]);
-      expect(menuTriggers()).toHaveLength(0);
-      expect(fixture.nativeElement.textContent as string).not.toContain("options");
+      ).toEqual(["name", "permissions", "items", "options"]);
+      expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("gives the items column the flexible track while the options column is dropped", async () => {
-      await setup({ collections: [collection()], dialogs: { collection: false } });
-      fixture.detectChanges();
-
-      expect(bitTable().gridTemplateColumns()).toContain("minmax(100px, 1fr)");
-    });
-
-    it("keeps the options column narrow once the collection dialog is provided", async () => {
+    it("keeps the options column narrow and the options track flexible", async () => {
       await setup({ collections: [collection()] });
       fixture.detectChanges();
 
@@ -632,20 +961,185 @@ describe("SharedFoldersComponent", () => {
       expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("offers no menu at all for a folder the member can neither edit nor delete", async () => {
+    it("offers Pin to sidebar for a folder the member can neither edit nor delete", async () => {
       await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
       fixture.detectChanges();
 
       expect(row("col-1").canEdit).toBe(false);
       expect(row("col-1").canDelete).toBe(false);
-      expect(menuTriggers()).toHaveLength(0);
+      expect(menuTriggers()).toHaveLength(1);
+      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
+    });
+
+    it("offers only Pin to sidebar to a client with no collection dialog", async () => {
+      await setup({
+        collections: [collectionWith(SharedFolderPermission.Manage)],
+        dialogs: { collection: false },
+      });
+      fixture.detectChanges();
+
+      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
+    });
+
+    it("offers only Pin to sidebar on desktop, which provides the bulk delete dialog but no collection dialog", async () => {
+      await setup({
+        collections: [collectionWith(SharedFolderPermission.Manage)],
+        dialogs: { collection: false, bulkDelete: true },
+      });
+      fixture.detectChanges();
+
+      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
+    });
+
+    it("offers Edit and Access but not Delete when the organization limits collection deletion", async () => {
+      await setup({
+        collections: [collectionWith(SharedFolderPermission.Manage)],
+        organizations: [organization({ limitCollectionDeletion: true })],
+      });
+      fixture.detectChanges();
+
+      expect(row("col-1").canEdit).toBe(true);
+      expect(row("col-1").canDelete).toBe(false);
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_edit-col-1",
+        "shared-folders_menu-item_access-col-1",
+      ]);
+    });
+
+    it("puts Pin to sidebar before Edit, Access, and Delete", async () => {
+      await setup({ collections: [collectionWith(SharedFolderPermission.Manage)] });
+      fixture.detectChanges();
+
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_edit-col-1",
+        "shared-folders_menu-item_access-col-1",
+        "shared-folders_menu-item_delete-col-1",
+      ]);
+    });
+
+    /** Opens the first row's menu and clicks the item with `id`. */
+    async function clickMenuItem(id: string): Promise<void> {
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+      const item = document.querySelector<HTMLElement>(`#${id}`);
+      if (item == null) {
+        throw new Error(`No menu item "${id}"`);
+      }
+      item.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it("pins an unpinned folder for the active user from the row menu", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      fixture.detectChanges();
+
+      await clickMenuItem("shared-folders_menu-item_pin-col-a");
+
+      expect(await firstValueFrom(pinnedSharedFolders.pinnedIds$("user-1" as UserId))).toEqual([
+        "col-a",
+      ]);
+    });
+
+    it("offers Unpin from sidebar for a pinned folder, and unpins it", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
+      fixture.detectChanges();
+
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+      const pinItem = document.querySelector("#shared-folders_menu-item_pin-col-a");
+      expect(pinItem?.textContent).toContain("unpinFromSidebar");
+
+      (pinItem as HTMLElement).click();
+      await fixture.whenStable();
+
+      expect(await firstValueFrom(pinnedSharedFolders.pinnedIds$("user-1" as UserId))).toEqual([]);
+    });
+
+    it("labels the item Pin to sidebar for an unpinned folder", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      fixture.detectChanges();
+
+      menuTriggers()[0].click();
+      fixture.detectChanges();
+
+      const pinItem = document.querySelector("#shared-folders_menu-item_pin-col-a");
+      expect(pinItem?.textContent).toContain("pinToSidebar");
+      expect(pinItem?.textContent).not.toContain("unpinFromSidebar");
+    });
+
+    it("toasts after pinning, naming the folder", async () => {
+      await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
+      fixture.detectChanges();
+
+      await clickMenuItem("shared-folders_menu-item_pin-col-a");
+
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "folderPinnedToSidebar:Engineering",
+      });
+    });
+
+    it("toasts after unpinning, naming the folder", async () => {
+      await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
+      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
+      fixture.detectChanges();
+
+      await clickMenuItem("shared-folders_menu-item_pin-col-a");
+
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "folderUnpinnedFromSidebar:Engineering",
+      });
+    });
+
+    it("does not toast before the pin has been written", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      fixture.detectChanges();
+      let finishPin!: () => void;
+      jest.spyOn(pinnedSharedFolders, "pin").mockReturnValue(
+        new Promise<void>((resolve) => {
+          finishPin = resolve;
+        }),
+      );
+
+      await clickMenuItem("shared-folders_menu-item_pin-col-a");
+      expect(toastService.showToast).not.toHaveBeenCalled();
+
+      finishPin();
+      await fixture.whenStable();
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not toast before the unpin has been written", async () => {
+      await setup({ collections: [collection({ id: "col-a" })] });
+      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
+      fixture.detectChanges();
+      let finishUnpin!: () => void;
+      jest.spyOn(pinnedSharedFolders, "unpin").mockReturnValue(
+        new Promise<void>((resolve) => {
+          finishUnpin = resolve;
+        }),
+      );
+
+      await clickMenuItem("shared-folders_menu-item_pin-col-a");
+      expect(toastService.showToast).not.toHaveBeenCalled();
+
+      finishUnpin();
+      await fixture.whenStable();
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
     });
 
     it("opens the collection dialog on the info tab to edit a folder", async () => {
       await setup({ collections: [collection({ id: "col-a" })] });
       fixture.detectChanges();
 
-      await component["editSharedFolder"](row("col-a"));
+      await clickMenuItem("shared-folders_menu-item_edit-col-a");
 
       expect(collectionDialog.open).toHaveBeenCalledWith({
         organizationId: ORGANIZATION_ID,
@@ -658,7 +1152,7 @@ describe("SharedFoldersComponent", () => {
       await setup({ collections: [collection({ id: "col-a" })] });
       fixture.detectChanges();
 
-      await component["editSharedFolderAccess"](row("col-a"));
+      await clickMenuItem("shared-folders_menu-item_access-col-a");
 
       expect(collectionDialog.open).toHaveBeenCalledWith({
         organizationId: ORGANIZATION_ID,
@@ -672,7 +1166,7 @@ describe("SharedFoldersComponent", () => {
       await setup({ collections: [folder] });
       fixture.detectChanges();
 
-      await component["deleteSharedFolder"](row("col-a"));
+      await clickMenuItem("shared-folders_menu-item_delete-col-a");
 
       expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
         organization: expect.objectContaining({ id: ORGANIZATION_ID }),
@@ -732,6 +1226,21 @@ describe("SharedFoldersComponent", () => {
       return model;
     }
 
+    it("holds room below the table for the bar while rows are selected", async () => {
+      await setup({ collections: [collection()] });
+      fixture.detectChanges();
+      const host: HTMLElement = fixture.nativeElement;
+      expect(host.style.marginBottom).toBe("0px");
+
+      selectionModel().select(row("col-1"));
+      fixture.detectChanges();
+      expect(host.style.marginBottom).toBe("53px");
+
+      selectionModel().clear();
+      fixture.detectChanges();
+      expect(host.style.marginBottom).toBe("0px");
+    });
+
     it("leaves selection off for a client with neither bulk dialog", async () => {
       await setup({
         collections: [collection()],
@@ -740,7 +1249,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().selectionModel()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("leaves selection off when the member can act on none of the listed folders", async () => {
@@ -748,7 +1257,7 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().selectionModel()).toBeUndefined();
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("turns on multi-select and renders the bar once an action applies", async () => {
@@ -758,16 +1267,32 @@ describe("SharedFoldersComponent", () => {
       selectionModel().select(...bitTable().filtered());
 
       expect(selectionModel().count()).toBe(2);
-      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      const bar = bulkBar()!;
       expect(bar.textContent).toContain("editAccess");
       expect(bar.textContent).toContain("delete");
+    });
+
+    it("shows the selected count on the bar and clears the selection on dismiss", async () => {
+      await setup({ collections: [collection({ id: "a" }), collection({ id: "b" })] });
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+
+      const bar = bulkBar()!;
+      expect(bar.textContent).toContain("2");
+
+      bar.querySelector<HTMLButtonElement>("button[icon='bwi-clear']")!.click();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
     });
 
     it("drops Delete for a client with no bulk delete dialog", async () => {
       await setup({ collections: [collection()], dialogs: { bulkDelete: false } });
       fixture.detectChanges();
 
-      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      const bar = bulkBar()!;
       expect(bar.textContent).toContain("editAccess");
       expect(bar.textContent).not.toContain("delete");
     });
@@ -831,7 +1356,7 @@ describe("SharedFoldersComponent", () => {
 
       // The bar removes itself at a count of zero, so a stale count would leave it announcing a
       // selection that no longer exists — and with no rows left, the bar goes with them.
-      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+      expect(bulkBar()).toBeNull();
     });
 
     it("hands Edit access the selected folders' collections", async () => {
@@ -909,165 +1434,20 @@ describe("SharedFoldersComponent", () => {
     });
   });
 
-  describe("pagination", () => {
-    /** The window height the fit divides — `jsdom`'s, restored after a test that changes it. */
-    const windowHeight = window.innerHeight;
-
-    /**
-     * `jsdom` lays nothing out, so every rect is zero. Giving the rows a geometry leaves
-     * `window.innerHeight` (768 in `jsdom`) as the height to fill.
-     */
-    function layOutRows({ top, height }: { top: number; height: number }): void {
-      jest
-        .spyOn(Element.prototype, "getBoundingClientRect")
-        .mockReturnValue({ top, height } as DOMRect);
-    }
-
-    /** `count` folders, named so a search can narrow them. */
-    function folders(count: number): CollectionView[] {
-      return Array.from({ length: count }, (_, i) =>
-        collection({ id: `col-${i}`, name: `Folder ${i}` }),
-      );
-    }
-
-    /**
-     * Settles the fit. The measurement runs in a render effect — which this zone-based fixture
-     * flushes on a tick, not inside `detectChanges` — and feeds back into the page size, so the
-     * rows it settles on need a further pass to reach the DOM.
-     */
-    function settle(): void {
-      fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
-    }
-
-    function renderedRows(): HTMLElement[] {
-      return fixture.debugElement.queryAll(By.css("bit-row")).map((r) => r.nativeElement);
-    }
-
-    function paginator(): HTMLElement {
-      const element = fixture.nativeElement.querySelector(
-        "bit-table-paginator",
-      ) as HTMLElement | null;
-      if (!element) {
-        throw new Error("The paginator is not rendered");
-      }
-      return element;
-    }
-
-    function paginatorComponent(): BitTablePaginatorComponent {
-      return fixture.debugElement.query(By.directive(BitTablePaginatorComponent))
-        .componentInstance as BitTablePaginatorComponent;
-    }
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-      Object.defineProperty(window, "innerHeight", {
-        value: windowHeight,
-        configurable: true,
+  describe("virtual scroll", () => {
+    it("renders only the rows in the scroll window, with no paginator", async () => {
+      await setup({
+        collections: Array.from({ length: 60 }, (_, i) =>
+          collection({ id: `col-${i}`, name: `Folder ${i}` }),
+        ),
       });
+      fixture.detectChanges();
+
+      const rendered = fixture.debugElement.queryAll(By.css("bit-row")).length;
+      expect(rendered).toBeGreaterThan(0);
+      expect(rendered).toBeLessThan(60);
+      expect(fixture.nativeElement.querySelector("cdk-virtual-scroll-viewport")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-table-paginator")).toBeNull();
     });
-
-    // 768 (the window) less 300 (the rows' top) less 84 (the paginator and its gutter) is 384px of
-    // room, which holds six 56px rows with 48px to spare.
-    it("holds as many rows as the window fits", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(6);
-    }));
-
-    // The same 584px of room holds ten 56px rows but only seven 76px ones, so the fit divides by
-    // the measured height rather than the nominal one.
-    it("fits fewer of a taller row", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 100, height: 76 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(7);
-    }));
-
-    it("pages rather than shrinking a page below five rows", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      // Only 68px of room — a page of one row, without the floor.
-      layOutRows({ top: 616, height: 56 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(5);
-    }));
-
-    it("shows the paginator once the window can't fit every folder", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(paginator().classList).not.toContain("tw-hidden");
-    }));
-
-    it("hides the paginator while every folder fits", fakeAsync(async () => {
-      await setup({ collections: folders(6) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(renderedRows()).toHaveLength(6);
-      expect(paginator().classList).toContain("tw-hidden");
-    }));
-
-    it("re-fits the page as the window is resized", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-      settle();
-
-      Object.defineProperty(window, "innerHeight", { value: 1216, configurable: true });
-      window.dispatchEvent(new Event("resize"));
-      // Past the audit window that collapses a burst of resize events.
-      tick(200);
-      settle();
-
-      // 1216 less the same 384px of chrome leaves 832px of room — fourteen 56px rows.
-      expect(renderedRows()).toHaveLength(14);
-    }));
-
-    it("pages the folders the filters leave, not all of them", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-      settle();
-
-      // "Folder 1" and "Folder 10" through "Folder 19" — eleven of the twenty, six to a page.
-      searchControl().setValue("Folder 1");
-      settle();
-
-      expect(renderedRows()).toHaveLength(6);
-      expect(paginator().classList).not.toContain("tw-hidden");
-    }));
-
-    // The rows-per-page select lives in the paginator, so hiding a one-page paginator would take
-    // away the control that asked for the longer page.
-    it("keeps the paginator while a hand-picked size fits every folder on one page", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-      settle();
-
-      paginatorComponent().pageSize.set(25);
-      settle();
-
-      expect(renderedRows()).toHaveLength(20);
-      expect(paginator().classList).not.toContain("tw-hidden");
-    }));
-
-    it("offers the fitted size alongside the standard ones", fakeAsync(async () => {
-      await setup({ collections: folders(20) });
-      layOutRows({ top: 300, height: 56 });
-
-      settle();
-
-      expect(component["pageSizeOptions"]()).toEqual([6, 10, 25, 50, 100]);
-    }));
   });
 });

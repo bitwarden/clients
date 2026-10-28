@@ -1,0 +1,31 @@
+<ng-container [formGroup]="form()">
+  <h2 bitTypography="h2" noMargin class="tw-mb-1">{{ "importDataTitle" | i18n }}</h2>
+  <p bitTypography="body1" class="tw-text-fg-body-subtle">
+    {{ "importDataChromiumSubtitle" | i18n }}
+  </p>
+
+  <importer-instructions-callout
+    [instructionKey]="instructionKey()"
+    [instructionLink]="instructionLink()"
+    [vendorName]="vendorName()"
+  />
+
+  @if (profilesError(); as error) {
+    <bit-callout type="danger" id="importer-controls_callout_profiles-error">{{
+      error
+    }}</bit-callout>
+  }
+
+  <bit-form-field class="tw-max-w-sm">
+    <bit-label>{{ "profile" | i18n }}</bit-label>
+    <bit-select
+      formControlName="profile"
+      id="importer-controls_select_profile"
+      [placeholder]="'selectProfile' | i18n"
+    >
+      @for (profile of profiles(); track profile.id) {
+        <bit-option [value]="profile.id" [label]="profile.name" />
+      }
+    </bit-select>
+  </bit-form-field>
+</ng-container>

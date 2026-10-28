@@ -6,4 +6,9 @@ export {
   AUTO_CONFIRM_NUDGE_SERVICE,
 } from "./services/nudge-injection-tokens";
 export { AutoConfirmNudgeService } from "./services/custom-nudges-services";
+export {
+  Vfo1OnboardingNudgeService,
+  VFO1_GA_RELEASE_DATE,
+  VFO1_ONBOARDING_WINDOW_MONTHS,
+} from "./services/custom-nudges-services";
 export { PremiumUpsellService } from "./services/premium-upsell.service";

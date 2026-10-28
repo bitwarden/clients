@@ -20,6 +20,8 @@ import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike } from "../utils/cipher-view-like-utils";
 import { UriRegexMatcher } from "../utils/uri-regex-matcher";
 
+import { DecryptAllCiphersResult } from "./cipher-sdk.service";
+
 export type EncryptionContext = {
   cipher: Cipher;
   /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
@@ -31,6 +33,17 @@ export type EncryptionContext = {
    */
   encryptedByKeyId?: string;
 };
+
+/**
+ * A write to a restricted cipher was refused, before or by the server.
+ * Server ask: return 403 with an error code for a refused write to a restricted cipher (today a bare 404).
+ */
+export class RestrictedCipherWriteError extends Error {
+  constructor() {
+    super("The change to a restricted item was refused.");
+    this.name = "RestrictedCipherWriteError";
+  }
+}
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
@@ -46,6 +59,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    */
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
+  /**
+   * Like {@link cipherListViews$}, but includes PAM-gated ("partial") rows. Opt-in: only the
+   * vault list should consume it, so gated ciphers never reach autofill, export, key rotation,
+   * and similar flows.
+   */
+  abstract cipherListViewsWithPartials$(
+    userId: UserId,
+  ): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -90,6 +111,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  /**
+   * Like {@link getAllDecryptedForIds}, but keeps PAM-gated ("partial") rows, which carry only the
+   * name and, for logins, the URIs. Only for surfaces that must name a gated cipher.
+   */
+  abstract getAllDecryptedForIdsIncludingPartials(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -112,6 +141,11 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Ciphers that are not assigned to any collections are only included for users with admin access.
    */
   abstract getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
+  /**
+   * Gets all Login ciphers belonging to the specified organization, including those in default
+   * user collections. Ciphers that fail to decrypt are returned separately in `failures`.
+   */
+  abstract getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult>;
   abstract getLastUsedForUrl(
     url: string,
     userId: UserId,
@@ -144,10 +178,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
+   * @param originalCipherView The original to edit against when local state has no usable copy:
+   *   an admin edit, or a restricted cipher (the revealed view).
    * @param orgAdmin If true, the request is submitted as an organization admin request
-   * @param isNotClone If true, the cipher is not a clone and should be treated as a new cipher
    *
-   * @returns A promise that resolves to the updated cipher
+   * @returns A promise that resolves to the updated cipher. Restricted when the cipher is.
+   * @throws {RestrictedCipherWriteError} When a change to a restricted cipher is refused.
    */
   abstract updateWithServer(
     cipherView: CipherView,
@@ -256,12 +292,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     asAdmin?: boolean,
     orgId?: OrganizationId,
   ): Promise<void>;
-  abstract deleteAttachment(
-    id: string,
-    revisionDate: string,
-    attachmentId: string,
-    userId: UserId,
-  ): Promise<CipherData>;
   abstract deleteAttachmentWithServer(
     id: string,
     attachmentId: string,
@@ -285,7 +315,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<void>;
   abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<void>;
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
-  abstract getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<any>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;
   /**
    * Returns user ciphers re-encrypted with the new user key.

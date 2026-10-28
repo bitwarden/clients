@@ -12,7 +12,7 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
  */
 export abstract class PolicyService {
   /**
-   * All policies for the provided user from sync data.
+   * All policies for organizations in which the user is in the confirmed state, from sync data.
    * May include policies that are disabled or otherwise do not apply to the user. Be careful using this!
    * Consider {@link policiesByType$} instead, which will only return policies that should be enforced against the user.
    */

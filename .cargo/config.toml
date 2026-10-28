@@ -1,0 +1,4 @@
+# This matches what is configured in renovate, and the corporate policy at
+# commit time.
+[registry]
+global-min-publish-age = "7 days"

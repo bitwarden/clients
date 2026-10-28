@@ -76,7 +76,6 @@ impl Challenge {
         &self.0
     }
 
-    #[cfg(test)]
     pub(crate) fn from_bytes(bytes: [u8; CHALLENGE_LENGTH]) -> Self {
         Self(bytes)
     }
@@ -102,7 +101,6 @@ impl WindowsHelloPrf {
         Self(Sha256::digest(signature).into())
     }
 
-    #[cfg(test)]
     pub(crate) fn from_bytes(bytes: [u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH]) -> Self {
         Self(bytes)
     }
@@ -111,6 +109,37 @@ impl WindowsHelloPrf {
 impl HighEntropySecretSource for WindowsHelloPrf {
     fn provide_high_entropy_bytes(&self) -> SensitiveSlice<'_> {
         Sensitive::from(self.0.as_slice())
+    }
+}
+
+/// A [`Challenge`] and the [`WindowsHelloPrf`] derived from it. Held in secure memory after a
+/// Windows Hello prompt, so re-enrollment can seal a new user key without prompting again.
+pub(super) struct WindowsHelloChallengeAndKey {
+    pub(super) challenge: Challenge,
+    pub(super) prf: WindowsHelloPrf,
+}
+
+impl WindowsHelloChallengeAndKey {
+    pub(super) const LENGTH: usize = CHALLENGE_LENGTH + PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH;
+
+    /// Serializes as `challenge || prf`.
+    pub(super) fn to_bytes(&self) -> [u8; Self::LENGTH] {
+        let mut bytes = [0u8; Self::LENGTH];
+        bytes[..CHALLENGE_LENGTH].copy_from_slice(self.challenge.as_bytes());
+        bytes[CHALLENGE_LENGTH..].copy_from_slice(self.prf.as_bytes());
+        bytes
+    }
+
+    pub(super) fn from_bytes(bytes: &[u8]) -> Result<Self> {
+        if bytes.len() != Self::LENGTH {
+            return Err(anyhow!("Invalid Windows Hello challenge and key length"));
+        }
+
+        let (challenge, prf) = bytes.split_at(CHALLENGE_LENGTH);
+        Ok(Self {
+            challenge: Challenge::from_bytes(challenge.try_into()?),
+            prf: WindowsHelloPrf::from_bytes(prf.try_into()?),
+        })
     }
 }
 
@@ -223,13 +252,22 @@ mod tests {
     use chacha20poly1305::{aead::Aead, KeyInit, XChaCha20Poly1305, XNonce};
 
     use super::{
-        Challenge, WindowsHelloKeychainEntry, WindowsHelloKeychainEntryV1,
-        WindowsHelloKeychainEntryV2, WindowsHelloPrf, CHALLENGE_LENGTH,
-        PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH, XCHACHA20POLY1305_NONCE_LENGTH,
+        Challenge, WindowsHelloChallengeAndKey, WindowsHelloKeychainEntry,
+        WindowsHelloKeychainEntryV1, WindowsHelloKeychainEntryV2, WindowsHelloPrf,
+        CHALLENGE_LENGTH, PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH, XCHACHA20POLY1305_NONCE_LENGTH,
     };
 
     fn user_key(encoded: &[u8]) -> SymmetricCryptoKey {
         SymmetricCryptoKey::try_from(&BitwardenLegacyKeyBytes::from(encoded.to_vec())).unwrap()
+    }
+
+    /// The legacy-encoded bytes of `TEST_VECTOR_XAES_USER_KEY_B64`, as handed to
+    /// `enroll_persistent` over NAPI.
+    fn xaes_user_key_bytes() -> Vec<u8> {
+        SymmetricCryptoKey::try_from(TEST_VECTOR_XAES_USER_KEY_B64.to_string())
+            .expect("XAES-256-GCM user key must parse")
+            .to_encoded()
+            .to_vec()
     }
 
     // Fixed, deterministic inputs used to produce and verify the test vector below. The Windows
@@ -241,12 +279,19 @@ mod tests {
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     // A valid 64-byte (AES-CBC-HMAC) encoded user key
     const TEST_VECTOR_USER_KEY: &[u8] = &[9u8; 64];
+    // A valid XAES-256-GCM user key
+    const TEST_VECTOR_XAES_USER_KEY_B64: &str =
+        "pQEEAlAAAQIDBAUGBwgJCgsMDQ4PAzoAARF5BIIDBCBYIAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4fAQ==";
 
     // A `WindowsHelloKeychainEntryV2` (challenge + `SecretProtectedKeyEnvelope`), serialized
     // exactly as it is persisted to the OS keychain. Sealing with
     // `TEST_VECTOR_WINDOWS_HELLO_KEY` must keep unsealing to `TEST_VECTOR_USER_KEY`; if this
     // stops decoding, the persisted format broke.
     const TEST_VECTOR_ENTRY_V2_JSON: &str = r#"{"challenge":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"envelope":"hFg0pAEDA3giYXBwbGljYXRpb24veC5iaXR3YXJkZW4ubGVnYWN5LWtleToAATiBBjoAATiAAqEFTJX+FbmsYy42SWrfHFhQI16UOuY0GTZtLbTetv+Wqj6lVecK8DtCRcyn/e1ULGKaf13Q9tXSrg4rJl4v8GKIJv361FCsgOZ8kxzN7qUDFAUIGYEEW2hDG7kWOVkD56GBg0CiASkzWCAqKJNBFc+VbkGF4V0sv5HXgCn4CcMpw8/UGHyrvP95v/Y="}"#;
+
+    // Same as `TEST_VECTOR_ENTRY_V2_JSON`, but sealing the V2 user key
+    // `TEST_VECTOR_XAES_USER_KEY_B64`.
+    const TEST_VECTOR_ENTRY_V2_XAES_JSON: &str = r#"{"challenge":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"envelope":"hFgopQEDAxhlOgABFVxQAAECAwQFBgcICQoLDA0ODzoAATiBBjoAATiAAqEFTAhzV1nsS8nwiBB941hSVBdkuOJlKq6EQqOJu/gjEHRb5d92VzeDY/KeN8uDDJEUQ/PcEFHuoEVhIygQoZhctS5/JXYsVU78zu1SWeEoVh6hZHa44C/btYTL5Xw10gmvb4GDQKIBKTNYICHDHN60gyovxQyGsMmZ8ZBHejd0HMfnwpwmwMwHMs7B9g=="}"#;
 
     // Fixed nonce used to wrap the V1 test vector below. V1 seals with a random nonce, but the
     // recorded vector pins one so the ciphertext is reproducible.
@@ -283,6 +328,21 @@ mod tests {
         println!(
             "const TEST_VECTOR_ENTRY_V2_JSON: &str = r#\"{}\"#;",
             serde_json::to_string(&v2).unwrap()
+        );
+
+        let v2_xaes = WindowsHelloKeychainEntryV2::seal(
+            Challenge::from_bytes(TEST_VECTOR_CHALLENGE),
+            &windows_hello_key,
+            &user_key(&xaes_user_key_bytes()),
+        )
+        .unwrap();
+
+        let unsealed = v2_xaes.unseal(&windows_hello_key).unwrap();
+        assert_eq!(unsealed.to_encoded().to_vec(), xaes_user_key_bytes());
+
+        println!(
+            "const TEST_VECTOR_ENTRY_V2_XAES_JSON: &str = r#\"{}\"#;",
+            serde_json::to_string(&v2_xaes).unwrap()
         );
 
         // V1 wraps the user key directly with XChaCha20Poly1305. `seal` picks a random nonce, so
@@ -329,6 +389,30 @@ mod tests {
 
     /// Never regenerate the test vector, it would be a breaking change
     #[test]
+    fn test_keychain_entry_v2_xaes_test_vector() {
+        let windows_hello_key = WindowsHelloPrf::from_bytes(TEST_VECTOR_WINDOWS_HELLO_KEY);
+
+        let entry: WindowsHelloKeychainEntry =
+            serde_json::from_str(TEST_VECTOR_ENTRY_V2_XAES_JSON).unwrap();
+        let WindowsHelloKeychainEntry::V2(entry) = entry else {
+            panic!("Test vector must decode as a V2 keychain entry");
+        };
+
+        let unsealed = entry.unseal(&windows_hello_key).unwrap();
+        assert!(matches!(unsealed, SymmetricCryptoKey::XAes256GcmKey(_)));
+        assert_eq!(unsealed.to_encoded().to_vec(), xaes_user_key_bytes());
+    }
+
+    /// V2 user keys are XAES-256-GCM. `enroll_persistent` parses the key bytes it receives over
+    /// NAPI before sealing, so this parse must succeed for persistent enrollment to work.
+    #[test]
+    fn test_parse_xaes_user_key() {
+        let key = user_key(&xaes_user_key_bytes());
+        assert!(matches!(key, SymmetricCryptoKey::XAes256GcmKey(_)));
+    }
+
+    /// Never regenerate the test vector, it would be a breaking change
+    #[test]
     fn test_keychain_entry_v1_test_vector() {
         let windows_hello_key = WindowsHelloPrf::from_bytes(TEST_VECTOR_WINDOWS_HELLO_KEY);
 
@@ -351,6 +435,7 @@ mod tests {
         for key in [
             SymmetricCryptoKey::make(SymmetricKeyAlgorithm::Aes256CbcHmac),
             SymmetricCryptoKey::make(SymmetricKeyAlgorithm::Aes256Gcm),
+            SymmetricCryptoKey::make(SymmetricKeyAlgorithm::XAes256Gcm),
         ] {
             let entry = WindowsHelloKeychainEntryV2::seal(
                 Challenge::from_bytes([0u8; CHALLENGE_LENGTH]),
@@ -394,5 +479,26 @@ mod tests {
                 [7u8; PSEUDORANDOM_WINDOWS_HELLO_OUTPUT_LENGTH]
             ))
             .is_err());
+    }
+
+    #[test]
+    fn test_windows_hello_challenge_and_key_round_trip() {
+        let key = WindowsHelloChallengeAndKey {
+            challenge: Challenge::from_bytes(TEST_VECTOR_CHALLENGE),
+            prf: WindowsHelloPrf::from_bytes(TEST_VECTOR_WINDOWS_HELLO_KEY),
+        };
+
+        let parsed = WindowsHelloChallengeAndKey::from_bytes(&key.to_bytes()).unwrap();
+
+        assert_eq!(parsed.challenge.as_bytes(), &TEST_VECTOR_CHALLENGE);
+        assert_eq!(parsed.prf.as_bytes(), &TEST_VECTOR_WINDOWS_HELLO_KEY);
+    }
+
+    #[test]
+    fn test_windows_hello_challenge_and_key_rejects_invalid_length() {
+        assert!(WindowsHelloChallengeAndKey::from_bytes(
+            &[0u8; WindowsHelloChallengeAndKey::LENGTH - 1]
+        )
+        .is_err());
     }
 }

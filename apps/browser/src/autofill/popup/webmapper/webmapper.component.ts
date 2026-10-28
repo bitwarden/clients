@@ -21,7 +21,6 @@ import {
   DialogService,
   IconButtonModule,
   SectionComponent,
-  SectionHeaderComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -84,7 +83,6 @@ function sameSlot(a: Slot, b: Slot): boolean {
     CalloutModule,
     IconButtonModule,
     SectionComponent,
-    SectionHeaderComponent,
     TypographyModule,
   ],
 })

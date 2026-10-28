@@ -69,10 +69,6 @@ export type AddEditFolderDialogData = {
 })
 export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
   private readonly configService = inject(ConfigService);
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective) private bitSubmit?: BitSubmitDirective;
@@ -225,17 +221,8 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     return this.variant === "edit" ? "folderEdited" : "addedFolder";
   }
 
-  //when unwinding this feature flag, move to a ternary in the .html file
   get title() {
-    if (this.variant === "add") {
-      if (this.btnTextAddCreateFeatureFlag()) {
-        return "addFolder";
-      } else {
-        return "newFolder";
-      }
-    } else {
-      return "editFolder";
-    }
+    return this.variant === "add" ? "addFolder" : "editFolder";
   }
 
   /** Close the dialog */

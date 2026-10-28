@@ -22,6 +22,7 @@ import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-ap
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
+import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { Utils } from "../../misc/utils";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import {
@@ -38,6 +39,7 @@ import {
   GLOBAL_SERVER_CONFIGURATIONS,
   USER_SERVER_CONFIG,
   SLOW_EMISSION_GUARD,
+  toSdkFeatureFlags,
 } from "./default-config.service";
 
 describe("ConfigService", () => {
@@ -47,6 +49,7 @@ describe("ConfigService", () => {
   const authService = mock<AuthService>({
     authStatusFor$: (userId) => of(AuthenticationStatus.Unlocked),
   });
+  const sdkService = mock<SdkService>();
   let stateProvider: FakeStateProvider;
   let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig>>;
   let userState: FakeSingleUserState<ServerConfig>;
@@ -83,6 +86,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -166,6 +170,79 @@ describe("ConfigService", () => {
             delete newConfig.utcDate;
 
             expect(actual).toEqual(newConfig);
+          });
+
+          describe("feature flag push", () => {
+            beforeEach(() => {
+              configApiService.get.mockResolvedValue(
+                serverConfigResponseFactory(undefined, undefined, {
+                  boolFlag: true,
+                  otherBoolFlag: false,
+                  stringFlag: "on",
+                }),
+              );
+            });
+
+            if (activeUserId == null) {
+              it("does not push flags for a global renewal", async () => {
+                await firstValueFrom(sut.serverConfig$);
+
+                expect(sdkService.setFlags).not.toHaveBeenCalled();
+              });
+            } else {
+              it("pushes the fetched boolean flags to the SDK", async () => {
+                await firstValueFrom(sut.serverConfig$);
+
+                expect(sdkService.setFlags).toHaveBeenCalledTimes(1);
+                expect(sdkService.setFlags).toHaveBeenCalledWith(
+                  activeUserId,
+                  new Map([
+                    ["boolFlag", true],
+                    ["otherBoolFlag", false],
+                  ]),
+                );
+              });
+
+              it("awaits the push before writing the user config", async () => {
+                const events: string[] = [];
+                sdkService.setFlags.mockImplementation(async () => {
+                  await Promise.resolve();
+                  events.push("setFlags resolved");
+                });
+                stateProvider.mock.setUserState.mockImplementation(async () => {
+                  events.push("setUserState");
+                  return [activeUserId, null];
+                });
+
+                await firstValueFrom(sut.serverConfig$);
+
+                expect(stateProvider.mock.setUserState).toHaveBeenCalledWith(
+                  USER_SERVER_CONFIG,
+                  expect.anything(),
+                  activeUserId,
+                );
+                expect(events).toEqual(["setFlags resolved", "setUserState"]);
+              });
+
+              it("completes the push before the renewed config is observable", async () => {
+                const emissions: ServerConfig[] = [];
+                const subscription = sut.serverConfig$.subscribe((config) =>
+                  emissions.push(config),
+                );
+                let emissionsDuringPush: number | undefined;
+                sdkService.setFlags.mockImplementation(async () => {
+                  emissionsDuringPush = emissions.length;
+                });
+
+                await firstValueFrom(sut.serverConfig$);
+                subscription.unsubscribe();
+
+                // Any config read on the push path would wait for an emission that only
+                // happens after the push resolves.
+                expect(emissionsDuringPush).toBe(0);
+                expect(emissions.length).toBeGreaterThan(0);
+              });
+            }
           });
 
           describe("serverCommunicationConfig$", () => {
@@ -264,6 +341,7 @@ describe("ConfigService", () => {
       mock<AuthService>({
         authStatusFor$: () => of(AuthenticationStatus.Locked),
       }),
+      sdkService,
     );
 
     const config = await firstValueFrom(sut.serverConfig$);
@@ -290,6 +368,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -343,6 +422,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
 
       userState.nextState(null);
@@ -391,6 +471,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -524,6 +605,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
       await firstValueFrom(sut.serverConfig$);
     };
@@ -570,6 +652,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
       await firstValueFrom(sut.serverConfig$);
 
@@ -585,6 +668,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
 
       // The gate hangs off the existing pipeline, so a run that never reads config
@@ -623,6 +707,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        sdkService,
       );
     });
 
@@ -638,6 +723,32 @@ describe("ConfigService", () => {
       expect(configs[0].gitHash).toBe("existing-data");
       expect(configs[1].gitHash).toBe("slow-response");
     });
+  });
+});
+
+describe("toSdkFeatureFlags", () => {
+  it("keeps only the boolean feature states", () => {
+    const config = new ServerConfig(
+      new ServerConfigData({
+        featureStates: {
+          enabledFlag: true,
+          disabledFlag: false,
+          stringFlag: "on",
+          numberFlag: 3,
+        },
+      }),
+    );
+
+    expect(toSdkFeatureFlags(config)).toEqual(
+      new Map([
+        ["enabledFlag", true],
+        ["disabledFlag", false],
+      ]),
+    );
+  });
+
+  it("returns an empty map for an absent config", () => {
+    expect(toSdkFeatureFlags(null)).toEqual(new Map());
   });
 });
 
@@ -658,6 +769,11 @@ function serverConfigDataFactory(hash?: string) {
 function serverConfigResponseFactory(
   hash?: string,
   bootstrap?: { type: string; idpLoginUrl?: string; cookieName?: string; cookieDomain?: string },
+  featureStates: Record<string, AllowedFeatureFlagTypes> = {
+    feat1: "off",
+    feat2: "on",
+    feat3: "off",
+  },
 ) {
   return new ServerConfigResponse({
     version: "myConfigVersion",
@@ -669,11 +785,7 @@ function serverConfigResponseFactory(
     environment: new EnvironmentServerConfigResponse({
       vault: "vault.example.com",
     }),
-    featureStates: {
-      feat1: "off",
-      feat2: "on",
-      feat3: "off",
-    },
+    featureStates,
     ...(bootstrap != null ? { communication: { bootstrap } } : {}),
   });
 }

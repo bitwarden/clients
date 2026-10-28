@@ -5,6 +5,7 @@
 // so it does not interfere with the host system's bitwarden desktop installation.
 //
 //   .debug/desktop-profile/           app data (vault, settings, logs)
+//   .debug/desktop-profile/secure-storage.json  plaintext secrets, in place of the OS keyring
 //   .debug/chrome-profile/            native messaging manifest for the debug browser
 //   .debug/.bitwarden-ssh-agent.sock  SSH agent socket
 //   .debug/s.<name>                   IPC sockets
@@ -26,6 +27,11 @@ process.env.BITWARDEN_APPDATA_DIR = path.join(DEBUG_DIR, "desktop-profile");
 process.env.BITWARDEN_CHROME_PROFILE_DIR = path.join(DEBUG_DIR, "chrome-profile");
 process.env.BITWARDEN_SSH_AUTH_SOCK = path.join(DEBUG_DIR, ".bitwarden-ssh-agent.sock");
 process.env.BITWARDEN_IPC_SOCKET_DIR = DEBUG_DIR;
+// Read only by native builds with the `file_secure_storage` feature (see the Main command).
+process.env.BITWARDEN_SECURE_STORAGE_FILE = path.join(
+  process.env.BITWARDEN_APPDATA_DIR,
+  "secure-storage.json",
+);
 
 process.env.NODE_ENV = "development";
 
@@ -67,7 +73,7 @@ const { commands } = concurrently(
   [
     {
       name: "Main",
-      command: `npm run build-native && ${watchCommand("main")}`,
+      command: `npm run build-native -- --features=file_secure_storage && ${watchCommand("main")}`,
       prefixColor: "yellow",
     },
     {

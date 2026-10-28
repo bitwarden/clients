@@ -254,7 +254,8 @@ export class WindowMain {
         // This method will be called when Electron has finished
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
-        app.on("ready", async () => {
+        // `whenReady()` also covers callers that run after the `ready` event has already fired.
+        void app.whenReady().then(async () => {
           this.session = session.fromPartition("persist:bitwarden", { cache: false });
           this.setupAppProtocol();
 

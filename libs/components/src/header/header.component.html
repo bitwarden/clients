@@ -24,26 +24,28 @@
           <ng-container *ngTemplateOutlet="breadcrumbs"></ng-container>
         </div>
         @if (!hasPromotedHeading()) {
-          <h1
-            bitTypography="h1"
-            noMargin
-            class="tw-m-0 tw-leading-10 tw-flex tw-items-center tw-gap-1"
-            [title]="title()"
-          >
-            <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
-              <ng-content select="[slot=title-prefix]"></ng-content>
-              <div class="tw-truncate">
-                @if (icon()) {
-                  <bit-icon [name]="icon()" />
-                }
+          <div class="tw-flex tw-items-center tw-gap-1">
+            <h1
+              bitTypography="h1"
+              noMargin
+              class="tw-m-0 tw-flex tw-min-w-0 tw-items-center tw-leading-10"
+              [title]="title()"
+            >
+              <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
+                <ng-content select="[slot=title-prefix]"></ng-content>
+                <div class="tw-truncate">
+                  @if (icon()) {
+                    <bit-icon [name]="icon()" />
+                  }
 
-                {{ title() }}
+                  {{ title() }}
+                </div>
               </div>
+            </h1>
+            <div class="tw-flex tw-items-center" bitTypography="h1" noMargin>
+              <ng-container #titleSuffixOutlet></ng-container>
             </div>
-            <div class="tw-flex tw-items-center">
-              <ng-container *ngTemplateOutlet="titleSuffix"></ng-container>
-            </div>
-          </h1>
+          </div>
         }
         <div bitTypography="body1" class="tw-text-fg-body tw-max-w-[800px] empty:tw-hidden">
           <ng-content select="[slot=subtitle]"></ng-content>
@@ -80,7 +82,7 @@
             {{ title() }}
           </div>
           <div>
-            <ng-container *ngTemplateOutlet="titleSuffix"></ng-container>
+            <ng-container #titleSuffixOutlet></ng-container>
           </div>
         </h1>
       </div>

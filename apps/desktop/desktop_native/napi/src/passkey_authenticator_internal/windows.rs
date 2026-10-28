@@ -1,7 +1,22 @@
-use anyhow::{anyhow, Result};
+use windows_plugin_authenticator::AuthenticatorState;
 
-pub fn register() -> Result<()> {
-    windows_plugin_authenticator::register().map_err(|e| anyhow!(e))?;
+use super::RegisterError;
+use crate::passkey_authenticator::passkey_authenticator::PasskeyProviderState;
 
-    Ok(())
+pub fn register() -> Result<(), RegisterError> {
+    windows_plugin_authenticator::register().map_err(|e| match e {
+        windows_plugin_authenticator::RegisterError::NotSupported => RegisterError::NotSupported,
+        windows_plugin_authenticator::RegisterError::Failed(reason) => {
+            RegisterError::Failed(reason)
+        }
+    })
+}
+
+#[allow(clippy::unused_async)]
+pub async fn get_state() -> anyhow::Result<PasskeyProviderState> {
+    let state = windows_plugin_authenticator::authenticator_state();
+    Ok(PasskeyProviderState {
+        registered: state.is_some(),
+        enabled: state == Some(AuthenticatorState::Enabled),
+    })
 }

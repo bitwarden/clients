@@ -1,5 +1,6 @@
 import { Component, inject } from "@angular/core";
-import { combineLatest, map, Observable, of, startWith, switchMap } from "rxjs";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import {
@@ -17,8 +18,15 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
+import {
+  ALL_ITEMS_SCOPE,
+  parseVaultScope,
+  VAULT_BASE_ROUTE,
+  vaultScopeCommands,
+} from "@bitwarden/vault";
 
-import { HEALTH_TAB_NAV_BUTTON } from "./health-tab-nav-button";
+import { HealthAccessService } from "../dirt/health/popup/services/health-access.service";
+import { VaultPopupListTableFiltersService } from "../vault/popup/services/vault-popup-list-table-filters.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -28,9 +36,16 @@ import { HEALTH_TAB_NAV_BUTTON } from "./health-tab-nav-button";
   standalone: false,
 })
 export class TabsV2Component {
+  constructor(
+    private nudgesService: NudgesService,
+    private accountService: AccountService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
+  ) {}
+
   private sendPolicyService = inject(SendPolicyService);
-  private healthNavButton$: Observable<BottomNavigationButton | undefined> =
-    inject(HEALTH_TAB_NAV_BUTTON, { optional: true }) ?? of(undefined);
+  private healthAccessService = inject(HealthAccessService);
+  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
+  private readonly vaultBasePath = inject(VAULT_BASE_ROUTE);
 
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   private hasActiveBadges$ = this.userId$.pipe(
@@ -42,6 +57,10 @@ export class TabsV2Component {
     this.autofillSettingsService.showClipboardSettingUpdateNotification$,
   ]).pipe(map(([hasBadges, showClipboard]) => hasBadges || showClipboard));
 
+  private healthNavButton$ = this.userId$.pipe(
+    switchMap((userId) => this.healthAccessService.healthNavButton$(userId)),
+  );
+
   private sendEnabled$ = this.sendPolicyService.disableSend$.pipe(
     map((disableSend) => !disableSend),
   );
@@ -50,12 +69,15 @@ export class TabsV2Component {
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
     this.healthNavButton$.pipe(startWith(undefined)),
+    toObservable(this.listFiltersService.cachedVaultScopeId).pipe(startWith(null)),
   ]).pipe(
-    map(([showBerry, sendEnabled, healthNavButton]) => {
+    map(([showBerry, sendEnabled, healthNavButton, scopeId]) => {
+      const scope = parseVaultScope(scopeId) ?? ALL_ITEMS_SCOPE;
+      const vaultPage = vaultScopeCommands(scope, this.vaultBasePath).join("/");
       const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
-          page: "/tabs/vault",
+          page: vaultPage,
           icon: VaultInactive,
           iconActive: VaultActive,
         },
@@ -87,10 +109,4 @@ export class TabsV2Component {
       return buttons;
     }),
   );
-
-  constructor(
-    private nudgesService: NudgesService,
-    private accountService: AccountService,
-    private autofillSettingsService: AutofillSettingsServiceAbstraction,
-  ) {}
 }

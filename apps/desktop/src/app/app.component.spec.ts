@@ -18,6 +18,8 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { AccountSwitcherService } from "@bitwarden/common/auth/account-switcher";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
@@ -64,8 +66,15 @@ describe("AppComponent (desktop)", () => {
   let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
   let router: MockProxy<Router>;
+  let authService: MockProxy<AuthService>;
+  let messagingService: MockProxy<MessagingService>;
+  let modalService: MockProxy<ModalService>;
+  let keyService: MockProxy<KeyService>;
+  let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
+  let accountSwitcherService: MockProxy<AccountSwitcherService>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
+  let lastZoneRunResult: unknown;
 
   const userId = "user-1" as UserId;
 
@@ -82,10 +91,17 @@ describe("AppComponent (desktop)", () => {
     dialogService = mock<DialogService>();
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
+    authService = mock<AuthService>();
+    messagingService = mock<MessagingService>();
+    modalService = mock<ModalService>();
+    keyService = mock<KeyService>();
+    userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
+    accountSwitcherService = mock<AccountSwitcherService>();
+    accountSwitcherService.resolveActiveAccount.mockResolvedValue({ action: "keep" });
 
     accountService.activeAccount$ = of({ id: userId } as any);
     (accountService as any).showHeader$ = EMPTY;
-    ngZone.run.mockImplementation((fn: () => unknown) => fn() as any);
+    ngZone.run.mockImplementation((fn: () => unknown) => (lastZoneRunResult = fn()) as any);
     ngZone.runOutsideAngular.mockImplementation((fn: () => unknown) => fn() as any);
 
     broadcasterService.subscribe.mockImplementation((_id: string, cb: (message: any) => void) => {
@@ -105,23 +121,23 @@ describe("AppComponent (desktop)", () => {
           mock<InternalFolderService>(),
           syncService,
           mock<CipherService>(),
-          mock<AuthService>(),
+          authService,
           router,
           mock<ToastService>(),
           mock<I18nService>(),
           ngZone,
           mock<VaultTimeoutSettingsService>(),
-          mock<KeyService>(),
+          keyService,
           mock<LegacyCompatKeyService>(),
           logService,
-          mock<MessagingService>(),
+          messagingService,
           mock<ServerNotificationsService>(),
           mock<PlatformUtilsService>(),
           mock<SystemService>(),
           mock<ProcessReloadServiceAbstraction>(),
           mock<StateService>(),
           mock<EventUploadService>(),
-          mock<ModalService>(),
+          modalService,
           mock<UserVerificationService>(),
           configService,
           dialogService,
@@ -129,7 +145,7 @@ describe("AppComponent (desktop)", () => {
           mock<StateEventRunnerService>(),
           accountService,
           deviceTrustToastService,
-          mock<UserDecryptionOptionsServiceAbstraction>(),
+          userDecryptionOptionsService,
           mock<DestroyRef>(),
           documentLangSetter,
           mock<RestrictedItemTypesService>(),
@@ -144,6 +160,7 @@ describe("AppComponent (desktop)", () => {
           mock<AccountDeletionService>(),
           premiumCheckoutPendingService,
           mock<BillingAccountProfileStateService>(),
+          accountSwitcherService,
         ),
     );
 
@@ -152,6 +169,8 @@ describe("AppComponent (desktop)", () => {
 
   const dispatchMessage = async (message: any) => {
     await broadcasterCallback(message);
+    // The message handler runs inside an un-awaited `ngZone.run`, so wait for it to finish.
+    await lastZoneRunResult;
   };
 
   it("syncs once on window focus when a premium checkout was pending", async () => {
@@ -232,6 +251,189 @@ describe("AppComponent (desktop)", () => {
 
       expect(router.navigate).toHaveBeenCalledWith(["/import"]);
       expect(dialogService.open).not.toHaveBeenCalledWith(ImportDesktopComponent);
+    });
+  });
+
+  describe("switchAccount message", () => {
+    const targetUserId = "user-2" as UserId;
+
+    it("navigates to login without syncing when the target account is logged out", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+
+      await dispatchMessage({ command: "switchAccount", userId: targetUserId });
+
+      expect(accountService.switchAccount).toHaveBeenCalledWith(targetUserId);
+      expect(modalService.closeAll).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["login"]);
+      expect(router.navigate).not.toHaveBeenCalledWith(["vault"], expect.anything());
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(messagingService.send).not.toHaveBeenCalledWith("unlocked");
+      expect(messagingService.send).toHaveBeenCalledWith("finishSwitchAccount");
+    });
+
+    it("keeps the router outlet mounted when the target account is logged out", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+      let loadingDuringNavigation: boolean | undefined;
+      router.navigate.mockImplementation(async () => {
+        loadingDuringNavigation = component.loading;
+        return true;
+      });
+
+      await dispatchMessage({ command: "switchAccount", userId: targetUserId });
+
+      expect(loadingDuringNavigation).toBe(false);
+      expect(component.loading).toBe(false);
+    });
+
+    it("navigates to lock when the target account is locked", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(of({} as any));
+      keyService.everHadUserKey$.mockReturnValue(of(true));
+
+      await dispatchMessage({ command: "switchAccount", userId: targetUserId });
+
+      expect(router.navigate).toHaveBeenCalledWith(["lock"]);
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(messagingService.send).toHaveBeenCalledWith("finishSwitchAccount");
+    });
+
+    it("navigates to login-initiated when a locked TDE account never had a user key", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of({ trustedDeviceOption: {} } as any),
+      );
+      keyService.everHadUserKey$.mockReturnValue(of(false));
+
+      await dispatchMessage({ command: "switchAccount", userId: targetUserId });
+
+      expect(router.navigate).toHaveBeenCalledWith(["login-initiated"]);
+      expect(router.navigate).not.toHaveBeenCalledWith(["lock"]);
+      expect(messagingService.send).toHaveBeenCalledWith("finishSwitchAccount");
+    });
+
+    it("syncs and navigates to the vault when the target account is unlocked", async () => {
+      authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
+
+      await dispatchMessage({ command: "switchAccount", userId: targetUserId });
+
+      expect(messagingService.send).toHaveBeenCalledWith("unlocked");
+      expect(syncService.fullSync).toHaveBeenCalledWith(false);
+      expect(router.navigate).toHaveBeenCalledWith(["vault"], { onSameUrlNavigation: "reload" });
+      expect(messagingService.send).toHaveBeenCalledWith("finishSwitchAccount");
+    });
+  });
+
+  describe("active account resolution on load", () => {
+    const resolveOnLoad = async () => {
+      component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve));
+    };
+
+    it("asks the switcher service once when initialized", () => {
+      expect(accountSwitcherService.resolveActiveAccount).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears the active account and navigates to login when no account can replace it", async () => {
+      accountSwitcherService.resolveActiveAccount.mockResolvedValue({ action: "clear" });
+
+      await resolveOnLoad();
+
+      expect(accountService.switchAccount).toHaveBeenCalledWith(null);
+      expect(router.navigate).toHaveBeenCalledWith(["login"]);
+      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
+    });
+
+    it("does nothing when the active account can stay active", async () => {
+      await resolveOnLoad();
+
+      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
+      expect(accountService.switchAccount).not.toHaveBeenCalled();
+    });
+
+    describe("when sent messages reach the message handler", () => {
+      const nextUserId = "user-2" as UserId;
+
+      /** Initializes the component and resolves once the resulting account switch finishes. */
+      const resolveOnLoadThroughHandler = () => {
+        const switchFinished = new Promise<void>((resolve) => {
+          messagingService.send.mockImplementation((command: string, arg: object = {}) => {
+            if (command === "finishSwitchAccount") {
+              resolve();
+            }
+            void broadcasterCallback({ command, ...arg });
+          });
+        });
+        component.ngOnInit();
+        return switchFinished;
+      };
+
+      it("lands on login without re-creating the router outlet when the resolved account is logged out", async () => {
+        accountSwitcherService.resolveActiveAccount.mockResolvedValue({
+          action: "switch",
+          targetUserId: nextUserId,
+        });
+        authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+        const loadingDuringNavigation: boolean[] = [];
+        router.navigate.mockImplementation(async () => {
+          loadingDuringNavigation.push(component.loading);
+          return true;
+        });
+
+        await resolveOnLoadThroughHandler();
+
+        expect(accountService.switchAccount).toHaveBeenCalledWith(nextUserId);
+        expect(router.navigate).toHaveBeenCalledWith(["login"]);
+        expect(loadingDuringNavigation).toEqual([false]);
+        expect(syncService.fullSync).not.toHaveBeenCalled();
+      });
+    });
+
+    it("logs and does not throw when resolution fails", async () => {
+      const error = new Error("boom");
+      accountSwitcherService.resolveActiveAccount.mockRejectedValue(error);
+
+      await resolveOnLoad();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to resolve the active account on load",
+        error,
+      );
+    });
+  });
+
+  describe("logout message", () => {
+    it("switches to the next switchable account when the active account logs out", async () => {
+      const nextUserId = "user-2" as UserId;
+      accountSwitcherService.nextSwitchableAccount$ = of({ id: nextUserId } as any);
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+
+      await dispatchMessage({ command: "logout", userId });
+
+      expect(messagingService.send).toHaveBeenCalledWith("switchAccount", { userId: nextUserId });
+      expect(accountService.switchAccount).not.toHaveBeenCalledWith(null);
+      expect(router.navigate).not.toHaveBeenCalledWith(["login"]);
+    });
+
+    it("does not switch accounts when a background account logs out", async () => {
+      const backgroundUserId = "user-3" as UserId;
+      accountSwitcherService.nextSwitchableAccount$ = of({ id: "user-2" } as any);
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+
+      await dispatchMessage({ command: "logout", userId: backgroundUserId });
+
+      expect(messagingService.send).not.toHaveBeenCalledWith("switchAccount", expect.anything());
+      expect(accountService.switchAccount).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalledWith(["login"]);
+    });
+
+    it("clears the active account and navigates to login when no account is switchable", async () => {
+      accountSwitcherService.nextSwitchableAccount$ = of(null);
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.LoggedOut));
+
+      await dispatchMessage({ command: "logout", userId });
+
+      expect(accountService.switchAccount).toHaveBeenCalledWith(null);
+      expect(router.navigate).toHaveBeenCalledWith(["login"]);
     });
   });
 });

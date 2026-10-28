@@ -5,6 +5,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -41,12 +42,25 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: () => VaultTimeoutSettingsService,
     private ipcService: () => IpcService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     super();
   }
 
+  /**
+   * Returns true to use SDK IPC, false to use native messaging.
+   * Safari always uses native messaging. It has no desktop IPC transport, and its Swift
+   * handler only supports native messaging commands.
+   */
+  private async useSdkIpc(): Promise<boolean> {
+    return (
+      !this.platformUtilsService.isSafari() &&
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC))
+    );
+  }
+
   async authenticateWithBiometrics(): Promise<boolean> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (await this.useSdkIpc()) {
       try {
         return await ipcRequestAuthenticateBiometrics(
           this.ipcService().client,
@@ -77,7 +91,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       return BiometricsStatus.NativeMessagingPermissionMissing;
     }
 
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (await this.useSdkIpc()) {
       return BiometricsStatus.Available;
     }
 
@@ -98,7 +112,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (await this.useSdkIpc()) {
       // Handle SDK-based biometric unlock
       try {
         const response = await ipcRequestUnlockBiometrics(
@@ -169,7 +183,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (await this.useSdkIpc()) {
       try {
         const status = await ipcRequestGetBiometricsStatus(
           this.ipcService().client,

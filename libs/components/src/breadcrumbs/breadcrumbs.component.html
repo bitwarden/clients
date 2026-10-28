@@ -98,6 +98,13 @@
       </span>
     }
   }
+  <!--
+    `bit-header` renders its title suffix here if the active crumb is the page heading. Kept in
+    the DOM (hidden while empty) so its width can be observed and reserved.
+  -->
+  <span #titleSuffixContainer class="tw-ms-1 tw-flex tw-shrink-0 tw-items-center empty:tw-hidden">
+    <ng-container #titleSuffixOutlet />
+  </span>
   @if (showTrailingArrow()) {
     <ng-container [ngTemplateOutlet]="arrow" />
   }

@@ -1,9 +1,14 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import {
+  getFlatCollectionTree,
+  getNestedCollectionTree,
+} from "@bitwarden/common/admin-console/utils/collection-utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { cipherInScope, VaultScope, VaultScopeType } from "../../models/vault-scope";
+import { sharedFolderName } from "../../utils/shared-folder-name";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 
@@ -11,9 +16,18 @@ import { SharedFolderPermission } from "./shared-folder-permission";
 export type SharedFolderRow = {
   id: CollectionId;
   organizationId: OrganizationId;
+
+  /** The folder's own name, without its parent path — see {@link sharedFolderName}. */
   name: string;
+
   permissions: SharedFolderPermission;
+
+  /** Items in this folder and every folder nested beneath it, each counted once. */
   items: number;
+
+  /** How many shared folders sit directly inside this one. */
+  nestedSharedFolders: number;
+
   canEdit: boolean;
   canDelete: boolean;
 
@@ -43,6 +57,10 @@ export type SharedFolderRowsParams = {
  * what the member may do with it resolved. Shared across clients so they can't disagree on any of
  * the three.
  *
+ * Only top-level folders are listed. Nesting comes from {@link getNestedCollectionTree}, so a
+ * folder whose parent the member can't see is listed at the top level, as in the drill-in's card
+ * grid.
+ *
  * The organization's "My items" collection is left out: it's the member's own default collection
  * rather than a shared folder, and the side nav already offers it as its own destination.
  */
@@ -52,19 +70,35 @@ export function sharedFolderRows({
   collections,
   ciphers,
 }: SharedFolderRowsParams): SharedFolderRow[] {
-  const itemCounts = sharedFolderItemCounts(ciphers, organizationId);
+  const sharedFolders = collections.filter(
+    (collection) => collection.organizationId === organizationId && !collection.isDefaultCollection,
+  );
 
-  return collections
-    .filter(
-      (collection) =>
-        collection.organizationId === organizationId && !collection.isDefaultCollection,
-    )
+  // Keyed by id rather than read off the tree, whose nodes are clones renamed to their last path
+  // segment. Copied because the helper sorts its argument in place.
+  const roots = getNestedCollectionTree([...sharedFolders]);
+  const nestedCounts = new Map(roots.map((root) => [root.node.id, root.children.length]));
+
+  // Each folder's top-level ancestor, or itself for a top-level folder.
+  const rootOf = new Map<string, string>();
+  for (const root of roots) {
+    for (const descendant of getFlatCollectionTree([root])) {
+      rootOf.set(descendant.id, root.node.id);
+    }
+  }
+  const itemCounts = sharedFolderItemCounts(ciphers, organizationId, (collectionId) =>
+    rootOf.get(collectionId),
+  );
+
+  return sharedFolders
+    .filter((collection) => nestedCounts.has(collection.id))
     .map((collection) => ({
       id: collection.id,
       organizationId: collection.organizationId,
-      name: collection.name,
+      name: sharedFolderName(collection),
       permissions: sharedFolderPermission(collection, organization),
       items: itemCounts.get(collection.id) ?? 0,
+      nestedSharedFolders: nestedCounts.get(collection.id) ?? 0,
       canEdit: collection.canEdit(organization),
       canDelete: collection.canDelete(organization),
       collection,
@@ -103,10 +137,15 @@ export function sharedFolderPermission(
  * terms as the vault page's folder drill-in. The scope names no collection, so each in-scope
  * cipher is distributed across its own `collectionIds` — one pass over the ciphers total rather
  * than one pass per folder.
+ *
+ * `groupOf` pools folders under a shared key — e.g. each folder under its top-level ancestor — and
+ * a cipher in several folders of one group counts toward it once. A folder it maps to `undefined`
+ * is left uncounted. Defaults to each folder being its own group.
  */
 export function sharedFolderItemCounts(
   ciphers: CipherViewLike[],
   organizationId: OrganizationId,
+  groupOf: (collectionId: string) => string | undefined = (collectionId) => collectionId,
 ): Map<string, number> {
   const scope: VaultScope = { type: VaultScopeType.Organization, organizationId };
   const counts = new Map<string, number>();
@@ -116,9 +155,16 @@ export function sharedFolderItemCounts(
       continue;
     }
 
+    const groups = new Set<string>();
     for (const collectionId of cipher.collectionIds ?? []) {
-      const key = String(collectionId);
-      counts.set(key, (counts.get(key) ?? 0) + 1);
+      const group = groupOf(String(collectionId));
+      if (group !== undefined) {
+        groups.add(group);
+      }
+    }
+
+    for (const group of groups) {
+      counts.set(group, (counts.get(group) ?? 0) + 1);
     }
   }
 

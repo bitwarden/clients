@@ -1,0 +1,35 @@
+<!--
+    Merged into the manifest's <Extensions> by electron-builder (appx.customExtensionsPath)
+    and by scripts/appx-cross-build.ps1. It is inlined verbatim: electron-builder doesn't expand
+    macros here, and its manifest declares no `com` or `uap3` prefix, so this declares its own.
+
+    The class ID is templated and read from the specified config file by scripts/appx-manifest-created.js.
+    The app reads the class ID from the same config at runtime, so the class ID is defined in exactly one place.
+
+    The execution alias lets browsers launch desktop_proxy as a native messaging host: other
+    applications may not launch executables inside the package except through an alias. The app
+    writes the alias path into the native messaging manifests, so keep the alias in sync with
+    src/main/native-messaging.main.ts.
+
+    Keep macro-shaped text out of this comment: the resolvers substitute anything matching,
+    comments included.
+-->
+          <com:Extension xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+            Category="windows.comServer">
+            <com:ComServer>
+              <com:ExeServer Executable="app\bitwarden_plugin_authenticator.exe"
+                Arguments="serve"
+                DisplayName="Bitwarden Passkey Manager">
+                <com:Class Id="${clsid:windows_plugin_authenticator_config.stable.json}"
+                  DisplayName="Bitwarden Passkey Manager" />
+              </com:ExeServer>
+            </com:ComServer>
+          </com:Extension>
+          <uap3:Extension xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+            Category="windows.appExecutionAlias"
+            Executable="app\desktop_proxy.exe"
+            EntryPoint="Windows.FullTrustApplication">
+            <uap3:AppExecutionAlias>
+              <desktop:ExecutionAlias Alias="bitwarden_desktop_proxy.exe" />
+            </uap3:AppExecutionAlias>
+          </uap3:Extension>

@@ -4,7 +4,7 @@ import { of, Subject } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
+import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -12,8 +12,10 @@ import {
   Message,
   MessageListener,
 } from "@bitwarden/common/platform/messaging";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { LockService } from "@bitwarden/unlock";
 
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import {
   LockedVaultPendingNotificationsData,
   RETRY_SENDER,
@@ -30,6 +32,7 @@ describe("CommandsBackground", () => {
   const senderTab = createChromeTabMock({ id: 4, windowId: 2 });
 
   let main: MockProxy<MainBackground>;
+  let autofillOrchestrator: MockProxy<AutofillOrchestrator>;
   let authService: MockProxy<AuthService>;
   let logService: MockProxy<LogService>;
   // A real channel rather than a mock: what is under test is that the class reads the
@@ -39,11 +42,14 @@ describe("CommandsBackground", () => {
   let commandsBackground: CommandsBackground;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
 
-  const retainedRetry = (
-    overrides: Partial<LockedVaultPendingNotificationsData> = {},
-  ): LockedVaultPendingNotificationsData => ({
+  const retainedRetry = ({
+    command = ExtensionCommand.AutofillLogin,
+    ...overrides
+  }: Partial<LockedVaultPendingNotificationsData> & {
+    command?: ExtensionCommandType;
+  } = {}): LockedVaultPendingNotificationsData => ({
     commandToRetry: {
-      message: { command: ExtensionCommand.AutofillLogin },
+      message: { command },
       [RETRY_SENDER]: { tab: senderTab },
     },
     target: "commands.background",
@@ -56,6 +62,11 @@ describe("CommandsBackground", () => {
     logService = mock<LogService>();
     main = mock<MainBackground>();
     Object.defineProperty(main, "logService", { value: logService, configurable: true });
+    autofillOrchestrator = mock<AutofillOrchestrator>();
+    Object.defineProperty(main, "autofillOrchestrator", {
+      value: autofillOrchestrator,
+      configurable: true,
+    });
     authService = mock<AuthService>();
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
     intraprocessMessageSender = new IntraprocessMessageSender();
@@ -90,10 +101,25 @@ describe("CommandsBackground", () => {
       intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data: retainedRetry() });
       await flushPromises();
 
-      expect(main.collectPageDetailsForContentScript).toHaveBeenCalledWith(
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(senderTab);
+    });
+
+    // The retained command selects the fill by *which* orchestrator method it reaches, not by an
+    // argument, so each command is a separate arm of `triggerAutofillCommand` and needs its own case.
+    it.each([
+      [ExtensionCommand.AutofillCard, CipherType.Card],
+      [ExtensionCommand.AutofillIdentity, CipherType.Identity],
+    ])("replays a retained %s against the retained tab", async (command, cipherType) => {
+      intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, {
+        data: retainedRetry({ command }),
+      });
+      await flushPromises();
+
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
         senderTab,
-        ExtensionCommand.AutofillCommand,
+        cipherType,
       );
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
     it("does nothing when another target owns the retry", async () => {
@@ -102,7 +128,7 @@ describe("CommandsBackground", () => {
       });
       await flushPromises();
 
-      expect(main.collectPageDetailsForContentScript).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
     it("security: drops a retry whose sender did not survive leaving this context", async () => {
@@ -115,7 +141,7 @@ describe("CommandsBackground", () => {
       await flushPromises();
 
       expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
-      expect(main.collectPageDetailsForContentScript).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
     it("security: drops a retry whose sender names no tab", async () => {
@@ -127,7 +153,7 @@ describe("CommandsBackground", () => {
       await flushPromises();
 
       expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
-      expect(main.collectPageDetailsForContentScript).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
     it("security: ignores a retry that arrived from another context", async () => {
@@ -139,7 +165,7 @@ describe("CommandsBackground", () => {
       } as unknown as Message<Record<string, unknown>>);
       await flushPromises();
 
-      expect(main.collectPageDetailsForContentScript).not.toHaveBeenCalled();
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
     });
 
     it("survives a malformed payload without logging an error or dropping the subscription", async () => {
@@ -154,10 +180,7 @@ describe("CommandsBackground", () => {
       intraprocessMessageSender.send(RETRY_WHEN_UNLOCK_COMPLETED, { data: retainedRetry() });
       await flushPromises();
 
-      expect(main.collectPageDetailsForContentScript).toHaveBeenCalledWith(
-        senderTab,
-        ExtensionCommand.AutofillCommand,
-      );
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(senderTab);
     });
   });
 });

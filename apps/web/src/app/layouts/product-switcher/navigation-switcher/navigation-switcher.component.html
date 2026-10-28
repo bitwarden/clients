@@ -18,6 +18,11 @@
     type="button"
     [attr.aria-label]="'switchProducts' | i18n"
     [bitMenuTriggerFor]="navSwitcherMenu"
+    [bitPopoverAnchorFor]="switchProductsCoachmark.popover()"
+    [popoverOpen]="coachmark.isStepActive('switchProducts')"
+    [position]="coachmark.getStepPosition('switchProducts')"
+    [closeOnBackdropClick]="false"
+    [spotlight]="coachmark.isStepActive('switchProducts')"
   >
     <div class="tw-flex tw-items-center tw-gap-3 tw-min-w-0">
       @if (activeProduct) {
@@ -33,6 +38,7 @@
     </div>
     <bit-icon name="bwi-up-down-btn"></bit-icon>
   </button>
+  <vault-coachmark #switchProductsCoachmark stepId="switchProducts" />
   <bit-menu #navSwitcherMenu>
     <ng-template #moreProductContent let-more>
       <div class="tw-flex tw-justify-between tw-w-full tw-items-center">

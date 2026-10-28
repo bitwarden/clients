@@ -75,6 +75,7 @@ import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
@@ -87,6 +88,7 @@ import {
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
+import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
   areKeyValuesNull,
   generateDomainMatchPatterns,
@@ -98,6 +100,7 @@ import {
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
+import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 import {
   ADD_TO_LOCKED_VAULT_PENDING_NOTIFICATIONS,
   LockedVaultPendingNotificationsData,
@@ -284,6 +287,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private autofillOrchestrator: AutofillOrchestrator,
     private configService: ConfigService,
     /** Publishes the retry queued for after the unlock. */
     private intraprocessMessageSender: IntraprocessMessageSender,
@@ -1459,11 +1463,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const tab = sender.tab;
     const tabId = tab.id;
-    await BrowserApi.tabSendMessage(
-      tab,
-      { command: "collectPageDetails" },
-      { frameId: this.focusedFieldData?.frameId },
-    );
+    // awaiting `collectPageDetails` lets the frames' responses settle into `pageDetailsForTab`
+    // (via `storePageDetails`) before the read.
+    await this.autofillOrchestrator.collectPageDetails(tab, this.focusedFieldData?.frameId);
 
     const pageDetailsForTab = this.pageDetailsForTab[tabId];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
@@ -1504,7 +1506,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const result = await this.autofillService.doAutoFill({
+    const result = await this.autofillOrchestrator.fillCipher({
       tab,
       cipher,
       pageDetails,
@@ -1515,18 +1517,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill (or a fill with no TOTP target) doesn't imply no TOTP: some sites hide the TOTP
-    // input so the fill script can't target it. Still resolve + copy when the user explicitly
-    // chose a TOTP-bearing cipher.
-    const totpCode =
-      result.didAutofill && result.totp
-        ? result.totp
-        : await this.autofillService.getTotpCopyCode(cipher);
-    if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    // A denial terminates the request.
+    if (!didFillOccur(result)) {
+      return;
     }
 
-    if (!result.didAutofill) {
+    if (shouldAutoCopyTotp(result)) {
+      this.platformUtilsService.copyToClipboard(result.totp);
+    }
+
+    // Last-used records a credential the user actually placed, so an attempt that filled nothing
+    // leaves the ordering alone.
+    if (result.outcome !== AutofillOutcome.Filled) {
       return;
     }
 
@@ -2323,7 +2325,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      const { didAutofill } = await this.autofillService.doAutoFill({
+      const generatedPasswordFill = await this.autofillOrchestrator.fillCipher({
         tab: senderTab,
         cipher,
         pageDetails,
@@ -2335,9 +2337,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       });
 
       // The follow-on modify-login message only makes sense when a password was actually filled;
-      // gate on the outcome so a no-fill does not arm it (a no-fill previously aborted here by throw).
+      // gate on the outcome so an attempt that placed nothing does not arm it.
       const frameId = this.focusedFieldData?.frameId;
-      if (didAutofill && frameId !== null && frameId !== undefined) {
+      if (
+        generatedPasswordFill.outcome === AutofillOutcome.Filled &&
+        frameId !== null &&
+        frameId !== undefined
+      ) {
         globalThis.setTimeout(() => {
           BrowserApi.tabSendMessage(
             senderTab,

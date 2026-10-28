@@ -99,7 +99,6 @@ import {
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
@@ -166,9 +165,16 @@ import {
   PasswordRepromptService,
   SHARE_ITEM_ENTRY_POINT,
   SshImportPromptService,
+  VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavService,
+  VFO1_FILTERS_STEP,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_SWITCH_PRODUCTS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
+import { OrganizationOptionsComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/components/organization-options.component";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -490,7 +496,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
-    deps: [MessagingService, RouterService, OrganizationInviteService],
+    deps: [RouterService, OrganizationInviteService],
   }),
   safeProvider({
     provide: IpcService,
@@ -515,6 +521,7 @@ const safeProviders: SafeProvider[] = [
       SharedUnlockSettingsService,
       UnlockService,
       ConfigService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -553,6 +560,10 @@ const safeProviders: SafeProvider[] = [
     provide: VaultNavService,
     useClass: DefaultVaultNavService,
     deps: [],
+  }),
+  safeProvider({
+    provide: VAULT_NAV_ORGANIZATION_OPTIONS,
+    useValue: OrganizationOptionsComponent,
   }),
   safeProvider({
     provide: PremiumUpgradePromptService,
@@ -623,6 +634,15 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SHARE_ITEM_ENTRY_POINT,
     useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [
+      VFO1_SWITCH_PRODUCTS_STEP,
+      VFO1_VAULT_LIST_STEP,
+      VFO1_SHARED_FOLDERS_STEP,
+      VFO1_FILTERS_STEP,
+    ],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,

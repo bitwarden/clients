@@ -8,7 +8,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessRuleSdkService, AccessRuleView } from "..";
+import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "..";
+import { GovernedCollectionsService } from "../services/governed-collections.service";
+import { startClockAtStoryNow } from "../testing/story-fixtures";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
@@ -20,7 +22,6 @@ const ORG_COLLECTIONS = [
   { id: "col-5", name: "Operations" },
 ];
 
-/** Builds an AccessRuleView with sensible defaults; overrides fill in per-rule specifics. */
 function rule(overrides: Record<string, unknown>): AccessRuleView {
   return {
     id: "rule",
@@ -58,6 +59,7 @@ const RULES: AccessRuleView[] = [
     conditions: [{ kind: "human_approval" }],
     collections: ["col-2", "col-3"],
     defaultLeaseDurationSeconds: 30 * 60,
+    maxLeaseDurationSeconds: 15 * 60,
     singleActiveLease: true,
     revisionDate: "2024-04-20T14:30:00.000Z",
   }),
@@ -67,6 +69,7 @@ const RULES: AccessRuleView[] = [
     enabled: false,
     collections: ["col-4"],
     defaultLeaseDurationSeconds: 8 * 60 * 60,
+    maxLeaseDurationSeconds: 24 * 60 * 60,
     revisionDate: "2024-03-15T08:00:00.000Z",
   }),
   rule({
@@ -76,9 +79,16 @@ const RULES: AccessRuleView[] = [
     defaultLeaseDurationSeconds: 15 * 60,
     revisionDate: "2024-05-10T18:45:00.000Z",
   }),
+  rule({
+    id: "rule-5",
+    name: "Payments platform on-call rotation",
+    description: "D".repeat(ACCESS_RULE_DESCRIPTION_MAX_LENGTH),
+    collections: ["col-5"],
+    defaultLeaseDurationSeconds: 60 * 60,
+    revisionDate: "2024-05-11T10:00:00.000Z",
+  }),
 ];
 
-/** Base SDK mock; per-story decorators override `listAccessRules` for the empty/loading states. */
 function pamApi(listAccessRules: () => Promise<AccessRuleView[]>): Partial<AccessRuleSdkService> {
   return {
     listAccessRules,
@@ -90,6 +100,7 @@ function pamApi(listAccessRules: () => Promise<AccessRuleView[]>): Partial<Acces
 export default {
   title: "Web/PAM/Access Rules",
   component: AccessRulesComponent,
+  beforeEach: startClockAtStoryNow,
   decorators: [
     applicationConfig({
       providers: [
@@ -107,6 +118,8 @@ export default {
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccessRuleSdkService, useValue: pamApi(() => Promise.resolve(RULES)) },
+        // Injected by `AccessRulesService`, which only ever calls `invalidate` here.
+        { provide: GovernedCollectionsService, useValue: { invalidate: () => {} } },
       ],
     }),
   ],
@@ -114,10 +127,10 @@ export default {
 
 type Story = StoryObj<AccessRulesComponent>;
 
-/** The populated table: a mix of enabled/disabled rules, conditions, and lease windows. */
+/** A mix of active and inactive rules, conditions and duration caps. */
 export const Default: Story = {};
 
-/** No rules yet — the empty state with starter templates is shown. */
+/** No rules yet, so the empty state offers the starter templates. */
 export const Empty: Story = {
   decorators: [
     moduleMetadata({
@@ -126,7 +139,7 @@ export const Empty: Story = {
   ],
 };
 
-/** The initial load, before rules resolve — a spinner. */
+/** A spinner until the rules resolve. */
 export const Loading: Story = {
   decorators: [
     moduleMetadata({

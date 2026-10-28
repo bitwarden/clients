@@ -10,7 +10,6 @@ import {
   input,
   output,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
@@ -41,10 +40,6 @@ import { SecretService } from "../secrets/secret.service";
 })
 export class SecretsListComponent implements OnDestroy {
   private readonly configService = inject(ConfigService);
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
 
   protected readonly dataSource = new TableDataSource<SecretListView>();
 

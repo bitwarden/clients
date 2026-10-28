@@ -8,7 +8,7 @@ import {
   IdentityLinkedIdType,
 } from "@bitwarden/sdk-internal";
 
-import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockFromJson } from "../../../../spec";
 import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
@@ -52,24 +52,6 @@ describe("Field", () => {
   it("toFieldData", () => {
     const field = new Field(data);
     expect(field.toFieldData()).toEqual(data);
-  });
-
-  it("Decrypt", async () => {
-    const field = new Field();
-    field.type = FieldType.Text;
-    field.name = mockEnc("encName");
-    field.value = mockEnc("encValue");
-
-    const view = await field.decrypt(null);
-
-    expect(view).toEqual({
-      type: 0,
-      name: "encName",
-      value: "encValue",
-      newField: false,
-      showCount: false,
-      showValue: false,
-    });
   });
 
   describe("fromJSON", () => {
