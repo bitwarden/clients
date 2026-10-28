@@ -292,7 +292,7 @@ describe("TrialBillingStepComponent", () => {
       previewDrivenCart$.next(true);
     };
 
-    it("renders the preview cart and hides the radio and legacy prices when both flags are on", fakeAsync(() => {
+    it("renders the preview cart and hides the legacy price block but keeps the radio prices when both flags are on", fakeAsync(() => {
       enableFlags();
       mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
 
@@ -304,8 +304,8 @@ describe("TrialBillingStepComponent", () => {
       expect(fixture.nativeElement.querySelector("app-trial-preview-cart")).toBeTruthy();
       expect(fixture.nativeElement.querySelector("billing-cart-summary")).toBeTruthy();
       expect(fixture.nativeElement.querySelector("#price")).toBeNull();
-      // The cart owns pricing here, so the radio drops its plan price to avoid double-printing.
-      expect(fixture.nativeElement.textContent).not.toContain("$40.00");
+      // The radios keep their per-cadence subtotal even with the cart showing the itemized lines.
+      expect(fixture.nativeElement.textContent).toContain("$40.00");
     }));
 
     it("renders the legacy radios and price block when a flag is off", fakeAsync(() => {
