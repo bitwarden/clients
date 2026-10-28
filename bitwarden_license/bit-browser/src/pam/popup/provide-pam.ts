@@ -12,6 +12,7 @@ import { AccessRequestCancelService } from "@bitwarden/bit-common/pam/services/a
 import { AccessRequestsSdkService } from "@bitwarden/bit-common/pam/services/access-requests-sdk.service";
 import { DefaultLeasingErrorService } from "@bitwarden/bit-common/pam/services/default-leasing-error.service";
 import { MyLeasesService } from "@bitwarden/bit-common/pam/services/my-leases.service";
+import { FillCipherPolicy } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,6 +27,7 @@ import { SafeInjectionToken, SafeProvider, safeProvider } from "@bitwarden/ui-co
 import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 
 import { requestLeaseRefresh } from "../lease-messages";
+import { PamFillCipherPolicy } from "../pam-fill-cipher-policy";
 
 import { BrowserAccessEventService } from "./browser-access-event.service";
 import { BrowserAccessRefreshService } from "./browser-access-refresh.service";
@@ -38,6 +40,11 @@ export function providePam(): SafeProvider[] {
       provide: RevealedCipherService,
       useClass: PopupRevealedCipherService,
       deps: [StateProvider, AuthService, CipherService, MessageSender, LogService, NgZone],
+    }),
+    safeProvider({
+      provide: FillCipherPolicy,
+      useClass: PamFillCipherPolicy,
+      deps: [CipherService, RevealedCipherService],
     }),
     safeProvider({
       // The popup receives no pushes, so it asks the background to re-read on open.
