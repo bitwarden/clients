@@ -29,7 +29,7 @@ describe("direct import credentials field widths", () => {
     return Array.from(root.querySelectorAll("bit-form-field")).map((field) => field.classList);
   }
 
-  it("caps the Keeper email and server fields at 400px", () => {
+  it("caps the Keeper email and server fields at the bounded-input width (tw-max-w-md)", () => {
     const fixture = TestBed.createComponent(ImportControlsKeeperCredentialsComponent);
     fixture.componentRef.setInput(
       "form",
@@ -42,10 +42,10 @@ describe("direct import credentials field widths", () => {
 
     const fields = fieldClassLists(fixture);
     expect(fields).toHaveLength(2);
-    fields.forEach((classList) => expect(classList).toContain("tw-max-w-[400px]"));
+    fields.forEach((classList) => expect(classList).toContain("tw-max-w-md"));
   });
 
-  it("caps the LastPass email field at 400px", () => {
+  it("caps the LastPass email field at the bounded-input width (tw-max-w-md)", () => {
     const fixture = TestBed.createComponent(ImportControlsLastPassCredentialsComponent);
     fixture.componentRef.setInput(
       "form",
@@ -58,6 +58,6 @@ describe("direct import credentials field widths", () => {
 
     const fields = fieldClassLists(fixture);
     expect(fields).toHaveLength(1);
-    expect(fields[0]).toContain("tw-max-w-[400px]");
+    expect(fields[0]).toContain("tw-max-w-md");
   });
 });
