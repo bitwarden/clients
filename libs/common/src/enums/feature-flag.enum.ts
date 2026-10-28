@@ -14,6 +14,7 @@ export enum FeatureFlag {
   CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  GroupsComponentRefactor = "pm-43419-groups-table-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -86,11 +87,11 @@ export enum FeatureFlag {
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  HealthReportExclusions = "pm-39196-health-report-exclusions",
   AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
@@ -131,6 +132,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -164,11 +166,11 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.HealthReportExclusions]: FALSE,
   [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,

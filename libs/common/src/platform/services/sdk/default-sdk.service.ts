@@ -40,7 +40,6 @@ import { AccountCryptographicStateService } from "../../../key-management/accoun
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { UserKey } from "../../../types/key";
 import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -141,7 +140,10 @@ export class DefaultSdkService implements SdkService {
     );
   }
 
-  async unlock(userId: UserId, request: SdkUnlockRequest): Promise<UserKey | null> {
+  async unlock(
+    userId: UserId,
+    request: SdkUnlockRequest,
+  ): Promise<Rc<PasswordManagerClient> | null> {
     return null;
   }
 

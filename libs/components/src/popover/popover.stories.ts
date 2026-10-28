@@ -859,6 +859,43 @@ export const MultipleSpotlights: Story = {
   }),
 };
 
+export const SpotlightFollowsLayoutShift: Story = {
+  render: () => ({
+    props: {
+      bannerVisible: signal(false),
+      toggleBanner() {
+        this.bannerVisible.update((visible: boolean) => !visible);
+      },
+    },
+    template: /*html*/ `
+      <div class="tw-h-[600px] tw-mt-32">
+        @if (bannerVisible()) {
+          <div class="tw-mb-6 tw-p-8 tw-rounded-lg tw-bg-background-alt2 tw-text-center">
+            Banner above the anchor
+          </div>
+        }
+        <div
+          class="tw-p-8 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
+          [bitPopoverAnchorFor]="popover"
+          [popoverOpen]="true"
+          [spotlight]="true"
+          [position]="'below-center'"
+        >
+          <h3 class="tw-text-base tw-font-semibold tw-mb-2">Anchor</h3>
+          <p class="tw-text-sm tw-text-muted tw-mb-0">Moves when the banner toggles</p>
+        </div>
+      </div>
+
+      <bit-popover [title]="'Layout shift'" #popover>
+        <div>The spotlight and popover follow the anchor when it moves without resizing.</div>
+        <div class="tw-flex tw-gap-2 tw-mt-4">
+          <button type="button" bitButton buttonType="primary" (click)="toggleBanner()">Toggle banner</button>
+        </div>
+      </bit-popover>
+      `,
+  }),
+};
+
 export const OpenFromCode: Story = {
   decorators: [moduleMetadata({ imports: [OpenFromCodeComponent] })],
   render: () => ({

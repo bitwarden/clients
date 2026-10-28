@@ -14,7 +14,7 @@ import {
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -130,17 +130,20 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  folderNameForScope,
   hasMultipleVaults,
   MY_ITEMS_ROUTE,
   organizationInScope,
   organizationNameForScope,
   organizationVaultPage,
   OrganizationVaultPage,
-  parseVaultScope,
   resolveVaultScope,
+  routeVaultScope,
   scopeKey,
-  scopedCollectionSegment,
-  SharedFolderCardGridComponent,
+  scopedFolderId,
+  CardGridComponent,
+  MyFolderBreadcrumbsComponent,
+  MyFolderMenuComponent,
   VaultBreadcrumbsComponent,
   VaultRemountOnDirective,
   sharedFolderNameForScope,
@@ -198,8 +201,10 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultBatchActionComponent,
     VaultOrganizationUserNotificationsComponent,
     AutofocusDirective,
-    SharedFolderCardGridComponent,
+    CardGridComponent,
     VaultBreadcrumbsComponent,
+    MyFolderBreadcrumbsComponent,
+    MyFolderMenuComponent,
     IconTileComponent,
     VaultRemountOnDirective,
   ],
@@ -322,11 +327,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
             map(
               ([params, data, nav]) =>
-                resolveVaultScope(
-                  params.get("vaultId"),
-                  scopedCollectionSegment(params, data),
-                  nav,
-                ) ?? ALL_ITEMS_SCOPE,
+                resolveVaultScope(routeVaultScope(params, data), nav) ?? ALL_ITEMS_SCOPE,
             ),
           )
         : of(ALL_ITEMS_SCOPE),
@@ -343,12 +344,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    */
   protected readonly filterScopeKey = toSignal(
     combineLatest([this.route.paramMap, this.route.data]).pipe(
-      map(([params, data]) =>
-        scopeKey(
-          parseVaultScope(params.get("vaultId"), scopedCollectionSegment(params, data)) ??
-            ALL_ITEMS_SCOPE,
-        ),
-      ),
+      map(([params, data]) => scopeKey(routeVaultScope(params, data) ?? ALL_ITEMS_SCOPE)),
     ),
     { initialValue: scopeKey(ALL_ITEMS_SCOPE) },
   );
@@ -392,11 +388,23 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
   protected readonly title = toSignal(
-    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
-      map(([vfo1Foundation, scope, nav]) =>
-        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
+    combineLatest([
+      this.vfo1Foundation$,
+      this.vaultScope$,
+      this.vaultNav$,
+      toObservable(this.folders),
+    ]).pipe(
+      map(([vfo1Foundation, scope, nav, folders]) =>
+        vfo1Foundation
+          ? (vaultScopeTitle(scope, this.i18nService, nav) ?? folderNameForScope(scope, folders))
+          : undefined,
       ),
     ),
+  );
+
+  /** The folder the scope names, for the empty state. */
+  protected readonly emptyFolderName = computed(() =>
+    folderNameForScope(this.vaultScope(), this.folders()),
   );
 
   /**
@@ -443,6 +451,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     ),
     { initialValue: false },
   );
+
+  protected readonly scopedFolderId = computed(() => scopedFolderId(this.vaultScope()));
 
   protected readonly hasMultipleVaults = toSignal(
     combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
@@ -590,21 +600,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.activeUserId = activeUserId;
 
-    // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
 
     const incomingAddType = toCipherType(currentParams.addType);
     if (currentParams.action === "add" && incomingAddType) {
       await this.addCipher(incomingAddType).catch(() => {});
-    }
-
-    // Clear cipher selection on page load/reload to prevent flash of content
-    if (currentParams.itemId || currentParams.cipherId) {
-      await this.router.navigate([], {
-        queryParams: { itemId: null, cipherId: null, action: null },
-        queryParamsHandling: "merge",
-        replaceUrl: true,
-      });
     }
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -899,7 +899,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
       },
     );
-    if (newExperienceResult !== null) {
+
+    if ((currentParams.itemId || currentParams.cipherId) && newExperienceResult == null) {
+      const id = currentParams.itemId ?? currentParams.cipherId;
+      const userId = await firstValueFrom(this.userId$);
+      const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, id));
+      if (cipher) {
+        await this.viewCipher(cipher);
+      }
+    }
+    if (newExperienceResult != null) {
       this.sideNavService.open.set(true);
     }
   }
@@ -1056,6 +1065,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
           collectionIds = [scope.collectionId];
         }
+      } else if (scope.type === VaultScopeType.Folder) {
+        folderId = scope.folderId;
       }
     } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
