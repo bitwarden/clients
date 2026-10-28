@@ -31,6 +31,7 @@ export class PlanResponse extends BaseResponse {
   disabled: boolean;
   PasswordManager: PasswordManagerPlanFeaturesResponse;
   SecretsManager: SecretsManagerPlanFeaturesResponse;
+  PrivilegedControls: PrivilegedControlsPlanFeaturesResponse;
 
   constructor(response: any) {
     super(response);
@@ -65,6 +66,24 @@ export class PlanResponse extends BaseResponse {
       passwordManager == null ? null : new PasswordManagerPlanFeaturesResponse(passwordManager);
     this.SecretsManager =
       secretsManager == null ? null : new SecretsManagerPlanFeaturesResponse(secretsManager);
+    const privilegedControls = this.getResponseProperty("PrivilegedControls");
+    this.PrivilegedControls =
+      privilegedControls == null
+        ? null
+        : new PrivilegedControlsPlanFeaturesResponse(privilegedControls);
+  }
+}
+
+export class PrivilegedControlsPlanFeaturesResponse extends BaseResponse {
+  stripeSeatPlanId: string;
+  seatPrice: number;
+  baseSeats: number;
+
+  constructor(response: any) {
+    super(response);
+    this.stripeSeatPlanId = this.getResponseProperty("StripeSeatPlanId");
+    this.seatPrice = this.getResponseProperty("SeatPrice");
+    this.baseSeats = this.getResponseProperty("BaseSeats");
   }
 }
 

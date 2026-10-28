@@ -158,4 +158,29 @@ describe("OrganizationBillingClient", () => {
       await expect(sut.redeemAnnualUpgradeOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
     });
   });
+
+  describe("purchasePrivilegedControls", () => {
+    it("calls the purchase route with the request body", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      await sut.purchasePrivilegedControls(orgId, { seats: 10, maxAutoscaleSeats: 20 });
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/organizations/${orgId}/billing/subscription/privileged-controls/purchase`,
+        { seats: 10, maxAutoscaleSeats: 20 },
+        true,
+        false,
+      );
+    });
+
+    it("propagates errors from the API", async () => {
+      const serverError = new ErrorResponse(null, 400);
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(
+        sut.purchasePrivilegedControls(orgId, { seats: 10, maxAutoscaleSeats: null }),
+      ).rejects.toBe(serverError);
+    });
+  });
 });

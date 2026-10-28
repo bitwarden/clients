@@ -57,6 +57,7 @@ import {
 } from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import { PrivilegedControlsPurchaseComponent } from "./privileged-controls-purchase.component";
 import { resolveOrgSubscriptionAccess } from "./resolve-org-subscription-access";
 import {
   openRestartSubscriptionDialog,
@@ -112,6 +113,7 @@ const SubscriptionStatusLabels: Record<string, string> = {
     AdjustSubscription,
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
+    PrivilegedControlsPurchaseComponent,
     ErrorCardComponent,
     CalloutComponent,
     DatePipe,
@@ -319,6 +321,37 @@ export class OrganizationSubscriptionCloudVNextComponent {
       !hasAProvider &&
       secretManagerSubscriptionInformation != null &&
       !isSubscribedToSecretsManager &&
+      !this.isSubscriptionCanceledOrPendingCancellation()
+    );
+  });
+
+  private readonly pamBillingSupportEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM39883_PamBillingSupport),
+    { initialValue: false },
+  );
+
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
+  /**
+   * Determines if the "Privileged Controls purchase" section should be shown.
+   * @returns True if the section should be displayed, false otherwise.
+   */
+  readonly showPrivilegedControlsPurchase = computed(() => {
+    const org = this.organization();
+    const subscription = this.organizationSubscription();
+    const plan = subscription?.plan;
+    if (org == null || subscription == null || plan == null) {
+      return false;
+    }
+    return (
+      !org.hasProvider &&
+      this.pamBillingSupportEnabled() &&
+      this.pamEnabled() &&
+      !subscription.usePam &&
+      plan.productTier === ProductTierType.Enterprise &&
+      plan.PrivilegedControls != null &&
       !this.isSubscriptionCanceledOrPendingCancellation()
     );
   });

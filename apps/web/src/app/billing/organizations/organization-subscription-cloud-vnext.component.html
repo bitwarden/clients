@@ -89,6 +89,22 @@
         </div>
       }
 
+      @if (showPrivilegedControlsPurchase() && orgSub && org) {
+        <div class="tw-mt-7">
+          @if (!showSecretsManagerSubscribe()) {
+            <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
+          }
+          <billing-privileged-controls-purchase
+            [plan]="orgSub.plan"
+            [organizationId]="org.id"
+            [customerDiscount]="customerDiscount()"
+            [passwordManagerSeats]="orgSub.seats"
+            [passwordManagerMaxAutoscaleSeats]="orgSub.maxAutoscaleSeats"
+            (purchased)="subscriptionAdjusted()"
+          />
+        </div>
+      }
+
       <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
 
       @if (customerDiscount()?.id === "sm-standalone") {
