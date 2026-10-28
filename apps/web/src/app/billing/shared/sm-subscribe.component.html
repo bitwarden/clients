@@ -32,7 +32,7 @@
 
     <div class="tw-mb-5">
       <span *ngIf="product != productTypes.Free; else freeForever">
-        {{ "pricePerMember" | i18n: (monthlyCostPerUser | currency: "$") }} /{{ "month" | i18n }}
+        {{ "pricePerMember" | i18n: (monthlyCostPerUser | currency: "$") }} / {{ "month" | i18n }}
       </span>
       <ng-template #freeForever>
         <span>{{ "freeForever" | i18n }}</span>
