@@ -4,7 +4,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { Tab } from "../../platform/badge/badge-browser-api";
 import { BadgeService } from "../../platform/badge/badge.service";
@@ -18,15 +17,16 @@ export class AutofillBadgeUpdaterService {
   constructor(
     private badgeService: BadgeService,
     private accountService: AccountService,
-    private cipherService: CipherService,
+    private fillCipherPolicy: FillCipherPolicy,
     private badgeSettingsService: BadgeSettingsServiceAbstraction,
     private logService: LogService,
-    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   init() {
-    const ciphers$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) => (account?.id ? this.cipherService.ciphers$(account?.id) : of([]))),
+    const ciphersChanged$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account?.id ? this.fillCipherPolicy.changed$(account.id) : of(undefined),
+      ),
     );
 
     this.badgeService.setState(StateName, (tab) => {
@@ -34,7 +34,7 @@ export class AutofillBadgeUpdaterService {
         account: this.accountService.activeAccount$,
         enableBadgeCounter:
           this.badgeSettingsService.enableBadgeCounter$.pipe(distinctUntilChanged()),
-        ciphers: ciphers$.pipe(delay(100)), // Delay to allow cipherService.getAllDecryptedForUrl to pick up changes
+        ciphersChanged: ciphersChanged$.pipe(delay(100)), // Delay to let the decrypted cipher cache catch up
       }).pipe(
         mergeMap(async ({ account, enableBadgeCounter }) => {
           if (!account || !enableBadgeCounter) {
