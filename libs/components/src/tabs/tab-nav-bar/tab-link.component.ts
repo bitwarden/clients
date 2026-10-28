@@ -15,7 +15,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
+import { IsActiveMatchOptions, Params, RouterLinkActive, RouterModule } from "@angular/router";
 
 import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
@@ -66,6 +66,8 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   };
 
   readonly route = input<string | any[]>();
+  /** Query parameters sent with the link. They never decide whether the tab is active. */
+  readonly queryParams = input<Params>();
   readonly label = input<string>();
   readonly berryValue = input<number>();
   readonly startIcon = input<BitwardenIcon>();

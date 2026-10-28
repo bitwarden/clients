@@ -14,10 +14,14 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
-import { AccessConnector, TargetSystemView } from "../rotation";
+import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
+import { AccessConnector, RotationConfigView, TargetSystemView } from "../rotation";
 import {
   ORGANIZATION_ID,
+  accessConnector,
+  connectorId,
   pendingTargetSystem,
+  rotationConfig,
   sysId,
   targetSystem,
   targetSystemSealedFields,
@@ -56,7 +60,43 @@ const SYSTEMS: TargetSystemView[] = [
   unverifiableTargetSystem({ id: sysId("7"), name: "Finance SQL (integrity check failed)" }),
 ];
 
-function rotationServices(systems: TargetSystemView[]) {
+/**
+ * One connected connector holding the first target, one disconnected holding the billing script,
+ * and one holding nothing, so the status column shows Not connected beside Active and the
+ * Access connector chip lists a zero-count option.
+ */
+const CONNECTORS: AccessConnector[] = [
+  accessConnector({
+    id: connectorId("c"),
+    name: "East datacenter",
+    assignedTargetSystemIds: [sysId("1")],
+  }),
+  accessConnector({
+    id: connectorId("d"),
+    name: "West datacenter",
+    isConnected: false,
+    assignedTargetSystemIds: [sysId("3")],
+  }),
+  accessConnector({
+    id: connectorId("e"),
+    name: "Staging datacenter",
+    assignedTargetSystemIds: [],
+  }),
+];
+
+/** Credentials on the first two targets, so the count column shows numbers and "None". */
+const CONFIGS: RotationConfigView[] = [
+  rotationConfig({ targetSystemId: sysId("1") }),
+  rotationConfig({ targetSystemId: sysId("1") }),
+  rotationConfig({ targetSystemId: sysId("1") }),
+  rotationConfig({ targetSystemId: sysId("3") }),
+];
+
+function rotationServices(
+  systems: TargetSystemView[],
+  connectors: AccessConnector[] = CONNECTORS,
+  configs: RotationConfigView[] = CONFIGS,
+) {
   return moduleMetadata({
     imports: [RouterOutlet],
     providers: [
@@ -76,12 +116,20 @@ function rotationServices(systems: TargetSystemView[]) {
       {
         provide: AccessConnectorsService,
         useValue: {
-          accessConnectors$: of([] as AccessConnector[]),
+          accessConnectors$: of(connectors),
           loading$: of(false),
           loadError$: of(null),
           load: () => Promise.resolve(),
           forgetTargetSystem: () => {},
           assign: () => Promise.resolve(),
+        },
+      },
+      {
+        provide: RotationConfigsService,
+        useValue: {
+          configs$: of(configs),
+          loading$: of(false),
+          loadError$: of(null),
         },
       },
     ],
@@ -120,7 +168,10 @@ export default {
 
 type Story = StoryObj<TargetSystemsTabComponent>;
 
-/** The full toolbar, with search and the Method, Type and Status chips, each with options. */
+/**
+ * The full toolbar, with search and the Status, Rotation method, System type and Access connector
+ * chips, each with options and counts.
+ */
 export const Default: Story = {
   decorators: [rotationServices(SYSTEMS)],
 };

@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -47,9 +47,11 @@ import { AccessConnectorsService } from "../access-connectors/access-connectors.
 import { assignableConnectors, eligibleConnectors } from "../assignable";
 import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
 import { filterOptions } from "../filter-options";
+import { RotationConfigsService } from "../managed-credentials/rotation-configs.service";
 import {
   AccessConnector,
   AccessConnectorId,
+  RotationConfigView,
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
@@ -64,13 +66,17 @@ import { showSkeletonWhile } from "../skeleton-delay";
 import { AssignConnectorDialogComponent } from "./assign-connector-dialog.component";
 import { targetSystemKindLabelKey, targetSystemMethodLabelKey } from "./target-system-label";
 import {
+  TARGET_SYSTEM_STATUS_BADGES,
+  TargetSystemRowStatus,
+  TargetSystemStatusBadge,
+  resolveTargetSystemStatus,
+  targetSystemStatusBadge,
+} from "./target-system-status";
+import {
   TargetSystemsEmptyStateComponent,
   TargetSystemTemplateKey,
 } from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
-
-/** The three lifecycle states a row's status badge can show. */
-export type TargetSystemRowStatus = "active" | "inactive" | "pendingSeal";
 
 export type TargetSystemRow = {
   id: TargetSystemId;
@@ -78,27 +84,23 @@ export type TargetSystemRow = {
   idText: string;
   system: TargetSystemView;
   name: string;
-  /**
-   * Null for a method this SDK can't model. The Method chip keys on this rather than
-   * `system.method`, so an unlabelled method can't borrow another's label.
-   */
-  methodLabelKey: string | null;
+  /** Null for a method this SDK can't model, so it can't borrow another method's label. */
   methodLabel: string | null;
   /** `system.sealed?.kind`, null for a manual target or one with no verified sealed fields. */
   kind: TargetSystemKind | null;
   kindLabel: string | null;
   status: TargetSystemRowStatus;
-  statusLabelKey:
-    | "pamTargetSystemStatusActive"
-    | "pamTargetSystemStatusInactive"
-    | "pamTargetSystemStatusPendingSeal";
-  statusLabel: string;
+  statusBadge: TargetSystemStatusBadge;
+  /** The Status column's sort key. */
+  statusSortOrder: number;
   active: boolean;
   /**
-   * Whether the integration can terminate sessions, when known. `unknown` means `sealed` is
-   * absent on a row that isn't `pendingSeal` — unverified, distinct from confirming it cannot.
+   * The managed credentials naming this target, or null while that list is unread or failed to
+   * load, which is distinct from none.
    */
-  sessionTermination: "yes" | "no" | "unknown";
+  managedCredentialCount: number | null;
+  /** The ids of the access connectors that hold this target, for the Access connector chip. */
+  connectorIds: string[];
   /**
    * True when `sealed` is absent on a row that isn't `pendingSeal`: the blob exists but failed to
    * verify. Surfaced as an icon beside the name, since the status column can't show it.
@@ -115,7 +117,16 @@ export type TargetSystemRow = {
    * `pendingSeal` target has no confirmed capability to toggle until setup finishes.
    */
   activationBlockedKey: string | null;
+  /** The drill-down link's query, which scopes the Managed credentials tab to this target. */
+  managedCredentialsQueryParams: Record<string, string>;
+  /** True while a managed credential names this target, which the server refuses to delete. */
+  deleteBlocked: boolean;
 };
+
+const FILTERABLE_KINDS: readonly TargetSystemKind[] = [
+  TargetSystemKind.Entra,
+  TargetSystemKind.CustomScript,
+];
 
 @Component({
   templateUrl: "./target-systems-tab.component.html",
@@ -131,6 +142,7 @@ export type TargetSystemRow = {
     IconModule,
     LinkModule,
     MenuModule,
+    RouterLink,
     SearchModule,
     SkeletonComponent,
     SkeletonTextComponent,
@@ -154,6 +166,7 @@ export class TargetSystemsTabComponent {
   private readonly router = inject(Router);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly accessConnectorsService = inject(AccessConnectorsService);
+  private readonly rotationConfigsService = inject(RotationConfigsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -198,7 +211,31 @@ export class TargetSystemsTabComponent {
     () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() != null,
   );
 
-  private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
+  private readonly configs = toSignal(this.rotationConfigsService.configs$, {
+    initialValue: [] as RotationConfigView[],
+  });
+  private readonly configsLoading = toSignal(this.rotationConfigsService.loading$, {
+    initialValue: true,
+  });
+  private readonly configsLoadError = toSignal(this.rotationConfigsService.loadError$, {
+    initialValue: null,
+  });
+
+  /** The managed credentials per target system, or null while the list is unread or failed. */
+  private readonly credentialCounts = computed<ReadonlyMap<TargetSystemId, number> | null>(() => {
+    if (this.configsLoading() || this.configsLoadError() != null) {
+      return null;
+    }
+    const counts = new Map<TargetSystemId, number>();
+    for (const config of this.configs()) {
+      counts.set(config.targetSystemId, (counts.get(config.targetSystemId) ?? 0) + 1);
+    }
+    return counts;
+  });
+
+  private readonly rows = computed(() =>
+    this.buildRows(this.systems(), this.accessConnectors(), this.credentialCounts()),
+  );
 
   /**
    * Gates the table and the toolbar's create button. A search term keeps the table on screen
@@ -206,40 +243,59 @@ export class TargetSystemsTabComponent {
    */
   protected readonly hasSystems = computed(() => this.rows().length > 0);
 
-  protected readonly table = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
-    this.rows,
-  );
+  protected readonly table = defineTable<TargetSystemRow, "actions">(this.rows);
   /**
    * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
    * through before the skeleton's delay.
    */
-  protected readonly loadingTable = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
+  protected readonly loadingTable = defineTable<TargetSystemRow, "actions">(
     signal<TargetSystemRow[]>([]),
   );
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
-  /** A method this SDK can't name adds no option, so this chip can be empty. */
-  protected readonly methodOptions = computed(() =>
-    filterOptions(
-      this.rows().flatMap((row) =>
-        row.methodLabelKey != null && row.methodLabel != null
-          ? [[row.methodLabelKey, row.methodLabel] as const]
-          : [],
-      ),
-    ),
-  );
+  protected readonly TargetSystemMethod = TargetSystemMethod;
 
-  protected readonly kindOptions = computed(() =>
-    filterOptions(
-      this.rows().flatMap((row) =>
-        row.kind != null && row.kindLabel != null ? [[row.kind, row.kindLabel] as const] : [],
-      ),
-    ),
-  );
+  /**
+   * Every system type the chip can name, whether or not a row holds it, so an empty one shows a
+   * zero count.
+   */
+  protected readonly kindOptions = FILTERABLE_KINDS.flatMap((kind) => {
+    const label = this.kindLabel(kind);
+    return label == null ? [] : [{ value: kind, label }];
+  });
 
+  /** Every status a row can hold, named by the badge that shows it. */
   protected readonly statusOptions = computed(() =>
-    filterOptions(this.rows().map((row) => [row.statusLabelKey, row.statusLabel] as const)),
+    TARGET_SYSTEM_STATUS_BADGES.filter(
+      (badge) =>
+        badge.status !== TargetSystemRowStatus.PendingSeal ||
+        this.rows().some((row) => row.status === TargetSystemRowStatus.PendingSeal),
+    ),
   );
+
+  /** Every access connector in the org, so one holding no target still shows a zero count. */
+  protected readonly connectorOptions = computed(() =>
+    filterOptions(this.accessConnectors().map((c) => [String(c.id), c.name] as const)),
+  );
+
+  /** Orders by urgency, then the most managed credentials, then name. */
+  protected readonly sortByStatus = (
+    a: TargetSystemRow,
+    b: TargetSystemRow,
+    direction?: "asc" | "desc",
+  ): number =>
+    a.statusSortOrder - b.statusSortOrder ||
+    (b.managedCredentialCount ?? 0) - (a.managedCredentialCount ?? 0) ||
+    a.name.localeCompare(b.name) * (direction === "desc" ? -1 : 1);
+
+  /** Orders by count, an unread one last, then by name. */
+  protected readonly sortByManagedCredentials = (
+    a: TargetSystemRow,
+    b: TargetSystemRow,
+    direction?: "asc" | "desc",
+  ): number =>
+    (a.managedCredentialCount ?? -1) - (b.managedCredentialCount ?? -1) ||
+    a.name.localeCompare(b.name) * (direction === "desc" ? -1 : 1);
 
   /** The table's row test; the toolbar hands over the search and chip values as `values`. */
   protected readonly rowMatchesFilter = (
@@ -421,7 +477,11 @@ export class TargetSystemsTabComponent {
       }
     });
 
-  private buildRows(systems: TargetSystemView[], connectors: AccessConnector[]): TargetSystemRow[] {
+  private buildRows(
+    systems: TargetSystemView[],
+    connectors: AccessConnector[],
+    credentialCounts: ReadonlyMap<TargetSystemId, number> | null,
+  ): TargetSystemRow[] {
     const connectorsKnown = this.connectorsKnown();
     const connectorsUnavailable = this.connectorsUnavailable();
     const hasActiveConnector = eligibleConnectors(connectors).length > 0;
@@ -429,38 +489,27 @@ export class TargetSystemsTabComponent {
       const methodLabelKey = targetSystemMethodLabelKey(system.method);
       const pendingSeal = system.status === TargetSystemStatus.PendingSeal;
       const active = system.status === TargetSystemStatus.Active;
-      const status: TargetSystemRowStatus = pendingSeal
-        ? "pendingSeal"
-        : active
-          ? "active"
-          : "inactive";
-      const statusLabelKey = pendingSeal
-        ? ("pamTargetSystemStatusPendingSeal" as const)
-        : active
-          ? ("pamTargetSystemStatusActive" as const)
-          : ("pamTargetSystemStatusInactive" as const);
+      const status = resolveTargetSystemStatus(system, connectorsKnown ? connectors : null);
+      const statusBadge = targetSystemStatusBadge(status);
       const kind = system.sealed?.kind ?? null;
       const integrityCheckFailed = system.sealed == null && !pendingSeal;
-      const sessionTermination: TargetSystemRow["sessionTermination"] =
-        system.sealed == null
-          ? "unknown"
-          : system.sealed.supportsSessionTermination === true
-            ? "yes"
-            : "no";
       return {
         id: system.id,
         idText: uuidAsString(system.id),
         system,
         name: system.name,
-        methodLabelKey,
         methodLabel: methodLabelKey == null ? null : this.i18nService.t(methodLabelKey),
         kind,
         kindLabel: kind != null ? this.kindLabel(kind) : null,
         status,
-        statusLabelKey,
-        statusLabel: this.i18nService.t(statusLabelKey),
+        statusBadge,
+        statusSortOrder: statusBadge.sortOrder,
         active,
-        sessionTermination,
+        managedCredentialCount:
+          credentialCounts == null ? null : (credentialCounts.get(system.id) ?? 0),
+        connectorIds: connectors
+          .filter((connector) => connector.assignedTargetSystemIds.includes(system.id))
+          .map((connector) => String(connector.id)),
         integrityCheckFailed,
         canAssignConnectors: system.method === TargetSystemMethod.Automatic,
         canAddManagedCredential: active,
@@ -471,6 +520,8 @@ export class TargetSystemsTabComponent {
             : hasActiveConnector
               ? "pamTargetSystemAssignConnectorNoOptions"
               : "pamTargetSystemAssignConnectorNone",
+        managedCredentialsQueryParams: { [TARGET_SYSTEM_QUERY_PARAM]: uuidAsString(system.id) },
+        deleteBlocked: (credentialCounts?.get(system.id) ?? 0) > 0,
         activationBlockedKey: pendingSeal ? "pamTargetSystemActivationBlockedPendingSeal" : null,
       };
     });
@@ -494,29 +545,40 @@ export class TargetSystemsTabComponent {
 /** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
 type TargetSystemFilterValues = {
   search?: string;
+  status?: unknown;
   method?: unknown;
   kind?: unknown;
-  status?: unknown;
+  connector?: unknown;
 };
 
 type TargetSystemFilter = {
   text: string;
-  methodLabelKey: string | null;
-  kind: TargetSystemKind | null;
-  statusLabelKey: string | null;
+  statuses: TargetSystemRowStatus[];
+  method: TargetSystemMethod | null;
+  kinds: TargetSystemKind[];
+  connectorIds: string[];
 };
+
+/** A multi-select chip reports an array, and a cleared one an empty array. */
+function toArray<T>(value: unknown): T[] {
+  if (value == null) {
+    return [];
+  }
+  return Array.isArray(value) ? (value as T[]) : [value as T];
+}
 
 function toTargetSystemFilter(values: TargetSystemFilterValues): TargetSystemFilter {
   return {
     text: (values.search ?? "").trim().toLowerCase(),
-    methodLabelKey: typeof values.method === "string" ? values.method : null,
-    kind: typeof values.kind === "string" ? (values.kind as TargetSystemKind) : null,
-    statusLabelKey: typeof values.status === "string" ? values.status : null,
+    statuses: toArray<TargetSystemRowStatus>(values.status),
+    method: typeof values.method === "string" ? (values.method as TargetSystemMethod) : null,
+    kinds: toArray<TargetSystemKind>(values.kind),
+    connectorIds: toArray<string>(values.connector),
   };
 }
 
 function matchesFilter(row: TargetSystemRow, filter: TargetSystemFilter): boolean {
-  const { text, methodLabelKey, kind, statusLabelKey } = filter;
+  const { text, statuses, method, kinds, connectorIds } = filter;
   if (
     text !== "" &&
     !row.name.toLowerCase().includes(text) &&
@@ -524,13 +586,16 @@ function matchesFilter(row: TargetSystemRow, filter: TargetSystemFilter): boolea
   ) {
     return false;
   }
-  if (methodLabelKey != null && row.methodLabelKey !== methodLabelKey) {
+  if (statuses.length > 0 && !statuses.includes(row.status)) {
     return false;
   }
-  if (kind != null && row.kind !== kind) {
+  if (method != null && row.system.method !== method) {
     return false;
   }
-  if (statusLabelKey != null && row.statusLabelKey !== statusLabelKey) {
+  if (kinds.length > 0 && (row.kind == null || !kinds.includes(row.kind))) {
+    return false;
+  }
+  if (connectorIds.length > 0 && !connectorIds.some((id) => row.connectorIds.includes(id))) {
     return false;
   }
   return true;
