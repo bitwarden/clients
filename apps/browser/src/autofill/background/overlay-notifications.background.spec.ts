@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -8,6 +10,7 @@ import { EnvironmentServerConfigData } from "@bitwarden/common/platform/models/d
 import { BrowserApi } from "../../platform/browser/browser-api";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import {
   flushPromises,
   sendMockExtensionMessage,
@@ -24,6 +27,9 @@ import { OverlayNotificationsBackground } from "./overlay-notifications.backgrou
 describe("OverlayNotificationsBackground", () => {
   let logService: MockProxy<LogService>;
   let notificationBackground: NotificationBackground;
+  let accountService: MockProxy<AccountService>;
+  let activeAccount$: BehaviorSubject<{ id: string } | null>;
+  let fillCipherPolicy: MockProxy<FillCipherPolicy>;
   let getEnableChangedPasswordPromptSpy: jest.SpyInstance;
   let getEnableAddedLoginPromptSpy: jest.SpyInstance;
   let overlayNotificationsBackground: OverlayNotificationsBackground;
@@ -38,9 +44,16 @@ describe("OverlayNotificationsBackground", () => {
     getEnableAddedLoginPromptSpy = jest
       .spyOn(notificationBackground, "getEnableAddedLoginPrompt")
       .mockResolvedValue(true);
+    activeAccount$ = new BehaviorSubject<{ id: string } | null>({ id: "user-1" });
+    accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = activeAccount$;
+    fillCipherPolicy = mock<FillCipherPolicy>();
+    fillCipherPolicy.canOfferSave.mockResolvedValue(true);
     overlayNotificationsBackground = new OverlayNotificationsBackground(
       logService,
       notificationBackground,
+      accountService,
+      fillCipherPolicy,
     );
     await overlayNotificationsBackground.init();
   });
@@ -742,10 +755,8 @@ describe("OverlayNotificationsBackground", () => {
         expect(cipherNotificationSpy).toHaveBeenCalled();
       });
 
-      it("triggers no notification for a form that matches a revealed login", async () => {
-        const matchesRevealedLogin = jest
-          .spyOn(notificationBackground, "matchesRevealedLogin")
-          .mockResolvedValueOnce(true);
+      it("triggers no notification for a form the fill cipher policy does not offer", async () => {
+        fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
         chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
           callback(mock<chrome.tabs.Tab>({ status: "complete", url: sender.url }));
         });
@@ -759,10 +770,30 @@ describe("OverlayNotificationsBackground", () => {
         );
         await flushPromises();
 
-        expect(matchesRevealedLogin).toHaveBeenCalledWith(
+        expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(
           expect.objectContaining({ username: "username", password: "password" }),
+          "user-1",
         );
         expect(cipherNotificationSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not block the notification when no user is active", async () => {
+        activeAccount$.next(null);
+        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
+          callback(mock<chrome.tabs.Tab>({ status: "complete", url: sender.url }));
+        });
+
+        triggerWebRequestOnCompletedEvent(
+          mock<chrome.webRequest.OnCompletedDetails>({
+            url: sender.url,
+            tabId: sender.tab.id,
+            requestId,
+          }),
+        );
+        await flushPromises();
+
+        expect(fillCipherPolicy.canOfferSave).not.toHaveBeenCalled();
+        expect(cipherNotificationSpy).toHaveBeenCalled();
       });
 
       it("initializes the notification immediately when the tab's navigation is complete", async () => {
