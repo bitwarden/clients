@@ -1,11 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, Observable, Subject, take, toArray } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, take, toArray } from "rxjs";
 
 import { CipherUse } from "@bitwarden/browser/autofill/services/abstractions/fill-cipher-policy";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { PamFillCipherPolicy } from "./pam-fill-cipher-policy";
@@ -41,13 +42,12 @@ describe("PamFillCipherPolicy", () => {
   });
 
   describe("changed$", () => {
-    it("emits for decrypted stored cipher changes and revealed view changes", async () => {
-      const cipherViews$ = new Subject<CipherView[] | null>();
-      cipherService.cipherViews$.mockReturnValue(cipherViews$ as Observable<CipherView[]>);
+    it("emits for stored cipher changes and revealed view changes", async () => {
+      const ciphers$ = new Subject<Record<CipherId, CipherData>>();
+      cipherService.ciphers$.mockReturnValue(ciphers$);
 
       const emitted = firstValueFrom(policy.changed$(userId).pipe(take(3), toArray()));
-      cipherViews$.next(null);
-      cipherViews$.next([view("stored")]);
+      ciphers$.next({});
       reveal(view("revealed"));
 
       expect(await emitted).toEqual([undefined, undefined, undefined]);
@@ -177,90 +177,6 @@ describe("PamFillCipherPolicy", () => {
     });
   });
 
-  describe("nextCardCipher and nextIdentityCipher", () => {
-    const typed = (id: string, type: CipherType, fields: Partial<CipherView> = {}) =>
-      Object.assign(view(id), { type }, fields);
-
-    beforeEach(() => {
-      cipherService.getAllDecrypted.mockResolvedValue([
-        typed("stored-card", CipherType.Card),
-        typed("stored-identity", CipherType.Identity),
-        typed("stored-login", CipherType.Login),
-      ]);
-    });
-
-    it("uses the CipherService rotation without revealed views", async () => {
-      const card = typed("next-card", CipherType.Card);
-      const identity = typed("next-identity", CipherType.Identity);
-      cipherService.getNextCardCipher.mockResolvedValue(card);
-      cipherService.getNextIdentityCipher.mockResolvedValue(identity);
-
-      expect(await policy.nextCardCipher(userId)).toBe(card);
-      expect(await policy.nextIdentityCipher(userId)).toBe(identity);
-      expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
-    });
-
-    it("rotates through the stored cards and the revealed cards", async () => {
-      reveal(typed("revealed-card", CipherType.Card));
-      const picked: string[] = [];
-
-      for (let i = 0; i < 3; i++) {
-        picked.push((await policy.nextCardCipher(userId))!.id);
-        policy.advanceRotation("cardCiphers");
-      }
-
-      expect(picked).toEqual(["stored-card", "revealed-card", "stored-card"]);
-      expect(cipherService.getNextCardCipher).not.toHaveBeenCalled();
-    });
-
-    it("rotates through the stored identities and the revealed identities", async () => {
-      reveal(typed("revealed-identity", CipherType.Identity));
-      const picked: string[] = [];
-
-      for (let i = 0; i < 3; i++) {
-        picked.push((await policy.nextIdentityCipher(userId))!.id);
-        policy.advanceRotation("identityCiphers");
-      }
-
-      expect(picked).toEqual(["stored-identity", "revealed-identity", "stored-identity"]);
-      expect(cipherService.getNextIdentityCipher).not.toHaveBeenCalled();
-    });
-
-    it("leaves out other types and deleted or archived cards", async () => {
-      reveal(
-        typed("revealed-login", CipherType.Login),
-        typed("deleted-card", CipherType.Card, { deletedDate: new Date() }),
-        typed("archived-card", CipherType.Card, { archivedDate: new Date() }),
-      );
-      const picked: string[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        picked.push((await policy.nextCardCipher(userId))!.id);
-        policy.advanceRotation("cardCiphers");
-      }
-
-      expect(picked).toEqual(["stored-card", "stored-card"]);
-    });
-
-    it("restarts the rotation when a revealed card ends", async () => {
-      reveal(typed("revealed-card", CipherType.Card), typed("second", CipherType.Login));
-      await policy.nextCardCipher(userId);
-      policy.advanceRotation("cardCiphers");
-
-      reveal(typed("second", CipherType.Login));
-      const next = await policy.nextCardCipher(userId);
-
-      expect(next?.id).toBe("stored-card");
-    });
-
-    it("returns undefined when no card is available", async () => {
-      cipherService.getAllDecrypted.mockResolvedValue([]);
-      reveal(typed("revealed-login", CipherType.Login));
-
-      expect(await policy.nextCardCipher(userId)).toBeUndefined();
-    });
-  });
-
   describe("canOfferSave", () => {
     beforeEach(() => {
       reveal(
@@ -284,7 +200,7 @@ describe("PamFillCipherPolicy", () => {
       [true, "another username and password", { username: "other", password: "other" }],
       [true, "another site", { username: "Admin", password: "revealed", uri: "https://other.com" }],
     ])("is %s for %s", async (expected, _, form) => {
-      const data = { uri: url, username: "", ...form };
+      const data = { uri: url, username: "", password: "", ...form };
 
       expect(await policy.canOfferSave(data, userId)).toBe(expected);
     });

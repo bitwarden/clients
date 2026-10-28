@@ -18,9 +18,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
  * gets the stored ciphers. Blocks a save prompt for a form that holds a revealed login.
  */
 export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
-  /** The keyboard shortcut rotations, used only while the user has revealed views. */
+  /** The keyboard shortcut rotation, used only while the user has revealed views. */
   private readonly sortedCiphersCache: SortedCiphersCache;
-  /** The ciphers each cached URL or type key was built from, so a change rebuilds the rotation. */
+  /** The ciphers each cached URL was built from, so a change rebuilds the rotation. */
   private readonly cachedSignatures = new Map<string, string>();
 
   constructor(
@@ -35,9 +35,9 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
 
   override changed$(userId: UserId): Observable<void> {
     return merge(
-      super.changed$(userId),
-      this.revealedCipherService.revealed$(userId).pipe(map((): void => undefined)),
-    );
+      this.cipherService.ciphers$(userId),
+      this.revealedCipherService.revealed$(userId),
+    ).pipe(map((): void => undefined));
   }
 
   override async ciphers(userId: UserId, use: CipherUse): Promise<CipherView[]> {
@@ -81,21 +81,20 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
       return super.nextCipherForUrl(url, userId);
     }
 
-    return this.nextInRotation(url, await this.ciphersForUrl(url, userId, CipherUse.UserFill));
-  }
-
-  override async nextCardCipher(userId: UserId): Promise<CipherView | undefined> {
-    if ((await this.getRevealed(userId)).length === 0) {
-      return super.nextCardCipher(userId);
+    const ciphers = await this.ciphersForUrl(url, userId, CipherUse.UserFill);
+    if (ciphers.length === 0) {
+      return undefined;
     }
-    return this.nextOfType(userId, CipherType.Card, "cardCiphers");
-  }
-
-  override async nextIdentityCipher(userId: UserId): Promise<CipherView | undefined> {
-    if ((await this.getRevealed(userId)).length === 0) {
-      return super.nextIdentityCipher(userId);
+    // A revealed view that ends, or a stored cipher that changes, rebuilds the rotation.
+    const signature = ciphers
+      .map((c) => `${c.id}:${c.partial}:${c.revisionDate?.getTime()}`)
+      .sort()
+      .join();
+    if (!this.sortedCiphersCache.isCached(url) || this.cachedSignatures.get(url) !== signature) {
+      this.sortedCiphersCache.addCiphers(url, ciphers);
+      this.cachedSignatures.set(url, signature);
     }
-    return this.nextOfType(userId, CipherType.Identity, "identityCiphers");
+    return this.sortedCiphersCache.getNext(url) ?? undefined;
   }
 
   /** Advances both the stored and the revealed rotation. */
@@ -117,34 +116,6 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
       matches.length === 0 ||
       (await this.cipherService.filterCiphersForUrl(matches, form.uri)).length === 0
     );
-  }
-
-  /** The next card or identity rotation entry, from the stored ciphers and the revealed views. */
-  private async nextOfType(
-    userId: UserId,
-    type: CipherType,
-    key: string,
-  ): Promise<CipherView | undefined> {
-    const ciphers = (await this.ciphers(userId, CipherUse.UserFill)).filter(
-      (c) => c.type === type && c.deletedDate == null && !c.isArchived,
-    );
-    return this.nextInRotation(key, ciphers);
-  }
-
-  private nextInRotation(key: string, ciphers: CipherView[]): CipherView | undefined {
-    if (ciphers.length === 0) {
-      return undefined;
-    }
-    // A revealed view that ends, or a stored cipher that changes, rebuilds the rotation.
-    const signature = ciphers
-      .map((c) => `${c.id}:${c.partial}:${c.revisionDate?.getTime()}`)
-      .sort()
-      .join();
-    if (!this.sortedCiphersCache.isCached(key) || this.cachedSignatures.get(key) !== signature) {
-      this.sortedCiphersCache.addCiphers(key, ciphers);
-      this.cachedSignatures.set(key, signature);
-    }
-    return this.sortedCiphersCache.getNext(key) ?? undefined;
   }
 
   private async getRevealed(userId: UserId): Promise<CipherView[]> {
