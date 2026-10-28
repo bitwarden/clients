@@ -345,9 +345,9 @@
 </ng-template>
 
 <bit-menu #menu ariaRole="dialog" [ariaLabel]="placeholderText()" (closed)="onMenuClosed()">
-  <!-- The list bleeds into the menu's padding so its scrollbar sits on the popover's edge. -->
+  <!-- The list bleeds into the menu's padding so its scrollbar and dividers reach the popover's edge. -->
   <div
-    class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col [&_[data-filter-scroll]]:-tw-me-2 [&_[data-filter-scroll]]:tw-pe-2"
+    class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col [&_[data-filter-scroll]]:-tw-mx-2 [&_[data-filter-scroll]]:tw-px-2"
   >
     <!-- Gated on open: the overlay keeps this view alive between openings, so ungated rows would
          outlive their popover and still count as the menu's once the dialog owns the options. -->
