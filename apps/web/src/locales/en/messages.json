@@ -21583,9 +21583,6 @@
   "pamTargetSystemNameHint": {
     "message": "Use a name your team will recognize, for example Entra ID production. It shows wherever you choose a target system."
   },
-  "pamTargetSystemAddedSuccess": {
-    "message": "Target system added."
-  },
   "pamTargetSystemNameHelp": {
     "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
   },
@@ -21635,7 +21632,7 @@
     "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
   },
   "pamTargetSystemCalloutNoConnectorConnected": {
-    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save."
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
   },
   "pamTargetSystemCalloutNoConnectorConnectedEditing": {
     "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
@@ -21677,7 +21674,7 @@
     }
   },
   "pamTargetSystemCalloutNoConnectorsExist": {
-    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+    "message": "No access connectors exist yet, so add one on the Access connectors tab after you save."
   },
   "pamTargetSystemPolicyCharacters": {
     "message": "Characters to include"
