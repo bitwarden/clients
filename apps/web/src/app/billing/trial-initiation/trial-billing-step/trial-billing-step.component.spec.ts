@@ -22,7 +22,10 @@ import {
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { SubscriptionDiscountService } from "@bitwarden/web-vault/app/billing/services/subscription-discount.service";
 
-import { TrialBillingStepComponent } from "./trial-billing-step.component";
+import {
+  OrganizationCreatedEvent,
+  TrialBillingStepComponent,
+} from "./trial-billing-step.component";
 import { TrialBillingStepService } from "./trial-billing-step.service";
 import { TrialPreviewCartComponent } from "./trial-preview-cart.component";
 
@@ -515,6 +518,46 @@ describe("TrialBillingStepComponent", () => {
         expect.anything(),
         [],
       );
+    });
+  });
+
+  describe("submit — plan description", () => {
+    const setupSubmit = () => {
+      fixture.componentRef.setInput("trial", mockTeamsTrial);
+      fixture.detectChanges();
+
+      Object.defineProperty(component, "enterPaymentMethodComponent", {
+        value: () => ({ tokenize: jest.fn().mockResolvedValue({ token: "tok", type: "card" }) }),
+        configurable: true,
+        writable: true,
+      });
+
+      component["formGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+        taxId: "",
+        line1: "",
+        line2: "",
+        city: "",
+        state: "",
+      });
+
+      mockTrialBillingStepService.startTrial.mockResolvedValue({ id: "org-123" } as any);
+    };
+
+    it("describes the selected monthly cadence, not the annual default", async () => {
+      mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40, monthly: 2 }));
+      setupSubmit();
+
+      component["formGroup"].controls.cadence.setValue("monthly");
+
+      let emitted: OrganizationCreatedEvent | undefined;
+      component["organizationCreated"].subscribe((e) => (emitted = e));
+
+      await component["submit"]();
+
+      expect(emitted?.planDescription).toContain("monthly");
+      expect(emitted?.planDescription).not.toContain("annual");
     });
   });
 });

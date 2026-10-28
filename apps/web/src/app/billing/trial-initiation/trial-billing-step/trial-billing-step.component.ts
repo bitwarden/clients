@@ -73,7 +73,6 @@ export class TrialBillingStepComponent implements OnInit {
     tax: number;
     total: number;
   }>;
-  protected selectionDescription$!: Observable<string>;
 
   /** Whether the preview-driven pricing is enabled — both cart flags on. */
   protected previewPricingEnabled$!: Observable<boolean>;
@@ -153,7 +152,6 @@ export class TrialBillingStepComponent implements OnInit {
 
     this.selectionPrice$ = this.getSelectionPrice$(this.cadenceSelected$);
     this.selectionCosts$ = this.getSelectionCosts$(this.cadenceSelected$, billingAddressChanged$);
-    this.selectionDescription$ = this.getSelectionDescription$(this.cadenceSelected$);
     this.previewPricingEnabled$ = this.getPreviewPricingEnabled$();
   }
 
@@ -188,17 +186,13 @@ export class TrialBillingStepComponent implements OnInit {
     );
   }
 
-  private getSelectionDescription$(cadenceSelected$: Observable<Cadence>): Observable<string> {
-    return combineLatest([this.selectionPrice$, cadenceSelected$]).pipe(
-      map(([price, cadence]) => {
-        switch (cadence) {
-          case Cadences.Annually:
-            return `${this.i18nService.t("annual")} ($${price}/${this.i18nService.t("yr")})`;
-          case Cadences.Monthly:
-            return `${this.i18nService.t("monthly")} ($${price}/${this.i18nService.t("monthAbbr")})`;
-        }
-      }),
-    );
+  private describeCadence(cadence: Cadence, price: number): string {
+    switch (cadence) {
+      case Cadences.Annually:
+        return `${this.i18nService.t("annual")} ($${price}/${this.i18nService.t("yr")})`;
+      case Cadences.Monthly:
+        return `${this.i18nService.t("monthly")} ($${price}/${this.i18nService.t("monthAbbr")})`;
+    }
   }
 
   /** Gate the preview-driven pricing on both flags; the endpoint also requires PM36631 server-side. */
@@ -231,10 +225,12 @@ export class TrialBillingStepComponent implements OnInit {
 
     const billingAddress = this.formGroup.controls.billingAddress.getRawValue();
 
+    const cadence = this.formGroup.value.cadence!;
+
     try {
       const organization = await this.trialBillingStepService.startTrial(
         this.trial(),
-        this.formGroup.value.cadence!,
+        cadence,
         billingAddress,
         paymentMethod,
         this.eligibleCouponIds(),
@@ -246,9 +242,11 @@ export class TrialBillingStepComponent implements OnInit {
         message: this.i18nService.t("organizationReadyToGo"),
       });
 
+      // Describe the cadence the user actually selected, priced from the current plans.
+      const prices = await firstValueFrom(this.prices$);
       this.organizationCreated.emit({
         organizationId: organization.id,
-        planDescription: await firstValueFrom(this.selectionDescription$),
+        planDescription: this.describeCadence(cadence, prices[cadence]!),
       });
     } catch (e: unknown) {
       if (this.subscriptionDiscountService.isDiscountExpiredError(e)) {
