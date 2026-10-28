@@ -723,24 +723,10 @@ export class VaultNextComponent implements OnInit {
     }
   }
 
-  /**
-   * The organization/collection last seen while {@link currentCollection} resolved — so
-   * {@link navigateAwayIfFolderVanishes} can tell "this folder just disappeared" apart from "the
-   * user has since navigated somewhere else entirely" once {@link currentCollection} goes
-   * undefined.
-   */
   private readonly lastViewedFolder = signal<
     { organizationId: OrganizationId; collectionId: CollectionId } | undefined
   >(undefined);
 
-  /**
-   * Navigates away once the folder being viewed disappears from the user's own collections — not
-   * just on an explicit delete, since saving Access can itself drop the member's own assignment,
-   * and `CollectionService` reconciles that before the dialog even reports an outcome (see
-   * `CollectionWebDialogAdapter`). Reactive rather than tied to a specific menu action, so it also
-   * catches the folder disappearing for any other reason (e.g. another admin revoking access while
-   * this page is open).
-   */
   private readonly navigateAwayIfFolderVanishes = effect(() => {
     const collection = this.currentCollection();
     const organizationId = this.scopedOrganizationId();

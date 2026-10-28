@@ -20,14 +20,11 @@ import {
 } from "../../tokens/collection-dialog.token";
 
 /**
- * Pin/Unpin, Edit info, Edit access, and Delete menu for one shared folder. Used by the vault's
- * breadcrumb header and the shared folders table's per-row menu.
+ * Pin/Unpin, Edit info, Edit access, and Delete menu for one shared folder.
  *
- * Edit/Delete each need a token the client supplies — {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}. Pin/Unpin needs neither — it's plain device-local state any client
- * can offer. A client that provides neither dialog and doesn't opt into {@link showPin} renders
- * nothing. The host element still exists even then, so a caller relying on CSS to collapse an
- * empty wrapper (e.g. a table cell's `empty:tw-hidden`) needs its own `@if` around this component.
+ * A client providing neither {@link COLLECTION_DIALOG} nor {@link BULK_DELETE_DIALOG}, with
+ * {@link showPin} off, renders an empty host element — a caller relying on CSS to collapse an
+ * empty wrapper (e.g. `empty:tw-hidden`) needs its own `@if` around this component.
  */
 @Component({
   selector: "vault-collection-options-menu",
@@ -51,22 +48,16 @@ export class CollectionOptionsMenuComponent {
 
   readonly collection = input.required<CollectionView>();
 
-  /** `undefined` while the organization list is still loading. */
   readonly organization = input<Organization | undefined>(undefined);
 
   readonly triggerIcon = input.required<string>();
 
-  /** Prefix for this instance's element ids, so multiple menus on one page don't collide. */
   readonly idPrefix = input.required<string>();
 
-  /** Whether the menu offers Pin/Unpin. Off by default, since it's an opt-in capability not every
-   * consumer wants. */
   readonly showPin = input<boolean>(false);
 
-  /** Exposed so the template can name a tab by member rather than a bare string. */
   protected readonly CollectionDialogTab = CollectionDialogTab;
 
-  /** The ids the user pinned. */
   private readonly pinnedIds = toSignal(
     this.userId$.pipe(switchMap((userId) => this.pinnedSharedFolders.pinnedIds$(userId))),
     { initialValue: [] as CollectionId[] },
@@ -76,9 +67,8 @@ export class CollectionOptionsMenuComponent {
     () => this.collectionDialog != null && this.collection().canEdit(this.organization()),
   );
 
-  /** Requires `organization()` to have resolved: `canDelete(undefined)` treats an unresolved
-   * organization as having no deletion limit, which would let this render enabled right before
-   * `delete()`'s own `organization() == null` guard turns the click into a no-op. */
+  /** `canDelete(undefined)` doesn't honor `limitCollectionDeletion`, which would let this render
+   * enabled right before `delete()`'s own `organization() == null` guard no-ops the click. */
   protected readonly showDeleteAction = computed(
     () =>
       this.bulkDeleteDialog != null &&
@@ -86,7 +76,6 @@ export class CollectionOptionsMenuComponent {
       this.collection().canDelete(this.organization()),
   );
 
-  /** Pin isn't permission-gated like Edit/Delete, so the default collection needs excluding here. */
   protected readonly showPinAction = computed(
     () => this.showPin() && !this.collection().isDefaultCollection,
   );
@@ -95,16 +84,12 @@ export class CollectionOptionsMenuComponent {
     () => this.showEditActions() || this.showDeleteAction() || this.showPinAction(),
   );
 
-  /** Whether the viewed folder is pinned, for the Pin/Unpin item's label and icon. */
   protected readonly isPinned = computed(() => this.pinnedIds().includes(this.collection().id));
 
-  /** Toasts only after the pin/unpin write resolves, so it never reports a change that didn't land. */
   protected async togglePin(): Promise<void> {
     const collection = this.collection();
     const userId = await firstValueFrom(this.userId$);
-    // Checked against the snapshotted `collection`, not a live re-read of `this.collection()` —
-    // the input can change mid-await (e.g. CDK virtual-scroll row recycling), which would otherwise
-    // decide pin-vs-unpin for a different folder than the one this call is about to mutate.
+    // Snapshotted `collection`, not a live re-read: the input can change mid-await.
     const pinned = this.pinnedIds().includes(collection.id);
     if (pinned) {
       await this.pinnedSharedFolders.unpin(userId, collection.id);

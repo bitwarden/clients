@@ -137,8 +137,7 @@ export type SharedFoldersTableFilters = {
  *
  * Every write goes through a dialog the client supplies as a token, so a client that provides none
  * offers no write action it can't carry out — see {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. Pin/Unpin needs no
- * dialog and is always offered, regardless of what else the row menu can do.
+ * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  */
@@ -238,7 +237,6 @@ export class SharedFoldersComponent {
     { initialValue: new Set<string>() },
   );
 
-  /** Whether the Pinned chip has nothing to offer. */
   protected readonly noPinned = computed(() => {
     const pinned = this.pinnedIds();
     return !this.sharedFolders().some((row) => pinned.has(row.id));
@@ -293,11 +291,6 @@ export class SharedFoldersComponent {
     this.selectedRows().length > 0 ? BULK_BAR_CLEARANCE : 0,
   );
 
-  /**
-   * Whether the toolbar offers its Add button, on the organization's own collection creation
-   * permission. `false` while the organization list loads, or for a `:vaultId` that resolves to
-   * nothing — either way there's no organization to save to.
-   */
   protected readonly canAdd = computed(
     () => this.collectionDialog != null && (this.organization()?.canCreateNewCollections ?? false),
   );
@@ -386,7 +379,6 @@ export class SharedFoldersComponent {
   protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
-  /** Whether the user pinned the folder, for the Name cell's pin icon. */
   protected isPinned(row: SharedFolderRow): boolean {
     return this.pinnedIds().has(row.id);
   }

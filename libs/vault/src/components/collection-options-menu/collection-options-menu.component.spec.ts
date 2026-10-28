@@ -69,10 +69,7 @@ function organization(overrides: Partial<Organization> = {}): Organization {
 
 type SetupOptions = {
   collection?: CollectionView;
-  /** Omit to default to a resolved organization; pass `undefined` explicitly to simulate the
-   * input not having resolved yet. */
   organization?: Organization | undefined;
-  /** Which dialogs the client provides — omitting one is how desktop looks today. */
   dialogs?: { collection?: boolean; bulkDelete?: boolean };
   showPin?: boolean;
   pinnedIds?: CollectionId[];

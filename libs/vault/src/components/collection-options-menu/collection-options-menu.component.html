@@ -8,7 +8,6 @@
     [attr.id]="idPrefix() + '_button_options-' + collection().id"
   ></button>
   <bit-menu #menu>
-    <!-- Pin isn't permission-gated like Edit/Delete below, so it's unconditionally first. -->
     @if (showPinAction()) {
       <button
         type="button"

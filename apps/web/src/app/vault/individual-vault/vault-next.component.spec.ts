@@ -386,7 +386,6 @@ describe("VaultNextComponent", () => {
             { provide: VaultBatchBarService, useValue: batchBarService },
             { provide: COLLECTION_DIALOG, useValue: collectionDialog },
             { provide: BULK_DELETE_DIALOG, useValue: bulkDeleteDialog },
-            // Needed by `CollectionOptionsMenuComponent`, kept as a real child above.
             {
               provide: PinnedSharedFoldersService,
               useValue: mock<PinnedSharedFoldersService>({ pinnedIds$: () => of([]) }),
@@ -922,9 +921,6 @@ describe("VaultNextComponent", () => {
             collections$.next([manageableFolder()]);
             fixture.detectChanges();
 
-            // Navigated to a different, not-yet-loaded folder before engineeringId disappeared —
-            // `currentCollection()` is undefined for designId too, but that must not be mistaken
-            // for engineeringId (the folder actually tracked as last viewed) disappearing.
             scopeTo(organizationId, designId);
 
             expect(router.navigate).not.toHaveBeenCalled();
@@ -935,10 +931,6 @@ describe("VaultNextComponent", () => {
             fixture.detectChanges();
 
             collectionDialog.open.mockImplementation(async () => {
-              // Simulates the self-unassignment case: the local store updates before the dialog
-              // closes, so the effect watching `currentCollection()` has already fired by the time
-              // `editCollection()`'s `await` continues — regardless of whether the real child
-              // component survives that long.
               collections$.next([]);
               fixture.detectChanges();
               return CollectionDialogOutcome.Saved;
