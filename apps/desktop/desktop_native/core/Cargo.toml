@@ -60,6 +60,7 @@ windows = { workspace = true, features = [
     "Foundation",
     "Storage_Search",
     "System",
+    "Wdk_System_Threading",
     "Win32_Foundation",
     "Win32_Globalization",
     "Win32_Security",
@@ -68,6 +69,7 @@ windows = { workspace = true, features = [
     "Win32_System_Diagnostics_ToolHelp",
     "Win32_System_IO",
     "Win32_System_JobObjects",
+    "Win32_System_Kernel",
     "Win32_System_SystemServices",
     "Win32_System_Threading",
 ], optional = true }

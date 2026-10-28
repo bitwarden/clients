@@ -12,6 +12,7 @@ use std::fmt;
 use anyhow::Result;
 use windows::{
     core::{Owned, PWSTR},
+    Wdk::System::Threading::{NtQueryInformationProcess, ProcessBasicInformation},
     Win32::{
         Foundation::{FILETIME, HANDLE},
         Globalization::{CompareStringOrdinal, CSTR_EQUAL},
@@ -22,7 +23,7 @@ use windows::{
             },
             Threading::{
                 GetCurrentProcess, GetProcessTimes, OpenProcess, QueryFullProcessImageNameW,
-                PROCESS_ACCESS_RIGHTS, PROCESS_NAME_WIN32,
+                PROCESS_ACCESS_RIGHTS, PROCESS_BASIC_INFORMATION, PROCESS_NAME_WIN32,
             },
         },
     },
@@ -152,6 +153,27 @@ impl Process {
         Some(ImagePath(buf))
     }
 
+    /// PID of the process that created this one. Needs `PROCESS_QUERY_LIMITED_INFORMATION`.
+    pub(super) fn parent_pid(&self) -> Result<Pid> {
+        let mut info = PROCESS_BASIC_INFORMATION::default();
+        // SAFETY: `info` is a valid, writable PROCESS_BASIC_INFORMATION of the size passed,
+        // and the return length is optional. Missing access only makes the call fail.
+        // Ref: https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess
+        unsafe {
+            NtQueryInformationProcess(
+                self.handle(),
+                ProcessBasicInformation,
+                std::ptr::from_mut(&mut info).cast(),
+                size_of::<PROCESS_BASIC_INFORMATION>() as u32,
+                std::ptr::null_mut(),
+            )
+        }
+        .ok()?;
+
+        // Documented to fit a DWORD and to identify the parent process.
+        Ok(Pid(info.InheritedFromUniqueProcessId as u32))
+    }
+
     /// PIDs of this process's direct children. May include stale entries after PID reuse;
     /// callers verify identity on an open handle.
     ///
@@ -218,6 +240,26 @@ mod tests {
             image(r"C:\Program Files\Bitwarden\Bitwarden.exe"),
             image(r"c:\program files\bitwarden\BITWARDEN.EXE")
         );
+    }
+
+    #[test]
+    fn child_reports_its_parent() {
+        let mut child = std::process::Command::new("ping")
+            .args(["-n", "30", "127.0.0.1"])
+            .spawn()
+            .expect("spawn ping");
+
+        let process = Process::open(
+            Pid(child.id()),
+            windows::Win32::System::Threading::PROCESS_QUERY_LIMITED_INFORMATION,
+        )
+        .expect("open child");
+        let parent = process.parent_pid();
+
+        let _ = child.kill();
+        let _ = child.wait();
+
+        assert_eq!(parent.expect("parent PID"), Process::current().pid());
     }
 
     #[test]

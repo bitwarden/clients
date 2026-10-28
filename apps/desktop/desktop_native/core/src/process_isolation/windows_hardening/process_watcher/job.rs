@@ -30,7 +30,7 @@ use windows::{
                 JOB_OBJECT_MSG_ABNORMAL_EXIT_PROCESS, JOB_OBJECT_MSG_EXIT_PROCESS,
                 JOB_OBJECT_MSG_NEW_PROCESS,
             },
-            Threading::INFINITE,
+            Threading::{INFINITE, PROCESS_QUERY_LIMITED_INFORMATION},
             IO::{CreateIoCompletionPort, GetQueuedCompletionStatus, OVERLAPPED},
         },
     },
@@ -191,12 +191,17 @@ impl JobWatch {
 }
 
 /// Whether `pid` is a direct child of `main`. The message carries only the PID, so this
-/// looks it up in a process snapshot; new processes are rare enough for that to be cheap.
+/// asks the process for its parent.
 fn is_child(main: &Process, pid: Pid) -> bool {
-    match main.child_pids() {
-        Ok(children) => children.contains(&pid),
+    // Exited already if it can't be opened; the emitter would skip it anyway.
+    let Ok(process) = Process::open(pid, PROCESS_QUERY_LIMITED_INFORMATION) else {
+        return false;
+    };
+
+    match process.parent_pid() {
+        Ok(parent) => parent == main.pid(),
         Err(e) => {
-            warn!(%pid, "Failed to check the parent of a new process: {e}");
+            warn!(%pid, "Failed to read the parent of a new process: {e}");
             false
         }
     }
