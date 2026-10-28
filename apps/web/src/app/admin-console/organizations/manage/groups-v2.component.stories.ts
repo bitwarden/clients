@@ -177,6 +177,32 @@ export const Empty: Story = {
   render: makeRender([]),
 };
 
+/** Opening a row's options menu — shows the real "Edit info", "Members", "Collections", and
+ * "Delete" menu items reachable from a row's "Options" trigger. */
+export const RowOptionsMenu: Story = {
+  render: makeRender(mockGroups),
+  play: async ({ canvasElement }) => {
+    const optionsButton = getAllByRole(canvasElement, "button", { name: "Options" })[0];
+    await userEvent.click(optionsButton);
+
+    await getByRole(document.body, "menuitem", { name: "Edit info" });
+    await getByRole(document.body, "menuitem", { name: "Members" });
+    await getByRole(document.body, "menuitem", { name: "Collections" });
+    await getByRole(document.body, "menuitem", { name: "Delete" });
+  },
+};
+
+/** Clicking a group's name opens the real edit dialog on its "Info" tab. */
+export const RowClickOpensEditDialog: Story = {
+  render: makeRender(mockGroups),
+  play: async ({ canvasElement }) => {
+    const nameLink = await getByRole(canvasElement, "button", { name: "Engineering Team" });
+    await userEvent.click(nameLink);
+
+    await getByRole(document.body, "dialog");
+  },
+};
+
 /** Deleting a single group from its row options menu — shows the real "Delete group"
  * confirmation dialog, opened via its actual trigger path (row menu → Delete). */
 export const DeleteConfirmationSingle: Story = {

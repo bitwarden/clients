@@ -192,6 +192,15 @@ describe("GroupsV2Component", () => {
         true,
       );
     });
+
+    it("matches a row when a parent collection's selection expands to include a child the row has access to", () => {
+      // The filter-menu widget expands a selected parent collection into its full subtree of
+      // descendant IDs before the row filter ever runs, so a parent/child selection arrives here
+      // as multiple collection IDs. The row should match as long as it has access to any of them.
+      expect(
+        component.filterGroups(row, { collections: ["col-parent", "col-eng", "col-other-child"] }),
+      ).toBe(true);
+    });
   });
 
   describe("confirmDelete", () => {
@@ -294,6 +303,24 @@ describe("GroupsV2Component", () => {
     beforeEach(async () => {
       createComponent();
       await detectAndFlush();
+    });
+
+    it("opens the edit dialog for the clicked row's group, scoped to the current organization", async () => {
+      const group = makeGroup({ id: "group-1" });
+      const row = { details: group, collectionBadges: [] };
+
+      mockDialogService.open.mockReturnValue({
+        closed: of(GroupAddEditDialogResultType.Saved),
+      } as any);
+
+      await component.edit(row);
+
+      expect(mockDialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ organizationId: orgId, groupId: "group-1" }),
+        }),
+      );
     });
 
     it("shows a 'Group edited' toast and refreshes the list when the dialog reports Saved", async () => {
