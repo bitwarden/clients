@@ -15,4 +15,10 @@
   </bit-tab-nav-bar>
 </app-header>
 
+@if (canApprove()) {
+  <p bitTypography="body1" class="tw-mb-6 tw-text-muted">
+    {{ "pamAccessRequestsSubtitle" | i18n }}
+  </p>
+}
+
 <router-outlet></router-outlet>

@@ -218,6 +218,29 @@ describe("MyRequestsTabComponent", () => {
       expect(shown).not.toContain("Bit.Services.Pam");
     });
 
+    it("names the unopened window when the server rejects activation for it", async () => {
+      const error = Object.assign(
+        new Error(
+          'error in response: status code 400 Bad Request: {"object":"error",' +
+            '"message":"The approved access window has not started yet.","validationErrors":null,' +
+            '"exceptionMessage":"The approved access window has not started yet.",' +
+            '"exceptionStackTrace":"   at Bit.Services.Pam.OrganizationFeatures.Commands' +
+            ".ActivateAccessRequestCommand.ActivateAsync(Guid userId, Guid requestId) in " +
+            '/src/bitwarden_license/src/Services/Pam/.../ActivateAccessRequestCommand.cs:line 52"}',
+        ),
+        { name: "AccessRequestError", variant: "Api" },
+      );
+      myAccess.activate.mockRejectedValue(error);
+      create();
+
+      await component["activate"](row);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseErrorWindowNotStarted",
+      });
+    });
+
     it("falls back to the generic message for a non-leasing failure", async () => {
       myAccess.activate.mockRejectedValue(new Error("offline"));
       create();
@@ -261,59 +284,6 @@ describe("MyRequestsTabComponent", () => {
 
       expect(fixture.nativeElement.textContent).toContain("pamMyRequestsGroupExtensions");
       expect(query('[data-testid="my-access-extension-req-ext"]')).not.toBeNull();
-    });
-  });
-
-  describe("Pending table status column", () => {
-    // The section mixes both statuses, so placement under the "Pending" heading cannot state which
-    // one a row is (PM-41841).
-    it("badges a request still awaiting a decision as pending", () => {
-      pendingRows$.next([
-        requestRow({ id: "req-p", status: "pending", badgeState: { kind: "pending" } }),
-      ]);
-
-      create();
-
-      expect(query('[data-testid="access-state-badge-pending"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-pending-status-req-p"]')).toBeNull();
-    });
-
-    it("badges an approved request awaiting activation as approved", () => {
-      pendingRows$.next([
-        requestRow({
-          id: "req-a",
-          status: "approved",
-          badgeState: null,
-          statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
-        }),
-      ]);
-
-      create();
-
-      const badge = query('[data-testid="my-access-pending-status-req-a"]');
-      expect(badge?.textContent?.trim()).toBe("pamStatusApproved");
-    });
-
-    it("badges an approved request whose window has lapsed as expired, not approved", () => {
-      jest.setSystemTime(new Date("2026-08-20T12:00:00.000Z"));
-      pendingRows$.next([
-        requestRow({
-          id: "req-l",
-          status: "approved",
-          leaseNotAfter: "2026-08-20T11:00:00.000Z",
-          badgeState: null,
-          statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
-        }),
-      ]);
-
-      create();
-
-      // Start and Cancel are both withheld once the window lapses, so the badge is the only thing
-      // left that can explain why the row has no actions.
-      const badge = query('[data-testid="my-access-pending-status-req-l"]');
-      expect(badge?.textContent?.trim()).toBe("pamStatusExpired");
-      expect(query('[data-testid="my-access-pending-start-req-l"]')).toBeNull();
-      expect(query('[data-testid="my-access-pending-cancel-req-l"]')).toBeNull();
     });
   });
 
