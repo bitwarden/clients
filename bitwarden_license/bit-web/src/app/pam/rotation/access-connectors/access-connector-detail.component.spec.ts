@@ -738,6 +738,24 @@ describe("AccessConnectorDetailComponent", () => {
       return await createComponent();
     }
 
+    it("shows last seen as a relative time", async () => {
+      const heartbeat = new Date(Date.now() - 5 * 60_000).toISOString();
+      await render(makeAccessConnector({ lastHeartbeatAt: heartbeat }));
+
+      expect(query('[data-testid="connector-last-seen"]').textContent).toContain(
+        "pamRotationRelativeMinutesAgo",
+      );
+    });
+
+    it("shows last seen in hours within the same day", async () => {
+      const heartbeat = new Date(Date.now() - 3 * 60 * 60_000).toISOString();
+      await render(makeAccessConnector({ lastHeartbeatAt: heartbeat }));
+
+      expect(query('[data-testid="connector-last-seen"]').textContent).toContain(
+        "pamRotationRelativeHoursAgo",
+      );
+    });
+
     it("hands the section to the shared picker and lists each assignment as a row", async () => {
       rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
       await render();
@@ -1104,10 +1122,19 @@ describe("AccessConnectorDetailComponent", () => {
       expect(fieldText(rendered, "connector-created")).toBe(expectedMedium());
     });
 
-    it("renders the last heartbeat as the last seen time", async () => {
-      const rendered = await renderDetail(makeAccessConnector());
+    it("falls back to the medium date when the heartbeat is 400 days old", async () => {
+      const old = new Date(Date.now() - 400 * 24 * 60 * 60_000).toISOString();
+      const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: old }));
 
-      expect(fieldText(rendered, "connector-last-seen")).toBe(expectedMedium());
+      expect(fieldText(rendered, "connector-last-seen")).toBe(
+        new DatePipe(TestBed.inject(LOCALE_ID)).transform(old, "medium") ?? "",
+      );
+    });
+
+    it("renders 'Never' for an unparseable heartbeat", async () => {
+      const rendered = await renderDetail(makeAccessConnector({ lastHeartbeatAt: "not-a-date" }));
+
+      expect(fieldText(rendered, "connector-last-seen")).toBe("never");
     });
 
     it("renders 'Never' for a connector that has not checked in yet", async () => {

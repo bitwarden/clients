@@ -28,6 +28,7 @@ import {
   SkeletonTextComponent,
   TabsModule,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
@@ -61,6 +62,7 @@ import {
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
+import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemLabel, targetSystemLabel } from "../target-systems/target-system-label";
@@ -109,6 +111,7 @@ export type AccessConnectorAssignment = Omit<TargetSystemLabel, "id"> &
     SkeletonComponent,
     SkeletonTextComponent,
     TabsModule,
+    TooltipDirective,
     TypographyModule,
     I18nPipe,
   ],
@@ -224,6 +227,18 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
   });
 
   private readonly connector = computed(() => this.accessConnector()?.connector ?? null);
+
+  /** `null` when the design shows no wording for the span, so the template shows the date. */
+  protected readonly lastSeenAtMs = computed(() => {
+    const heartbeat = this.connector()?.lastHeartbeatAt;
+    const ms = heartbeat ? Date.parse(heartbeat) : NaN;
+    return Number.isNaN(ms) ? null : ms;
+  });
+
+  protected readonly lastSeenLabel = computed(() => {
+    const ms = this.lastSeenAtMs();
+    return ms == null ? null : relativeTimeLabel(this.i18nService, lastSeenText(ms, Date.now()));
+  });
 
   /** The saved assignments, which the staged list is diffed against. */
   private readonly savedAssignmentIds = computed<readonly TargetSystemId[]>(

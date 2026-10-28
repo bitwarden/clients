@@ -22,6 +22,9 @@ function row(accessConnector: AccessConnector, assignmentNames: string[] = []): 
     assignmentNames,
     enabled: accessConnector.status === "enabled",
     canAssign: accessConnector.status === "enabled",
+    lastSeenAtMs: accessConnector.lastHeartbeatAt
+      ? Date.parse(accessConnector.lastHeartbeatAt)
+      : null,
     accessConnector,
   };
 }
@@ -29,6 +32,7 @@ function row(accessConnector: AccessConnector, assignmentNames: string[] = []): 
 const CONNECTOR_PROD = accessConnector({
   id: connectorId("connector-prod"),
   name: "Prod on-prem connector",
+  lastHeartbeatAt: new Date(Date.now() - 5 * 60_000).toISOString(),
   assignedTargetSystemIds: [sysId("1")],
 });
 
