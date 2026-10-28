@@ -77,15 +77,15 @@
 </ng-template>
 
 <ng-template #noResultsState>
-  <bit-status-lockup size="small">
-    <bit-icon
-      slot="graphic"
-      name="bwi-search"
-      class="tw-text-2xl tw-text-fg-body-subtle"
-    ></bit-icon>
-    <span slot="title">{{ "noFiltersMatchTerm" | i18n: searchTerm() }}</span>
+  <div class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-p-4">
+    <bit-icon name="bwi-search" class="tw-text-xl tw-leading-none tw-text-fg-body"></bit-icon>
+    <!-- Capped so break-words can wrap a long unbroken term inside the centered column. -->
+    <span
+      bitTypography="body2"
+      class="tw-line-clamp-2 tw-font-medium tw-max-w-full tw-break-words tw-text-center tw-text-fg-body"
+      >{{ "noFiltersMatchTerm" | i18n: searchTerm() }}</span
+    >
     <button
-      slot="button"
       bitButton
       buttonType="secondary"
       size="small"
@@ -95,12 +95,12 @@
     >
       {{ "clearSearch" | i18n }}
     </button>
-  </bit-status-lockup>
+  </div>
 </ng-template>
 
 <ng-template #optionsBody>
   @if (showSearch()) {
-    <div data-filter-search-row class="tw-px-2 tw-pb-1">
+    <div data-filter-search-row class="tw-p-1">
       <bit-search
         data-filter-search
         [ngModel]="searchTerm()"
@@ -127,6 +127,7 @@
       tabindex="-1"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
       data-filter-card-list
+      data-filter-scroll
       (keydown)="onTreeKeydown($event)"
     >
       @for (node of treeNodes(); track $index) {
@@ -255,6 +256,7 @@
       [attr.aria-label]="placeholderText()"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
       data-filter-option-list
+      data-filter-scroll
     >
       @if (!multiple()) {
         @let allSelected = isSelected(clearValue);
@@ -285,7 +287,7 @@
             @if (section.collapsible()) {
               <button
                 type="button"
-                class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+                class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-fg-heading hover:tw-bg-bg-brand-softer focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
                 [attr.aria-expanded]="section.open()"
                 [bitTooltip]="section.label()"
                 (click)="section.toggleExpanded()"
@@ -343,7 +345,10 @@
 </ng-template>
 
 <bit-menu #menu ariaRole="dialog" [ariaLabel]="placeholderText()" (closed)="onMenuClosed()">
-  <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
+  <!-- The list bleeds into the menu's padding so its scrollbar and dividers reach the popover's edge. -->
+  <div
+    class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col [&_[data-filter-scroll]]:-tw-mx-2 [&_[data-filter-scroll]]:tw-px-2"
+  >
     <!-- Gated on open: the overlay keeps this view alive between openings, so ungated rows would
          outlive their popover and still count as the menu's once the dialog owns the options. -->
     @if (menuTrigger.isOpen()) {

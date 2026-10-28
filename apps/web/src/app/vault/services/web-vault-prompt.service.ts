@@ -85,12 +85,11 @@ export class WebVaultPromptService {
       return;
     }
 
-    if (
-      await this.newExperienceDialogService.conditionallyOpen(userId, {
-        lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
-        darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
-      })
-    ) {
+    const newExperienceResult = await this.newExperienceDialogService.conditionallyOpen(userId, {
+      lightImgSrc: NEW_EXPERIENCE_LIGHT_IMG,
+      darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
+    });
+    if (newExperienceResult !== null) {
       this.sideNavService.open.set(true);
       if (await this.waitForTourToEnd()) {
         await this.conditionallyOpenAutoConfirmDialog();

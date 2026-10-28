@@ -67,10 +67,13 @@ export {
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
+export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
+export { RotationSdkService } from "./rotation/rotation-sdk.service";
+export type { RotationConfigDescription } from "./rotation/rotation-sdk.service";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
