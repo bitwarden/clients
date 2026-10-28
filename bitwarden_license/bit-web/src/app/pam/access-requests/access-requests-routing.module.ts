@@ -7,6 +7,7 @@ import { canViewApprovalsGuard } from "../approvals/can-view-approvals.guard";
 import { AccessNameResolverService } from "./access-name-resolver.service";
 import { AccessRequestsComponent } from "./access-requests.component";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
+import { HistoryTabComponent } from "./history-tab.component";
 import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
@@ -30,6 +31,11 @@ const routes: Routes = [
         path: "my-requests",
         component: MyRequestsTabComponent,
         data: { titleId: "pamTabMyRequests" },
+      },
+      {
+        path: "history",
+        component: HistoryTabComponent,
+        data: { titleId: "pamTabHistory" },
       },
     ],
   },

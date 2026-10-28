@@ -18047,6 +18047,9 @@
   "pamTabMyRequests": {
     "message": "My requests"
   },
+  "pamTabHistory": {
+    "message": "History"
+  },
   "pamAccessRequestsSearchPlaceholder": {
     "message": "Search credential, collection, requester"
   },
@@ -18071,6 +18074,9 @@
   "pamMyRequestsPendingEmpty": {
     "message": "No pending requests"
   },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "No request history"
+  },
   "pamColumnItem": {
     "message": "Item"
   },
@@ -18085,6 +18091,15 @@
   },
   "pamColumnStatus": {
     "message": "Status"
+  },
+  "pamColumnResolver": {
+    "message": "Resolver"
+  },
+  "pamColumnComment": {
+    "message": "Comment"
+  },
+  "pamColumnResolved": {
+    "message": "Resolved"
   },
   "pamColumnRemaining": {
     "message": "Remaining"
@@ -18445,6 +18460,9 @@
   "pamInboxEmptyTitle": {
     "message": "Inbox zero"
   },
+  "pamInboxHistoryEmpty": {
+    "message": "No history to display"
+  },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
   },
@@ -18474,6 +18492,27 @@
   },
   "pamApprovalsLoaded": {
     "message": "Access requests loaded"
+  },
+  "pamHistoryLoaded": {
+    "message": "Request history loaded"
+  },
+  "pamHistoryScopeAll": {
+    "message": "All"
+  },
+  "pamHistoryScopeMine": {
+    "message": "Raised by me"
+  },
+  "pamHistoryScopeManaged": {
+    "message": "For my collections"
+  },
+  "pamHistoryScopeLabel": {
+    "message": "History scope"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Nothing to show yet"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "Activity around requests and approvals will display here once actions are taken."
   },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
