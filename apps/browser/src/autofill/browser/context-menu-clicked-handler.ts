@@ -23,7 +23,6 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -111,7 +110,6 @@ export class ContextMenuClickedHandler {
     private autofillAction: AutofillAction,
     private collectAutofillTriage: CollectAutofillTriageAction,
     private authService: AuthService,
-    private cipherService: CipherService,
     private totpService: TotpService,
     private eventCollectionService: EventCollectionService,
     private userVerificationService: UserVerificationService,

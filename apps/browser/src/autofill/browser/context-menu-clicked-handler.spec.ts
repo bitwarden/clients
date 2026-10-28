@@ -18,7 +18,6 @@ import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -88,7 +87,6 @@ describe("ContextMenuClickedHandler", () => {
   let autofill: AutofillAction;
   let collectAutofillTriage: jest.Mock<ReturnType<CollectAutofillTriageAction>, [number, number?]>;
   let authService: MockProxy<AuthService>;
-  let cipherService: MockProxy<CipherService>;
   let fillCipherPolicy: MockProxy<FillCipherPolicy>;
   let accountService: FakeAccountService;
   let totpService: MockProxy<TotpService>;
@@ -106,7 +104,6 @@ describe("ContextMenuClickedHandler", () => {
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
     collectAutofillTriage = jest.fn<ReturnType<CollectAutofillTriageAction>, [number, number?]>();
     authService = mock();
-    cipherService = mock();
     fillCipherPolicy = mock();
     accountService = mockAccountServiceWith(mockUserId as UserId);
     totpService = mock();
@@ -122,7 +119,6 @@ describe("ContextMenuClickedHandler", () => {
       autofill,
       collectAutofillTriage,
       authService,
-      cipherService,
       totpService,
       eventCollectionService,
       userVerificationService,

@@ -1753,7 +1753,6 @@ export default class MainBackground {
       },
       (tabId, frameId) => this.autofillOrchestrator.collectAutofillTriage(tabId, frameId),
       this.authService,
-      this.cipherService,
       this.totpService,
       this.eventCollectionService,
       this.userVerificationService,
@@ -1811,7 +1810,7 @@ export default class MainBackground {
     if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
       this.webRequestBackground = new WebRequestBackground(
         this.platformUtilsService,
-        this.cipherService,
+        this.fillCipherPolicy,
         this.authService,
         this.accountService,
         chrome.webRequest,
@@ -2397,6 +2396,7 @@ export default class MainBackground {
       this.cipherService,
       this.badgeSettingsService,
       this.logService,
+      this.fillCipherPolicy,
     );
 
     this.clipboardNotificationBadgeUpdaterService = new ClipboardNotificationBadgeUpdaterService(
