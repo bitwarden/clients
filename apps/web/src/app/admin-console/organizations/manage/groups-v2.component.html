@@ -26,6 +26,7 @@
       key="collections"
       [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
       multiple
+      [disabled]="hasNoGroups()"
       [options]="collectionFilterOptions()"
     ></bit-filter-menu>
     <button
@@ -49,14 +50,15 @@
     </bit-cell>
   </bit-column>
 
-  <bit-column width="minmax(240px, 2fr)">
+  <bit-column sortable [sortFn]="sortByCollections" width="minmax(240px, 2fr)">
     <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.collectionBadges; let row">
-      <bit-badge-group
-        [badges]="row.collectionBadges"
-        (click)="edit(row, ModalTabType.Collections)"
-        class="tw-cursor-pointer"
-      ></bit-badge-group>
+    <bit-cell *bitCellDef="table.columns.collectionChips; let row">
+      <bit-chip-group
+        class="tw-block tw-w-full tw-min-w-0"
+        [chips]="row.collectionChips"
+        [accessibleName]="'collections' | vfo1I18n: 'sharedFolders'"
+        (chipSelect)="goToCollection($event)"
+      ></bit-chip-group>
     </bit-cell>
   </bit-column>
 

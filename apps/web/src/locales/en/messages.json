@@ -5672,11 +5672,20 @@
   "deleteGroupsWarningDesc": {
     "message": "Once you delete these groups, members assigned to the groups could lose access to associated shared folders. The members themselves won't be deleted."
   },
+  "groupCreated": {
+    "message": "Group created"
+  },
   "groupDeleted": {
     "message": "Group deleted"
   },
   "groupsDeleted": {
-    "message": "Groups deleted"
+    "message": "$QUANTITY$ groups deleted",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "groupEdited": {
     "message": "Group edited"
