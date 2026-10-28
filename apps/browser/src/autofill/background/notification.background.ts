@@ -66,7 +66,7 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 
 import {
   AddChangePasswordNotificationQueueMessage,
@@ -181,7 +181,7 @@ export default class NotificationBackground {
     private fido2Background: Fido2Background,
     private intraprocessMessageSender: IntraprocessMessageSender,
     private messageListener: MessageListener,
-    private revealedAutofillCipherService: RevealedAutofillCipherService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   init() {
@@ -646,17 +646,7 @@ export default class NotificationBackground {
     if (userId == null) {
       return false;
     }
-    const username = form.username?.toLowerCase();
-    const passwords = [form.password, form.newPassword].filter((p) => !!p);
-    const matches = (await this.revealedAutofillCipherService.getRevealed(userId)).filter((c) => {
-      const usernameMatches = !!username && c.login?.username?.toLowerCase() === username;
-      const passwordMatches = !!c.login?.password && passwords.includes(c.login.password);
-      return usernameMatches || passwordMatches;
-    });
-    return (
-      matches.length > 0 &&
-      (await this.cipherService.filterCiphersForUrl(matches, form.uri)).length > 0
-    );
+    return !(await this.fillCipherPolicy.canOfferSave(form, userId));
   }
 
   private async pushAddLoginToQueue(
