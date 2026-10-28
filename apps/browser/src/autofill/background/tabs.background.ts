@@ -1,3 +1,7 @@
+import { concatMap, debounceTime, distinctUntilChanged, EMPTY, map, skip, switchMap } from "rxjs";
+
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+
 import MainBackground from "../../background/main.background";
 
 import { OverlayBackground } from "./abstractions/overlay.background";
@@ -22,6 +26,45 @@ export default class TabsBackground {
 
     void this.updateCurrentTabData();
     void this.setupTabEventListeners();
+    this.refreshOnFillCiphersChanged();
+  }
+
+  /**
+   * Rebuilds the context menu and the inline menu ciphers when the active user's fill ciphers
+   * change. Skips the replay on subscribe, since unlock and account switch already refresh both.
+   */
+  private refreshOnFillCiphersChanged() {
+    this.main.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          account == null
+            ? EMPTY
+            : this.main.authService.authStatusFor$(account.id).pipe(
+                map((status) => status === AuthenticationStatus.Unlocked),
+                distinctUntilChanged(),
+                switchMap((unlocked) =>
+                  unlocked
+                    ? this.main.fillCipherPolicy.changed$(account.id).pipe(
+                        // Coalesces bursts and lets the decrypted cipher cache catch up.
+                        debounceTime(100),
+                        skip(1),
+                      )
+                    : EMPTY,
+                ),
+              ),
+        ),
+        concatMap(async () => {
+          try {
+            await Promise.all([
+              this.main.refreshMenu(),
+              this.overlayBackground.updateOverlayCiphers(),
+            ]);
+          } catch (error) {
+            this.main.logService.error(error);
+          }
+        }),
+      )
+      .subscribe();
   }
 
   /**
