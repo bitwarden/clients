@@ -369,7 +369,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       (item) =>
         (item.cipher !== undefined &&
           this.canEditCipher(item.cipher) &&
-          !CipherViewLikeUtils.isPartial(item.cipher)) ||
+          !CipherViewLikeUtils.isRestricted(item.cipher)) ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );

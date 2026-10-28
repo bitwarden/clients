@@ -260,7 +260,7 @@ describe("SharedFoldersComponent", () => {
         },
         {
           provide: CipherService,
-          useValue: { cipherListViewsWithPartials$: () => ciphers$ },
+          useValue: { cipherListViewsIncludingRestricted$: () => ciphers$ },
         },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         ...(withCollectionDialog
@@ -419,7 +419,7 @@ describe("SharedFoldersComponent", () => {
 
     // A gated folder must not read as empty: the count is what tells the member there is
     // something in there worth requesting access to.
-    it("counts PAM-gated items, which reach it only through cipherListViewsWithPartials$", async () => {
+    it("counts PAM-gated items, which reach it only through cipherListViewsIncludingRestricted$", async () => {
       const withheld = Object.assign(cipher("gated", ["a"]), { partial: true });
 
       await setup({

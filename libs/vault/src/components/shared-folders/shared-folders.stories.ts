@@ -181,7 +181,7 @@ const withVault: Decorator = (storyFn, context) => {
       { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
       {
         provide: CipherService,
-        useValue: { cipherListViewsWithPartials$: () => of(ciphers) },
+        useValue: { cipherListViewsIncludingRestricted$: () => of(ciphers) },
       },
       { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
     ],

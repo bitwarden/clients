@@ -15,6 +15,6 @@ export class WebIndividualVaultFilterService extends VaultFilterService {
   protected override folderFilterCiphers$(
     userId: UserId,
   ): Observable<CipherView[] | CipherListView[]> {
-    return this.cipherService.cipherListViewsWithPartials$(userId);
+    return this.cipherService.cipherListViewsIncludingRestricted$(userId);
   }
 }

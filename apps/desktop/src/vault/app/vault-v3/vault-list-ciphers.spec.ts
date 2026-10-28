@@ -20,21 +20,21 @@ describe("vaultListCiphers$", () => {
   beforeEach(() => {
     cipherService = mock<CipherService>();
     cipherService.cipherListViews$.mockReturnValue(of(unrestricted));
-    cipherService.cipherListViewsWithPartials$.mockReturnValue(of(withRestricted));
+    cipherService.cipherListViewsIncludingRestricted$.mockReturnValue(of(withRestricted));
   });
 
   it("lists restricted ciphers under VFO1", async () => {
     const ciphers = await firstValueFrom(vaultListCiphers$(cipherService, userId, of(true)));
 
     expect(ciphers).toBe(withRestricted);
-    expect(cipherService.cipherListViewsWithPartials$).toHaveBeenCalledWith(userId);
+    expect(cipherService.cipherListViewsIncludingRestricted$).toHaveBeenCalledWith(userId);
   });
 
   it("leaves restricted ciphers out of the legacy list", async () => {
     const ciphers = await firstValueFrom(vaultListCiphers$(cipherService, userId, of(false)));
 
     expect(ciphers).toBe(unrestricted);
-    expect(cipherService.cipherListViewsWithPartials$).not.toHaveBeenCalled();
+    expect(cipherService.cipherListViewsIncludingRestricted$).not.toHaveBeenCalled();
   });
 
   it("follows the flag when it changes", () => {

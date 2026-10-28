@@ -255,7 +255,7 @@ describe("VaultNextComponent", () => {
     accountService.activeAccount$ = of({ id: userId } as Account);
 
     const cipherService = mock<CipherService>();
-    cipherService.cipherListViewsWithPartials$.mockReturnValue(ciphers$ as never);
+    cipherService.cipherListViewsIncludingRestricted$.mockReturnValue(ciphers$ as never);
     cipherService.failedToDecryptCiphers$.mockReturnValue(failedCiphers$);
 
     const folderService = mock<FolderService>();

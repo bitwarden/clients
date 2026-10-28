@@ -17,7 +17,7 @@ export function vaultListCiphers$(
   return vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
-        ? cipherService.cipherListViewsWithPartials$(userId)
+        ? cipherService.cipherListViewsIncludingRestricted$(userId)
         : cipherService.cipherListViews$(userId),
     ),
   );

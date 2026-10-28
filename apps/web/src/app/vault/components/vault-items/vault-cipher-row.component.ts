@@ -249,7 +249,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
    * row is read-only: not selectable and offering no modify action.
    */
   protected get isPartial() {
-    return CipherViewLikeUtils.isPartial(this.cipher);
+    return CipherViewLikeUtils.isRestricted(this.cipher);
   }
 
   protected get showAssignToCollections() {
