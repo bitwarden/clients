@@ -8,7 +8,7 @@
 //!
 //! ```text
 //! isolate
-//!  └─ process_watcher::watch ── stream: Added(main), then Added / Removed for each child
+//!  └─ process_watcher::watch ── channel: Added(main), then Added / Removed for each child
 //!       └─ dacl::Hardener::run, on its own thread
 //!            ├─ Added:   check identity (process), then replace the DACL and add the ACE
 //!            └─ Removed: forget the child

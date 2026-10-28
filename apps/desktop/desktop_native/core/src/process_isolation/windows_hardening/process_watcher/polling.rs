@@ -2,7 +2,7 @@
 //!
 //! Used when the job object can't be set up or stops delivering messages. Each poll reports
 //! every child as added and every emitted process that no longer runs as removed; the
-//! emitter drops what it already sent, so only changes reach the stream.
+//! emitter drops what it already sent, so only changes reach the channel.
 
 use std::thread;
 

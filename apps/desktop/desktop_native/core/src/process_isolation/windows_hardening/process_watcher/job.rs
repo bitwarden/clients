@@ -221,24 +221,20 @@ fn set_information<T>(job: &Owned<HANDLE>, class: JOBOBJECTINFOCLASS, info: &T) 
 mod tests {
     use std::{
         process::Command,
+        sync::mpsc,
         time::{Duration, Instant},
     };
-
-    use tokio::sync::mpsc;
 
     use super::{super::ProcessEvent, *};
 
     /// Waits up to a few seconds for `expected` on `receiver`, skipping other events.
-    fn wait_for(
-        receiver: &mut mpsc::UnboundedReceiver<ProcessEvent>,
-        expected: ProcessEvent,
-    ) -> bool {
+    fn wait_for(receiver: &mpsc::Receiver<ProcessEvent>, expected: ProcessEvent) -> bool {
         let deadline = Instant::now() + Duration::from_secs(10);
-        while Instant::now() < deadline {
-            match receiver.try_recv() {
+        while let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
+            match receiver.recv_timeout(remaining) {
                 Ok(event) if event == expected => return true,
                 Ok(_) => {}
-                Err(_) => thread::sleep(Duration::from_millis(50)),
+                Err(_) => return false,
             }
         }
         false
@@ -246,7 +242,7 @@ mod tests {
 
     #[test]
     fn job_reports_child_start_and_exit() {
-        let (sender, mut receiver) = mpsc::unbounded_channel();
+        let (sender, receiver) = mpsc::channel();
         let main = Pid::from(std::process::id());
         if let Err((e, _)) = start(Emitter::new(sender, main)) {
             panic!("start: {e}");
@@ -257,11 +253,11 @@ mod tests {
             .spawn()
             .expect("spawn ping");
         let pid = Pid::from(child.id());
-        let added = wait_for(&mut receiver, ProcessEvent::Added(pid));
+        let added = wait_for(&receiver, ProcessEvent::Added(pid));
 
         let _ = child.kill();
         let _ = child.wait();
-        let removed = wait_for(&mut receiver, ProcessEvent::Removed(pid));
+        let removed = wait_for(&receiver, ProcessEvent::Removed(pid));
 
         assert!(added, "the job must report the new child");
         assert!(removed, "the job must report the child's exit");

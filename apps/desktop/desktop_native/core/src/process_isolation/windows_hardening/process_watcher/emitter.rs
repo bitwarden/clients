@@ -111,41 +111,38 @@ fn is_running(pid: Pid, start: CreationTime) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use tokio::sync::mpsc;
+    use std::sync::mpsc;
 
     use super::*;
 
-    fn emitter() -> (Emitter, mpsc::UnboundedReceiver<ProcessEvent>) {
-        let (sender, receiver) = mpsc::unbounded_channel();
+    fn emitter() -> (Emitter, mpsc::Receiver<ProcessEvent>) {
+        let (sender, receiver) = mpsc::channel();
         (Emitter::new(sender, Pid::from(0)), receiver)
     }
 
-    fn drain(receiver: &mut mpsc::UnboundedReceiver<ProcessEvent>) -> Vec<ProcessEvent> {
+    fn drain(receiver: &mpsc::Receiver<ProcessEvent>) -> Vec<ProcessEvent> {
         std::iter::from_fn(|| receiver.try_recv().ok()).collect()
     }
 
     #[test]
     fn same_process_is_added_once() {
-        let (mut emitter, mut receiver) = emitter();
+        let (mut emitter, receiver) = emitter();
         let _ = emitter.added_at(Pid::from(1), CreationTime::from(10));
         let _ = emitter.added_at(Pid::from(1), CreationTime::from(10));
 
-        assert_eq!(
-            drain(&mut receiver),
-            vec![ProcessEvent::Added(Pid::from(1))]
-        );
+        assert_eq!(drain(&receiver), vec![ProcessEvent::Added(Pid::from(1))]);
     }
 
     #[test]
     fn process_is_removed_once_and_only_if_added() {
-        let (mut emitter, mut receiver) = emitter();
+        let (mut emitter, receiver) = emitter();
         let _ = emitter.removed(Pid::from(2));
         let _ = emitter.added_at(Pid::from(1), CreationTime::from(10));
         let _ = emitter.removed(Pid::from(1));
         let _ = emitter.removed(Pid::from(1));
 
         assert_eq!(
-            drain(&mut receiver),
+            drain(&receiver),
             vec![
                 ProcessEvent::Added(Pid::from(1)),
                 ProcessEvent::Removed(Pid::from(1)),
@@ -155,12 +152,12 @@ mod tests {
 
     #[test]
     fn reused_pid_is_removed_before_added_again() {
-        let (mut emitter, mut receiver) = emitter();
+        let (mut emitter, receiver) = emitter();
         let _ = emitter.added_at(Pid::from(1), CreationTime::from(10));
         let _ = emitter.added_at(Pid::from(1), CreationTime::from(99));
 
         assert_eq!(
-            drain(&mut receiver),
+            drain(&receiver),
             vec![
                 ProcessEvent::Added(Pid::from(1)),
                 ProcessEvent::Removed(Pid::from(1)),

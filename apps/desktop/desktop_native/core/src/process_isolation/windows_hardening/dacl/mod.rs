@@ -34,7 +34,6 @@ mod restricted;
 mod sid;
 
 use anyhow::{anyhow, Result};
-use futures::{executor::block_on_stream, Stream};
 use tracing::{info, warn};
 use windows::Win32::{
     Foundation::ERROR_ACCESS_DENIED,
@@ -84,9 +83,9 @@ impl Hardener {
         })
     }
 
-    /// Acts on `events` on the current thread until the stream ends.
-    pub(super) fn run(self, events: impl Stream<Item = ProcessEvent> + Unpin) {
-        for event in block_on_stream(events) {
+    /// Acts on `events` on the current thread until they end.
+    pub(super) fn run(self, events: impl IntoIterator<Item = ProcessEvent>) {
+        for event in events {
             self.handle(event);
         }
     }
