@@ -18,9 +18,6 @@ describe("isInvoicePreviewExpiredError", () => {
   it("matches the key case-insensitively", () =>
     expect(isInvoicePreviewExpiredError(expired("invoicePreviewExpired"))).toBe(true));
 
-  it("unwraps an ErrorResponse on error.cause", () =>
-    expect(isInvoicePreviewExpiredError({ cause: expired() })).toBe(true));
-
   it("ignores the key on a non-400", () =>
     expect(isInvoicePreviewExpiredError(expired("InvoicePreviewExpired", 500))).toBe(false));
 

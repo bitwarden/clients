@@ -39,6 +39,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -285,8 +286,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   });
 
   // The proration date of a quote the server rejected as expired. Keyed to the date so any newly
-  // resolved preview clears the expired state on its own.
+  // resolved preview clears the expired state on its own: the server stamps each preview with the
+  // current second, so a freshly resolved preview carries a different date.
   private readonly expiredProrationDate = signal<string | undefined>(undefined);
+
+  private submittedProrationDate: string | undefined;
 
   protected readonly isPreviewExpired = computed(
     () =>
@@ -379,6 +383,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private vfo1TerminologyService: Vfo1TerminologyService,
     private invoicePreviewService: InvoicePreviewService,
     private configService: ConfigService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -977,8 +982,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     try {
       organizationId = await this.formPromise;
     } catch (error) {
-      if (this.showPreviewCart && isInvoicePreviewExpiredError(error)) {
-        this.expiredProrationDate.set(this.planChangeCart.value()?.prorationDate);
+      // Only mark the current preview expired if it is still the one the rejected upgrade used.
+      const submittedDate = this.submittedProrationDate;
+      if (
+        this.showPreviewCart &&
+        isInvoicePreviewExpiredError(error) &&
+        submittedDate != null &&
+        this.planChangeCart.hasValue() &&
+        this.planChangeCart.value().prorationDate === submittedDate
+      ) {
+        this.logService.error("Invoice preview expired:", error);
+        this.expiredProrationDate.set(submittedDate);
         return;
       }
       throw error;
@@ -1021,6 +1035,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     if (this.showPreviewCart) {
       request.prorationDate = this.planChangeCart.value()?.prorationDate;
+      this.submittedProrationDate = request.prorationDate;
     }
 
     // Secrets Manager

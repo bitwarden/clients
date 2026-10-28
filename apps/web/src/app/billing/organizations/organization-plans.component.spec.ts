@@ -3860,6 +3860,25 @@ describe("OrganizationPlansComponent", () => {
         );
       }));
 
+      it("sends no proration date once the flag flips off after a pinned Premium upgrade preview", fakeAsync(() => {
+        const flagSubject = new BehaviorSubject<boolean>(true);
+        mockConfigService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+          flag === FeatureFlag.PM36631_PreviewDrivenCart ? flagSubject.asObservable() : of(true),
+        );
+        fixture = TestBed.createComponent(OrganizationPlansComponent);
+        component = fixture.componentInstance;
+        mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(quote);
+        startPremiumUpgrade();
+        expect(component["previewProrationDate"]()).toBe(quote.prorationDate);
+
+        flagSubject.next(false);
+        tick(1500);
+        void component.submit();
+        tick();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization.mock.lastCall[4]).toBeUndefined();
+      }));
+
       it("other upgrade errors still propagate without the out-of-date callout", fakeAsync(() => {
         mockInvoicePreviewService.previewPremiumOrgUpgradeCart.mockResolvedValue(quote);
         const serverError = new ErrorResponse({ Message: "Internal error" }, 500);
