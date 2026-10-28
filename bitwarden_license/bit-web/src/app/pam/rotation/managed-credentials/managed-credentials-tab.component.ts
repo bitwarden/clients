@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
   viewChildren,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -57,7 +58,11 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessConnectorRegisterDialogComponent } from "../access-connectors/access-connector-register-dialog.component";
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
-import { THEN_MANAGED_CREDENTIAL, THEN_QUERY_PARAM } from "../create-flow";
+import {
+  TARGET_SYSTEM_QUERY_PARAM,
+  THEN_MANAGED_CREDENTIAL,
+  THEN_QUERY_PARAM,
+} from "../create-flow";
 import { filterOptions } from "../filter-options";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
@@ -253,12 +258,26 @@ export class ManagedCredentialsTabComponent {
 
   protected readonly triggerOptions = ROTATION_TRIGGER_OPTIONS;
 
-  /** The target systems the loaded rows name, keyed by id. */
-  protected readonly targetSystemOptions = computed(() =>
-    filterOptions(
-      this.rows().map((row) => [row.config.targetSystemId, row.targetSystemName] as const),
-    ),
-  );
+  /** The target system the operator drilled in from, which may have no credentials yet. */
+  private readonly drillInTargetSystemId =
+    this.route.snapshot.queryParamMap.get(TARGET_SYSTEM_QUERY_PARAM);
+
+  /**
+   * The target systems the loaded rows name, keyed by id, plus the one drilled in from, so a target
+   * with no credentials still gets a chip and scopes the list to nothing.
+   */
+  protected readonly targetSystemOptions = computed(() => {
+    const pairs = this.rows().map(
+      (row) => [row.config.targetSystemId, row.targetSystemName] as const,
+    );
+    const drillIn = this.targetSystems().find(
+      (system) => String(system.id) === this.drillInTargetSystemId,
+    );
+    if (drillIn != null) {
+      pairs.push([drillIn.id, drillIn.name] as const);
+    }
+    return filterOptions(pairs);
+  });
 
   private readonly ciphers = toSignal(this.orgCiphersService.ciphers$, {
     initialValue: [] as CipherView[],
@@ -359,12 +378,30 @@ export class ManagedCredentialsTabComponent {
     ].map((value) => value.toLowerCase());
   }
 
+  private readonly targetSystemFilter = viewChild<FilterMenuComponent>("targetSystemFilter");
+
+  /** The target system the operator drilled in from, applied once its option exists. */
+  private readonly pendingTargetSystemId = signal<string | null>(this.drillInTargetSystemId);
+
   constructor() {
     // The rotation shell loads the configs on mount, so the tab only adds its collections and the
     // access connectors the empty state asks about.
     effect(() => {
       void this.loadCollections(this.organizationId());
       void this.accessConnectorsService.load(this.organizationId());
+    });
+
+    // Seeds the target system chip from the drill-down link on the Target systems tab.
+    effect(() => {
+      const filter = this.targetSystemFilter();
+      const id = this.pendingTargetSystemId();
+      if (filter == null || id == null || this.loadingVisible() || !this.targetSystemsKnown()) {
+        return;
+      }
+      this.pendingTargetSystemId.set(null);
+      if (this.targetSystemOptions().some((option) => String(option.value) === id)) {
+        filter.setValue([id]);
+      }
     });
   }
 
