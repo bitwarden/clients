@@ -4,7 +4,7 @@ export type OrganizationSubscriptionPlan = {
 };
 
 export type PrivilegedControlsSelection = {
-  seatMinimum?: number;
+  seats?: number;
 };
 
 export type OrganizationSubscriptionPurchase = OrganizationSubscriptionPlan & {

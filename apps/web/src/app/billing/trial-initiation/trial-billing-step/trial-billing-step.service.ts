@@ -182,8 +182,7 @@ export class TrialBillingStepService {
         trial.product === Products.SecretsManager
           ? { seats: 1, additionalServiceAccounts: 0, standalone: true }
           : undefined,
-      // PAM seats at a minimum of 1, matching PM, so PM seats are never fewer than PAM seats.
-      privilegedControls: trial.privilegedControls ? { seatMinimum: 1 } : undefined,
+      privilegedControls: trial.privilegedControls ? { seats: 1 } : undefined,
     };
     return this.invoicePreviewService.previewOrganizationCheckoutCart({
       purchase: coupons?.length ? { ...purchase, coupons } : purchase,

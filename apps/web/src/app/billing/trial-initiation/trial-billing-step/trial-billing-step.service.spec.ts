@@ -188,13 +188,13 @@ describe("TrialBillingStepService", () => {
       );
 
       await sut.getCosts("passwordManager", "enterprise", "annually", billingAddress, {
-        seatMinimum: 6,
+        seats: 6,
       });
 
       expect(
         mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
       ).toHaveBeenCalledWith(
-        expect.objectContaining({ privilegedControls: { seatMinimum: 6 } }),
+        expect.objectContaining({ privilegedControls: { seats: 6 } }),
         expect.anything(),
         undefined,
       );
@@ -250,7 +250,7 @@ describe("TrialBillingStepService", () => {
 
     it("subscribes to Privileged Controls at a seat minimum of 1", async () => {
       await sut.startTrial(
-        { ...mockTrial, tier: "enterprise", privilegedControls: { seatMinimum: 6 } },
+        { ...mockTrial, tier: "enterprise", privilegedControls: { seats: 6 } },
         "annually",
         billingAddress,
         paymentMethod,
@@ -353,25 +353,25 @@ describe("TrialBillingStepService", () => {
       });
     });
 
-    it("requests 1 PAM seat regardless of the link's seat minimum", async () => {
+    it("requests one PAM seat for a Privileged Controls trial", async () => {
       mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue({} as any);
 
       await sut.previewPurchase(
-        { ...mockEnterpriseTrial, privilegedControls: { seatMinimum: 6 } },
+        { ...mockEnterpriseTrial, privilegedControls: { seats: 1 } },
         "annually",
         billingAddressControls,
       );
 
       const { purchase } =
         mockInvoicePreviewService.previewOrganizationCheckoutCart.mock.calls[0][0];
-      expect(purchase.privilegedControls).toEqual({ seatMinimum: 1 });
+      expect(purchase.privilegedControls).toEqual({ seats: 1 });
     });
 
     it("keeps the PM seat count at 1, never fewer than PAM seats", async () => {
       mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue({} as any);
 
       await sut.previewPurchase(
-        { ...mockEnterpriseTrial, privilegedControls: { seatMinimum: 6 } },
+        { ...mockEnterpriseTrial, privilegedControls: { seats: 1 } },
         "annually",
         billingAddressControls,
       );

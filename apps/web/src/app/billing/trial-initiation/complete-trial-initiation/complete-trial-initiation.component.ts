@@ -444,7 +444,7 @@ export class CompleteTrialInitiationComponent {
       product,
       tier,
       length: this.trialLength,
-      privilegedControls: this.includesPrivilegedControls ? { seatMinimum: 1 } : undefined,
+      privilegedControls: this.includesPrivilegedControls ? { seats: 1 } : undefined,
     };
   }
 }

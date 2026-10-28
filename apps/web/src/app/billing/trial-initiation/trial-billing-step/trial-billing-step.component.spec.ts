@@ -402,7 +402,7 @@ describe("TrialBillingStepComponent", () => {
     it("asks for privileged-controls-inclusive pricing when the trial selected it", fakeAsync(() => {
       fixture.componentRef.setInput("trial", {
         ...mockDirectPurchase,
-        privilegedControls: { seatMinimum: 1 },
+        privilegedControls: { seats: 1 },
       });
       fixture.detectChanges();
 

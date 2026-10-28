@@ -402,7 +402,7 @@ describe("CompleteTrialInitiationComponent", () => {
         product: "0,2",
         productTier: ProductTierType.Enterprise,
       });
-      expect(component.trial.privilegedControls).toEqual({ seatMinimum: 1 });
+      expect(component.trial.privilegedControls).toEqual({ seats: 1 });
     });
 
     it("carries Privileged Controls into the no-payment org creation", async () => {
