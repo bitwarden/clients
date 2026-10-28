@@ -14,6 +14,7 @@ use windows::{
     core::{Owned, PWSTR},
     Win32::{
         Foundation::{FILETIME, HANDLE},
+        Globalization::{CompareStringOrdinal, CSTR_EQUAL},
         System::{
             Diagnostics::ToolHelp::{
                 CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
@@ -147,7 +148,8 @@ impl Process {
         }
         .ok()?;
 
-        Some(ImagePath::from_utf16(&buf[..len as usize]))
+        buf.truncate(len as usize);
+        Some(ImagePath(buf))
     }
 
     /// PIDs of this process's direct children. May include stale entries after PID reuse;
@@ -185,23 +187,29 @@ impl Process {
     }
 }
 
-/// An executable path. Compares case-insensitively, like Windows paths.
+/// An executable path, in UTF-16. Compares case-insensitively, like Windows paths.
 /// Ref: <https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file>
-#[derive(Debug, PartialEq, Eq)]
-pub(super) struct ImagePath(String);
+#[derive(Debug)]
+pub(super) struct ImagePath(Vec<u16>);
 
-impl ImagePath {
-    fn from_utf16(units: &[u16]) -> Self {
-        Self(String::from_utf16_lossy(units).to_lowercase())
+impl PartialEq for ImagePath {
+    fn eq(&self, other: &Self) -> bool {
+        // Uses the OS uppercase table, as Windows does for paths. Rust's lowercasing is
+        // context sensitive and doesn't always map characters the same way.
+        // SAFETY: Both slices are valid UTF-16 buffers for the duration of the call.
+        // Ref: https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringordinal
+        unsafe { CompareStringOrdinal(&self.0, &other.0, true) == CSTR_EQUAL }
     }
 }
+
+impl Eq for ImagePath {}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn image(path: &str) -> ImagePath {
-        ImagePath::from_utf16(&path.encode_utf16().collect::<Vec<_>>())
+        ImagePath(path.encode_utf16().collect())
     }
 
     #[test]
