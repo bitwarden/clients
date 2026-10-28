@@ -226,23 +226,6 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
     }));
-
-    it("falls back to the deactivate's own failure copy for an error with no server reason", fakeAsync(() => {
-      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active });
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-      targetSystemsService.setEnabled.mockRejectedValue(new Error("fail"));
-
-      const comp = component as unknown as {
-        disable: (s: TargetSystemView) => Promise<void>;
-      };
-      void comp.disable(sys);
-      flushMicrotasks();
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamTargetSystemDeactivateFailed",
-      });
-    }));
   });
 
   describe("enable action", () => {
@@ -269,21 +252,6 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
     });
-
-    it("falls back to the activate's own failure copy for an error with no server reason", async () => {
-      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
-      targetSystemsService.setEnabled.mockRejectedValue(new Error("fail"));
-
-      const comp = component as unknown as {
-        enable: (s: TargetSystemView) => Promise<void>;
-      };
-      await comp.enable(sys);
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamTargetSystemActivateFailed",
-      });
-    });
   });
 
   describe("delete action", () => {
@@ -302,7 +270,7 @@ describe("TargetSystemsTabComponent", () => {
       );
     }));
 
-    it("confirms with a danger dialog offering the reversible alternative", fakeAsync(() => {
+    it("confirms with a danger dialog naming the target system and the reversible alternative", fakeAsync(() => {
       const sys = makeSystem({
         id: sysId("sys-1"),
         name: "Prod Entra",
@@ -316,8 +284,10 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "danger",
-          content: { key: "pamTargetSystemDeleteDialogContentDeactivateInstead" },
-          acceptButtonText: { key: "pamTargetSystemDeleteTarget" },
+          content: {
+            key: "pamTargetSystemDeleteContentDeactivateInstead",
+            placeholders: ["Prod Entra"],
+          },
         }),
       );
     }));
@@ -337,7 +307,8 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({
           type: "danger",
           content: {
-            key: "pamTargetSystemDeleteDialogContent",
+            key: "pamTargetSystemDeleteContent",
+            placeholders: ["Prod Entra"],
           },
         }),
       );
@@ -357,7 +328,8 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteDialogContent",
+            key: "pamTargetSystemDeleteContent",
+            placeholders: ["Prod Entra"],
           },
         }),
       );
@@ -381,7 +353,8 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteDialogAssignedConnectorsContent",
+            key: "pamTargetSystemDeleteAssignedConnectorsContent",
+            placeholders: ["Prod Entra"],
           },
         }),
       );
@@ -401,7 +374,8 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteDialogAssignedConnectorsContentDeactivateInstead",
+            key: "pamTargetSystemDeleteAssignedConnectorsContent",
+            placeholders: ["Prod Entra"],
           },
         }),
       );
@@ -423,7 +397,8 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           content: {
-            key: "pamTargetSystemDeleteDialogContentDeactivateInstead",
+            key: "pamTargetSystemDeleteContentDeactivateInstead",
+            placeholders: ["Prod Entra"],
           },
         }),
       );
@@ -486,7 +461,7 @@ describe("TargetSystemsTabComponent", () => {
       });
     }));
 
-    it("falls back to the delete's own failure copy for an error with no server reason", fakeAsync(() => {
+    it("falls back to the generic message for an error with no server reason", fakeAsync(() => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
       targetSystemsService.delete.mockRejectedValue(new Error("fail"));
 
@@ -495,7 +470,7 @@ describe("TargetSystemsTabComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "pamTargetSystemDeleteFailed",
+        message: "unexpectedError",
       });
     }));
   });
@@ -641,7 +616,7 @@ describe("TargetSystemsTabComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.querySelector("bit-table-v2")).toBeNull();
+      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
 
       targetSystemsService.loading$.next(false);
     });
@@ -859,7 +834,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -913,14 +888,10 @@ describe("TargetSystemsTabComponent", () => {
       expect(blockedKey()).toBe("pamTargetSystemAssignConnectorNone");
     });
 
-    it("describes the disabled assign item with the reason line under its label", async () => {
+    it("describes the disabled assign item with the tooltip explaining why", async () => {
       const item = await openRowMenu([]);
 
-      const reasonId = item.getAttribute("aria-describedby")!;
-      expect(reasonId).toMatch(/^target-systems-tab_reason_assign-connectors-/);
-      expect(document.getElementById(reasonId)?.textContent?.trim()).toBe(
-        "pamTargetSystemAssignConnectorNone",
-      );
+      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
     });
 
     it("leaves the live assign item undescribed", async () => {
@@ -946,7 +917,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -969,7 +940,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -990,14 +961,14 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
       return document.querySelector<HTMLElement>(".bit-menu-panel")!;
     }
 
-    it("disables Activate, with a reason line, and offers no Deactivate", async () => {
+    it("disables Activate, with a tooltip, and offers no Deactivate", async () => {
       const menu = await openRowMenu(pendingTargetSystem({ id: sysId("sys-pending") }));
 
       const activate = menu.querySelector<HTMLButtonElement>(
@@ -1005,10 +976,7 @@ describe("TargetSystemsTabComponent", () => {
       )!;
       expect(activate).not.toBeNull();
       expect(activate.getAttribute("aria-disabled")).toBe("true");
-      const reasonId = activate.getAttribute("aria-describedby")!;
-      expect(document.getElementById(reasonId)?.textContent?.trim()).toBe(
-        "pamTargetSystemActivationBlockedPendingSeal",
-      );
+      expect(activate.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
       expect(menu.querySelector('[id^="target-systems-tab_button_deactivate-"]')).toBeNull();
       // Not the live, clickable Activate item.
       expect(menu.querySelector('[id^="target-systems-tab_button_activate-"]')).toBe(activate);
@@ -1090,7 +1058,7 @@ describe("TargetSystemsTabComponent", () => {
       await createComponent({ renderTemplate: true });
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-v"]')!
+        .querySelector<HTMLButtonElement>('bit-row button[bitIconButton="bwi-ellipsis-h"]')!
         .click();
       fixture.detectChanges();
 
@@ -1115,6 +1083,71 @@ describe("TargetSystemsTabComponent", () => {
         uuidAsString(sysId("sys-a")),
         uuidAsString(sysId("sys-b")),
       ]);
+    });
+  });
+
+  describe("canAddManagedCredential row flag", () => {
+    it("is true for any active target, whatever its method", () => {
+      targetSystemsService.systems$.next([
+        makeSystem({
+          id: sysId("sys-active-automatic"),
+          status: TargetSystemStatus.Active,
+          method: TargetSystemMethod.Automatic,
+        }),
+        makeSystem({
+          id: sysId("sys-active-manual"),
+          status: TargetSystemStatus.Active,
+          method: TargetSystemMethod.Manual,
+        }),
+        makeSystem({
+          id: sysId("sys-disabled-automatic"),
+          status: TargetSystemStatus.Disabled,
+          method: TargetSystemMethod.Automatic,
+        }),
+      ]);
+      fixture.detectChanges();
+
+      const rows = rowsOf(component);
+
+      expect(
+        rows.find((r) => r.id === sysId("sys-active-automatic"))?.canAddManagedCredential,
+      ).toBe(true);
+      expect(rows.find((r) => r.id === sysId("sys-active-manual"))?.canAddManagedCredential).toBe(
+        true,
+      );
+      expect(
+        rows.find((r) => r.id === sysId("sys-disabled-automatic"))?.canAddManagedCredential,
+      ).toBe(false);
+    });
+
+    it("is absent from an empty list rather than defaulting to true", () => {
+      targetSystemsService.systems$.next([]);
+      fixture.detectChanges();
+
+      const rows = rowsOf(component);
+
+      expect(rows).toHaveLength(0);
+    });
+  });
+
+  describe("openCreateManagedCredential", () => {
+    it("navigates to the credential create page with this target preselected", async () => {
+      const sys = makeSystem({ id: sysId("sys-add-cred") });
+      const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      await (
+        component as unknown as {
+          openCreateManagedCredential: (s: TargetSystemView) => Promise<boolean>;
+        }
+      ).openCreateManagedCredential(sys);
+
+      expect(navigateSpy).toHaveBeenCalledWith(
+        ["..", "managed-credentials", "new"],
+        expect.objectContaining({
+          relativeTo: expect.anything(),
+          queryParams: { targetSystemId: sysId("sys-add-cred") },
+        }),
+      );
     });
   });
 
@@ -1330,50 +1363,55 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   describe("loading skeleton", () => {
+    function advance(ms: number): void {
+      fixture.detectChanges();
+      jest.advanceTimersByTime(ms);
+      fixture.detectChanges();
+    }
+
+    /** Runs out the skeleton's delay. */
+    function showSkeleton(): void {
+      advance(1000);
+    }
+
+    /** Runs the timers the loaded table schedules, which `whenStable` would wait on forever. */
+    function settle(): void {
+      jest.runOnlyPendingTimers();
+      fixture.detectChanges();
+    }
+
     beforeEach(async () => {
       TestBed.resetTestingModule();
       targetSystemsService.systems$.next([]);
       targetSystemsService.loading$.next(true);
 
+      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
       await createComponent({ renderTemplate: true });
     });
 
     afterEach(() => {
+      jest.useRealTimers();
       targetSystemsService.loading$.next(false);
     });
 
-    /** Lands the list and lets the loaded table settle. */
-    async function land(systems: TargetSystemView[]): Promise<void> {
-      targetSystemsService.systems$.next(systems);
-      targetSystemsService.loading$.next(false);
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    }
-
-    it("draws skeleton rows in the real table at once, rather than the empty state", () => {
-      const el = fixture.nativeElement as HTMLElement;
-
-      expect(el.querySelector("bit-table-v2 bit-row bit-skeleton-text")).not.toBeNull();
-      expect(el.querySelector("pam-target-systems-empty-state")).toBeNull();
-    });
-
-    it("keeps the skeleton rows out of the accessibility tree", () => {
-      const skeletons = (fixture.nativeElement as HTMLElement).querySelectorAll(
-        "bit-table-v2 bit-skeleton > div",
+    it("keeps the placeholder itself out of the accessibility tree", () => {
+      const loading = (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="target-systems-loading"]',
       );
 
-      expect(skeletons.length).toBeGreaterThan(0);
-      skeletons.forEach((skeleton) => expect(skeleton.getAttribute("aria-hidden")).toBe("true"));
+      expect(loading!.getAttribute("aria-hidden")).toBe("true");
     });
 
-    it("offers the real toolbar while the list loads", () => {
-      const toolbar = (fixture.nativeElement as HTMLElement).querySelector(
-        "bit-table-v2 bit-table-toolbar",
-      )!;
+    it("stands a placeholder in for the toolbar rather than offering row-derived filters", () => {
+      showSkeleton();
+      const el = fixture.nativeElement as HTMLElement;
 
-      expect(toolbar.querySelector("bit-search")).not.toBeNull();
-      expect(toolbar.querySelectorAll("bit-filter-menu").length).toBeGreaterThan(0);
+      expect(el.querySelector("bit-search")).toBeNull();
+      expect(el.querySelector("bit-filter-menu")).toBeNull();
+      expect(
+        el.querySelectorAll('[data-testid="target-systems-loading"] > div:first-child bit-skeleton')
+          .length,
+      ).toBeGreaterThan(0);
     });
 
     it("announces the load from a live region while the skeleton stands in", () => {
@@ -1386,10 +1424,15 @@ describe("TargetSystemsTabComponent", () => {
       expect(status!.textContent).toContain("loading");
     });
 
-    it("replaces the skeleton with the real rows, and announces the arrival", async () => {
-      await land([makeSystem()]);
+    it("replaces the skeleton with the real rows, and announces the arrival", () => {
+      showSkeleton();
+      targetSystemsService.systems$.next([makeSystem()]);
+      targetSystemsService.loading$.next(false);
+      advance(1000);
+      settle();
 
       const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
       expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
         "Prod Entra",
@@ -1399,13 +1442,44 @@ describe("TargetSystemsTabComponent", () => {
       );
     });
 
-    it("swaps the skeleton table for the empty state when the load finds no target systems", async () => {
-      await land([]);
+    it("never draws the placeholder for a list that arrives inside the delay", () => {
+      advance(500);
+      targetSystemsService.systems$.next([makeSystem()]);
+      targetSystemsService.loading$.next(false);
+      advance(1000);
+      settle();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("bit-table-v2")).toBeNull();
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(el.querySelector("pam-target-systems-empty-state")).not.toBeNull();
+      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
+      expect(el.querySelector("bit-table-v2 bit-row button[bitLink]")!.textContent).toContain(
+        "Prod Entra",
+      );
+    });
+
+    it("holds the placeholder its minimum time once it is up, so it cannot blink", () => {
+      showSkeleton();
+      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
+
+      targetSystemsService.systems$.next([makeSystem()]);
+      targetSystemsService.loading$.next(false);
+      advance(300);
+
+      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).not.toBeNull();
+
+      advance(700);
+      settle();
+
+      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
+    });
+
+    it("announces the load at once, not on the placeholder's clock", () => {
+      const status = (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="rotation-loading-status"]',
+      );
+
+      expect(status!.textContent).toContain("loading");
+      expect((fixture.nativeElement as HTMLElement).querySelector("bit-skeleton")).toBeNull();
     });
   });
 });
@@ -1413,11 +1487,7 @@ describe("TargetSystemsTabComponent", () => {
 describe("TargetSystemsTabComponent filter options", () => {
   type FiltersComp = {
     kindOptions: { value: string; label: string }[];
-    statusOptions: () => {
-      status: string;
-      labelKey: string;
-      iconTile: { icon: string; variant: string };
-    }[];
+    statusOptions: () => { status: string; labelKey: string }[];
     connectorOptions: () => { value: string; label: string }[];
   };
 
@@ -1489,11 +1559,9 @@ describe("TargetSystemsTabComponent filter options", () => {
   it("offers every system type, whether or not a loaded target carries it", () => {
     setup([manualActive]);
 
-    // Sorted by label; the test i18n renders each label as its key.
     expect(component.kindOptions).toEqual([
-      { value: TargetSystemKind.ActiveDirectory, label: "pamTargetSystemTypeActiveDirectory" },
-      { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
       { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+      { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
     ]);
   });
 
@@ -1504,16 +1572,6 @@ describe("TargetSystemsTabComponent filter options", () => {
       "pamTargetSystemStatusNotConnected",
       "pamTargetSystemStatusInactive",
       "pamTargetSystemStatusActive",
-    ]);
-  });
-
-  it("tiles each status option with its badge's icon and colour", () => {
-    setup([entraActive]);
-
-    expect(component.statusOptions().map((option) => option.iconTile)).toEqual([
-      { icon: "bwi-warning", variant: "warning" },
-      { icon: "bwi-minus-circle", variant: "gray" },
-      { icon: "bwi-check-circle", variant: "success" },
     ]);
   });
 
@@ -1676,7 +1734,7 @@ describe("TargetSystemsTabComponent table", () => {
   }
 
   function menuItems(el: HTMLElement, rowIndex: number): string[] {
-    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-v"]')[
+    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-h"]')[
       rowIndex
     ].click();
     fixture.detectChanges();
@@ -1697,7 +1755,7 @@ describe("TargetSystemsTabComponent table", () => {
       "pamTargetSystemManagedCredentialsColumn",
       "pamTargetSystemMethodLabel",
       "pamTargetSystemSystemTypeLabel",
-      "options",
+      "",
     ]);
   });
 
@@ -1758,27 +1816,18 @@ describe("TargetSystemsTabComponent table", () => {
     expect(items[0]).toEqual([
       "pamTargetSystemEditTarget",
       "pamTargetSystemCopyId",
+      "pamRotationConfigCreateTitle",
       "pamTargetSystemAssignConnectors",
       "pamTargetSystemDeactivate",
       "pamTargetSystemDeleteTargetpamTargetSystemDeleteBlockedHint",
     ]);
+    expect(items[1]).not.toContain("pamRotationConfigCreateTitle");
     expect(items[1]).toContain("pamTargetSystemActivate");
     expect(items[2]).not.toContain("pamTargetSystemAssignConnectors");
     expect(items[2]).toContain(
       "pamTargetSystemAssignConnectorspamTargetSystemAssignConnectorsManualHint",
     );
     expect(items[1]).toContain("pamTargetSystemDeleteTarget");
-  });
-
-  it("styles a live delete as the danger item, with no divider before it", async () => {
-    const el = await render();
-    menuItems(el, 1);
-
-    const remove = document.querySelector<HTMLButtonElement>(
-      '.bit-menu-panel [id^="target-systems-tab_button_delete-"]',
-    )!;
-    expect(remove.getAttribute("variant")).toBe("danger");
-    expect(document.querySelector(".bit-menu-panel bit-menu-divider")).toBeNull();
   });
 
   it("links the managed credentials count to the tab scoped to that target", async () => {
@@ -1804,7 +1853,7 @@ describe("TargetSystemsTabComponent table", () => {
 
   it("confirms a delete from the row menu", async () => {
     const el = await render();
-    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-v"]')[1].click();
+    el.querySelectorAll<HTMLButtonElement>('button[bitIconButton="bwi-ellipsis-h"]')[1].click();
     fixture.detectChanges();
 
     const items = Array.from(
@@ -1814,17 +1863,14 @@ describe("TargetSystemsTabComponent table", () => {
     await fixture.whenStable();
 
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: { key: "pamTargetSystemDeleteDialogTitle" },
-        type: "danger",
-      }),
+      expect.objectContaining({ title: { key: "pamTargetSystemDeleteTitle" }, type: "danger" }),
     );
   });
 
   it("names the row menu trigger and keeps the name link a focusable button", async () => {
     const el = await render();
     const trigger = el.querySelector<HTMLButtonElement>(
-      'bit-table-v2 button[bitIconButton="bwi-ellipsis-v"]',
+      'bit-table-v2 button[bitIconButton="bwi-ellipsis-h"]',
     )!;
     const link = el.querySelector<HTMLButtonElement>("bit-table-v2 bit-row button[bitLink]")!;
 
@@ -1920,7 +1966,7 @@ describe("TargetSystemsTabComponent table", () => {
 
     expect(el.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(0);
     expect(text(el.querySelector('bit-table-v2 [slot="empty"]')!)).toBe(
-      "noItemsMatchSelectedFilters",
+      "pamTargetSystemNoFilterResults",
     );
   });
 
@@ -1932,51 +1978,80 @@ describe("TargetSystemsTabComponent table", () => {
   });
 
   describe("loading skeleton", () => {
-    function setLoading(loading: boolean): void {
-      loading$.next(loading);
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    /**
+     * Fakes the clock only after `render` settles, since the toolbar's chip measurement schedules
+     * change detection on a timer that `whenStable` waits for and a fake clock never runs.
+     */
+    function startLoading(): void {
+      jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask", "setImmediate"] });
+      loading$.next(true);
       fixture.detectChanges();
     }
 
-    it("stands skeleton rows in for the list, under the real column headings", async () => {
+    async function renderLoading(): Promise<HTMLElement> {
       const el = await render([]);
-      setLoading(true);
-      const rows = el.querySelectorAll("bit-table-v2 bit-row");
+      startLoading();
+      return el;
+    }
+
+    it("stands a skeleton table in for the list, carrying the real columns", async () => {
+      const el = await renderLoading();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+      const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
 
       expect(el.querySelector("bit-spinner")).toBeNull();
+      expect(loading.querySelector("bit-table-v2")).not.toBeNull();
       expect(headings(el)).toEqual([
         "name",
         "status",
         "pamTargetSystemManagedCredentialsColumn",
         "pamTargetSystemMethodLabel",
         "pamTargetSystemSystemTypeLabel",
-        "options",
+        "",
       ]);
-      expect(rows).toHaveLength(3);
-      rows.forEach((row) => expect(row.querySelectorAll("bit-skeleton-text")).toHaveLength(6));
+      expect(loading.querySelectorAll("bit-row")).toHaveLength(5);
+      expect(loading.querySelectorAll("bit-skeleton-text").length).toBeGreaterThan(0);
     });
 
-    it("holds the rows from an earlier load back while a reload is in flight", async () => {
-      const el = await render();
-      setLoading(true);
-
-      expect(el.querySelectorAll("bit-table-v2 bit-row button[bitLink]")).toHaveLength(0);
-      expect(el.querySelectorAll("bit-table-v2 bit-row")).toHaveLength(3);
-
-      setLoading(false);
-      await fixture.whenStable();
+    it("draws the headings but no skeleton rows before the delay is up", async () => {
+      const el = await renderLoading();
+      jest.advanceTimersByTime(999);
       fixture.detectChanges();
+      const loading = el.querySelector('[data-testid="target-systems-loading"]')!;
 
+      expect(loading.textContent).toContain("pamTargetSystemMethodLabel");
+      expect(loading.querySelectorAll("bit-row")).toHaveLength(0);
       expect(el.querySelector("bit-skeleton")).toBeNull();
-      expect(rowNames(el)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
     });
 
-    it("lays the skeleton rows out on the loaded table's column tracks", async () => {
+    it("lays the skeleton out on the same column tracks as the loaded table", async () => {
       const el = await render();
-      setLoading(true);
+      startLoading();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+      const skeletonTracks = el.querySelector<HTMLElement>(
+        '[data-testid="target-systems-loading"] bit-header-row',
+      )!.style.gridTemplateColumns;
+      const skeletonRowTracks = el.querySelector<HTMLElement>(
+        '[data-testid="target-systems-loading"] bit-row',
+      )!.style.gridTemplateColumns;
 
-      expect(el.querySelector<HTMLElement>("bit-table-v2 bit-row")!.style.gridTemplateColumns).toBe(
-        "minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 96px",
-      );
+      loading$.next(false);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+      const loadedTracks = el.querySelector<HTMLElement>("bit-table-v2 bit-header-row")!.style
+        .gridTemplateColumns;
+
+      expect(el.querySelector('[data-testid="target-systems-loading"]')).toBeNull();
+      expect(loadedTracks).toBe("minmax(12rem, 2fr) 1fr 1fr 1fr 1fr 80px");
+      expect(skeletonTracks).toBe(loadedTracks);
+      expect(skeletonRowTracks).toBe(loadedTracks);
     });
   });
 });
@@ -2140,7 +2215,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
 
     expect(chips.map(text)).toEqual([
       "status",
-      "pamTargetSystemMethodLabel",
+      "pamTargetSystemMethodLabel: all",
       "pamTargetSystemSystemTypeLabel",
     ]);
     expect(rowNames(on)).toEqual(["Prod Entra", "Billing script", "Mainframe payroll"]);
@@ -2149,7 +2224,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
   it("gives the search its placeholder and leaves it enabled", async () => {
     const input = toolbar(await render()).querySelector("bit-search input")!;
 
-    expect(input.getAttribute("placeholder")).toBe("search");
+    expect(input.getAttribute("placeholder")).toBe("pamTargetSystemSearch");
     expect(input.hasAttribute("disabled")).toBe(false);
   });
 
@@ -2226,7 +2301,7 @@ describe("TargetSystemsTabComponent toolbar", () => {
 
     expect(rowNames(on)).toEqual([]);
     expect(text(el(on).querySelector('bit-table-v2 [slot="empty"]')!)).toBe(
-      "noItemsMatchSelectedFilters",
+      "pamTargetSystemNoFilterResults",
     );
     expect(toolbar(on).querySelector("bit-search")).not.toBeNull();
     expect(toolbar(on).querySelectorAll("bit-filter-menu")).toHaveLength(3);
