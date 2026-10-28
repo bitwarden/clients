@@ -23,6 +23,7 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
+import { DialogImportOutcomePresenter, ImportOutcomePresenter } from "../import-confirmation";
 import { KEEPER_SSO_TAB_MONITOR } from "../keeper/services/keeper-sso-tab-monitor";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 
@@ -257,6 +258,7 @@ function decoratorsFor(
             open: () => ({ closed: of(undefined) }),
           } as unknown as Partial<DialogService>,
         },
+        { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
         {
           provide: ToastService,
           useValue: { showToast: action("ToastService.showToast") } as Partial<ToastService>,

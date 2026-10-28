@@ -71,6 +71,7 @@ import {
 } from "../../services";
 import { chromiumLoginsToCsv } from "../chrome/chromium-login-csv";
 import { FilePasswordPromptComponent, ImportErrorDialogComponent } from "../dialog";
+import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 import { pickerIconFor } from "../import-source-select/import-source-picker-metadata";
 import {
   pickerAlwaysPromptsFormat,
@@ -160,6 +161,7 @@ export class ImportControlsComponent {
   private readonly policyService = inject(PolicyService);
   private readonly accountService = inject(AccountService);
   private readonly syncService = inject(SyncService);
+  private readonly presenter = inject(ImportOutcomePresenter);
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
@@ -531,6 +533,13 @@ export class ImportControlsComponent {
     initialValue: this.formGroup.controls.file.value,
   });
   protected readonly chosenFileName = computed(() => this.chosenFile()?.name);
+
+  // The file picked for this import. A direct or Chromium import ignores any file chosen earlier.
+  private importedFileName(): string | undefined {
+    return this.primaryMode() === "manual" && this.method() === "file"
+      ? this.chosenFileName()
+      : undefined;
+  }
 
   protected readonly pastedContent = toSignal(this.formGroup.controls.fileContents.valueChanges, {
     initialValue: this.formGroup.controls.fileContents.value,
@@ -1010,11 +1019,15 @@ export class ImportControlsComponent {
 
     // A staged outcome has nothing to report yet: the location screen imports and reports then.
     if (outcome.kind !== "staged") {
-      await presentImportOutcome(outcome, {
-        syncService: this.syncService,
-        logService: this.logService,
-        dialogService: this.dialogService,
-      });
+      await presentImportOutcome(
+        outcome,
+        {
+          syncService: this.syncService,
+          logService: this.logService,
+          presenter: this.presenter,
+        },
+        this.importedFileName(),
+      );
     }
 
     this.continue.emit();
@@ -1237,7 +1250,13 @@ export class ImportControlsComponent {
     // The SDK parses and writes in one call, so it runs on the location screen with what was
     // collected here.
     if (this.stagesImport()) {
-      return this.stage({ kind: "sdk", format, file: fileBytes, credentials });
+      return this.stage({
+        kind: "sdk",
+        format,
+        file: fileBytes,
+        credentials,
+        fileName: this.importedFileName(),
+      });
     }
 
     try {
@@ -1335,6 +1354,7 @@ export class ImportControlsComponent {
         contents,
         filePassword,
         itemTypeCounts: result == null ? undefined : countCipherTypes(result.ciphers),
+        fileName: this.importedFileName(),
       });
     }
 

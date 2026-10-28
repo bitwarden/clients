@@ -11,6 +11,7 @@ import {
   ImportStagingServiceAbstraction,
 } from "@bitwarden/importer-core";
 
+import { ImportConfirmationStateService } from "./import-confirmation-state.service";
 import { ImportDestinationBrowserComponent } from "./import-destination-browser.component";
 
 @Component({
@@ -95,5 +96,17 @@ describe("ImportDestinationBrowserComponent", () => {
       .triggerEventHandler("continue", undefined);
 
     expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+  });
+
+  it("navigates to the confirmation page when the import left a result to show", async () => {
+    await setup({ staged: true });
+    TestBed.inject(ImportConfirmationStateService).set({ summary: { total: 1, rows: [] } });
+
+    fixture.debugElement
+      .query(By.css("importer-destination"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith(["/import-confirmation"]);
+    expect(router.navigate).not.toHaveBeenCalledWith(["/tabs/vault"]);
   });
 });

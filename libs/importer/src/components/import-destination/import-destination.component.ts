@@ -9,6 +9,7 @@ import {
   ElementRef,
   inject,
   output,
+  signal,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -69,8 +70,10 @@ import {
   StagedImport,
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
+import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 import { presentImportOutcome } from "../import-controls/present-import-outcome";
+import { ImportProgressComponent } from "../import-progress";
 
 type DestinationsState =
   { status: "pending" } | { status: "error" } | { status: "ready"; value: ImportDestinations };
@@ -110,6 +113,7 @@ const errorName = (error: unknown): string =>
     FormFieldModule,
     I18nPipe,
     IconTileComponent,
+    ImportProgressComponent,
     LinkModule,
     RadioButtonModule,
     ReactiveFormsModule,
@@ -125,6 +129,7 @@ export class ImportDestinationComponent {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly syncService = inject(SyncService);
+  private readonly presenter = inject(ImportOutcomePresenter);
   private readonly document = inject(DOCUMENT);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly destinationService = inject(ImportDestinationServiceAbstraction);
@@ -259,6 +264,8 @@ export class ImportDestinationComponent {
       : this.i18nService.t("importItemsCount", count.toString());
   });
 
+  protected readonly importing = signal(false);
+
   protected readonly importDisabled = computed(
     () => this.state().status !== "ready" || this.options().length === 0,
   );
@@ -351,19 +358,29 @@ export class ImportDestinationComponent {
         ? option.defaultCollection
         : (sharedFolder ?? undefined);
 
-    let outcome: FinishedImportOutcome;
+    this.importing.set(true);
     try {
-      outcome = await this.runImport(staged, items, option.organizationId, target);
-    } catch (error) {
-      this.reportFailure(error);
-      return;
-    }
+      let outcome: FinishedImportOutcome;
+      try {
+        outcome = await this.runImport(staged, items, option.organizationId, target);
+      } catch (error) {
+        this.reportFailure(error);
+        return;
+      }
 
-    await presentImportOutcome(outcome, {
-      syncService: this.syncService,
-      logService: this.logService,
-      dialogService: this.dialogService,
-    });
+      // Includes the post-import sync, so the progress stays up until the vault is current.
+      await presentImportOutcome(
+        outcome,
+        {
+          syncService: this.syncService,
+          logService: this.logService,
+          presenter: this.presenter,
+        },
+        staged.kind === "parsed" ? undefined : staged.fileName,
+      );
+    } finally {
+      this.importing.set(false);
+    }
     this.stagingService.clear();
     this.continue.emit();
   };

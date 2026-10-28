@@ -92,6 +92,7 @@ import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
 import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-page-v2.component";
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
+import { IMPORT_CONFIRMATION_ROUTE_PATH } from "../tools/popup/settings/import/import-confirmation-state.service";
 import { ImportShellBrowserComponent } from "../tools/popup/settings/import/import-shell-browser.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
@@ -335,6 +336,15 @@ const routes: Routes = [
         data: { elevation: 1 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    path: IMPORT_CONFIRMATION_ROUTE_PATH,
+    loadComponent: () =>
+      import("../tools/popup/settings/import/import-confirmation-browser.component").then(
+        (m) => m.ImportConfirmationBrowserComponent,
+      ),
+    canActivate: [authGuard, importUpgradeRequiredGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "export",

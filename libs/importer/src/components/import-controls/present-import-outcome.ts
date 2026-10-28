@@ -1,21 +1,21 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
 
-import { ImportSkippedItemsDialogComponent, ImportSuccessDialogComponent } from "../dialog";
+import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 
 import { FinishedImportOutcome } from "./import-outcome";
 
-/** Syncs the vault, then shows the success or skipped-items dialog. Shared by credential parsing
+/** Syncs the vault, then hands the outcome to the presenter. Shared by credential parsing
  *  (importing straight to the personal vault) and location selection (importing to the location
- *  the user chose). */
+ *  the user chose). `fileName` is the file the items came from, if the user picked one. */
 export async function presentImportOutcome(
   outcome: FinishedImportOutcome,
-  services: { syncService: SyncService; logService: LogService; dialogService: DialogService },
+  services: { syncService: SyncService; logService: LogService; presenter: ImportOutcomePresenter },
+  fileName?: string,
 ): Promise<void> {
-  const { syncService, logService, dialogService } = services;
+  const { syncService, logService, presenter } = services;
 
-  // Before the dialog so the caller's spinner covers the wait. Failures are only logged.
+  // Before presenting so the caller's spinner covers the wait. Failures are only logged.
   try {
     const synced = await syncService.fullSync(true);
     if (!synced) {
@@ -26,16 +26,5 @@ export async function presentImportOutcome(
     logService.error("Post-import sync failed:", error);
   }
 
-  if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
-    dialogService.open(ImportSkippedItemsDialogComponent, {
-      data: { errors: outcome.result.errors },
-    });
-  } else {
-    dialogService.open(ImportSuccessDialogComponent, {
-      data:
-        outcome.kind === "imported"
-          ? { importResult: outcome.result }
-          : { sdkSummary: outcome.sdkSummary },
-    });
-  }
+  await presenter.present(outcome, fileName);
 }

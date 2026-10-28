@@ -26,6 +26,7 @@ import {
   ImportStagingServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
+import { DialogImportOutcomePresenter, ImportOutcomePresenter } from "../import-confirmation";
 
 import { ImportDestinationComponent } from "./import-destination.component";
 
@@ -126,6 +127,7 @@ export default {
           provide: DialogService,
           useValue: { openSimpleDialog: async () => true, open: () => ({ closed: of(undefined) }) },
         },
+        { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: SyncService, useValue: { fullSync: async () => true } },
         { provide: LogService, useValue: { error: () => {} } },

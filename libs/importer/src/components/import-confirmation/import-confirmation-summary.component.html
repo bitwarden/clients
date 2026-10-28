@@ -1,0 +1,28 @@
+<div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-text-center">
+  <bit-icon-tile icon="bwi-check-circle" variant="success" size="xl" aria-hidden="true" />
+  @if (showHeading()) {
+    <h1 bitTypography="h1" noMargin>{{ "importSuccessful" | i18n }}</h1>
+  }
+  <p bitTypography="body1" class="tw-text-fg-body tw-mb-0">
+    {{ "importConfirmationBody" | i18n: summary().total }}
+  </p>
+</div>
+
+@if (fileName(); as name) {
+  <bit-callout type="info">
+    <strong>{{ "importConfirmationTipLabel" | i18n }}</strong>
+    {{ "importDeleteFileTip" | i18n: name }}
+  </bit-callout>
+}
+
+<ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-4 tw-p-0">
+  @for (row of summary().rows; track row.labelKey) {
+    <li class="tw-flex tw-items-center tw-gap-2">
+      <i class="bwi bwi-fw bwi-lg bwi-{{ row.icon }} tw-text-fg-body-subtle" aria-hidden="true"></i>
+      <span class="tw-flex-1 tw-text-fg-body-subtle">{{ row.labelKey | i18n }}</span>
+      <span class="tw-font-medium">{{ row.count }}</span>
+    </li>
+  }
+</ul>
+
+<ng-content />

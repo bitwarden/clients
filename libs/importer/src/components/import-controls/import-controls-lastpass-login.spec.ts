@@ -25,6 +25,7 @@ import {
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
+import { DialogImportOutcomePresenter, ImportOutcomePresenter } from "../import-confirmation";
 import { LastPassDirectImportService } from "../lastpass/lastpass-direct-import.service";
 import { LastPassLoginSession } from "../lastpass/lastpass-login-session";
 
@@ -104,6 +105,7 @@ describe("ImportControlsComponent: LastPass login in the card", () => {
     { provide: LogService, useValue: mock<LogService>() },
     { provide: LiveAnnouncer, useValue: mock<LiveAnnouncer>() },
     { provide: DialogService, useValue: dialogService },
+    { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
     { provide: ToastService, useValue: toastService },
     { provide: PolicyService, useValue: policyService },
     { provide: AccountService, useValue: accountService },

@@ -17,11 +17,19 @@ export type StagedImport =
       contents: string;
       filePassword: string | null;
       itemTypeCounts: ItemTypeCounts | undefined;
+      /** Set when the user picked a file, so the confirmation can remind them to delete it. */
+      fileName?: string;
     }
   /** Fetched and converted without an organization*/
   | { kind: "parsed"; importType: UpgradeImportType; result: ImportResult }
   /** Parsed and written by the SDK in one call, so the file and credentials wait for location */
-  | { kind: "sdk"; format: ImportType; file: Uint8Array; credentials: SdkImportCredentials };
+  | {
+      kind: "sdk";
+      format: ImportType;
+      file: Uint8Array;
+      credentials: SdkImportCredentials;
+      fileName?: string;
+    };
 
 export abstract class ImportStagingServiceAbstraction {
   abstract readonly staged$: Observable<StagedImport | undefined>;

@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/importer-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { ImportConfirmationStateService } from "./import-confirmation-state.service";
 import { ImportControlsBrowserComponent } from "./import-controls-browser.component";
 
 @Component({
@@ -106,6 +107,18 @@ describe("ImportControlsBrowserComponent", () => {
       "keeper",
       "destination",
     ]);
+    expect(router.navigate).not.toHaveBeenCalledWith(["/tabs/vault"]);
+  });
+
+  it("navigates to the confirmation page when continue is emitted after a finished import", async () => {
+    await setup("keeper");
+    TestBed.inject(ImportConfirmationStateService).set({ summary: { total: 1, rows: [] } });
+
+    fixture.debugElement
+      .query(By.css("importer-controls"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith(["/import-confirmation"]);
     expect(router.navigate).not.toHaveBeenCalledWith(["/tabs/vault"]);
   });
 });

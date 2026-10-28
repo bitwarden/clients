@@ -34,6 +34,11 @@ import {
   ItemTypeCounts,
 } from "../../services";
 import { ImportErrorDialogComponent } from "../dialog";
+import {
+  DialogImportOutcomePresenter,
+  ImportConfirmationDialogComponent,
+  ImportOutcomePresenter,
+} from "../import-confirmation";
 
 import { ImportDestinationComponent } from "./import-destination.component";
 
@@ -141,6 +146,7 @@ describe("ImportDestinationComponent", () => {
         { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         { provide: ImportUpgradeServiceAbstraction, useValue: importService },
         { provide: DialogService, useValue: dialogService },
+        { provide: ImportOutcomePresenter, useClass: DialogImportOutcomePresenter },
         { provide: ToastService, useValue: toastService },
         { provide: SyncService, useValue: syncService },
         { provide: LogService, useValue: logService },
@@ -602,6 +608,29 @@ describe("ImportDestinationComponent", () => {
       expect(dialogService.open).toHaveBeenCalled();
       expect(stagingService.current()).toBeUndefined();
       expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the progress in place of the cards while importing, and the cards again if the import fails", async () => {
+      stageParsed();
+      await setup();
+      let finish!: (error: Error) => void;
+      importService.importImportResult.mockReturnValue(
+        new Promise((_resolve, reject) => (finish = reject)),
+      );
+
+      const pending = submit();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("importer-progress"))).not.toBeNull();
+      expect(cards()).toHaveLength(0);
+
+      finish(new Error("boom"));
+      await pending;
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("importer-progress"))).toBeNull();
+      expect(cards().length).toBeGreaterThan(0);
     });
 
     it("asks to confirm sharing for an org, and stays put with selections intact on Cancel", async () => {
@@ -1085,6 +1114,40 @@ describe("ImportDestinationComponent", () => {
         expect(importService.parse).toHaveBeenCalledWith(importer, "a,b");
         const parsed = await importService.parse.mock.results[0].value;
         expect(importService.importImportResult.mock.calls[0][0]).toBe(parsed);
+      });
+
+      it("opens the confirmation with the staged file name, for the delete-the-file tip", async () => {
+        stagingService.stage({
+          kind: "file",
+          importType: "dashlane",
+          format: "dashlanecsv",
+          contents: "a,b",
+          filePassword: null,
+          itemTypeCounts: undefined,
+          fileName: "export.csv",
+        });
+        await setup();
+
+        await submit();
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          ImportConfirmationDialogComponent,
+          expect.objectContaining({
+            data: expect.objectContaining({ fileName: "export.csv" }),
+          }),
+        );
+      });
+
+      it("opens the confirmation without a file name for a staged Keeper vault", async () => {
+        stageParsed();
+        await setup();
+
+        await submit();
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          ImportConfirmationDialogComponent,
+          expect.objectContaining({ data: expect.objectContaining({ fileName: undefined }) }),
+        );
       });
 
       it("parses it with the chosen organization, so the importer shapes its result for it", async () => {
