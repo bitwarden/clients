@@ -648,11 +648,11 @@ export default class NotificationBackground {
     }
     const username = form.username?.toLowerCase();
     const passwords = [form.password, form.newPassword].filter((p) => !!p);
-    const matches = (await this.revealedAutofillCipherService.getRevealed(userId)).filter(
-      (c) =>
-        (!!username && c.login?.username?.toLowerCase() === username) ||
-        (!!c.login?.password && passwords.includes(c.login.password)),
-    );
+    const matches = (await this.revealedAutofillCipherService.getRevealed(userId)).filter((c) => {
+      const usernameMatches = !!username && c.login?.username?.toLowerCase() === username;
+      const passwordMatches = !!c.login?.password && passwords.includes(c.login.password);
+      return usernameMatches || passwordMatches;
+    });
     return (
       matches.length > 0 &&
       (await this.cipherService.filterCiphersForUrl(matches, form.uri)).length > 0
