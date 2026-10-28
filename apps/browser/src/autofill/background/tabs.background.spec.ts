@@ -1,6 +1,13 @@
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject, map, Subject } from "rxjs";
+
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import MainBackground from "../../background/main.background";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import {
   flushPromises,
   triggerTabOnActivatedEvent,
@@ -15,7 +22,14 @@ import { OverlayBackground } from "./overlay.background";
 import TabsBackground from "./tabs.background";
 
 describe("TabsBackground", () => {
+  const userId = "user-1" as UserId;
+  const otherUserId = "user-2" as UserId;
+
   let tabsBackground: TabsBackground;
+  let activeAccount$: BehaviorSubject<Account | null>;
+  let authStatuses$: BehaviorSubject<Record<UserId, AuthenticationStatus>>;
+  let changed: Record<UserId, Subject<void>>;
+  const fillCipherPolicy = mock<FillCipherPolicy>();
   const mainBackground = mock<MainBackground>({
     messagingService: {
       send: jest.fn(),
@@ -25,6 +39,23 @@ describe("TabsBackground", () => {
   const overlayBackground = mock<OverlayBackground>();
 
   beforeEach(() => {
+    activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as Account);
+    authStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({
+      [userId]: AuthenticationStatus.Unlocked,
+      [otherUserId]: AuthenticationStatus.Unlocked,
+    });
+    changed = { [userId]: new Subject<void>(), [otherUserId]: new Subject<void>() };
+    fillCipherPolicy.changed$.mockImplementation((id) => changed[id]);
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = activeAccount$;
+    mainBackground.accountService = accountService;
+    const authService = mock<AuthService>();
+    authService.authStatusFor$.mockImplementation((id) =>
+      authStatuses$.pipe(map((statuses) => statuses[id])),
+    );
+    mainBackground.authService = authService;
+    mainBackground.fillCipherPolicy = fillCipherPolicy;
+    mainBackground.logService = mock<MainBackground["logService"]>();
     tabsBackground = new TabsBackground(mainBackground, notificationBackground, overlayBackground);
   });
 
@@ -44,6 +75,82 @@ describe("TabsBackground", () => {
       expect(chrome.windows.onFocusChanged.addListener).toHaveBeenCalledWith(
         handleWindowOnFocusChangedSpy,
       );
+    });
+  });
+
+  describe("fill cipher changes", () => {
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      void tabsBackground.init();
+      await jest.advanceTimersByTimeAsync(0);
+      jest.clearAllMocks();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    /** Emits the replay that the subscription skips, then waits out the debounce. */
+    const replay = async (id: UserId) => {
+      changed[id].next();
+      await jest.advanceTimersByTimeAsync(100);
+    };
+
+    it("does not refresh on the replay when it subscribes", async () => {
+      await replay(userId);
+
+      expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
+      expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
+    });
+
+    it("refreshes the context menu and all inline menu ciphers once per burst of changes", async () => {
+      await replay(userId);
+
+      changed[userId].next();
+      changed[userId].next();
+      await jest.advanceTimersByTimeAsync(100);
+
+      expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(1);
+      expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalledTimes(1);
+      expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalledWith();
+    });
+
+    it("follows the active account", async () => {
+      await replay(userId);
+      activeAccount$.next({ id: otherUserId } as Account);
+      await replay(otherUserId);
+
+      changed[userId].next();
+      await jest.advanceTimersByTimeAsync(100);
+      expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
+
+      changed[otherUserId].next();
+      await jest.advanceTimersByTimeAsync(100);
+      expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(1);
+    });
+
+    it("drops a change pending when the user locks", async () => {
+      await replay(userId);
+
+      changed[userId].next();
+      authStatuses$.next({ [userId]: AuthenticationStatus.Locked });
+      await jest.advanceTimersByTimeAsync(100);
+
+      expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
+      expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
+    });
+
+    it("keeps refreshing after a refresh fails", async () => {
+      await replay(userId);
+      mainBackground.refreshMenu.mockRejectedValueOnce(new Error("failed"));
+
+      changed[userId].next();
+      await jest.advanceTimersByTimeAsync(100);
+      changed[userId].next();
+      await jest.advanceTimersByTimeAsync(100);
+
+      expect(mainBackground.logService.error).toHaveBeenCalledTimes(1);
+      expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(2);
     });
   });
 
