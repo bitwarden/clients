@@ -1,4 +1,4 @@
-import { combineLatest, distinctUntilChanged, mergeMap, of, switchMap } from "rxjs";
+import { combineLatest, delay, distinctUntilChanged, mergeMap, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
@@ -20,7 +20,6 @@ export class AutofillBadgeUpdaterService {
     private fillCipherPolicy: FillCipherPolicy,
     private badgeSettingsService: BadgeSettingsServiceAbstraction,
     private logService: LogService,
-    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   init() {
@@ -35,7 +34,7 @@ export class AutofillBadgeUpdaterService {
         account: this.accountService.activeAccount$,
         enableBadgeCounter:
           this.badgeSettingsService.enableBadgeCounter$.pipe(distinctUntilChanged()),
-        ciphersChanged: ciphersChanged$,
+        ciphersChanged: ciphersChanged$.pipe(delay(100)), // Delay to let the decrypted cipher cache catch up
       }).pipe(
         mergeMap(async ({ account, enableBadgeCounter }) => {
           if (!account || !enableBadgeCounter) {
