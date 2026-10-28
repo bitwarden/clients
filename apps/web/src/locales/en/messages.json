@@ -18038,6 +18038,12 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
+  "pamAccessRequestsSubtitle": {
+    "message": "Approve, monitor, and audit time-limited access to your credentials."
+  },
+  "pamTabApprovals": {
+    "message": "Approvals"
+  },
   "pamTabMyRequests": {
     "message": "My requests"
   },
@@ -18079,6 +18085,9 @@
   },
   "pamColumnStatus": {
     "message": "Status"
+  },
+  "pamColumnRemaining": {
+    "message": "Remaining"
   },
   "pamColumnActions": {
     "message": "Actions"
@@ -18131,6 +18140,9 @@
         "example": "Production"
       }
     }
+  },
+  "pamInboxReason": {
+    "message": "Reason"
   },
   "pamInboxReasonMissing": {
     "message": "No reason provided"
@@ -18331,6 +18343,87 @@
   "requestAccessModalAlreadyActive": {
     "message": "You already have active access to this item."
   },
+  "pamApprovalsActiveAccessEmpty": {
+    "message": "No active access"
+  },
+  "pamApprovalsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamApprovalsPendingEmpty": {
+    "message": "No requests waiting for your decision"
+  },
+  "pamApprovalsPendingSection": {
+    "message": "Pending approval"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Requester"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Additional information"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Optional, saved to the audit log"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Approve access request"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Deny access request"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Reason for denial"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "e.g. Access no longer needed"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "A reason is required to deny this request."
+  },
+  "pamInboxApprove": {
+    "message": "Approve"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Request approved"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Withdraw approval"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "You cannot approve your own request."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Comment"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Add an optional comment"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Approve request"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Deny request"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Could not record decision"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "This request is no longer pending. It was withdrawn or already decided."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "This request's window has ended and can no longer be decided."
+  },
+  "pamInboxDeny": {
+    "message": "Deny"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Request denied"
+  },
   "requestAccessModalAlreadyApproved": {
     "message": "You already have an approved request for this item."
   },
@@ -18346,8 +18439,53 @@
       }
     }
   },
+  "pamInboxEmptyDescription": {
+    "message": "There are no requests waiting for your decision."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Inbox zero"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Could not load inbox"
+  },
   "pamInboxRequestReasonLabel": {
     "message": "Request reason"
+  },
+  "pamInboxRevoke": {
+    "message": "Revoke"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Could not revoke access"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Access revoked"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Approval withdrawn"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Could not withdraw approval"
+  },
+  "pamInboxWindow": {
+    "message": "Requested window"
+  },
+  "pamApprovalsNoResults": {
+    "message": "No access requests match your filters."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Access requests loaded"
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamInboxWithdrawApprovalConfirm": {
+    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      }
+    }
   },
   "pamInboxElapsedHours": {
     "message": "$HOURS$h ago",
