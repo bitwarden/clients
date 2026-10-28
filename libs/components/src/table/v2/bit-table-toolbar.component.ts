@@ -10,6 +10,7 @@ import {
   contentChildren,
   effect,
   inject,
+  input,
   model,
   signal,
   untracked,
