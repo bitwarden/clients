@@ -831,6 +831,10 @@ describe("DefaultOrganizationInviteService", () => {
       return err;
     };
 
+    // Mirrors the server's `EmailNotVerified` error message.
+    const emailNotVerifiedMessage =
+      "You must verify your email address before joining an organization.";
+
     it("returns accepted, calls the SDK with the expected args, refreshes the identity token, and clears any stashed invite on success", async () => {
       const open = createOpenOrgInvite({ organizationId });
 
@@ -986,6 +990,30 @@ describe("DefaultOrganizationInviteService", () => {
       expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
+    it("accepts on the retry after email-not-verified without the MP-policy detour", async () => {
+      const open = createOpenOrgInvite({ organizationId });
+      await sut.setOrganizationInvite(open);
+      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([
+        { type: PolicyType.MasterPassword, enabled: true } as Policy,
+      ]);
+      policyService.getResetPasswordPolicyOptions.mockReturnValue([
+        { autoEnrollEnabled: false } as ResetPasswordPolicyOptions,
+        false,
+      ]);
+      inviteLinkClient.accept_and_optionally_confirm
+        .mockRejectedValueOnce(makeSdkApiError(400, emailNotVerifiedMessage))
+        .mockResolvedValueOnce(undefined);
+
+      const firstAcceptResult = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
+      const retryAcceptResult = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
+
+      expect(firstAcceptResult).toEqual({ kind: "email-not-verified" });
+      expect(retryAcceptResult).toEqual({ kind: "accepted" });
+      expect(logoutService.logout).not.toHaveBeenCalled();
+      expect(inviteLinkClient.accept_and_optionally_confirm).toHaveBeenCalledTimes(2);
+      expect(await sut.getOrganizationInvite()).toBeNull();
+    });
+
     it("clears the stored open org invite when a master password policy check is required but the stored open invite's inviteLinkCode doesn't match the provided one", async () => {
       const stashedOpen = createOpenOrgInvite({ inviteLinkCode: "different-link-code" });
       const providedOpen = createOpenOrgInvite({ organizationId });
@@ -1014,9 +1042,10 @@ describe("DefaultOrganizationInviteService", () => {
     describe("classifies accept-endpoint rejections", () => {
       const runWithRejection = async (err: unknown) => {
         const open = createOpenOrgInvite({ organizationId });
-        // Pre-stash so every rejection case proves the catch-block clear happened
-        // (asserted below) alongside its classifier result — a per-branch refactor
-        // that drops the clear on any variant then fails its row.
+        // Pre-stash so every rejection case routed through this helper proves the
+        // catch-block clear happened (asserted below) alongside its classifier result —
+        // a per-branch refactor that drops the clear on any variant then fails its row.
+        // `email-not-verified` keeps the stash, so its case does not use this helper.
         await sut.setOrganizationInvite(open);
         inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(err);
         const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
@@ -1082,12 +1111,6 @@ describe("DefaultOrganizationInviteService", () => {
           expectedKind: "two-factor-required",
         },
         {
-          serverErrorName: "UserEmailNotVerified",
-          statusCode: 400,
-          message: "You must verify your email address before joining an organization.",
-          expectedKind: "email-not-verified",
-        },
-        {
           serverErrorName: "UserIsAMemberOfAnotherOrganization",
           statusCode: 400,
           message:
@@ -1141,6 +1164,29 @@ describe("DefaultOrganizationInviteService", () => {
         },
       );
 
+      it.each([
+        {
+          rejection: "the legacy Api error",
+          err: () => makeSdkApiError(400, emailNotVerifiedMessage),
+        },
+        {
+          rejection: "the typed SDK variant EmailNotVerified",
+          err: () => makeSdkError("EmailNotVerified", "sdk english message"),
+        },
+      ])(
+        "returns email-not-verified for $rejection and keeps the stashed open invite",
+        async ({ err }) => {
+          const open = createOpenOrgInvite({ organizationId });
+          await sut.setOrganizationInvite(open);
+          inviteLinkClient.accept_and_optionally_confirm.mockRejectedValue(err());
+
+          const result = await sut.acceptOpenOrgInvite(open, activeUserId, acceptOrgUrl);
+
+          expect(result).toEqual({ kind: "email-not-verified" });
+          expect(await sut.getOrganizationInvite()).toEqual(open);
+        },
+      );
+
       it.each<{
         variant: string;
         expectedKind: OpenOrgInviteAcceptResult["kind"];
@@ -1148,7 +1194,6 @@ describe("DefaultOrganizationInviteService", () => {
         { variant: "RecoveryKeyMismatch", expectedKind: "recovery-key-mismatch" },
         { variant: "LinkNotFound", expectedKind: "link-not-found" },
         { variant: "InviteLinkNotAvailable", expectedKind: "plan-not-supported" },
-        { variant: "EmailNotVerified", expectedKind: "email-not-verified" },
         { variant: "EmailDomainNotAllowed", expectedKind: "email-domain-not-allowed" },
         { variant: "ProviderUsersCannotJoin", expectedKind: "provider-users-disallowed" },
         { variant: "OrganizationAccessRevoked", expectedKind: "org-access-revoked" },
@@ -1281,7 +1326,7 @@ describe("DefaultOrganizationInviteService", () => {
         // Body extraction is delimited by first `{` / last `}` so a trailing suffix
         // outside those braces doesn't derail classification.
         const body = JSON.stringify({
-          message: "You must verify your email address before joining an organization.",
+          message: "Your organization's plan does not support invite links.",
           validationErrors: null,
           exceptionMessage: null,
           exceptionStackTrace: null,
@@ -1290,7 +1335,7 @@ describe("DefaultOrganizationInviteService", () => {
         });
         const err = makeSdkApiErrorWithRawBody(400, `${body} (trailing suffix)`);
         const result = await runWithRejection(err);
-        expect(result).toEqual({ kind: "email-not-verified" });
+        expect(result).toEqual({ kind: "plan-not-supported" });
       });
 
       it("returns unexpected for non-SDK Error throws (network layer, unrelated exception)", async () => {
