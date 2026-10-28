@@ -80,12 +80,16 @@
         bitOverflowTrigger
         alwaysShow
         data-testid="table-toolbar-count"
-        class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-tabular-nums"
-        [class.tw-text-fg-heading]="rangeText() != null"
-        [class.tw-font-semibold]="rangeText() != null"
-        [class.tw-text-fg-body-subtle]="rangeText() == null"
+        class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-tabular-nums tw-text-fg-body-subtle"
       >
-        {{ rangeText() ?? ("itemCount" | i18n: itemCount()) }}
+        @if (rangeParts(); as parts) {
+          <!-- No whitespace between the parts: it would render as spaces. -->
+          {{ parts.before
+          }}<span class="tw-font-semibold tw-text-fg-heading">{{ parts.range }}</span
+          >{{ parts.after }}
+        } @else {
+          {{ "itemCount" | i18n: itemCount() }}
+        }
       </span>
     }
   </div>
