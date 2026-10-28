@@ -58,6 +58,34 @@ describe("rotationRoutes", () => {
     });
   });
 
+  describe("the access connector detail page", () => {
+    const tabRoute = () => routeAt(`${ROTATION_TABS.accessConnectors}/:accessConnectorId/:tab`);
+
+    it("holds an exit for unsaved input", () => {
+      expect(tabRoute().canDeactivate).toEqual([unsavedChangesDialogGuard]);
+    });
+
+    it("leaves the guard alone for a move between the page's own tabs", () => {
+      const stayed = rerunsGuards(
+        tabRoute(),
+        { accessConnectorId: "con-1", tab: "configuration" },
+        { accessConnectorId: "con-1", tab: "history" },
+      );
+
+      expect(stayed).toBe(false);
+    });
+
+    it("re-runs the guard when the URL names a different connector", () => {
+      const left = rerunsGuards(
+        tabRoute(),
+        { accessConnectorId: "con-1", tab: "configuration" },
+        { accessConnectorId: "con-2", tab: "configuration" },
+      );
+
+      expect(left).toBe(true);
+    });
+  });
+
   it("guards the create page, which has no tab of its own to move between", () => {
     const create = routeAt(`${ROTATION_TABS.managedCredentials}/new`);
 
