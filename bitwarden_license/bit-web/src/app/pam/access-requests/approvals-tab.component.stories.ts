@@ -1,8 +1,12 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideRouter, withHashLocation } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -15,9 +19,10 @@ import {
   MINUTE,
   STORY_NOW,
   accessRequest,
-  liveFromNow,
+  fromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
+  startClockAtStoryNow,
   storyNames,
 } from "../testing/story-fixtures";
 
@@ -53,10 +58,6 @@ const ROWS: ApprovalRow[] = [
   row({ id: "req-4", cipherId: "cipher-2", requesterName: "You", reason: "Own request." }, false),
 ];
 
-/**
- * Lease ends use the real clock, not {@link STORY_NOW}, since the badge runs its own countdown and
- * a STORY_NOW window would read as expired.
- */
 function lease(
   overrides: Record<string, unknown>,
   extension?: { addedSeconds: number; latestEndMs: number },
@@ -77,8 +78,8 @@ function activeLeases(): ManagedLeaseRow[] {
     lease({
       id: "req-live-1",
       producedLeaseId: "lease-1",
-      leaseNotBefore: liveFromNow(-20 * MINUTE),
-      leaseNotAfter: liveFromNow(40 * MINUTE),
+      leaseNotBefore: fromNow(-20 * MINUTE),
+      leaseNotAfter: fromNow(40 * MINUTE),
     }),
     lease({
       id: "req-live-2",
@@ -87,8 +88,8 @@ function activeLeases(): ManagedLeaseRow[] {
       producedLeaseId: "lease-2",
       requesterName: "Alan Turing",
       requesterEmail: "alan@example.com",
-      leaseNotBefore: liveFromNow(-2 * HOUR),
-      leaseNotAfter: liveFromNow(3 * HOUR),
+      leaseNotBefore: fromNow(-2 * HOUR),
+      leaseNotAfter: fromNow(3 * HOUR),
     }),
     lease(
       {
@@ -97,10 +98,10 @@ function activeLeases(): ManagedLeaseRow[] {
         producedLeaseId: "lease-3",
         requesterName: "Katherine Johnson",
         requesterEmail: "katherine@example.com",
-        leaseNotBefore: liveFromNow(-90 * MINUTE),
-        leaseNotAfter: liveFromNow(30 * MINUTE),
+        leaseNotBefore: fromNow(-90 * MINUTE),
+        leaseNotAfter: fromNow(30 * MINUTE),
       },
-      { addedSeconds: 2 * 60 * 60, latestEndMs: Date.now() + 2.5 * HOUR },
+      { addedSeconds: 2 * 60 * 60, latestEndMs: STORY_NOW.getTime() + 2.5 * HOUR },
     ),
   ];
 }
@@ -140,12 +141,22 @@ function inbox(
 export default {
   title: "Web/PAM/Access Requests/Approvals Tab",
   component: ApprovalsTabComponent,
+  beforeEach: startClockAtStoryNow,
   decorators: [
     applicationConfig({
       providers: [
         provideStoryChangeDetection(),
         importProvidersFrom(PreloadedEnglishI18nModule),
         provideStoryLogService(),
+        // The item links need a router; the wildcard and hash keep a click inside the story.
+        provideRouter([{ path: "**", children: [] }], withHashLocation()),
+        // `app-vault-icon` on each row reads these.
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }),
   ],
@@ -165,7 +176,7 @@ export const Filtered: Story = {
   play: async ({ canvasElement }) => {
     const trigger = await within(canvasElement).findByRole("button", { name: /^Collection/ });
     await userEvent.click(trigger);
-    await userEvent.click(await within(document.body).findByText("Production"));
+    await userEvent.click(await within(document.body).findByRole("radio", { name: /^Production/ }));
     await userEvent.keyboard("{Escape}");
   },
 };
