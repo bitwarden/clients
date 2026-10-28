@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, filter, Observable, shareReplay, switchMap } from "rxjs";
@@ -18,7 +25,12 @@ import {
   BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  type BitwardenIcon,
+  ChipGroupComponent,
+  type ChipGroupItem,
   defineTable,
+  FilterMenuComponent,
+  FilterMenuModule,
   type SelectionConfig,
   StatusLockupComponent,
   SvgComponent,
@@ -50,6 +62,11 @@ const STATUS_BADGES = [
 
 type StatusBadge = (typeof STATUS_BADGES)[number];
 
+/** The membership columns a chip can filter by, each keyed by the column it filters. */
+type MembershipKey = "groupNames" | "collectionNames";
+
+type MemberFilters = Partial<Record<MembershipKey, string[]>>;
+
 @Component({
   templateUrl: "members-v2.component.html",
   imports: [
@@ -61,6 +78,8 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     BitTablePaginatorComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
+    ChipGroupComponent,
+    FilterMenuModule,
     HeaderModule,
     SharedOrganizationModule,
     StatusLockupComponent,
@@ -115,6 +134,27 @@ export class MembersV2Component {
     this.organization()?.useGroups ? ("groupNames" as const) : ("collectionNames" as const),
   ]);
 
+  /** Every group a member belongs to, offered as options in the Groups filter. */
+  protected readonly groupNames = computed(() => this.distinctNames("groupNames"));
+
+  /** Every collection a member can access, offered as options in the Collections filter. */
+  protected readonly collectionNames = computed(() => this.distinctNames("collectionNames"));
+
+  /** Each member's groups as action chips. Built once per load, so chip groups don't remeasure. */
+  protected readonly groupChips = computed(() => this.chipsByMember("groupNames", "bwi-users"));
+
+  /** Each member's collections as action chips. */
+  protected readonly collectionChips = computed(() =>
+    this.chipsByMember("collectionNames", "bwi-collection-shared"),
+  );
+
+  private readonly filterMenus = viewChildren(FilterMenuComponent);
+
+  /** Members in any of the selected groups or collections. Names stand in for ids, as on the chips. */
+  protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
+    this.matchesAny(row.groupNames, filters.groupNames) &&
+    this.matchesAny(row.collectionNames, filters.collectionNames);
+
   constructor() {
     this.organization$
       .pipe(
@@ -125,6 +165,13 @@ export class MembersV2Component {
         this.members.set(members);
         this.firstLoaded.set(true);
       });
+  }
+
+  /** Narrows the table to members of the chip's group or collection, replacing any prior choice. */
+  protected filterBy(key: MembershipKey, name: string) {
+    this.filterMenus()
+      .find((menu) => menu.key() === key)
+      ?.setValue([name]);
   }
 
   protected statusBadge(status: OrganizationUserStatusType): StatusBadge | undefined {
@@ -161,6 +208,27 @@ export class MembersV2Component {
       total.toString(),
     );
   };
+
+  private distinctNames(key: MembershipKey): string[] {
+    const names = new Set(this.members().flatMap((member) => member[key]));
+    return [...names].sort((a, b) => this.compareText(a, b));
+  }
+
+  private chipsByMember(
+    key: MembershipKey,
+    startIcon: BitwardenIcon,
+  ): Map<OrganizationUserView, ChipGroupItem[]> {
+    return new Map(
+      this.members().map((member) => [
+        member,
+        member[key].map((name) => ({ id: name, label: name, startIcon })),
+      ]),
+    );
+  }
+
+  private matchesAny(names: string[], selected: string[] | undefined): boolean {
+    return !selected?.length || selected.some((name) => names.includes(name));
+  }
 
   private compareText(a: string, b: string): number {
     return this.i18nService.collator?.compare(a, b) ?? a.localeCompare(b);
