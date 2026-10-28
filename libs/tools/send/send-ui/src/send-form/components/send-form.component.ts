@@ -32,6 +32,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { ItemDetailsV2Component } from "@bitwarden/vault";
 
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -57,6 +58,7 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     CopyClickDirective,
     ButtonModule,
     CardComponent,
+    ItemDetailsV2Component,
   ],
 })
 export class SendFormComponent implements AfterViewInit {
@@ -92,6 +94,9 @@ export class SendFormComponent implements AfterViewInit {
 
   /** Event emitted when the user requests to open the password generator. */
   readonly openPasswordGenerator = output<void>();
+
+  /** Event emitted when the user requests to view the item of an item-type Send. Outputs the cipher ID */
+  readonly onGoToItem = output<string>();
 
   readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
@@ -162,4 +167,16 @@ export class SendFormComponent implements AfterViewInit {
     });
     this.onSendUpdated.emit(sendView);
   };
+
+  async goToItem() {
+    const cipher = this.sendFormService.originalSendView()?.data.data;
+    if (!cipher) {
+      this.toastService.showToast({
+        message: this.i18nService.t("unableToDetermineItemId"),
+        variant: "error",
+      });
+      return;
+    }
+    this.onGoToItem.emit(cipher.id);
+  }
 }

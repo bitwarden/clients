@@ -19,6 +19,8 @@ import { take } from "rxjs/operators";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -33,6 +35,7 @@ import {
   TrialPaymentDialogComponent,
 } from "../../../shared/trial-payment-dialog/trial-payment-dialog.component";
 import { openChangePlanDialog } from "../../change-plan-dialog.component";
+import { openRestartSubscriptionDialog } from "../../restart-subscription-dialog.component";
 import {
   OrganizationFreeTrialWarning,
   OrganizationResellerRenewalWarning,
@@ -46,6 +49,8 @@ const format = (date: Date) =>
     day: "2-digit",
     year: "numeric",
   });
+
+const ENDED_STATUSES: (string | undefined)[] = ["canceled", "incomplete_expired"];
 
 type TrialPaymentModalDismissedOrgs = Partial<Record<OrganizationId, boolean>>;
 
@@ -78,6 +83,7 @@ export class OrganizationWarningsService {
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
     private accountService: AccountService,
+    private configService: ConfigService,
     private logService: LogService,
     private stateProvider: StateProvider,
   ) {}
@@ -227,6 +233,16 @@ export class OrganizationWarningsService {
           }
           case "resubscribe": {
             const subscription = await this.organizationApiService.getSubscription(organization.id);
+            const previewCartEnabled = await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
+            );
+            if (previewCartEnabled && ENDED_STATUSES.includes(subscription.subscription?.status)) {
+              const restartReference = openRestartSubscriptionDialog(this.dialogService, {
+                data: { organizationId: organization.id, subscription },
+              });
+              await lastValueFrom(restartReference.closed);
+              break;
+            }
             const dialogReference = openChangePlanDialog(this.dialogService, {
               data: {
                 organizationId: organization.id,
