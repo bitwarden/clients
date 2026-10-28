@@ -506,7 +506,7 @@ describe("TargetSystemEditComponent — create mode", () => {
 
     expect(toastService.showToast).toHaveBeenCalledWith({
       variant: "success",
-      message: "pamTargetSystemAdded",
+      message: "pamTargetSystemAddedSuccess",
     });
   });
 
