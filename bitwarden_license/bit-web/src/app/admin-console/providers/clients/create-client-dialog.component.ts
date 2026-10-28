@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -10,12 +11,18 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  AsyncActionsModule,
+  BadgeModule,
+  ButtonModule,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { WebProviderService } from "../services/web-provider.service";
 
@@ -101,7 +108,16 @@ export class PlanCard {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./create-client-dialog.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    I18nPipe,
+    DialogModule,
+    FormFieldModule,
+    BadgeModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
 })
 export class CreateClientDialogComponent implements OnInit {
   protected discountPercentage: number | null | undefined;

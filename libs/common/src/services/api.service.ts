@@ -98,16 +98,8 @@ import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
-import { AttachmentRequest } from "../vault/models/request/attachment.request";
-import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
-import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherRequest } from "../vault/models/request/cipher.request";
-import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 
@@ -374,62 +366,8 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async getCiphersOrganization(
-    organizationId: string,
-    includeMemberItems?: boolean,
-  ): Promise<ListResponse<CipherResponse>> {
-    let url = "/ciphers/organization-details?organizationId=" + organizationId;
-    if (includeMemberItems) {
-      url += `&includeMemberItems=${includeMemberItems}`;
-    }
-    const r = await this.send("GET", url, null, true, true);
-    return new ListResponse(r, CipherResponse);
-  }
-
-  async postCipher(request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/create", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/admin", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putCipher(id: string, request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id, request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putPartialCipher(id: string, request: CipherPartialRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/partial", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/admin", request, true, true);
-    return new CipherResponse(r);
-  }
-
   deleteCipher(id: string): Promise<any> {
     return this.send("DELETE", "/ciphers/" + id, null, true, false);
-  }
-
-  deleteCipherAdmin(id: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/admin", null, true, false);
-  }
-
-  deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("DELETE", "/ciphers", request, true, false);
-  }
-
-  deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("DELETE", "/ciphers/admin", request, true, false);
   }
 
   postPurgeCiphers(
@@ -441,46 +379,6 @@ export class ApiService implements ApiServiceAbstraction {
       path += "?organizationId=" + organizationId;
     }
     return this.send("POST", path, request, true, false);
-  }
-
-  putDeleteCipher(id: string): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/delete", null, true, false);
-  }
-
-  putDeleteCipherAdmin(id: string): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/delete-admin", null, true, false);
-  }
-
-  putDeleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/delete", request, true, false);
-  }
-
-  putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/delete-admin", request, true, false);
-  }
-
-  async putRestoreCipher(id: string): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/restore", null, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putRestoreCipherAdmin(id: string): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/restore-admin", null, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putRestoreManyCiphers(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/restore", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
-  }
-
-  async putRestoreManyCiphersAdmin(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/restore-admin", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   // Attachments APIs
@@ -499,51 +397,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentResponse(r);
   }
 
-  async getAttachmentDataAdmin(
-    cipherId: string,
-    attachmentId: string,
-  ): Promise<AttachmentResponse> {
-    const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
-    const r = await this.send("GET", path, null, true, true);
-    return new AttachmentResponse(r);
-  }
-
-  async postCipherAttachment(
-    id: string,
-    request: AttachmentRequest,
-  ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
-    return new AttachmentUploadDataResponse(r);
-  }
-
-  async deleteCipherAttachment(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse> {
-    const r = await this.send(
-      "DELETE",
-      "/ciphers/" + id + "/attachment/" + attachmentId,
-      null,
-      true,
-      true,
-    );
-    return new DeleteAttachmentResponse(r);
-  }
-
-  async deleteCipherAttachmentAdmin(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse> {
-    const r = await this.send(
-      "DELETE",
-      "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
-      null,
-      true,
-      true,
-    );
-    return new DeleteAttachmentResponse(r);
-  }
-
   postShareCipherAttachment(
     id: string,
     attachmentId: string,
@@ -559,20 +412,6 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  async renewAttachmentUploadUrl(
-    id: string,
-    attachmentId: string,
-  ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/" + id + "/attachment/" + attachmentId + "/renew",
-      null,
-      true,
-      true,
-    );
-    return new AttachmentUploadDataResponse(r);
-  }
-
   async postAttachmentFile(
     id: string,
     attachmentId: string,
@@ -583,13 +422,20 @@ export class ApiService implements ApiServiceAbstraction {
       const userId = await this.getActiveUser();
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
       const apiUrl = environment.getApiUrl();
+      if (!apiUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
+        throw new InsecureUrlNotAllowedError();
+      }
       const headers = await this.buildRequestHeaders();
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
         method: "POST",
         body: data,
         headers,
       });
-      return this.nativeXMLHttpRequest(request, options.onProgress);
+      const response = await this.nativeXMLHttpRequest(request, options.onProgress);
+      if (response.status !== HttpStatusCode.Ok && response.status !== HttpStatusCode.Created) {
+        throw await this.handleApiRequestError(response, true);
+      }
+      return response;
     }
 
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
@@ -1312,7 +1158,21 @@ export class ApiService implements ApiServiceAbstraction {
           onProgress(Math.round((e.loaded / e.total) * 100));
         }
       };
-      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onload = () => {
+        const headers = new Headers();
+        xhr
+          .getAllResponseHeaders()
+          .trim()
+          .split(/[\r\n]+/)
+          .filter(Boolean)
+          .forEach((line) => {
+            const separatorIndex = line.indexOf(":");
+            const name = line.slice(0, separatorIndex).trim();
+            const value = line.slice(separatorIndex + 1).trim();
+            headers.append(name, value);
+          });
+        resolve(new Response(xhr.response, { status: xhr.status, headers }));
+      };
       xhr.onerror = () => reject(new Error("Network error during upload"));
       void request
         .arrayBuffer()

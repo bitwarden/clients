@@ -1,18 +1,16 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
 
 import {
   normalizeUriMatchStrategyForSdk,
   UriMatchStrategySetting,
 } from "../../../models/domain/domain-service";
-import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginUriData } from "../data/login-uri.data";
-import { LoginUriView } from "../view/login-uri.view";
 
 export class LoginUri extends Domain {
   uri?: EncString;
@@ -28,31 +26,6 @@ export class LoginUri extends Domain {
     this.uri = conditionalEncString(obj.uri);
     this.uriChecksum = conditionalEncString(obj.uriChecksum);
     this.match = obj.match ?? undefined;
-  }
-
-  decrypt(
-    encKey: SymmetricCryptoKey,
-    context: string = "No Cipher Context",
-  ): Promise<LoginUriView> {
-    return this.decryptObj<LoginUri, LoginUriView>(
-      this,
-      new LoginUriView(this),
-      ["uri"],
-      encKey,
-      context,
-    );
-  }
-
-  async validateChecksum(clearTextUri: string, encKey: SymmetricCryptoKey) {
-    if (this.uriChecksum == null) {
-      return false;
-    }
-
-    const encryptService = Utils.getContainerService().getEncryptService();
-    const localChecksum = await encryptService.hash(clearTextUri, "sha256");
-
-    const remoteChecksum = await encryptService.decryptString(this.uriChecksum, encKey);
-    return remoteChecksum === localChecksum;
   }
 
   toLoginUriData(): LoginUriData {

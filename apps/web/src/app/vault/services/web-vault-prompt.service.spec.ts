@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -11,9 +12,14 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, SideNavService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { NewExperienceDialogService, VaultItemsTransferService } from "@bitwarden/vault";
+import {
+  CoachmarkService,
+  NewExperienceDialogResult,
+  NewExperienceDialogService,
+  VaultItemsTransferService,
+} from "@bitwarden/vault";
 
 import {
   AutoConfirmPolicy,
@@ -46,7 +52,9 @@ describe("WebVaultPromptService", () => {
   const conditionallyShowWelcomeDialog = jest.fn().mockResolvedValue(false);
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
-  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(false);
+  const conditionallyOpenNewExperience = jest.fn().mockResolvedValue(null);
+  const sideNavOpen = signal(false);
+  const tourRunning = signal(false);
 
   let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
@@ -61,6 +69,7 @@ describe("WebVaultPromptService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    tourRunning.set(false);
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
     serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
@@ -92,6 +101,8 @@ describe("WebVaultPromptService", () => {
           provide: NewExperienceDialogService,
           useValue: { conditionallyOpen: conditionallyOpenNewExperience },
         },
+        { provide: SideNavService, useValue: { open: sideNavOpen } },
+        { provide: CoachmarkService, useValue: { isRunning: tourRunning.asReadonly() } },
       ],
     });
 
@@ -134,6 +145,18 @@ describe("WebVaultPromptService", () => {
       expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
       expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
     });
+
+    it("skips onboarding prompts but not policy flows while a tour is running", async () => {
+      tourRunning.set(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+      expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
+      expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
   });
 
   describe("new experience dialog", () => {
@@ -154,8 +177,33 @@ describe("WebVaultPromptService", () => {
       expect(conditionallyOpenNewExperience).not.toHaveBeenCalled();
     });
 
-    it("holds back the extension prompt when it opened, so the two do not stack", async () => {
+    it("opens the side nav once it has opened, so the tour callout is visible", async () => {
+      sideNavOpen.set(false);
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
+
+      await service.conditionallyPromptUser();
+
+      expect(sideNavOpen()).toBe(true);
+    });
+
+    it("leaves the side nav alone when it did not open", async () => {
+      sideNavOpen.set(false);
+
+      await service.conditionallyPromptUser();
+
+      expect(sideNavOpen()).toBe(false);
+    });
+
+    it("leaves the upgrade prompt for the next load when it opened", async () => {
       conditionallyOpenNewExperience.mockResolvedValueOnce(true);
+
+      await service.conditionallyPromptUser();
+
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+    });
+
+    it("holds back the extension prompt when it opened, so the two do not stack", async () => {
+      conditionallyOpenNewExperience.mockResolvedValueOnce(NewExperienceDialogResult.Explore);
 
       await service.conditionallyPromptUser();
 
@@ -170,6 +218,34 @@ describe("WebVaultPromptService", () => {
   });
 
   describe("setupAutoConfirm", () => {
+    it("waits for the walkthrough to end when the new experience dialog started it", fakeAsync(() => {
+      configurationAutoConfirm$.mockReturnValueOnce(
+        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
+      );
+      policies$.mockReturnValueOnce(of([]));
+      organizations$.mockReturnValueOnce(
+        of([{ id: mockOrganizationId, canEnableAutoConfirmPolicy: true } as Organization]),
+      );
+      conditionallyOpenNewExperience.mockImplementationOnce(async () => {
+        tourRunning.set(true);
+        return true;
+      });
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open").mockReturnValue({
+        closed: of(null),
+      } as unknown as DialogRef<PolicyEditDialogResult>);
+
+      void service.conditionallyPromptUser();
+      tick();
+      TestBed.tick();
+      tick();
+      expect(openSpy).not.toHaveBeenCalled();
+
+      tourRunning.set(false);
+      TestBed.tick();
+      tick();
+      expect(openSpy).toHaveBeenCalled();
+    }));
+
     it("shows dialog when all conditions are met", fakeAsync(() => {
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),

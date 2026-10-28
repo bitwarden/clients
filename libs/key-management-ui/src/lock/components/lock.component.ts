@@ -97,6 +97,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
+  host: { "data-testid": "lock-screen" },
   imports: [
     CommonModule,
     JslibModule,
@@ -291,7 +292,7 @@ export class LockComponent implements OnInit, OnDestroy {
       if (!canUseBiometrics) {
         // User has no available unlock options, force logout. This happens for TDE users without a masterpassword, that don't have a persistent unlock method set.
         this.logService.warning("[LockComponent] User cannot unlock again. Logging out!");
-        await this.logoutService.logout(activeAccount.id);
+        await this.logoutService.logout(activeAccount.id, "noUnlockOptionsAvailable");
         return;
       }
     }
@@ -425,7 +426,7 @@ export class LockComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed && this.activeAccount != null) {
-      await this.logoutService.logout(this.activeAccount.id);
+      await this.logoutService.logout(this.activeAccount.id, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }
@@ -509,7 +510,7 @@ export class LockComponent implements OnInit, OnDestroy {
           variant: "error",
           message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
-        this.messagingService.send("logout");
+        await this.logoutService.logout(this.activeAccount.id, "tooManyInvalidPinAttempts");
         return;
       }
 

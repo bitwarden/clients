@@ -1,5 +1,4 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -33,7 +32,6 @@ describe("OverlayNotificationsBackground", () => {
     jest.useFakeTimers();
     logService = mock<LogService>();
     notificationBackground = mock<NotificationBackground>();
-    notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(false);
     getEnableChangedPasswordPromptSpy = jest
       .spyOn(notificationBackground, "getEnableChangedPasswordPrompt")
       .mockResolvedValue(true);
@@ -109,6 +107,19 @@ describe("OverlayNotificationsBackground", () => {
           expect(chrome.webRequest.onCompleted.addListener).not.toHaveBeenCalled();
         });
 
+        it("skips setting up listeners when a sub-frame sender's top-level page is an excluded domain", async () => {
+          const sender = mock<chrome.runtime.MessageSender>({
+            origin: "https://widget.example.net",
+            frameId: 2,
+            tab: { id: 1, url: `${senderUrl}/checkout` },
+          });
+
+          sendMockExtensionMessage({ command: "collectPageDetailsResponse", details }, sender);
+          await flushPromises();
+
+          expect(chrome.webRequest.onCompleted.addListener).not.toHaveBeenCalled();
+        });
+
         it("skips setting up listeners when the sender contains a malformed origin", async () => {
           const senderOrigin = "-_-!..exampwle.com";
           const sender = mock<chrome.runtime.MessageSender>({ origin: senderOrigin });
@@ -121,7 +132,9 @@ describe("OverlayNotificationsBackground", () => {
       });
 
       it("skips setting up listeners when the sender tab does not contain page details fields", async () => {
-        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: "https://example.com" },
+        });
         details.fields = [];
 
         sendMockExtensionMessage({ command: "collectPageDetailsResponse", details }, sender);
@@ -133,7 +146,7 @@ describe("OverlayNotificationsBackground", () => {
 
     it("sets up the web request listeners", async () => {
       const sender = mock<chrome.runtime.MessageSender>({
-        tab: { id: 1 },
+        tab: { id: 1, url: "https://example.com" },
         url: "example.com",
       });
 
@@ -145,7 +158,7 @@ describe("OverlayNotificationsBackground", () => {
 
     it("skips setting up duplicate listeners when the website origin has been previously encountered with fields", async () => {
       const sender = mock<chrome.runtime.MessageSender>({
-        tab: { id: 1 },
+        tab: { id: 1, url: "https://example.com" },
         url: "example.com",
       });
 
@@ -162,7 +175,9 @@ describe("OverlayNotificationsBackground", () => {
 
   describe("storing the modified login form data", () => {
     const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
-    const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+    const sender = mock<chrome.runtime.MessageSender>({
+      tab: { id: 1, url: "https://example.com" },
+    });
 
     beforeEach(async () => {
       sendMockExtensionMessage(
@@ -283,7 +298,7 @@ describe("OverlayNotificationsBackground", () => {
 
     it("attempts to store the modified login cipher form data within the onBeforeRequest listener when the data is not captured through a submit button click event", async () => {
       const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
-      const tab = mock<chrome.tabs.Tab>({ id: sender.tab.id });
+      const tab = mock<chrome.tabs.Tab>({ id: sender.tab.id, url: "https://example.com" });
       jest.spyOn(BrowserApi, "getTab").mockResolvedValueOnce(tab);
       const response = {
         command: "formFieldSubmitted",
@@ -293,6 +308,11 @@ describe("OverlayNotificationsBackground", () => {
         newPassword: "newPassword",
       };
       jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValueOnce(response);
+      jest
+        .spyOn(BrowserApi, "getFrameDetails")
+        .mockResolvedValueOnce(
+          mock<chrome.webNavigation.GetFrameResultDetails>({ url: "https://example.com/login" }),
+        );
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: pageDetails },
         sender,
@@ -318,25 +338,226 @@ describe("OverlayNotificationsBackground", () => {
         newPassword: "newPassword",
       });
     });
+
+    describe("checking each submission against excluded domains", () => {
+      const excludedHost = "excluded.example";
+      const submission = {
+        command: "formFieldSubmitted",
+        uri: `https://${excludedHost}/login`,
+        username: "username",
+        password: "password",
+        newPassword: "",
+      };
+
+      beforeEach(() => {
+        jest.spyOn(notificationBackground, "getExcludedDomains").mockResolvedValue({
+          [excludedHost]: null,
+        });
+      });
+
+      it("security: ignores a submission from an excluded frame in a tab registered by another frame", async () => {
+        sendMockExtensionMessage(
+          submission,
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id },
+            frameId: 0,
+            origin: `https://${excludedHost}`,
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toBeUndefined();
+      });
+
+      it("security: ignores a submission from a frame on the user's vault", async () => {
+        const vault = "https://vault.bitwarden.com";
+        jest
+          .spyOn(notificationBackground, "getActiveUserServerConfig")
+          .mockResolvedValue(
+            mock<ServerConfig>({ environment: mock<EnvironmentServerConfigData>({ vault }) }),
+          );
+
+        sendMockExtensionMessage(
+          { ...submission, uri: `${vault}/#/login` },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id },
+            frameId: 3,
+            origin: vault,
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toBeUndefined();
+      });
+
+      it("security: ignores a submission from a sub-frame whose top-level page is excluded", async () => {
+        sendMockExtensionMessage(
+          { ...submission, uri: "https://widget.example.net/login" },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id, url: `https://${excludedHost}/checkout` },
+            frameId: 3,
+            origin: "https://widget.example.net",
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toBeUndefined();
+      });
+
+      it("security: ignores a submission from a sub-frame whose top-level page is the user's vault", async () => {
+        const vault = "https://vault.bitwarden.com";
+        jest
+          .spyOn(notificationBackground, "getActiveUserServerConfig")
+          .mockResolvedValue(
+            mock<ServerConfig>({ environment: mock<EnvironmentServerConfigData>({ vault }) }),
+          );
+
+        sendMockExtensionMessage(
+          { ...submission, uri: "https://widget.example.net/login" },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id, url: `${vault}/#/vault` },
+            frameId: 3,
+            origin: "https://widget.example.net",
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toBeUndefined();
+      });
+
+      it("stores a submission from a sub-frame when only another frame's domain is excluded", async () => {
+        sendMockExtensionMessage(
+          { ...submission, uri: "https://allowed.example/login" },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id, url: "https://top.example/checkout" },
+            frameId: 3,
+            origin: "https://allowed.example",
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toEqual(expect.objectContaining({ uri: "https://allowed.example/login" }));
+      });
+
+      it("stores a submission from a frame that is not excluded", async () => {
+        sendMockExtensionMessage(
+          { ...submission, uri: "https://allowed.example/login" },
+          mock<chrome.runtime.MessageSender>({
+            tab: { id: sender.tab.id, url: "https://allowed.example/login" },
+            frameId: 3,
+            origin: "https://allowed.example",
+          }),
+        );
+        await flushPromises();
+
+        expect(
+          overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+        ).toEqual({
+          uri: "https://allowed.example/login",
+          username: "username",
+          password: "password",
+          newPassword: "",
+        });
+      });
+
+      describe("when the data is captured within the onBeforeRequest listener", () => {
+        const triggerFormSubmissionRequest = async (tabUrl = "https://top.example/checkout") => {
+          jest
+            .spyOn(BrowserApi, "getTab")
+            .mockResolvedValueOnce(mock<chrome.tabs.Tab>({ id: sender.tab.id, url: tabUrl }));
+          jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValueOnce(submission);
+
+          triggerWebRequestOnBeforeRequestEvent(
+            mock<chrome.webRequest.WebRequestDetails>({
+              url: `https://${excludedHost}/login`,
+              tabId: sender.tab.id,
+              frameId: 3,
+              method: "POST",
+              requestId: "678",
+            }),
+          );
+          await flushPromises();
+        };
+
+        it("security: ignores the data when the responding frame is on an excluded domain", async () => {
+          jest
+            .spyOn(BrowserApi, "getFrameDetails")
+            .mockResolvedValueOnce(
+              mock<chrome.webNavigation.GetFrameResultDetails>({ url: submission.uri }),
+            );
+
+          await triggerFormSubmissionRequest();
+
+          expect(BrowserApi.getFrameDetails).toHaveBeenCalledWith({
+            tabId: sender.tab.id,
+            frameId: 3,
+          });
+          expect(
+            overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+          ).toBeUndefined();
+        });
+
+        it("security: ignores the data when the tab's top-level page is on an excluded domain", async () => {
+          jest.spyOn(BrowserApi, "getFrameDetails").mockResolvedValueOnce(
+            mock<chrome.webNavigation.GetFrameResultDetails>({
+              url: "https://widget.example.net/login",
+            }),
+          );
+
+          await triggerFormSubmissionRequest(`https://${excludedHost}/checkout`);
+
+          expect(
+            overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+          ).toBeUndefined();
+        });
+
+        it("stores the data when neither the responding frame nor the top-level page is excluded", async () => {
+          jest.spyOn(BrowserApi, "getFrameDetails").mockResolvedValueOnce(
+            mock<chrome.webNavigation.GetFrameResultDetails>({
+              url: "https://widget.example.net/login",
+            }),
+          );
+
+          await triggerFormSubmissionRequest();
+
+          expect(
+            overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+          ).toEqual(expect.objectContaining({ username: "username", password: "password" }));
+        });
+
+        it("security: ignores the data when the responding frame cannot be resolved", async () => {
+          jest.spyOn(BrowserApi, "getFrameDetails").mockResolvedValueOnce(undefined);
+
+          await triggerFormSubmissionRequest();
+
+          expect(
+            overlayNotificationsBackground["modifyLoginCipherFormData"].get(sender.tab.id),
+          ).toBeUndefined();
+        });
+      });
+    });
   });
 
   describe("web request listeners", () => {
     let sender: MockProxy<chrome.runtime.MessageSender>;
     const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
-    let notificationChangedPasswordSpy: jest.SpyInstance;
-    let notificationAddLoginSpy: jest.SpyInstance;
     let cipherNotificationSpy: jest.SpyInstance;
 
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({
-        tab: { id: 1 },
+        tab: { id: 1, url: "https://example.com" },
         url: "https://example.com",
       });
-      notificationChangedPasswordSpy = jest.spyOn(
-        notificationBackground,
-        "triggerChangedPasswordNotification",
-      );
-      notificationAddLoginSpy = jest.spyOn(notificationBackground, "triggerAddLoginNotification");
       cipherNotificationSpy = jest.spyOn(notificationBackground, "triggerCipherNotification");
 
       sendMockExtensionMessage(
@@ -396,8 +617,7 @@ describe("OverlayNotificationsBackground", () => {
           }),
         );
 
-        expect(notificationChangedPasswordSpy).not.toHaveBeenCalled();
-        expect(notificationAddLoginSpy).not.toHaveBeenCalled();
+        expect(cipherNotificationSpy).not.toHaveBeenCalled();
       });
 
       it("ignores requests for tabs that do not contain stored login data", async () => {
@@ -420,8 +640,7 @@ describe("OverlayNotificationsBackground", () => {
           }),
         );
 
-        expect(notificationChangedPasswordSpy).not.toHaveBeenCalled();
-        expect(notificationAddLoginSpy).not.toHaveBeenCalled();
+        expect(cipherNotificationSpy).not.toHaveBeenCalled();
       });
 
       it("clears the notification fallback timeout if the request is completed with an invalid status code", async () => {
@@ -460,7 +679,6 @@ describe("OverlayNotificationsBackground", () => {
       const pageDetails = mock<AutofillPageDetails>({ fields: [mock<AutofillField>()] });
 
       beforeEach(async () => {
-        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(false);
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: pageDetails },
           sender,
@@ -488,44 +706,6 @@ describe("OverlayNotificationsBackground", () => {
       });
 
       it("waits for the tab's navigation to complete using the web navigation API before initializing the notification", async () => {
-        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
-          callback(
-            mock<chrome.tabs.Tab>({
-              status: "loading",
-              url: sender.url,
-            }),
-          );
-        });
-        triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.OnCompletedDetails>({
-            url: sender.url,
-            tabId: sender.tab.id,
-            requestId,
-          }),
-        );
-        await flushPromises();
-
-        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
-          callback(
-            mock<chrome.tabs.Tab>({
-              status: "complete",
-              url: sender.url,
-            }),
-          );
-        });
-        triggerWebNavigationOnCompletedEvent(
-          mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
-            tabId: sender.tab.id,
-            url: sender.url,
-          }),
-        );
-        await flushPromises();
-
-        expect(notificationAddLoginSpy).toHaveBeenCalled();
-      });
-
-      it("with `useUndeterminedCipherScenarioTriggeringLogic` on, waits for the tab's navigation to complete using the web navigation API before initializing the notification", async () => {
-        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
         chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
           callback(
             mock<chrome.tabs.Tab>({
@@ -592,96 +772,11 @@ describe("OverlayNotificationsBackground", () => {
         );
         await flushPromises();
 
-        expect(notificationAddLoginSpy).toHaveBeenCalled();
-      });
-
-      it("with `useUndeterminedCipherScenarioTriggeringLogic` on, initializes the notification immediately when the tab's navigation is complete", async () => {
-        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
-        sendMockExtensionMessage(
-          {
-            command: "formFieldSubmitted",
-            uri: "example.com",
-            username: "username",
-            password: "password",
-            newPassword: "newPassword",
-          },
-          sender,
-        );
-        await flushPromises();
-        chrome.tabs.get = jest.fn().mockImplementationOnce((tabId, callback) => {
-          callback(
-            mock<chrome.tabs.Tab>({
-              status: "complete",
-              url: sender.url,
-            }),
-          );
-        });
-
-        triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.OnCompletedDetails>({
-            url: sender.url,
-            tabId: sender.tab.id,
-            requestId,
-          }),
-        );
-        await flushPromises();
-
         expect(cipherNotificationSpy).toHaveBeenCalled();
       });
 
       it("triggers the notification on the beforeRequest listener when a post-submission redirection is encountered", async () => {
-        sender.tab = mock<chrome.tabs.Tab>({ id: 4 });
-        sendMockExtensionMessage(
-          { command: "collectPageDetailsResponse", details: pageDetails },
-          sender,
-        );
-        await flushPromises();
-        sendMockExtensionMessage(
-          {
-            command: "formFieldSubmitted",
-            uri: "example.com",
-            username: "",
-            password: "password",
-            newPassword: "newPassword",
-          },
-          sender,
-        );
-        await flushPromises();
-        chrome.tabs.get = jest.fn().mockImplementation((tabId, callback) => {
-          callback(
-            mock<chrome.tabs.Tab>({
-              status: "complete",
-              url: sender.url,
-            }),
-          );
-        });
-
-        triggerWebRequestOnBeforeRequestEvent(
-          mock<chrome.webRequest.WebRequestDetails>({
-            url: sender.url,
-            tabId: sender.tab.id,
-            method: "POST",
-            requestId,
-          }),
-        );
-        await flushPromises();
-
-        triggerWebRequestOnBeforeRequestEvent(
-          mock<chrome.webRequest.WebRequestDetails>({
-            url: "https://example.com/redirect",
-            tabId: sender.tab.id,
-            method: "GET",
-            requestId,
-          }),
-        );
-        await flushPromises();
-
-        expect(notificationChangedPasswordSpy).toHaveBeenCalled();
-      });
-
-      it("with `useUndeterminedCipherScenarioTriggeringLogic` on, triggers the notification on the beforeRequest listener when a post-submission redirection is encountered", async () => {
-        notificationBackground.useUndeterminedCipherScenarioTriggeringLogic$ = of(true);
-        sender.tab = mock<chrome.tabs.Tab>({ id: 4 });
+        sender.tab = mock<chrome.tabs.Tab>({ id: 4, url: "https://example.com" });
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: pageDetails },
           sender,
@@ -739,7 +834,7 @@ describe("OverlayNotificationsBackground", () => {
 
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({
-        tab: { id: 1 },
+        tab: { id: 1, url: "https://example.com" },
         url: "https://example.com",
       });
 

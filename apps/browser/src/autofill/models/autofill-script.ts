@@ -22,10 +22,13 @@ export type AutofillInsertActions = {
 export default class AutofillScript {
   script: FillScript[] = [];
   properties: AutofillScriptProperties = {};
-  /** Non-null asserted. */
-  autosubmit!: string[] | null; // Appears to be unused, read but not written
-  /** Non-null asserted. */
-  savedUrls!: string[];
+  /** `null` skips submit. A list of form opids submits those forms. `[null]` submits when the filled fields are not in a form. */
+  autosubmit!: string[] | [null] | null;
+  /**
+   * Whether the user must confirm the fill because the page is served over HTTP while the
+   * cipher holds an HTTPS URI that applies to it.
+   */
+  requiresInsecurePageConfirmation = false;
   /** Non-null asserted. */
   untrustedIframe!: boolean;
   /** Non-null asserted. */

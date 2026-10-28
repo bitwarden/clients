@@ -1,0 +1,9 @@
+<app-header [title]="'pamAccessRequestsTitle' | i18n">
+  <bit-tab-nav-bar slot="tabs" [label]="'pamAccessRequestsTitle' | i18n">
+    <bit-tab-link route="my-requests" [berryValue]="myRequestsCount()">{{
+      "pamTabMyRequests" | i18n
+    }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<router-outlet></router-outlet>

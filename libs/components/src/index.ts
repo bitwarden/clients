@@ -1,5 +1,5 @@
 export { ButtonType, ButtonLikeAbstraction } from "./shared/button-like.abstraction";
-export { BaseButtonDirective } from "./shared/base-button.directive";
+export { BaseButtonDirective, BUTTON_SPINNER_DELAY_MS } from "./shared/base-button.directive";
 export { FocusableElement } from "./shared/focusable-element";
 export { BitwardenIcon } from "./shared/icon";
 export * from "./a11y";
@@ -36,6 +36,7 @@ export * from "./icon";
 export * from "./svg";
 export * from "./icon-tile";
 export * from "./input";
+export * from "./kbd";
 export * from "./item";
 export * from "./landing-layout";
 export * from "./layout";

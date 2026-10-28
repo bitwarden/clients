@@ -23,8 +23,10 @@
     [scope]="scope()"
     [organizationName]="organizationName()"
     [sharedFolderName]="sharedFolderName()"
+    [folderName]="folderName()"
     [defaultCollectionId]="defaultCollectionId()"
     [hasMultipleVaults]="hasMultipleVaults()"
+    [myVaultItemCount]="myVaultItemCount()"
   >
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu

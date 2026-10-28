@@ -1,14 +1,11 @@
-import { MockProxy, mock } from "jest-mock-extended";
-
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 
-import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
+import { mockContainerService, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
-import { LoginUriView } from "../../models/view/login-uri.view";
 import { Fido2CredentialApi } from "../api/fido2-credential.api";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
@@ -75,59 +72,6 @@ describe("Login DTO", () => {
     const login = new Login();
 
     expect(login).toEqual({});
-  });
-
-  describe("decrypt", () => {
-    let loginUri: MockProxy<LoginUri>;
-    const loginUriView = new LoginUriView();
-    const decryptedFido2Credential = Symbol();
-    const login = Object.assign(new Login(), {
-      username: mockEnc("encrypted username"),
-      password: mockEnc("encrypted password"),
-      passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
-      totp: mockEnc("encrypted totp"),
-      autofillOnPageLoad: true,
-      fido2Credentials: [{ decrypt: jest.fn().mockReturnValue(decryptedFido2Credential) } as any],
-    });
-    const expectedView = {
-      username: "encrypted username",
-      password: "encrypted password",
-      passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
-      totp: "encrypted totp",
-      uris: [
-        {
-          _uri: "decrypted uri",
-        },
-      ],
-      autofillOnPageLoad: true,
-      fido2Credentials: [decryptedFido2Credential],
-    };
-
-    beforeEach(() => {
-      loginUri = mock();
-      loginUriView.uri = "decrypted uri";
-    });
-
-    it("should decrypt to a view", async () => {
-      loginUri.decrypt.mockResolvedValue(loginUriView);
-      loginUri.validateChecksum.mockResolvedValue(true);
-      login.uris = [loginUri];
-
-      const loginView = await login.decrypt(true, null);
-      expect(loginView).toEqual(expectedView);
-    });
-
-    it("should ignore uris that fail checksum", async () => {
-      loginUri.decrypt.mockResolvedValue(loginUriView);
-      loginUri.validateChecksum
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-      login.uris = [loginUri, loginUri, loginUri];
-
-      const loginView = await login.decrypt(false, null);
-      expect(loginView).toEqual(expectedView);
-    });
   });
 
   it("Converts from LoginData and back", () => {

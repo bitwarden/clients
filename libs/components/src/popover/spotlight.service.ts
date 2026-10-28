@@ -1,6 +1,7 @@
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import { DomPortal } from "@angular/cdk/portal";
-import { ElementRef, Injectable, inject } from "@angular/core";
+import { ElementRef, Injectable, NgZone, inject } from "@angular/core";
+import { Observable, Subject } from "rxjs";
 
 import type { PopoverRef } from "./popover-ref";
 
@@ -12,6 +13,7 @@ import type { PopoverRef } from "./popover-ref";
 @Injectable({ providedIn: "root" })
 export class SpotlightService {
   private readonly overlay = inject(Overlay);
+  private readonly ngZone = inject(NgZone);
   private readonly borderElement: HTMLElement;
   private currentTarget: HTMLElement | null = null;
   private borderOverlayRef: OverlayRef | null = null;
@@ -19,6 +21,12 @@ export class SpotlightService {
   private windowResizeListener: (() => void) | null = null;
   private hideTimeout: number | null = null;
   private activePopover: PopoverRef | null = null;
+  private frameHandle: number | null = null;
+  private lastTargetRect: DOMRect | null = null;
+  private readonly movedSubject = new Subject<void>();
+
+  /** Emits after the ring is resized or repositioned to follow its target. */
+  readonly moved$: Observable<void> = this.movedSubject.asObservable();
 
   private readonly padding: number = 8;
 
@@ -40,11 +48,14 @@ export class SpotlightService {
   /**
    * Shows spotlight on the target element.
    * If a spotlight is already active, smoothly transitions to the new target.
-   * @param target - The element to highlight
+   * @param target - The element to highlight; a `data-spotlight-host` redirects the ring to its
+   *   `[data-spotlight-target]` descendant.
    */
   showSpotlight(target: HTMLElement): void {
-    const resolvedTarget =
-      (target.querySelector("[data-spotlight-target]") as HTMLElement | null) ?? target;
+    const hostTarget = target.hasAttribute("data-spotlight-host")
+      ? target.querySelector<HTMLElement>("[data-spotlight-target]")
+      : null;
+    const resolvedTarget = hostTarget ?? target;
 
     if (this.hideTimeout !== null) {
       clearTimeout(this.hideTimeout);
@@ -65,6 +76,20 @@ export class SpotlightService {
     // Recreate the CDK border overlay for the new target
     this.disposeBorderOverlay();
     this.createBorderOverlay(resolvedTarget);
+  }
+
+  /** Resizes and repositions the ring to the target's current layout. */
+  refresh(): void {
+    if (!this.currentTarget || !this.borderOverlayRef) {
+      return;
+    }
+    this.lastTargetRect = this.currentTarget.getBoundingClientRect();
+    this.borderOverlayRef.updateSize({
+      width: this.currentTarget.offsetWidth + this.padding * 2,
+      height: this.currentTarget.offsetHeight + this.padding * 2,
+    });
+    this.borderOverlayRef.updatePosition();
+    this.movedSubject.next();
   }
 
   /** The active spotlight's overlay pane; popovers attach to its outer edge. */
@@ -147,19 +172,11 @@ export class SpotlightService {
     this.borderElement.style.display = "block";
     this.borderOverlayRef.attach(new DomPortal(this.borderElement));
 
-    const resizeCallback = () => {
-      if (!this.currentTarget || !this.borderOverlayRef) {
-        return;
-      }
-      this.borderOverlayRef.updateSize({
-        width: this.currentTarget.offsetWidth + this.padding * 2,
-        height: this.currentTarget.offsetHeight + this.padding * 2,
-      });
-      this.borderOverlayRef.updatePosition();
-    };
-
-    this.resizeObserver = new ResizeObserver(resizeCallback);
+    this.resizeObserver = new ResizeObserver(() => this.refresh());
     this.resizeObserver.observe(target);
+
+    this.lastTargetRect = target.getBoundingClientRect();
+    this.watchTargetRect();
 
     // Reposition on window resize — CDK's reposition scroll strategy only covers scroll events
     this.windowResizeListener = () => {
@@ -168,7 +185,33 @@ export class SpotlightService {
     window.addEventListener("resize", this.windowResizeListener);
   }
 
+  /** Layout shifts move the target without resizing it, so its rect is checked every frame. */
+  private watchTargetRect(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.frameHandle = requestAnimationFrame(() => {
+        const rect = this.currentTarget?.getBoundingClientRect();
+        const last = this.lastTargetRect;
+        if (
+          rect &&
+          last &&
+          (rect.left !== last.left ||
+            rect.top !== last.top ||
+            rect.width !== last.width ||
+            rect.height !== last.height)
+        ) {
+          this.refresh();
+        }
+        this.watchTargetRect();
+      });
+    });
+  }
+
   private disposeBorderOverlay(): void {
+    if (this.frameHandle !== null) {
+      cancelAnimationFrame(this.frameHandle);
+      this.frameHandle = null;
+    }
+    this.lastTargetRect = null;
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
     if (this.windowResizeListener) {
