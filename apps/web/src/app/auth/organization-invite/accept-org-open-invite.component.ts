@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -11,9 +19,14 @@ import {
   getOpenOrgInviteAcceptErrorUi,
   getOpenOrgInviteStatusErrorUi,
 } from "@bitwarden/angular/auth/organization-invite";
+import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verbatim.directive";
+import { EmailCodeSentIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
+import { VerifyOTPRequest } from "@bitwarden/common/auth/models/request/verify-otp.request";
 import {
   OpenOrganizationInvite,
+  OpenOrgInviteAcceptResult,
   OpenOrgInviteLinkData,
   OpenOrgInviteStatus,
   OrganizationInviteService,
@@ -25,7 +38,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   AnonLayoutWrapperDataService,
+  AsyncActionsModule,
   ButtonModule,
+  FormFieldModule,
   IconModule,
   SpinnerComponent,
   ToastService,
@@ -36,11 +51,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
  * Render state for `AcceptOrgOpenInviteComponent`, exactly one active at a time.
  * `Loading` is also the terminal state on non-error paths so the spinner stays
  * visible until navigation tears the view down. `Error` is the shared terminal
- * state for every failure the component surfaces.
+ * state for every failure the component surfaces. `EmailVerificationOtp` collects
+ * an emailed code from a user whose accept failed with `email-not-verified`, then
+ * retries the accept.
  */
 export const AcceptOrgOpenInviteViewState = Object.freeze({
   Loading: "loading",
   Error: "error",
+  EmailVerificationOtp: "email-verification-otp",
 } as const);
 export type AcceptOrgOpenInviteViewState =
   (typeof AcceptOrgOpenInviteViewState)[keyof typeof AcceptOrgOpenInviteViewState];
@@ -48,7 +66,17 @@ export type AcceptOrgOpenInviteViewState =
 @Component({
   templateUrl: "accept-org-open-invite.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, CommonModule, IconModule, SpinnerComponent, I18nPipe],
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    CommonModule,
+    FormFieldModule,
+    IconModule,
+    InputVerbatimDirective,
+    ReactiveFormsModule,
+    SpinnerComponent,
+    I18nPipe,
+  ],
 })
 export class AcceptOrgOpenInviteComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -61,6 +89,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
   private readonly configService = inject(ConfigService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly userVerificationApiService = inject(UserVerificationApiServiceAbstraction);
 
   // Template access to the view-state kinds so the `@switch` cases below can compare
   // against symbolic references (`AcceptOrgOpenInviteViewState.Loading`) instead of
@@ -80,6 +110,18 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   // (template only reads it inside the Error `@case`, so the mutual exclusion is enforced
   // by the discriminated view state).
   protected readonly errorButton = signal<OpenOrgInviteErrorButton | null>(null);
+
+  protected readonly emailVerificationOtpForm = this.formBuilder.nonNullable.group({
+    code: ["", Validators.required],
+  });
+
+  private readonly emailVerificationOtpFormDirective = viewChild(FormGroupDirective);
+
+  // Disables the resend link while an OTP request is in flight.
+  protected readonly emailVerificationOtpRequestPending = signal(false);
+
+  // The invite whose accept failed with `email-not-verified`; the OTP submit retries it.
+  private readonly inviteAwaitingEmailVerification = signal<OpenOrganizationInvite | null>(null);
 
   private readonly failedMessage = "openOrgInviteAcceptFailed";
 
@@ -199,13 +241,23 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     }
 
     const invite = OpenOrganizationInvite.fromLinkDataAndStatus(linkData, status);
+    await this.acceptInviteAndHandleResult(invite);
+  }
+
+  private async acceptInviteAndHandleResult(invite: OpenOrganizationInvite): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const result = await this.organizationInviteService.acceptOpenOrgInvite(
       invite,
       activeUserId,
       this.router.url,
     );
+    await this.handleInviteAcceptResult(result, invite);
+  }
 
+  private async handleInviteAcceptResult(
+    result: OpenOrgInviteAcceptResult,
+    invite: OpenOrganizationInvite,
+  ): Promise<void> {
     switch (result.kind) {
       case "accepted":
         this.toastService.showToast({
@@ -232,6 +284,9 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       case "email-domain-not-allowed":
         await this.renderEmailDomainNotAllowed();
         return;
+      case "email-not-verified":
+        await this.startEmailVerificationOtp(invite);
+        return;
       case "recovery-key-mismatch":
         // Security-adjacent condition: invite-bound org key differs from the account-recovery
         // public key returned by the server. User has no direct remediation path, so we
@@ -257,7 +312,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       case "org-access-revoked":
       case "no-seats":
       case "two-factor-required":
-      case "email-not-verified":
       case "single-org-policy-violation-target-org":
       case "single-org-policy-violation-other-org":
       case "auto-confirm-policy-violation-target-org":
@@ -268,6 +322,119 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         await this.renderMappedError(result.kind);
         return;
     }
+  }
+
+  /**
+   * Shows the OTP state and emails the first code.
+   */
+  private async startEmailVerificationOtp(invite: OpenOrganizationInvite): Promise<void> {
+    this.inviteAwaitingEmailVerification.set(invite);
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageIcon: EmailCodeSentIcon,
+      pageTitle: { key: "verifyYourIdentity" },
+      pageSubtitle: { key: "toJoinThisOrganizationEnterTheCodeSentToYourEmail" },
+    });
+    this.viewState.set(AcceptOrgOpenInviteViewState.EmailVerificationOtp);
+    await this.requestEmailVerificationOtp();
+  }
+
+  /**
+   * Emails a new code to the active user. Returns false, after showing an error toast, when
+   * the request fails.
+   */
+  private async requestEmailVerificationOtp(): Promise<boolean> {
+    this.emailVerificationOtpRequestPending.set(true);
+    try {
+      await this.userVerificationApiService.postAccountRequestOTP();
+      return true;
+    } catch (e) {
+      // The user stays on the OTP state and can resend.
+      this.logService.error(
+        "AcceptOrgOpenInviteComponent: email verification OTP request failed.",
+        e,
+      );
+      this.toastService.showToast({
+        message: this.i18nService.t("failedToSendVerificationEmail"),
+        variant: "error",
+      });
+      return false;
+    } finally {
+      this.emailVerificationOtpRequestPending.set(false);
+    }
+  }
+
+  /**
+   * Handles the user's resend action. Unlike the first code, which is sent automatically
+   * when the OTP state shows, a resend confirms success with a toast.
+   */
+  protected async resendEmailVerificationOtp(): Promise<void> {
+    if (!(await this.requestEmailVerificationOtp())) {
+      return;
+    }
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    this.toastService.showToast({
+      message: this.i18nService.t("verificationCodeEmailSent", activeAccount?.email ?? ""),
+      variant: "success",
+    });
+  }
+
+  protected readonly submitEmailVerificationOtp = async (): Promise<void> => {
+    if (this.emailVerificationOtpForm.invalid) {
+      this.emailVerificationOtpForm.markAllAsTouched();
+      return;
+    }
+
+    if (!(await this.verifyEmailWithOtp())) {
+      return;
+    }
+
+    const invite = this.inviteAwaitingEmailVerification();
+    if (invite == null) {
+      this.logService.error(
+        "AcceptOrgOpenInviteComponent: OTP verified with no invite awaiting email verification to retry.",
+      );
+      await this.renderMappedError("unexpected");
+      return;
+    }
+
+    this.viewState.set(AcceptOrgOpenInviteViewState.Loading);
+    await this.acceptInviteAndHandleResult(invite);
+  };
+
+  /**
+   * Submits the entered code and, when the server accepts it, marks the local account's
+   * email as verified. Returns false, with the error set on the code field, when the server
+   * rejects it.
+   */
+  private async verifyEmailWithOtp(): Promise<boolean> {
+    const codeControl = this.emailVerificationOtpForm.controls.code;
+    try {
+      await this.userVerificationApiService.postAccountVerifyOTP(
+        new VerifyOTPRequest(codeControl.value),
+      );
+    } catch {
+      codeControl.setErrors({
+        invalidOtp: { message: this.i18nService.t("invalidVerificationCode") },
+      });
+      codeControl.markAsTouched();
+      return false;
+    }
+
+    // The server records the verification; mirror it on the local account so UI that reads
+    // `emailVerified` updates without waiting for the next sync.
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    await this.accountService.setAccountEmailVerified(activeUserId, true);
+    return true;
+  }
+
+  protected onEmailVerificationOtpPaste(event: ClipboardEvent): void {
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {
+      return;
+    }
+    event.preventDefault();
+    this.emailVerificationOtpForm.controls.code.setValue(pastedText);
+    this.emailVerificationOtpFormDirective()?.onSubmit(new Event("submit"));
   }
 
   /**

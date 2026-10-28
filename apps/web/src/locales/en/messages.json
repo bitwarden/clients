@@ -7308,6 +7308,15 @@
   "openOrgInviteAcceptUnexpected": {
     "message": "Something went wrong, please reload the page to try again."
   },
+  "verify": {
+    "message": "Verify"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "To join this organization, enter the code sent to your email."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Failed to send verification email. Please try again."
+  },
   "openOrgInviteNoSeatsMessage": {
     "message": "Your invitation could not be accepted because there is not an available seat."
   },

@@ -7,8 +7,9 @@
 @let shrinkToFit = open ? "[@container_(min-height:600px)]:tw-min-h-0" : "tw-min-h-0";
 
 <ng-template #logoContent><ng-content select="bit-nav-logo"></ng-content></ng-template>
-<ng-template #productSwitcherContent
+<ng-template #headerContent
   ><ng-content select="[slot=product-switcher]"></ng-content
+  ><ng-content select="[slot=header]"></ng-content
 ></ng-template>
 <ng-template #navContent><ng-content></ng-content></ng-template>
 <ng-template #footerContent><ng-content select="[slot=footer]"></ng-content></ng-template>
@@ -71,23 +72,35 @@
               aria-controls="bit-side-nav"
             ></button>
           </div>
+          <!-- Pinned so rows scroll beneath it; keeps its wider 48px collapsed column. Border overlays so toggling never shifts rows; hidden when empty to avoid doubling the header's.
+               Inner div caps tall content so body rows stay reachable; its padding keeps focus rings unclipped. -->
+          <div
+            class="tw-relative tw-w-full tw-shrink-0 tw-bg-bg-nav after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0 after:tw-h-px after:tw-bg-border-nav-divider after:tw-opacity-0 after:tw-content-[''] motion-safe:after:tw-transition-opacity data-[header-border=true]:after:tw-opacity-100 has-[>:empty]:after:tw-hidden"
+            [attr.data-header-border]="headerBorder() === 'always' || scrolled().top"
+          >
+            <div
+              class="tw-py-2 empty:tw-pb-0"
+              [class]="
+                open
+                  ? 'tw-px-2 [@container_(min-height:600px)]:tw-max-h-[40cqh] [@container_(min-height:600px)]:tw-overflow-y-auto'
+                  : 'tw-px-[calc((100%_-_3rem)/2)]'
+              "
+            >
+              <ng-container *ngTemplateOutlet="headerContent"></ng-container>
+            </div>
+          </div>
           <!-- No overscroll-none: it would trap wheel scroll that must chain to the column.
                Collapsed only: reserve gutters so classic scrollbars never squish the rail icons. -->
           <div
             class="tw-flex-1 tw-overflow-auto"
             [class]="open ? shrinkToFit : 'tw-min-h-0 [scrollbar-gutter:stable_both-edges]'"
             id="bit-side-nav--scroll"
+            cdkScrollable
           >
-            <!-- Switcher keeps its wider 48px collapsed column. -->
-            <div
-              class="tw-w-full tw-bg-bg-nav tw-pt-2"
-              [class]="open ? 'tw-px-2' : 'tw-px-[calc((100%_-_3rem)/2)]'"
-            >
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
-            </div>
+            <!-- Rows sit tight; top-level sections widen the gap to space themselves apart. -->
             <div
               data-testid="side-nav-body"
-              class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
+              class="tw-flex tw-flex-col tw-gap-0.5 has-[bit-nav-section:not(bit-nav-group_*)]:tw-gap-2 tw-pb-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
               [class]="open ? 'tw-px-3' : railPadding"
             >
               <ng-container *ngTemplateOutlet="navContent"></ng-container>
@@ -96,7 +109,7 @@
         </nav>
         <div
           data-footer
-          class="tw-shrink-0 tw-py-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
+          class="tw-shrink-0 tw-py-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden empty:*:tw-hidden"
           [class]="open ? 'tw-px-3' : railPadding"
         >
           @if (open) {
@@ -110,7 +123,7 @@
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
       (cdkDragEnded)="onDragEnded($event)"
-      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
+      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-border-accent-primary focus:tw-outline-none focus-visible:tw-bg-border-accent-primary before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
       [cdkDragDisabled]="isTouchDevice()"
       tabindex="0"
       (keydown)="onKeydown($event)"
@@ -161,7 +174,7 @@
             <div
               class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
             >
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
+              <ng-container *ngTemplateOutlet="headerContent"></ng-container>
             </div>
           }
         </div>
@@ -191,7 +204,7 @@
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
       (cdkDragEnded)="onDragEnded($event)"
-      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
+      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-border-accent-primary focus:tw-outline-none focus-visible:tw-bg-border-accent-primary before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
       [cdkDragDisabled]="isTouchDevice()"
       tabindex="0"
       (keydown)="onKeydown($event)"
