@@ -55,6 +55,7 @@ import {
   EnterPaymentMethodComponent,
 } from "../../../payment/components";
 import { MaskedPaymentMethod } from "../../../payment/types";
+import { invoicePreviewErrorMessageKey } from "../../../shared/invoice-preview-error-message-key";
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../../types";
 
 import {
@@ -165,6 +166,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
   /** Flag-on preview failed; the summary is replaced by an error callout rather than the local estimate. */
   protected readonly previewFailed = signal(false);
+  protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
 
   // Use defer to lazily create the observable when subscribed to
   protected readonly estimatedInvoice$ = defer(() =>
@@ -306,6 +308,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   protected readonly submit = async (): Promise<void> => {
     if (!this.isFormValid()) {
       this.formGroup.markAllAsTouched();
+      return;
+    }
+
+    if (this.previewFailed()) {
       return;
     }
 
@@ -531,7 +537,11 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private refreshPreviewCart$(): Observable<InvoicePreview> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
 
-    if (!this.isFormValid() || !billingAddress.country || !billingAddress.postalCode) {
+    if (
+      this.formGroup.controls.billingAddress.invalid ||
+      !billingAddress.country ||
+      !billingAddress.postalCode
+    ) {
       this.previewCart.set(null);
       this.previewFailed.set(false);
       return of(this.getEmptyInvoicePreview());
@@ -547,9 +557,11 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       map(() => this.getEmptyInvoicePreview()),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
+        const key = invoicePreviewErrorMessageKey(error);
+        this.previewErrorMessageKey.set(key);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("invoicePreviewErrorMessage"),
+          message: this.i18nService.t(key),
         });
         this.previewCart.set(null);
         this.previewFailed.set(true);

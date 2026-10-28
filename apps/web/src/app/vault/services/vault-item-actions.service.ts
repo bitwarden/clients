@@ -109,19 +109,20 @@ export class WebVaultItemActionsService {
   }
 
   /**
-   * Opens the add-item form, prefilled with the organization and shared folder in scope, when
-   * supplied.
+   * Opens the add-item form, prefilled with the organization, shared folder, and folder in scope,
+   * when supplied.
    */
   async add(
     cipherType?: CipherType,
-    scope?: { organizationId?: OrganizationId; collectionId?: CollectionId },
+    scope?: { organizationId?: OrganizationId; collectionId?: CollectionId; folderId?: string },
   ): Promise<void> {
     const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
 
-    if (scope?.organizationId) {
+    if (scope?.organizationId || scope?.folderId) {
       formConfig.initialValues = {
         organizationId: scope.organizationId,
         collectionIds: scope.collectionId ? [scope.collectionId] : undefined,
+        folderId: scope.folderId,
       };
     }
 

@@ -4,9 +4,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
+import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
 
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
+import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
@@ -24,6 +26,7 @@ import {
   AccessRequestSdkService,
   AccessRuleSdkService,
   LeasingErrorService,
+  RotationSdkService,
 } from ".";
 
 /**
@@ -36,6 +39,11 @@ import {
  */
 export function providePam(): SafeProvider[] {
   return [
+    // Must match the path the commercial `OrganizationsRoutingModule` mounts the PAM pages at.
+    safeProvider({
+      provide: PAM_ORG_ADMIN_ROUTE,
+      useValue: "pam",
+    }),
     safeProvider({
       provide: AccessRuleSdkService,
       useClass: AccessRulesSdkService,
@@ -60,6 +68,11 @@ export function providePam(): SafeProvider[] {
       provide: LeasingErrorService,
       useClass: DefaultLeasingErrorService,
       deps: [],
+    }),
+    safeProvider({
+      provide: RotationSdkService,
+      useClass: DefaultRotationSdkService,
+      deps: [SdkService, AccountService, LogService],
     }),
     safeProvider({
       provide: CidrValidationService,

@@ -138,9 +138,16 @@ describe("GroupsV2Component", () => {
     component = fixture.componentInstance;
   }
 
-  function detectAndFlush() {
+  /**
+   * Rows reach the table via `toSignal(rowsData$)` plus an `effect`, and effects only flush
+   * during change detection. A single pass resolves the promise but lands after that pass's
+   * effect phase, so a second detectChanges/whenStable cycle is needed for the rows to settle.
+   */
+  async function detectAndFlush() {
     fixture.detectChanges();
-    return fixture.whenStable();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
   }
 
   describe("filterGroups", () => {
@@ -213,7 +220,7 @@ describe("GroupsV2Component", () => {
         expect.objectContaining({
           title: { key: "deleteGroup" },
           content: { key: "deleteGroupWarningDesc" },
-          type: "warning",
+          type: "danger",
         }),
       );
       expect(mockGroupService.deleteMany).toHaveBeenCalledWith(orgId, ["group-1"]);
@@ -232,7 +239,7 @@ describe("GroupsV2Component", () => {
         expect.objectContaining({
           title: { key: "deleteGroups", placeholders: ["2"] },
           content: { key: "deleteGroupsWarningDesc" },
-          type: "warning",
+          type: "danger",
         }),
       );
       expect(mockGroupService.deleteMany).toHaveBeenCalledWith(orgId, ["group-1", "group-2"]);

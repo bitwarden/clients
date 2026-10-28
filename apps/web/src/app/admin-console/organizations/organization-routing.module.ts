@@ -1,20 +1,23 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   canAccessOrgAdmin,
+  canAccessAccessRulesTab,
   canAccessGroupsTab,
   canAccessMembersTab,
   canAccessVaultTab,
   canAccessReportingTab,
+  canAccessRotationTab,
   canAccessSettingsTab,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { deepLinkGuard } from "../../auth/guards/deep-link/deep-link.guard";
+import { PAM_ORG_ADMIN_ROUTE } from "../../pam/pam-org-admin-route.token";
 
 import { VaultModule } from "./collections/vault.module";
 import { organizationPermissionsGuard } from "./guards/org-permissions.guard";
@@ -80,7 +83,11 @@ const routes: Routes = [
   },
 ];
 
-function getOrganizationRoute(organization: Organization): string | undefined {
+/**
+ * The Admin Console section to land a member on, checked most central first. Must be called in an
+ * injection context.
+ */
+export function getOrganizationRoute(organization: Organization): string | undefined {
   if (canAccessVaultTab(organization)) {
     return "vault";
   }
@@ -95,6 +102,15 @@ function getOrganizationRoute(organization: Organization): string | undefined {
   }
   if (canAccessSettingsTab(organization)) {
     return "settings";
+  }
+  // Unprovided in OSS-only builds, which mount no PAM pages. Annotated because `inject` infers
+  // `unknown` from a SafeInjectionToken.
+  const pamRoute: string | null = inject(PAM_ORG_ADMIN_ROUTE, { optional: true });
+  if (
+    pamRoute != null &&
+    (canAccessAccessRulesTab(organization) || canAccessRotationTab(organization))
+  ) {
+    return pamRoute;
   }
   return undefined;
 }

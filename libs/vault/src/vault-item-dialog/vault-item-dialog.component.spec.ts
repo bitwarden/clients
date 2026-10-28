@@ -26,6 +26,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -52,6 +53,13 @@ class TestVaultItemDialogComponent extends VaultItemDialogComponent {
 
   setTestFormConfig(config: Partial<CipherFormConfig>) {
     this.formConfig = { ...this.formConfig, ...config } as CipherFormConfig;
+  }
+
+  mockCipherFormComponent(patchCipher: jest.Mock) {
+    Object.defineProperty(this, "cipherFormComponent", {
+      value: () => ({ patchCipher }),
+      configurable: true,
+    });
   }
 
   mockViewChildren() {
@@ -90,6 +98,7 @@ describe("VaultItemDialogComponent", () => {
 
   let cipherServiceMock: MockProxy<CipherService>;
   let cipherAuthorizationServiceMock: MockProxy<CipherAuthorizationService>;
+  let revealedCipherServiceMock: MockProxy<RevealedCipherService>;
   const canEditCipherReturnValue$ = new BehaviorSubject(false);
   const canDeleteCipherReturnValue$ = new BehaviorSubject(false);
 
@@ -119,6 +128,9 @@ describe("VaultItemDialogComponent", () => {
       canEditCipher$: jest.fn().mockReturnValue(canEditCipherReturnValue$),
       canDeleteCipher$: jest.fn().mockReturnValue(canDeleteCipherReturnValue$),
     });
+    revealedCipherServiceMock = mock<RevealedCipherService>();
+    revealedCipherServiceMock.getOrReveal.mockResolvedValue(null);
+    revealedCipherServiceMock.displayView$.mockImplementation((_, storedView) => of(storedView));
 
     await TestBed.configureTestingModule({
       imports: [TestVaultItemDialogComponent, NoopAnimationsModule],
@@ -151,6 +163,7 @@ describe("VaultItemDialogComponent", () => {
           provide: ConfigService,
           useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
         },
+        { provide: RevealedCipherService, useValue: revealedCipherServiceMock },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -223,36 +236,64 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
-  describe("partial-data (gated) ciphers", () => {
+  describe("restricted ciphers", () => {
     beforeEach(() => {
       component.setTestParams({ mode: "view" });
       component["canEdit"] = true;
       component["canDelete"] = true;
     });
 
-    it("isPartialData is false for a normal cipher", () => {
+    it("editBlockedByRestriction is false for a normal cipher", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
 
-      expect(component["isPartialData"]).toBe(false);
+      expect(component["editBlockedByRestriction"]).toBe(false);
     });
 
-    it("isPartialData is true when the cipher is partial", () => {
+    it("editBlockedByRestriction is true when the cipher is restricted", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
-      expect(component["isPartialData"]).toBe(true);
+      expect(component["editBlockedByRestriction"]).toBe(true);
     });
 
-    it("hides Edit for a partial-data cipher even when the user could otherwise edit", () => {
+    it("hides Edit for a restricted cipher even when the user could otherwise edit", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
 
-      // Saving a partial cipher would clobber the server-suppressed fields.
+      // Saving a restricted cipher would clobber the server-suppressed fields.
       expect(component["showEdit"]).toBe(false);
     });
 
-    it("shows Edit for the same cipher once it is no longer partial", () => {
+    it("shows Edit for the same cipher once it is no longer restricted", () => {
       component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
 
       expect(component["showEdit"]).toBe(true);
+    });
+
+    it("shows the footer's Archive buttons but hides Delete for a restricted cipher", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
+
+      expect(component["showActionButtons"]).toBe(true);
+      expect(component["showDeleteButton"]).toBe(false);
+    });
+
+    it("shows Delete for the same cipher once it is no longer restricted", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["showActionButtons"]).toBe(true);
+      expect(component["showDeleteButton"]).toBe(true);
+    });
+
+    it("falls back to view mode when opened in form mode", async () => {
+      jest
+        .spyOn(component as any, "getDecryptedCipherView")
+        .mockResolvedValue({ id: "c1", type: CipherType.Login, partial: true, collectionIds: [] });
+      canEditCipherReturnValue$.next(true);
+      component.setTestParams({ mode: "form" });
+
+      await component.ngOnInit();
+
+      expect(component["params"].mode).toBe("view");
+      expect(component["loadForm"]).toBe(false);
+      canEditCipherReturnValue$.next(false);
     });
   });
 
@@ -322,6 +363,39 @@ describe("VaultItemDialogComponent", () => {
       await component.archive();
 
       expect(mockArchiveService.archiveWithServer).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("delete", () => {
+    it("keeps the dialog open and explains the failure when the server refuses", async () => {
+      const toastService = TestBed.inject(ToastService);
+      component.setTestCipher({ id: "cipher-id", isDeleted: false, partial: true } as any);
+      cipherServiceMock.softDeleteWithServer.mockRejectedValue(new Error("not found"));
+
+      await component.delete();
+
+      expect(close).not.toHaveBeenCalled();
+      expect(TestBed.inject(MessagingService).send).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "restrictedItemChangeRefused" }),
+      );
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("closes as Deleted and reports success when the delete lands", async () => {
+      const toastService = TestBed.inject(ToastService);
+      component.setTestCipher({ id: "cipher-id", isDeleted: false } as any);
+      cipherServiceMock.softDeleteWithServer.mockResolvedValue(undefined);
+
+      await component.delete();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "deletedItem" }),
+      );
+      expect(TestBed.inject(MessagingService).send).toHaveBeenCalledWith("deletedCipher");
+      expect(close).toHaveBeenCalledWith(VaultItemDialogResult.Deleted);
     });
   });
 
@@ -623,6 +697,235 @@ describe("VaultItemDialogComponent", () => {
       await component.openAttachmentsDialog();
 
       expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(expect.any(Cipher), "test-user-id");
+    });
+  });
+
+  describe("revealed views (RevealedCipherService)", () => {
+    /** The restricted copy local state holds. */
+    const storedCipher = { id: "gated-1", partialData: '{"name":"gated"}' } as unknown as Cipher;
+    const storedView = { id: "gated-1", partial: true, collectionIds: [] } as unknown as CipherView;
+    const revealedView = {
+      id: "gated-1",
+      partial: false,
+      collectionIds: [],
+    } as unknown as CipherView;
+    let display$: BehaviorSubject<CipherView>;
+
+    /** Flush the `displayView$` handler, which awaits the permission reads. */
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    /** Opens the dialog on the restricted cipher, revealed at open or not. */
+    async function open(
+      options: { revealedAtOpen?: boolean; mode?: "view" | "form" } = {},
+    ): Promise<void> {
+      const { revealedAtOpen = false, mode = "view" } = options;
+      jest.spyOn(component as any, "getDecryptedCipherView").mockResolvedValue(storedView);
+      revealedCipherServiceMock.getOrReveal.mockResolvedValue(revealedAtOpen ? revealedView : null);
+      display$ = new BehaviorSubject(revealedAtOpen ? revealedView : storedView);
+      revealedCipherServiceMock.displayView$.mockReturnValue(display$);
+      component.setTestParams({ mode });
+      component.setTestFormConfig({ originalCipher: storedCipher });
+      component["loadForm"] = mode === "form";
+
+      await component.ngOnInit();
+      await settle();
+    }
+
+    afterEach(() => {
+      canEditCipherReturnValue$.next(false);
+      canDeleteCipherReturnValue$.next(false);
+    });
+
+    it("shows the stored view while nothing is revealed", async () => {
+      await open();
+
+      expect(revealedCipherServiceMock.displayView$).toHaveBeenCalledWith(
+        "test-user-id",
+        storedView,
+      );
+      expect(component["cipher"]).toBe(storedView);
+      expect(component["showEdit"]).toBe(false);
+      expect(component["formConfig"].originalCipher).toBe(storedCipher);
+    });
+
+    it("shows the revealed view and re-reads permissions when a reveal begins", async () => {
+      await open();
+      canEditCipherReturnValue$.next(true);
+
+      display$.next(revealedView);
+      await settle();
+
+      expect(component["cipher"]).toBe(revealedView);
+      expect(component["canEdit"]).toBe(true);
+      expect(component["showEdit"]).toBe(true);
+      expect(cipherAuthorizationServiceMock.canEditCipher$).toHaveBeenCalledWith(
+        revealedView,
+        false,
+      );
+      // Delete stays blocked for a revealed cipher.
+      expect(component["showDeleteButton"]).toBe(false);
+      // The form reads the revealed view through the form service, never from `originalCipher`.
+      expect(component["formConfig"].originalCipher).toBe(storedCipher);
+    });
+
+    it("opens an edit on the revealed view", async () => {
+      canEditCipherReturnValue$.next(true);
+
+      await open({ revealedAtOpen: true, mode: "form" });
+
+      expect(revealedCipherServiceMock.getOrReveal).toHaveBeenCalledWith("test-user-id", "gated-1");
+      expect(component["cipher"]).toBe(revealedView);
+      expect(component["params"].mode).toBe("form");
+    });
+
+    it("falls back to the stored view and leaves form mode when the reveal ends", async () => {
+      canEditCipherReturnValue$.next(true);
+      await open({ revealedAtOpen: true, mode: "form" });
+
+      display$.next(storedView);
+      await settle();
+
+      expect(component["cipher"]).toBe(storedView);
+      // The form's own state still holds the full view, so it must not stay mounted.
+      expect(component["loadForm"]).toBe(false);
+      expect(component["params"].mode).toBe("view");
+      expect(component["canEdit"]).toBe(false);
+      expect(component["canDelete"]).toBe(false);
+      expect(component["formConfig"].originalCipher).toBe(storedCipher);
+    });
+
+    describe("returning to view mode after a save", () => {
+      beforeEach(() => {
+        jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
+        cipherServiceMock.get.mockResolvedValue(storedCipher);
+        cipherServiceMock.decrypt.mockResolvedValue(storedView);
+      });
+
+      /** The restricted result `CipherService` returns for a restricted cipher's save. */
+      const saveResult = {
+        id: "gated-1",
+        partial: true,
+        collectionIds: [],
+      } as unknown as CipherView;
+
+      it("shows the saved cipher revealed again rather than the save's restricted result", async () => {
+        await open({ revealedAtOpen: true });
+        const refreshedView = { ...revealedView } as CipherView;
+        revealedCipherServiceMock.refresh.mockImplementation(async () =>
+          display$.next(refreshedView),
+        );
+
+        await component["onCipherSaved"](saveResult);
+
+        expect(revealedCipherServiceMock.refresh).toHaveBeenCalledWith("test-user-id", "gated-1");
+        expect(component["cipher"]).toBe(refreshedView);
+        expect(component["formConfig"].originalCipher).toBe(storedCipher);
+      });
+
+      it("waits for the refreshed view before returning to view mode", async () => {
+        await open({ revealedAtOpen: true });
+        const refreshedView = { ...revealedView } as CipherView;
+        revealedCipherServiceMock.refresh.mockImplementation(async () =>
+          display$.next(refreshedView),
+        );
+        let shownOnViewMode: CipherView | undefined;
+        jest.spyOn(component as any, "changeMode").mockImplementation(async () => {
+          shownOnViewMode = component["cipher"];
+        });
+
+        await component["onCipherSaved"](saveResult);
+
+        expect(shownOnViewMode).toBe(refreshedView);
+      });
+
+      it("keeps the revealed view when the refresh delivers nothing new", async () => {
+        await open({ revealedAtOpen: true });
+
+        await component["onCipherSaved"](saveResult);
+
+        expect(component["cipher"]).toBe(revealedView);
+      });
+
+      it("falls back to the saved stored copy when the reveal ended before the refresh", async () => {
+        canEditCipherReturnValue$.next(true);
+        await open({ revealedAtOpen: true });
+        const savedStoredView = { ...storedView, name: "saved" } as unknown as CipherView;
+        cipherServiceMock.decrypt.mockResolvedValue(savedStoredView);
+        revealedCipherServiceMock.refresh.mockImplementation(async () => display$.next(storedView));
+
+        await expect(component["onCipherSaved"](saveResult)).resolves.toBeUndefined();
+
+        expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(storedCipher, "test-user-id");
+        expect(component["cipher"]).toBe(savedStoredView);
+        expect(component["loadForm"]).toBe(false);
+        expect(component["canEdit"]).toBe(false);
+        // The save itself landed, so the dialog must still report the item as modified.
+        expect(component["_cipherModified"]).toBe(true);
+      });
+    });
+
+    describe("cancelling an edit", () => {
+      it("keeps the displayed view without reading local state", async () => {
+        canEditCipherReturnValue$.next(true);
+        await open({ revealedAtOpen: true, mode: "form" });
+        jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
+
+        await component.cancel();
+
+        expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
+        expect(revealedCipherServiceMock.get).not.toHaveBeenCalled();
+        expect(component["cipher"]).toBe(revealedView);
+        expect((component as any).changeMode).toHaveBeenCalledWith("view");
+      });
+    });
+
+    describe("refreshing the form after an attachment change", () => {
+      const reloadedView = {
+        id: "gated-1",
+        attachments: [{ id: "attachment-1" }],
+        revisionDate: new Date("2026-09-04T10:30:59.000Z"),
+      } as unknown as CipherView;
+      let patchCipher: jest.Mock;
+
+      beforeEach(async () => {
+        await open({ revealedAtOpen: true });
+        (
+          TestBed.inject(BillingAccountProfileStateService)
+            .hasPremiumFromAnySource$ as unknown as jest.Mock
+        ).mockReturnValue(of(true));
+        mockDialogService.open.mockReturnValue({
+          closed: of({ action: AttachmentDialogResult.Uploaded }),
+        });
+        patchCipher = jest.fn();
+        component.mockCipherFormComponent(patchCipher);
+      });
+
+      it("patches attachments and revision date from the refreshed revealed view", async () => {
+        revealedCipherServiceMock.get.mockReturnValue(reloadedView);
+
+        await component["openAttachmentsDialog"]();
+
+        expect(revealedCipherServiceMock.refresh).toHaveBeenCalledWith("test-user-id", "gated-1");
+        // Local state holds only the restricted, pre-upload copy.
+        expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
+        const currentCipher = {
+          attachments: [],
+          revisionDate: new Date(0),
+        } as unknown as CipherView;
+        patchCipher.mock.calls[0][0](currentCipher);
+        expect(currentCipher.attachments).toBe(reloadedView.attachments);
+        expect(currentCipher.revisionDate).toBe(reloadedView.revisionDate);
+      });
+
+      it("leaves the form alone, without throwing, when the reveal ended", async () => {
+        revealedCipherServiceMock.get.mockReturnValue(undefined);
+
+        await expect(component["openAttachmentsDialog"]()).resolves.toBeUndefined();
+
+        expect(patchCipher).not.toHaveBeenCalled();
+        // The attachment was still uploaded, so the dialog must still report the item as modified.
+        expect(component["_cipherModified"]).toBe(true);
+      });
     });
   });
 });

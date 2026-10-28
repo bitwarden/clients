@@ -1,13 +1,5 @@
 <app-header></app-header>
 
-<bit-bulk-actions-bar>
-  <bit-bulk-action
-    [action]="confirmDeleteSelected"
-    [label]="'delete' | i18n"
-    icon="bwi-trash"
-  ></bit-bulk-action>
-</bit-bulk-actions-bar>
-
 <bit-table-v2
   [tableDef]="table"
   [filter]="filterGroups"
@@ -16,6 +8,14 @@
   [loading]="loading()"
   (selectedChange)="selectedGroups.set($event)"
 >
+  <bit-bulk-actions-bar>
+    <bit-bulk-action
+      [action]="confirmDeleteSelected"
+      [label]="'delete' | i18n"
+      icon="bwi-trash"
+    ></bit-bulk-action>
+  </bit-bulk-actions-bar>
+
   <bit-table-toolbar>
     <bit-search
       [placeholder]="'searchGroups' | i18n"
@@ -26,7 +26,7 @@
       key="collections"
       [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
       multiple
-      [options]="collectionFilterOptions()"
+      [options]="(collectionFilterOptions$ | async) ?? []"
     ></bit-filter-menu>
     <button
       bitButton
@@ -77,7 +77,15 @@
       <bit-menu #rowMenu>
         <button type="button" bitMenuItem (click)="edit(row)">
           <bit-icon name="bwi-pencil-square" slot="start" />
-          {{ "editGroup" | i18n }}
+          {{ "editInfo" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Members)">
+          <bit-icon name="bwi-user" slot="start" />
+          {{ "members" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="edit(row, ModalTabType.Collections)">
+          <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+          {{ "collections" | vfo1I18n: "sharedFolders" }}
         </button>
         <button type="button" bitMenuItem variant="danger" (click)="confirmDelete([row])">
           <bit-icon name="bwi-trash" slot="start" />
