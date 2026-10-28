@@ -390,7 +390,10 @@
             ></app-rotation-history>
           } @else {
             <bit-card>
-              <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+              <p bitTypography="body1" class="tw-m-0 tw-text-center tw-font-medium">
+                {{ "pamRotationConfigHistoryEmptyTitle" | i18n }}
+              </p>
+              <p bitTypography="body2" class="tw-m-0 tw-text-center tw-text-muted">
                 {{ "pamRotationConfigHistoryEmpty" | i18n }}
               </p>
             </bit-card>
