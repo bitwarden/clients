@@ -2396,10 +2396,9 @@ export default class MainBackground {
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
       this.badgeService,
       this.accountService,
-      this.cipherService,
+      this.fillCipherPolicy,
       this.badgeSettingsService,
       this.logService,
-      this.fillCipherPolicy,
     );
 
     this.clipboardNotificationBadgeUpdaterService = new ClipboardNotificationBadgeUpdaterService(
