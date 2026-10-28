@@ -27,7 +27,7 @@
     </bit-column>
 
     <bit-column width="minmax(8rem, 1fr)">
-      <bit-header-cell>{{ "pamRotationHistoryColumnTrigger" | i18n }}</bit-header-cell>
+      <bit-header-cell>{{ "pamRotationHistoryColumnRotationTrigger" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.sourceLabelKey; let job" [truncate]="false">
         <span class="tw-text-sm">{{ job.sourceLabelKey | i18n }}</span>
       </bit-cell>
@@ -97,7 +97,7 @@
             </th>
           } @else {
             <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
-              {{ "pamRotationHistoryColumnTrigger" | i18n }}
+              {{ "pamRotationHistoryColumnRotationTrigger" | i18n }}
             </th>
             <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
               {{ "details" | i18n }}

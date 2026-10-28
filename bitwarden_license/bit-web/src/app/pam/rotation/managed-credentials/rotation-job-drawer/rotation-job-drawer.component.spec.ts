@@ -148,7 +148,7 @@ describe("RotationJobDrawerComponent", () => {
       "pamRotationAttemptStarted",
       "pamTargetSystemEndingSessions",
       "pamRotationHistoryColumnResult",
-      "pamRotationHistoryColumnTrigger",
+      "pamRotationHistoryColumnRotationTrigger",
     ]);
     expect(text()).not.toContain("pamRotationHistoryDurationLabel");
   });

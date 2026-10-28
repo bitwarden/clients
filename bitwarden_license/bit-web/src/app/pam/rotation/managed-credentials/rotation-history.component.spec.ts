@@ -678,7 +678,7 @@ describe("RotationHistoryComponent rendering", () => {
       expect(headers(fixture)).toEqual([
         "pamRotationAttemptStarted",
         "pamRotationHistoryColumnResult",
-        "pamRotationHistoryColumnTrigger",
+        "pamRotationHistoryColumnRotationTrigger",
         "details",
       ]);
     });
