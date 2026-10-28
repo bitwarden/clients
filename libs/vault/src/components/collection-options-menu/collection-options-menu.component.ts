@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId } from "@bitwarden/common/types/guid";
 import { IconButtonModule, IconModule, MenuModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -44,7 +42,7 @@ export class CollectionOptionsMenuComponent {
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
 
-  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getOptionalUserId);
 
   readonly collection = input.required<CollectionView>();
 
@@ -56,12 +54,11 @@ export class CollectionOptionsMenuComponent {
 
   readonly showPin = input<boolean>(false);
 
+  readonly showDelete = input<boolean>(true);
+
   protected readonly CollectionDialogTab = CollectionDialogTab;
 
-  private readonly pinnedIds = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.pinnedSharedFolders.pinnedIds$(userId))),
-    { initialValue: [] as CollectionId[] },
-  );
+  private readonly pinnedIds = this.pinnedSharedFolders.activePinnedIds;
 
   protected readonly showEditActions = computed(
     () => this.collectionDialog != null && this.collection().canEdit(this.organization()),
@@ -71,6 +68,7 @@ export class CollectionOptionsMenuComponent {
    * enabled right before `delete()`'s own `organization() == null` guard no-ops the click. */
   protected readonly showDeleteAction = computed(
     () =>
+      this.showDelete() &&
       this.bulkDeleteDialog != null &&
       this.organization() != null &&
       this.collection().canDelete(this.organization()),
@@ -89,6 +87,9 @@ export class CollectionOptionsMenuComponent {
   protected async togglePin(): Promise<void> {
     const collection = this.collection();
     const userId = await firstValueFrom(this.userId$);
+    if (userId == null) {
+      return;
+    }
     // Snapshotted `collection`, not a live re-read: the input can change mid-await.
     const pinned = this.pinnedIds().includes(collection.id);
     if (pinned) {

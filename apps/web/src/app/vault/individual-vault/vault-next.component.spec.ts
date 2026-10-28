@@ -388,7 +388,10 @@ describe("VaultNextComponent", () => {
             { provide: BULK_DELETE_DIALOG, useValue: bulkDeleteDialog },
             {
               provide: PinnedSharedFoldersService,
-              useValue: mock<PinnedSharedFoldersService>({ pinnedIds$: () => of([]) }),
+              useValue: mock<PinnedSharedFoldersService>({
+                pinnedIds$: () => of([]),
+                activePinnedIds: signal([]),
+              }),
             },
             { provide: ToastService, useValue: mock<ToastService>() },
           ],
