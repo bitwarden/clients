@@ -6,6 +6,8 @@
   [selection]="selection()"
   [loading]="!firstLoaded()"
 >
+  <bit-table-toolbar [rangeLabel]="rangeLabel"></bit-table-toolbar>
+
   <bit-status-lockup slot="empty">
     <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
     <span slot="title">{{ "noMembersInvitedToOrg" | i18n }}</span>
@@ -66,7 +68,7 @@
     </bit-cell>
   </bit-column>
 
-  <bit-table-paginator [pageSize]="10" [rangeLabel]="rangeLabel"></bit-table-paginator>
+  <bit-table-paginator [pageSize]="10"></bit-table-paginator>
 </bit-table-v2>
 
 <!-- The first name as a badge, then "+N" for the rest. -->

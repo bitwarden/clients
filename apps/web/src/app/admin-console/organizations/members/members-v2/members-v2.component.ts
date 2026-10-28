@@ -16,12 +16,13 @@ import {
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTablePaginatorComponent,
+  BitTableToolbarComponent,
   BitTableV2Component,
   defineTable,
   type SelectionConfig,
   StatusLockupComponent,
   SvgComponent,
-  type TablePaginatorRange,
+  type TableRowRange,
 } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -58,6 +59,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
     BitColumnComponent,
     BitHeaderCellComponent,
     BitTablePaginatorComponent,
+    BitTableToolbarComponent,
     BitTableV2Component,
     HeaderModule,
     SharedOrganizationModule,
@@ -145,7 +147,7 @@ export class MembersV2Component {
   protected readonly sortByCollections = (a: OrganizationUserView, b: OrganizationUserView) =>
     this.sortByFirstName(a.collectionNames, b.collectionNames);
 
-  protected readonly rangeLabel = ({ start, end, total }: TablePaginatorRange) => {
+  protected readonly rangeLabel = ({ start, end, total }: TableRowRange) => {
     if (total === 0) {
       return this.i18nService.t("memberCount", "0");
     }

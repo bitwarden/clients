@@ -490,17 +490,18 @@ controls, and a page input:
 
 <Canvas of={stories.Pagination} />
 
-To show which rows are on screen, pass a `[rangeLabel]` function. It gets the `start`, `end`, and
-`total` row numbers and returns the text shown beside the size select. You write the whole label, so
-you choose the noun and its plural forms and handle the empty case (`total` is 0):
+To show which rows are on screen, pass a `[rangeLabel]` function to the `<bit-table-toolbar>`. It
+gets the `start`, `end`, and `total` row numbers of the current page and returns the text shown at
+the end of the toolbar's filter row, in place of the default "N items" count. You write the whole
+label, so you choose the noun and its plural forms and handle the empty case (`total` is 0):
 
 ```ts
-rangeLabel = ({ start, end, total }: TablePaginatorRange) =>
+rangeLabel = ({ start, end, total }: TableRowRange) =>
   total === 0 ? "0 members" : `${start}–${end} of ${total} members`;
 ```
 
 ```html
-<bit-table-paginator [pageSize]="10" [rangeLabel]="rangeLabel" />
+<bit-table-toolbar [rangeLabel]="rangeLabel" /> <bit-table-paginator [pageSize]="10" />
 ```
 
 Pagination is **client-side** by default: the table pages its filtered and sorted rows, and the

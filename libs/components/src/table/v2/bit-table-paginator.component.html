@@ -1,23 +1,12 @@
 <div class="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-ps-5 tw-pe-3 tw-py-4">
-  <div class="tw-flex tw-items-center tw-gap-4">
-    <bit-form-field disableMargin class="tw-w-44 tw-shrink-0">
-      <bit-label class="tw-sr-only">{{ "rowsPerPage" | i18n }}</bit-label>
-      <bit-select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)">
-        @for (size of pageSizeOptions(); track size) {
-          <bit-option [value]="size" [label]="'rowsPerPageOption' | i18n: size"></bit-option>
-        }
-      </bit-select>
-    </bit-form-field>
-
-    @if (rangeText(); as text) {
-      <span
-        data-testid="paginator-range"
-        class="tw-text-sm tw-tabular-nums tw-text-fg-body-subtle tw-whitespace-nowrap"
-      >
-        {{ text }}
-      </span>
-    }
-  </div>
+  <bit-form-field disableMargin class="tw-w-44 tw-shrink-0">
+    <bit-label class="tw-sr-only">{{ "rowsPerPage" | i18n }}</bit-label>
+    <bit-select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)">
+      @for (size of pageSizeOptions(); track size) {
+        <bit-option [value]="size" [label]="'rowsPerPageOption' | i18n: size"></bit-option>
+      }
+    </bit-select>
+  </bit-form-field>
 
   <div class="tw-flex tw-items-center tw-gap-2">
     <button
