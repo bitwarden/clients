@@ -551,6 +551,20 @@ class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
   }
 }
 
+/**
+ * A toolbar `[rangeLabel]` for the demos: "1–10 of 39 items", with the empty and single-row cases
+ * worded on their own. A real consumer builds this from i18n messages.
+ */
+const itemRangeLabel = ({ start, end, total }: TableRowRange) => {
+  if (total === 0) {
+    return "0 items";
+  }
+  if (total === 1) {
+    return "1 item";
+  }
+  return `${start}–${end} of ${total} items`;
+};
+
 @Component({
   selector: "demo-kitchen-sink-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -570,7 +584,7 @@ class DemoFilterCoachmarkTableComponent extends DemoFilterableTableComponent {
   template: `
     <bit-layout>
       <bit-table-v2 [tableDef]="table" [filter]="filter">
-        <bit-table-toolbar>
+        <bit-table-toolbar [rangeLabel]="rangeLabel">
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
           <button
             bitButton
@@ -672,6 +686,8 @@ class DemoKitchenSinkTableComponent {
   protected readonly table = defineTable<VaultRow>(this.data);
 
   protected readonly pageSizeOptions = [5, 10, 25];
+
+  protected readonly rangeLabel = itemRangeLabel;
 
   protected readonly filter = (row: VaultRow, f: Partial<VaultFilters>) =>
     (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
@@ -2021,7 +2037,7 @@ async function searchForNothing(): Promise<void> {
 
 /**
  * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
- * action buttons, and a paginator. Useful for checking the responsive behaviour —
+ * action buttons, a range label, and a paginator. Useful for checking the responsive behaviour —
  * on a narrow toolbar the chip row collapses into the filter dialog and the action buttons
  * take a full-width row of their own, split evenly.
  */
@@ -2321,8 +2337,8 @@ const paginatedTable = defineTable<DemoRow>(
  * Project a `<bit-table-paginator>` and the table slices its filtered (and sorted)
  * rows to the page. The paginator owns the page state (`[(pageIndex)]`,
  * `[pageSize]`) and reads the total row count back from the table; the footer
- * shows a page-size select, prev/next, and a page input. A toolbar's `[rangeLabel]` shows
- * the rows on the current page.
+ * shows a page-size select, prev/next, and a page input. See {@link RangeLabel} to show
+ * which rows are on screen.
  */
 export const Pagination: Story = {
   render: () => ({
@@ -2330,12 +2346,9 @@ export const Pagination: Story = {
       table: paginatedTable,
       sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
       pageSizeOptions: [5, 10, 25],
-      rangeLabel: ({ start, end, total }: TableRowRange) =>
-        total === 0 ? "0 rows" : `${start}–${end} of ${total} rows`,
     },
     template: `
       <bit-table-v2 [tableDef]="table">
-        <bit-table-toolbar [rangeLabel]="rangeLabel"></bit-table-toolbar>
         <bit-column sortable defaultSort="asc" [sortFn]="sortFn">
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -2349,6 +2362,51 @@ export const Pagination: Story = {
           <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
         <bit-table-paginator [pageSize]="10" [pageSizeOptions]="pageSizeOptions"></bit-table-paginator>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+const rangeLabelTable = defineTable<DemoRow>(
+  signal([...Array(39).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` }))),
+);
+
+/**
+ * Pass a `[rangeLabel]` function to the `<bit-table-toolbar>` to show which rows are on screen at
+ * the end of its filter row, in place of the default "N items" count. It gets the current page's
+ * `start`, `end`, and `total` and returns the whole label, so the consumer owns the noun, its
+ * plural forms, and the empty case. The `start–end` run is emphasized.
+ *
+ * Page through to watch the range move; search `name-1` for a shorter list, `name-38` for a single
+ * row, or anything unmatched for the empty case.
+ */
+export const RangeLabel: Story = {
+  render: () => ({
+    props: {
+      table: rangeLabelTable,
+      sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
+      filter: (row: DemoRow, f: { search?: string }) =>
+        row.name.toLowerCase().includes((f.search ?? "").trim().toLowerCase()),
+      rangeLabel: itemRangeLabel,
+    },
+    template: `
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
+        <bit-table-toolbar [rangeLabel]="rangeLabel">
+          <bit-search placeholder="Search" aria-label="Search"></bit-search>
+        </bit-table-toolbar>
+        <bit-column sortable defaultSort="asc" [sortFn]="sortFn">
+          <bit-header-cell>Id</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+        </bit-column>
+        <bit-column sortable>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Other</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+        </bit-column>
+        <bit-table-paginator [pageSize]="10"></bit-table-paginator>
       </bit-table-v2>
     `,
   }),
