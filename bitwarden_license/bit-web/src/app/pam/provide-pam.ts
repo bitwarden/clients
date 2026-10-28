@@ -72,14 +72,7 @@ import {
   RotationSdkService,
 } from ".";
 
-/**
- * PAM-owned root-level providers. Consumed by the commercial web `AppModule` so
- * the shell imports a single function instead of enumerating each PAM provider
- * inline. Binds `AccessRuleSdkService` (the abstract CRUD contract from
- * `.`) to `AccessRulesSdkService`, which serves access-rule
- * CRUD via the Rust SDK's `commercial().pam().access_rules()` client, and
- * `CidrValidationService` to its SDK-backed default for the IP-allowlist editor.
- */
+/** PAM's root-level providers, including every OSS seam it fills. */
 export function providePam(): SafeProvider[] {
   return [
     safeProvider({
@@ -200,7 +193,6 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: AccessEventService,
-      // A factory, since the service takes the notification stream rather than the service.
       useFactory: (
         notificationsService: ServerNotificationsService,
         accountService: AccountService,
