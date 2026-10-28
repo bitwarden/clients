@@ -20,6 +20,7 @@ export class AutofillBadgeUpdaterService {
     private fillCipherPolicy: FillCipherPolicy,
     private badgeSettingsService: BadgeSettingsServiceAbstraction,
     private logService: LogService,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {}
 
   init() {
