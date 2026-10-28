@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -57,6 +58,7 @@ import { AccessConnectorId, TargetSystemId, TargetSystemView } from "../rotation
 import { rotationErrorMessage } from "../rotation-error";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
+import { lastSeenText, relativeTimeLabel } from "../rotation-relative-time";
 import { RowBusyTracker } from "../row-busy-tracker";
 import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -69,6 +71,8 @@ import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 export type AccessConnectorTabRow = AccessConnectorRow & {
   /** The i18n key for why the menu can't assign a target system now, or null when it can. */
   readonly assignTargetsBlockedKey: string | null;
+  /** The relative last-seen wording, or null when the design shows none and the cell shows a date. */
+  readonly lastSeenLabel: string | null;
 };
 
 @Component({
@@ -76,6 +80,7 @@ export type AccessConnectorTabRow = AccessConnectorRow & {
   templateUrl: "./access-connectors-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     ReactiveFormsModule,
     AsyncActionsModule,
     BadgeModule,
@@ -157,9 +162,15 @@ export class AccessConnectorsTabComponent {
   private readonly rows = computed<AccessConnectorTabRow[]>(() => {
     const eligible = this.automaticSystems();
     const known = this.targetSystemsKnown();
+    // Read once per rows change, so relative labels such as "5m ago" are not live-updating.
+    const now = Date.now();
     return this.serviceRows().map((row) => ({
       ...row,
       assignTargetsBlockedKey: this.assignTargetsBlockedKey(row, eligible, known),
+      lastSeenLabel:
+        row.lastSeenAtMs == null
+          ? null
+          : relativeTimeLabel(this.i18nService, lastSeenText(row.lastSeenAtMs, now)),
     }));
   });
 
@@ -171,6 +182,22 @@ export class AccessConnectorsTabComponent {
   protected readonly loadingTable = defineTable<AccessConnectorTabRow, "actions">(
     signal<AccessConnectorTabRow[]>([]),
   );
+  protected readonly sortByStatus = withNameTieBreak(
+    (a, b) => Number(b.enabled) - Number(a.enabled),
+  );
+
+  protected readonly sortByConnection = withNameTieBreak(
+    (a, b) => Number(b.isConnected) - Number(a.isConnected),
+  );
+
+  protected readonly sortByLastSeen = withNameTieBreak(
+    (a, b) => (a.lastSeenAtMs ?? -Infinity) - (b.lastSeenAtMs ?? -Infinity) || 0,
+  );
+
+  protected readonly sortByAssignments = withNameTieBreak(
+    (a, b) => a.assignmentNames.length - b.assignmentNames.length,
+  );
+
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
   protected readonly statusOptions = computed(() =>
@@ -448,4 +475,12 @@ function matchesFilter(row: AccessConnectorTabRow, filter: AccessConnectorFilter
     return false;
   }
   return true;
+}
+
+type RowComparator = (a: AccessConnectorTabRow, b: AccessConnectorTabRow) => number;
+
+/** Ties sort A to Z by name, flipped for descending so they stay A to Z either way. */
+function withNameTieBreak(compare: RowComparator) {
+  return (a: AccessConnectorTabRow, b: AccessConnectorTabRow, direction?: "asc" | "desc"): number =>
+    compare(a, b) || a.name.localeCompare(b.name) * (direction === "desc" ? -1 : 1);
 }

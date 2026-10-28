@@ -20630,6 +20630,15 @@
       }
     }
   },
+  "pamRotationRelativeHoursAgo": {
+    "message": "$COUNT$hr ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamRotationRelativeDaysAgo": {
     "message": "$COUNT$d ago",
     "placeholders": {
