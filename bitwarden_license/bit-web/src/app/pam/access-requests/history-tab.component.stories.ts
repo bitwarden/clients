@@ -1,8 +1,12 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideRouter, withHashLocation } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -19,6 +23,7 @@ import {
   liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
+  startClockAtStoryNow,
   storyNames,
 } from "../testing/story-fixtures";
 
@@ -30,10 +35,9 @@ const names = storyNames();
 
 /** The chip's menu renders in a CDK overlay on `document.body`, outside the story's canvas. */
 async function selectHistoryScope(canvasElement: HTMLElement, option: string): Promise<void> {
-  const trigger = canvasElement.querySelector<HTMLButtonElement>(
-    'bit-filter-menu button[title^="History scope"]',
-  )!;
-  await userEvent.click(trigger);
+  await userEvent.click(
+    await within(canvasElement).findByRole("button", { name: /^History scope/ }),
+  );
   // Scoped to the popover, since the chip also stamps each option into a hidden slot that an
   // unscoped query would match.
   const menu = await within(document.body).findByRole("dialog", { name: "History scope" });
@@ -173,12 +177,22 @@ function history(
 export default {
   title: "Web/PAM/Access Requests/History Tab",
   component: HistoryTabComponent,
+  beforeEach: startClockAtStoryNow,
   decorators: [
     applicationConfig({
       providers: [
         provideStoryChangeDetection(),
         importProvidersFrom(PreloadedEnglishI18nModule),
         provideStoryLogService(),
+        // The item links need a router; the wildcard and hash keep a click inside the story.
+        provideRouter([{ path: "**", children: [] }], withHashLocation()),
+        // `app-vault-icon` on each row reads these.
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     }),
   ],
