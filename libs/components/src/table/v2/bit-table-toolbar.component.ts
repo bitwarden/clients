@@ -358,6 +358,31 @@ export class BitTableToolbarComponent {
     return range && this.rangeLabel()?.(range);
   });
 
+  /**
+   * {@link rangeText} split around its "start–end" run (e.g. "1–10"), which renders emphasized.
+   * The run is found by its numbers so the consumer's wording and separator can vary by locale; a
+   * label without one (e.g. "0 members") renders whole in `before`.
+   */
+  protected readonly rangeParts = computed(() => {
+    const text = this.rangeText();
+    const range = this.table?.rowRange();
+    if (text == null || range == null) {
+      return undefined;
+    }
+    const match =
+      range.total > 0
+        ? new RegExp(`(?<!\\d)${range.start}\\D{1,3}${range.end}(?!\\d)`).exec(text)
+        : null;
+    if (match == null) {
+      return { before: text, range: "", after: "" };
+    }
+    return {
+      before: text.slice(0, match.index),
+      range: match[0],
+      after: text.slice(match.index + match[0].length),
+    };
+  });
+
   /** The count's width tracks its length, not its value — see the remeasure effect. */
   private readonly countLength = computed(
     () => (this.rangeText() ?? String(this.itemCount())).length,
