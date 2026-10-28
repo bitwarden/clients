@@ -208,10 +208,8 @@ describe("PolicyService", () => {
 
     it("delegates filtering to the SDK and maps the result back to Policy", async () => {
       const policies = [
-        new Policy(
-          policyData(policyId1, orgId1, PolicyType.MaximumVaultTimeout, true, { minutes: 30 }),
-        ),
-        new Policy(policyData(policyId2, orgId1, PolicyType.DisableSend, true)),
+        policyData(policyId1, orgId1, PolicyType.MaximumVaultTimeout, true, { minutes: 30 }),
+        policyData(policyId2, orgId1, PolicyType.DisableSend, true),
       ];
       newPolicyService.policies$.calledWith(userId).mockReturnValue(of(policies));
 
@@ -262,9 +260,7 @@ describe("PolicyService", () => {
     it("passes undefined to the SDK when a policy has no data", async () => {
       newPolicyService.policies$
         .calledWith(userId)
-        .mockReturnValue(
-          of([new Policy(policyData(policyId1, orgId1, PolicyType.DisableSend, true, null))]),
-        );
+        .mockReturnValue(of([policyData(policyId1, orgId1, PolicyType.DisableSend, true, null)]));
       organizationService.organizations$
         .calledWith(userId)
         .mockReturnValue(
@@ -283,9 +279,7 @@ describe("PolicyService", () => {
     it("maps an SDK Policy with no data back to a Policy with null data", async () => {
       newPolicyService.policies$
         .calledWith(userId)
-        .mockReturnValue(
-          of([new Policy(policyData(policyId1, orgId1, PolicyType.DisableSend, true))]),
-        );
+        .mockReturnValue(of([policyData(policyId1, orgId1, PolicyType.DisableSend, true)]));
 
       sdkService.client.policies.mockReturnValue({
         filter_by_type: jest.fn().mockReturnValue([
@@ -343,11 +337,17 @@ describe("PolicyService", () => {
 
   describe("policies$", () => {
     it("emits policies for confirmed organizations only and ignores accepted organizations", async () => {
-      const confirmedPolicy = new Policy(
-        policyData("policy1", "confirmedOrg", PolicyType.DisablePersonalVaultExport, true),
+      const confirmedPolicy = policyData(
+        "policy1",
+        "confirmedOrg",
+        PolicyType.DisablePersonalVaultExport,
+        true,
       );
-      const acceptedPolicy = new Policy(
-        policyData("policy2", "acceptedOrg", PolicyType.ActivateAutofill, true),
+      const acceptedPolicy = policyData(
+        "policy2",
+        "acceptedOrg",
+        PolicyType.ActivateAutofill,
+        true,
       );
       newPolicyService.policies$
         .calledWith(userId)
@@ -367,7 +367,7 @@ describe("PolicyService", () => {
 
       const result = await firstValueFrom(policyService.policies$(userId));
 
-      expect(result).toEqual([confirmedPolicy]);
+      expect(result).toEqual([new Policy(confirmedPolicy)]);
     });
 
     it("returns an empty array when there are no policies", async () => {
