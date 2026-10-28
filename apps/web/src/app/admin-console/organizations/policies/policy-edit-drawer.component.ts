@@ -12,9 +12,20 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControlStatus } from "@angular/forms";
-import { EMPTY, map, firstValueFrom, merge, switchMap, filter, of, startWith } from "rxjs";
+import {
+  EMPTY,
+  Subject,
+  map,
+  firstValueFrom,
+  merge,
+  shareReplay,
+  switchMap,
+  filter,
+  of,
+  startWith,
+} from "rxjs";
 import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -86,11 +97,27 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly loading = signal(true);
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
   protected readonly policyEnabled = signal(false);
+  /** Emits the policy component once its form has been populated with the loaded policy. */
+  private readonly loadedPolicyComponent$ = new Subject<BasePolicyEditComponent>();
   /**
    * Whether the policy form differs from its state when the dialog finished loading.
-   * Stays false until {@link trackPolicyChanges} has recorded the initial state.
+   * Stays false until {@link trackPolicyChanges} has recorded the initial state. Comparing against
+   * the initial form state, rather than the stored policy data, means policies that fill in
+   * defaults for unsaved data or transform data before saving don't appear changed as soon as
+   * they load.
    */
-  protected readonly policyChanged = signal(false);
+  protected readonly policyChanged$ = this.loadedPolicyComponent$.pipe(
+    switchMap((component) => {
+      const initialState = serializePolicyForm(component);
+      return merge(component.enabled.valueChanges, component.data?.valueChanges ?? EMPTY).pipe(
+        map(() => serializePolicyForm(component) !== initialState),
+      );
+    }),
+    startWith(false),
+    takeUntilDestroyed(this.destroyRef),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+  protected readonly policyChanged = toSignal(this.policyChanged$, { initialValue: false });
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
@@ -123,24 +150,12 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
     });
   }
 
-  /**
-   * Records the policy form's initial state and keeps {@link policyChanged} up to date as it is
-   * edited. Comparing against the initial form state, rather than the stored policy data, means
-   * policies that fill in defaults for unsaved data or transform data before saving don't appear
-   * changed as soon as they load.
-   */
-  protected async trackPolicyChanges(component: BasePolicyEditComponent): Promise<void> {
-    await component.whenInitialized();
-    // Flush any form updates (e.g. from effects) triggered while initializing.
+  /** Records the policy form's initial state so that {@link policyChanged$} tracks edits to it. */
+  protected trackPolicyChanges(component: BasePolicyEditComponent): void {
+    // Run the policy component's ngOnInit and effects so the form is populated before recording
+    // its initial state.
     this.cdr.detectChanges();
-
-    const initialState = serializePolicyForm(component);
-    merge(component.enabled.valueChanges, component.data?.valueChanges ?? EMPTY)
-      .pipe(
-        map(() => serializePolicyForm(component) !== initialState),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((changed) => this.policyChanged.set(changed));
+    this.loadedPolicyComponent$.next(component);
   }
 
   protected isFormDirty(): boolean {
@@ -339,7 +354,7 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
 
     this.cdr.detectChanges();
     this.setupDiscardGuard();
-    await this.trackPolicyChanges(component);
+    this.trackPolicyChanges(component);
   }
 
   override readonly submit = async () => {

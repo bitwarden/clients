@@ -149,27 +149,21 @@ describe("PolicyEditDrawerComponent", () => {
     expect(saveDisabled()).toBe(false);
   });
 
-  it("disables Save for a never-saved SendControlsPolicy after the feature flag resolves", async () => {
-    let emitFlag!: (value: boolean) => void;
-    const flag$ = new Observable<boolean>((subscriber) => {
-      emitFlag = (value) => subscriber.next(value);
-    });
-    const { fixture, saveDisabled, policyComponent } = await setup(
-      new SendControlsPolicy(),
-      neverSaved(),
-      flag$,
-    );
+  it.each([true, false])(
+    "disables Save for a never-saved SendControlsPolicy with temporary item sharing %s",
+    async (flagEnabled) => {
+      const { saveDisabled, policyComponent } = await setup(
+        new SendControlsPolicy(),
+        neverSaved(),
+        of(flagEnabled),
+      );
 
-    // The default Send types change once the flag resolves, which must not count as an edit.
-    emitFlag(true);
-    await fixture.whenStable();
-    fixture.detectChanges();
+      expect(saveDisabled()).toBe(true);
 
-    expect(saveDisabled()).toBe(true);
-
-    policyComponent().data.controls.disableHideEmail.setValue(true);
-    expect(saveDisabled()).toBe(false);
-  });
+      policyComponent().data.controls.disableHideEmail.setValue(true);
+      expect(saveDisabled()).toBe(false);
+    },
+  );
 
   it("disables Save for a saved FillAssistPolicy whose stored URL is transformed for display", async () => {
     const { saveDisabled, policyComponent } = await setup(

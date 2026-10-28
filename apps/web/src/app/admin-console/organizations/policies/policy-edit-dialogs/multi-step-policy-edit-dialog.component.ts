@@ -83,8 +83,6 @@ export class MultiStepPolicyEditDialogComponent
     return this.terminology.enabled() ? next : legacy;
   });
 
-  private readonly policyChanged$ = toObservable(this.policyChanged);
-
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
       switchMap((stepConfig) => {
@@ -162,7 +160,7 @@ export class MultiStepPolicyEditDialogComponent
     this.policySteps.set(component.policySteps ?? []);
 
     this.setupDiscardGuard();
-    await this.trackPolicyChanges(component);
+    this.trackPolicyChanges(component);
   }
 
   override readonly submit = async () => {

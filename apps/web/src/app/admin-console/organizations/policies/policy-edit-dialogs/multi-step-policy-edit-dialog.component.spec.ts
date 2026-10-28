@@ -8,7 +8,7 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
 import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
@@ -105,6 +105,13 @@ describe("MultiStepPolicyEditDialogComponent", () => {
   function setupSteps(steps: PolicyStep[]) {
     (component as any).policySteps.set(steps);
     (component as any).policyComponent.set(policyComponent);
+  }
+
+  /** Records the policy form's initial state, then edits it. */
+  function changePolicy() {
+    policyComponent.enabled = new FormControl(false, { nonNullable: true });
+    (component as any).loadedPolicyComponent$.next(policyComponent);
+    policyComponent.enabled.setValue(true);
   }
 
   describe("submit()", () => {
@@ -227,7 +234,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
 
     it("is false when step has no disableSave, the policy changed, and policyComponent has no data", () => {
       policyComponent.data = undefined;
-      (component as any).policyChanged.set(true);
+      changePolicy();
       setupSteps([{}]);
       TestBed.flushEffects();
 
@@ -236,7 +243,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
 
     it("is false when step has no disableSave, the policy changed, and the data form is valid", () => {
       policyComponent.data = new UntypedFormGroup({});
-      (component as any).policyChanged.set(true);
+      changePolicy();
       setupSteps([{}]);
       TestBed.flushEffects();
 
