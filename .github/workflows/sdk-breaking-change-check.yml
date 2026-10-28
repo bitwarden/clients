@@ -22,22 +22,20 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: read
-  actions: read
-  id-token: write
+permissions: {}
 
 jobs:
-  type-check:
-    name: TypeScript compatibility check
+  download-sdk:
+    name: Download SDK artifact
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 5
+    permissions:
+      id-token: write
     env:
       _SOURCE_REPO: ${{ github.event.inputs.source_repo }}
-      _SDK_VERSION: ${{ github.event.inputs.sdk_version }}
       _ARTIFACTS_RUN_ID: ${{ github.event.inputs.artifacts_run_id }}
       _ARTIFACT_NAME: ${{ github.event.inputs.artifact_name }}
-      
+
     steps:
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -63,6 +61,41 @@ jobs:
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
+      - name: Download SDK artifacts
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          run_id: ${{ env._ARTIFACTS_RUN_ID }}
+          artifacts: ${{ env._ARTIFACT_NAME }}
+          repo: ${{ env._SOURCE_REPO }}
+          path: ./sdk-internal
+          if_no_artifact_found: fail
+
+      # The SDK package can be built from a fork pull request, so it is only type-checked in a
+      # separate job without secrets or an OIDC token.
+      - name: Upload SDK package
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sdk-internal-package
+          path: ./sdk-internal
+          retention-days: 1
+          if-no-files-found: error
+
+  type-check:
+    name: TypeScript compatibility check
+    needs: download-sdk
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      _SOURCE_REPO: ${{ github.event.inputs.source_repo }}
+      _SDK_VERSION: ${{ github.event.inputs.sdk_version }}
+      _ARTIFACTS_RUN_ID: ${{ github.event.inputs.artifacts_run_id }}
+
+    steps:
       - name: Check out clients repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -106,17 +139,11 @@ jobs:
              exit 1
           fi
 
-      - name: Download SDK artifacts
-        uses: bitwarden/gh-actions/download-artifacts@main
+      - name: Download SDK package
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          workflow: build-wasm-internal.yml
-          workflow_conclusion: success
-          run_id: ${{ env._ARTIFACTS_RUN_ID }}
-          artifacts: ${{ env._ARTIFACT_NAME }}
-          repo: ${{ env._SOURCE_REPO }}
+          name: sdk-internal-package
           path: ./sdk-internal
-          if_no_artifact_found: fail
 
       - name: Override SDK using npm link
         working-directory: ./
@@ -129,7 +156,9 @@ jobs:
           ls -la ./sdk-internal/
 
           echo "🔗 Creating npm link to SDK package..."
-          if ! npm link ./sdk-internal; then
+          # The package may come from a fork pull request, so nothing in it may run: no lifecycle
+          # scripts, and no bin entries that could shadow commands on PATH.
+          if ! npm link --ignore-scripts --no-bin-links ./sdk-internal; then
             echo "::error::Failed to link SDK package"
             exit 1
           fi

@@ -24,7 +24,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
@@ -55,6 +54,7 @@ import {
 
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { InvoicePreviewService } from "../services/invoice-preview.service";
+import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
 
 export type RestartSubscriptionDialogParams = {
   organizationId: string;
@@ -88,17 +88,6 @@ const isSameRestartRequest = (
   a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
   a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
   a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value;
-
-// A 400 means the server rejected the request's billing address; anything else is a generic
-// preview failure. The resource wraps a non-Error rejection (ErrorResponse isn't an Error) and
-// puts the original on `cause`, so unwrap that before reading the status.
-const getPreviewErrorMessageKey = (error: unknown): string => {
-  const response =
-    error instanceof ErrorResponse ? error : (error as { cause?: unknown } | undefined)?.cause;
-  return response instanceof ErrorResponse && response.statusCode === 400
-    ? "billingPreviewInvalidAddressError"
-    : "invoicePreviewErrorMessage";
-};
 
 @Component({
   templateUrl: "./restart-subscription-dialog.component.html",
@@ -193,7 +182,7 @@ export class RestartSubscriptionDialogComponent implements OnInit {
         );
       } catch (error) {
         this.billingNotificationService.showError(
-          this.i18nService.t(getPreviewErrorMessageKey(error)),
+          this.i18nService.t(invoicePreviewErrorMessageKey(error)),
         );
         throw error;
       }
@@ -201,7 +190,7 @@ export class RestartSubscriptionDialogComponent implements OnInit {
   });
 
   protected readonly previewErrorMessageKey = computed(() =>
-    getPreviewErrorMessageKey(this.restartCart.error()),
+    invoicePreviewErrorMessageKey(this.restartCart.error()),
   );
 
   // Retrying an address the server rejected would fail the same way; the user has to edit it.
