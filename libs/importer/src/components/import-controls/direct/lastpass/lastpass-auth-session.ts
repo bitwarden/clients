@@ -144,7 +144,7 @@ export class LastPassAuthSession implements LastPassLoginSession {
     }
     return new Promise<OtpResult>((resolve) => {
       this.pending = {
-        submit: (passcode) => resolve(new OtpResult(passcode, false)),
+        submit: (passcode) => resolve(new OtpResult(passcode)),
         cancel: () => resolve(OtpResult.cancel),
         isCode: true,
       };
@@ -158,7 +158,7 @@ export class LastPassAuthSession implements LastPassLoginSession {
     }
     return new Promise<OobResult>((resolve) => {
       this.pending = {
-        submit: (passcode) => resolve(new OobResult(false, passcode, false)),
+        submit: (passcode) => resolve(new OobResult(false, passcode)),
         cancel: () => resolve(OobResult.cancel),
         isCode: true,
       };

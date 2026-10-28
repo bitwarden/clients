@@ -1,0 +1,63 @@
+import { RunGuardsAndResolvers, Routes } from "@angular/router";
+
+import { unsavedChangesDialogGuard } from "../unsaved-changes.guard";
+
+import { AccessConnectorsService } from "./access-connectors/access-connectors.service";
+import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
+import { RotationConfigEditComponent } from "./managed-credentials/rotation-config-edit.component";
+import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
+import { OrgCiphersService } from "./org-ciphers.service";
+import { ROTATION_TABS } from "./rotation-links";
+import { RotationShellComponent } from "./rotation-shell.component";
+import { TargetSystemsService } from "./target-systems/target-systems.service";
+
+/** Whether a navigation off a detail page leaves the record it was editing behind. */
+const recordChanged =
+  (param: string): RunGuardsAndResolvers =>
+  (from, to) =>
+    from.params[param] !== to.params[param];
+
+/**
+ * Form and detail pages are siblings of the shell, with their own header and no tab bar. The
+ * shell route provides the page-scoped services, so the shell and its tabs share one load.
+ */
+export const rotationRoutes: Routes = [
+  // Declared before the shell so literal paths win over its catch-all ("").
+  {
+    path: `${ROTATION_TABS.managedCredentials}/new`,
+    component: RotationConfigEditComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    data: { titleId: "pamRotationConfigCreateTitle" },
+  },
+  // The edit page's tabs are routed, so each is deep-linkable. Angular reuses the component
+  // across a `:tab` change, so a tab switch keeps unsaved input without a reload.
+  {
+    path: `${ROTATION_TABS.managedCredentials}/:configId`,
+    pathMatch: "full",
+    redirectTo: `${ROTATION_TABS.managedCredentials}/:configId/configuration`,
+  },
+  {
+    path: `${ROTATION_TABS.managedCredentials}/:configId/:tab`,
+    component: RotationConfigEditComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    runGuardsAndResolvers: recordChanged("configId"),
+    data: { titleId: "pamRotationConfigEditTitle" },
+  },
+  {
+    path: "",
+    component: RotationShellComponent,
+    providers: [
+      RotationConfigsService,
+      TargetSystemsService,
+      AccessConnectorsService,
+      OrgCiphersService,
+    ],
+    children: [
+      {
+        path: ROTATION_TABS.managedCredentials,
+        component: ManagedCredentialsTabComponent,
+        data: { titleId: "pamRotationTabManagedCredentials" },
+      },
+    ],
+  },
+];
