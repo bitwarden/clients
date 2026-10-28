@@ -5,7 +5,7 @@ import {
   InvoicePreview,
   InvoicePreviewItem,
   PurchasableProration,
-  PurchasableReference,
+  SeatReference,
 } from "../../types/invoice-preview";
 
 import { InvoicePreviewFlowContext } from "./invoice-preview-flow-context";
@@ -34,6 +34,22 @@ const ProrationChargePlacements = {
 } as const;
 type ProrationChargePlacement =
   (typeof ProrationChargePlacements)[keyof typeof ProrationChargePlacements];
+
+const DiscountPlacements = {
+  CartLevel: "cart-level",
+  LineLevel: "line-level",
+} as const;
+type DiscountPlacement = (typeof DiscountPlacements)[keyof typeof DiscountPlacements];
+
+const getDiscountPlacement = (flowContext: InvoicePreviewFlowContext): DiscountPlacement => {
+  switch (flowContext) {
+    case InvoicePreviewFlowContext.PersonalCheckout:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
+      return DiscountPlacements.CartLevel;
+    default:
+      return DiscountPlacements.LineLevel;
+  }
+};
 
 /**
  * Determines where a proration charge should be placed in the cart based on the flow context.
@@ -66,7 +82,8 @@ export const adaptInvoicePreviewToCart = (
   logService: LogService,
   options: AdaptInvoicePreviewOptions = {},
 ): Cart => {
-  const { passwordManager, secretsManager, planTier } = preview;
+  const { passwordManager, secretsManager, privilegedControls, planTier } = preview;
+  const keepLineDiscounts = getDiscountPlacement(flowContext) === DiscountPlacements.LineLevel;
 
   const toCartItem = (item: InvoicePreviewItem, hideBreakdown: boolean = false): CartItem => ({
     translationKey: getCartItemTranslationKey(
@@ -80,18 +97,30 @@ export const adaptInvoicePreviewToCart = (
     cost: item.cost,
     // Discounts pass through untouched: the server's `amount` is authoritative and the renderer
     // does not cascade per-line discounts.
-    ...(item.discounts ? { discounts: item.discounts } : {}),
+    ...(keepLineDiscounts && item.discounts ? { discounts: item.discounts } : {}),
     ...(hideBreakdown ? { hideBreakdown: true } : {}),
   });
+
+  const hoistedLineDiscounts = keepLineDiscounts
+    ? []
+    : [
+        passwordManager.seats,
+        passwordManager.additionalStorage,
+        secretsManager?.seats,
+        secretsManager?.additionalServiceAccounts,
+        privilegedControls?.seats,
+      ].flatMap((item) => item?.discounts ?? []);
+  const discounts = [...(preview.discounts ?? []), ...hoistedLineDiscounts];
 
   /**
    * Constructs a proration charge line for the cart.
    */
-  const chargeLine = (
-    proration: PurchasableProration,
-    seatReference: PurchasableReference,
-  ): CartItem => ({
-    translationKey: getProrationChargeTranslationKey(proration.reference, seatReference),
+  const chargeLine = (proration: PurchasableProration, seatReference: SeatReference): CartItem => ({
+    translationKey: getProrationChargeTranslationKey(
+      proration.reference,
+      seatReference,
+      logService,
+    ),
     quantity: 1,
     cost: proration.charge,
     hideBreakdown: true,
@@ -104,7 +133,7 @@ export const adaptInvoicePreviewToCart = (
    */
   const derivedSeatLine = (
     prorations: PurchasableProration[] | undefined,
-    seatReference: PurchasableReference,
+    seatReference: SeatReference,
   ): CartItem | undefined => {
     const cost = sumInCents((prorations ?? []).map((proration) => proration.charge));
     if (cost <= 0) {
@@ -132,7 +161,7 @@ export const adaptInvoicePreviewToCart = (
   const buildGroup = (
     item: InvoicePreviewItem | undefined,
     prorations: PurchasableProration[] | undefined,
-    seatReference: PurchasableReference,
+    seatReference: SeatReference,
   ): { seats?: CartItem; prorationCharges?: CartItem[] } => {
     const placement = getProrationChargePlacement(flowContext);
 
@@ -164,6 +193,9 @@ export const adaptInvoicePreviewToCart = (
   const sm = secretsManager
     ? buildGroup(secretsManager.seats, secretsManager.prorations, "sm-seat")
     : {};
+  const pc = privilegedControls
+    ? buildGroup(privilegedControls.seats, privilegedControls.prorations, "pam-seat")
+    : {};
 
   const proratedMonths = passwordManager.prorations?.[0]?.months ?? 0;
 
@@ -185,11 +217,14 @@ export const adaptInvoicePreviewToCart = (
     pm.seats == null &&
     passwordManager.additionalStorage == null &&
     sm.seats == null &&
-    secretsManager?.additionalServiceAccounts == null;
+    secretsManager?.additionalServiceAccounts == null &&
+    pc.seats == null;
 
   const oneTimePlanChange =
     flowContext === InvoicePreviewFlowContext.OrganizationPlanChange &&
-    (hasProrations(passwordManager.prorations) || hasProrations(secretsManager?.prorations));
+    (hasProrations(passwordManager.prorations) ||
+      hasProrations(secretsManager?.prorations) ||
+      hasProrations(privilegedControls?.prorations));
   const hidePricingTerm = allProrationInvoice || oneTimePlanChange;
 
   const cart: Cart = {
@@ -214,9 +249,17 @@ export const adaptInvoicePreviewToCart = (
           },
         }
       : {}),
+    ...(pc.seats || pc.prorationCharges
+      ? {
+          privilegedControls: {
+            ...(pc.seats ? { seats: pc.seats } : {}),
+            ...(pc.prorationCharges ? { prorationCharges: pc.prorationCharges } : {}),
+          },
+        }
+      : {}),
     cadence: preview.cadence,
     ...(hidePricingTerm ? { hidePricingTerm: true } : {}),
-    ...(preview.discounts ? { discounts: preview.discounts } : {}),
+    ...(discounts.length ? { discounts } : {}),
     estimatedTax: preview.estimatedTax,
     total: preview.total,
   };
@@ -245,7 +288,7 @@ const sumInCents = (amounts: number[]): number =>
   amounts.reduce((sum, amount) => sum + Math.round(amount * 100), 0) / 100;
 
 /**
- * Collapses every proration across both product groups into at most one credit row. The row is
+ * Collapses every proration across every product group into at most one credit row. The row is
  * emitted only when the total is positive AND the flow context actually renders credit.
  */
 const buildCreditRow = (
@@ -261,6 +304,7 @@ const buildCreditRow = (
     [
       ...(preview.passwordManager.prorations ?? []),
       ...(preview.secretsManager?.prorations ?? []),
+      ...(preview.privilegedControls?.prorations ?? []),
     ].map((proration) => proration.credit),
   );
 

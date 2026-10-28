@@ -2,7 +2,6 @@ import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CommandDefinition } from "@bitwarden/common/platform/messaging";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillMessageCommand } from "../../enums/autofill-message.enums";
@@ -10,33 +9,13 @@ import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { FillResult } from "../../types/fill-result";
 
 export interface PageDetail {
   frameId: number;
   tab: chrome.tabs.Tab;
   details: AutofillPageDetails;
 }
-
-/**
- * The outcome of an autofill attempt.
- *
- * @example
- * const result = await autofillService.doAutoFill(options);
- * if (result.didAutofill && result.totp != null) {
- *   copyToClipboard(result.totp);
- * }
- */
-export type AutoFillResult =
-  | {
-      /** Whether a fill script was dispatched to at least one frame. */
-      didAutofill: false;
-    }
-  | {
-      /** Whether a fill script was dispatched to at least one frame. */
-      didAutofill: true;
-      /** The TOTP code to copy after a successful login fill; absent when the fill produced no TOTP. */
-      totp?: string;
-    };
 
 export interface AutoFillOptions {
   cipher: CipherView;
@@ -117,21 +96,14 @@ export abstract class AutofillService {
   ) => Promise<void>;
   /** Non-null asserted. */
   getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
-  /** Non-null asserted. */
-  doAutoFill!: (options: AutoFillOptions) => Promise<AutoFillResult>;
-  /** Non-null asserted. */
-  doAutoFillOnTab!: (
-    pageDetails: PageDetail[],
-    tab: chrome.tabs.Tab,
-    fromCommand: boolean,
-    autoSubmitLogin?: boolean,
-  ) => Promise<AutoFillResult>;
-  /** Non-null asserted. */
-  doAutoFillActiveTab!: (
-    pageDetails: PageDetail[],
-    fromCommand: boolean,
-    cipherType?: CipherType,
-  ) => Promise<AutoFillResult>;
+  /**
+   * Fills a concrete cipher into the instructed tab/frame(s) and reports the
+   * outcome. Cipher selection and active-tab verification are the caller's concern.
+   *
+   * If you're calling this method, you're probably doing it wrong. Use the
+   * {@link AutofillOrchestrator} to request an autofill!
+   */
+  doAutoFill!: (options: AutoFillOptions) => Promise<FillResult>;
   /** Non-null asserted. */
   setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
   /** Non-null asserted. */
@@ -140,5 +112,4 @@ export abstract class AutofillService {
     tab: chrome.tabs.Tab,
     action?: string,
   ) => Promise<boolean>;
-  getTotpCopyCode!: (cipher: CipherView) => Promise<string | undefined>;
 }

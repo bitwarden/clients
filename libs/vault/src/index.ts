@@ -6,6 +6,7 @@ export {
 export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
 export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
+export { PinnedSharedFoldersService } from "./services/pinned-shared-folders.service";
 export {
   CopyCipherFieldService,
   CopyAction,
@@ -35,6 +36,13 @@ export { truncateFilename } from "./components/truncated-filename/truncate-filen
 export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export {
+  NewExperienceDialogComponent,
+  NewExperienceDialogParams,
+  NewExperienceDialogResult,
+  NEW_EXPERIENCE_LEARN_MORE_URL,
+} from "./components/new-experience-dialog/new-experience-dialog.component";
+export { NewExperienceDialogService } from "./services/new-experience-dialog.service";
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export { VaultViewPasswordHistoryService } from "./services/view-password-history.service";
@@ -42,12 +50,14 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
 export * from "./components/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 export * from "./components/my-folders/my-folders.component";
+export { MyFolderBreadcrumbsComponent } from "./components/my-folders/my-folder-breadcrumbs.component";
+export { MyFolderMenuComponent } from "./components/my-folders/my-folder-menu.component";
 export * from "./components/add-item-grid/add-item-grid.component";
 export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
-export { SharedFolderCardGridComponent } from "./components/shared-folder-card-grid/shared-folder-card-grid.component";
+export { CardGridComponent } from "./components/card-grid/card-grid.component";
 export * from "./components/show-quick-copy-actions-details-popover/show-quick-copy-actions-details-popover.component";
 export * from "./components/vault-items-transfer";
 export { VaultItem, compareVaultItems } from "./components/vault-item";
@@ -123,6 +133,9 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
+export { CIPHER_VIEW_BANNER, type CipherViewBanner } from "./tokens/cipher-view-banner.token";
+export { ITEM_DETAILS_BADGE, type ItemDetailsBadge } from "./tokens/item-details-badge.token";
+
 export {
   COLLECTION_DIALOG,
   CollectionDialogOpenParams,
@@ -132,6 +145,10 @@ export {
 } from "./tokens/collection-dialog.token";
 
 export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
+export {
+  VAULT_NAV_ORGANIZATION_OPTIONS,
+  VaultNavOrganizationOptions,
+} from "./tokens/vault-nav-organization-options.token";
 
 export {
   VaultBatchBarService,
@@ -140,11 +157,13 @@ export {
 } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 
+export * from "./components/coachmark";
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { organizationVaultGuard } from "./routing/organization-vault.guard";
-export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
+export { MY_ITEMS_ROUTE_DATA } from "./routing/scoped-collection";
+export { routeVaultScope } from "./routing/route-vault-scope";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
@@ -161,3 +180,5 @@ export {
 export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";
 export * from "./directives/remount-on.directive";
 export { VAULT_RENDERED_MARK } from "./utils/vault-performance";
+export { VaultTourCalloutComponent } from "./components/vault-tour-callout/vault-tour-callout.component";
+export { Vfo1TourCalloutService } from "./services/vfo1-tour-callout.service";

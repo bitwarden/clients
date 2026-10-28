@@ -1,0 +1,19 @@
+@if (instructionKey() || instructionLink()) {
+  <bit-callout type="info" class="[&_aside]:!tw-py-1">
+    @if (instructionKey(); as key) {
+      {{ key | i18n }}
+    }
+    @if (instructionLink(); as link) {
+      {{ "importHelpCenterInstructions" | i18n: vendorName() }}
+      <a
+        bitLink
+        linkType="primary"
+        target="_blank"
+        rel="noreferrer"
+        [href]="link"
+        endIcon="bwi-external-link"
+        >{{ "importHelpCenterLinkText" | i18n }}</a
+      >
+    }
+  </bit-callout>
+}

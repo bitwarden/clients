@@ -2,11 +2,14 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { isGuid } from "@bitwarden/guid";
+
+import { sharedFolderName } from "../utils/shared-folder-name";
 
 import { VaultNavItemType, VaultsNavViewModel } from "./vault-nav-view-model";
 
@@ -44,12 +47,23 @@ export const TRASH_ROUTE = "trash";
 /** The `:vaultId` route segment for archived items. */
 export const ARCHIVE_ROUTE = "archive";
 
+/**
+ * The top-level route segment for the user's own folders: the My folders list at `/folders`, and
+ * one folder's page at `/folders/:folderId`. Unlike the segments above it does not hang off
+ * `:vaultId`, because a folder belongs to the user rather than to any one vault.
+ */
+export const FOLDERS_ROUTE = "folders";
+
+/** The route param carrying a folder's id on its page, at `/folders/:folderId`. */
+export const FOLDER_ID_PARAM = "folderId";
+
 export const VaultScopeType = Object.freeze({
   AllItems: "allItems",
   MyVault: "myVault",
   Organization: "organization",
   Trash: "trash",
   Archive: "archive",
+  Folder: "folder",
 } as const);
 export type VaultScopeType = (typeof VaultScopeType)[keyof typeof VaultScopeType];
 
@@ -82,7 +96,11 @@ export type VaultScope =
       collectionId?: ScopedCollectionId;
     }
   | { type: typeof VaultScopeType.Trash }
-  | { type: typeof VaultScopeType.Archive };
+  | { type: typeof VaultScopeType.Archive }
+  | {
+      type: typeof VaultScopeType.Folder;
+      folderId: string;
+    };
 
 export const ALL_ITEMS_SCOPE: VaultScope = { type: VaultScopeType.AllItems };
 
@@ -143,6 +161,8 @@ function vaultScopeTitleKey(scope: VaultScope, nav: VaultsNavViewModel | undefin
       return "trash";
     case VaultScopeType.Archive:
       return "archiveNoun";
+    case VaultScopeType.Folder:
+      return null;
     case VaultScopeType.Organization: {
       const page = organizationVaultPage(scope, nav);
       return page == null ? null : ORGANIZATION_PAGE_TITLE_KEYS[page];
@@ -191,7 +211,14 @@ const NAMED_SCOPES = new Map<string, VaultScope>([
 export function parseVaultScope(
   segment: string | null | undefined,
   collectionSegment?: string | null,
+  folderSegment?: string | null,
 ): VaultScope | null {
+  if (folderSegment != null) {
+    return segment == null && collectionSegment == null && isGuid(folderSegment)
+      ? { type: VaultScopeType.Folder, folderId: folderSegment }
+      : null;
+  }
+
   const scope = parseVaultSegment(segment);
 
   if (collectionSegment == null) {
@@ -236,6 +263,11 @@ export function isPersonalOnly(nav: VaultsNavViewModel): boolean {
   return nav.vaults.length === 1 && !nav.organizationDataOwnership;
 }
 
+/** Whether the nav lists several vaults under a "Vaults" header; data ownership lists orgs without one. */
+export function showsVaultsSection(nav: VaultsNavViewModel): boolean {
+  return nav.vaults.length > 1 && !nav.organizationDataOwnership;
+}
+
 /**
  * The id of an organization's "My items" collection, as the nav holds it. `undefined` when the
  * account's vaults have yet to load, when the organization is not one of them, or when it has no
@@ -251,7 +283,7 @@ export function defaultUserCollectionId(
 }
 
 /**
- * {@link parseVaultScope}, with the two segments only the nav can resolve given their answer:
+ * A {@link parseVaultScope} answer, with the two segments only the nav can resolve given theirs:
  * All items becomes My vault for an {@link isPersonalOnly} account — the same destination for them,
  * so branching on the scope type gives one answer whichever of the two URLs they arrived by — and
  * a {@link MY_ITEMS_ROUTE} collection segment becomes the id of the organization's "My items"
@@ -266,12 +298,9 @@ export function defaultUserCollectionId(
  * `null` the way an unknown vault segment does.
  */
 export function resolveVaultScope(
-  segment: string | null | undefined,
-  collectionSegment: string | null | undefined,
+  scope: VaultScope | null,
   nav: VaultsNavViewModel | undefined,
 ): VaultScope | null {
-  const scope = parseVaultScope(segment, collectionSegment);
-
   if (scope?.type === VaultScopeType.AllItems && nav != null && isPersonalOnly(nav)) {
     return { type: VaultScopeType.MyVault };
   }
@@ -319,6 +348,8 @@ export function vaultScopeCommands(
       return [basePath, TRASH_ROUTE];
     case VaultScopeType.Archive:
       return [basePath, ARCHIVE_ROUTE];
+    case VaultScopeType.Folder:
+      return folderCommands(scope.folderId);
     default:
       return [basePath];
   }
@@ -332,6 +363,10 @@ export function vaultScopeCommands(
  * from, since the two show different rows.
  */
 export function scopeKey(scope: VaultScope): string {
+  if (scope.type === VaultScopeType.Folder) {
+    return `${scope.type}/${scope.folderId}`;
+  }
+
   if (scope.type !== VaultScopeType.Organization) {
     return scope.type;
   }
@@ -356,6 +391,16 @@ export function sharedFoldersCommands(organizationId: OrganizationId): string[] 
   ];
 }
 
+/** The `Router.navigate` commands for the My folders list. */
+export function foldersListCommands(): string[] {
+  return [`/${FOLDERS_ROUTE}`];
+}
+
+/** The `Router.navigate` commands for one of the user's folders. */
+export function folderCommands(folderId: string): string[] {
+  return [`/${FOLDERS_ROUTE}`, folderId];
+}
+
 /**
  * Cipher ids are branded SDK types on `CipherListView` but plain strings on `CipherView`, so an
  * organization id read off `CipherViewLike` needs widening before it can be compared.
@@ -371,6 +416,21 @@ const idString = (id: unknown): string | undefined => (id == null ? undefined : 
  */
 export function scopedSharedFolderId(scope: VaultScope): ScopedCollectionId | undefined {
   return scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
+}
+
+/** The folder the scope names, or `undefined` for any scope that isn't a folder's page. */
+export function scopedFolderId(scope: VaultScope): string | undefined {
+  return scope.type === VaultScopeType.Folder ? scope.folderId : undefined;
+}
+
+/** The own name of the folder the scope names, or `undefined` if {@link folders} doesn't hold it. */
+export function folderNameForScope(
+  scope: VaultScope,
+  folders: readonly FolderView[],
+): string | undefined {
+  const folderId = scopedFolderId(scope);
+  const folder = folderId ? folders.find((candidate) => candidate.id === folderId) : undefined;
+  return folder?.name ? sharedFolderName(folder) : undefined;
 }
 
 /** Whether the scope is the personal vault — drives the empty vault's "My vault" copy. */
@@ -414,17 +474,19 @@ export function organizationNameForScope(
 }
 
 /**
- * The shared folder the scope has drilled into, by name — `undefined` unless the scope names a
- * collection {@link collections} can resolve. See {@link scopedSharedFolderId}.
+ * The shared folder the scope has drilled into, by its own name without its parent path (see
+ * {@link sharedFolderName}) — `undefined` unless the scope names a collection {@link collections}
+ * can resolve. See {@link scopedSharedFolderId}.
  */
 export function sharedFolderNameForScope(
   scope: VaultScope,
   collections: readonly CollectionView[],
 ): string | undefined {
   const collectionId = scopedSharedFolderId(scope);
-  return collectionId
-    ? collections.find((collection) => collection.id === collectionId)?.name
+  const collection = collectionId
+    ? collections.find((candidate) => candidate.id === collectionId)
     : undefined;
+  return collection ? sharedFolderName(collection) : undefined;
 }
 
 /**
@@ -449,6 +511,8 @@ export function cipherInScope(cipher: CipherViewLike, scope: VaultScope): boolea
       return archived && !deleted;
     case VaultScopeType.MyVault:
       return !deleted && !archived && organizationId == null;
+    case VaultScopeType.Folder:
+      return !deleted && !archived && idString(cipher.folderId) === scope.folderId;
     case VaultScopeType.Organization: {
       if (deleted || archived || organizationId !== scope.organizationId) {
         return false;

@@ -168,7 +168,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
     userKey: UserKey,
     newUnlockData: {
       masterPassword: string;
-      masterKeySalt: string;
+      masterKeySalt: MasterPasswordSalt;
       masterKeyKdfConfig: KdfConfig;
       masterPasswordHint: string;
     },
@@ -181,7 +181,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
     newUserKey: UserKey,
     masterPasswordAuthenticationAndUnlockData: {
       masterPassword: string;
-      masterKeySalt: string;
+      masterKeySalt: MasterPasswordSalt;
       masterKeyKdfConfig: KdfConfig;
       masterPasswordHint: string;
     },
@@ -220,7 +220,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
   override makeServerMasterKeyAuthenticationHash(
     masterPassword: string,
     masterKeyKdfConfig: KdfConfig,
-    masterKeySalt: string,
+    masterKeySalt: MasterPasswordSalt,
   ): Promise<string> {
     return super.makeServerMasterKeyAuthenticationHash(
       masterPassword,
@@ -230,7 +230,7 @@ class TestUserKeyRotationService extends UserKeyRotationService {
   }
   override getCryptographicStateForUser(user: Account): Promise<{
     masterKeyKdfConfig: KdfConfig;
-    masterKeySalt: string;
+    masterKeySalt: MasterPasswordSalt;
     cryptographicStateParameters: V1CryptographicStateParameters;
   }> {
     return super.getCryptographicStateForUser(user);
@@ -368,50 +368,35 @@ describe("KeyRotationService", () => {
   });
 
   describe("shouldUseSdkKeyRotation$", () => {
-    function arrangeFlags(sdkKeyRotation: boolean, forceUpgradeV2Encryption: boolean) {
-      mockConfigService.getFeatureFlag$
-        .calledWith(FeatureFlag.SdkKeyRotation)
-        .mockReturnValue(of(sdkKeyRotation));
+    function arrangeForceUpgradeV2Encryption(forceUpgradeV2Encryption: boolean) {
       mockConfigService.getFeatureFlag$
         .calledWith(FeatureFlag.ForceUpgradeV2Encryption)
         .mockReturnValue(of(forceUpgradeV2Encryption));
     }
 
-    it.each([
-      [false, false],
-      [true, false],
-      [false, true],
-    ])(
-      "returns false for a v1 user when SdkKeyRotation is %s and ForceUpgradeV2Encryption is %s",
-      async (sdkKeyRotation, forceUpgradeV2Encryption) => {
-        mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
-        arrangeFlags(sdkKeyRotation, forceUpgradeV2Encryption);
-
-        await expect(
-          firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
-        ).resolves.toBe(false);
-      },
-    );
-
-    it("returns true for a v1 user when both feature flags are enabled", async () => {
+    it("returns false for a v1 user when ForceUpgradeV2Encryption is disabled", async () => {
       mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
-      arrangeFlags(true, true);
+      arrangeForceUpgradeV2Encryption(false);
+
+      await expect(
+        firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
+      ).resolves.toBe(false);
+    });
+
+    it("returns true for a v1 user when ForceUpgradeV2Encryption is enabled", async () => {
+      mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
+      arrangeForceUpgradeV2Encryption(true);
 
       await expect(
         firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
       ).resolves.toBe(true);
     });
 
-    it.each([
-      [false, false],
-      [true, false],
-      [false, true],
-      [true, true],
-    ])(
-      "returns true for a v2 user when SdkKeyRotation is %s and ForceUpgradeV2Encryption is %s",
-      async (sdkKeyRotation, forceUpgradeV2Encryption) => {
+    it.each([false, true])(
+      "returns true for a v2 user when ForceUpgradeV2Encryption is %s",
+      async (forceUpgradeV2Encryption) => {
         mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V2));
-        arrangeFlags(sdkKeyRotation, forceUpgradeV2Encryption);
+        arrangeForceUpgradeV2Encryption(forceUpgradeV2Encryption);
 
         await expect(
           firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
@@ -421,7 +406,7 @@ describe("KeyRotationService", () => {
 
     it("returns false when the user key is null", async () => {
       mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(null));
-      arrangeFlags(true, true);
+      arrangeForceUpgradeV2Encryption(true);
 
       await expect(
         firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
@@ -564,6 +549,7 @@ describe("KeyRotationService", () => {
 
       it("uses the SDK when the user uses SDK key rotation", async () => {
         jest.spyOn(keyRotationService, "shouldUseSdkKeyRotation$").mockReturnValue(of(true));
+        mockSdkUserKeyRotationService.changePasswordAndRotateUserKey.mockResolvedValue(true);
 
         await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
           "mockMasterPassword",
@@ -579,6 +565,7 @@ describe("KeyRotationService", () => {
           mockUser.id,
         );
         expect(mockApiService.postUserKeyUpdate).not.toHaveBeenCalled();
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id, "userKeyRotation");
       });
 
       it("uses TypeScript when the user does not use SDK key rotation", async () => {
@@ -593,6 +580,7 @@ describe("KeyRotationService", () => {
 
         expect(mockSdkUserKeyRotationService.changePasswordAndRotateUserKey).not.toHaveBeenCalled();
         expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
+        expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id, "userKeyRotation");
       });
     });
 
@@ -716,7 +704,7 @@ describe("KeyRotationService", () => {
       const masterPasswordUnlockData =
         await keyRotationService.createMasterPasswordUnlockDataRequest(newKey, {
           masterPassword: "mockMasterPassword",
-          masterKeySalt: userAccount.email,
+          masterKeySalt: userAccount.email as MasterPasswordSalt,
           masterKeyKdfConfig: new PBKDF2KdfConfig(600_000),
           masterPasswordHint: "mockMasterPasswordHint",
         });
@@ -784,7 +772,7 @@ describe("KeyRotationService", () => {
         newKey,
         {
           masterPassword: "mockMasterPassword",
-          masterKeySalt: userAccount.email,
+          masterKeySalt: userAccount.email as MasterPasswordSalt,
           masterKeyKdfConfig: new PBKDF2KdfConfig(600_000),
           masterPasswordHint: "mockMasterPasswordHint",
         },
@@ -1028,7 +1016,7 @@ describe("KeyRotationService", () => {
         await keyRotationService.makeServerMasterKeyAuthenticationHash(
           "mockMasterPassword",
           new PBKDF2KdfConfig(600_000),
-          "mockEmail",
+          "mockEmail" as MasterPasswordSalt,
         );
       expect(masterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
       expect(mockLegacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(

@@ -6,6 +6,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -53,7 +54,7 @@ import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 
 type MasterPasswordAuthenticationAndUnlockData = {
   masterPassword: string;
-  masterKeySalt: string;
+  masterKeySalt: MasterPasswordSalt;
   masterKeyKdfConfig: KdfConfig;
   masterPasswordHint: string;
 };
@@ -98,14 +99,13 @@ export class UserKeyRotationService {
   shouldUseSdkKeyRotation$(userId: UserId): Observable<boolean> {
     return combineLatest([
       this.keyService.userKey$(userId),
-      this.configService.getFeatureFlag$(FeatureFlag.SdkKeyRotation),
       this.configService.getFeatureFlag$(FeatureFlag.ForceUpgradeV2Encryption),
     ]).pipe(
-      map(([userKey, sdkKeyRotation, forceUpgradeV2]) => {
+      map(([userKey, forceUpgradeV2]) => {
         if (userKey == null) {
           return false;
         }
-        return !this.isV1User(userKey) || (sdkKeyRotation && forceUpgradeV2);
+        return !this.isV1User(userKey) || forceUpgradeV2;
       }),
     );
   }
@@ -143,7 +143,7 @@ export class UserKeyRotationService {
           timeout: 15000,
         });
 
-        await this.logoutService.logout(user.id);
+        await this.logoutService.logout(user.id, "userKeyRotation");
       }
       return;
     }
@@ -216,7 +216,7 @@ export class UserKeyRotationService {
       timeout: 15000,
     });
 
-    await this.logoutService.logout(user.id);
+    await this.logoutService.logout(user.id, "userKeyRotation");
   }
 
   protected async ensureIsAllowedToRotateUserKey(): Promise<void> {
@@ -481,7 +481,7 @@ export class UserKeyRotationService {
   protected async makeServerMasterKeyAuthenticationHash(
     masterPassword: string,
     masterKeyKdfConfig: KdfConfig,
-    masterKeySalt: string,
+    masterKeySalt: MasterPasswordSalt,
   ): Promise<string> {
     const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       masterPassword,
@@ -496,7 +496,7 @@ export class UserKeyRotationService {
    */
   protected async getCryptographicStateForUser(user: Account): Promise<{
     masterKeyKdfConfig: KdfConfig;
-    masterKeySalt: string;
+    masterKeySalt: MasterPasswordSalt;
     cryptographicStateParameters: V1CryptographicStateParameters;
   }> {
     // Master password unlock
