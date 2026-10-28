@@ -40,6 +40,7 @@ import { completePendingDefaultPasswordManagerApply } from "../autofill/default-
 import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse } from "../autofill/services/abstractions/fill-cipher-policy";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { AUTOFILL_DENIED } from "../autofill/types/fill-result";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -190,10 +191,7 @@ export default class RuntimeBackground {
         if (activeUserId == null) {
           return AUTOFILL_DENIED;
         }
-        const ciphers =
-          await this.main.revealedAutofillCipherService.getAllDecryptedIncludingRevealed(
-            activeUserId,
-          );
+        const ciphers = await this.main.fillCipherPolicy.ciphers(activeUserId, CipherUse.UserFill);
         const cipher = ciphers.find((candidate) => candidate.id === msg.cipherId);
         if (cipher == null) {
           return AUTOFILL_DENIED;

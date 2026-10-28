@@ -36,7 +36,7 @@ import {
   AutofillService,
   PageDetail,
 } from "../services/abstractions/autofill.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
+import { FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 import {
   AUTOFILL_ABSENT,
@@ -161,7 +161,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     private platformUtilsService: PlatformUtilsService,
     private updateOverlayCiphers: () => Promise<void>,
     private logService: LogService,
-    private revealedAutofillCipherService: RevealedAutofillCipherService,
+    private fillCipherPolicy: FillCipherPolicy,
     /** Injected wall-clock source (epoch ms), overridable so time-dependent selection is testable. */
     private now: () => number = () => Date.now(),
   ) {}
@@ -506,11 +506,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     reason: FillReason,
   ): Promise<CipherView | undefined> {
     if (reason === FillReason.userCommand) {
-      // Only a user command rotates through revealed views; auto-submit and page load never do.
-      return this.revealedAutofillCipherService.getNextCipherForUrlIncludingRevealed(
-        tabUrl,
-        activeUserId,
-      );
+      return this.fillCipherPolicy.nextCipherForUrl(tabUrl, activeUserId);
     }
     const isAutomatic = reason === FillReason.automatic;
     const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
@@ -619,11 +615,11 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
 
   /**
    * Advances the rotation cursor for a URL (or card/identity cache key) so the *next* fill for it
-   * offers the next matching cipher. `updateLastUsedIndexForUrl` is that cursor — a way to cycle
+   * offers the next matching cipher. `advanceRotation` is that cursor — a way to cycle
    * through the ciphers that fit a page across repeated fills — not a record that a cipher was used.
    */
   private cycleFillableCipher(key: string): void {
-    this.revealedAutofillCipherService.updateLastUsedIndexForUrl(key);
+    this.fillCipherPolicy.advanceRotation(key);
   }
 
   private activeUserId(): Promise<UserId | null> {

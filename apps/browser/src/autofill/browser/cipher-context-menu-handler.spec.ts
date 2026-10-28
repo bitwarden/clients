@@ -7,9 +7,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 
 import { CipherContextMenuHandler } from "./cipher-context-menu-handler";
 import { MainContextMenuHandler } from "./main-context-menu-handler";
@@ -18,6 +17,7 @@ describe("CipherContextMenuHandler", () => {
   let mainContextMenuHandler: MockProxy<MainContextMenuHandler>;
   let authService: MockProxy<AuthService>;
   let cipherService: MockProxy<CipherService>;
+  let fillCipherPolicy: MockProxy<FillCipherPolicy>;
 
   const mockUserId = "UserId" as UserId;
   const accountService = mockAccountServiceWith(mockUserId);
@@ -29,6 +29,7 @@ describe("CipherContextMenuHandler", () => {
     mainContextMenuHandler.initRunning = false;
     authService = mock();
     cipherService = mock();
+    fillCipherPolicy = mock();
 
     jest.spyOn(MainContextMenuHandler, "removeAll").mockResolvedValue();
 
@@ -37,7 +38,7 @@ describe("CipherContextMenuHandler", () => {
       authService,
       cipherService,
       accountService,
-      new RevealedAutofillCipherService(cipherService, new NoopRevealedCipherService()),
+      fillCipherPolicy,
     );
   });
 
@@ -85,7 +86,7 @@ describe("CipherContextMenuHandler", () => {
 
       mainContextMenuHandler.init.mockResolvedValue(true);
 
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+      fillCipherPolicy.ciphersForUrl.mockResolvedValue([]);
 
       await sut.update("https://test.com");
 
@@ -120,7 +121,7 @@ describe("CipherContextMenuHandler", () => {
         card: { username: "Test Username" },
       };
 
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([
+      fillCipherPolicy.ciphersForUrl.mockResolvedValue([
         null, // invalid cipher
         undefined, // invalid cipher
         { type: CipherType.SecureNote }, // invalid cipher
@@ -131,12 +132,13 @@ describe("CipherContextMenuHandler", () => {
 
       await sut.update("https://test.com");
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+      expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(
         "https://test.com",
         mockUserId,
-        [CipherType.Card, CipherType.Identity],
+        CipherUse.UserFill,
+        { includeOtherTypes: [CipherType.Card, CipherType.Identity] },
       );
 
       expect(mainContextMenuHandler.loadOptions).toHaveBeenCalledTimes(3);

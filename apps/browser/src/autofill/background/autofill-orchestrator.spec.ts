@@ -5,9 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -21,7 +19,7 @@ import {
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
-import { RevealedAutofillCipherService } from "../services/revealed-autofill-cipher.service";
+import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -46,8 +44,7 @@ describe("DefaultAutofillOrchestrator", () => {
   let accountService: MockProxy<AccountService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let updateOverlayCiphers: jest.Mock<Promise<void>, []>;
-  let revealedCipherService: MockProxy<RevealedCipherService>;
-  let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+  let fillCipherPolicy: DefaultFillCipherPolicy;
   const logService = mock<LogService>();
 
   let pageTransitionResolved$: Subject<PageTransitionResolved>;
@@ -132,7 +129,7 @@ describe("DefaultAutofillOrchestrator", () => {
       platformUtilsService,
       updateOverlayCiphers,
       logService,
-      new RevealedAutofillCipherService(cipherService, revealedCipherService),
+      fillCipherPolicy,
       now,
     );
 
@@ -191,9 +188,9 @@ describe("DefaultAutofillOrchestrator", () => {
 
     platformUtilsService = mock<PlatformUtilsService>();
     updateOverlayCiphers = jest.fn().mockResolvedValue(undefined);
-    revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
-    revealedCipherService = mock<RevealedCipherService>();
-    revealedCipherService.revealed$.mockReturnValue(revealed$);
+    fillCipherPolicy = new DefaultFillCipherPolicy(cipherService);
+    jest.spyOn(fillCipherPolicy, "nextCipherForUrl");
+    jest.spyOn(fillCipherPolicy, "advanceRotation");
 
     autofillOrchestrator = construct();
     autofillOrchestrator.init();
@@ -1285,48 +1282,41 @@ describe("DefaultAutofillOrchestrator", () => {
     });
   });
 
-  describe("revealed views", () => {
-    const revealedLogin = makeCipher(CipherType.Login, { id: "revealed" });
-
-    beforeEach(() => {
-      revealed$.next(new Map([["revealed" as CipherId, revealedLogin]]));
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
-      cipherService.filterCiphersForUrl.mockImplementation(async (ciphers) => ciphers);
-    });
-
-    it("fills a revealed view from a keyboard command", async () => {
+  describe("fill cipher policy", () => {
+    it("selects the next cipher from the policy for a keyboard command", async () => {
       const pd = pageDetail(1, 0);
+      const cipher = makeCipher(CipherType.Login, { id: "from-policy" });
+      jest.spyOn(fillCipherPolicy, "nextCipherForUrl").mockResolvedValue(cipher);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
       autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
       await flushPromises();
 
-      expect(cipherService.getNextCipherForUrl).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
-        expect.objectContaining({ cipher: revealedLogin }),
-      );
+      expect(fillCipherPolicy.nextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(expect.objectContaining({ cipher }));
+      expect(fillCipherPolicy.advanceRotation).toHaveBeenCalledWith(DEFAULT_URL);
     });
 
-    it("never reads revealed views for a page-load fill", async () => {
+    it("never uses the user fill rotation for a page-load fill", async () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
 
       emitPageTransition(pd);
       await flushPromises();
 
-      expect(revealedCipherService.revealed$).not.toHaveBeenCalled();
+      expect(fillCipherPolicy.nextCipherForUrl).not.toHaveBeenCalled();
       expect(cipherService.getLastUsedForUrl).toHaveBeenCalled();
     });
 
-    it("never reads revealed views for an auto-submit fill", async () => {
+    it("never uses the user fill rotation for an auto-submit fill", async () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
 
       emitAutomatedLoginStep(pd);
       await flushPromises();
 
-      expect(revealedCipherService.revealed$).not.toHaveBeenCalled();
+      expect(fillCipherPolicy.nextCipherForUrl).not.toHaveBeenCalled();
       expect(cipherService.getLastUsedForUrl).toHaveBeenCalled();
     });
   });
