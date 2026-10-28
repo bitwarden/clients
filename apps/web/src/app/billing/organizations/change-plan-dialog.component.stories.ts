@@ -13,6 +13,7 @@ import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -196,6 +197,7 @@ const mockBillingNotificationService: Partial<BillingNotificationService> = {
 const mockOrganizationWarningsService: Partial<OrganizationWarningsService> = {
   refreshInactiveSubscriptionWarning: () => {},
 };
+const mockLogService: Partial<LogService> = { error: () => {} };
 const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 const mockCart: Cart = {
   passwordManager: {
@@ -235,6 +237,7 @@ export default {
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
+        { provide: LogService, useValue: mockLogService },
       ],
     }),
     applicationConfig({
