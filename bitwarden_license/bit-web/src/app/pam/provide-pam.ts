@@ -1,16 +1,21 @@
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
+import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
+import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
+import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
@@ -22,6 +27,7 @@ import { DefaultAccessRefreshService } from "./services/default-access-refresh.s
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
 import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { MyLeasesService } from "./services/my-leases.service";
+import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 
 import {
   AccessEventService,
@@ -91,6 +97,12 @@ export function providePam(): SafeProvider[] {
       useClass: DefaultCidrValidationService,
       deps: [],
     }),
+    // Root-level because the route guard resolves it before any route-provided service exists.
+    safeProvider({
+      provide: ApprovalPrivilegeService,
+      useClass: ApprovalPrivilegeService,
+      deps: [],
+    }),
     // Root-level so the banner and repeated dialog opens share one cached per-org rules read.
     safeProvider({
       provide: GovernedCollectionsService,
@@ -120,6 +132,22 @@ export function providePam(): SafeProvider[] {
       provide: AccessRefreshService,
       useClass: DefaultAccessRefreshService,
       deps: [AccessEventService],
+    }),
+    safeProvider({
+      provide: PamNavBadgeService,
+      useClass: DefaultPamNavBadgeService,
+      deps: [
+        AccessRequestSdkService,
+        ApprovalSdkService,
+        ApprovalPrivilegeService,
+        AccessEventService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        AccountService,
+        OrganizationService,
+        ConfigService,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: AccessRequestCancelService,
