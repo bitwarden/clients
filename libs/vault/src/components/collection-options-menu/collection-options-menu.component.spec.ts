@@ -104,7 +104,12 @@ describe("CollectionOptionsMenuComponent", () => {
     await TestBed.configureTestingModule({
       imports: [CollectionOptionsMenuComponent],
       providers: [
-        { provide: I18nService, useValue: { t: (key: string, ...args: string[]) => key } },
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string, ...args: string[]) => [key, ...args.filter(Boolean)].join(":"),
+          },
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: USER_ID }) } },
         { provide: PinnedSharedFoldersService, useValue: pinnedSharedFolders },
         { provide: ToastService, useValue: toastService },
@@ -291,7 +296,7 @@ describe("CollectionOptionsMenuComponent", () => {
       expect(pinnedSharedFolders.unpin).not.toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "folderPinnedToSidebar",
+        message: "folderPinnedToSidebar:Engineering",
       });
     });
 
@@ -308,7 +313,7 @@ describe("CollectionOptionsMenuComponent", () => {
       expect(pinnedSharedFolders.pin).not.toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "folderUnpinnedFromSidebar",
+        message: "folderUnpinnedFromSidebar:Engineering",
       });
     });
   });
