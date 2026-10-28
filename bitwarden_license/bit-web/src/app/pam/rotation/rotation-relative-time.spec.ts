@@ -1,4 +1,11 @@
-import { lastRotatedText, nextRotationText } from "./rotation-relative-time";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import {
+  lastRotatedText,
+  lastSeenText,
+  nextRotationText,
+  relativeTimeLabel,
+} from "./rotation-relative-time";
 
 const NOW = Date.parse("2026-06-15T12:00:00Z");
 const MINUTE = 60_000;
@@ -33,6 +40,38 @@ describe("lastRotatedText", () => {
   });
 });
 
+describe("lastSeenText", () => {
+  it.each([
+    [HOUR, { key: "pamRotationRelativeHoursAgo", count: 1 }],
+    [3 * HOUR + 20 * MINUTE, { key: "pamRotationRelativeHoursAgo", count: 3 }],
+    [23 * HOUR + 59 * MINUTE, { key: "pamRotationRelativeHoursAgo", count: 23 }],
+    [5 * MINUTE, { key: "pamRotationRelativeMinutesAgo", count: 5 }],
+    [DAY, { key: "pamRotationRelativeYesterday" }],
+    [0, { key: "justNow" }],
+    [MINUTE - 1, { key: "justNow" }],
+    [-5_000, { key: "justNow" }],
+    [MINUTE, { key: "pamRotationRelativeMinutesAgo", count: 1 }],
+    [HOUR - 1, { key: "pamRotationRelativeMinutesAgo", count: 59 }],
+    [DAY - 1, { key: "pamRotationRelativeHoursAgo", count: 23 }],
+    [2 * DAY - 1, { key: "pamRotationRelativeYesterday" }],
+    [2 * DAY, { key: "pamRotationRelativeDaysAgo", count: 2 }],
+    [7 * DAY, { key: "pamRotationRelativeWeeksAgo", count: 1 }],
+    [30 * DAY, { key: "pamRotationRelativeMonthsAgo", count: 1 }],
+    [364 * DAY, { key: "pamRotationRelativeMonthsAgo", count: 12 }],
+  ])("formats %d ms ago", (elapsed, expected) => {
+    expect(lastSeenText(NOW - elapsed, NOW)).toEqual(expected);
+  });
+
+  it("reads never when the connector has not checked in", () => {
+    expect(lastSeenText(null, NOW)).toEqual({ key: "never" });
+  });
+
+  it("still has no wording for years", () => {
+    expect(lastSeenText(NOW - 365 * DAY, NOW)).toBeNull();
+    expect(lastSeenText(NOW - 400 * DAY, NOW)).toBeNull();
+  });
+});
+
 describe("nextRotationText", () => {
   it.each([
     [HOUR, { key: "pamRotationRelativeInHours", count: 1 }],
@@ -56,5 +95,25 @@ describe("nextRotationText", () => {
     expect(nextRotationText(NOW + 90 * DAY, NOW)).toBeNull();
     expect(nextRotationText(NOW - 2 * HOUR, NOW)).toBeNull();
     expect(nextRotationText(NOW - 20 * DAY, NOW)).toBeNull();
+  });
+});
+
+describe("relativeTimeLabel", () => {
+  const i18n = {
+    t: (key: string, count?: string | number) => `${key}:${count ?? ""}`,
+  } as unknown as Pick<I18nService, "t">;
+
+  it("is null when there is no wording", () => {
+    expect(relativeTimeLabel(i18n, null)).toBeNull();
+  });
+
+  it("translates a key without a count", () => {
+    expect(relativeTimeLabel(i18n, { key: "never" })).toBe("never:");
+  });
+
+  it("passes the count to the translator", () => {
+    expect(relativeTimeLabel(i18n, { key: "pamRotationRelativeMinutesAgo", count: 5 })).toBe(
+      "pamRotationRelativeMinutesAgo:5",
+    );
   });
 });
