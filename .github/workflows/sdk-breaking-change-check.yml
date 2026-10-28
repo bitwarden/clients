@@ -107,16 +107,13 @@ jobs:
           fi
 
       - name: Download SDK artifacts
-        uses: bitwarden/gh-actions/download-artifacts@main
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          workflow: build-wasm-internal.yml
-          workflow_conclusion: success
-          run_id: ${{ env._ARTIFACTS_RUN_ID }}
-          artifacts: ${{ env._ARTIFACT_NAME }}
-          repo: ${{ env._SOURCE_REPO }}
+          github-token: ${{ steps.app-token.outputs.token }}
+          repository: ${{ env._SOURCE_REPO }}
+          run-id: ${{ env._ARTIFACTS_RUN_ID }}
+          name: ${{ env._ARTIFACT_NAME }}
           path: ./sdk-internal
-          if_no_artifact_found: fail
 
       - name: Override SDK using npm link
         working-directory: ./
