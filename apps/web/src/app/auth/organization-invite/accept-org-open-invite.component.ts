@@ -168,6 +168,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     //    enrollment, or Key Connector provisioning). Because this invite is stashed, the
     //    cleanup step of each path drops both the persisted /join URL and the stashed
     //    invite, so the guard does not replay and authedHandler does not re-fire accept.
+    //    The exception is when InviteLinkAutoConfirm is on: the cleanup keeps both, so the
+    //    guard replays /join and authedHandler fires acceptOpenOrgInvite.
     //  - Existing user: server rejects SSO login and redirects to /login for MP auth.
     //    After login, the guard replays /join and authedHandler fires acceptOpenOrgInvite.
     if (invite.sso?.required) {
