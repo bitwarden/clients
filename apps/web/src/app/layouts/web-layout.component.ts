@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 
 import { LayoutComponent } from "@bitwarden/components";
 
-import { PrivateAccessBannerComponent } from "./private-access-banner.component";
 import { ProductSwitcherModule } from "./product-switcher/product-switcher.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -11,7 +10,7 @@ import { ProductSwitcherModule } from "./product-switcher/product-switcher.modul
 @Component({
   selector: "app-layout",
   templateUrl: "web-layout.component.html",
-  imports: [CommonModule, LayoutComponent, PrivateAccessBannerComponent, ProductSwitcherModule],
+  imports: [CommonModule, LayoutComponent, ProductSwitcherModule],
 })
 export class WebLayoutComponent {
   constructor() {}
