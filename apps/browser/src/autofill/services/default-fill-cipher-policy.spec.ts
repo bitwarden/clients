@@ -2,9 +2,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, Subject, toArray } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherUse } from "./abstractions/fill-cipher-policy";
@@ -24,26 +25,17 @@ describe("DefaultFillCipherPolicy", () => {
     policy = new DefaultFillCipherPolicy(cipherService);
   });
 
-  it("emits changed$ after each decryption and not while decryption is in progress", async () => {
-    const listViews$ = new Subject<CipherView[] | null>();
-    cipherService.cipherListViews$.mockReturnValue(listViews$);
+  it("emits changed$ for every stored cipher change", async () => {
+    const ciphers$ = new Subject<Record<CipherId, CipherData>>();
+    cipherService.ciphers$.mockReturnValue(ciphers$);
 
     const emitted = firstValueFrom(policy.changed$(userId).pipe(toArray()));
-    listViews$.next([view("a")]);
-    listViews$.next(null);
-    listViews$.next([view("b")]);
-    listViews$.complete();
+    ciphers$.next({});
+    ciphers$.next({});
+    ciphers$.complete();
 
     expect(await emitted).toEqual([undefined, undefined]);
-    expect(cipherService.cipherListViews$).toHaveBeenCalledWith(userId);
-  });
-
-  it("watches list views for changed$, so the background never decrypts the whole vault", () => {
-    cipherService.cipherListViews$.mockReturnValue(new Subject<CipherView[] | null>());
-
-    policy.changed$(userId).subscribe();
-
-    expect(cipherService.cipherViews$).not.toHaveBeenCalled();
+    expect(cipherService.ciphers$).toHaveBeenCalledWith(userId);
   });
 
   it.each(Object.values(CipherUse))("returns the stored ciphers for %s", async (use) => {
@@ -51,15 +43,6 @@ describe("DefaultFillCipherPolicy", () => {
     cipherService.getAllDecrypted.mockResolvedValue(stored);
 
     expect(await policy.ciphers(userId, use)).toBe(stored);
-  });
-
-  it("decrypts only the requested ids", async () => {
-    const stored = [view("a")];
-    cipherService.getAllDecryptedForIds.mockResolvedValue(stored);
-
-    expect(await policy.ciphersForIds(userId, ["a"], CipherUse.UserFill)).toBe(stored);
-    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith(userId, ["a"]);
-    expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
   });
 
   it("passes the URL options to the stored lookup", async () => {
@@ -102,29 +85,6 @@ describe("DefaultFillCipherPolicy", () => {
 
     expect(await policy.nextCipherForUrl(url, userId)).toBeUndefined();
   });
-
-  it.each([
-    ["nextCardCipher", "getNextCardCipher"],
-    ["nextIdentityCipher", "getNextIdentityCipher"],
-  ] as const)("%s returns the next cipher of the stored rotation", async (method, delegate) => {
-    const next = view("next");
-    cipherService[delegate].mockResolvedValue(next);
-
-    expect(await policy[method](userId)).toBe(next);
-    expect(cipherService[delegate]).toHaveBeenCalledWith(userId);
-  });
-
-  it.each([
-    ["nextCardCipher", "getNextCardCipher"],
-    ["nextIdentityCipher", "getNextIdentityCipher"],
-  ] as const)(
-    "%s returns undefined when the stored rotation is empty",
-    async (method, delegate) => {
-      cipherService[delegate].mockResolvedValue(null);
-
-      expect(await policy[method](userId)).toBeUndefined();
-    },
-  );
 
   it("advances the stored rotation", () => {
     policy.advanceRotation(url);
