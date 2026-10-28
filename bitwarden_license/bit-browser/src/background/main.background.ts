@@ -42,10 +42,6 @@ export default class MainBackground {
     this.ossMain.messageListener,
     this.ossMain.taskSchedulerService,
     this.ossMain.logService,
-    async () => {
-      await this.ossMain.updateOverlayCiphers();
-      await this.ossMain.refreshMenu();
-    },
   );
 
   async bootstrap() {
