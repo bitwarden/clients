@@ -9124,6 +9124,15 @@
   "desktopAutotypePolicyDescVfo1": {
     "message": "Enable desktop autotype for members."
   },
+  "desktopAppAutofillPolicyTitle": {
+    "message": "Desktop app autofill"
+  },
+  "desktopAppAutofillPolicyDesc": {
+    "message": "Turn on desktop autofill by default for all members."
+  },
+  "desktopAppAutofillPolicyDrawerDesc": {
+    "message": "Turn on desktop app autofill by default for all members. You can set a keyboard shortcut and choose whether members must confirm before it fills. This feature is in beta."
+  },
   "disableSend": {
     "message": "Remove Send"
   },
