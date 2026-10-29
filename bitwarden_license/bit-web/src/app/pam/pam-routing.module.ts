@@ -43,23 +43,6 @@ const routes: Routes = [
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
       },
       {
-        path: "audit",
-        canActivate: [organizationPermissionsGuard((org) => org.usePam && org.canAccessEventLogs)],
-        component: AccessAuditComponent,
-        // Route-provided, as on the access requests shell; resolves names from local vault state.
-        providers: [AccessNameResolverService],
-        data: { titleId: "pamAuditLog" },
-      },
-      {
-        path: "rotation",
-        canActivate: [
-          canAccessFeature(FeatureFlag.PamRotation),
-          organizationPermissionsGuard((org) => org.canManageAccessConnectors),
-        ],
-        data: { titleId: "pamRotationTitle" },
-        loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
-      },
-      {
         path: "access-rules",
         canActivate: [organizationPermissionsGuard((org) => org.canManageAccessRules)],
         children: [

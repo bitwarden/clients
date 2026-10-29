@@ -1296,148 +1296,6 @@ describe("AccessAuditComponent", () => {
     });
   });
 
-  describe("update", () => {
-    const renderReady = async (events = [event()]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    };
-
-    const clickUpdate = () => {
-      fixture.nativeElement.querySelector("#access-audit_button_refresh").click();
-    };
-
-    // The endpoint takes no parameters, so re-reading it is the only way to see an event recorded
-    // since the page opened — which is what Update is for here, the filters being live already.
-    it("re-reads the trail when Update is pressed", async () => {
-      await renderReady();
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
-
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
-        event(),
-        event({ Kind: "leaseActivated" }),
-      ]);
-      clickUpdate();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(2);
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenLastCalledWith(ORGANIZATION_ID);
-      expect(component().rows()).toHaveLength(2);
-      expect(component().status()).toBe("ready");
-    });
-
-    // An organization whose first PAM event has not landed yet renders the empty state, which holds no
-    // toolbar. Without Update there, the only way to see that first event is a browser reload.
-    it("re-reads the trail from the empty state", async () => {
-      await renderReady([]);
-      expect(component().status()).toBe("empty");
-
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
-      clickUpdate();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(2);
-      expect(component().status()).toBe("ready");
-      expect(component().rows()).toHaveLength(1);
-    });
-
-    it("re-reads the member lookup alongside the trail", async () => {
-      await renderReady();
-
-      clickUpdate();
-      await fixture.whenStable();
-
-      expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(2);
-    });
-
-    // Dropping to the loading state would take the table, the filters and the pressed button out of
-    // the DOM for the length of the request.
-    it("keeps the rendered trail on screen while a refresh is in flight", async () => {
-      await renderReady();
-
-      let release!: (events: AccessAuditEventResponse[]) => void;
-      auditApiService.listAccessAuditTrail.mockReturnValueOnce(
-        new Promise<AccessAuditEventResponse[]>((resolve) => (release = resolve)),
-      );
-
-      const refreshed = component().load();
-      fixture.detectChanges();
-
-      expect(component().status()).toBe("ready");
-      expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
-
-      release([event(), event()]);
-      await refreshed;
-
-      expect(component().rows()).toHaveLength(2);
-    });
-
-    // A transient failure must not cost the auditor the trail they were reading; `bitAction` reports it.
-    it("keeps the rendered trail when a refresh fails, and raises the failure", async () => {
-      await renderReady();
-
-      auditApiService.listAccessAuditTrail.mockRejectedValueOnce(new Error("boom"));
-
-      await expect(component().load()).rejects.toThrow("boom");
-
-      expect(component().status()).toBe("ready");
-      expect(component().rows()).toHaveLength(1);
-    });
-  });
-
-  describe("toolbar", () => {
-    const renderToolbar = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      return fixture.nativeElement.querySelector("#access-audit_container_toolbar") as HTMLElement;
-    };
-
-    it("renders every control in one row", async () => {
-      const toolbar = await renderToolbar();
-
-      expect(toolbar).not.toBeNull();
-      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(1);
-      expect(toolbar.querySelectorAll("bit-chip-filter")).toHaveLength(2);
-      for (const control of [
-        "#access-audit_input_from",
-        "#access-audit_input_to",
-        "#access-audit_button_refresh",
-        "#access-audit_button_export",
-      ]) {
-        expect(toolbar.querySelector(control)).not.toBeNull();
-      }
-    });
-
-    // The date inputs are taller than a chip or a button by the height of their label, so everything
-    // beside them carries the same offset the event log uses; without it the row sits ragged.
-    it("offsets the controls that have no label so they line up with the date inputs", async () => {
-      const toolbar = await renderToolbar();
-
-      const chips = toolbar.querySelector("bit-chip-filter")!.parentElement!;
-      expect(chips.classList).toContain("tw-mt-7");
-      for (const button of ["#access-audit_button_refresh", "#access-audit_button_export"]) {
-        expect(toolbar.querySelector(button)!.classList).toContain("tw-mt-7");
-      }
-    });
-
-    it("wraps the row rather than overflowing it", async () => {
-      const toolbar = await renderToolbar();
-
-      expect(toolbar.classList).toContain("tw-flex-wrap");
-      expect(toolbar.querySelector("bit-chip-filter")!.parentElement!.classList).toContain(
-        "tw-flex-wrap",
-      );
-    });
-  });
-
   describe("export", () => {
     const clickExport = () => {
       fixture.nativeElement.querySelector("#access-audit_button_export").click();
@@ -1511,19 +1369,6 @@ describe("AccessAuditComponent", () => {
     it("carries the export icon", async () => {
       returnsTrail([event()]);
       await renderReady();
-
-      const icon = fixture.nativeElement.querySelector("#access-audit_button_export i");
-      expect(icon).not.toBeNull();
-      expect(icon.classList).toContain("bwi-import");
-    });
-
-    // `bwi-import` is the export glyph in this icon set, and the icon both event-log surfaces settled on.
-    it("carries the export icon", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
 
       const icon = fixture.nativeElement.querySelector("#access-audit_button_export i");
       expect(icon).not.toBeNull();
@@ -2065,15 +1910,6 @@ describe("AccessAuditComponent", () => {
 
     // `button` marks its children presentational, so the badge isn't announced as its own node.
     it("names the in-doubt badge on the element that carries the role", async () => {
-      await render([event({ Incomplete: true }), event({ Incomplete: false })]);
-
-      expect(activator(0).getAttribute("aria-label")).toContain("Incomplete");
-      expect(activator(1).getAttribute("aria-label")).not.toContain("Incomplete");
-    });
-
-    // `button` marks its children presentational, so the badge is not exposed as a node of its own and
-    // an in-doubt row would otherwise announce exactly the same as a settled one.
-    it("names the in-doubt badge on the cell that carries the role", async () => {
       await render([event({ Incomplete: true }), event({ Incomplete: false })]);
 
       expect(activator(0).getAttribute("aria-label")).toContain("Incomplete");
