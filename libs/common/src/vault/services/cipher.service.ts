@@ -151,8 +151,8 @@ export class CipherService implements CipherServiceAbstraction {
   }, this.clearCipherViewsForUser$);
 
   /**
-   * Decrypted list views including restricted ciphers, for the vault list UIs named on the
-   * abstraction; everything else uses {@link cipherListViews$}.
+   * Decrypted list views including restricted ciphers, for the web vault list and its
+   * filters; everything else uses {@link cipherListViews$}.
    */
   cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
