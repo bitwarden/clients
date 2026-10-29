@@ -262,11 +262,11 @@ export class AccountServiceImplementation implements InternalAccountService {
     );
   }
 
-  // Transitional: this method is removed in the next stacked PR, which introduces
-  // DeleteAccountService and shifts the delete-then-logout orchestration off AccountService.
+  // TODO: Move the delete-then-logout orchestration out of AccountService into a dedicated
+  // account-deletion service, then remove this method.
   async delete(): Promise<void> {
     try {
-      this.messagingService?.send("logout");
+      this.messagingService?.send("logout", { logoutReason: "accountDeleted" });
     } catch (e) {
       this.logService.error(e);
       throw e;

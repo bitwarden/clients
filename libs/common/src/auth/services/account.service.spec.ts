@@ -400,6 +400,16 @@ describe("accountService", () => {
     });
   });
 
+  describe("delete", () => {
+    it("sends a logout message with the accountDeleted reason", async () => {
+      await sut.delete();
+
+      expect(messagingService.send).toHaveBeenCalledWith("logout", {
+        logoutReason: "accountDeleted",
+      });
+    });
+  });
+
   describe("switchAccount", () => {
     beforeEach(() => {
       accountsState.stateSubject.next({ [userId]: userInfo });
