@@ -39,17 +39,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { DefaultLogoutService } from "@bitwarden/common/auth/logout";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { SendTokenService, DefaultSendTokenService } from "@bitwarden/common/auth/send-access";
-import {
-  AccountServiceImplementation,
-  getUserId,
-} from "@bitwarden/common/auth/services/account.service";
+import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -255,6 +252,9 @@ import {
   DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
+import { CliLogoutService } from "../auth/logout/cli-logout.service";
+import { createLogoutCallback } from "../auth/logout/create-logout-callback";
+import { DeferredLogoutService } from "../auth/logout/deferred-logout.service";
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
@@ -393,6 +393,7 @@ export class ServiceContainer {
   masterPasswordUnlockService: MasterPasswordUnlockService;
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
+  logoutService: LogoutService;
   unlockService: UnlockService;
   autoUnlockService: AutoUnlockService;
   biometricsService: CliBiometricsService;
@@ -417,7 +418,9 @@ export class ServiceContainer {
       p = path.join(process.env.HOME ?? "", ".config/Bitwarden CLI");
     }
 
-    const logoutCallback = async () => await this.logout();
+    // CliLogoutService depends on services that themselves need a LogoutService, so those
+    // services receive this deferred instance, which resolves this.logoutService at logout time.
+    const logoutService = new DeferredLogoutService(() => this.logoutService);
 
     this.platformUtilsService = new CliPlatformUtilsService(ClientType.Cli, packageJson);
     this.logService = new ConsoleLogService(
@@ -483,6 +486,7 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
+    const logoutCallback = createLogoutCallback(logoutService, this.accountService);
 
     const activeUserAccessor = new DefaultActiveUserAccessor(this.accountService);
 
@@ -1048,7 +1052,6 @@ export class ServiceContainer {
       this.masterPasswordUnlockService,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
@@ -1191,6 +1194,19 @@ export class ServiceContainer {
       this.taskSchedulerService,
     );
 
+    this.logoutService = new CliLogoutService(
+      this.authService,
+      this.accountService,
+      this.eventUploadService,
+      this.keyService,
+      this.cipherService,
+      this.folderService,
+      this.stateEventRunnerService,
+      this.stateService,
+      this.tokenService,
+      this.logService,
+    );
+
     this.eventCollectionService = new EventCollectionService(
       this.cipherService,
       this.stateProvider,
@@ -1230,27 +1246,6 @@ export class ServiceContainer {
       this.stateProvider,
       this.i18nService,
     );
-  }
-
-  async logout() {
-    this.authService.logOut(() => {
-      /* Do nothing */
-    });
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await Promise.all([
-      this.eventUploadService.uploadEvents(userId as UserId),
-      this.keyService.clearKeys(userId),
-      this.cipherService.clear(userId),
-      this.folderService.clear(userId),
-    ]);
-
-    await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
-
-    await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearTokens(userId);
-    await this.accountService.clean(userId as UserId);
-    await this.accountService.switchAccount(null);
-    process.env.BW_SESSION = undefined;
   }
 
   async init() {
