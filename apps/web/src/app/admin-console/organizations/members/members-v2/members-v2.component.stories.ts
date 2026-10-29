@@ -29,6 +29,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -45,6 +46,7 @@ import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { OrganizationUserView } from "../../core/views/organization-user.view";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "../services/member-dialog-manager/member-dialog-manager.service";
+import { MemberExportService } from "../services/member-export/member-export.service";
 import { OrganizationMembersService } from "../services/organization-members-service/organization-members.service";
 
 import { MembersV2Component } from "./members-v2.component";
@@ -276,12 +278,21 @@ const mockMemberActionsService = {
 };
 
 const mockMemberDialogManagerService = {
+  openInviteDialog: () => Promise.resolve(undefined),
   openEditDialog: () => Promise.resolve(undefined),
   openAccountRecoveryDialog: () => Promise.resolve(undefined),
   openEventsDialog: () => {},
   openRemoveUserConfirmationDialog: () => Promise.resolve(false),
   openRevokeUserConfirmationDialog: () => Promise.resolve(false),
   openDeleteUserConfirmationDialog: () => Promise.resolve(false),
+};
+
+const mockMemberExportService = {
+  getMemberExport: () => ({ success: true }),
+};
+
+const mockValidationService = {
+  showError: () => {},
 };
 
 const mockBillingConstraintService = {
@@ -337,6 +348,8 @@ export default {
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: MemberDialogManagerService, useValue: mockMemberDialogManagerService },
         { provide: BillingConstraintService, useValue: mockBillingConstraintService },
+        { provide: MemberExportService, useValue: mockMemberExportService },
+        { provide: ValidationService, useValue: mockValidationService },
       ],
     }),
     applicationConfig({
@@ -385,7 +398,8 @@ function makeRender(
 }
 
 /**
- * An organization that uses groups, with a member in every status and enough members to page.
+ * An organization that uses groups, with a member in every status and enough members to page. The
+ * toolbar has search, Export and Invite member.
  */
 export const Default: Story = {
   render: makeRender(mockMembers),
@@ -410,8 +424,8 @@ export const RowActions: Story = {
 };
 
 /**
- * An admin who can't manage users gets no checkbox column, no Options column and no clickable
- * cells.
+ * An admin who can't manage users gets search, but no Export or Invite member button, no checkbox
+ * column, no Options column and no clickable cells.
  */
 export const ReadOnly: Story = {
   name: "Read only",
@@ -426,8 +440,17 @@ export const Loading: Story = {
 };
 
 /**
- * An organization with no members.
+ * An organization with no members. Search, Export and Invite member stay in the toolbar.
  */
 export const Empty: Story = {
   render: makeRender([]),
+};
+
+/**
+ * Opens at `?members.search=`, as a reloaded or copied link would, with only the matching rows.
+ */
+export const SearchFromUrl: Story = {
+  name: "Search from URL",
+  render: makeRender(mockMembers),
+  decorators: [atUrl(`/organizations/${ORG_ID}/members?members.search=member%201`)],
 };

@@ -7,7 +7,7 @@ import {
   viewChildren,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   combineLatest,
   concatMap,
@@ -35,6 +35,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
   BitCellComponent,
@@ -72,7 +73,11 @@ import { SharedOrganizationModule } from "../../shared";
 import { AccountRecoveryDialogResultType } from "../components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "../components/member-dialog";
 import { AvatarIdPipe } from "../pipes";
-import { MemberDialogManagerService, OrganizationMembersService } from "../services";
+import {
+  MemberDialogManagerService,
+  MemberExportService,
+  OrganizationMembersService,
+} from "../services";
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
@@ -94,7 +99,7 @@ type StatusBadge = (typeof STATUS_BADGES)[number];
 /** The membership columns a chip can filter by, each keyed by the column it filters. */
 type MembershipKey = "groupNames" | "collectionNames";
 
-type MemberFilters = Partial<Record<MembershipKey, string[]>>;
+type MemberFilters = Partial<Record<MembershipKey, string[]>> & { search?: string };
 
 @Component({
   templateUrl: "members-v2.component.html",
@@ -121,6 +126,7 @@ type MemberFilters = Partial<Record<MembershipKey, string[]>>;
 })
 export class MembersV2Component {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
   private readonly organizationService = inject(OrganizationService);
   private readonly accountService = inject(AccountService);
@@ -133,6 +139,8 @@ export class MembersV2Component {
   private readonly policyApiService = inject(PolicyApiServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly validationService = inject(ValidationService);
+  private readonly memberExportService = inject(MemberExportService);
   private readonly userNamePipe = inject(UserNamePipe);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
@@ -233,15 +241,32 @@ export class MembersV2Component {
 
   private readonly filterMenus = viewChildren(FilterMenuComponent);
 
-  /** Members in any of the selected groups or collections. Names stand in for ids, as on the chips. */
+  /**
+   * The plain `?search=` and `?viewEvents=` keys that Event Logs links here with. Read once, since
+   * the table only syncs its own `members.*` keys and these are dropped after the first load.
+   */
+  private readonly deepLink: Params = this.route.snapshot.queryParams;
+
+  /** Seeds the table's search from `?search=`. The table prefers `members.search` when present. */
+  protected readonly initialFilters: MemberFilters = this.deepLink.search
+    ? { search: this.deepLink.search }
+    : {};
+
+  /**
+   * Members matching the search on name, email or id, and in any of the selected groups or
+   * collections. Names stand in for ids, as on the chips.
+   */
   protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
+    this.matchesSearch(row, filters.search) &&
     this.matchesAny(row.groupNames, filters.groupNames) &&
     this.matchesAny(row.collectionNames, filters.collectionNames);
 
   constructor() {
     this.organization$
       .pipe(
-        switchMap((organization) => this.load(organization)),
+        switchMap((organization, index) =>
+          index === 0 ? this.loadFromDeepLink(organization) : this.load(organization),
+        ),
         takeUntilDestroyed(),
       )
       .subscribe();
@@ -251,9 +276,69 @@ export class MembersV2Component {
     this.billingMetadata$.pipe(take(1), takeUntilDestroyed()).subscribe();
   }
 
+  /** Members arrive sorted by name, so the default view needs no sort, and no sort in the URL. */
   async load(organization: Organization) {
-    this.members.set(await this.memberService.loadUsers(organization));
+    const members = await this.memberService.loadUsers(organization);
+    this.members.set([...members].sort(this.sortByName));
     this.firstLoaded.set(true);
+  }
+
+  /**
+   * Loads, opens the event log for a confirmed member named by `?viewEvents=`, then drops the
+   * plain deep link keys without a history entry so a reload or Back doesn't reopen the dialog.
+   */
+  private async loadFromDeepLink(organization: Organization) {
+    await this.load(organization);
+
+    const { search, viewEvents } = this.deepLink;
+    if (search == null && viewEvents == null) {
+      return;
+    }
+
+    const member = this.members().find((m) => m.id === viewEvents);
+    if (member?.status === OrganizationUserStatusType.Confirmed) {
+      this.openEventsDialog(member, organization);
+    }
+
+    await this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: null, viewEvents: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
+
+  async invite(organization: Organization) {
+    if (await this.seatLimitBlocks(organization)) {
+      return;
+    }
+
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const result = await this.memberDialogManager.openInviteDialog(
+      organization,
+      billingMetadata,
+      this.members(),
+    );
+
+    if (result === MemberDialogResult.Saved) {
+      await this.load(organization);
+      this.organizationMetadataService.refreshMetadataCache();
+    }
+  }
+
+  /** Exports every member, regardless of the search and filters, as on the v1 page. */
+  exportMembers() {
+    const result = this.memberExportService.getMemberExport(this.members());
+    if (result.success) {
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("dataExportSuccess"),
+      });
+    }
+
+    if (result.error != null) {
+      this.validationService.showError(result.error.message);
+    }
   }
 
   async edit(
@@ -465,6 +550,13 @@ export class MembersV2Component {
         member,
         member[key].map((name) => ({ id: name, label: name, startIcon })),
       ]),
+    );
+  }
+
+  private matchesSearch(row: OrganizationUserView, search: string | undefined): boolean {
+    const text = search?.toLowerCase();
+    return (
+      !text || [row.name, row.email, row.id].some((value) => value?.toLowerCase().includes(text))
     );
   }
 
