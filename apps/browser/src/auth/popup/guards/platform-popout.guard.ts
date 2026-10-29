@@ -9,12 +9,14 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
  *
  * @param platforms - Array of platform OS strings (e.g., ["linux", "mac", "win"])
  * @param forcePopout - If true, always force popout regardless of platform (useful for testing)
+ * @param queryParams - Additional query parameters to pass to the popout
  * @returns CanActivateFn that opens popout and blocks navigation if conditions met
  */
 export function platformPopoutGuard(
   platforms: string[],
   forcePopout: boolean = false,
-): CanActivateFn {
+  queryParams: Record<string, string> = {},
+): (...args: Parameters<CanActivateFn>) => Promise<boolean> {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     // Check if current platform matches
     const platformInfo = await BrowserApi.getPlatformInfo();
@@ -29,6 +31,10 @@ export function platformPopoutGuard(
       // Add autoClosePopout query param to signal the popout should close after completion
       const [path, existingQuery] = state.url.split("?");
       const params = new URLSearchParams(existingQuery || "");
+      // Keep existing route parameters when adding state for the new window.
+      for (const [key, value] of Object.entries(queryParams)) {
+        params.set(key, value);
+      }
       params.set("autoClosePopout", "true");
       const urlWithAutoClose = `${path}?${params.toString()}`;
 
