@@ -3,6 +3,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { LogoutReason, LogoutService } from "@bitwarden/auth/common";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
@@ -15,6 +16,7 @@ describe("ExtensionLogoutService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let accountSwitcherService: MockProxy<AccountSwitcherService>;
+  let sdkService: MockProxy<SdkService>;
 
   let primaryUserId: UserId;
   let secondaryUserId: UserId;
@@ -28,10 +30,12 @@ describe("ExtensionLogoutService", () => {
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
     accountSwitcherService = mock<AccountSwitcherService>();
+    sdkService = mock<SdkService>();
     logoutService = new ExtensionLogoutService(
       messagingService,
       logService,
       accountSwitcherService,
+      sdkService,
     );
   });
 
@@ -54,6 +58,15 @@ describe("ExtensionLogoutService", () => {
           logoutReason,
         });
         expect(result).toBeUndefined();
+      });
+
+      it("disposes the SDK client before sending the logout message", async () => {
+        await logoutService.logout(primaryUserId, logoutReason);
+
+        expect(sdkService.logout).toHaveBeenCalledWith(primaryUserId);
+        expect(sdkService.logout.mock.invocationCallOrder[0]).toBeLessThan(
+          messagingService.send.mock.invocationCallOrder[0],
+        );
       });
 
       it("logs an info message with the user id and reason", async () => {
@@ -89,6 +102,27 @@ describe("ExtensionLogoutService", () => {
           userId: secondaryUserId,
           authenticationStatus: newActiveUserAuthenticationStatus,
         });
+      });
+
+      it("disposes the SDK client before the account switch finishes", async () => {
+        let switchFinished = false;
+        let switchFinishedBeforeSdkLogout = true;
+        accountSwitcherService.listenForSwitchAccountFinish.mockImplementation(async () => {
+          await Promise.resolve();
+          switchFinished = true;
+          return {
+            userId: secondaryUserId,
+            authenticationStatus: newActiveUserAuthenticationStatus,
+          };
+        });
+        sdkService.logout.mockImplementation(() => {
+          switchFinishedBeforeSdkLogout = switchFinished;
+        });
+
+        await logoutService.logout(primaryUserId, logoutReason);
+
+        expect(sdkService.logout).toHaveBeenCalledWith(primaryUserId);
+        expect(switchFinishedBeforeSdkLogout).toBe(false);
       });
     });
   });

@@ -1,6 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
@@ -13,11 +14,13 @@ describe("DefaultLogoutService", () => {
   let logoutService: LogoutService;
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
+  let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
-    logoutService = new DefaultLogoutService(messagingService, logService);
+    sdkService = mock<SdkService>();
+    logoutService = new DefaultLogoutService(messagingService, logService, sdkService);
   });
 
   it("instantiates", () => {
@@ -32,6 +35,17 @@ describe("DefaultLogoutService", () => {
       await logoutService.logout(userId, logoutReason);
 
       expect(messagingService.send).toHaveBeenCalledWith("logout", { userId, logoutReason });
+    });
+
+    it("disposes the SDK client before sending the logout message", async () => {
+      const userId = "1" as UserId;
+
+      await logoutService.logout(userId, "userInitiated");
+
+      expect(sdkService.logout).toHaveBeenCalledWith(userId);
+      expect(sdkService.logout.mock.invocationCallOrder[0]).toBeLessThan(
+        messagingService.send.mock.invocationCallOrder[0],
+      );
     });
 
     it("logs an info message with the user id and reason", async () => {

@@ -1575,7 +1575,11 @@ export default class MainBackground {
       permissionsPolicyBackground,
     );
 
-    const logoutService = new DefaultLogoutService(this.messagingService, this.logService);
+    const logoutService = new DefaultLogoutService(
+      this.messagingService,
+      this.logService,
+      this.sdkService,
+    );
     this.lockService = new ExtensionLockService(
       this.accountService,
       this.biometricsService,
@@ -1590,6 +1594,7 @@ export default class MainBackground {
       this.processReloadService,
       this.logService,
       this.keyService,
+      this.sdkService,
       this,
     );
 

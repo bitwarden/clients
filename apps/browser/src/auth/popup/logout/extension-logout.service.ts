@@ -5,6 +5,7 @@ import {
   NewActiveUser,
 } from "@bitwarden/auth/common";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
@@ -15,8 +16,9 @@ export class ExtensionLogoutService extends DefaultLogoutService implements Logo
     protected messagingService: MessagingService,
     protected logService: LogService,
     private accountSwitcherService: AccountSwitcherService,
+    sdkService: SdkService,
   ) {
-    super(messagingService, logService);
+    super(messagingService, logService, sdkService);
   }
 
   override async logout(
@@ -27,6 +29,10 @@ export class ExtensionLogoutService extends DefaultLogoutService implements Logo
     // logout can result in an account switch to the next up user
     const accountSwitchFinishPromise =
       this.accountSwitcherService.listenForSwitchAccountFinish(null);
+
+    // Dispose the SDK client before broadcasting logout, so nothing reacting to the logout
+    // (including the account switch) can still use it.
+    this.sdkService.logout(userId);
 
     // send the logout message
     this.messagingService.send("logout", { userId, logoutReason });
