@@ -31,7 +31,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
-import { DesktopAutotypeGaPolicy } from "./desktop-autotype-ga-policy.service";
+import { DesktopAutotypeGaPolicyService } from "./desktop-autotype-ga-policy.service";
 
 /*
   The storage key definition for whether the user's local Autotype GA
@@ -91,7 +91,7 @@ export class DesktopAutotypeService implements OnDestroy {
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private desktopAutotypeGaPolicy: DesktopAutotypeGaPolicy,
+    private desktopAutotypeGaPolicyService: DesktopAutotypeGaPolicyService,
     private logService: LogService,
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
@@ -123,7 +123,7 @@ export class DesktopAutotypeService implements OnDestroy {
 
     combineLatest([
       this.autotypeEnabledState.state$,
-      this.desktopAutotypeGaPolicy.autotypeGaDefaultSetting$,
+      this.desktopAutotypeGaPolicyService.autotypeGaDefaultSetting$,
     ])
       .pipe(
         concatMap(async ([autotypeEnabledState, autotypeGaPolicy]) => {

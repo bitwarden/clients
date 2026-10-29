@@ -13,14 +13,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { Account, UserId } from "@bitwarden/common/platform/models/domain/account";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 
-import { DesktopAutotypeGaPolicy } from "./desktop-autotype-ga-policy.service";
+import { DesktopAutotypeGaPolicyService } from "./desktop-autotype-ga-policy.service";
 
 jest.mock("@bitwarden/common/desktop-native/services/autotype-feature-flags", () => ({
   autotypeFeatureFlagState$: jest.fn(),
 }));
 
-describe("DesktopAutotypeGaPolicy", () => {
-  let service: DesktopAutotypeGaPolicy;
+describe("DesktopAutotypeGaPolicyService", () => {
+  let service: DesktopAutotypeGaPolicyService;
   let accountService: MockProxy<AccountService>;
   let authService: MockProxy<AuthService>;
   let policyService: MockProxy<PolicyService>;
@@ -63,7 +63,7 @@ describe("DesktopAutotypeGaPolicy", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        DesktopAutotypeGaPolicy,
+        DesktopAutotypeGaPolicyService,
         { provide: AccountService, useValue: accountService },
         { provide: AuthService, useValue: authService },
         { provide: PolicyService, useValue: policyService },
@@ -71,7 +71,7 @@ describe("DesktopAutotypeGaPolicy", () => {
       ],
     });
 
-    service = TestBed.inject(DesktopAutotypeGaPolicy);
+    service = TestBed.inject(DesktopAutotypeGaPolicyService);
   });
 
   afterEach(() => {

@@ -183,7 +183,7 @@ import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-req
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
-import { DesktopAutotypeGaPolicy } from "../../autofill/services/desktop-autotype-ga-policy.service";
+import { DesktopAutotypeGaPolicyService } from "../../autofill/services/desktop-autotype-ga-policy.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
@@ -685,13 +685,13 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       PlatformUtilsServiceAbstraction,
       BillingAccountProfileStateService,
-      DesktopAutotypeGaPolicy,
+      DesktopAutotypeGaPolicyService,
       LogService,
     ],
   }),
   safeProvider({
-    provide: DesktopAutotypeGaPolicy,
-    useClass: DesktopAutotypeGaPolicy,
+    provide: DesktopAutotypeGaPolicyService,
+    useClass: DesktopAutotypeGaPolicyService,
     deps: [
       AccountServiceAbstraction,
       AuthServiceAbstraction,

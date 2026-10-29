@@ -15,7 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
-import { DesktopAutotypeGaPolicy } from "./desktop-autotype-ga-policy.service";
+import { DesktopAutotypeGaPolicyService } from "./desktop-autotype-ga-policy.service";
 import { DesktopAutotypeService } from "./desktop-autotype.service";
 
 type FakeGlobalState<T> = {
@@ -142,7 +142,7 @@ describe("DesktopAutotypeService", () => {
           useValue: mockBillingAccountProfileStateService,
         },
         {
-          provide: DesktopAutotypeGaPolicy,
+          provide: DesktopAutotypeGaPolicyService,
           useValue: { autotypeGaDefaultSetting$: autotypeGaPolicySubject.asObservable() },
         },
         { provide: LogService, useValue: mock<LogService>() },
