@@ -105,8 +105,19 @@ export class VaultPopupListTableFiltersService {
 
   readonly cachedVaultScopeId = this._cachedVaultScopeId.asReadonly();
 
-  setCachedVaultScopeId(id: string | null): void {
+  /** The collection segment beside {@link cachedVaultScopeId}, so "My items" restores as itself. */
+  private readonly _cachedVaultScopeCollection = this.viewCacheService.signal<string | null>({
+    key: "vault-scope-collection",
+    initialValue: null,
+    deserializer: (v: string | null) => v,
+    persistNavigation: true,
+  });
+
+  readonly cachedVaultScopeCollection = this._cachedVaultScopeCollection.asReadonly();
+
+  setCachedVaultScopeId(id: string | null, collectionSegment: string | null = null): void {
     this._cachedVaultScopeId.set(id);
+    this._cachedVaultScopeCollection.set(collectionSegment);
   }
 
   /** Whether any chip filter is currently selected. */
@@ -176,6 +187,7 @@ export class VaultPopupListTableFiltersService {
   private clearFilters(): void {
     this._cachedFilters.set({});
     this._cachedVaultScopeId.set(null);
+    this._cachedVaultScopeCollection.set(null);
   }
 
   private fullCipherListViews$ = this.activeUserId$.pipe(

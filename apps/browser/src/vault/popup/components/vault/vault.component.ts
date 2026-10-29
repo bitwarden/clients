@@ -71,8 +71,10 @@ import {
   DefaultVaultItemsTransferService,
   NewExperienceDialogResult,
   NewExperienceDialogService,
-  parseVaultScope,
+  offersVaultChoice,
   resolveVaultScope,
+  routeVaultScope,
+  scopedCollectionSegment,
   type VaultScope,
   VaultItemsTransferService,
   VaultNavService,
@@ -318,18 +320,17 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly vaultScope = toSignal(
     combineLatest([
       this.activatedRoute.paramMap,
+      this.activatedRoute.data,
       this.activeUserId$.pipe(
         switchMap((userId) => this.vaultNavService.viewModel$(userId)),
         startWith(undefined),
       ),
-    ]).pipe(map(([params, nav]) => resolveVaultScope(parseVaultScope(params.get("vaultId")), nav))),
+    ]).pipe(map(([params, data, nav]) => resolveVaultScope(routeVaultScope(params, data), nav))),
     { initialValue: ALL_ITEMS_SCOPE as VaultScope | null },
   );
 
   protected readonly pageTitle = computed(() =>
-    this.vfo1Enabled() && (this.vaultNav()?.vaults.length ?? 0) > 1
-      ? ""
-      : this.i18nService.t("vault"),
+    this.vfo1Enabled() && offersVaultChoice(this.vaultNav()) ? "" : this.i18nService.t("vault"),
   );
 
   /**
@@ -372,10 +373,13 @@ export class VaultComponent implements OnInit, OnDestroy {
     private scrollLayoutService: ScrollLayoutService,
     private collectionService: CollectionService,
   ) {
-    this.activatedRoute.paramMap
+    combineLatest([this.activatedRoute.paramMap, this.activatedRoute.data])
       .pipe(takeUntilDestroyed())
-      .subscribe((params) =>
-        this.vaultPopupListTableFiltersService.setCachedVaultScopeId(params.get("vaultId")),
+      .subscribe(([params, data]) =>
+        this.vaultPopupListTableFiltersService.setCachedVaultScopeId(
+          params.get("vaultId"),
+          scopedCollectionSegment(params, data),
+        ),
       );
 
     combineLatest([

@@ -325,4 +325,128 @@ describe("VaultSwitcherComponent", () => {
       expect(navigate).toHaveBeenCalledWith(["/tabs/vault"], { replaceUrl: true });
     });
   });
+
+  describe("under data ownership", () => {
+    const OTHER_ORG_ID = "22222222-2222-4222-8222-222222222222";
+    const MY_ITEMS_ID = "33333333-3333-4333-8333-333333333333";
+
+    const orgVault = (id: string, label: string, defaultUserCollectionId?: string) => ({
+      id,
+      type: VaultNavItemType.Organization,
+      label,
+      icon: "bwi-business",
+      enabled: true,
+      defaultUserCollectionId,
+    });
+
+    /** Each option's text, label and caption run together. */
+    const labels = (options: NodeListOf<Element>) =>
+      Array.from(options).map((option) => option.textContent?.replace(/\s+/g, " ").trim());
+
+    /** The nav already sorts organizations; each one's "My items" follows it. */
+    it("lists each organization's My items after it, captioned with its name", () => {
+      nav$.next({
+        vaults: [
+          orgVault(ORG_ID, "Acme corporation", MY_ITEMS_ID),
+          orgVault(OTHER_ORG_ID, "Bitbank", "44444444-4444-4444-8444-444444444444"),
+        ],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+
+      expect(labels(openMenu())).toEqual([
+        "allItems",
+        "Acme corporation",
+        "myItemsV2Acme corporation",
+        "Bitbank",
+        "myItemsV2Bitbank",
+      ]);
+    });
+
+    /** The caption tells one organization's My items from another, so it stays for a lone org. */
+    it("offers a lone organization and its My items", () => {
+      nav$.next({
+        vaults: [orgVault(ORG_ID, "Acme corporation", MY_ITEMS_ID)],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+
+      const options = openMenu();
+
+      expect(labels(options)).toEqual([
+        "allItems",
+        "Acme corporation",
+        "myItemsV2Acme corporation",
+      ]);
+      expect(document.querySelectorAll('[data-testid="vault-switcher-subtitle"]').length).toBe(1);
+    });
+
+    describe("with a My items entry", () => {
+      beforeEach(() => {
+        nav$.next({
+          vaults: [orgVault(ORG_ID, "Acme corporation", MY_ITEMS_ID)],
+          organizationDataOwnership: true,
+        });
+        fixture.detectChanges();
+      });
+
+      it("navigates to the organization's My items route", () => {
+        const options = openMenu();
+        (options[2] as HTMLElement).click();
+
+        expect(clearVaultScopedFilters).toHaveBeenCalled();
+        expect(navigate).toHaveBeenCalledWith(["/tabs/vault", ORG_ID, "my-items"], {
+          replaceUrl: true,
+        });
+      });
+
+      /** The route resolves the sentinel to the collection's id before the scope arrives here. */
+      it("marks My items, not its organization, when the route names it", () => {
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+          collectionId: MY_ITEMS_ID,
+        });
+        fixture.detectChanges();
+
+        expect(fixture.debugElement.query(By.css("h1")).nativeElement.textContent).toContain(
+          "myItemsV2",
+        );
+
+        openMenu();
+        const marks = Array.from(document.querySelectorAll('[data-testid="vault-switcher-check"]'));
+        const visible = marks.map((m) => !m.classList.contains("tw-invisible"));
+
+        expect(visible).toEqual([false, false, true]);
+      });
+
+      it("changes nothing when re-picking My items while in view", () => {
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+          collectionId: MY_ITEMS_ID,
+        });
+        fixture.detectChanges();
+
+        const options = openMenu();
+        (options[2] as HTMLElement).click();
+
+        expect(navigate).not.toHaveBeenCalled();
+      });
+
+      it("still switches from My items to its organization's whole vault", () => {
+        fixture.componentRef.setInput("scope", {
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+          collectionId: MY_ITEMS_ID,
+        });
+        fixture.detectChanges();
+
+        const options = openMenu();
+        (options[1] as HTMLElement).click();
+
+        expect(navigate).toHaveBeenCalledWith(["/tabs/vault", ORG_ID], { replaceUrl: true });
+      });
+    });
+  });
 });

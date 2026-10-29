@@ -6535,6 +6535,9 @@
   "myItems": {
     "message": "My Items"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "adminConsole": {
     "message": "Admin Console"
   },

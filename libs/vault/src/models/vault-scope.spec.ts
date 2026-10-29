@@ -15,6 +15,7 @@ import {
   cipherInScope,
   collectionInScope,
   defaultUserCollectionId,
+  defaultUserCollectionIds,
   folderNameForScope,
   foldersListCommands,
   hasMultipleVaults,
@@ -22,6 +23,7 @@ import {
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   MY_VAULT_ROUTE,
+  offersVaultChoice,
   organizationInScope,
   organizationNameForScope,
   organizationVaultPage,
@@ -197,6 +199,56 @@ describe("isPersonalOnly", () => {
     const nav = buildNav([buildNavItem(organizationId, VaultNavItemType.Organization)], true);
 
     expect(isPersonalOnly(nav)).toBe(false);
+  });
+});
+
+describe("offersVaultChoice", () => {
+  it("is false until the account's vaults load", () => {
+    expect(offersVaultChoice(undefined)).toBe(false);
+  });
+
+  it("is false for a lone vault", () => {
+    expect(offersVaultChoice(personalNav)).toBe(false);
+  });
+
+  it("is true for several vaults", () => {
+    const nav = buildNav([
+      buildNavItem("user-1", VaultNavItemType.Personal),
+      buildNavItem(organizationId, VaultNavItemType.Organization),
+    ]);
+
+    expect(offersVaultChoice(nav)).toBe(true);
+  });
+
+  // The organization and its "My items" are two destinations even though the nav holds one vault.
+  it("is true for one organization with a My items collection", () => {
+    const nav = buildNav(
+      [buildNavItem(organizationId, VaultNavItemType.Organization, myItemsCollectionId)],
+      true,
+    );
+
+    expect(offersVaultChoice(nav)).toBe(true);
+  });
+});
+
+describe("defaultUserCollectionIds", () => {
+  it("collects every organization's My items collection", () => {
+    const otherCollectionId = "other-my-items" as CollectionId;
+    const nav = buildNav(
+      [
+        buildNavItem(organizationId, VaultNavItemType.Organization, myItemsCollectionId),
+        buildNavItem(otherOrganizationId, VaultNavItemType.Organization, otherCollectionId),
+      ],
+      true,
+    );
+
+    expect(defaultUserCollectionIds(nav)).toEqual(
+      new Set([myItemsCollectionId, otherCollectionId]),
+    );
+  });
+
+  it("is empty until the account's vaults load", () => {
+    expect(defaultUserCollectionIds(undefined).size).toBe(0);
   });
 });
 

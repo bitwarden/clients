@@ -31,7 +31,7 @@
   <vault-coachmark #switchVaultsCoachmark stepId="switchVaults" />
   <bit-menu #vaultOptions>
     @for (entry of entries(); track entry.id) {
-      <button type="button" bitMenuItem (click)="select(entry.id)">
+      <button type="button" bitMenuItem (click)="select(entry)">
         <bit-icon
           name="bwi-check"
           slot="start"
@@ -39,15 +39,27 @@
           data-testid="vault-switcher-check"
           [class.tw-invisible]="entry.id !== selectedId()"
         ></bit-icon>
+        <!-- In the start slot so a two-line label sits beside the tile rather than under it. -->
         <bit-icon-tile
           [icon]="entry.tile.icon"
           [variant]="entry.tile.variant ?? 'primary'"
           [color]="entry.tile.color"
           [emphasis]="entry.tile.emphasis ?? 'subtle'"
           size="xs"
-          class="tw-mr-2"
+          slot="start"
         ></bit-icon-tile>
-        {{ entry.label }}
+        @if (entry.subtitle) {
+          <span class="tw-flex tw-flex-col">
+            <span class="tw-truncate">{{ entry.label }}</span>
+            <span
+              class="tw-truncate tw-text-xs tw-font-normal tw-text-fg-body-subtle"
+              data-testid="vault-switcher-subtitle"
+              >{{ entry.subtitle }}</span
+            >
+          </span>
+        } @else {
+          {{ entry.label }}
+        }
       </button>
     }
   </bit-menu>
