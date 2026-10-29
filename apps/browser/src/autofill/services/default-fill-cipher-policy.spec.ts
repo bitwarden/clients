@@ -2,10 +2,9 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, Subject, toArray } from "rxjs";
 
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherUse } from "./abstractions/fill-cipher-policy";
@@ -25,17 +24,18 @@ describe("DefaultFillCipherPolicy", () => {
     policy = new DefaultFillCipherPolicy(cipherService);
   });
 
-  it("emits changed$ for every stored cipher change", async () => {
-    const ciphers$ = new Subject<Record<CipherId, CipherData>>();
-    cipherService.ciphers$.mockReturnValue(ciphers$);
+  it("emits changed$ after each decryption and not while decryption is in progress", async () => {
+    const cipherViews$ = new Subject<CipherView[] | null>();
+    cipherService.cipherViews$.mockReturnValue(cipherViews$);
 
     const emitted = firstValueFrom(policy.changed$(userId).pipe(toArray()));
-    ciphers$.next({});
-    ciphers$.next({});
-    ciphers$.complete();
+    cipherViews$.next([view("a")]);
+    cipherViews$.next(null);
+    cipherViews$.next([view("b")]);
+    cipherViews$.complete();
 
     expect(await emitted).toEqual([undefined, undefined]);
-    expect(cipherService.ciphers$).toHaveBeenCalledWith(userId);
+    expect(cipherService.cipherViews$).toHaveBeenCalledWith(userId);
   });
 
   it.each(Object.values(CipherUse))("returns the stored ciphers for %s", async (use) => {
