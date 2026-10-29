@@ -1,6 +1,6 @@
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
-import { sendExtensionMessage } from "../utils";
+import { autoCompleteTypeIncludesToken, sendExtensionMessage } from "../utils";
 import {
   fieldContainsKeyword,
   getSubmitButtonKeywordsSet,
@@ -21,7 +21,6 @@ import {
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
-import AutofillService from "./autofill.service";
 
 export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
@@ -1109,11 +1108,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     // WHATWG autofill tokens. Catches sites with a show password toggle
     // that flips the type to text while preserving autocomplete.
     if (
-      AutofillService.autoCompleteTypeIncludesToken(
+      autoCompleteTypeIncludesToken(
         field.autoCompleteType,
         AutoFillConstants.AutocompleteCurrentPassword,
       ) ||
-      AutofillService.autoCompleteTypeIncludesToken(
+      autoCompleteTypeIncludesToken(
         field.autoCompleteType,
         AutoFillConstants.AutocompleteNewPassword,
       )
@@ -1302,11 +1301,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     }
 
     if (typeof compareValues === "string") {
-      return AutofillService.autoCompleteTypeIncludesToken(fieldAutocompleteValue, compareValues);
+      return autoCompleteTypeIncludesToken(fieldAutocompleteValue, compareValues);
     }
 
     for (const token of compareValues) {
-      if (AutofillService.autoCompleteTypeIncludesToken(fieldAutocompleteValue, token)) {
+      if (autoCompleteTypeIncludesToken(fieldAutocompleteValue, token)) {
         return true;
       }
     }

@@ -600,3 +600,24 @@ export function isSubFramePositioningMessageData(
         candidate.parentFrameIds.every((id) => Number.isFinite(id))))
   );
 }
+
+/**
+ * True if `autoCompleteType` includes `token` as a space-separated autocomplete token.
+ * Handles compound tokens such as `section-login current-password`.
+ */
+export function autoCompleteTypeIncludesToken(
+  autoCompleteType: string | null | undefined,
+  token: string,
+): boolean {
+  if (autoCompleteType == null || typeof autoCompleteType !== "string") {
+    return false;
+  }
+
+  const normalizedToken = token.trim().toLowerCase();
+  if (!normalizedToken) {
+    return false;
+  }
+
+  const parts = autoCompleteType.trim().toLowerCase().split(/\s+/);
+  return parts.includes(normalizedToken);
+}

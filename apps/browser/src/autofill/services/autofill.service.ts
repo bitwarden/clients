@@ -58,6 +58,7 @@ import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AUTOFILL_DENIED, FillOccurred, FillResult } from "../types/fill-result";
+import { autoCompleteTypeIncludesToken } from "../utils";
 import {
   fieldContainsKeyword,
   isNonLoginUsernameField,
@@ -3178,17 +3179,7 @@ export default class AutofillService implements AutofillServiceInterface {
     autoCompleteType: string | null | undefined,
     token: string,
   ): boolean {
-    if (autoCompleteType == null || typeof autoCompleteType !== "string") {
-      return false;
-    }
-
-    const normalizedToken = token.trim().toLowerCase();
-    if (!normalizedToken) {
-      return false;
-    }
-
-    const parts = autoCompleteType.trim().toLowerCase().split(/\s+/);
-    return parts.includes(normalizedToken);
+    return autoCompleteTypeIncludesToken(autoCompleteType, token);
   }
 
   /**
