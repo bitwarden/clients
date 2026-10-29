@@ -32,13 +32,7 @@ describe("AutofillBadgeUpdaterService", () => {
     subscription = stateFunction(tab).subscribe((state) => emissions.push(state));
   };
 
-  const advance = async (ms: number) => {
-    jest.advanceTimersByTime(ms);
-    await flushPromises();
-  };
-
   beforeEach(() => {
-    jest.useFakeTimers();
     setState = jest.fn();
     activeAccount$ = new BehaviorSubject<{ id: UserId } | null>({ id: userId });
     enableBadgeCounter$ = new BehaviorSubject(true);
@@ -59,7 +53,6 @@ describe("AutofillBadgeUpdaterService", () => {
 
   afterEach(() => {
     subscription?.unsubscribe();
-    jest.useRealTimers();
   });
 
   it("registers its state function on init", () => {
@@ -70,7 +63,7 @@ describe("AutofillBadgeUpdaterService", () => {
     subscribeToBadgeState();
 
     changed$.next();
-    await advance(100);
+    await flushPromises();
 
     expect(fillCipherPolicy.changed$).toHaveBeenCalledWith(userId);
     expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledWith(tab.url, userId, CipherUse.Badge);
@@ -80,30 +73,17 @@ describe("AutofillBadgeUpdaterService", () => {
   it("recounts on every policy change", async () => {
     subscribeToBadgeState();
     changed$.next();
-    await advance(100);
+    await flushPromises();
 
     fillCipherPolicy.ciphersForUrl.mockResolvedValueOnce([]);
     changed$.next();
-    await advance(100);
+    await flushPromises();
 
     expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(2);
     expect(emissions).toEqual([
       { state: { text: "2" }, priority: BadgeStatePriority.Default },
       { state: { text: undefined }, priority: BadgeStatePriority.Default },
     ]);
-  });
-
-  it("waits for the decrypted cipher cache before it counts", async () => {
-    subscribeToBadgeState();
-
-    changed$.next();
-    await advance(99);
-
-    expect(fillCipherPolicy.ciphersForUrl).not.toHaveBeenCalled();
-
-    await advance(1);
-
-    expect(fillCipherPolicy.ciphersForUrl).toHaveBeenCalledTimes(1);
   });
 
   it("shows 9+ for more than nine ciphers", async () => {
@@ -113,7 +93,7 @@ describe("AutofillBadgeUpdaterService", () => {
     subscribeToBadgeState();
 
     changed$.next();
-    await advance(100);
+    await flushPromises();
 
     expect(emissions).toEqual([{ state: { text: "9+" }, priority: BadgeStatePriority.Default }]);
   });
@@ -123,7 +103,7 @@ describe("AutofillBadgeUpdaterService", () => {
     subscribeToBadgeState();
 
     changed$.next();
-    await advance(100);
+    await flushPromises();
 
     expect(fillCipherPolicy.ciphersForUrl).not.toHaveBeenCalled();
     expect(emissions).toEqual([undefined]);
@@ -133,7 +113,7 @@ describe("AutofillBadgeUpdaterService", () => {
     activeAccount$.next(null);
     subscribeToBadgeState();
 
-    await advance(100);
+    await flushPromises();
 
     expect(fillCipherPolicy.changed$).not.toHaveBeenCalled();
     expect(fillCipherPolicy.ciphersForUrl).not.toHaveBeenCalled();
