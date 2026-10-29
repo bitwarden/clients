@@ -2633,7 +2633,7 @@ describe("NotificationBackground", () => {
           );
         });
 
-        it("drops a locked save the fill cipher policy does not offer", async () => {
+        it("drops an AddLogin save the fill cipher policy does not offer", async () => {
           const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const data = { username: "test", password: "revealed", uri: "https://example.com" };
@@ -2643,7 +2643,7 @@ describe("NotificationBackground", () => {
               tab,
               domain: "example.com",
               data,
-              wasVaultLocked: true,
+              wasVaultLocked: false,
             }),
           ];
           fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
@@ -2652,10 +2652,77 @@ describe("NotificationBackground", () => {
           await flushPromises();
 
           expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(data, userId);
-          expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
+          expect(notificationBackground["notificationQueue"]).toHaveLength(0);
+          expect(createWithServerSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).not.toHaveBeenCalled();
           expect(editItemSpy).not.toHaveBeenCalled();
+          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(tab, "closeNotificationBar", {
+            closedByUser: false,
+          });
+          expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(
+            tab,
+            "saveCipherAttemptCompleted",
+            expect.anything(),
+          );
+        });
+
+        it("drops a ChangePassword update the fill cipher policy does not offer", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          notificationBackground["notificationQueue"] = [
+            mock<AddChangePasswordNotificationQueueMessage>({
+              type: NotificationType.ChangePassword,
+              tab,
+              domain: "example.com",
+              data: { newPassword: "revealed" },
+              wasVaultLocked: true,
+            }),
+          ];
+          fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
+
+          sendMockExtensionMessage(
+            { command: "bgSaveCipher", edit: false, cipherId: "testId" },
+            sender,
+          );
+          await flushPromises();
+
+          expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(
+            { uri: "https://example.com", newPassword: "revealed" },
+            userId,
+          );
+          expect(notificationBackground["notificationQueue"]).toHaveLength(0);
+          expect(getDecryptedCipherByIdSpy).not.toHaveBeenCalled();
+          expect(updatePasswordSpy).not.toHaveBeenCalled();
+          expect(updateWithServerSpy).not.toHaveBeenCalled();
           expect(createWithServerSpy).not.toHaveBeenCalled();
+          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(tab, "closeNotificationBar", {
+            closedByUser: false,
+          });
+        });
+
+        it("saves an AddLogin the fill cipher policy offers", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const data = { username: "test", password: "password", uri: "https://example.com" };
+          notificationBackground["notificationQueue"] = [
+            mock<AddLoginQueueMessage>({
+              type: NotificationType.AddLogin,
+              tab,
+              domain: "example.com",
+              data,
+              wasVaultLocked: false,
+            }),
+          ];
+          createWithServerSpy.mockResolvedValueOnce(mock<CipherView>({ id: "testId" }));
+
+          sendMockExtensionMessage({ command: "bgSaveCipher", edit: false }, sender);
+          await flushPromises();
+
+          expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(data, userId);
+          expect(createWithServerSpy).toHaveBeenCalled();
+          expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(tab, "closeNotificationBar", {
+            closedByUser: false,
+          });
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {
@@ -2931,6 +2998,56 @@ describe("NotificationBackground", () => {
             },
           );
         });
+      });
+    });
+
+    describe("bgOpenAddEditVaultItemPopout message handler", () => {
+      const data = { username: "test", password: "revealed", uri: "https://example.com" };
+      let tab: chrome.tabs.Tab;
+      let sender: chrome.runtime.MessageSender;
+      let setAddEditCipherInfoSpy: jest.SpyInstance;
+      let openAddEditVaultItemPopoutSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+        sender = mock<chrome.runtime.MessageSender>({ tab });
+        notificationBackground["notificationQueue"] = [
+          mock<AddLoginQueueMessage>({
+            type: NotificationType.AddLogin,
+            tab,
+            domain: "example.com",
+            data,
+          }),
+        ];
+        accountService.activeAccount$ = activeAccountSubject;
+        setAddEditCipherInfoSpy = jest
+          .spyOn(cipherService, "setAddEditCipherInfo")
+          .mockResolvedValue(undefined);
+        openAddEditVaultItemPopoutSpy = jest
+          .spyOn(notificationBackground as any, "openAddEditVaultItemPopout")
+          .mockResolvedValue(undefined);
+      });
+
+      it("leaves the password out of the draft when the fill cipher policy does not offer the form", async () => {
+        fillCipherPolicy.canOfferSave.mockResolvedValueOnce(false);
+
+        sendMockExtensionMessage({ command: "bgOpenAddEditVaultItemPopout" }, sender);
+        await flushPromises();
+
+        expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(data, userId);
+        const { cipher } = setAddEditCipherInfoSpy.mock.calls[0][0];
+        expect(cipher.login.username).toBe("test");
+        expect(cipher.login.password).toBe("");
+        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalledWith(tab);
+      });
+
+      it("keeps the password in the draft when the fill cipher policy offers the form", async () => {
+        sendMockExtensionMessage({ command: "bgOpenAddEditVaultItemPopout" }, sender);
+        await flushPromises();
+
+        const { cipher } = setAddEditCipherInfoSpy.mock.calls[0][0];
+        expect(cipher.login.password).toBe("revealed");
+        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalledWith(tab);
       });
     });
 
