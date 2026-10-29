@@ -134,7 +134,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         await sdk.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
       });
     } catch (e) {
-      await this.handleKeyConnectorError(e);
+      await this.handleKeyConnectorError(e, userId);
     }
 
     await this.setUsesKeyConnector(true, userId);
@@ -263,7 +263,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     try {
       await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
     } catch (e) {
-      await this.handleKeyConnectorError(e);
+      await this.handleKeyConnectorError(e, userId);
     }
 
     const keys = new KeysRequest(pubKey, privKey.encryptedString);
@@ -310,12 +310,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
   }
 
-  private async handleKeyConnectorError(e: any) {
+  private async handleKeyConnectorError(e: any, userId: UserId) {
     this.logService.error(e);
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    if (userId != null) {
-      await this.logoutService.logout(userId, "keyConnectorError");
-    }
+    await this.logoutService.logout(userId, "keyConnectorError");
     throw new Error("Key Connector error");
   }
 

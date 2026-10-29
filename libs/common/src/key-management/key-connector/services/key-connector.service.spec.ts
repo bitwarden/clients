@@ -297,6 +297,21 @@ describe("KeyConnectorService", () => {
       expect(masterPasswordService.mock.clearMasterPasswordUnlockData).not.toHaveBeenCalled();
       expect(userDecryptionOptionsService.setUserDecryptionOptionsById).not.toHaveBeenCalled();
     });
+
+    it("should log out the migrating user, not the active user, when migration fails", async () => {
+      // Arrange
+      const migratingUserId = Utils.newGuid() as UserId;
+      migrateToKeyConnector.mockRejectedValue(new Error("Failed to migrate to key connector"));
+
+      // Act
+      await expect(
+        keyConnectorService.migrateUser(keyConnectorUrl, migratingUserId),
+      ).rejects.toThrow("Key Connector error");
+
+      // Assert
+      expect(logoutService.logout).toHaveBeenCalledTimes(1);
+      expect(logoutService.logout).toHaveBeenCalledWith(migratingUserId, "keyConnectorError");
+    });
   });
 
   describe("convertAccountRequired$", () => {
