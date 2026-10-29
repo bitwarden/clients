@@ -54,6 +54,11 @@
         </bit-cell>
       </bit-column>
       <bit-column>
+        <bit-header-cell>{{ "pamAccessConnectorLastSeen" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="loadingTable.columns.lastSeenAtMs"></bit-cell>
+        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
+      </bit-column>
+      <bit-column>
         <bit-header-cell>{{ "pamAccessConnectorAssignments" | i18n }}</bit-header-cell>
         <bit-cell *bitCellDef="loadingTable.columns.assignmentNames"></bit-cell>
         <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
@@ -132,7 +137,7 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column>
+    <bit-column sortable [sortFn]="sortByStatus">
       <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.statusLabelKey; let r" [truncate]="false">
         @if (r.enabled) {
@@ -143,7 +148,7 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column>
+    <bit-column sortable [sortFn]="sortByConnection">
       <bit-header-cell>{{ "pamAccessConnectorConnection" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.isConnected; let r" [truncate]="false">
         <span bitBadge [variant]="r.isConnected ? 'success' : 'secondary'">{{
@@ -152,7 +157,26 @@
       </bit-cell>
     </bit-column>
 
-    <bit-column>
+    <bit-column sortable [sortFn]="sortByLastSeen">
+      <bit-header-cell>{{ "pamAccessConnectorLastSeen" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.lastSeenAtMs; let r" [truncate]="false">
+        @if (r.lastSeenAtMs != null) {
+          <span
+            class="tw-text-sm"
+            data-testid="last-seen"
+            tabindex="0"
+            [bitTooltip]="r.lastSeenAtMs | date: 'medium'"
+            [addTooltipToDescribedby]="true"
+          >
+            {{ r.lastSeenLabel ?? (r.lastSeenAtMs | date: "medium") }}
+          </span>
+        } @else {
+          <span class="tw-text-sm" data-testid="last-seen">{{ "never" | i18n }}</span>
+        }
+      </bit-cell>
+    </bit-column>
+
+    <bit-column sortable [sortFn]="sortByAssignments">
       <bit-header-cell>{{ "pamAccessConnectorAssignments" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.assignmentNames; let r" [truncate]="false">
         @if (r.assignmentNames.length === 0) {

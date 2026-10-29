@@ -159,8 +159,14 @@
                   {{ "pamAccessConnectorLastSeen" | i18n }}
                 </p>
                 <p bitTypography="body1" class="tw-m-0" data-testid="connector-last-seen">
-                  @if (d.connector.lastHeartbeatAt) {
-                    {{ d.connector.lastHeartbeatAt | date: "medium" }}
+                  @if (lastSeenAtMs() != null) {
+                    <span
+                      tabindex="0"
+                      [bitTooltip]="lastSeenAtMs() | date: 'medium'"
+                      [addTooltipToDescribedby]="true"
+                    >
+                      {{ lastSeenLabel() ?? (lastSeenAtMs() | date: "medium") }}
+                    </span>
                   } @else {
                     <span class="tw-text-muted">{{ "never" | i18n }}</span>
                   }

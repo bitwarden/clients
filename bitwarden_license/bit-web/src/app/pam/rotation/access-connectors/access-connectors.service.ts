@@ -20,6 +20,8 @@ export type AccessConnectorRow = {
   name: string;
   statusLabelKey: "active" | "inactive";
   isConnected: boolean;
+  /** When the access connector last checked in, in epoch milliseconds; null if it never has. */
+  lastSeenAtMs: number | null;
   /** Target system names for the assignment badges, falling back to the raw ID when unresolved. */
   assignmentNames: string[];
   enabled: boolean;
@@ -210,6 +212,7 @@ export class AccessConnectorsService {
       name: accessConnector.name,
       statusLabelKey: accessConnectorStatusLabelKey(accessConnector.status),
       isConnected: accessConnector.isConnected,
+      lastSeenAtMs: parseTimestamp(accessConnector.lastHeartbeatAt),
       assignmentNames: accessConnector.assignedTargetSystemIds.map(
         (id) => systemById.get(id)?.name ?? String(id),
       ),
@@ -218,4 +221,12 @@ export class AccessConnectorsService {
       accessConnector,
     }));
   }
+}
+
+function parseTimestamp(value: string | null | undefined): number | null {
+  if (value == null) {
+    return null;
+  }
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? null : ms;
 }
