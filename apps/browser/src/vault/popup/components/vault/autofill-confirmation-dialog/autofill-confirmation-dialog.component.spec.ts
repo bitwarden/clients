@@ -207,6 +207,24 @@ describe("AutofillConfirmationDialogComponent", () => {
     ]);
   });
 
+  it("includes non-default ports in formatted hostnames", async () => {
+    const { component: c } = await createFreshFixture({
+      params: {
+        currentUrl: "https://example.com:8443/login",
+        savedUris: [makeUri("https://example.com/login"), makeUri("https://example.com:8080")],
+      },
+    });
+    expect(c.formattedCurrentUrl()).toBe("example.com:8443");
+    expect(c.formattedSavedUrls()).toEqual(["example.com", "example.com:8080"]);
+  });
+
+  it("omits default ports from formatted hostnames", async () => {
+    const { component: c } = await createFreshFixture({
+      params: { currentUrl: "https://example.com:443/login", savedUris: [] },
+    });
+    expect(c.formattedCurrentUrl()).toBe("example.com");
+  });
+
   it("formattedSavedUrls returns full URIs when default strategy is StartsWith", async () => {
     const { component: c } = await createFreshFixture({
       uriMatchStrategy: UriMatchStrategy.StartsWith,
@@ -494,6 +512,16 @@ describe("AutofillConfirmationDialogComponent", () => {
       const text = vf.nativeElement.textContent as string;
       expect(text).not.toContain("loginNeverMatchTitle");
       expect(text).not.toContain("neverMatch");
+    });
+
+    it("currentUrlMatchesNeverUri is false when the Never URI has a different port", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com:8443/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.currentUrlMatchesNeverUri()).toBe(false);
     });
 
     it("shows URI match rule label and neverMatch badge", async () => {
