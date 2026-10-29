@@ -26,6 +26,12 @@ import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 
 /**
+ * Ciphers per SDK call in {@link DefaultCipherSdkService.legacyDecryptFullViewList}. Bounds the
+ * SDK's peak memory to one batch of inputs and outputs, while keeping the calls few.
+ */
+const DECRYPT_BATCH_SIZE = 250;
+
+/**
  * The SDK refuses an edit of a restricted cipher locally (`GatedCipher`) or when the original it
  * was given is itself restricted (`PartialOriginal`). Vault shows one message for both.
  */
@@ -521,19 +527,36 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
-  async getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult> {
+  async legacyDecryptFullViewList(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<DecryptAllCiphersResult> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
           const sdkCiphersClient = ref.value.vault().ciphers();
 
-          const decryptResult = await sdkCiphersClient.get_all();
+          const result: DecryptAllCiphersResult = { successes: [], failures: [] };
 
-          return this.toDecryptAllCiphersResult(decryptResult);
+          // In batches: WebAssembly memory grows to the largest call and never shrinks. For
+          // example, decrypting a 12.000 item vault in one call permanently raises the SDK memory
+          // by 130MB.
+          for (let start = 0; start < ciphers.length; start += DECRYPT_BATCH_SIZE) {
+            const batch = ciphers.slice(start, start + DECRYPT_BATCH_SIZE);
+            const decryptResult = await sdkCiphersClient.decrypt_list_full_with_failures(
+              batch.map((cipher) => cipher.toSdkCipher()),
+            );
+
+            const { successes, failures } = this.toDecryptAllCiphersResult(decryptResult);
+            result.successes.push(...successes);
+            result.failures.push(...failures);
+          }
+
+          return result;
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to list and decrypt ciphers: ${error}`);
+          this.logService.error(`Failed to decrypt ciphers: ${error}`);
           throw error;
         }),
       ),
