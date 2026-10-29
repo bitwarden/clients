@@ -46,8 +46,15 @@ export default {
   render: () => ({ template: `<router-outlet></router-outlet>` }),
   decorators: [
     moduleMetadata({
-      declarations: [AcceptProviderComponent],
-      imports: [CommonModule, RouterModule, JslibModule, SvgModule, TypographyModule, ButtonModule],
+      imports: [
+        AcceptProviderComponent,
+        CommonModule,
+        RouterModule,
+        JslibModule,
+        SvgModule,
+        TypographyModule,
+        ButtonModule,
+      ],
     }),
     applicationConfig({
       providers: [

@@ -140,6 +140,8 @@ describe("BitwardenPasswordProtectedImporter", () => {
       passwordProtected?: boolean;
       salt?: string;
       kdfIterations?: any;
+      kdfMemory?: any;
+      kdfParallelism?: any;
       kdfType?: any;
       encKeyValidation_DO_NOT_EDIT?: string;
       data?: string;
@@ -201,6 +203,75 @@ describe("BitwardenPasswordProtectedImporter", () => {
     it("fails if data === null", async () => {
       jDoc.data = null;
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(false);
+    });
+
+    describe("KDF parameter bounds", () => {
+      beforeEach(() => {
+        i18nService.t.mockImplementation((key) => key);
+      });
+
+      it("succeeds with in-range Argon2id parameters", async () => {
+        encryptService.decryptString.mockResolvedValue(emptyUnencryptedExport);
+        jDoc.kdfType = KdfType.Argon2id;
+        jDoc.kdfIterations = 3;
+        jDoc.kdfMemory = 64;
+        jDoc.kdfParallelism = 4;
+
+        expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(true);
+      });
+
+      it("fails without deriving a key when kdfMemory is out of bounds", async () => {
+        jDoc.kdfType = KdfType.Argon2id;
+        jDoc.kdfIterations = 3;
+        jDoc.kdfMemory = 999999;
+        jDoc.kdfParallelism = 4;
+
+        const result = await importer.parse(JSON.stringify(jDoc));
+
+        expect(result.success).toBe(false);
+        expect(result.errorMessage).toBe("importUnsupportedKdfSettings");
+        expect(keyGenerationService.deriveVaultExportKey).not.toHaveBeenCalled();
+      });
+
+      it("fails without prompting for a password when kdfMemory is out of bounds", async () => {
+        const promptForPassword = jest.fn(async () => password);
+        importer = new BitwardenPasswordProtectedImporter(
+          keyService,
+          encryptService,
+          i18nService,
+          cipherService,
+          keyGenerationService,
+          accountService,
+          promptForPassword,
+        );
+        jDoc.kdfType = KdfType.Argon2id;
+        jDoc.kdfIterations = 3;
+        jDoc.kdfMemory = 999999;
+        jDoc.kdfParallelism = 4;
+
+        expect((await importer.parse(JSON.stringify(jDoc))).success).toBe(false);
+        expect(promptForPassword).not.toHaveBeenCalled();
+      });
+
+      it("fails when Argon2id parameters are missing entirely", async () => {
+        jDoc.kdfType = KdfType.Argon2id;
+
+        const result = await importer.parse(JSON.stringify(jDoc));
+
+        expect(result.success).toBe(false);
+        expect(result.errorMessage).toBe("importUnsupportedKdfSettings");
+        expect(keyGenerationService.deriveVaultExportKey).not.toHaveBeenCalled();
+      });
+
+      it("fails without deriving a key when PBKDF2 iterations are out of bounds", async () => {
+        jDoc.kdfIterations = 999999999;
+
+        const result = await importer.parse(JSON.stringify(jDoc));
+
+        expect(result.success).toBe(false);
+        expect(result.errorMessage).toBe("importUnsupportedKdfSettings");
+        expect(keyGenerationService.deriveVaultExportKey).not.toHaveBeenCalled();
+      });
     });
 
     it("returns invalidFilePassword errorMessage if decryptString throws", async () => {

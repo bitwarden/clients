@@ -47,8 +47,20 @@
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "This file uses unsupported encryption settings and cannot be imported."
+  },
   "importNothingError": {
     "message": "Nothing was imported."
+  },
+  "importDirectOnlyError": {
+    "message": "$FORMAT$ signs in to the vendor instead of reading a file, so it cannot be imported with the CLI.",
+    "placeholders": {
+      "format": {
+        "content": "$1",
+        "example": "1Password (direct)"
+      }
+    }
   },
   "verificationCodeRequired": {
     "message": "Verification code is required."

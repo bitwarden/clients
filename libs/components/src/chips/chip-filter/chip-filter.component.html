@@ -6,8 +6,7 @@
       !selectedOption ? (menuTrigger.isOpen() ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
     "
     type="button"
-    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit] tw-ps-2"
-    [class]="'tw-pb-[calc(theme(spacing.1)_-_1px)]'"
+    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit] -tw-my-px tw-ps-2 tw-py-1"
     [class.tw-cursor-not-allowed]="disabled()"
     [bitMenuTriggerFor]="menu"
     [disabled]="disabled()"
@@ -19,11 +18,9 @@
     <span class="tw-block tw-truncate tw-min-w-0">{{ label }}</span>
   </button>
   @if (selectedOption) {
-    <!-- manually position dismiss button due to padding inconsistency necessary for menu alignment -->
     <button
       bit-chip-dismiss-button
       slot="end"
-      class="tw-relative tw-bottom-[1px]"
       type="button"
       [attr.aria-label]="'removeItem' | i18n: label"
       [disabled]="disabled()"

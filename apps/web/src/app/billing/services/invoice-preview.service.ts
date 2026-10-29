@@ -6,6 +6,7 @@ import { adaptInvoicePreviewToCart, Cart, InvoicePreviewFlowContext } from "@bit
 import {
   InvoicePreviewClient,
   OrganizationPlanChangePreviewRequest,
+  OrganizationRestartPreviewRequest,
   OrganizationPurchasePreviewRequest,
   PremiumOrgUpgradePreviewRequest,
   PremiumPurchasePreviewRequest,
@@ -89,6 +90,22 @@ export class InvoicePreviewService {
     return adaptInvoicePreviewToCart(
       preview,
       InvoicePreviewFlowContext.OrganizationPlanChange,
+      this.logService,
+    );
+  };
+
+  previewRestartCart = async (
+    organizationId: string,
+    request: OrganizationRestartPreviewRequest,
+  ): Promise<Cart> => {
+    const preview = await this.invoicePreviewClient.previewOrganizationRestart(
+      organizationId,
+      request,
+    );
+
+    return adaptInvoicePreviewToCart(
+      preview,
+      InvoicePreviewFlowContext.RestartSubscription,
       this.logService,
     );
   };

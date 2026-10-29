@@ -1,13 +1,22 @@
 import { signal, WritableSignal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { CoachmarkService } from "../components/coachmark/coachmark.service";
+import {
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_SWITCH_PRODUCTS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
+} from "../components/coachmark/tours/vfo1-walkthrough-tour";
+import { VaultsNavViewModel } from "../models/vault-nav-view-model";
 
+import { VaultNavService } from "./vault-nav.service";
 import { Vfo1TourCalloutService } from "./vfo1-tour-callout.service";
 
 describe("Vfo1TourCalloutService", () => {
@@ -16,12 +25,15 @@ describe("Vfo1TourCalloutService", () => {
   let walkthroughPending: BehaviorSubject<boolean>;
   let newExperiencePending: BehaviorSubject<boolean>;
   let running: WritableSignal<boolean>;
+  const startTour = jest.fn();
+  const viewModel$ = jest.fn();
   const userId = "user-id" as UserId;
 
   beforeEach(() => {
     walkthroughPending = new BehaviorSubject(true);
     newExperiencePending = new BehaviorSubject(false);
     running = signal(false);
+    startTour.mockClear();
 
     nudgesService = mock<NudgesService>();
     nudgesService.showNudgeSpotlight$.mockImplementation((nudge) =>
@@ -32,7 +44,13 @@ describe("Vfo1TourCalloutService", () => {
       providers: [
         Vfo1TourCalloutService,
         { provide: NudgesService, useValue: nudgesService },
-        { provide: CoachmarkService, useValue: { isRunning: running, startTour: jest.fn() } },
+        { provide: CoachmarkService, useValue: { isRunning: running, startTour } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: userId } as Account) } },
+        { provide: VaultNavService, useValue: { viewModel$ } },
+        {
+          provide: VFO1_WALKTHROUGH_STEPS,
+          useValue: [VFO1_SWITCH_PRODUCTS_STEP, VFO1_VAULT_LIST_STEP, VFO1_SHARED_FOLDERS_STEP],
+        },
       ],
     });
 
@@ -82,6 +100,40 @@ describe("Vfo1TourCalloutService", () => {
       walkthroughPending.next(false);
 
       expect(await firstValueFrom(service.claimsSlot$(userId))).toBe(false);
+    });
+  });
+
+  describe("startTour", () => {
+    const startedStepIds = async (nav: VaultsNavViewModel) => {
+      viewModel$.mockReturnValue(of(nav));
+
+      await service.startTour();
+
+      return startTour.mock.calls[0][0].steps.map((step: { id: string }) => step.id);
+    };
+
+    const vaultsNav = (
+      vaultCount: number,
+      organizationDataOwnership = false,
+    ): VaultsNavViewModel => ({
+      vaults: Array.from({ length: vaultCount }, (_, i) => ({ id: `vault-${i}` })) as never,
+      organizationDataOwnership,
+    });
+
+    it("keeps the vault list step when the nav lists several vaults under a Vaults header", async () => {
+      expect(await startedStepIds(vaultsNav(2))).toEqual([
+        "switchProducts",
+        "vaultList",
+        "sharedFolders",
+      ]);
+    });
+
+    it("drops the vault list step for an account with only its personal vault", async () => {
+      expect(await startedStepIds(vaultsNav(1))).toEqual(["switchProducts", "sharedFolders"]);
+    });
+
+    it("drops the vault list step for an account under data ownership", async () => {
+      expect(await startedStepIds(vaultsNav(2, true))).toEqual(["switchProducts", "sharedFolders"]);
     });
   });
 

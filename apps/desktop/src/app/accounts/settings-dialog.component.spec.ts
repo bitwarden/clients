@@ -1092,6 +1092,49 @@ describe("SettingsDialogComponent", () => {
         });
       });
 
+      // The status check fails while the key is deleted, which unchecks the box (PM-45438).
+      it.each([
+        { platform: "windows", isWindows: true, isLinux: false },
+        { platform: "linux", isWindows: false, isLinux: true },
+      ])(
+        "checks the biometrics status only after the key is deleted and stored again on $platform",
+        async ({ isWindows, isLinux }) => {
+          (component as any).isWindows = isWindows;
+          (component as any).isLinux = isLinux;
+          (component as any).userHasMasterPassword.set(true);
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          let resolveDelete!: () => void;
+          desktopBiometricsService.deleteBiometricUnlockKeyForUser.mockReturnValue(
+            new Promise((resolve) => (resolveDelete = resolve)),
+          );
+
+          const update = (component as any).updateBiometricHandler(true);
+          await new Promise((resolve) => setTimeout(resolve));
+
+          expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+            mockUserId,
+          );
+          expect(desktopBiometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+
+          resolveDelete();
+          await update;
+
+          const [lastStoreOrder] =
+            desktopBiometricsService.setBiometricProtectedUnlockKeyForUser.mock.invocationCallOrder.slice(
+              -1,
+            );
+          const [statusCheckOrder] =
+            desktopBiometricsService.getBiometricsStatusForUser.mock.invocationCallOrder;
+          expect(statusCheckOrder).toBeGreaterThan(lastStoreOrder);
+          expect((component as any).form.controls.biometric.value).toBe(true);
+        },
+      );
+
       it.each([
         BiometricsStatus.UnlockNeeded,
         BiometricsStatus.HardwareUnavailable,

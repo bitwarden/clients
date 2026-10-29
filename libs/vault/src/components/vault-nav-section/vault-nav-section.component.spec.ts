@@ -5,6 +5,10 @@ import { provideRouter, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
@@ -14,6 +18,7 @@ import {
   NavigationModule,
   PopoverAnchorForDirective,
   SideNavService,
+  ToastService,
 } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
@@ -22,6 +27,7 @@ import {
   VaultNavItemViewModel,
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
 import { VaultNavService } from "../../services/vault-nav.service";
 import {
   VAULT_NAV_ORGANIZATION_OPTIONS,
@@ -119,6 +125,8 @@ describe("VaultNavSectionComponent", () => {
   let fixture: ComponentFixture<VaultNavSectionComponent>;
 
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(personalOnly);
+  const pinnedIds$ = new BehaviorSubject<CollectionId[]>([]);
+  const collections$ = new BehaviorSubject<CollectionView[]>([]);
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
   const accountService = mock<AccountService>();
@@ -193,6 +201,8 @@ describe("VaultNavSectionComponent", () => {
     jest.clearAllMocks();
     activeStepId.set(null);
     viewModel$.next(personalOnly);
+    pinnedIds$.next([]);
+    collections$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
     vaultNavService.viewModel$.mockReturnValue(viewModel$);
@@ -206,6 +216,24 @@ describe("VaultNavSectionComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: VAULT_NAV_ORGANIZATION_OPTIONS, useFactory: () => organizationOptions },
         { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+        },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => collections$ }),
+        },
+        {
+          // Nothing pinned by default and the hint dismissed, so the Pinned section stays out of
+          // the tests that do not pin a folder.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => pinnedIds$,
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         provideRouter(routes),
       ],
@@ -349,6 +377,65 @@ describe("VaultNavSectionComponent", () => {
     });
   });
 
+  describe("a pinned shared folder", () => {
+    const pinnedId = "22222222-2222-4222-8222-222222222222" as CollectionId;
+    const otherId = "33333333-3333-4333-8333-333333333333" as CollectionId;
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      pinnedIds$.next([pinnedId]);
+      collections$.next([
+        new CollectionView({ id: pinnedId, organizationId: "org-a" as any, name: "Pinned one" }),
+        new CollectionView({ id: otherId, organizationId: "org-a" as any, name: "Other" }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("lights the pinned folder and leaves Shared folders unlit while it is in view", async () => {
+      await navigateTo(`/vault/org-a/shared-folders/${pinnedId}`);
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "Pinned one")).toBe(true);
+      expect(navItemIsLit(group, "sharedFolders")).toBe(false);
+    });
+
+    it("keeps a pinned folder with nested folders lit while its group is open", async () => {
+      const childId = "44444444-4444-4444-8444-444444444444" as CollectionId;
+      collections$.next([
+        new CollectionView({ id: pinnedId, organizationId: "org-a" as any, name: "Pinned one" }),
+        new CollectionView({
+          id: childId,
+          organizationId: "org-a" as any,
+          name: "Pinned one/Child",
+        }),
+      ]);
+      await navigateTo(`/vault/org-a/shared-folders/${pinnedId}`);
+      const group = expandGroup("Acme corporation");
+      const folder = fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .find((el) => el.componentInstance.text() === "Pinned one");
+      folder.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      expect(navItemIsLit(group, "Pinned one")).toBe(true);
+      expect(navItemIsLit(group, "sharedFolders")).toBe(false);
+    });
+
+    it("still lights Shared folders on a folder that is not pinned", async () => {
+      await navigateTo(`/vault/org-a/shared-folders/${otherId}`);
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
+    });
+
+    it("lights Shared folders on its own page", async () => {
+      await navigateTo("/vault/org-a/shared-folders");
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
+    });
+  });
+
   describe("coachmark anchor", () => {
     /** Where the tour's popover is open, as `"<organization>/<element>"`. */
     const openAnchors = () =>
@@ -387,6 +474,25 @@ describe("VaultNavSectionComponent", () => {
 
       // One Shared folders entry per organization, and a single popover to place.
       expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
+    });
+
+    it("opens on the first organization's Shared folders entry for the walkthrough step too", () => {
+      activeStepId.set("sharedFolders");
+      fixture.detectChanges();
+
+      expect(openAnchors()).toEqual(["Acme corporation/bit-nav-item"]);
+    });
+
+    it("opens on the vault list wrapper when the vault list step is active", () => {
+      activeStepId.set("vaultList");
+      fixture.detectChanges();
+
+      const open = fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .filter((el) => el.injector.get(PopoverAnchorForDirective).popoverOpen());
+
+      expect(open.map((el) => el.name)).toEqual(["div"]);
+      expect(open[0].nativeElement.textContent).toContain("Acme corporation");
     });
 
     it("stays closed while the step is not active", () => {

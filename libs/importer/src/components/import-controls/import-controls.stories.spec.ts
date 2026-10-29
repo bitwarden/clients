@@ -179,6 +179,7 @@ describe("import-controls.stories i18n and DI coverage", () => {
     component.formGroup.controls.keeperEmail.setValue("user@example.com");
     fixture.detectChanges();
     await component.submit();
+    await component.keeperLogin();
     fixture.detectChanges();
 
     // The Keeper stub always rejects, surfacing as an inline field error, not a dialog.

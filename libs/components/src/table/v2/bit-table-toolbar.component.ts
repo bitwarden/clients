@@ -10,6 +10,7 @@ import {
   contentChildren,
   effect,
   inject,
+  input,
   model,
   signal,
   untracked,
@@ -40,6 +41,7 @@ import {
 import { focusAfterRender } from "../../utils/focus-after-render";
 import { BREAKPOINTS } from "../../utils/responsive-utils";
 
+import { TableRowRange } from "./bit-table-paginator.component";
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
@@ -69,6 +71,13 @@ import { BitTableV2Component } from "./table-v2.component";
 export class BitTableToolbarComponent {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Formats the rows on screen for the end of the filter row, e.g. "1–10 of 150 members", in place
+   * of the default "N items" count. A function rather than a message key so the consumer owns the
+   * noun and its plural forms, including the empty case (`total` 0).
+   */
+  readonly rangeLabel = input<(range: TableRowRange) => string>();
 
   /** Whether the collapsed filter dialog is open. Two-way so a consumer can persist it. */
   readonly filterDialogOpen = model(false);
@@ -192,9 +201,14 @@ export class BitTableToolbarComponent {
     () => !this.wide() || (this.overflowList()?.ready() ?? false),
   );
 
+  /** Whether the filter row shows a count: always with filters, otherwise only for a range label. */
+  protected readonly showCount = computed(
+    () => this.table != null && (this.hasFilters() || this.rangeLabel() != null),
+  );
+
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
-    this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
+    this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters() || this.showCount(),
   );
 
   /**
@@ -256,6 +270,8 @@ export class BitTableToolbarComponent {
     "tw-gap-y-4",
     ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),
     this.insetX(),
+    // Hidden when nothing is projected into it, e.g. a toolbar holding only a range label.
+    "[&:not(:has(>:not(:empty)))]:tw-hidden",
     ...(this.hasFilterRow() && !this.isList()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
@@ -286,7 +302,7 @@ export class BitTableToolbarComponent {
         filter.active();
         filter.summary();
       }
-      this.countDigits();
+      this.countLength();
       this.overflowList()?.remeasure();
     });
 
@@ -336,8 +352,41 @@ export class BitTableToolbarComponent {
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
   protected readonly itemCount = computed(() => this.table?.filteredCount() ?? 0);
 
-  /** The count's width tracks its digits, not its value — see the remeasure effect. */
-  private readonly countDigits = computed(() => String(this.itemCount()).length);
+  /** The {@link rangeLabel} text for the rows on screen, or `undefined` when none is set. */
+  protected readonly rangeText = computed(() => {
+    const range = this.table?.rowRange();
+    return range && this.rangeLabel()?.(range);
+  });
+
+  /**
+   * {@link rangeText} split around its "start–end" run (e.g. "1–10"), which renders emphasized.
+   * The run is found by its numbers so the consumer's wording and separator can vary by locale; a
+   * label without one (e.g. "0 members") renders whole in `before`.
+   */
+  protected readonly rangeParts = computed(() => {
+    const text = this.rangeText();
+    const range = this.table?.rowRange();
+    if (text == null || range == null) {
+      return undefined;
+    }
+    const match =
+      range.total > 0
+        ? new RegExp(`(?<!\\d)${range.start}\\D{1,3}${range.end}(?!\\d)`).exec(text)
+        : null;
+    if (match == null) {
+      return { before: text, range: "", after: "" };
+    }
+    return {
+      before: text.slice(0, match.index),
+      range: match[0],
+      after: text.slice(match.index + match[0].length),
+    };
+  });
+
+  /** The count's width tracks its length, not its value — see the remeasure effect. */
+  private readonly countLength = computed(
+    () => (this.rangeText() ?? String(this.itemCount())).length,
+  );
 
   /** The collapsed trigger's click. */
   protected openFilterDialog(): void {

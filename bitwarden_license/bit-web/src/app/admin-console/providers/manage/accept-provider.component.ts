@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterLink } from "@angular/router";
 
 import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -7,6 +8,8 @@ import { ProviderUserAcceptRequest } from "@bitwarden/common/admin-console/model
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ButtonModule, SvgModule, TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -14,7 +17,7 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 @Component({
   selector: "app-accept-provider",
   templateUrl: "accept-provider.component.html",
-  standalone: false,
+  imports: [CommonModule, RouterLink, SvgModule, TypographyModule, ButtonModule, I18nPipe],
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
   protected logo = BitwardenLogo;

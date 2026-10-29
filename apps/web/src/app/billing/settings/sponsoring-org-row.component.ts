@@ -110,9 +110,8 @@ export class SponsoringOrgRowComponent {
   }
 
   protected async resendEmail() {
-    await this.organizationSponsorshipApiService.postResendSponsorshipOffer(
+    await this.organizationSponsorshipApiService.postResendOwnSponsorshipOffer(
       this.sponsoringOrg().id,
-      this.sponsoringOrg().familySponsorshipFriendlyName,
     );
     this.toastService.showToast({
       variant: "success",

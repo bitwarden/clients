@@ -25,7 +25,8 @@ export interface ImportOption {
   /** Subset of acceptedFileTypes that can also be pasted as plaintext into the textarea */
   pasteFormats: readonly string[];
 
-  /** Whether a direct/API-based import mode exists for this vendor, in addition to file import */
+  /** Whether the vendor can be imported directly through its API. Most such vendors also take a
+   *  file; a direct-only format has no `acceptedFileTypes`, `pasteFormats` or `loaders`. */
   hasDirectImporter: boolean;
 
   /** Describes the strategies used to obtain imported data; baseline for clients that don't
@@ -67,6 +68,20 @@ const chromeImportHelp = "https://bitwarden.com/help/import-from-chrome/";
  *  `ImportType` is derived from its keys, and `importOptions` (the ordered array the dropdown
  *  and CLI use) is derived from its entries. */
 export const importOptionsById = deepFreeze({
+  // Direct import only: signs in to 1Password and pulls the account through the SDK, so there is
+  // no file and no `Loader` value that describes it (see metadata/data.ts, as for keeper/lastpass).
+  // The file-based 1Password exports keep their own entries below.
+  onepassword: {
+    name: "1Password (direct)",
+    featuredImporter: true,
+    isBrowser: false,
+    acceptedFileTypes: [],
+    pasteFormats: [],
+    hasDirectImporter: true,
+    loaders: [],
+    sourceName: "1Password",
+    instructionLink: "https://bitwarden.com/help/import-from-1password/",
+  },
   bitwardenjson: {
     name: "Bitwarden (json)",
     featuredImporter: true,

@@ -610,6 +610,43 @@ describe("ImportService", () => {
       ).rejects.toThrow("SDK not available");
     });
   });
+
+  describe("onePasswordSignInMethods", () => {
+    const signInAddress = { subdomain: "my", domain: "Global" } as const;
+    let onePasswordSignInMethods: jest.Mock;
+
+    beforeEach(() => {
+      onePasswordSignInMethods = jest.fn().mockResolvedValue({ password: false, sso: true });
+      const sdkValue = {
+        importers: jest.fn().mockReturnValue({
+          onepassword_sign_in_methods: onePasswordSignInMethods,
+        }),
+      };
+      const sdkClient = {
+        take: jest.fn().mockReturnValue({ value: sdkValue, [Symbol.dispose]: jest.fn() }),
+      };
+      sdkService.userClient$.mockReturnValue(of(sdkClient) as any);
+      accountService.activeAccount$ = of({ id: Utils.newGuid() as UserId } as any);
+    });
+
+    it("asks the SDK how the account signs in", async () => {
+      const result = await importService.onePasswordSignInMethods(
+        "user@example.com",
+        signInAddress,
+      );
+
+      expect(result).toEqual({ password: false, sso: true });
+      expect(onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", signInAddress);
+    });
+
+    it("throws when the SDK client is unavailable", async () => {
+      sdkService.userClient$.mockReturnValue(of(null) as any);
+
+      await expect(
+        importService.onePasswordSignInMethods("user@example.com", signInAddress),
+      ).rejects.toThrow("SDK not available");
+    });
+  });
 });
 
 function createCipher(options: Partial<CipherView> = {}) {

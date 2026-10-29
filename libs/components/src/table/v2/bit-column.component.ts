@@ -71,7 +71,7 @@ export class BitColumnComponent {
   readonly width = input<string>();
 
   private readonly cellDir = contentChild(BitCellDefDirective);
-  private readonly headerCell = contentChild(BitHeaderCellComponent);
+  private readonly headerCell = contentChild(forwardRef(() => BitHeaderCellComponent));
   private readonly loadingDir = contentChild(BitCellLoadingDirective);
 
   /**

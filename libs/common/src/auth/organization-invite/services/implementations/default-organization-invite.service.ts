@@ -25,6 +25,7 @@ import {
   OrganizationInviteLinkValidateEmailDomainRequest,
 } from "@bitwarden/organization-invite-link";
 import {
+  AcceptInviteLinkError,
   HighEntropySecret,
   isAcceptInviteLinkError,
   isRegistrationError,
@@ -194,6 +195,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
       await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
+      // TODO: consider a UI that asks the authed user to enter their MP and evaluates it
+      // against this org's policy in place, so the user stays logged in.
       await this.logoutService.logout(userId, "masterPasswordPolicyEnforcement");
       return false;
     }
@@ -216,14 +219,16 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // stashed open invite — either a paste-into-authed-session (unauthedHandler
     // never ran) or a retry after a failed accept (the catch block below cleared
     // the stash). Every other entry (unauthed click → login → deep-link replay,
-    // registration crossing, post-detour re-login) has a matching stash present,
-    // so `openOrgInviteMasterPasswordPolicyCheckRequired` returns false and this
-    // branch is skipped.
+    // registration crossing, post-detour re-login, retry after `email-not-verified`)
+    // has a matching stash present, so `openOrgInviteMasterPasswordPolicyCheckRequired`
+    // returns false and this branch is skipped.
     if (await this.openOrgInviteMasterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
       await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
+      // TODO: consider a UI that asks the authed user to enter their MP and evaluates it
+      // against this org's policy in place, so the user stays logged in.
       await this.logoutService.logout(userId, "masterPasswordPolicyEnforcement");
       return { kind: "stashed-for-mp-policy-detour" };
     }
@@ -256,32 +261,81 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       await this.clearOrganizationInvite();
       return { kind: "accepted" };
     } catch (e) {
-      // Any classified accept failure leaves the invite consumed from the caller's
-      // POV — drop the stash so downstream MP-policy consumers on the same tab
-      // don't apply the failed org's policy.
-      await this.clearOpenOrgInvite();
-      return this.classifyOpenOrgInviteAcceptError(e);
+      const acceptError = this.classifyOpenOrgInviteAcceptError(e);
+      // `email-not-verified` is recoverable on /join: the user verifies their email with
+      // an OTP and the caller retries. Keep the stash so the retry, or a reload of /join,
+      // matches it and skips the MP-policy detour above. Every other failure leaves the
+      // invite consumed from the caller's POV — drop the stash so downstream MP-policy
+      // consumers on the same tab don't apply the failed org's policy.
+      if (acceptError.kind !== "email-not-verified") {
+        await this.clearOpenOrgInvite();
+      }
+      return acceptError;
     }
   }
 
   /**
    * Top-level classifier for accept-flow errors. Branches, in order:
    *   1. Not an `AcceptInviteLinkError` → `unexpected` with an extracted message.
-   *   2. `RecoveryKeyMismatch` → `recovery-key-mismatch`; signals org-key substitution.
-   *   3. Any other non-`Api` variant → `unexpected` with the SDK message.
-   *   4. `Api` variant → unwrap the `ApiError::Response` display string and delegate to
-   *      {@link classifyOpenOrgInviteAcceptApiError}, or `unexpected` if the format has drifted.
+   *   2. A typed variant the SDK parsed from the server's error code (or the client-side
+   *      `RecoveryKeyMismatch` check) → its matching kind.
+   *   3. `Api` variant → the legacy error body, which the `/accept` endpoint still sends
+   *      until PM-43102 ships. Delegated to {@link classifyOpenOrgInviteLegacyApiError}.
+   *   4. Anything else → `unexpected` with the SDK message. This covers `Unknown` (whose
+   *      message is the server's detail text), `InviteLinkConfirmationNotSupported`
+   *      (only occurs if an admin changes the invite during accept), client-side SDK
+   *      errors, and any variant a future SDK version adds.
    */
   private classifyOpenOrgInviteAcceptError(e: unknown): OpenOrgInviteAcceptError {
     if (!isAcceptInviteLinkError(e)) {
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
-    if (e.variant === "RecoveryKeyMismatch") {
-      return { kind: "recovery-key-mismatch" };
+    switch (e.variant) {
+      case "RecoveryKeyMismatch":
+        return { kind: "recovery-key-mismatch" };
+      case "LinkNotFound":
+        return { kind: "link-not-found" };
+      case "InviteLinkNotAvailable":
+        return { kind: "plan-not-supported" };
+      case "EmailNotVerified":
+        return { kind: "email-not-verified" };
+      case "EmailDomainNotAllowed":
+        return { kind: "email-domain-not-allowed" };
+      case "ProviderUsersCannotJoin":
+        return { kind: "provider-users-disallowed" };
+      case "OrganizationAccessRevoked":
+        return { kind: "org-access-revoked" };
+      case "AlreadyOrganizationMember":
+        return { kind: "already-member" };
+      // SeatAddFailed reads the same to the user as OrganizationHasNoAvailableSeats — both
+      // mean "seat unavailable"; the distinction is billing plumbing the user can't act on.
+      case "OrganizationHasNoAvailableSeats":
+      case "SeatAddFailed":
+        return { kind: "no-seats" };
+      case "ResetPasswordKeyRequired":
+        return { kind: "reset-password-key-required" };
+      case "MemberOfAnotherOrganization":
+        return { kind: "single-org-policy-violation-target-org" };
+      case "SingleOrganizationPolicy":
+        return { kind: "single-org-policy-violation-other-org" };
+      case "TwoFactorRequiredForMembership":
+        return { kind: "two-factor-required" };
+      case "OnlyOneFreeOrganizationAdminAllowed":
+        return { kind: "free-admin-limit-reached" };
+      case "Api":
+        return this.classifyOpenOrgInviteLegacyApiError(e);
+      default:
+        return { kind: "unexpected", errorMessage: e.message };
     }
-    if (e.variant !== "Api") {
-      return { kind: "unexpected", errorMessage: e.message };
-    }
+  }
+
+  /**
+   * Classifies an `Api`-variant accept error by parsing the legacy error body out of the
+   * SDK's display string. Used for responses the SDK could not map to a typed variant.
+   * Revisit once PM-43102 ships and the `/accept` endpoint returns coded errors. The
+   * auto-confirm kinds only come from this path today, as the SDK has no variant for them.
+   */
+  private classifyOpenOrgInviteLegacyApiError(e: AcceptInviteLinkError): OpenOrgInviteAcceptError {
     // Fragile client-side coupling to the SDK's `bitwarden-api-base::Error::Response`
     // Display format; accepted for MVP. Planned follow-up in next milestones: refactor
     // the SDK to expose a better typed error variant. If any extraction step fails,
@@ -787,6 +841,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return false;
     }
 
+    // TODO: PM-45803 - the stash doubles as the record that login already evaluated this
+    // org's MP policy, so any entry that skips login (an authed user pasting the accept URL)
+    // must not write it, and recoverable accept failures must keep it. Consider recording the
+    // policy evaluation as its own explicit fact, written by the login flow, so the stash
+    // only carries the invite.
     const storedInvite = await readStash();
     if (storedInvite != null && !matchesStash(storedInvite)) {
       // Stale same-kind stash from a different ceremony; clear so the detour fires fresh.

@@ -24,7 +24,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "41.7.2",
+  "electronVersion": "43.8.3",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -173,6 +173,7 @@
     "backgroundColor": "#175DDC",
     "customExtensionsPath": "../custom-appx-extensions.beta.xml",
     "minVersion": "10.0.14393.0",
+    "maxVersionTested": "10.0.26100.0",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",

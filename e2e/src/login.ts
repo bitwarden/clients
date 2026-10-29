@@ -1,12 +1,26 @@
 import { expect, Page } from "@playwright/test";
 
 import { account } from "./credentials";
+import { SETUP_EXTENSION_URL, skipExtensionSetup, skipOnboardingDialogs } from "./web/onboarding";
 
 // Desktop and browser share a button-triggered selector that offers self-hosted. Web's
 // selector is a link that only switches region, since its server is baked into the build.
 const ENV_MENU_TRIGGER = 'environment-selector button[aria-haspopup="menu"]';
 const SELF_HOSTED_MENU_ITEM = /self-hosted/i;
 const BASE_URL_INPUT = "#self_hosted_env_settings_form_input_base_url";
+
+// Web lands on the vault, or on the extension pitch until it is dismissed once.
+const WEB_POST_LOGIN_URL = new RegExp(`#\\/vault|${SETUP_EXTENSION_URL.source}`);
+const WEB_POST_LOGIN_TIMEOUT_MS = 60_000;
+
+/** Logs in to the web vault and skips onboarding, leaving the page on the vault. */
+export async function logInToWebVault(page: Page) {
+  await skipOnboardingDialogs(page);
+  await page.goto("/");
+  await new LoginPage(page).logIn();
+  await page.waitForURL(WEB_POST_LOGIN_URL, { timeout: WEB_POST_LOGIN_TIMEOUT_MS });
+  await skipExtensionSetup(page);
+}
 
 /**
  * Drives the login screen of any client — the email/password pages are the same

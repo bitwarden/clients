@@ -50,7 +50,7 @@
   <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
     <!--
       Its own box so a popover can anchor to the chips alone. The `@if` keeps a search-only
-      toolbar's row childless, so `empty:tw-hidden` collapses it.
+      toolbar's row childless (absent a range label), so `empty:tw-hidden` collapses it.
     -->
     @if (hasFilters()) {
       <div #filterChips class="tw-flex tw-items-center tw-gap-2">
@@ -74,14 +74,22 @@
         </button>
       </div>
     }
-    @if (table && hasFilters()) {
+    @if (showCount()) {
       <!-- Not an overflow item: its width is reserved, so the row collapses before it is crowded out. -->
       <span
         bitOverflowTrigger
         alwaysShow
+        data-testid="table-toolbar-count"
         class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-tabular-nums tw-text-fg-body-subtle"
       >
-        {{ "itemCount" | i18n: itemCount() }}
+        @if (rangeParts(); as parts) {
+          <!-- No whitespace between the parts: it would render as spaces. -->
+          {{ parts.before
+          }}<span class="tw-font-semibold tw-text-fg-heading">{{ parts.range }}</span
+          >{{ parts.after }}
+        } @else {
+          {{ "itemCount" | i18n: itemCount() }}
+        }
       </span>
     }
   </div>

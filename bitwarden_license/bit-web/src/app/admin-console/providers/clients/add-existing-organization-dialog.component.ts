@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -8,12 +9,18 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  AsyncActionsModule,
+  AvatarModule,
+  ButtonModule,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  TableModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { WebProviderService } from "../services/web-provider.service";
 
@@ -32,7 +39,15 @@ export enum AddExistingOrganizationDialogResultType {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./add-existing-organization-dialog.component.html",
-  standalone: false,
+  imports: [
+    CommonModule,
+    I18nPipe,
+    DialogModule,
+    TableModule,
+    AvatarModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
 })
 export class AddExistingOrganizationDialogComponent implements OnInit {
   protected loading: boolean = true;
