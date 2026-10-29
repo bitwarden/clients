@@ -184,7 +184,7 @@ const translations: Record<string, string> = {
   upgradeYourPlan: "Upgrade your plan",
   upgradeNow: "Upgrade now",
   getAdvancedOnlineSecurityWithBitwardenPremium:
-    "Get advanced online security with Bitwarden premium.",
+    "Get advanced online security with Bitwarden Premium.",
   loggedInAs: "Logged in as",
   accountSettings: "Account settings",
   getHelp: "Get help",

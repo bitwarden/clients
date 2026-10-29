@@ -19,7 +19,7 @@ export default {
               upgradeYourPlan: "Upgrade your plan",
               upgradeNow: "Upgrade now",
               getAdvancedOnlineSecurityWithBitwardenPremium:
-                "Get advanced online security with Bitwarden premium.",
+                "Get advanced online security with Bitwarden Premium.",
               close: "Close",
             });
           },
