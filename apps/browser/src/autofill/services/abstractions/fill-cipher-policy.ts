@@ -56,6 +56,9 @@ export abstract class FillCipherPolicy {
   /** The next cipher in the keyboard shortcut rotation. Always a user fill. */
   abstract nextCipherForUrl(url: string, userId: UserId): Promise<CipherView | undefined>;
   abstract advanceRotation(url: string): void;
-  /** False when Autofill must not offer to add or update a cipher for this form. Call it before every save prompt. */
+  /**
+   * False when Autofill must not copy this form into a new or updated cipher. Call it before a
+   * save prompt, before a save, and before a draft that takes values from the page.
+   */
   abstract canOfferSave(form: SaveCandidate, userId: UserId): Promise<boolean>;
 }
