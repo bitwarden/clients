@@ -1014,9 +1014,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       cipher.id as CipherId,
       cipher.type,
     );
-    if (await this.openDialog("form", formConfig)) {
-      this.cipher.set(cipher);
-    }
+    await this.openDialog("form", formConfig);
   }
 
   async shareCipher(cipher: CipherView) {
@@ -1275,6 +1273,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       mode,
       formConfig,
       restore: this.restore,
+      cipherSaved: (cipher) => this.cipher.set(cipher),
     });
     this.activeDrawerRef = drawerRef;
     drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
