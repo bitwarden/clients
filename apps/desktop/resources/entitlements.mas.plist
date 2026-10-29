@@ -40,6 +40,9 @@
 		<string>/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/BraveSoftware/Brave-Browser-Beta/NativeMessagingHosts/</string>
 		<string>/Library/Application Support/BraveSoftware/Brave-Browser-Nightly/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/BraveSoftware/Brave-Origin/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/BraveSoftware/Brave-Origin-Beta/NativeMessagingHosts/</string>
+		<string>/Library/Application Support/BraveSoftware/Brave-Origin-Nightly/NativeMessagingHosts/</string>
 	</array>
 	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
 	<true/>
