@@ -33,6 +33,18 @@ export class LockScreen {
     await this.waitUntilGone();
   }
 
+  /**
+   * Biometrics is the default option once available. `approve` answers the prompt the click
+   * raises, e.g. `() => biometrics.approveNext(BiometricRequestType.Unlock)`.
+   */
+  async unlockWithBiometrics(approve: () => Promise<void>) {
+    const unlock = this.biometricUnlockButton();
+    await expect(unlock).toBeEnabled({ timeout: UNLOCK_TIMEOUT_MS });
+    await unlock.click();
+    await approve();
+    await this.waitUntilGone();
+  }
+
   /** Main button of the biometric option, the default one when biometrics are available. */
   biometricUnlockButton() {
     return this.page.getByTestId(BIOMETRIC_UNLOCK_BUTTON);
