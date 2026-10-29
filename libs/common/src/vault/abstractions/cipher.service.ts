@@ -59,9 +59,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   /**
-   * Like {@link cipherListViews$}, but includes restricted ciphers.
-   * Consumers: vault list UIs (web VFO1 `vault-next`, `MyFolders`, `SharedFolders`, the web vault
-   * filter, desktop `vault-v3`). Add a new consumer to this list.
+   * Like {@link cipherListViews$}, but includes restricted ciphers. Opt-in: only the
+   * vault list should consume it, so restricted ciphers never reach autofill, export, key rotation,
+   * and similar flows.
    */
   abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
@@ -112,8 +112,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
   /**
-   * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers.
-   * Named non-list consumers: the PAM access-name resolver (shows names of restricted ciphers).
+   * Like {@link getAllDecryptedForIds}, but keeps restricted ciphers, which carry only the
+   * name and, for logins, the URIs. Only for surfaces that must name a restricted cipher.
    */
   abstract getAllDecryptedForIdsIncludingRestricted(
     userId: UserId,

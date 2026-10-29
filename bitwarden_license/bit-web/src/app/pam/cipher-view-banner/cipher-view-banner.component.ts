@@ -894,11 +894,8 @@ export class CipherViewBannerComponent implements OnInit {
    * the state that already exists.
    */
   private handleRequestError(e: unknown): void {
-    const message = this.leasingErrorService.isLeasingError(e)
-      ? e.message
-      : e instanceof Error
-        ? e.message
-        : undefined;
+    const message =
+      this.leasingErrorService.isLeasingError(e) || e instanceof Error ? e.message : undefined;
     const outcome = classifyRequestAccessError(
       message == null ? message : (apiErrorBodyMessage(message) ?? message),
     );

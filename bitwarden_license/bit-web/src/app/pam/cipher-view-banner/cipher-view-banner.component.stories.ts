@@ -16,6 +16,7 @@ import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { MyLeasesService } from "../services/my-leases.service";
 import {
   HOUR,
   MINUTE,
@@ -24,6 +25,7 @@ import {
   liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
+  startClockAtStoryNow,
 } from "../testing/story-fixtures";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
@@ -115,8 +117,13 @@ function pam(
       },
       {
         provide: AccessLeaseSdkService,
-        useValue: { extendLease: () => Promise.resolve({}), endLease: () => Promise.resolve() },
+        useValue: {
+          extendLease: () => Promise.resolve({}),
+          endLease: () => Promise.resolve(),
+          listMyLeases: () => Promise.resolve([]),
+        },
       },
+      MyLeasesService,
       {
         provide: AccessRefreshService,
         useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
@@ -151,6 +158,7 @@ export default {
     }),
   ],
   args: { cipher: gatedCipher() },
+  beforeEach: startClockAtStoryNow,
 } as Meta<CipherViewBannerComponent>;
 
 type Story = StoryObj<CipherViewBannerComponent>;
@@ -293,7 +301,9 @@ export const StateReadFails: Story = {
           provide: AccessRequestSdkService,
           useValue: { getCipherAccessState: () => Promise.reject(new Error("read failed")) },
         },
-        { provide: AccessLeaseSdkService, useValue: {} },
+        { provide: AccessLeaseSdkService, useValue: { listMyLeases: () => Promise.resolve([]) } },
+        MyLeasesService,
+        { provide: RevealedCipherService, useValue: { revealed$: () => of(new Map()) } },
         {
           provide: AccessRefreshService,
           useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
