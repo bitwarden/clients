@@ -70,8 +70,7 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** Both the PAM-billing and preview-cart flags are on. PC is only offered when the preview
-   * cart — the only path that prices it — is available, so the shown total matches the charge. */
+  /** True when both the PAM-billing and preview-cart flags are on. */
   private privilegedControlsAvailable = false;
 
   /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
@@ -122,8 +121,6 @@ export class CompleteTrialInitiationComponent {
       this.applyParams(this.params);
     });
 
-    // The flags only drive Privileged Controls eligibility; keep them off the one-time param
-    // side effects (toast, sponsorship), which a cold config (false → true) would otherwise replay.
     combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
       this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
@@ -163,8 +160,6 @@ export class CompleteTrialInitiationComponent {
     this.trialLength = params.trialLength;
     this.paymentOptional = params.paymentOptional;
 
-    // Stepper visibility is a view decision derived from the product and tier; the tier and its
-    // label are only relevant while the stepper is shown.
     this.useTrialStepper = this.showsTrialStepper(this.product, params.productTier);
     if (this.useTrialStepper && params.productTier !== undefined) {
       this.productTier = params.productTier;
@@ -428,8 +423,6 @@ export class CompleteTrialInitiationComponent {
   }
 
   private shouldIncludePrivilegedControls(params: TrialInitiationParams): boolean {
-    // Privileged Controls is only available for Enterprise Password Manager trials
-
     return (
       this.privilegedControlsAvailable &&
       this.product === ProductType.PasswordManager &&
