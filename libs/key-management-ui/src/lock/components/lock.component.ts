@@ -55,6 +55,7 @@ import {
 import { measured, PerfTrackGroup } from "@bitwarden/logging";
 import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
+import { ActivateOnPointerDownDirective } from "../directives/activate-on-pointer-down.directive";
 import {
   UnlockOption,
   LockComponentService,
@@ -109,6 +110,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
     UnlockViaPrfComponent,
     MasterPasswordLockComponent,
     TooltipDirective,
+    ActivateOnPointerDownDirective,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {

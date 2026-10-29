@@ -22,6 +22,7 @@ import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UnlockService } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
 
+import { ActivateOnPointerDownDirective } from "../../directives/activate-on-pointer-down.directive";
 import { UnlockOptions } from "../../services/lock-component.service";
 import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
 
@@ -38,6 +39,7 @@ import { UnlockViaPrfComponent } from "../unlock-via-prf.component";
     AsyncActionsModule,
     IconButtonModule,
     UnlockViaPrfComponent,
+    ActivateOnPointerDownDirective,
   ],
 })
 export class MasterPasswordLockComponent implements OnInit, OnDestroy {

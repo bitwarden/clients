@@ -18,6 +18,7 @@
       block
       [bitTooltip]="biometricUnavailabilityReason"
       (click)="unlockViaBiometrics()"
+      appActivateOnPointerDown
       data-testid="lock-biometric-unlock-button"
     >
       <span> {{ biometricUnlockBtnText | i18n }}</span>
@@ -90,6 +91,7 @@
           bitFormButton
           buttonType="primary"
           block
+          appActivateOnPointerDown
           data-testid="lock-pin-unlock-button"
         >
           {{ "unlock" | i18n }}
