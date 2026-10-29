@@ -163,12 +163,22 @@ function history(
             loadError$: of(null),
             revokeLease: () => Promise.resolve(),
             cancelApproval: () => Promise.resolve(),
+            managedRequestParties: () => ({
+              requesterName: "Grace Hopper",
+              organizationName: names.organizationNameById.get("org-1") ?? null,
+            }),
           };
         },
       },
       { provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } },
       { provide: SyncService, useValue: { activeUserLastSync$: () => of(new Date()) } },
-      { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
+      {
+        provide: DialogService,
+        useValue: {
+          openSimpleDialog: () => Promise.resolve(false),
+          open: () => ({ closed: of(undefined) }),
+        },
+      },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
   });

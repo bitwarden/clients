@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -14,6 +14,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { WithdrawApprovalDialogComponent } from "../approvals/withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 import { HistoryTabComponent } from "./history-tab.component";
 import { historyDisplayStatus, MyAccessRequestRow } from "./my-access-row";
@@ -63,10 +64,15 @@ describe("HistoryTabComponent", () => {
     loadError$: BehaviorSubject<unknown | null>;
     revokeLease: jest.Mock;
     cancelApproval: jest.Mock;
+    managedRequestParties: jest.Mock;
   };
   let canApprove$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+
+  function withdrawDialogCloses(result: unknown): void {
+    dialogService.open.mockReturnValue({ closed: of(result) } as never);
+  }
 
   function create(): void {
     fixture = TestBed.createComponent(HistoryTabComponent);
@@ -147,6 +153,10 @@ describe("HistoryTabComponent", () => {
       loadError$: new BehaviorSubject<unknown | null>(null),
       revokeLease: jest.fn().mockResolvedValue(undefined),
       cancelApproval: jest.fn().mockResolvedValue(undefined),
+      managedRequestParties: jest.fn().mockReturnValue({
+        requesterName: "Grace Hopper",
+        organizationName: "Meridian Group",
+      }),
     };
     canApprove$ = new BehaviorSubject(false);
     dialogService = mock<DialogService>();
@@ -849,28 +859,30 @@ describe("HistoryTabComponent", () => {
       });
     });
 
-    it("confirms before withdrawing an approval", async () => {
+    it("asks for a reason before withdrawing an approval, then sends it", async () => {
+      withdrawDialogCloses({ confirmed: true, reason: "Approved by mistake" });
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
 
       await component["cancelApproval"](unstartedApproval);
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["Prod database"] },
-          type: "warning",
+      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
+        data: expect.objectContaining({
+          itemName: "Prod database",
+          organizationName: "Meridian Group",
+          requesterName: "Grace Hopper",
         }),
-      );
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2");
+      });
+      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2", "Approved by mistake");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "pamInboxApprovalWithdrawnToast",
       });
     });
 
-    it("does not withdraw the approval when the confirm is dismissed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
+    it("does not withdraw the approval when the dialog is dismissed", async () => {
+      withdrawDialogCloses(undefined);
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
@@ -881,7 +893,8 @@ describe("HistoryTabComponent", () => {
       expect(toastService.showToast).not.toHaveBeenCalled();
     });
 
-    it("names the item by id in the confirm when the cipher is not in the approver's vault", async () => {
+    it("names the item by id in the dialog when the cipher is not in the approver's vault", async () => {
+      withdrawDialogCloses(undefined);
       const unnamed = historyRow({ ...unstartedApproval, cipherName: null });
       managedRows$.next([unnamed]);
       create();
@@ -889,14 +902,28 @@ describe("HistoryTabComponent", () => {
 
       await component["cancelApproval"](unnamed);
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["cipher-1"] },
-        }),
-      );
+      expect(dialogService.open).toHaveBeenCalledWith(WithdrawApprovalDialogComponent, {
+        data: expect.objectContaining({ itemName: "cipher-1" }),
+      });
+    });
+
+    it("ignores a second click while the withdrawal is still in flight", async () => {
+      withdrawDialogCloses({ confirmed: true, reason: "Approved by mistake" });
+      inbox.cancelApproval.mockReturnValue(new Promise(() => {}));
+      managedRows$.next([unstartedApproval]);
+      create();
+      showManaged();
+
+      void component["cancelApproval"](unstartedApproval);
+      await jest.advanceTimersByTimeAsync(0);
+      await component["cancelApproval"](unstartedApproval);
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(inbox.cancelApproval).toHaveBeenCalledTimes(1);
     });
 
     it("toasts an error when withdrawing an approval fails", async () => {
+      withdrawDialogCloses({ confirmed: true, reason: "Approved by mistake" });
       inbox.cancelApproval.mockRejectedValue(new Error("boom"));
       managedRows$.next([unstartedApproval]);
       create();
@@ -1091,6 +1118,7 @@ describe("HistoryTabComponent", () => {
     });
 
     it("routes Revoke and Withdraw approval through the component's actions", async () => {
+      withdrawDialogCloses({ confirmed: true, reason: "Approved by mistake" });
       populateApprover();
       create();
 
@@ -1099,7 +1127,7 @@ describe("HistoryTabComponent", () => {
       await jest.advanceTimersByTimeAsync(0);
 
       expect(inbox.revokeLease).toHaveBeenCalledWith("managed-live", "lease-live");
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-unstarted");
+      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-unstarted", "Approved by mistake");
     });
 
     it("labels a requester-canceled lease and an operator-revoked one differently", () => {
