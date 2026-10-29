@@ -1,10 +1,19 @@
 <div class="tw-pb-6 tw-pl-6">
-  <p class="tw-text-xl" *ngIf="product === Product.PasswordManager">
-    {{ "trialThankYou" | i18n: orgLabel }}
-  </p>
-  <p class="tw-text-xl" *ngIf="product === Product.SecretsManager">
-    {{ "smFreeTrialThankYou" | i18n }}
-  </p>
+  @if (product === Product.PasswordManager) {
+    <p class="tw-text-xl">
+      {{ "trialThankYou" | i18n: orgLabel }}
+    </p>
+    @if (includesPrivilegedControls) {
+      <p>
+        {{ "trialIncludesPrivilegedControls" | i18n }}
+      </p>
+    }
+  }
+  @if (product === Product.SecretsManager) {
+    <p class="tw-text-xl">
+      {{ "smFreeTrialThankYou" | i18n }}
+    </p>
+  }
   <ul class="tw-list-disc">
     <li>
       <p>
@@ -13,13 +22,12 @@
         >.
       </p>
     </li>
-    <li *ngIf="trialLength > 0">
-      <p>
-        {{ "trialPaidInfoMessageSpecificTrialLength" | i18n: orgLabel : trialLength }}
-      </p>
-    </li>
-    <li *ngIf="includesPrivilegedControls">
-      <p>{{ "trialIncludesPrivilegedControls" | i18n }}</p>
-    </li>
+    @if (trialLength > 0) {
+      <li>
+        <p>
+          {{ "trialPaidInfoMessageSpecificTrialLength" | i18n: orgLabel : trialLength }}
+        </p>
+      </li>
+    }
   </ul>
 </div>

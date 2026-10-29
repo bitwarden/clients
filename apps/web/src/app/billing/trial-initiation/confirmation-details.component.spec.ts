@@ -73,23 +73,20 @@ describe("ConfirmationDetailsComponent", () => {
   });
 
   describe("Privileged Controls", () => {
-    const listItemTexts = () =>
-      fixture.debugElement.queryAll(By.css("li")).map((li) => li.nativeElement.textContent.trim());
-
-    it("renders the Privileged Controls line when the trial includes them", () => {
-      component.trialLength = 7;
+    it("renders the Privileged Controls line for a Password Manager trial that includes them", () => {
+      component.product = ProductType.PasswordManager;
       component.includesPrivilegedControls = true;
       fixture.detectChanges();
 
-      expect(listItemTexts()).toContain("trialIncludesPrivilegedControls");
+      expect(fixture.nativeElement.textContent).toContain("trialIncludesPrivilegedControls");
     });
 
     it("omits the Privileged Controls line when the trial does not include them", () => {
-      component.trialLength = 7;
+      component.product = ProductType.PasswordManager;
       component.includesPrivilegedControls = false;
       fixture.detectChanges();
 
-      expect(listItemTexts()).not.toContain("trialIncludesPrivilegedControls");
+      expect(fixture.nativeElement.textContent).not.toContain("trialIncludesPrivilegedControls");
     });
   });
 });
