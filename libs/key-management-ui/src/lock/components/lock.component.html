@@ -18,6 +18,7 @@
       block
       [bitTooltip]="biometricUnavailabilityReason"
       (click)="unlockViaBiometrics()"
+      data-testid="lock-biometric-unlock-button"
     >
       <span> {{ biometricUnlockBtnText | i18n }}</span>
     </button>
@@ -68,6 +69,7 @@
           bitInput
           appAutofocus
           name="pin"
+          data-testid="lock-pin-input"
           class="tw-font-mono"
           required
           appInputVerbatim
@@ -82,7 +84,14 @@
       </bit-form-field>
 
       <div class="tw-flex tw-flex-col tw-space-y-3">
-        <button type="submit" bitButton bitFormButton buttonType="primary" block>
+        <button
+          type="submit"
+          bitButton
+          bitFormButton
+          buttonType="primary"
+          block
+          data-testid="lock-pin-unlock-button"
+        >
           {{ "unlock" | i18n }}
         </button>
 
@@ -97,6 +106,7 @@
             [disabled]="!biometricsAvailable"
             block
             (click)="swapUnlockOption(UnlockOption.Biometrics)"
+            data-testid="lock-biometric-swap-button"
           >
             <span> {{ biometricUnlockBtnText | i18n }}</span>
           </button>

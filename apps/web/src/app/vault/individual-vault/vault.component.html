@@ -47,6 +47,18 @@
       </bit-callout>
     }
 
+    @if (gatedCollectionBanner && selectedCollection) {
+      <ng-container
+        *ngComponentOutlet="
+          gatedCollectionBanner;
+          inputs: {
+            organizationId: selectedCollection.node.organizationId,
+            collectionId: selectedCollection.node.id,
+          }
+        "
+      />
+    }
+
     <app-vault-items
       #vaultItems
       [ciphers]="ciphers"

@@ -59,6 +59,34 @@ export abstract class CipherSdkService {
   ): Promise<CipherView | undefined>;
 
   /**
+   * Updates only the user fields of a cipher (folder, favorite) on the server using the SDK.
+   * Needs no edit permission.
+   *
+   * @param cipher The cipher view carrying the new user fields
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the updated cipher view
+   */
+  abstract updateUserFieldsWithServer(
+    cipher: CipherView,
+    userId: UserId,
+  ): Promise<CipherView | undefined>;
+
+  /**
+   * Updates a restricted cipher on the server using the SDK, editing against its revealed view,
+   * since local state holds only the restricted copy.
+   *
+   * @param cipher The cipher view to update
+   * @param original The revealed (full) view the edit started from
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the updated cipher view, which is restricted
+   */
+  abstract updateWithRevealedOriginal(
+    cipher: CipherView,
+    original: CipherView,
+    userId: UserId,
+  ): Promise<CipherView | undefined>;
+
+  /**
    * Deletes a cipher on the server using the SDK.
    *
    * @param id The cipher ID to delete
@@ -240,11 +268,13 @@ export abstract class CipherSdkService {
    * @param cipherId The cipher to attach the new file to
    * @param request Encrypted attachment metadata (key, fileName, fileSize, lastKnownRevisionDate)
    * @param userId The user ID to use for SDK client
+   * @param asAdmin Whether to use the admin endpoint, which does not update local state
    */
   abstract createAttachment(
     cipherId: CipherId,
     request: CreateAttachmentRequest,
     userId: UserId,
+    asAdmin?: boolean,
   ): Promise<CreatedAttachment>;
 
   /**

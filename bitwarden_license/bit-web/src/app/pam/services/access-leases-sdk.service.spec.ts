@@ -16,6 +16,7 @@ import type {
   AccessLeaseRevokeRequest,
   AccessLeaseView,
   AccessRequestView,
+  CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
 import { AccessLeasesSdkService } from "./access-leases-sdk.service";
@@ -116,6 +117,30 @@ describe("AccessLeasesSdkService", () => {
       const request = { reason: "done early" } as unknown as AccessLeaseRevokeRequest;
 
       await expect(service.endLease(leaseId, request)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("leasedCipher", () => {
+    const cipherId = "1a2b3c4d-3b1e-4c8a-9b1e-3b1e4c8a9b1e";
+
+    it("calls leases().leased_cipher() with the cipher id and returns the view", async () => {
+      const leases = mockLeasesClient();
+      const view = { id: cipherId } as unknown as SdkCipherView;
+      leases.leased_cipher.mockResolvedValue(view);
+
+      const result = await service.leasedCipher(cipherId);
+
+      expect(leases.leased_cipher).toHaveBeenCalledWith(cipherId);
+      expect(result).toBe(view);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const leases = mockLeasesClient();
+      const error = new Error("no lease");
+      leases.leased_cipher.mockRejectedValue(error);
+
+      await expect(service.leasedCipher(cipherId)).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
     });
   });

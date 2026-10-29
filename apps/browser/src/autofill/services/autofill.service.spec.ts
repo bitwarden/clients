@@ -3041,6 +3041,22 @@ describe("AutofillService", () => {
           expect(value.autosubmit).toEqual(["form1"]);
         });
 
+        it("marks formless autosubmit when the focused username field has no enclosing form", async () => {
+          focusedField.form = null;
+          pageDetails.fields = [focusedField];
+          pageDetails.forms = {};
+          options.autoSubmitLogin = true;
+
+          const value = await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(value.autosubmit).toEqual([null]);
+        });
+
         it("will prioritize focused field and skip passwords in different forms", async () => {
           const otherUsername = createAutofillFieldMock({
             opid: "other-username",
@@ -3239,6 +3255,22 @@ describe("AutofillService", () => {
             options.cipher.login.username,
           );
         });
+      });
+
+      it("sets formless autosubmit when the login fields are not in a form", async () => {
+        passwordField.form = null;
+        pageDetails.fields = [passwordField];
+        pageDetails.forms = {};
+        options.autoSubmitLogin = true;
+
+        const value = await autofillService["generateLoginFillScript"](
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
+
+        expect(value.autosubmit).toEqual([null]);
       });
     });
   });

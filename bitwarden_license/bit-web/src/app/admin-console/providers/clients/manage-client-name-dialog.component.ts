@@ -1,16 +1,21 @@
 import { Component, Inject } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { UpdateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/update-provider-organization.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  AsyncActionsModule,
+  ButtonModule,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 type ManageClientNameDialogParams = {
   providerId: string;
@@ -41,7 +46,14 @@ export const openManageClientNameDialog = (
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "manage-client-name-dialog.component.html",
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    I18nPipe,
+    DialogModule,
+    FormFieldModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
 })
 export class ManageClientNameDialogComponent {
   protected ResultType = ManageClientNameDialogResultType;
