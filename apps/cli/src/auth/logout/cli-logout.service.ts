@@ -11,8 +11,7 @@ import { LogService } from "@bitwarden/logging";
 import { StateEventRunnerService, StateService } from "@bitwarden/state";
 
 /**
- * Clears the user's session in-process. The CLI has no listener for the `logout` message and
- * holds a single account, so logout never yields a new active user.
+ * Clears the user's session in-process.
  */
 export class CliLogoutService implements LogoutService {
   constructor(
