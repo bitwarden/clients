@@ -383,9 +383,9 @@ describe("AccessRequestDetailService", () => {
       await setup();
       requestsApi.getAccessRequest.mockClear();
 
-      await service.withdrawApproval();
+      await service.withdrawApproval("Scope changed");
 
-      expect(inbox.cancelApproval).toHaveBeenCalledWith(REQUEST_ID);
+      expect(inbox.cancelApproval).toHaveBeenCalledWith(REQUEST_ID, "Scope changed");
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
     });
 
