@@ -23,6 +23,29 @@ npm run test:e2e:shared    # web + extension together, e.g. passkey unlock
 npm run test:e2e:all       # all four, sequentially
 ```
 
+## Memory
+
+`npm run test:e2e:memory` walks the browser extension through its lifecycle (logged out,
+popup on the vault, popup closed, pages with content scripts, inline menu, autofill, a
+restarted service worker, popup reopened) and records, at each step:
+
+- the JS heap and WebAssembly memory of every extension context, after a forced GC
+- the extension process's physical footprint (macOS `footprint`)
+- in the service worker: vault decrypt calls, the decrypted cipher cache, and how many
+  plaintext passwords its heap holds
+
+Results land in `.debug/e2e/memory/<E2E_MEMORY_LABEL>/report.json`. Compare runs, or
+inspect a heap:
+
+```
+E2E_EXTENSION_DIR=/path/to/build E2E_MEMORY_LABEL=after npm run test:memory --workspace @bitwarden/e2e
+node e2e/scripts/memory-compare.mjs before after
+E2E_HEAP_SNAPSHOT=1 ...                      # save heap snapshots too
+node e2e/scripts/heap-retainers.mjs <file>   # what keeps the most memory alive
+```
+
+Use a large vault, e.g. `E2E_ACCOUNT=<section with ~10k items>`.
+
 Failing tests keep a video and a trace (`npx playwright show-trace <trace.zip>`).
 Set `E2E_VIDEO=1` to record every test; both land in `e2e/test-results/<test>/`.
 
