@@ -1410,7 +1410,6 @@ export default class MainBackground {
     this.autofillOrchestrator = new DefaultAutofillOrchestrator(
       this.autofillLifecycleService,
       this.autofillService,
-      this.cipherService,
       this.autofillSettingsService,
       this.accountService,
       this.platformUtilsService,

@@ -913,7 +913,7 @@ function safariAddListenerSyntaxRules() {
  */
 function fillCipherPolicySyntaxRules() {
   const lookups =
-    "/^(getAllDecrypted|getAllDecryptedForUrl|getNextCipherForUrl|getLastLaunchedForUrl|getLastUsedForUrl|updateLastUsedIndexForUrl|ciphers\\$|cipherViews\\$)$/";
+    "/^(getAllDecrypted|getAllDecryptedForUrl|getNextCipherForUrl|getNextCardCipher|getNextIdentityCipher|getLastLaunchedForUrl|getLastUsedForUrl|updateLastUsedIndexForUrl|ciphers\\$|cipherViews\\$)$/";
   const message =
     "Autofill looks up ciphers through FillCipherPolicy with a CipherUse, not through CipherService. See fill-cipher-policy.ts.";
   return [

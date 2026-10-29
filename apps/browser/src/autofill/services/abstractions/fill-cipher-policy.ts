@@ -55,6 +55,10 @@ export abstract class FillCipherPolicy {
   ): Promise<CipherView | undefined>;
   /** The next cipher in the keyboard shortcut rotation. Always a user fill. */
   abstract nextCipherForUrl(url: string, userId: UserId): Promise<CipherView | undefined>;
+  /** The next card in the card keyboard shortcut rotation. Always a user fill. */
+  abstract nextCardCipher(userId: UserId): Promise<CipherView | undefined>;
+  /** The next identity in the identity keyboard shortcut rotation. Always a user fill. */
+  abstract nextIdentityCipher(userId: UserId): Promise<CipherView | undefined>;
   abstract advanceRotation(url: string): void;
   /**
    * False when Autofill must not copy this form into a new or updated cipher. Call it before a

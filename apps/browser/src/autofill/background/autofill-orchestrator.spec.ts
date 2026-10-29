@@ -123,7 +123,6 @@ describe("DefaultAutofillOrchestrator", () => {
     new DefaultAutofillOrchestrator(
       lifecycleService,
       autofillService,
-      cipherService,
       autofillSettingsService,
       accountService,
       platformUtilsService,
@@ -646,8 +645,8 @@ describe("DefaultAutofillOrchestrator", () => {
     });
 
     it.each([
-      ["card", CipherType.Card, "cardCiphers", "getNextCardCipher"],
-      ["identity", CipherType.Identity, "identityCiphers", "getNextIdentityCipher"],
+      ["card", CipherType.Card, "cardCiphers", "nextCardCipher"],
+      ["identity", CipherType.Identity, "identityCiphers", "nextIdentityCipher"],
     ] as const)(
       "collects the tab and fills a %s with no page-load/keyboard side effects",
       async (_label, cipherType, cacheKey, selector) => {
@@ -656,7 +655,7 @@ describe("DefaultAutofillOrchestrator", () => {
         autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
         // The row names the selection method for its type, so the case's cipher is wired without a
         // branch on cipherType.
-        cipherService[selector].mockResolvedValue(cipher);
+        jest.spyOn(fillCipherPolicy, selector).mockResolvedValue(cipher);
         autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
         autofillOrchestrator.autofillActiveTabForCipherType(pd.tab, cipherType);
