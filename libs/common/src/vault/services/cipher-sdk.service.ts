@@ -540,6 +540,27 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
+  async decryptAll(ciphers: Cipher[], userId: UserId): Promise<DecryptAllCiphersResult> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          const sdkCiphersClient = ref.value.vault().ciphers();
+
+          const decryptResult = await sdkCiphersClient.decrypt_list_full_with_failures(
+            ciphers.map((cipher) => cipher.toSdkCipher()),
+          );
+
+          return this.toDecryptAllCiphersResult(decryptResult);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to decrypt ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
   async getAllFromApiForOrganization(
     organizationId: string,
     userId: UserId,

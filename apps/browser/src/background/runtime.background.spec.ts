@@ -205,6 +205,12 @@ describe("RuntimeBackground collection dispatch", () => {
     });
   });
 
+  /** Serves `ciphers` to lookups by id, as the vault would. */
+  const serveCiphers = (service: MockProxy<CipherService>, ciphers: CipherView[]) =>
+    service.getAllDecryptedForIds.mockImplementation(async (_userId, ids) =>
+      ciphers.filter((cipher) => ids.includes(cipher.id)),
+    );
+
   describe("fillCipherForPopup", () => {
     const cipher = Object.assign(new CipherView(), { id: "cipher-1" });
     let cipherService: MockProxy<CipherService>;
@@ -212,7 +218,7 @@ describe("RuntimeBackground collection dispatch", () => {
     beforeEach(() => {
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
       cipherService = mock<CipherService>();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+      serveCiphers(cipherService, [cipher]);
       (main as any).cipherService = cipherService;
       autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
         outcome: AutofillOutcome.Filled,
@@ -244,7 +250,7 @@ describe("RuntimeBackground collection dispatch", () => {
       // Logging the rejection is part of the security requirement: the warning is the
       // observable record that the boundary fired on this sender.
       expect(logService.warning).toHaveBeenCalled();
-      expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
     });
 

@@ -23,7 +23,8 @@ export class AtRiskCipherBadgeUpdaterService {
           .pipe(
             map((tasks) => tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)),
           ),
-        this.cipherService.cipherViews$(user.id).pipe(filterOutNullish()),
+        // A change trigger only: list views, so the vault is not fully decrypted for it.
+        this.cipherService.cipherListViews$(user.id).pipe(filterOutNullish()),
       ]),
     ),
   );

@@ -40,6 +40,7 @@ import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherData } from "../models/data/cipher.data";
+import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
@@ -653,6 +654,20 @@ describe("Cipher Service", () => {
 
         expect(result).toEqual([normalListView, partialListView]);
       });
+
+      it("joins localData onto the views without decrypting again, as every autofill writes it", async () => {
+        const decrypt = jest.spyOn(cipherService as any, "decryptCiphersWithSdk");
+        const localData$ = new BehaviorSubject<Record<CipherId, LocalData>>({});
+        jest.spyOn(cipherService, "localData$").mockReturnValue(localData$);
+        const views$ = cipherService.cipherListViewsIncludingRestricted$(mockUserId);
+        await firstValueFrom(views$);
+
+        localData$.next({ ["normal" as CipherId]: { lastUsedDate: 1_000 } });
+        const [view] = await firstValueFrom(views$);
+
+        expect(view.localData?.lastUsedDate).toEqual(new Date(1_000).toISOString());
+        expect(decrypt).toHaveBeenCalledTimes(1);
+      });
     });
 
     it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
@@ -666,25 +681,26 @@ describe("Cipher Service", () => {
     });
 
     it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
+      const card = { type: { card: {} }, deletedDate: undefined, archivedDate: undefined };
+      (cipherService as any).cipherListViewsIncludingRestricted$ = jest.fn().mockReturnValue(
+        of([
+          { ...card, id: "card-normal", partial: false },
+          { ...card, id: "card-partial", partial: true },
+          { type: { login: {} }, id: "login", partial: false },
+        ]),
+      );
       const normalCard = new CipherView(encryptionContext.cipher);
-      normalCard.id = "card-normal" as CipherId;
-      normalCard.type = CipherType.Card;
-      normalCard.partial = false;
-
-      const partialCard = new CipherView(encryptionContext.cipher);
-      partialCard.id = "card-partial" as CipherId;
-      partialCard.type = CipherType.Card;
-      partialCard.partial = true;
-
-      jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
-        .mockResolvedValue([normalCard, partialCard]);
+      const decryptIds = jest
+        .spyOn(cipherService as any, "decryptIds")
+        .mockResolvedValue([normalCard]);
 
       const result = await (cipherService as any).getAllDecryptedCiphersOfType(
         [CipherType.Card],
         mockUserId,
       );
 
+      // Only the matching, non-partial cipher is fully decrypted.
+      expect(decryptIds).toHaveBeenCalledWith(mockUserId, ["card-normal"]);
       expect(result).toEqual([normalCard]);
     });
   });
@@ -1518,22 +1534,20 @@ describe("Cipher Service", () => {
       expect(result[1]).toBeInstanceOf(CipherView);
     });
 
-    it("should serve the decrypted cache without calling the SDK when the cache is populated", async () => {
-      const cachedView = new CipherView();
-      cachedView.id = "cached-cipher-id" as CipherId;
-      cachedView.name = "Cached Cipher";
+    it("decrypts on every call and caches no decrypted vault", async () => {
+      cipherSdkService.getAllDecrypted.mockResolvedValue({
+        successes: [new CipherView()],
+        failures: [],
+      });
 
-      stateProvider.singleUser
-        .getFake(mockUserId, DECRYPTED_CIPHERS)
-        .nextState({ [cachedView.id]: cachedView });
+      await cipherService.getAllDecrypted(mockUserId);
+      await cipherService.getAllDecrypted(mockUserId);
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
-
-      const result = await cipherService.getAllDecrypted(mockUserId);
-
-      expect(sdkServiceSpy).not.toHaveBeenCalled();
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Cached Cipher");
+      expect(cipherSdkService.getAllDecrypted).toHaveBeenCalledTimes(2);
+      const cache = await firstValueFrom(
+        stateProvider.singleUser.getFake(mockUserId, DECRYPTED_CIPHERS).state$,
+      );
+      expect(cache ?? {}).toEqual({});
     });
   });
 
@@ -1655,6 +1669,48 @@ describe("Cipher Service", () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(cipherId);
+    });
+  });
+
+  describe("decrypting only the ciphers needed", () => {
+    const otherId = "other-cipher-id" as CipherId;
+    const id = cipherData.id as CipherId;
+    const viewOf = (viewId: string, partial = false) =>
+      Object.assign(new CipherView(), { id: viewId, partial });
+
+    beforeEach(() => {
+      stateProvider.singleUser.getFake(mockUserId, ENCRYPTED_CIPHERS).nextState({
+        [id]: cipherData,
+        [otherId]: { ...cipherData, id: otherId },
+      } as Record<CipherId, CipherData>);
+      keyService.cipherDecryptionKeys$.mockReturnValue(of({} as CipherDecryptionKeys));
+      (cipherService as any).cipherListViewsIncludingRestricted$ = jest
+        .fn()
+        .mockReturnValue(of([{ id }, { id: otherId }]));
+    });
+
+    it("getAllDecryptedForUrl fully decrypts the matching ciphers only, never the whole vault", async () => {
+      jest.spyOn(cipherService, "filterCiphersForUrl").mockResolvedValue([{ id } as any]);
+      cipherSdkService.decryptAll.mockResolvedValue({ successes: [viewOf(id)], failures: [] });
+      const wholeVault = jest.spyOn(cipherService as any, "getAllDecryptedIncludingRestricted");
+
+      const result = await cipherService.getAllDecryptedForUrl("https://example.com", mockUserId);
+
+      const [decrypted] = cipherSdkService.decryptAll.mock.calls[0];
+      expect(decrypted.map((cipher) => cipher.id)).toEqual([id]);
+      expect(result.map((cipher) => cipher.id)).toEqual([id]);
+      expect(wholeVault).not.toHaveBeenCalled();
+    });
+
+    it("getAllDecryptedForIds keeps the requested order and drops partial ciphers", async () => {
+      cipherSdkService.decryptAll.mockResolvedValue({
+        successes: [viewOf(id, true), viewOf(otherId)],
+        failures: [],
+      });
+
+      const result = await cipherService.getAllDecryptedForIds(mockUserId, [otherId, id]);
+
+      expect(result.map((cipher) => cipher.id)).toEqual([otherId]);
     });
   });
 
