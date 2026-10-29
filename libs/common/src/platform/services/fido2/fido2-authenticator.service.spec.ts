@@ -56,6 +56,14 @@ describe("FidoAuthenticatorService", () => {
   let authenticator!: Fido2AuthenticatorService<ParentWindowReference>;
   let windowReference!: ParentWindowReference;
 
+  /** Serves `ciphers` as the vault: its list views, and lookups by id. */
+  const serveCiphers = (ciphers: CipherView[]) => {
+    cipherService.cipherListViews$.mockReturnValue(of(ciphers));
+    cipherService.getAllDecryptedForIds.mockImplementation(async (_userId, ids) =>
+      ciphers.filter((cipher) => ids.includes(cipher.id)),
+    );
+  };
+
   beforeEach(async () => {
     cipherService = mock<CipherService>();
     userInterface = mock<Fido2UserInterfaceService<ParentWindowReference>>();
@@ -164,7 +172,7 @@ describe("FidoAuthenticatorService", () => {
         cipherService.get.mockImplementation(async (id) =>
           id === excludedCipher.id ? ({} as any) : undefined,
         );
-        cipherService.getAllDecrypted.mockResolvedValue([excludedCipher]);
+        serveCiphers([excludedCipher]);
         cipherService.decrypt.mockResolvedValue(excludedCipher);
       });
 
@@ -235,7 +243,7 @@ describe("FidoAuthenticatorService", () => {
           of({ [existingCipher.id as CipherId]: {} as CipherData }),
         );
 
-        cipherService.getAllDecrypted.mockResolvedValue([existingCipher]);
+        serveCiphers([existingCipher]);
         cipherService.decrypt.mockResolvedValue(existingCipher);
       });
 
@@ -368,7 +376,7 @@ describe("FidoAuthenticatorService", () => {
           of({ [cipher.id as CipherId]: {} as CipherData }),
         );
 
-        cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
+        serveCiphers([await cipher]);
         cipherService.decrypt.mockResolvedValue(cipher);
         cipherService.createWithServer.mockImplementation(async (cipherView, _userId) => {
           cipherView.id = cipherId;
@@ -519,7 +527,7 @@ describe("FidoAuthenticatorService", () => {
        **/
       it("should inform user if no credential exists when fallback is not supported", async () => {
         params.fallbackSupported = false;
-        cipherService.getAllDecrypted.mockResolvedValue([]);
+        serveCiphers([]);
         userInterfaceSession.informCredentialNotFound.mockResolvedValue();
 
         try {
@@ -534,7 +542,7 @@ describe("FidoAuthenticatorService", () => {
         const cipher = await createCipherView({ type: CipherType.Login });
         cipher.login.fido2Credentials[0].credentialId = credentialId;
         cipher.login.fido2Credentials[0].rpId = "mismatch-rpid";
-        cipherService.getAllDecrypted.mockResolvedValue([cipher]);
+        serveCiphers([cipher]);
         userInterfaceSession.informCredentialNotFound.mockResolvedValue();
 
         try {
@@ -554,7 +562,7 @@ describe("FidoAuthenticatorService", () => {
           allowCredentialDescriptorList: [],
           rpId: RpId,
         });
-        cipherService.getAllDecrypted.mockResolvedValue([]);
+        serveCiphers([]);
       });
 
       /** Spec: If credentialOptions is now empty, return an error code equivalent to "NotAllowedError" and terminate the operation. */
@@ -589,7 +597,7 @@ describe("FidoAuthenticatorService", () => {
           })),
           rpId: RpId,
         });
-        cipherService.getAllDecrypted.mockResolvedValue(ciphers);
+        serveCiphers(ciphers);
       });
 
       it("should ask for all credentials in list when `params` contains allowedCredentials list", async () => {
@@ -697,7 +705,7 @@ describe("FidoAuthenticatorService", () => {
           })),
           rpId: RpId,
         });
-        cipherService.getAllDecrypted.mockResolvedValue(ciphers);
+        serveCiphers(ciphers);
         userInterfaceSession.pickCredential.mockResolvedValue({
           cipherId: ciphers[0].id,
           userVerified: false,
@@ -808,7 +816,7 @@ describe("FidoAuthenticatorService", () => {
           { credentialId, rpId: RpId, discoverable: true },
         );
         const ciphers = [cipher];
-        cipherService.getAllDecrypted.mockResolvedValue(ciphers);
+        serveCiphers(ciphers);
 
         const result = await authenticator.silentCredentialDiscovery(RpId);
 

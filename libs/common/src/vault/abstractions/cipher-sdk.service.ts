@@ -312,6 +312,15 @@ export abstract class CipherSdkService {
   abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
 
   /**
+   * Decrypts the given ciphers using the SDK.
+   *
+   * @param ciphers The encrypted ciphers to decrypt
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the decrypt result containing successes and failures
+   */
+  abstract decryptAll(ciphers: Cipher[], userId: UserId): Promise<DecryptAllCiphersResult>;
+
+  /**
    * Fetches all ciphers for an organization from the API using the SDK.
    * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
    *

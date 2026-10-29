@@ -78,6 +78,7 @@ describe("DefaultCipherSdkService", () => {
       share_ciphers_bulk: jest.fn(),
       decrypt_fido2_credentials: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      decrypt_list_full_with_failures: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn(),
       bulk_update_collections: jest.fn().mockResolvedValue(undefined),
@@ -1186,6 +1187,23 @@ describe("DefaultCipherSdkService", () => {
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to upgrade attachment"),
       );
+    });
+  });
+
+  describe("decryptAll()", () => {
+    it("should decrypt the given ciphers using SDK", async () => {
+      const cipher = { toSdkCipher: () => ({}) } as unknown as Cipher;
+      const mockSdkCipherView = new CipherView().toSdkCipherView();
+      mockCiphersSdk.decrypt_list_full_with_failures.mockResolvedValue({
+        successes: [mockSdkCipherView],
+        failures: [],
+      });
+
+      const result = await cipherSdkService.decryptAll([cipher], userId);
+
+      expect(mockCiphersSdk.decrypt_list_full_with_failures).toHaveBeenCalledWith([{}]);
+      expect(result.successes).toHaveLength(1);
+      expect(result.successes[0]).toBeInstanceOf(CipherView);
     });
   });
 
