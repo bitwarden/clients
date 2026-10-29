@@ -49,17 +49,38 @@ async function readAtomic<T>(
   return await firstValueFrom(stateProvider.getUserState$(keyDefinition, userId));
 }
 
+/**
+ * The latest write to each user's state key in this context. The SDK writes some keys from
+ * several clients at once, e.g. a freshly sealed PIN envelope from each client during an
+ * unlock; a write that another replaced must not wait for a value that is gone.
+ */
+const latestWrites = new WeakMap<UserKeyDefinition<unknown>, Map<UserId, symbol>>();
+
+function startWrite(userId: UserId, keyDefinition: UserKeyDefinition<unknown>): () => boolean {
+  const writes = latestWrites.get(keyDefinition) ?? new Map<UserId, symbol>();
+  latestWrites.set(keyDefinition, writes);
+  const write = Symbol();
+  writes.set(userId, write);
+
+  return () => writes.get(userId) !== write;
+}
+
+/**
+ * Waits until state shows `expectedValue`, or until a later write to the same key in this
+ * context superseded this one. Gives up after a second either way.
+ */
 async function waitForStateValue<T>(
   stateProvider: StateProvider,
   userId: UserId,
   keyDefinition: UserKeyDefinition<T>,
   expectedValue: T | null,
+  superseded: () => boolean,
 ): Promise<T | null> {
   return firstValueFrom(
     race(
       stateProvider
         .getUserState$(keyDefinition, userId)
-        .pipe(filter((value) => compareValues(value, expectedValue))),
+        .pipe(filter((value) => compareValues(value, expectedValue) || superseded())),
       timer(1000).pipe(map((): T | null => null)),
     ),
   );
@@ -71,8 +92,9 @@ async function writeAtomic<T>(
   keyDefinition: UserKeyDefinition<T>,
   value: T,
 ): Promise<void> {
+  const superseded = startWrite(userId, keyDefinition);
   await stateProvider.setUserState(keyDefinition, value, userId);
-  await waitForStateValue(stateProvider, userId, keyDefinition, value);
+  await waitForStateValue(stateProvider, userId, keyDefinition, value, superseded);
 }
 
 async function deleteAtomic<T>(
@@ -80,8 +102,9 @@ async function deleteAtomic<T>(
   userId: UserId,
   keyDefinition: UserKeyDefinition<T>,
 ): Promise<void> {
+  const superseded = startWrite(userId, keyDefinition);
   await stateProvider.setUserState(keyDefinition, undefined, userId);
-  await waitForStateValue(stateProvider, userId, keyDefinition, undefined);
+  await waitForStateValue(stateProvider, userId, keyDefinition, undefined, superseded);
 }
 
 export class JsWasmStateBridge implements WasmStateBridge {
