@@ -20,12 +20,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import {
-  EventSystemUser,
-  EventResponse,
-  EventType,
-  EventView,
-} from "@bitwarden/common/dirt/event-logs";
+import { EventSystemUser, EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -51,6 +46,7 @@ import { placeholderEvents } from "../placeholder-events";
 import {
   collectLinkableMemberIds,
   isLinkableMember,
+  isSendAccessEvent,
   ResolvedMember,
   resolveSendAccessMember,
 } from "../send-access-member";
@@ -263,10 +259,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   protected isSendAccessMemberLink(e: EventView): boolean {
     // Link only when the ACCESSOR is a confirmed member. Use actingUserId, not e.userId: the latter
     // coalesces to the Send creator for external accesses, which would wrongly link the "External" label.
-    return (
-      (e.type === EventType.Send_Accessed_Text || e.type === EventType.Send_Accessed_File) &&
-      isLinkableMember(e.actingUserId, this.orgUsersUserIdMap)
-    );
+    return isSendAccessEvent(e.type) && isLinkableMember(e.actingUserId, this.orgUsersUserIdMap);
   }
 
   /** Delegated handler for the interactive id links in an event message (Send id, creator user id). */

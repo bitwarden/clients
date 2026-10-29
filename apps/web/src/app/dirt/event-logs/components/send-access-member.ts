@@ -34,8 +34,19 @@ export function collectLinkableMemberIds(
 }
 
 /**
+ * True for the event types that record someone accessing a Send.
+ */
+export function isSendAccessEvent(type: EventType): boolean {
+  return (
+    type === EventType.Send_Accessed_Text ||
+    type === EventType.Send_Accessed_File ||
+    type === EventType.Send_Accessed_Item
+  );
+}
+
+/**
  * Resolves the Member column value for a Send access event (`Send_Accessed_Text` /
- * `Send_Accessed_File`).
+ * `Send_Accessed_File` / `Send_Accessed_Item`).
  *
  * Send access rows show the accessor, never the Send creator: a confirmed org member when the
  * accessor is one, otherwise the claimed email domain, otherwise a generic "External" label. The
@@ -50,7 +61,7 @@ export function resolveSendAccessMember(
   orgUsersUserIdMap: Map<string, ResolvedMember>,
   i18nService: I18nService,
 ): ResolvedMember | undefined {
-  if (ev.type !== EventType.Send_Accessed_Text && ev.type !== EventType.Send_Accessed_File) {
+  if (!isSendAccessEvent(ev.type)) {
     return undefined;
   }
   if (ev.actingUserId != null && orgUsersUserIdMap.has(ev.actingUserId)) {
