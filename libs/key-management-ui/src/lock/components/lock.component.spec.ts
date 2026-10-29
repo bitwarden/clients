@@ -211,6 +211,21 @@ describe("LockComponent", () => {
       expect(mockPinService.rememberPinLength).toHaveBeenCalledWith("123456", userId);
     });
 
+    it("tries a PIN once when it is submitted again while unlocking, e.g. by Enter", async () => {
+      component.formGroup = new FormBuilder().group({ pin: ["1234"] });
+      let finishUnlock!: () => void;
+      mockUnlockService.unlockWithPin.mockReturnValue(
+        new Promise<void>((resolve) => (finishUnlock = resolve)),
+      );
+
+      const first = component["unlockViaPin"]();
+      const second = component["unlockViaPin"]();
+      finishUnlock();
+      await Promise.all([first, second]);
+
+      expect(mockUnlockService.unlockWithPin).toHaveBeenCalledTimes(1);
+    });
+
     it("does not save the length of a wrong PIN", async () => {
       component.formGroup = new FormBuilder().group({ pin: ["9999"] });
       mockUnlockService.unlockWithPin.mockRejectedValue(new Error("wrong PIN"));

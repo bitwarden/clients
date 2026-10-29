@@ -139,6 +139,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private invalidPinAttempts = 0;
+  private unlockingViaPin = false;
   private readonly pinService = inject(PinServiceAbstraction);
 
   biometricUnlockBtnText?: string;
@@ -509,6 +510,20 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async unlockViaPin() {
+    // The PIN is tried as soon as it is typed; an Enter right after must not try it again.
+    if (this.unlockingViaPin) {
+      return;
+    }
+
+    this.unlockingViaPin = true;
+    try {
+      await this.tryPin();
+    } finally {
+      this.unlockingViaPin = false;
+    }
+  }
+
+  private async tryPin() {
     if (!this.validatePin() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
