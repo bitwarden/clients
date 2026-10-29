@@ -1,6 +1,6 @@
 import { PortalModule } from "@angular/cdk/portal";
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, provideRouter } from "@angular/router";
@@ -45,6 +45,7 @@ import {
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
+import { SHARED_FOLDER_DECORATION } from "../../tokens/shared-folder-decoration.token";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow } from "./shared-folder-rows";
@@ -66,6 +67,7 @@ type CollectionOverrides = {
   readOnly?: boolean;
   hidePasswords?: boolean;
   defaultCollection?: boolean;
+  gated?: boolean;
 };
 
 /** A collection with its branded ids relaxed, so a test can name a folder by a readable id. */
@@ -78,6 +80,7 @@ function collection(overrides: CollectionOverrides = {}): CollectionView {
     readOnly = false,
     hidePasswords = false,
     defaultCollection = false,
+    gated = false,
   } = overrides;
 
   const view = new CollectionView({
@@ -88,6 +91,7 @@ function collection(overrides: CollectionOverrides = {}): CollectionView {
   view.manage = manage;
   view.readOnly = readOnly;
   view.hidePasswords = hidePasswords;
+  view.hasEnabledAccessRule = gated;
   view.assigned = true;
   if (defaultCollection) {
     view.type = CollectionTypes.DefaultUserCollection;
@@ -147,7 +151,19 @@ type SetupOptions = {
     bulkDelete?: boolean;
     bulkEditAccess?: boolean;
   };
+  /** Whether the client provides a `SHARED_FOLDER_DECORATION`. */
+  decoration?: boolean;
 };
+
+/** Stands in for a host-provided folder decoration; renders the collection it received. */
+@Component({
+  selector: "test-shared-folder-decoration",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span>{{ collection().id }}</span>`,
+})
+class TestDecorationComponent {
+  readonly collection = input.required<CollectionView>();
+}
 
 /** Stands in for the layout's footer region, where the component renders its bulk actions bar. */
 @Component({
@@ -195,6 +211,7 @@ describe("SharedFoldersComponent", () => {
       organizations = [organization()],
       vaultId = ORGANIZATION_ID,
       dialogs = {},
+      decoration = false,
     } = options;
     const {
       collection: withCollectionDialog = true,
@@ -241,7 +258,10 @@ describe("SharedFoldersComponent", () => {
           provide: CollectionService,
           useValue: { decryptedCollections$: () => collections$ },
         },
-        { provide: CipherService, useValue: { cipherListViews$: () => ciphers$ } },
+        {
+          provide: CipherService,
+          useValue: { cipherListViewsIncludingRestricted$: () => ciphers$ },
+        },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         ...(withCollectionDialog
           ? [{ provide: COLLECTION_DIALOG, useValue: collectionDialog }]
@@ -251,6 +271,9 @@ describe("SharedFoldersComponent", () => {
           : []),
         ...(withBulkEditAccessDialog
           ? [{ provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG, useValue: bulkEditAccessDialog }]
+          : []),
+        ...(decoration
+          ? [{ provide: SHARED_FOLDER_DECORATION, useValue: TestDecorationComponent }]
           : []),
       ],
     }).compileComponents();
@@ -392,6 +415,57 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
 
       expect(component["loading"]()).toBe(false);
+    });
+
+    // A gated folder must not read as empty: the count is what tells the member there is
+    // something in there worth requesting access to.
+    it("counts PAM-gated items, which reach it only through cipherListViewsIncludingRestricted$", async () => {
+      const withheld = Object.assign(cipher("gated", ["a"]), { partial: true });
+
+      await setup({
+        collections: [collection({ id: "a", name: "Engineering", gated: true })],
+        ciphers: [withheld, cipher("ungated", ["a"])],
+      });
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ items: 2 })]);
+    });
+
+    describe("the folder decoration (SHARED_FOLDER_DECORATION)", () => {
+      const decorations = () =>
+        fixture.debugElement.queryAll(By.directive(TestDecorationComponent));
+
+      it("renders no decoration when the client provides none", async () => {
+        await setup({ collections: [collection({ id: "a", name: "Engineering", gated: true })] });
+        fixture.detectChanges();
+
+        expect(decorations()).toHaveLength(0);
+        expect(fixture.debugElement.query(By.css("bit-icon.bwi-lock-encrypted"))).toBeNull();
+      });
+
+      it("renders the decoration once per row, with that row's collection", async () => {
+        const engineering = collection({ id: "a", name: "Engineering", gated: true });
+        const finance = collection({ id: "b", name: "Finance" });
+        await setup({ collections: [engineering, finance], decoration: true });
+        fixture.detectChanges();
+
+        const received = decorations().map(
+          (debug) => (debug.componentInstance as TestDecorationComponent).collection().id,
+        );
+        expect(received.sort()).toEqual(["a", "b"]);
+      });
+
+      it("sits next to the folder name, inside the link's own flex row", async () => {
+        await setup({
+          collections: [collection({ id: "a", name: "Engineering" })],
+          decoration: true,
+        });
+        fixture.detectChanges();
+
+        const decoration = decorations()[0];
+        const link = fixture.debugElement.query(By.css("[id^='shared-folders_link_name-']"));
+        expect(decoration.nativeElement.parentElement).toBe(link.nativeElement.parentElement);
+      });
     });
 
     it("re-renders as the collections stream re-emits", async () => {
@@ -915,6 +989,131 @@ describe("SharedFoldersComponent", () => {
       await pinnedSharedFolders.unpin("user-1" as UserId, "a" as CollectionId);
       fixture.detectChanges();
       expect(icon("a")).toBeNull();
+    });
+  });
+
+  describe("the controlled access toggle", () => {
+    async function setupMixed(): Promise<void> {
+      await setup({
+        collections: [
+          collection({ id: "a", name: "Engineering", gated: true }),
+          collection({ id: "b", name: "Finance" }),
+        ],
+      });
+      fixture.detectChanges();
+    }
+
+    function toggle(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('bit-filter-toggle[key="controlledAccess"]');
+    }
+
+    it("is rendered when some folders are governed and some are not", async () => {
+      await setupMixed();
+
+      expect(toggle()).not.toBeNull();
+    });
+
+    it("is omitted when no folder is governed", async () => {
+      await setup({ collections: [collection({ id: "a" }), collection({ id: "b" })] });
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("is omitted when every folder is governed", async () => {
+      await setup({
+        collections: [collection({ id: "a", gated: true }), collection({ id: "b", gated: true })],
+      });
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("narrows to the governed folders when switched on", async () => {
+      await setupMixed();
+
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("is unfiltered when switched off", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      filterControl("controlledAccess").setValue(false);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+
+    it("flips on a click of the chip itself", async () => {
+      await setupMixed();
+
+      toggle()!.querySelector<HTMLButtonElement>("button")!.click();
+      fixture.detectChanges();
+
+      expect(filterControl("controlledAccess").active()).toBe(true);
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("intersects with the search term", async () => {
+      await setup({
+        collections: [
+          collection({ id: "a", name: "Engineering", gated: true }),
+          collection({ id: "b", name: "Engineering archive" }),
+          collection({ id: "c", name: "Finance", gated: true }),
+        ],
+      });
+      fixture.detectChanges();
+
+      searchControl().setValue("engineering");
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+
+    it("is cleared by the empty state's Clear all", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#bit-table-toolbar_button_clear-all")!
+        .click();
+      fixture.detectChanges();
+
+      expect(filterControl("controlledAccess").active()).toBe(false);
+      expect(bitTable().filtered()).toHaveLength(2);
+    });
+
+    it("goes away once no folder is governed any more", async () => {
+      await setupMixed();
+      expect(toggle()).not.toBeNull();
+
+      collections$.next([collection({ id: "a", name: "Engineering" }), collection({ id: "b" })]);
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+    });
+
+    it("leaves no narrowing behind when it goes away while switched on", async () => {
+      await setupMixed();
+      filterControl("controlledAccess").setValue(true);
+      fixture.detectChanges();
+      expect(bitTable().filtered()).toHaveLength(1);
+
+      collections$.next([
+        collection({ id: "a", name: "Engineering", gated: true }),
+        collection({ id: "b", name: "Finance", gated: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(toggle()).toBeNull();
+      expect(bitTable().filtered()).toHaveLength(2);
     });
   });
 

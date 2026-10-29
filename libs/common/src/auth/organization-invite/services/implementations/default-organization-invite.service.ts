@@ -195,6 +195,8 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
       await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
+      // TODO: consider a UI that asks the authed user to enter their MP and evaluates it
+      // against this org's policy in place, so the user stays logged in.
       await this.logoutService.logout(userId, "masterPasswordPolicyEnforcement");
       return false;
     }
@@ -217,14 +219,16 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // stashed open invite — either a paste-into-authed-session (unauthedHandler
     // never ran) or a retry after a failed accept (the catch block below cleared
     // the stash). Every other entry (unauthed click → login → deep-link replay,
-    // registration crossing, post-detour re-login) has a matching stash present,
-    // so `openOrgInviteMasterPasswordPolicyCheckRequired` returns false and this
-    // branch is skipped.
+    // registration crossing, post-detour re-login, retry after `email-not-verified`)
+    // has a matching stash present, so `openOrgInviteMasterPasswordPolicyCheckRequired`
+    // returns false and this branch is skipped.
     if (await this.openOrgInviteMasterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
       // Persist so the deep-link guard replays us back into accept after the user
       // re-authenticates with a compliant master password.
       await this.deepLinkRedirectService.persistPostLoginRedirectUrl(postAuthRedirectUrl);
+      // TODO: consider a UI that asks the authed user to enter their MP and evaluates it
+      // against this org's policy in place, so the user stays logged in.
       await this.logoutService.logout(userId, "masterPasswordPolicyEnforcement");
       return { kind: "stashed-for-mp-policy-detour" };
     }
@@ -257,11 +261,16 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       await this.clearOrganizationInvite();
       return { kind: "accepted" };
     } catch (e) {
-      // Any classified accept failure leaves the invite consumed from the caller's
-      // POV — drop the stash so downstream MP-policy consumers on the same tab
-      // don't apply the failed org's policy.
-      await this.clearOpenOrgInvite();
-      return this.classifyOpenOrgInviteAcceptError(e);
+      const acceptError = this.classifyOpenOrgInviteAcceptError(e);
+      // `email-not-verified` is recoverable on /join: the user verifies their email with
+      // an OTP and the caller retries. Keep the stash so the retry, or a reload of /join,
+      // matches it and skips the MP-policy detour above. Every other failure leaves the
+      // invite consumed from the caller's POV — drop the stash so downstream MP-policy
+      // consumers on the same tab don't apply the failed org's policy.
+      if (acceptError.kind !== "email-not-verified") {
+        await this.clearOpenOrgInvite();
+      }
+      return acceptError;
     }
   }
 
@@ -832,6 +841,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return false;
     }
 
+    // TODO: PM-45803 - the stash doubles as the record that login already evaluated this
+    // org's MP policy, so any entry that skips login (an authed user pasting the accept URL)
+    // must not write it, and recoverable accept failures must keep it. Consider recording the
+    // policy evaluation as its own explicit fact, written by the login flow, so the stash
+    // only carries the invite.
     const storedInvite = await readStash();
     if (storedInvite != null && !matchesStash(storedInvite)) {
       // Stale same-kind stash from a different ceremony; clear so the detour fires fresh.

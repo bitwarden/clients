@@ -74,14 +74,6 @@ export default {
       ],
     }),
   ],
-  parameters: {
-    chromatic: {
-      modes: {
-        light: { theme: "light" },
-        dark: { theme: "dark" },
-      },
-    },
-  },
 } as Meta;
 
 export const Default: StoryObj<NavSectionComponent> = {
