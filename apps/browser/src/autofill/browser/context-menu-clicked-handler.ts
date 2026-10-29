@@ -210,8 +210,7 @@ export class ContextMenuClickedHandler {
 
       cipher = ciphers[0];
     } else {
-      const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
-      cipher = ciphers.find(({ id }) => id === menuItemId);
+      [cipher] = await this.cipherService.getAllDecryptedForIds(activeUserId, [menuItemId]);
     }
 
     if (!cipher && !isCreateCipherAction) {
