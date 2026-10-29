@@ -50,7 +50,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
+import type { AccessLeaseId } from "../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverActionsService, rowBusy } from "../approvals/approver-actions.service";
@@ -388,18 +388,6 @@ export class HistoryTabComponent {
     }
     await this.approverActions.revoke(
       () => this.inbox.revokeLease(row.id, row.producedLeaseId as unknown as AccessLeaseId),
-      rowBusy(this.acting, String(row.id)),
-    );
-  }
-
-  protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
-    if (!this.canCancelApproval(row) || this.isActing(row)) {
-      return;
-    }
-    await this.approverActions.withdrawApproval(
-      // The same expression the Item column renders, so the dialog names the item as its row does.
-      row.cipherName ?? row.cipherId,
-      () => this.inbox.cancelApproval(row.id as AccessRequestId),
       rowBusy(this.acting, String(row.id)),
     );
   }

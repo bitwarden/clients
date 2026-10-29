@@ -11,7 +11,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import type { AccessRequestView } from "../../abstractions/access-lease";
 import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
-import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
+import { automaticDecision, humanDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
 import { lapsedGrantBadge } from "../my-access-row";
 
@@ -174,7 +174,24 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["organizationName"]()).toBeNull();
     });
 
-    it("keeps Status, Submitted and Resolved beside the shared request-details rows", () => {
+    it("badges the item in its own card and keeps Submitted among the details", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
+
+      create();
+
+      const item = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-item"]',
+      ) as HTMLElement;
+      const details = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-details"]',
+      ) as HTMLElement;
+      // Status reads with the item's name, not as a row among the request's fields.
+      expect(item.textContent).toContain("pamStatusDenied");
+      expect(details.textContent).not.toContain("pamColumnStatus");
+      expect(details.textContent).toContain("pamColumnSubmitted");
+    });
+
+    it("moves Resolved out of the details and into the decision card", () => {
       detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
 
       create();
@@ -182,9 +199,11 @@ describe("AccessRequestDialogComponent", () => {
       const details = fixture.nativeElement.querySelector(
         '[data-testid="request-summary-details"]',
       ) as HTMLElement;
-      expect(details.textContent).toContain("pamColumnStatus");
-      expect(details.textContent).toContain("pamColumnSubmitted");
-      expect(details.textContent).toContain("pamColumnResolved");
+      const decision = fixture.nativeElement.querySelector(
+        '[data-testid="request-detail-decision"]',
+      ) as HTMLElement;
+      expect(details.textContent).not.toContain("pamColumnResolved");
+      expect(decision.textContent).toContain("pamColumnResolved");
     });
 
     it("renders each shared row exactly once, not alongside the page's old list", () => {
@@ -212,139 +231,137 @@ describe("AccessRequestDialogComponent", () => {
     });
   });
 
-  describe("the decision log", () => {
+  describe("the decision card", () => {
+    /** The card the dialog renders under "Decision"; absent until something has been decided. */
+    function decisionCard(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[data-testid="request-detail-decision"]');
+    }
+
     it("credits the access rule for an automatic decision", () => {
       detail.request$.next(request({ status: "approved", decisions: [automaticDecision()] }));
 
       create();
 
-      const decisions = component["decisions"]();
-      expect(decisions).toHaveLength(1);
-      expect(decisions[0].automatic).toBe(true);
-      expect(decisions[0].labelKey).toBe("pamStatusApproved");
+      expect(decisionCard()!.textContent).toContain("pamResolverAccessRule");
     });
 
-    it("credits a human approver by name", () => {
+    it("credits a human approver by name, and names the decision as an approval", () => {
       detail.request$.next(
         request({
           status: "approved",
-          decisions: [humanDecision({ id: "approver-1", name: "Ada" })],
+          decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "approve" })],
         }),
       );
 
       create();
 
-      const decisions = component["decisions"]();
-      expect(decisions[0].automatic).toBe(false);
-      expect(decisions[0].who).toBe("Ada");
+      expect(decisionCard()!.textContent).toContain("pamDecisionApprovedBy");
+      expect(decisionCard()!.textContent).toContain("Ada");
     });
 
     it("falls back to the approver's email, and never to their raw id", () => {
       detail.request$.next(
         request({
           status: "approved",
-          decisions: [
-            humanDecision({ id: "approver-1", email: "ada@example.com" }),
-            humanDecision({ id: "approver-2" }),
-          ],
+          decisions: [humanDecision({ id: "approver-1", email: "ada@acme.com" })],
         }),
       );
 
       create();
 
-      expect(component["decisions"]()[0].who).toBe("ada@example.com");
-      expect(component["decisions"]()[1].who).toBeNull();
+      expect(decisionCard()!.textContent).toContain("ada@acme.com");
+      expect(decisionCard()!.textContent).not.toContain("approver-1");
     });
 
-    it("reads a deny on a denied request as a denial", () => {
+    it("names a denial as one, and shows the note the approver left", () => {
       detail.request$.next(
         request({
           status: "denied",
-          decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
-        }),
-      );
-
-      create();
-
-      expect(component["decisions"]()[0].labelKey).toBe("pamStatusDenied");
-    });
-
-    it("reads the holder's own deny as ending their lease, not a denial", () => {
-      // The revoke path records its reason as a deny decision; only the decider tells them apart.
-      detail.request$.next(
-        request({
-          status: "approved",
-          decisions: [automaticDecision(), selfEndDecision("user-1")],
-        }),
-      );
-
-      create();
-
-      const decisions = component["decisions"]();
-      expect(decisions[1].labelKey).toBe("pamAuditKindAccessEndedByRequester");
-      expect(text()).not.toContain("pamStatusDenied");
-    });
-
-    it("reads someone else's deny on an activated request as an operator revoke", () => {
-      detail.request$.next(
-        request({
-          status: "approved",
+          resolvedAt: new Date().toISOString(),
           decisions: [
-            automaticDecision(),
-            humanDecision({ id: "operator-9", name: "Ops", verdict: "deny" }),
+            humanDecision({
+              id: "approver-1",
+              name: "Ada",
+              email: "ada@acme.com",
+              verdict: "deny",
+              comment: "Out of scope",
+            }),
           ],
         }),
       );
 
       create();
 
-      expect(component["decisions"]()[1].labelKey).toBe("pamAuditKindAccessRevoked");
+      expect(decisionCard()!.textContent).toContain("pamDecisionDeniedBy");
+      expect(decisionCard()!.textContent).toContain("pamDecisionComment");
+      expect(decisionCard()!.textContent).toContain("Out of scope");
+    });
+
+    it("stays away until there is an outcome to name", () => {
+      detail.request$.next(request({ status: "pending", decisions: [] }));
+
+      create();
+
+      expect(decisionCard()).toBeNull();
+    });
+
+    it("names only when the request resolved without a recorded decision", () => {
+      detail.request$.next(request({ status: "expired", resolvedAt: new Date().toISOString() }));
+
+      create();
+
+      expect(decisionCard()!.textContent).toContain("pamColumnResolved");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionApprovedBy");
     });
   });
 
   describe("status and remaining time", () => {
-    function remaining(): HTMLElement | null {
-      return fixture.nativeElement.querySelector('[data-testid="request-detail-remaining"]');
+    /** The badge the item card carries; a running lease shows a countdown instead of a label. */
+    function badgeOf(): { badgeState: unknown; statusBadge: unknown } | null {
+      return component["badge"]() ?? null;
     }
 
-    it("shows the status once, even after the request produced access", () => {
+    it("badges the item once, even after the request produced access", () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" }),
       );
 
       create();
 
-      expect(text().split("pamColumnStatus").length - 1).toBe(1);
+      const item = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-item"]',
+      ) as HTMLElement;
+      expect(item.querySelectorAll("[bitBadge], app-pam-access-state-badge")).toHaveLength(1);
     });
 
-    it("adds the remaining time under the status while access is running", () => {
+    it("counts the lease down in the badge while access is running", () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
       );
 
       create();
 
-      expect(remaining()).not.toBeNull();
+      expect(badgeOf()?.badgeState).toEqual({ kind: "active", expiresAt: expect.any(Date) });
     });
 
-    it("drops the remaining time once access has ended", () => {
+    it("stops counting down once access has ended", () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" }),
       );
 
       create();
 
-      expect(remaining()).toBeNull();
+      expect(badgeOf()?.badgeState).toBeNull();
     });
 
-    it("keeps an unactivated grant approved while its activation window is open", () => {
+    it("badges an unactivated grant Ready to use while its activation window is open", () => {
       detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
 
       create();
 
       expect(component["badge"]()).toEqual({
-        badgeState: null,
-        statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+        badgeState: { kind: "ready" },
+        statusBadge: null,
       });
     });
 
@@ -361,7 +378,7 @@ describe("AccessRequestDialogComponent", () => {
       detail.request$.next(request({ status: "approved", leaseNotAfter: notAfter }));
 
       create();
-      expect(component["badge"]()?.statusBadge?.labelKey).toBe("pamStatusApproved");
+      expect(component["badge"]()?.badgeState).toEqual({ kind: "ready" });
 
       component["nowMs"].set(Date.parse(notAfter) + 1000);
 
@@ -394,11 +411,10 @@ describe("AccessRequestDialogComponent", () => {
       producedLeaseStatus: "active",
     };
 
-    function remaining(): string | null {
-      return (
-        fixture.nativeElement.querySelector('[data-testid="request-detail-remaining"]')
-          ?.textContent ?? null
-      );
+    /** The instant the badge counts down to, or null when it is not counting. */
+    function countdownTarget(): number | null {
+      const state = component["badge"]()?.badgeState;
+      return state != null && state.kind === "active" ? state.expiresAt.getTime() : null;
     }
 
     function extendedBadge(): string | null {
@@ -419,7 +435,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(remaining()).toContain("37m");
+      expect(countdownTarget()).toBe(Date.parse(component["request"]()!.producedLeaseNotAfter!));
     });
 
     it("falls back to the activation window when the server sends no lease end", () => {
@@ -432,7 +448,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(remaining()).toContain("7m");
+      expect(countdownTarget()).toBe(Date.parse(component["request"]()!.leaseNotAfter));
     });
 
     it("withholds the countdown once the lease's own end has passed", () => {
@@ -442,7 +458,7 @@ describe("AccessRequestDialogComponent", () => {
 
       create();
 
-      expect(remaining()).toBeNull();
+      expect(countdownTarget()).toBeNull();
     });
 
     it("badges the time an extension added, and the end it moved the lease to", () => {
@@ -665,6 +681,70 @@ describe("AccessRequestDialogComponent", () => {
       expect(footerButton("cancel-request")).toBeNull();
     });
 
+    /**
+     * The footer's shape is the design's safeguard: the decision a mis-click would be costly for
+     * is held away from the one beside Close.
+     */
+    describe("the footer's shape", () => {
+      it("separates Deny from Approve so the two cannot be reached for interchangeably", () => {
+        detail.approvalRow$.next(inboxRow());
+
+        create();
+
+        const deny = footerButton("deny")!;
+        const approve = footerButton("approve")!;
+        expect(deny.className).toContain("tw-ms-auto");
+        expect(approve.className).not.toContain("tw-ms-auto");
+        // Approve leads; Deny trails everything, Close included.
+        const order = [...(fixture.nativeElement.querySelector("footer") as HTMLElement).children];
+        expect(order.indexOf(approve)).toBeLessThan(order.indexOf(deny));
+        expect(order.indexOf(footerButton("close")!)).toBeLessThan(order.indexOf(deny));
+      });
+
+      it("styles Deny as destructive, and Approve as the primary action", () => {
+        detail.approvalRow$.next(inboxRow());
+
+        create();
+
+        expect(footerButton("deny")!.getAttribute("buttonType")).toBe("danger");
+        expect(footerButton("approve")!.getAttribute("buttonType")).toBe("primary");
+      });
+
+      it("promotes Withdraw approval to the primary action on an unstarted grant", () => {
+        detail.managed$.next(true);
+        detail.request$.next(request({ status: "approved", leaseNotAfter: FUTURE }));
+
+        create();
+
+        expect(footerButton("withdraw-approval")!.getAttribute("buttonType")).toBe("primary");
+      });
+
+      it("styles ending a running session as destructive", () => {
+        detail.managed$.next(true);
+        detail.request$.next(
+          request({
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "active",
+          }),
+        );
+
+        create();
+
+        expect(footerButton("revoke")!.getAttribute("buttonType")).toBe("danger");
+      });
+
+      it("leaves a denied request with nothing to do but close", () => {
+        detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
+
+        create();
+
+        const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+        expect(footer.querySelectorAll("button")).toHaveLength(1);
+        expect(footerButton("close")).not.toBeNull();
+      });
+    });
+
     it("offers no decision when the request is not in their inbox", () => {
       create();
 
@@ -740,16 +820,77 @@ describe("AccessRequestDialogComponent", () => {
       });
     });
 
-    it("offers Withdraw approval on an unstarted approval they manage, after confirming", async () => {
-      detail.request$.next(request({ status: "approved" }));
-      detail.managed$.next(true);
-      create();
+    /**
+     * The server refuses a managing approver's withdrawal without a note, so the dialog turns to
+     * its own confirmation face and holds the action until one is written.
+     */
+    describe("withdrawing an approval", () => {
+      function openConfirm(): void {
+        detail.request$.next(request({ status: "approved" }));
+        detail.managed$.next(true);
+        create();
+        component["withdrawApproval"]();
+        fixture.detectChanges();
+      }
 
-      expect(footerButton("withdraw-approval")).not.toBeNull();
-      await component["withdrawApproval"]();
+      it("confirms in place rather than opening a second dialog", () => {
+        openConfirm();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-      expect(detail.withdrawApproval).toHaveBeenCalled();
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-reason"]'),
+        ).not.toBeNull();
+      });
+
+      it("keeps the item on screen so the destructive action has its context", () => {
+        openConfirm();
+
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-summary"]'),
+        ).not.toBeNull();
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="withdraw-confirm-warning"]'),
+        ).not.toBeNull();
+      });
+
+      it("holds the withdrawal until a reason is written", () => {
+        // `bitButton` marks a held action with `aria-disabled` so keyboard users still reach it.
+        const held = () => footerButton("confirm-withdraw")!.getAttribute("aria-disabled");
+
+        openConfirm();
+        expect(held()).toBe("true");
+
+        component["withdrawReason"].setValue("   ");
+        fixture.detectChanges();
+        expect(held()).toBe("true");
+
+        component["withdrawReason"].setValue("Scope changed");
+        fixture.detectChanges();
+        expect(held()).toBeNull();
+      });
+
+      it("sends the reason the requester will read", async () => {
+        openConfirm();
+        component["withdrawReason"].setValue("  Scope changed  ");
+
+        await component["confirmWithdraw"]();
+
+        expect(detail.withdrawApproval).toHaveBeenCalledWith("Scope changed");
+        expect(component["confirmingWithdraw"]()).toBe(false);
+      });
+
+      it("returns to the request on Cancel, withdrawing nothing", () => {
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        component["cancelWithdraw"]();
+        fixture.detectChanges();
+
+        expect(detail.withdrawApproval).not.toHaveBeenCalled();
+        expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(footerButton("withdraw-approval")).not.toBeNull();
+      });
     });
 
     it("offers Revoke on a live lease they manage, even past the requested window", async () => {

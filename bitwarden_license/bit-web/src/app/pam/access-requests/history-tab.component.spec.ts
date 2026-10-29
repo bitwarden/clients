@@ -849,65 +849,35 @@ describe("HistoryTabComponent", () => {
       });
     });
 
-    it("confirms before withdrawing an approval", async () => {
+    /**
+     * Withdrawing now needs a reason the server insists on, which the access request dialog
+     * collects — so the row sends the approver there rather than confirming in place.
+     */
+    it("sends Withdraw approval to the request dialog, where the reason is taken", () => {
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
 
-      await component["cancelApproval"](unstartedApproval);
+      const link = fixture.nativeElement.querySelector(
+        '[data-testid="history-cancel-approval-managed-2"]',
+      ) as HTMLAnchorElement;
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["Prod database"] },
-          type: "warning",
-        }),
-      );
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2");
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "pamInboxApprovalWithdrawnToast",
-      });
+      expect(link.tagName).toBe("A");
+      expect(link.getAttribute("href")).toContain("/pam/requests/managed-2");
     });
 
-    it("does not withdraw the approval when the confirm is dismissed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
+    it("never withdraws straight from the row, which could not supply a reason", () => {
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
 
-      await component["cancelApproval"](unstartedApproval);
+      (
+        fixture.nativeElement.querySelector(
+          '[data-testid="history-cancel-approval-managed-2"]',
+        ) as HTMLElement
+      ).click();
 
       expect(inbox.cancelApproval).not.toHaveBeenCalled();
-      expect(toastService.showToast).not.toHaveBeenCalled();
-    });
-
-    it("names the item by id in the confirm when the cipher is not in the approver's vault", async () => {
-      const unnamed = historyRow({ ...unstartedApproval, cipherName: null });
-      managedRows$.next([unnamed]);
-      create();
-      showManaged();
-
-      await component["cancelApproval"](unnamed);
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["cipher-1"] },
-        }),
-      );
-    });
-
-    it("toasts an error when withdrawing an approval fails", async () => {
-      inbox.cancelApproval.mockRejectedValue(new Error("boom"));
-      managedRows$.next([unstartedApproval]);
-      create();
-      showManaged();
-
-      await component["cancelApproval"](unstartedApproval);
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamInboxWithdrawApprovalFailed",
-      });
     });
   });
 
@@ -948,11 +918,12 @@ describe("HistoryTabComponent", () => {
     }
 
     function actions(): { testId: string | null; label: string; id: string }[] {
-      return [...table().querySelectorAll<HTMLButtonElement>("button[data-testid]")].map(
-        (button) => ({
-          testId: button.getAttribute("data-testid"),
-          label: text(button),
-          id: button.id,
+      // Withdraw approval navigates to the request dialog, so it is an anchor, not a button.
+      return [...table().querySelectorAll<HTMLElement>("button[data-testid], a[data-testid]")].map(
+        (action) => ({
+          testId: action.getAttribute("data-testid"),
+          label: text(action),
+          id: action.id,
         }),
       );
     }
@@ -1090,16 +1061,19 @@ describe("HistoryTabComponent", () => {
       ]);
     });
 
-    it("routes Revoke and Withdraw approval through the component's actions", async () => {
+    it("revokes from the row, but sends Withdraw approval to the dialog that takes the reason", async () => {
       populateApprover();
       create();
 
       query('[data-testid="history-revoke-managed-live"]')!.click();
-      query('[data-testid="history-cancel-approval-managed-unstarted"]')!.click();
       await jest.advanceTimersByTimeAsync(0);
 
       expect(inbox.revokeLease).toHaveBeenCalledWith("managed-live", "lease-live");
-      expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-unstarted");
+      // The server rejects a withdrawal with no reason, so the row cannot perform it directly.
+      expect(inbox.cancelApproval).not.toHaveBeenCalled();
+      expect(
+        query('[data-testid="history-cancel-approval-managed-unstarted"]')!.getAttribute("href"),
+      ).toContain("/pam/requests/managed-unstarted");
     });
 
     it("labels a requester-canceled lease and an operator-revoked one differently", () => {

@@ -199,19 +199,16 @@
               {{ "pamInboxRevoke" | i18n }}
             </button>
           } @else if (canCancelApproval(row)) {
-            <button
-              type="button"
+            <a
               bitButton
               buttonType="secondary"
               size="small"
               [id]="'pam-history-tab_button_withdraw-approval-' + row.id"
-              [disabled]="isActing(row)"
-              [loading]="isActing(row)"
-              (click)="cancelApproval(row)"
+              [routerLink]="['/pam/requests', row.id]"
               [attr.data-testid]="'history-cancel-approval-' + row.id"
             >
               {{ "pamInboxWithdrawApproval" | i18n }}
-            </button>
+            </a>
           } @else {
             <span class="tw-text-muted">&mdash;</span>
           }

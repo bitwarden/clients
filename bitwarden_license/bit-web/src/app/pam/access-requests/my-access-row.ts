@@ -115,7 +115,7 @@ export function isRedeemableGrant(
  */
 export const lapsedGrantBadge: TerminalStatusBadge = {
   labelKey: "pamStatusExpired",
-  variant: "warning",
+  variant: "danger",
 };
 
 /** Exported for tests. */
@@ -126,7 +126,7 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
     case "canceled":
       return { labelKey: "pamStatusCanceled", variant: "subtle" };
     case "expired":
-      return { labelKey: "pamStatusExpired", variant: "warning" };
+      return { labelKey: "pamStatusExpired", variant: "danger" };
     case "unknown":
     default:
       return { labelKey: "pamStatusUnknown", variant: "subtle" };

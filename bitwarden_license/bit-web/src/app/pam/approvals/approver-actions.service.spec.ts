@@ -169,17 +169,11 @@ describe("ApproverActionsService", () => {
   });
 
   describe("withdrawApproval", () => {
-    it("names the item in the confirm, then withdraws and toasts", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
+    /** The caller confirms — the access request dialog does so in place, taking the reason. */
+    it("withdraws without confirming again, and toasts", async () => {
+      await service.withdrawApproval(run, busy);
 
-      await service.withdrawApproval("Prod database", run, busy);
-
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "pamInboxWithdrawApproval" },
-        content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["Prod database"] },
-        acceptButtonText: { key: "pamInboxWithdrawApproval" },
-        type: "warning",
-      });
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       expect(run).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -187,27 +181,18 @@ describe("ApproverActionsService", () => {
       });
     });
 
-    it("does nothing when the confirm is dismissed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-
-      await service.withdrawApproval("Prod database", run, busy);
-
-      expect(run).not.toHaveBeenCalled();
-      expect(busy).not.toHaveBeenCalled();
-    });
-
-    it("logs and toasts a failed withdrawal", async () => {
+    it("logs and toasts a failed withdrawal, and still clears the busy flag", async () => {
       const error = new Error("boom");
-      dialogService.openSimpleDialog.mockResolvedValue(true);
       run.mockRejectedValue(error);
 
-      await service.withdrawApproval("Prod database", run, busy);
+      await service.withdrawApproval(run, busy);
 
       expect(logService.error).toHaveBeenCalledWith(error);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         message: "pamInboxWithdrawApprovalFailed",
       });
+      expect(busy).toHaveBeenLastCalledWith(false);
     });
   });
 });

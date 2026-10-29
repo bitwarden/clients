@@ -95,7 +95,7 @@ describe("terminalStatusBadge", () => {
   it.each([
     ["denied", "pamStatusDenied", "danger"],
     ["canceled", "pamStatusCanceled", "subtle"],
-    ["expired", "pamStatusExpired", "warning"],
+    ["expired", "pamStatusExpired", "danger"],
     ["unknown", "pamStatusUnknown", "subtle"],
   ] as const)("maps %s to %s / %s", (status, labelKey, variant) => {
     expect(terminalStatusBadge(status)).toEqual({ labelKey, variant });

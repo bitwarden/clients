@@ -16,7 +16,12 @@ export abstract class AccessRequestSdkService {
   abstract listMyAccessRequests(): Promise<AccessRequestView[]>;
   abstract getAccessRequest(id: AccessRequestId): Promise<AccessRequestView>;
   abstract activateAccessRequest(id: AccessRequestId): Promise<AccessLeaseView>;
-  abstract cancelAccessRequest(id: AccessRequestId): Promise<void>;
+  /**
+   * Withdraws a pending or unactivated request. A managing approver must say why — the server
+   * records the note with their decision and shows it to the requester; a requester withdrawing
+   * their own request omits it.
+   */
+  abstract cancelAccessRequest(id: AccessRequestId, reason?: string): Promise<void>;
 
   /** Takes a plain `string`, since the OSS seam tokens never carry the SDK's branded `CipherId`. */
   abstract getCipherAccessState(cipherId: string): Promise<CipherAccessStateView>;
