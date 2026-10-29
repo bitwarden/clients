@@ -232,6 +232,7 @@ describe("VaultNavSectionComponent", () => {
           useValue: mock<PinnedSharedFoldersService>({
             pinnedIds$: () => pinnedIds$,
             emptyStateDismissed$: () => of(true),
+            activePinnedIds: signal([]),
           }),
         },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
