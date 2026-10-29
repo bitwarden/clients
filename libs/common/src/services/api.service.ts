@@ -432,7 +432,7 @@ export class ApiService implements ApiServiceAbstraction {
       });
       const response = await this.nativeXMLHttpRequest(request, options.onProgress);
       if (response.status !== HttpStatusCode.Ok && response.status !== HttpStatusCode.Created) {
-        throw await this.handleApiRequestError(response, true);
+        throw await this.handleApiRequestError(response, userId);
       }
       return response;
     }

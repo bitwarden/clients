@@ -3,7 +3,6 @@ import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { LogoutService } from "@bitwarden/common/auth/logout";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
