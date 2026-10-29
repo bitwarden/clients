@@ -666,7 +666,7 @@ describe("Cipher Service", () => {
     });
 
     it("getAllDecryptedCiphersOfType excludes partial ciphers (autofill card/identity suggestions)", async () => {
-      const card = { type: { card: {} }, deletedDate: undefined, archivedDate: undefined };
+      const card = { type: { card: {} } };
       (cipherService as any).cipherListViewsIncludingRestricted$ = jest.fn().mockReturnValue(
         of([
           { ...card, id: "card-normal", partial: false },
