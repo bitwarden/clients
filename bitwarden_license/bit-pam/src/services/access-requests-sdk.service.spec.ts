@@ -127,7 +127,7 @@ describe("AccessRequestsSdkService", () => {
 
       await service.cancelAccessRequest(requestId);
 
-      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId, undefined);
+      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId, { reason: undefined });
     });
 
     it("passes an approver's reason through to access_requests().cancel()", async () => {
@@ -136,7 +136,9 @@ describe("AccessRequestsSdkService", () => {
 
       await service.cancelAccessRequest(requestId, "Approved by mistake");
 
-      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId, "Approved by mistake");
+      expect(accessRequests.cancel).toHaveBeenCalledWith(requestId, {
+        reason: "Approved by mistake",
+      });
     });
 
     it("never logs the reason when cancelling fails", async () => {
