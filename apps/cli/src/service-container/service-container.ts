@@ -478,8 +478,6 @@ export class ServiceContainer {
     this.messagingService = MessageSender.EMPTY;
 
     this.accountService = new AccountServiceImplementation(
-      this.messagingService,
-      this.logService,
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
