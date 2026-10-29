@@ -1,3 +1,4 @@
+import { A11yModule } from "@angular/cdk/a11y";
 import { DatePipe, formatDate } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -14,6 +15,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -38,6 +40,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -51,12 +54,14 @@ import {
   IconModule,
   IconTileComponent,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   type AccessApprovalMode,
+  type AccessLeaseView,
   type AccessRequestCreateRequest,
 } from "../abstractions/access-lease";
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
@@ -70,7 +75,8 @@ import { AccessBadgeTickerService } from "../access-state-badge/access-badge-tic
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatCompoundDuration, formatDuration } from "../date/format-duration";
-import { formatRemaining } from "../date/format-remaining";
+import { formatRemainingLong } from "../date/format-remaining";
+import { formatRelativeTime } from "../date/relative-time";
 import { activateAccessErrorMessageKey } from "../helpers/activate-access-error";
 import { isGovernedCipher } from "../helpers/governed-cipher";
 import { liveActiveLease, rereadOnLapse } from "../helpers/lease-liveness";
@@ -114,6 +120,7 @@ const CUSTOM_OPTION = "custom";
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./cipher-view-banner.component.html",
   imports: [
+    A11yModule,
     AsyncActionsModule,
     ButtonModule,
     CardComponent,
@@ -122,6 +129,7 @@ const CUSTOM_OPTION = "custom";
     IconModule,
     IconTileComponent,
     ReactiveFormsModule,
+    TooltipDirective,
     TypographyModule,
     DatePipe,
     DurationLongPipe,
@@ -148,6 +156,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly myLeasesService = inject(MyLeasesService);
   private readonly revealedCipherService = inject(RevealedCipherService);
   private readonly formBuilder = inject(FormBuilder);
@@ -264,6 +273,16 @@ export class CipherViewBannerComponent implements OnInit {
     return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
   });
 
+  /** Whether a card sits under the "Privileged credentials" heading, so the heading never stands alone. */
+  protected readonly showsPrivilegedCard = computed(
+    () =>
+      this.activeLease() != null ||
+      this.approvedRequest() != null ||
+      this.pendingRequest() != null ||
+      this.accessEnded() ||
+      this.canRequestAccess(),
+  );
+
   protected readonly canExtendLease = computed(() => this.state()?.extensionsAllowed === true);
 
   /**
@@ -320,8 +339,61 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly leaseRemainingLabel = computed(() =>
     this.activeLease() == null
       ? ""
-      : formatRemaining(this.locale, this.activeLeaseExpiryMs() - this.nowMs()),
+      : formatRemainingLong(this.locale, this.activeLeaseExpiryMs() - this.nowMs()),
   );
+
+  /**
+   * "Expires today at 4:15 pm" while the lease ends on the current day, else the date as well. The
+   * time is lowercased to match the design's "pm".
+   */
+  protected readonly leaseExpiryLabel = computed(() => {
+    const lease = this.activeLease();
+    if (lease == null) {
+      return "";
+    }
+    const expiry = new Date(this.activeLeaseExpiryMs());
+    const time = formatDate(expiry, "shortTime", this.locale).toLocaleLowerCase(this.locale);
+    if (toDateInputValue(expiry) === toDateInputValue(new Date(this.nowMs()))) {
+      return this.i18nService.t("pamLeaseExpiresToday", time);
+    }
+    return this.i18nService.t(
+      "pamLeaseExpires",
+      formatDate(expiry, "mediumDate", this.locale),
+      time,
+    );
+  });
+
+  /** "Submitted just now" for the first minute, then how long ago, e.g. "Submitted 5 minutes ago". */
+  protected readonly pendingSubmittedLabel = computed(() => {
+    const submittedAt = this.pendingRequest()?.submittedAt;
+    const submittedMs = submittedAt == null ? Number.NaN : Date.parse(submittedAt);
+    if (!Number.isFinite(submittedMs)) {
+      return null;
+    }
+    const nowMs = this.nowMs();
+    if (nowMs - submittedMs < 60_000) {
+      return this.i18nService.t("pamPendingSubmittedJustNow");
+    }
+    return this.i18nService.t(
+      "pamPendingSubmittedAgo",
+      formatRelativeTime(
+        submittedMs,
+        nowMs,
+        new Intl.RelativeTimeFormat(this.locale, { numeric: "auto" }),
+      ),
+    );
+  });
+
+  /**
+   * Set when a lease the user was holding runs out on its own, so the item explains why it went
+   * back to masked. A lease the user ends does not set it, and a new active lease, request or
+   * cipher clears it.
+   */
+  protected readonly accessEnded = signal(false);
+  private readonly endTracking: { lastLive: AccessLeaseView | undefined; endedByUser: boolean } = {
+    lastLive: undefined,
+    endedByUser: false,
+  };
 
   /**
    * Escalates at the access-state badge's threshold. Handled here because
@@ -343,6 +415,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly clockAdvances = computed(
     () =>
       this.activeLease() != null ||
+      this.pendingRequest() != null ||
       (this.approvedRequest() != null && !this.approvedRequestStartsNow()),
   );
 
@@ -505,6 +578,31 @@ export class CipherViewBannerComponent implements OnInit {
   });
 
   constructor() {
+    effect(() => {
+      const lease = this.activeLease();
+      const request = this.approvedRequest() ?? this.pendingRequest();
+      untracked(() => {
+        if (lease != null) {
+          this.endTracking.lastLive = lease;
+          this.accessEnded.set(false);
+          return;
+        }
+        if (request != null) {
+          this.accessEnded.set(false);
+        }
+        const previous = this.endTracking.lastLive;
+        this.endTracking.lastLive = undefined;
+        if (
+          previous != null &&
+          !this.endTracking.endedByUser &&
+          Date.parse(previous.notAfter) <= this.nowMs()
+        ) {
+          this.accessEnded.set(true);
+        }
+        this.endTracking.endedByUser = false;
+      });
+    });
+
     // Closes the fold-out with the card, or it reopens stale, seeded from an old rule, on remount.
     effect(() => {
       if (!this.canRequestAccess()) {
@@ -841,12 +939,14 @@ export class CipherViewBannerComponent implements OnInit {
       return;
     }
     try {
+      this.endTracking.endedByUser = true;
       await this.accessLeaseSdkService.endLease(lease.id, { reason: undefined });
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamEndLeaseSuccess"),
       });
     } catch (e) {
+      this.endTracking.endedByUser = false;
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
@@ -856,6 +956,23 @@ export class CipherViewBannerComponent implements OnInit {
       this.notifyAccessChanged();
     }
   };
+
+  /** The item's name, shown beside the sheet title. */
+  protected readonly itemName = computed(() => this.cipher().name);
+
+  protected readonly copyReasonFromAutomatic = (): void =>
+    this.copyReason(this.automaticForm.getRawValue().reason);
+
+  protected readonly copyReasonFromHuman = (): void =>
+    this.copyReason(this.humanForm.getRawValue().reason);
+
+  /** Copies the reason as typed, for reuse in the next request. */
+  private copyReason(value: string): void {
+    if (value.length === 0) {
+      return;
+    }
+    this.platformUtilsService.copyToClipboard(value);
+  }
 
   /** Re-reads the state here and lets the gated-cipher reloader reveal or re-lock the item. */
   private notifyAccessChanged(): void {

@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -139,6 +140,7 @@ describe("CipherViewBannerComponent", () => {
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
   let organizations$: BehaviorSubject<Organization[]>;
+  let platformUtils: MockProxy<PlatformUtilsService>;
   let myLeases: MockProxy<MyLeasesService>;
 
   function gatedCipher(overrides: Partial<CipherView> = {}): CipherView {
@@ -226,6 +228,7 @@ describe("CipherViewBannerComponent", () => {
       approverInboxChanged$: () => NEVER,
     });
     const logService = mock<LogService>();
+    platformUtils = mock<PlatformUtilsService>();
     const i18nService = {
       t: (key: string, ...args: unknown[]) => [key, ...args].join(" "),
     } as I18nService;
@@ -255,6 +258,7 @@ describe("CipherViewBannerComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: logService },
+        { provide: PlatformUtilsService, useValue: platformUtils },
         { provide: I18nService, useValue: i18nService },
         { provide: MyLeasesService, useValue: myLeases },
         { provide: RevealedCipherService, useValue: { revealed$: () => revealed$ } },
@@ -274,11 +278,29 @@ describe("CipherViewBannerComponent", () => {
       await create(orgGatedCipher());
 
       expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
+      expect(query("[data-testid='cipher-view-banner-section-heading']")).not.toBeNull();
       expect(query("[data-testid='cipher-view-banner-request']")).toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      expect(
+        query("[data-testid='cipher-view-banner-unlicensed'] bit-icon-tile bit-icon.bwi-key"),
+      ).not.toBeNull();
       expect(text()).toContain("pamUnlicensedBannerHeading");
       expect(text()).toContain("pamUnlicensedBannerBody");
-      expect(text()).toContain("pamUnlicensedBannerRequestUnavailable");
+      expect(text()).not.toContain("pamUnlicensedBannerRequestUnavailable");
+    });
+
+    it("shows a disabled Request access button that names the missing license on hover", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+
+      await create(orgGatedCipher());
+
+      const button = query("#pam-cipher-view-banner_button_request-disabled");
+      expect(button).not.toBeNull();
+      expect(
+        button?.hasAttribute("disabled") || button?.getAttribute("aria-disabled"),
+      ).toBeTruthy();
+      expect(button?.textContent).toContain("pamRequestAccessButton");
+      expect(query("[data-testid='cipher-view-banner-license-tooltip']")).not.toBeNull();
     });
 
     it("spends no pre-check on a member who cannot request anything", async () => {
@@ -441,6 +463,35 @@ describe("CipherViewBannerComponent", () => {
       expect(text()).toContain("pamRequestAccessBannerBody");
     });
 
+    it("puts a full-width Request access button with a lock icon above the section heading", async () => {
+      await create(gatedCipher());
+
+      const button = query("#pam-cipher-view-banner_button_request-toggle");
+      expect(button?.classList.contains("tw-w-full")).toBe(true);
+      expect(button?.querySelector(".bwi-lock")).not.toBeNull();
+      const heading = query('[data-testid="cipher-view-banner-section-heading"]');
+      expect(heading?.textContent).toContain("pamPrivilegedCredentialsHeading");
+      expect(
+        button!.compareDocumentPosition(heading!) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it("shows a pending request as submitted just now, with Cancel as a full-width button", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView({ submittedAt: new Date().toISOString() }) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-pending-submitted"]')?.textContent).toContain(
+        "pamPendingSubmittedJustNow",
+      );
+      const cancel = query("#pam-cipher-view-banner_button_cancel");
+      expect(cancel?.classList.contains("tw-w-full")).toBe(true);
+      expect(cancel?.querySelector(".bwi-close")).not.toBeNull();
+      expect(cancel?.closest('[data-testid="cipher-view-banner-pending"]')).toBeNull();
+    });
+
     it("offers Cancel request while a request is pending", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ pendingRequest: requestView() }),
@@ -454,182 +505,73 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
     });
 
-    it("offers Start access and Cancel for an approved request", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ approvedRequest: requestView() }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
-      expect(text()).toContain("pamApprovedRequestBannerHeading");
-      expect(query("#pam-cipher-view-banner_button_start")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_cancel-approved")).not.toBeNull();
-    });
-
-    it("states the granted duration from the approved request's own window", async () => {
+    it("tells an approved request how to get started, with no duration or window line", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
       );
 
       await create(gatedCipher());
 
-      expect(query('[data-testid="cipher-view-banner-approved-duration"]')?.textContent).toContain(
-        "pamApprovedRequestBannerDuration 1 hour",
-      );
-    });
-
-    it("states the granted duration for a window that has not opened yet", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ approvedRequest: requestView(grantedWindow(3 * 3600, 24 * 3600)) }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query('[data-testid="cipher-view-banner-approved-duration"]')?.textContent).toContain(
-        "pamApprovedRequestBannerDuration 3 hours",
-      );
-    });
-
-    it("renders no duration line when the window does not resolve to a positive span", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ approvedRequest: requestView(grantedWindow(0)) }),
-      );
-
-      await create(gatedCipher());
-
       expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
+      expect(text()).toContain("pamApprovedRequestBannerHeading");
+      expect(query('[data-testid="cipher-view-banner-approved-hint"]')?.textContent).toContain(
+        "pamApprovedRequestBannerHint",
+      );
       expect(query('[data-testid="cipher-view-banner-approved-duration"]')).toBeNull();
-    });
-
-    it("shows the countdown and End for an active lease, hiding Extend when the rule forbids it", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ activeLease: leaseView(), extensionsAllowed: false }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
-      expect(text()).toContain("pamActiveLeaseBannerTitle");
-    });
-
-    it("offers Extend when the rule allows extensions", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ activeLease: leaseView(), extensionsAllowed: true }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query("#pam-cipher-view-banner_button_extend")).not.toBeNull();
-    });
-
-    it("prefers an active lease over a pending request", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ activeLease: leaseView(), pendingRequest: requestView() }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
-      expect(query('[data-testid="cipher-view-banner-pending"]')).toBeNull();
+      expect(query('[data-testid="approved-access-window"]')).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_start")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_cancel-approved")).toBeNull();
     });
   });
 
   describe("the absolute expiry beside the countdown", () => {
-    const NOW = Date.parse("2026-01-01T15:00:00.000Z");
-    const ENDS_AT = "2026-01-01T16:15:00.000Z";
+    // Local noon, so a half-hour lease is "today" in any zone.
+    const NOON = new Date(2026, 0, 1, 12, 0).getTime();
 
     // Pinned rather than faked: a fake timer would stall `fixture.whenStable()`.
     beforeEach(() => {
-      jest.spyOn(Date, "now").mockReturnValue(NOW);
+      jest.spyOn(Date, "now").mockReturnValue(NOON);
     });
 
     afterEach(() => {
       jest.restoreAllMocks();
     });
 
-    // `formatDate` separates the meridiem with a narrow no-break space.
+    function lowerTime(iso: string): string {
+      return formatDate(iso, "shortTime", "en-US").toLocaleLowerCase("en-US");
+    }
+
     function collapseSpace(value: string | null | undefined): string {
       return (value ?? "").replace(/\s+/g, " ").trim();
     }
 
-    function until(iso: string): string {
-      return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
-    }
-
-    // The countdown runs on a real interval; a tick is only observed by outlasting it.
-    function waitForTick(): Promise<void> {
-      return new Promise((resolve) => setTimeout(resolve, 1_100));
-    }
-
-    it("pairs the active lease's countdown with the wall-clock time it ends", async () => {
+    it("spells out the days left and the date the lease ends on", async () => {
+      const endsAt = new Date(NOON + 20 * 24 * 60 * 60 * 1000 + 60 * 1000).toISOString();
       requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ activeLease: leaseView({ notAfter: ENDS_AT }) }),
+        accessState({ activeLease: leaseView({ notAfter: endsAt }) }),
       );
 
       await create(gatedCipher());
 
-      expect(text()).toContain("pamActiveLeaseBannerTitle 1h 15m");
-      expect(query('[data-testid="active-lease-ends-at"]')?.textContent?.trim()).toBe(
-        until(ENDS_AT),
-      );
-    });
-
-    it("shows the end of the granted window on an approved request already inside its window", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({
-          approvedRequest: requestView({
-            leaseNotBefore: "2026-01-01T14:00:00.000Z",
-            leaseNotAfter: ENDS_AT,
-          }),
-        }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
-        until(ENDS_AT),
-      );
-    });
-
-    it("shows the whole range for an approved request whose window has not opened yet", async () => {
-      const STARTS_AT = "2026-01-02T09:00:00.000Z";
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({
-          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
-        }),
-      );
-
-      await create(gatedCipher());
-
-      expect(collapseSpace(query('[data-testid="approved-access-window"]')?.textContent)).toBe(
+      expect(text()).toContain("pamActiveLeaseBannerTitle 20 days");
+      expect(collapseSpace(query('[data-testid="active-lease-ends-at"]')?.textContent)).toBe(
         collapseSpace(
-          `${formatDate(STARTS_AT, "short", "en-US")} – ${formatDate(ENDS_AT, "short", "en-US")}`,
+          `pamLeaseExpires ${formatDate(endsAt, "mediumDate", "en-US")} ${lowerTime(endsAt)}`,
         ),
       );
     });
 
-    it("switches an approved request to the opened form once its window arrives", async () => {
-      const STARTS_AT = new Date(NOW + 30 * 1000).toISOString();
+    it("says today, not the date, for a lease that ends the same day", async () => {
+      const endsAt = new Date(NOON + 30 * 60 * 1000).toISOString();
       requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({
-          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
-        }),
+        accessState({ activeLease: leaseView({ notAfter: endsAt }) }),
       );
 
       await create(gatedCipher());
-      expect(query('[data-testid="approved-access-window"]')?.textContent).not.toContain(
-        "pamWindowUntil",
-      );
 
-      jest.spyOn(Date, "now").mockReturnValue(NOW + 31 * 1000);
-      await waitForTick();
-      fixture.detectChanges();
-
-      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
-        until(ENDS_AT),
+      expect(text()).toContain("pamActiveLeaseBannerTitle 30 minutes");
+      expect(collapseSpace(query('[data-testid="active-lease-ends-at"]')?.textContent)).toBe(
+        collapseSpace(`pamLeaseExpiresToday ${lowerTime(endsAt)}`),
       );
     });
   });
@@ -664,23 +606,35 @@ describe("CipherViewBannerComponent", () => {
       );
     }
 
-    it("warns and offers both actions inside the threshold", async () => {
+    it("warns inside the threshold and, as designed, carries no actions", async () => {
       await activeLeaseEndingIn(4 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitle 4m",
+        "pamActiveLeaseBannerEndingSoonTitle 4 minutes",
       );
       expect(query('[data-testid="active-lease-countdown"]')).toBeNull();
       expect(glyph("bwi-exclamation-triangle")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_extend")).not.toBeNull();
-      expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_end")).toBeNull();
+    });
+
+    it("lists Extend access before End access, each filling half the row", async () => {
+      await activeLeaseEndingIn(60 * 60 * 1000);
+
+      const end = query("#pam-cipher-view-banner_button_end");
+      const extend = query("#pam-cipher-view-banner_button_extend");
+      expect(end).not.toBeNull();
+      expect(extend).not.toBeNull();
+      expect(extend!.compareDocumentPosition(end!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(end!.classList.contains("tw-flex-1")).toBe(true);
+      expect(extend!.classList.contains("tw-flex-1")).toBe(true);
     });
 
     it("warns at exactly five minutes remaining", async () => {
       await activeLeaseEndingIn(5 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitle 5m",
+        "pamActiveLeaseBannerEndingSoonTitle 5 minutes",
       );
     });
 
@@ -688,10 +642,10 @@ describe("CipherViewBannerComponent", () => {
       await activeLeaseEndingIn(6 * 60 * 1000);
 
       expect(query('[data-testid="active-lease-countdown"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerTitle 6m",
+        "pamActiveLeaseBannerTitle 6 minutes",
       );
       expect(query('[data-testid="active-lease-ending-soon"]')).toBeNull();
-      expect(glyph("bwi-clock")).not.toBeNull();
+      expect(glyph("bwi-unlock")).not.toBeNull();
     });
 
     it("shows no active card at all for a lease that lapsed before the read landed", async () => {
@@ -729,7 +683,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
     }
 
-    it("falls back to the resting request card once the window closes", async () => {
+    it("shows the Access ended card and offers a new request once the window closes", async () => {
       await openWithLeaseEndingAt(ENDS_AT);
       expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
 
@@ -738,7 +692,10 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(query('[data-testid="cipher-view-banner-active"]')).toBeNull();
-      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+      expect(query('[data-testid="cipher-view-banner-ended"]')).not.toBeNull();
+      expect(text()).toContain("pamEndedBannerHeading");
+      expect(text()).toContain("pamEndedBannerBody");
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
     });
 
     it("locks even when a trailing server clock still reports the lease", async () => {
@@ -799,13 +756,13 @@ describe("CipherViewBannerComponent", () => {
         name: "approved request",
         state: { approvedRequest: requestView() },
         testId: "approved",
-        glyph: "bwi-check-circle",
+        glyph: "bwi-check",
       },
       {
         name: "active lease",
         state: { activeLease: leaseView() },
         testId: "active",
-        glyph: "bwi-clock",
+        glyph: "bwi-unlock",
       },
     ];
 
@@ -880,6 +837,92 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("the request fold-out", () => {
+    it("opens as a bottom sheet over a dimmed overlay, titled with the item", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher({ name: "Github" }));
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="request-sheet-overlay"]')).not.toBeNull();
+      expect(query('[data-testid="request-sheet-title"]')?.textContent).toContain(
+        "pamRequestAccessButton",
+      );
+      expect(query('[data-testid="request-sheet-item-name"]')?.textContent).toContain("Github");
+      expect(query("#pam-cipher-view-banner_button_request-close")).not.toBeNull();
+      expect(query('[data-testid="request-sheet-summary"]')?.textContent).toContain(
+        "pamRequestToUse",
+      );
+      expect(query('[data-testid="request-sheet-details-heading"]')?.textContent).toContain(
+        "requestAccessModalDetailsHeading",
+      );
+      expect(query("[data-testid='request-sheet'] footer")).not.toBeNull();
+    });
+
+    it("drops the old description paragraph from the sheet", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(text()).not.toContain("requestAccessModalAutomaticDescription");
+      expect(text()).not.toContain("requestAccessModalHumanDescription");
+    });
+
+    it("closes the sheet from the close button, the overlay and Escape", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      for (const close of [
+        () => query("#pam-cipher-view-banner_button_request-close")?.click(),
+        () => query('[data-testid="request-sheet-overlay"]')?.click(),
+        () =>
+          query('[data-testid="request-sheet"]')?.dispatchEvent(
+            new KeyboardEvent("keydown", { key: "Escape" }),
+          ),
+      ]) {
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+        expect(component["requestFormExpanded"]()).toBe(true);
+
+        close();
+        fixture.detectChanges();
+
+        expect(component["requestFormExpanded"]()).toBe(false);
+      }
+    });
+
+    it("hints the duration and marks it required on the automatic path too", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(text()).toContain("requestAccessModalDurationHint");
+      expect(text()).toContain("requestAccessModalAutomaticReasonHint");
+      expect(query("#pam-cipher-view-banner_select_duration")?.hasAttribute("required")).toBe(true);
+      expect(query("#pam-cipher-view-banner_button_automatic-reason-copy")).not.toBeNull();
+    });
+
+    it("traps keyboard focus in the sheet and copies the reason through the platform service", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const sheet = query('[data-testid="request-sheet"]');
+      expect(sheet?.previousElementSibling?.classList.contains("cdk-focus-trap-anchor")).toBe(true);
+      expect(sheet?.nextElementSibling?.classList.contains("cdk-focus-trap-anchor")).toBe(true);
+
+      component["automaticForm"].patchValue({ reason: "Quarterly audit" });
+      query("#pam-cipher-view-banner_button_automatic-reason-copy")?.click();
+
+      expect(platformUtils.copyToClipboard).toHaveBeenCalledWith("Quarterly audit");
+    });
+
     it("shapes the form from the pre-check's automatic path", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
@@ -893,18 +936,17 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_input_start-date")).toBeNull();
     });
 
-    it("moves Cancel down beside Request access once the form is open", async () => {
+    it("keeps Send request and Cancel together in the sheet footer", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
       await component["toggleRequestForm"]();
       fixture.detectChanges();
 
-      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
       const cancel = query("#pam-cipher-view-banner_button_request-cancel");
       expect(cancel).not.toBeNull();
-      expect(cancel?.closest("div")).toBe(
-        query("#pam-cipher-view-banner_button_request-submit")?.closest("div"),
+      expect(cancel?.closest("footer")).toBe(
+        query("#pam-cipher-view-banner_button_request-submit")?.closest("footer"),
       );
     });
 
@@ -940,7 +982,7 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
     });
 
-    it("moves focus into the fold-out when opening unmounts the toggle", async () => {
+    it("moves focus into the sheet when it opens", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
       await create(gatedCipher());
 
@@ -951,8 +993,9 @@ describe("CipherViewBannerComponent", () => {
       expect(focused).not.toBe(document.body);
       expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
       // Announceable only if the element it lands on has its own name.
-      expect(focused?.getAttribute("role")).toBe("group");
-      expect(focused?.getAttribute("aria-label")?.trim()).toBe("pamRequestAccessButton");
+      expect(focused?.getAttribute("role")).toBe("dialog");
+      const titleId = focused?.getAttribute("aria-labelledby") ?? "";
+      expect(document.getElementById(titleId)?.textContent).toContain("pamRequestAccessButton");
     });
 
     it("returns focus to the toggle when Cancel unmounts itself", async () => {
@@ -1369,7 +1412,7 @@ describe("CipherViewBannerComponent", () => {
         expect(component["slotContention"]()).toBeNull();
         const text = fixture.nativeElement.textContent as string;
         expect(text).not.toContain("pamRequestSlotTaken");
-        expect(text).toContain("requestAccessModalHumanDescription");
+        expect(text).toContain("requestAccessModalStartDate");
       });
 
       it("clears the warning when the form is reopened against a freed slot", async () => {
@@ -1387,9 +1430,7 @@ describe("CipherViewBannerComponent", () => {
         fixture.detectChanges();
 
         expect(component["slotContention"]()).toBeNull();
-        expect(fixture.nativeElement.textContent).toContain(
-          "requestAccessModalAutomaticDescription",
-        );
+        expect(fixture.nativeElement.textContent).toContain("requestAccessModalDuration");
       });
     });
   });
