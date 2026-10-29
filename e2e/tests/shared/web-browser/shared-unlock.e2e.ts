@@ -17,7 +17,6 @@ import { lockNow as lockWebNow } from "../../../src/web/account-menu";
 
 /**
  * Web vault and extension lock and unlock together ("Sync unlock with web app", on by default).
- * Both run in one Chromium context; the extension's content script carries the IPC.
  */
 
 const FLAGS = [FeatureFlag.SharedUnlock, FeatureFlag.ContentScriptIpc];
@@ -37,14 +36,12 @@ test.describe("shared unlock between web vault and extension", () => {
     await openExtensionVault(extension);
   });
 
-  test("locking the extension locks the web vault, unlocking the web vault unlocks the extension", async ({
+  test("locking the web vault locks the extension, unlocking the web vault unlocks the extension", async ({
     context,
   }) => {
     const web = await logInToWeb(context);
 
-    extension = await lockExtension(context, extension, () => lockExtensionNow(extension.popup));
-    await web.waitForURL(LOCK_URL, { timeout: SYNC_TIMEOUT_MS });
-
+    extension = await lockExtension(context, extension, () => lockWebNow(web));
     const extensionLock = new LockScreen(extension.popup);
     await extensionLock.waitUntilShown();
 
@@ -52,12 +49,13 @@ test.describe("shared unlock between web vault and extension", () => {
     await extensionLock.waitUntilGone();
   });
 
-  test("locking the web vault locks the extension, unlocking the extension unlocks the web vault", async ({
+  test("locking the extension locks the web vault, unlocking the extension unlocks the web vault", async ({
     context,
   }) => {
     const web = await logInToWeb(context);
 
-    extension = await lockExtension(context, extension, () => lockWebNow(web));
+    extension = await lockExtension(context, extension, () => lockExtensionNow(extension.popup));
+    await web.waitForURL(LOCK_URL, { timeout: SYNC_TIMEOUT_MS });
     const webLock = new LockScreen(web);
     await webLock.waitUntilShown();
 

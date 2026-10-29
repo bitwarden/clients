@@ -116,14 +116,9 @@ test.describe("shared unlock between extension and desktop app", () => {
     const desktopLock = new LockScreen(window);
     await desktopLock.waitUntilShown();
 
-    // Biometrics is the default option once desktop reports it available.
-    const extensionLock = new LockScreen(extension.popup);
-    const unlock = extensionLock.biometricUnlockButton();
-    await expect(unlock).toBeEnabled({ timeout: SYNC_TIMEOUT_MS });
-    await unlock.click();
-    await biometrics.approveNext(BiometricRequestType.Unlock);
-
-    await extensionLock.waitUntilGone();
+    await new LockScreen(extension.popup).unlockWithBiometrics(() =>
+      biometrics.approveNext(BiometricRequestType.Unlock),
+    );
     await desktopLock.waitUntilGone();
   });
 
