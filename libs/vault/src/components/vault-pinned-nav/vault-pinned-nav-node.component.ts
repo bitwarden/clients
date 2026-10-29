@@ -1,10 +1,23 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { isActive, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
-import { NavigationModule } from "@bitwarden/components";
+import {
+  HoverRevealContainerDirective,
+  HoverRevealDirective,
+  NavigationModule,
+  ToastService,
+} from "@bitwarden/components";
 
 import { EXACT_PATH } from "../../routing/exact-path";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 
 import { PinnedFolderNode } from "./pinned-shared-folder-nodes";
 
@@ -20,10 +33,22 @@ import { PinnedFolderNode } from "./pinned-shared-folder-nodes";
   selector: "vault-pinned-nav-node",
   templateUrl: "./vault-pinned-nav-node.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NavigationModule],
+  imports: [
+    NgTemplateOutlet,
+    NavigationModule,
+    CollectionOptionsMenuComponent,
+    HoverRevealContainerDirective,
+    HoverRevealDirective,
+  ],
 })
 export class VaultPinnedNavNodeComponent {
   readonly node = input.required<PinnedFolderNode>();
+
+  /** Whether the user pinned this folder itself, rather than it showing only beneath a pinned ancestor. */
+  readonly pinned = input(false);
+
+  /** `undefined` while the organization list is still loading. */
+  readonly organization = input<Organization | undefined>(undefined);
 
   /**
    * Route commands for every folder in the tree, by id. Handed down rather than built per node so
@@ -32,6 +57,10 @@ export class VaultPinnedNavNodeComponent {
   readonly routes = input.required<ReadonlyMap<CollectionId, string[]>>();
 
   private readonly router = inject(Router);
+  private readonly accountService = inject(AccountService);
+  private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
 
   protected readonly route = computed(() => this.routes().get(this.node().id));
 
@@ -43,4 +72,13 @@ export class VaultPinnedNavNodeComponent {
     const route = this.route();
     return route != null && isActive(this.router.createUrlTree(route), this.router, EXACT_PATH)();
   });
+
+  protected async unpin(): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.pinnedSharedFolders.unpin(userId, this.node().id);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("folderUnpinnedFromSidebar", this.node().name),
+    });
+  }
 }
