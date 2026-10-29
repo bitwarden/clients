@@ -71,4 +71,25 @@ describe("ConfirmationDetailsComponent", () => {
       expect(liText).toBe("trialPaidInfoMessageSpecificTrialLength:Teams:30");
     });
   });
+
+  describe("Privileged Controls", () => {
+    const listItemTexts = () =>
+      fixture.debugElement.queryAll(By.css("li")).map((li) => li.nativeElement.textContent.trim());
+
+    it("renders the Privileged Controls line when the trial includes them", () => {
+      component.trialLength = 7;
+      component.includesPrivilegedControls = true;
+      fixture.detectChanges();
+
+      expect(listItemTexts()).toContain("trialIncludesPrivilegedControls");
+    });
+
+    it("omits the Privileged Controls line when the trial does not include them", () => {
+      component.trialLength = 7;
+      component.includesPrivilegedControls = false;
+      fixture.detectChanges();
+
+      expect(listItemTexts()).not.toContain("trialIncludesPrivilegedControls");
+    });
+  });
 });

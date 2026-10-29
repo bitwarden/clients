@@ -18,5 +18,8 @@
         {{ "trialPaidInfoMessageSpecificTrialLength" | i18n: orgLabel : trialLength }}
       </p>
     </li>
+    <li *ngIf="includesPrivilegedControls">
+      <p>{{ "trialIncludesPrivilegedControls" | i18n }}</p>
+    </li>
   </ul>
 </div>
