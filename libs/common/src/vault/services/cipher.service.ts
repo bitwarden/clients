@@ -1084,19 +1084,33 @@ export class CipherService implements CipherServiceAbstraction {
 
   /**
    * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} (full sync)
-   * stays authoritative. The check reads the stored copy in the same state update as the write.
+   * stays authoritative.
    */
   async upsert(
     cipher: CipherData | CipherData[],
     userId?: UserId,
   ): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
+    const keepsStored = (stored: CipherData | undefined, incoming: CipherData) =>
+      stored?.partialData != null && incoming.partialData == null;
+    const logKept = (count: number) =>
+      this.logService.debug(`Kept ${count} stored restricted cipher(s); did not save a full copy.`);
+
+    // When every item is kept, skip the write: an unchanged record clears the cache but emits
+    // nothing in the extension, the case replace() also guards against.
+    userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
+    const stored = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
+    if (ciphers.length > 0 && ciphers.every((c) => keepsStored(stored[c.id as CipherId], c))) {
+      logKept(ciphers.length);
+      return stored;
+    }
+
     const kept: CipherId[] = [];
     const res = await this.updateEncryptedCipherState((current) => {
       ciphers.forEach((c) => {
         const id = c.id as CipherId;
-        if (current[id]?.partialData != null && c.partialData == null) {
-          kept.push(id); // never replace a stored restricted copy with a full one
+        if (keepsStored(current[id], c)) {
+          kept.push(id);
           return;
         }
         current[id] = c;
@@ -1104,9 +1118,7 @@ export class CipherService implements CipherServiceAbstraction {
       return current;
     }, userId);
     if (kept.length > 0) {
-      this.logService.debug(
-        `Kept ${kept.length} stored restricted cipher(s); did not save a full copy.`,
-      );
+      logKept(kept.length);
     }
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
