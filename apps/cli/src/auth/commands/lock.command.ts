@@ -16,10 +16,7 @@ export class LockCommand {
   async run() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await this.lockService.lock(activeUserId, LockSource.Manual);
-    // TODO: PM-XXXXX - Remove the variable with `delete process.env.BW_SESSION`. Assigning
-    // undefined stores the string "undefined", which secure storage then tries to decode as a
-    // session key and logs "Session key is invalid."
-    process.env.BW_SESSION = undefined;
+    delete process.env.BW_SESSION;
     const res = new MessageResponse("Your vault is locked.", null);
     return Response.success(res);
   }
