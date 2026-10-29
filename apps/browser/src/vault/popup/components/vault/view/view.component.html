@@ -36,10 +36,23 @@
 
   @if (showFooter$ | async) {
     <popup-footer slot="footer">
-      @if (!cipher.isDeleted && allows(RestrictedCipherAction.Edit)) {
-        <button buttonType="primary" type="button" bitButton (click)="editCipher()">
-          {{ "edit" | i18n }}
-        </button>
+      @if (!cipher.isDeleted) {
+        @if (allows(RestrictedCipherAction.Edit)) {
+          <button buttonType="primary" type="button" bitButton (click)="editCipher()">
+            {{ "edit" | i18n }}
+          </button>
+        } @else {
+          <!-- Shown disabled, as designed, while a restricted item's access is not live. -->
+          <button
+            buttonType="primary"
+            type="button"
+            bitButton
+            disabled
+            data-testid="edit-disabled-restricted"
+          >
+            {{ "edit" | i18n }}
+          </button>
+        }
       }
       @if (
         cipher.isDeleted && cipher.permissions.restore && allows(RestrictedCipherAction.Restore)
