@@ -23,6 +23,12 @@ export abstract class OnePasswordSsoBrowser {
    */
   abstract login(ssoLoginUrl: string, redirectTo: string): Promise<string | undefined>;
 
+  /**
+   * Brings the sign-in of a login that is still waiting to the front. Does nothing when there is
+   * none.
+   */
+  abstract show(): void;
+
   /** Gives up on a login that is still waiting. Does nothing when there is none. */
   abstract cancel(): void;
 }
@@ -32,6 +38,10 @@ class UnsupportedOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
 
   login(): Promise<string | undefined> {
     return Promise.reject(new Error("1Password single sign-on is not supported in this client."));
+  }
+
+  show(): void {
+    return;
   }
 
   cancel(): void {

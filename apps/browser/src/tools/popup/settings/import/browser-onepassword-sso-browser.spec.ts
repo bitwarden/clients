@@ -136,6 +136,48 @@ describe("BrowserOnePasswordSsoBrowser", () => {
     expect(BrowserApi.closeTab).toHaveBeenCalledWith(tabId);
   });
 
+  it("brings the tab and its window to the front when shown", async () => {
+    jest.spyOn(BrowserApi, "focusTab").mockResolvedValue();
+    jest
+      .spyOn(BrowserApi, "getTab")
+      .mockResolvedValue({ id: tabId, windowId: 3 } as chrome.tabs.Tab);
+    jest.spyOn(BrowserApi, "focusWindow").mockResolvedValue();
+    await startLogin();
+
+    browser.show();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(BrowserApi.focusTab).toHaveBeenCalledWith(tabId);
+    expect(BrowserApi.focusWindow).toHaveBeenCalledWith(3);
+  });
+
+  it("does nothing to show once the login is over", async () => {
+    jest.spyOn(BrowserApi, "focusTab").mockResolvedValue();
+    browser.show();
+
+    const { login } = await startLogin();
+    browser.cancel();
+    await login;
+    browser.show();
+
+    expect(BrowserApi.focusTab).not.toHaveBeenCalled();
+  });
+
+  it("closes a tab that opens after the login was canceled", async () => {
+    let opened: (tab: chrome.tabs.Tab) => void = () => undefined;
+    jest
+      .spyOn(BrowserApi, "createNewTab")
+      .mockReturnValue(new Promise((resolve) => (opened = resolve)));
+    const login = browser.login(loginUrl, redirectTo);
+
+    browser.cancel();
+    opened({ id: tabId } as chrome.tabs.Tab);
+
+    await expect(login).resolves.toBeUndefined();
+    expect(BrowserApi.closeTab).toHaveBeenCalledWith(tabId);
+    expect(BrowserApi.navigateTabToUrl).not.toHaveBeenCalled();
+  });
+
   it("gives up on a login still waiting when another starts", async () => {
     const { login: first } = await startLogin();
 

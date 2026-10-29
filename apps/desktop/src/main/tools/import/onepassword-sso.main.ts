@@ -82,6 +82,7 @@ export class OnePasswordSsoMain {
     ipcMain.handle("onePasswordSso.login", (event, ssoLoginUrl: unknown, redirectTo: unknown) =>
       this.login(event.sender, ssoLoginUrl, redirectTo),
     );
+    ipcMain.handle("onePasswordSso.show", () => this.show());
     ipcMain.handle("onePasswordSso.cancel", () => this.cancel());
   }
 
@@ -132,6 +133,17 @@ export class OnePasswordSsoMain {
         this.logService.debug("1Password SSO login page stopped loading");
       });
     });
+  }
+
+  private show(): void {
+    const window = this.pending?.window;
+    if (window == null || window.isDestroyed()) {
+      return;
+    }
+    if (window.isMinimized()) {
+      window.restore();
+    }
+    window.focus();
   }
 
   private cancel(): void {

@@ -17352,20 +17352,20 @@
   "secretKeyAndPasswordDesc": {
     "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
   },
-  "onePasswordSsoApproveDeviceTitle": {
-    "message": "Approve this device"
+  "onePasswordSsoLogInTitle": {
+    "message": "Log in with SSO"
   },
-  "onePasswordSsoWaitingForApproval": {
-    "message": "Approve this device from another device signed in to 1Password."
+  "onePasswordSsoSwitchToSignInPage": {
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden. If this didn't happen automatically, click Open browser."
   },
-  "onePasswordSsoEnterVerificationCode": {
-    "message": "Enter the verification code shown on the other device."
+  "openBrowser": {
+    "message": "Open browser"
   },
-  "onePasswordSsoExchangingCredentials": {
-    "message": "Receiving credentials"
+  "onePasswordSsoEncryptionKeyTransfer": {
+    "message": "Encryption key transfer"
   },
-  "onePasswordSsoCompleting": {
-    "message": "Finishing"
+  "onePasswordSsoVerifyInPendingSignIns": {
+    "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
   },
   "onePasswordSsoDeviceDenied": {
     "message": "This device was not approved on your other device. Try again or use a different import method."

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Signal, computed, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Signal, effect, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -15,14 +15,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { OnePasswordSsoEnrollmentStatus } from "../../../sdk";
 import { requiredWithMessage } from "../onepassword-validators";
 
 export interface OnePasswordSsoEnrollmentPromptData {
   email: string;
-  /** The stage the enrollment has reached. */
-  status: Signal<OnePasswordSsoEnrollmentStatus>;
-  /** Whether 1Password asks for the verification code, which the other device shows on approval. */
+  /** Whether 1Password asks for the code, which it does once the other device approves this one. */
   codeRequested: Signal<boolean>;
   /**
    * Hands the verification code to 1Password. The Continue button stays busy until the import is
@@ -31,16 +28,11 @@ export interface OnePasswordSsoEnrollmentPromptData {
   submitCode: (code: string) => Promise<void>;
 }
 
-const statusMessageKeys: Record<OnePasswordSsoEnrollmentStatus, string> = {
-  WaitingForApproval: "onePasswordSsoWaitingForApproval",
-  ExchangingCredentials: "onePasswordSsoExchangingCredentials",
-  Completing: "onePasswordSsoCompleting",
-};
-
 /**
- * Takes the user through approving this device for a 1Password account that signs in with single
- * sign-on: it shows the stage of the enrollment and asks for the verification code the approving
- * device displays. Closes with `undefined`, whether the user cancels or the opener closes it.
+ * Asks for the verification code that approves this device for a 1Password account that signs in
+ * with single sign-on. Another device that is signed in to 1Password shows the code once the user
+ * approves the request there. Closes with `undefined`, whether the user cancels or the opener
+ * closes it.
  */
 @Component({
   templateUrl: "onepassword-sso-enrollment-prompt.component.html",
@@ -61,16 +53,6 @@ export class OnePasswordSsoEnrollmentPromptComponent {
   private readonly i18nService = inject(I18nService);
   protected readonly data = inject<OnePasswordSsoEnrollmentPromptData>(DIALOG_DATA);
 
-  /** The code is asked for once 1Password wants it, and only until it is handed over. */
-  protected readonly askingForCode = computed(
-    () => this.data.codeRequested() && this.data.status() === "WaitingForApproval",
-  );
-  protected readonly statusMessageKey = computed(() =>
-    this.askingForCode()
-      ? "onePasswordSsoEnterVerificationCode"
-      : statusMessageKeys[this.data.status()],
-  );
-
   protected readonly formGroup = new FormGroup({
     code: new FormControl("", {
       nonNullable: true,
@@ -82,13 +64,24 @@ export class OnePasswordSsoEnrollmentPromptComponent {
     }),
   });
 
+  /** A code sent before the other device approves this one would wait with Cancel disabled. */
+  private readonly lockCodeUntilRequested = effect(() => {
+    if (this.data.codeRequested()) {
+      this.formGroup.enable();
+    } else {
+      this.formGroup.disable();
+    }
+  });
+
   protected readonly submit = async () => {
     this.formGroup.markAllAsTouched();
     if (!this.formGroup.valid) {
       return;
     }
 
-    await this.data.submitCode(this.formGroup.getRawValue().code);
+    const { code } = this.formGroup.getRawValue();
+    this.formGroup.disable();
+    await this.data.submitCode(code);
   };
 
   protected cancel(): void {

@@ -24,6 +24,8 @@ import {
   OnePasswordSecretKeyAndPassword,
   OnePasswordSsoEnrollmentPromptComponent,
   OnePasswordSsoEnrollmentPromptData,
+  OnePasswordSsoLoginPromptComponent,
+  OnePasswordSsoLoginPromptData,
   OnePasswordTwoFactorPromptComponent,
   OnePasswordTwoFactorPromptData,
 } from "./dialog";
@@ -87,6 +89,7 @@ describe("OnePasswordDirectImportService", () => {
   let credentialPrompts: OpenDialog<OnePasswordCredentialsPromptData>[];
   let codePrompts: OpenDialog<OnePasswordTwoFactorPromptData>[];
   let enrollmentPrompts: OpenDialog<OnePasswordSsoEnrollmentPromptData>[];
+  let loginPrompts: OpenDialog<OnePasswordSsoLoginPromptData>[];
 
   beforeEach(() => {
     dialogService = mock<DialogService>();
@@ -97,6 +100,7 @@ describe("OnePasswordDirectImportService", () => {
     credentialPrompts = [];
     codePrompts = [];
     enrollmentPrompts = [];
+    loginPrompts = [];
 
     // Plain stubs: the rxjs interop checks trip over a jest-mock-extended proxy.
     dialogService.open.mockImplementation((component, config) => {
@@ -116,6 +120,8 @@ describe("OnePasswordDirectImportService", () => {
         codePrompts.push(dialog as OpenDialog<OnePasswordTwoFactorPromptData>);
       } else if (component === OnePasswordSsoEnrollmentPromptComponent) {
         enrollmentPrompts.push(dialog as OpenDialog<OnePasswordSsoEnrollmentPromptData>);
+      } else if (component === OnePasswordSsoLoginPromptComponent) {
+        loginPrompts.push(dialog as OpenDialog<OnePasswordSsoLoginPromptData>);
       }
       return dialog as unknown as DialogRef<unknown>;
     });
@@ -375,6 +381,64 @@ describe("OnePasswordDirectImportService", () => {
       );
     });
 
+    describe("while the user signs in at the identity provider", () => {
+      /** Starts the browser step, which `redirect` ends. */
+      async function signingIn() {
+        let redirect: (redirectedTo: string | undefined) => void = () => undefined;
+        ssoBrowser.login.mockReturnValue(new Promise((resolve) => (redirect = resolve)));
+        await startSso();
+        const login = ssoRequest().ui.performSsoLogin(
+          "https://idp.example.com/login",
+          "https://my.1password.com/sso/oidc/redirect/",
+        );
+        return { login, redirect };
+      }
+
+      it("shows a prompt until the sign-in is over", async () => {
+        const { login, redirect } = await signingIn();
+
+        expect(loginPrompts).toHaveLength(1);
+        expect(loginPrompts[0].data.email).toBe(account.email);
+        expect(loginPrompts[0].close).not.toHaveBeenCalled();
+
+        redirect("https://my.1password.com/sso/oidc/redirect/#code=abc");
+
+        await expect(login).resolves.toBe("https://my.1password.com/sso/oidc/redirect/#code=abc");
+        expect(loginPrompts[0].close).toHaveBeenCalled();
+      });
+
+      it("brings the sign-in to the front from the prompt", async () => {
+        await signingIn();
+
+        loginPrompts[0].data.openWindow();
+
+        expect(ssoBrowser.show).toHaveBeenCalledTimes(1);
+        expect(ssoBrowser.cancel).not.toHaveBeenCalled();
+      });
+
+      it("calls the sign-in off when the prompt is dismissed", async () => {
+        const { login, redirect } = await signingIn();
+
+        loginPrompts[0].closed.next(undefined);
+
+        expect(ssoBrowser.cancel).toHaveBeenCalled();
+        redirect(undefined);
+        await expect(login).resolves.toBeUndefined();
+      });
+
+      it("closes the prompt when the browser step fails", async () => {
+        ssoBrowser.login.mockRejectedValue(new Error("the window did not open"));
+        await startSso();
+
+        await ssoRequest().ui.performSsoLogin(
+          "https://idp.example.com/login",
+          "https://my.1password.com/sso/oidc/redirect/",
+        );
+
+        expect(loginPrompts[0].close).toHaveBeenCalled();
+      });
+    });
+
     it("ends quietly when the user cancels", async () => {
       importService.importOnePasswordSso.mockRejectedValueOnce(importError("OnePasswordCanceled"));
 
@@ -421,6 +485,7 @@ describe("OnePasswordDirectImportService", () => {
           ),
         ).resolves.toBeUndefined();
         expect(ssoBrowser.login).not.toHaveBeenCalled();
+        expect(loginPrompts).toHaveLength(0);
       });
 
       it("hands the SDK a canceled enrollment and opens no prompt for one it begins afterwards", async () => {
@@ -480,14 +545,11 @@ describe("OnePasswordDirectImportService", () => {
         await expect(result).resolves.toBe(summary);
       });
 
-      it("shows the stage of the enrollment and hands over the verification code", async () => {
+      it("hands over the verification code and stays open until the import is over", async () => {
         const sdk = enrollingImport();
         const result = startSso();
         await flush();
 
-        expect(enrollmentPrompts).toHaveLength(1);
-        expect(enrollmentPrompts[0].data.email).toBe(account.email);
-        expect(enrollmentPrompts[0].data.status()).toBe("WaitingForApproval");
         expect(enrollmentPrompts[0].data.codeRequested()).toBe(false);
 
         const code = sdk.enrollment().provideVerificationCode();
@@ -496,8 +558,6 @@ describe("OnePasswordDirectImportService", () => {
         await expect(code).resolves.toBe("123456");
 
         await sdk.enrollment().updateStatus("ExchangingCredentials", "Exchanging");
-        expect(enrollmentPrompts[0].data.status()).toBe("ExchangingCredentials");
-
         await sdk.enrollment().updateStatus("Completing", "Completing");
         await sdk.enrollment().endEnrollment("Success");
         expect(await settled(submitted)).toBe(false);

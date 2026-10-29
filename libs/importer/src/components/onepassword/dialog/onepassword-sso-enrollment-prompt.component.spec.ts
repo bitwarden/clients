@@ -16,8 +16,6 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
-import { OnePasswordSsoEnrollmentStatus } from "../../../sdk";
-
 import {
   OnePasswordSsoEnrollmentPromptComponent,
   OnePasswordSsoEnrollmentPromptData,
@@ -25,7 +23,6 @@ import {
 
 describe("OnePasswordSsoEnrollmentPromptComponent", () => {
   let fixture: ComponentFixture<OnePasswordSsoEnrollmentPromptComponent>;
-  let status: ReturnType<typeof signal<OnePasswordSsoEnrollmentStatus>>;
   let codeRequested: ReturnType<typeof signal<boolean>>;
   let submitCode: jest.Mock<Promise<void>, [string]>;
 
@@ -36,6 +33,8 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
     element().querySelector<HTMLButtonElement>(
       "#onepassword-sso-enrollment-prompt_button_continue",
     );
+  const button = (name: string) =>
+    element().querySelector<HTMLButtonElement>(`#onepassword-sso-enrollment-prompt_button_${name}`);
   const message = () => element().querySelector("p")?.textContent?.trim();
 
   function enterCode(code: string) {
@@ -50,7 +49,6 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
   }
 
   beforeEach(async () => {
-    status = signal<OnePasswordSsoEnrollmentStatus>("WaitingForApproval");
     codeRequested = signal(false);
     submitCode = jest.fn().mockResolvedValue(undefined);
     const i18nService = mock<I18nService>();
@@ -63,7 +61,6 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
           provide: DIALOG_DATA,
           useValue: {
             email: "user@example.com",
-            status,
             codeRequested,
             submitCode,
           } satisfies OnePasswordSsoEnrollmentPromptData,
@@ -77,19 +74,18 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
     fixture.detectChanges();
   });
 
-  it("asks for approval without a code until 1Password asks for one", () => {
-    expect(message()).toBe("onePasswordSsoWaitingForApproval");
-    expect(codeInput()).toBeNull();
-    expect(continueButton()).toBeNull();
-  });
+  it("keeps the code locked until 1Password asks for it", () => {
+    expect(message()).toBe("onePasswordSsoVerifyInPendingSignIns");
+    expect(codeInput()!.disabled).toBe(true);
+    expect(continueButton()!.getAttribute("aria-disabled")).toBe("true");
+    expect(button("cancel")!.hasAttribute("aria-disabled")).toBe(false);
+    expect(button("close")!.hasAttribute("aria-disabled")).toBe(false);
 
-  it("asks for the code once 1Password does", () => {
     codeRequested.set(true);
     fixture.detectChanges();
 
-    expect(message()).toBe("onePasswordSsoEnterVerificationCode");
-    expect(codeInput()).not.toBeNull();
-    expect(continueButton()).not.toBeNull();
+    expect(codeInput()!.disabled).toBe(false);
+    expect(continueButton()!.hasAttribute("aria-disabled")).toBe(false);
   });
 
   it("hands over the code without spaces", async () => {
@@ -100,6 +96,7 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
     await submit();
 
     expect(submitCode).toHaveBeenCalledWith("ABCD-1234");
+    expect(codeInput()!.disabled).toBe(true);
   });
 
   it("refuses a code that is only spaces", async () => {
@@ -110,15 +107,5 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
     await submit();
 
     expect(submitCode).not.toHaveBeenCalled();
-  });
-
-  it("shows the stage of the enrollment once the code is handed over", () => {
-    codeRequested.set(true);
-    status.set("ExchangingCredentials");
-    fixture.detectChanges();
-
-    expect(message()).toBe("onePasswordSsoExchangingCredentials");
-    expect(codeInput()).toBeNull();
-    expect(continueButton()).not.toBeNull();
   });
 });

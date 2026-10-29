@@ -26,6 +26,7 @@ class FakeWebContents extends EventEmitter {
 class FakeWindow extends EventEmitter {
   readonly webContents = new FakeWebContents();
   destroyed = false;
+  minimized = false;
   /** Whether the page vetoes unloading, as an identity provider's page can. */
   pageVetoesUnload = false;
   loadURL = jest.fn().mockResolvedValue(undefined);
@@ -43,8 +44,15 @@ class FakeWindow extends EventEmitter {
     super();
   }
 
+  restore = jest.fn(() => (this.minimized = false));
+  focus = jest.fn();
+
   isDestroyed() {
     return this.destroyed;
+  }
+
+  isMinimized() {
+    return this.minimized;
   }
 
   /** Whether the page keeps the window open, which only a listener of the app can stop. */
@@ -82,6 +90,7 @@ describe("OnePasswordSsoMain", () => {
     handlers.get("onePasswordSso.login")!({ sender: renderer }, url, redirect) as Promise<
       string | undefined
     >;
+  const show = () => handlers.get("onePasswordSso.show")!({});
   const cancel = () => handlers.get("onePasswordSso.cancel")!({});
   const loginWindow = () => windows[windows.length - 1];
   const partitionOf = (window: FakeWindow): string => window.options.webPreferences.partition;
@@ -143,8 +152,37 @@ describe("OnePasswordSsoMain", () => {
     );
   });
 
-  it("answers the login and cancel channels", () => {
-    expect([...handlers.keys()].sort()).toEqual(["onePasswordSso.cancel", "onePasswordSso.login"]);
+  it("answers the login, show and cancel channels", () => {
+    expect([...handlers.keys()].sort()).toEqual([
+      "onePasswordSso.cancel",
+      "onePasswordSso.login",
+      "onePasswordSso.show",
+    ]);
+  });
+
+  describe("showing the window", () => {
+    it("brings the window of a login to the front, restoring it when minimized", () => {
+      void login();
+      loginWindow().minimized = true;
+
+      show();
+
+      expect(loginWindow().restore).toHaveBeenCalled();
+      expect(loginWindow().focus).toHaveBeenCalled();
+    });
+
+    it("does nothing once the login is over", async () => {
+      show();
+      const result = login();
+      // A window that outlives its login must not be brought back either.
+      loginWindow().destroy.mockImplementation(() => undefined);
+      cancel();
+      await result;
+
+      show();
+
+      expect(loginWindow().focus).not.toHaveBeenCalled();
+    });
   });
 
   describe("opening the window", () => {

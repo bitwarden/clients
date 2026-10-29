@@ -8,6 +8,10 @@ export class DesktopOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
     return (await ipc.tools.onePasswordSso.login(ssoLoginUrl, redirectTo)) ?? undefined;
   }
 
+  show(): void {
+    void ipc.tools.onePasswordSso.show();
+  }
+
   cancel(): void {
     void ipc.tools.onePasswordSso.cancel();
   }

@@ -43,6 +43,7 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
   readonly supported = BrowserApi.canObserveRedirects();
 
   private settlePending: ((redirectedTo: string | undefined) => void) | undefined;
+  private pendingTabId: number | undefined;
 
   async login(ssoLoginUrl: string, redirectTo: string): Promise<string | undefined> {
     const loginUrl = parseUrl(ssoLoginUrl);
@@ -53,12 +54,26 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
 
     this.cancel();
 
+    // A cancel that comes while the tab opens closes the tab once it is there.
+    let canceled = false;
+    const cancelOpening = (): void => {
+      canceled = true;
+    };
+    this.settlePending = cancelOpening;
+
     // The tab opens blank and only goes to the identity provider once it is watched: with a session
     // there already, the identity provider redirects right away.
     const tab = await BrowserApi.createNewTab("about:blank", true);
+    if (this.settlePending === cancelOpening) {
+      this.settlePending = undefined;
+    }
     const tabId = tab.id;
     if (tabId == null) {
       throw new Error("The 1Password sign-in tab could not be opened.");
+    }
+    if (canceled) {
+      BrowserApi.closeTab(tabId).catch((): void => undefined);
+      return undefined;
     }
 
     return new Promise((resolve) => {
@@ -73,6 +88,7 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
         BrowserApi.removeListener(chrome.tabs.onRemoved, onRemoved);
         if (this.settlePending === settleAndClose) {
           this.settlePending = undefined;
+          this.pendingTabId = undefined;
         }
         if (closeTab) {
           BrowserApi.closeTab(tabId).catch((): void => undefined);
@@ -100,6 +116,7 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
       };
 
       this.settlePending = settleAndClose;
+      this.pendingTabId = tabId;
       BrowserApi.addRedirectListener(onRedirect, {
         urls: ["<all_urls>"],
         tabId,
@@ -112,7 +129,22 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
     });
   }
 
+  show(): void {
+    if (this.pendingTabId != null) {
+      this.focusTab(this.pendingTabId).catch((): void => undefined);
+    }
+  }
+
   cancel(): void {
     this.settlePending?.(undefined);
+  }
+
+  /** Brings the tab to the front of its window, and the window to the front of the others. */
+  private async focusTab(tabId: number): Promise<void> {
+    await BrowserApi.focusTab(tabId);
+    const tab = await BrowserApi.getTab(tabId);
+    if (tab?.windowId != null) {
+      await BrowserApi.focusWindow(tab.windowId);
+    }
   }
 }
