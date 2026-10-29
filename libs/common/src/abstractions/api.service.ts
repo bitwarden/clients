@@ -131,7 +131,7 @@ export abstract class ApiService {
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
   abstract postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any>;
   abstract postSecurityStamp(request: SecretVerificationRequest): Promise<any>;
-  abstract getAccountRevisionDate(): Promise<number>;
+  abstract getAccountRevisionDate(userId?: UserId): Promise<number>;
   abstract postPasswordHint(request: PasswordHintRequest): Promise<any>;
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
   abstract postAccountLicense(data: FormData): Promise<any>;
@@ -218,7 +218,7 @@ export abstract class ApiService {
     organizationUserId: string,
   ): Promise<any>;
 
-  abstract getSync(): Promise<SyncResponse>;
+  abstract getSync(userId?: UserId): Promise<SyncResponse>;
 
   abstract getSettingsDomains(): Promise<DomainsResponse>;
   abstract putSettingsDomains(request: UpdateDomainsRequest): Promise<DomainsResponse>;

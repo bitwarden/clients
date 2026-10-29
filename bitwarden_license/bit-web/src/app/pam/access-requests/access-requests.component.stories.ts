@@ -6,6 +6,8 @@ import { of } from "rxjs";
 import { ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
+import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
   provideStoryChangeDetection,
   provideStoryLogService,
@@ -19,6 +21,8 @@ type ShellOptions = {
   pending?: number;
   extensions?: number;
   leases?: number;
+  approvals?: number;
+  canApprove?: boolean;
 };
 
 /**
@@ -26,7 +30,7 @@ type ShellOptions = {
  * berry counts.
  */
 function shell(options: ShellOptions = {}) {
-  const { pending = 0, extensions = 0, leases = 0 } = options;
+  const { pending = 0, extensions = 0, leases = 0, approvals = 0, canApprove = true } = options;
   const rows = (count: number) => of(Array.from({ length: count }, (_, i) => ({ id: `row-${i}` })));
 
   return [
@@ -43,8 +47,19 @@ function shell(options: ShellOptions = {}) {
             load: () => Promise.resolve(),
           },
         },
+        {
+          provide: ApproverInboxService,
+          useValue: {
+            pendingCount$: of(approvals),
+            loadError$: of(null),
+            load: () => Promise.resolve(),
+          },
+        },
         { provide: ToastService, useValue: { showToast: () => {} } },
       ],
+    }),
+    applicationConfig({
+      providers: [{ provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } }],
     }),
   ];
 }
@@ -70,12 +85,17 @@ export default {
 
 type Story = StoryObj<AccessRequestsComponent>;
 
-/** Work in every section; the My requests berry sums all three. */
+/** An approver with work on every tab; the My requests berry sums all three of its sections. */
 export const Default: Story = {
-  decorators: shell({ pending: 2, extensions: 1, leases: 3 }),
+  decorators: shell({ pending: 2, extensions: 1, leases: 3, approvals: 4 }),
 };
 
 /** Nothing anywhere: a zero count renders no berry rather than a "0". */
 export const NoCounts: Story = {
   decorators: shell(),
+};
+
+/** A non-approver gets no Approvals tab; the route guard redirects its deep link to match. */
+export const WithoutApprovals: Story = {
+  decorators: shell({ canApprove: false, pending: 1, leases: 1 }),
 };
