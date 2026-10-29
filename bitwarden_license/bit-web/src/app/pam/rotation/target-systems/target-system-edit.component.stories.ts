@@ -13,7 +13,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import type { TargetSystemId } from "../rotation";
-import { AccessConnectorStatus, TargetSystemMethod } from "../rotation";
+import { AccessConnectorStatus, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   accessConnector,
@@ -37,6 +37,13 @@ const ASSIGNED_SYSTEM = targetSystem({ id: sysId("assigned"), name: "Prod SQL" }
 /** An automatic target every enabled connector is already assigned to. */
 const SATURATED_SYSTEM = targetSystem({ id: sysId("saturated"), name: "Staging SQL" });
 
+/** A deactivated target; the page shows the inactive notice and Activate in place of Deactivate. */
+const INACTIVE_SYSTEM = targetSystem({
+  id: sysId("inactive"),
+  name: "Legacy Reporting DB",
+  status: TargetSystemStatus.Disabled,
+});
+
 const MANUAL_SYSTEM = targetSystem({
   id: sysId("manual"),
   name: "Legacy mainframe",
@@ -57,6 +64,7 @@ const SYSTEMS = [
   SAMPLE_SYSTEM,
   ASSIGNED_SYSTEM,
   SATURATED_SYSTEM,
+  INACTIVE_SYSTEM,
   MANUAL_SYSTEM,
   PENDING_SYSTEM,
   UNVERIFIABLE_SYSTEM,
@@ -79,7 +87,7 @@ const CONNECTORS = [
     name: "Retired connector",
     status: AccessConnectorStatus.Disabled,
     isConnected: false,
-    assignedTargetSystemIds: [SATURATED_SYSTEM.id],
+    assignedTargetSystemIds: [SATURATED_SYSTEM.id, INACTIVE_SYSTEM.id],
   }),
   accessConnector({
     id: connectorId("c-4"),
@@ -145,22 +153,27 @@ type Story = StoryObj<TargetSystemEditComponent>;
 const at = (targetSystemId: TargetSystemId): ReturnType<typeof atUrl> =>
   atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems/${targetSystemId}`);
 
-/** The connectors card is empty and neither setup step is done. */
+/** No access connector is assigned, so the field warns right away; Delete is in the header. */
 export const Edit: Story = {
   decorators: [at(SAMPLE_SYSTEM.id)],
 };
 
-/** One connected and one disconnected connector, a spare to assign, and rotation set up. */
+/** One connected and one disconnected connector in the list, and rotation set up. */
 export const AssignedConnectors: Story = {
   decorators: [at(ASSIGNED_SYSTEM.id)],
 };
 
-/** The disabled connector still shows as assigned, and only the credential step is left. */
+/** The retired connector still shows in the list, badged Inactive. */
 export const AllConnectorsAssigned: Story = {
   decorators: [at(SATURATED_SYSTEM.id)],
 };
 
-/** No integration or connector card, and no connector setup step. */
+/** Deactivated: the inactive notice, Activate in the header, and a retired connector. */
+export const InactiveTarget: Story = {
+  decorators: [at(INACTIVE_SYSTEM.id)],
+};
+
+/** No Automatic rotation section, and no connector setup step. */
 export const ManualTarget: Story = {
   decorators: [at(MANUAL_SYSTEM.id)],
 };

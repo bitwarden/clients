@@ -18434,9 +18434,6 @@
   "pamMyAccess": {
     "message": "My access"
   },
-  "pamAccessRequestsTitle": {
-    "message": "Access requests"
-  },
   "pamAccessRequestsSubtitle": {
     "message": "Approve, monitor, and audit time-limited access to your credentials."
   },
@@ -19822,17 +19819,14 @@
   "pamTargetSystemSearch": {
     "message": "Search target systems"
   },
-  "pamTargetSystemMethodColumn": {
-    "message": "Method"
-  },
   "pamTargetSystemTypeColumn": {
     "message": "Type"
   },
-  "pamTargetSystemSessionTerminationColumn": {
-    "message": "Session termination"
+  "pamTargetSystemManagedCredentialsColumn": {
+    "message": "Managed credentials"
   },
-  "pamTargetSystemSessionTerminationYes": {
-    "message": "Supported"
+  "pamTargetSystemNone": {
+    "message": "None"
   },
   "pamTargetSystemSessionTerminationNo": {
     "message": "Not supported"
@@ -19888,6 +19882,12 @@
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "All active access connectors are already assigned to this target system."
   },
+  "pamTargetSystemAssignConnectorsManualHint": {
+    "message": "Only for automatic rotation."
+  },
+  "pamTargetSystemDeleteBlockedHint": {
+    "message": "Remove its managed credentials first."
+  },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Access connectors can only be assigned to target systems set to automatic rotation."
   },
@@ -19896,9 +19896,6 @@
   },
   "pamTargetSystemAssignConnectorNone": {
     "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
-  },
-  "pamTargetSystemAssignGoToConnectors": {
-    "message": "Go to Access connectors"
   },
   "pamTargetSystemDeactivateTitle": {
     "message": "Deactivate target system?"
@@ -19965,11 +19962,24 @@
       }
     }
   },
+  "pamTargetSystemRemoveConnector": {
+    "message": "Remove $NAME$",
+    "description": "Accessible label of the button that removes one access connector from a target system's chosen connectors.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Primary connector"
+      }
+    }
+  },
   "pamTargetSystemStatusActive": {
     "message": "Active"
   },
   "pamTargetSystemStatusInactive": {
     "message": "Inactive"
+  },
+  "pamTargetSystemStatusNotConnected": {
+    "message": "Not connected"
   },
   "pamTargetSystemStatusPendingSeal": {
     "message": "Setup incomplete"
@@ -19989,14 +19999,8 @@
   "pamTargetSystemMethodLabel": {
     "message": "Rotation method"
   },
-  "pamTargetSystemTypeLabel": {
-    "message": "Type"
-  },
   "pamTargetSystemTypeUnverifiedHint": {
     "message": "This target's integration could not be confirmed. Choose it again to finish setup."
-  },
-  "pamTargetSystemPolicyManualHint": {
-    "message": "These are the rules to follow when you rotate this credential by hand."
   },
   "pamTargetSystemPolicyHeading": {
     "message": "Password policy"
@@ -20016,29 +20020,11 @@
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "This policy is too weak. Increase the length or include more character types."
   },
-  "pamTargetSystemSupportsSessionTermination": {
-    "message": "Supports session termination"
-  },
-  "pamTargetSystemSupportsSessionTerminationHintConnector": {
-    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
-  },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Supported"
   },
-  "pamTargetSystemSessionTerminationNativeHint": {
-    "message": "Native integrations always terminate active sessions after a credential is rotated."
-  },
-  "pamTargetSystemSessionTerminationUnknown": {
-    "message": "Unknown"
-  },
-  "pamTargetSystemSessionTerminationUnknownTooltip": {
-    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
-  },
-  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
-    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
-  },
   "pamTargetSystemCreated": {
-    "message": "Target system created."
+    "message": "Target system added."
   },
   "pamTargetSystemSaved": {
     "message": "Target system saved."
@@ -20051,9 +20037,6 @@
   },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Finish setting up rotation"
-  },
-  "pamTargetSystemSetupGuidanceAutomaticConnector": {
-    "message": "Assign an access connector in the Assigned access connectors section below."
   },
   "pamTargetSystemSetupGuidanceCredential": {
     "message": "Add a managed credential on the Managed credentials tab."
@@ -21045,7 +21028,7 @@
     "message": "Target system added."
   },
   "pamTargetSystemNameHint": {
-    "message": "Use a name your team will recognize, for example Entra ID production. It shows wherever you choose a target system."
+    "message": "Use a name your team will recognize, e.g. Entra ID production. It shows wherever you choose a target system."
   },
   "pamTargetSystemMethodAutomaticDescription": {
     "message": "An access connector changes passwords on this target system for you."
@@ -21065,6 +21048,18 @@
   "pamTargetSystemEndingSessionsEntraHint": {
     "message": "Entra can sign out active sessions after rotation."
   },
+  "pamTargetSystemEndingSessionsCustomScriptHint": {
+    "message": "This system type can't sign out active sessions after rotation."
+  },
+  "pamTargetSystemEndingSessionsUnsetHint": {
+    "message": "Shows once you choose a system type."
+  },
+  "pamTargetSystemSystemTypePlaceholder": {
+    "message": "Select a system type"
+  },
+  "pamTargetSystemAccessConnectorsPlaceholder": {
+    "message": "Choose access connectors"
+  },
   "pamTargetSystemAccessConnectors": {
     "message": "Access connectors"
   },
@@ -21072,10 +21067,46 @@
     "message": "Choose the access connectors that can rotate passwords on this target system. Choose more than one for a backup."
   },
   "pamTargetSystemCalloutNoneConnected": {
-    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet. You can still save it."
+    "message": "None of the chosen access connectors are connected, so this target system can't rotate yet."
+  },
+  "pamTargetSystemAutomaticRotationHeading": {
+    "message": "Automatic rotation"
+  },
+  "pamTargetSystemTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamTargetSystemInactiveCallout": {
+    "message": "This target system is inactive, so no new rotations start on it. Select Activate to start them again."
+  },
+  "pamTargetSystemCalloutNoneAssigned": {
+    "message": "No access connectors are assigned, so choose at least one before this target system can rotate."
+  },
+  "pamTargetSystemEndingSessionsCustomScriptSupportedHint": {
+    "message": "This system type can sign out active sessions after rotation."
+  },
+  "pamTargetSystemRemoveLastConnectorTitle": {
+    "message": "Remove last access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorConfirm": {
+    "message": "Remove access connector"
+  },
+  "pamTargetSystemRemoveLastConnectorContentNone": {
+    "message": "This target system won't be able to rotate until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContentOne": {
+    "message": "1 managed credential on this target system will stop rotating until another access connector is assigned."
+  },
+  "pamTargetSystemRemoveLastConnectorContent": {
+    "message": "$COUNT$ managed credentials on this target system will stop rotating until another access connector is assigned.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
   },
   "pamTargetSystemCalloutNoConnectors": {
-    "message": "There are no access connectors yet. They run in your network and rotate passwords for this target system. Save now, then add one from the Access connectors tab."
+    "message": "No access connectors exist yet, so add one on the Access connectors tab after you save."
   },
   "pamTargetSystemPolicyCharacters": {
     "message": "Characters to include"

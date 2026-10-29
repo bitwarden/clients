@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, provideRouter, Router } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from "@angular/router";
 import { BehaviorSubject, combineLatest, map, of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -14,6 +14,7 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { AccessConnectorRegisterDialogComponent } from "../access-connectors/access-connector-register-dialog.component";
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
+import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
 import { OrgCiphersService } from "../org-ciphers.service";
 import { TargetSystemMethod } from "../rotation";
 import type { RotationConfigView } from "../rotation";
@@ -180,7 +181,13 @@ describe("ManagedCredentialsTabComponent", () => {
       imports: [ManagedCredentialsTabComponent],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({ organizationId: ORGANIZATION_ID }),
+            snapshot: { queryParamMap: convertToParamMap({}) },
+          },
+        },
         { provide: RotationConfigsService, useValue: configsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         makeAccessConnectorsProvider(),
@@ -550,8 +557,10 @@ describe("ManagedCredentialsTabComponent", () => {
       rows: RotationConfigRow[],
       ciphers: CipherView[],
       collections: CollectionAdminView[] = [],
+      queryParams: Record<string, string> = {},
+      targetSystems: unknown[] = [{ id: "ts-1" }],
     ) {
-      targetSystemsService = makeTargetSystemsServiceStub();
+      targetSystemsService = makeTargetSystemsServiceStub(targetSystems);
       configsService = makeConfigsServiceStub(targetSystemsService, rows);
       toastService = { showToast: jest.fn() };
       dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
@@ -562,7 +571,10 @@ describe("ManagedCredentialsTabComponent", () => {
           provideRouter([]),
           {
             provide: ActivatedRoute,
-            useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+            useValue: {
+              params: of({ organizationId: ORGANIZATION_ID }),
+              snapshot: { queryParamMap: convertToParamMap(queryParams) },
+            },
           },
           { provide: RotationConfigsService, useValue: configsService },
           { provide: TargetSystemsService, useValue: targetSystemsService },
@@ -595,6 +607,46 @@ describe("ManagedCredentialsTabComponent", () => {
         "manual-rotation",
         "active",
       ]);
+    });
+
+    describe("target system drill-down", () => {
+      const emptySystem = { id: sysId("3"), name: "Empty AD" };
+      const systems = [
+        { id: sysId("1"), name: "Prod Entra" },
+        { id: sysId("2"), name: "Staging AD" },
+        emptySystem,
+      ];
+
+      function drillIn(id: string) {
+        setupWithData([rowA, rowB, rowC], [], [], { [TARGET_SYSTEM_QUERY_PARAM]: id }, systems);
+        fixture.detectChanges();
+      }
+
+      it("seeds the chip from the param and filters rows to that target", () => {
+        drillIn(String(sysId("2")));
+        expect(chip("targetSystem").value()).toEqual([String(sysId("2"))]);
+        expect(rowNames(fixture.nativeElement)).toEqual(["Cipher B"]);
+      });
+
+      it("scopes to an empty list for a target with no credentials", () => {
+        drillIn(String(emptySystem.id));
+        expect(component.targetSystemOptions()).toContainEqual({
+          value: emptySystem.id,
+          label: "Empty AD",
+        });
+        expect(chip("targetSystem").value()).toEqual([String(emptySystem.id)]);
+        expect(rowNames(fixture.nativeElement)).toEqual([]);
+      });
+
+      it("ignores an unknown id and keeps the tab usable", () => {
+        drillIn("not-a-target");
+        expect(chip("targetSystem").value()).toBeUndefined();
+        expect(rowNames(fixture.nativeElement).sort()).toEqual([
+          "Cipher A",
+          "Cipher B",
+          "Cipher C",
+        ]);
+      });
     });
 
     it("derives target-system options from the loaded rows, sorted by name", () => {
@@ -649,7 +701,10 @@ describe("ManagedCredentialsTabComponent", () => {
           provideRouter([]),
           {
             provide: ActivatedRoute,
-            useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+            useValue: {
+              params: of({ organizationId: ORGANIZATION_ID }),
+              snapshot: { queryParamMap: convertToParamMap({}) },
+            },
           },
           { provide: RotationConfigsService, useValue: configsService },
           { provide: TargetSystemsService, useValue: targetSystemsService },
@@ -993,7 +1048,13 @@ describe("ManagedCredentialsTabComponent table", () => {
       imports: [ManagedCredentialsTabComponent],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({ organizationId: ORGANIZATION_ID }),
+            snapshot: { queryParamMap: convertToParamMap({}) },
+          },
+        },
         { provide: RotationConfigsService, useValue: configsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         makeAccessConnectorsProvider(accessConnectorsService),

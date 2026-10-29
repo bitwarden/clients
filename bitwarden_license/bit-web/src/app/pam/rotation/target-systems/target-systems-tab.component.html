@@ -29,30 +29,26 @@
         <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-40"></bit-skeleton-text></bit-cell>
       </bit-column>
       <bit-column>
-        <bit-header-cell>{{ "pamTargetSystemMethodColumn" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.methodLabel"></bit-cell>
-        <bit-cell *bitCellLoading>
-          <bit-skeleton class="tw-h-6 tw-w-20" edgeShape="circle"></bit-skeleton>
-        </bit-cell>
-      </bit-column>
-      <bit-column>
-        <bit-header-cell>{{ "pamTargetSystemTypeColumn" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.kindLabel"></bit-cell>
-        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
-      </bit-column>
-      <bit-column>
         <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.statusLabel"></bit-cell>
+        <bit-cell *bitCellDef="loadingTable.columns.statusSortOrder"></bit-cell>
         <bit-cell *bitCellLoading>
           <bit-skeleton class="tw-h-6 tw-w-16" edgeShape="circle"></bit-skeleton>
         </bit-cell>
       </bit-column>
       <bit-column>
-        <bit-header-cell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</bit-header-cell>
-        <bit-cell *bitCellDef="loadingTable.columns.sessionTermination"></bit-cell>
-        <bit-cell *bitCellLoading>
-          <bit-skeleton class="tw-h-6 tw-w-12" edgeShape="circle"></bit-skeleton>
-        </bit-cell>
+        <bit-header-cell>{{ "pamTargetSystemManagedCredentialsColumn" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="loadingTable.columns.managedCredentialCount"></bit-cell>
+        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-8"></bit-skeleton-text></bit-cell>
+      </bit-column>
+      <bit-column>
+        <bit-header-cell>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="loadingTable.columns.methodLabel"></bit-cell>
+        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-20"></bit-skeleton-text></bit-cell>
+      </bit-column>
+      <bit-column>
+        <bit-header-cell>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-header-cell>
+        <bit-cell *bitCellDef="loadingTable.columns.kindLabel"></bit-cell>
+        <bit-cell *bitCellLoading><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></bit-cell>
       </bit-column>
       <bit-column width="80px">
         <bit-header-cell></bit-header-cell>
@@ -69,35 +65,41 @@
         [placeholder]="'pamTargetSystemSearch' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      @if (methodOptions().length > 0) {
-        <bit-filter-menu
-          key="method"
-          [placeholderText]="'pamTargetSystemMethodColumn' | i18n"
-          [unsetLabel]="'all' | i18n"
-        >
-          @for (option of methodOptions(); track option.value) {
-            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-          }
-        </bit-filter-menu>
-      }
-      @if (kindOptions().length > 0) {
+      <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple>
+        @for (badge of statusOptions(); track badge.status) {
+          <bit-filter-option [value]="badge.status">{{ badge.labelKey | i18n }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+      <bit-filter-menu
+        key="method"
+        [placeholderText]="'pamTargetSystemMethodLabel' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
+        <bit-filter-option [value]="TargetSystemMethod.Automatic">{{
+          "pamTargetSystemMethodAutomatic" | i18n
+        }}</bit-filter-option>
+        <bit-filter-option [value]="TargetSystemMethod.Manual">{{
+          "pamTargetSystemMethodManual" | i18n
+        }}</bit-filter-option>
+      </bit-filter-menu>
+      @if (kindOptions.length > 0) {
         <bit-filter-menu
           key="kind"
-          [placeholderText]="'pamTargetSystemTypeColumn' | i18n"
-          [unsetLabel]="'all' | i18n"
+          [placeholderText]="'pamTargetSystemSystemTypeLabel' | i18n"
+          multiple
         >
-          @for (option of kindOptions(); track option.value) {
+          @for (option of kindOptions; track option.value) {
             <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
           }
         </bit-filter-menu>
       }
-      @if (statusOptions().length > 0) {
+      @if (connectorOptions().length > 0) {
         <bit-filter-menu
-          key="status"
-          [placeholderText]="'status' | i18n"
-          [unsetLabel]="'all' | i18n"
+          key="connector"
+          [placeholderText]="'pamTargetSystemAccessConnectors' | i18n"
+          multiple
         >
-          @for (option of statusOptions(); track option.value) {
+          @for (option of connectorOptions(); track option.value) {
             <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
           }
         </bit-filter-menu>
@@ -114,7 +116,7 @@
         <button
           type="button"
           bitLink
-          linkType="primary"
+          linkType="secondary"
           (click)="openEdit(r.system)"
           id="target-systems-tab_button_name-{{ r.id }}"
         >
@@ -131,11 +133,43 @@
       </bit-cell>
     </bit-column>
 
+    <bit-column sortable defaultSort="asc" [sortFn]="sortByStatus">
+      <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.statusSortOrder; let r">
+        <span
+          bitBadge
+          [variant]="r.statusBadge.variant"
+          [startIcon]="r.statusBadge.icon"
+          id="target-systems-tab_status_{{ r.id }}"
+          >{{ r.statusBadge.labelKey | i18n }}</span
+        >
+      </bit-cell>
+    </bit-column>
+
+    <bit-column sortable [sortFn]="sortByManagedCredentials">
+      <bit-header-cell>{{ "pamTargetSystemManagedCredentialsColumn" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.managedCredentialCount; let r" [truncate]="false">
+        @if (r.managedCredentialCount == null) {
+          <span class="tw-text-muted">&mdash;</span>
+        } @else if (r.managedCredentialCount === 0) {
+          {{ "pamTargetSystemNone" | i18n }}
+        } @else {
+          <a
+            bitLink
+            [routerLink]="['..', 'managed-credentials']"
+            [queryParams]="r.managedCredentialsQueryParams"
+            id="target-systems-tab_link_managed-credentials-{{ r.id }}"
+            >{{ r.managedCredentialCount }}</a
+          >
+        }
+      </bit-cell>
+    </bit-column>
+
     <bit-column>
-      <bit-header-cell>{{ "pamTargetSystemMethodColumn" | i18n }}</bit-header-cell>
-      <bit-cell *bitCellDef="table.columns.methodLabel; let r">
+      <bit-header-cell>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-header-cell>
+      <bit-cell *bitCellDef="table.columns.methodLabel; let r" [truncate]="false">
         @if (r.methodLabel) {
-          <span bitBadge variant="subtle">{{ r.methodLabel }}</span>
+          {{ r.methodLabel }}
         } @else {
           <span class="tw-text-muted">&mdash;</span>
         }
@@ -143,52 +177,14 @@
     </bit-column>
 
     <bit-column>
-      <bit-header-cell>{{ "pamTargetSystemTypeColumn" | i18n }}</bit-header-cell>
+      <bit-header-cell>{{ "pamTargetSystemSystemTypeLabel" | i18n }}</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.kindLabel; let r" [truncate]="false">
         @if (r.kindLabel) {
           {{ r.kindLabel }}
+        } @else if (r.system.method === TargetSystemMethod.Manual) {
+          {{ "pamTargetSystemNone" | i18n }}
         } @else {
           <span class="tw-text-muted">&mdash;</span>
-        }
-      </bit-cell>
-    </bit-column>
-
-    <bit-column>
-      <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
-      <bit-cell *bitCellDef="table.columns.statusLabel; let r">
-        @switch (r.status) {
-          @case ("active") {
-            <span bitBadge variant="success">{{ r.statusLabel }}</span>
-          }
-          @case ("pendingSeal") {
-            <span bitBadge variant="warning">{{ r.statusLabel }}</span>
-          }
-          @default {
-            <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
-          }
-        }
-      </bit-cell>
-    </bit-column>
-
-    <bit-column>
-      <bit-header-cell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</bit-header-cell>
-      <bit-cell *bitCellDef="table.columns.sessionTermination; let r">
-        @switch (r.sessionTermination) {
-          @case ("yes") {
-            <span bitBadge variant="primary">{{
-              "pamTargetSystemSessionTerminationYes" | i18n
-            }}</span>
-          }
-          @case ("unknown") {
-            <span
-              class="tw-text-muted"
-              [bitTooltip]="'pamTargetSystemSessionTerminationUnknownTooltip' | i18n"
-              >{{ "pamTargetSystemSessionTerminationUnknown" | i18n }}</span
-            >
-          }
-          @default {
-            <span class="tw-text-muted">{{ "pamTargetSystemSessionTerminationNo" | i18n }}</span>
-          }
         }
       </bit-cell>
     </bit-column>
@@ -236,7 +232,22 @@
               {{ "pamRotationConfigCreateTitle" | i18n }}
             </button>
           }
-          @if (r.canAssignConnectors) {
+          @if (!r.canAssignConnectors) {
+            <button
+              type="button"
+              bitMenuItem
+              [attr.aria-disabled]="true"
+              class="tw-opacity-60"
+              (click)="$event.stopPropagation()"
+              id="target-systems-tab_button_assign-connectors-manual-{{ r.id }}"
+            >
+              <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+              <span class="tw-block">{{ "pamTargetSystemAssignConnectors" | i18n }}</span>
+              <span class="tw-block tw-text-xs tw-font-normal">{{
+                "pamTargetSystemAssignConnectorsManualHint" | i18n
+              }}</span>
+            </button>
+          } @else {
             @if (r.assignConnectorsBlockedKey; as blockedKey) {
               <button
                 type="button"
@@ -300,16 +311,33 @@
             </button>
           }
           <bit-menu-divider />
-          <button
-            type="button"
-            bitMenuItem
-            [disabled]="isRowBusy(r.system.id)"
-            (click)="confirmDelete(r.system)"
-            id="target-systems-tab_button_delete-{{ r.id }}"
-          >
-            <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
-            <span class="tw-text-danger">{{ "pamTargetSystemDeleteTarget" | i18n }}</span>
-          </button>
+          @if (r.deleteBlocked) {
+            <button
+              type="button"
+              bitMenuItem
+              [attr.aria-disabled]="true"
+              class="tw-opacity-60"
+              (click)="$event.stopPropagation()"
+              id="target-systems-tab_button_delete-locked-{{ r.id }}"
+            >
+              <bit-icon name="bwi-trash" class="tw-text-muted"></bit-icon>
+              <span class="tw-block">{{ "pamTargetSystemDeleteTarget" | i18n }}</span>
+              <span class="tw-block tw-text-xs tw-font-normal">{{
+                "pamTargetSystemDeleteBlockedHint" | i18n
+              }}</span>
+            </button>
+          } @else {
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.system.id)"
+              (click)="confirmDelete(r.system)"
+              id="target-systems-tab_button_delete-{{ r.id }}"
+            >
+              <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
+              <span class="tw-text-danger">{{ "pamTargetSystemDeleteTarget" | i18n }}</span>
+            </button>
+          }
         </bit-menu>
       </bit-cell>
     </bit-column>

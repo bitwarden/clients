@@ -3,6 +3,7 @@
 <a
   bitTabListItem
   [routerLink]="disabled ? null : route()"
+  [queryParams]="queryParams()"
   routerLinkActive
   [routerLinkActiveOptions]="routerLinkMatchOptions"
   #rla="routerLinkActive"
