@@ -1613,6 +1613,20 @@ describe("Cipher Service", () => {
       );
     });
 
+    it("skips the write and keeps the cache when every item is kept", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [restrictedId]: stored(restrictedId, true) });
+      const clearCache = jest.spyOn(cipherService, "clearCache");
+
+      await cipherService.upsert(stored(restrictedId, false, "incoming"), userId);
+
+      expect(clearCache).not.toHaveBeenCalled();
+      expect(
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextMock,
+      ).not.toHaveBeenCalled();
+    });
+
     it("replaces a stored restricted copy with an incoming restricted copy", async () => {
       stateProvider.singleUser
         .getFake(userId, ENCRYPTED_CIPHERS)
