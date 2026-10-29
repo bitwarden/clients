@@ -6,7 +6,13 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { IconButtonModule, IconModule, MenuModule, ToastService } from "@bitwarden/components";
+import {
+  ButtonType,
+  IconButtonModule,
+  IconModule,
+  MenuModule,
+  ToastService,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
@@ -49,6 +55,10 @@ export class CollectionOptionsMenuComponent {
   readonly organization = input<Organization | undefined>(undefined);
 
   readonly triggerIcon = input.required<string>();
+
+  readonly triggerSize = input<"default" | "xsmall" | "small" | "large">("small");
+
+  readonly triggerButtonType = input<ButtonType>("primaryGhost");
 
   readonly idPrefix = input.required<string>();
 

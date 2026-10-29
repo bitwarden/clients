@@ -2,7 +2,8 @@
   <button
     type="button"
     [bitIconButton]="triggerIcon()"
-    size="small"
+    [buttonType]="triggerButtonType()"
+    [size]="triggerSize()"
     [bitMenuTriggerFor]="menu"
     [label]="'optionsForItem' | i18n: collection().name"
     [attr.id]="idPrefix() + '_button_options-' + collection().id"

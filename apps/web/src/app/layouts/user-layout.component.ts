@@ -19,14 +19,18 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
+  BULK_DELETE_DIALOG,
+  COLLECTION_DIALOG,
   VaultManageNavComponent,
   VaultNavSectionComponent,
   CoachmarkComponent,
   CoachmarkService,
 } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
+import { BulkDeleteDialogWebAdapter } from "@bitwarden/web-vault/app/vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CollectionWebDialogAdapter } from "@bitwarden/web-vault/app/vault/individual-vault/shared-folders/collection-web-dialog.adapter";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
@@ -50,6 +54,18 @@ import { WebLayoutModule } from "./web-layout.module";
     PamUserNavSlotComponent,
     PopoverModule,
     CoachmarkComponent,
+  ],
+  providers: [
+    safeProvider({
+      provide: COLLECTION_DIALOG,
+      useClass: CollectionWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class UserLayoutComponent implements OnInit {

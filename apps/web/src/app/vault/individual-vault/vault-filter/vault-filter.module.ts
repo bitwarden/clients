@@ -15,8 +15,7 @@ import { WebIndividualVaultFilterService } from "./web-individual-vault-filter.s
   exports: [VaultFilterComponent],
   providers: [
     {
-      // Web individual vault includes PAM-gated ("partial") ciphers in the folder filter tree,
-      // matching its list; other clients use the base VaultFilterService, which excludes them.
+      // Includes PAM-gated ("partial") ciphers in the folder tree, to match the web vault list.
       provide: VaultFilterServiceAbstraction,
       useClass: WebIndividualVaultFilterService,
     },

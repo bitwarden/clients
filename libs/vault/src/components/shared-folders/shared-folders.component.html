@@ -47,6 +47,14 @@
         }
       </bit-filter-menu>
     }
+
+    @if (showControlledAccess()) {
+      <bit-filter-toggle
+        key="controlledAccess"
+        [label]="'controlledAccess' | i18n"
+        icon="bwi-lock-encrypted"
+      ></bit-filter-toggle>
+    }
   </bit-table-toolbar>
 
   <bit-status-lockup slot="empty">
@@ -102,6 +110,9 @@
             [attr.id]="'shared-folders_icon_pinned-' + row.id"
             [ariaLabel]="'pinned' | i18n"
           />
+        }
+        @if (decoration) {
+          <ng-container *ngComponentOutlet="decoration; inputs: { collection: row.collection }" />
         }
       </span>
       @if (row.nestedSharedFolders > 0) {

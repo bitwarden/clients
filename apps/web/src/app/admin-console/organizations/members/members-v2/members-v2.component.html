@@ -1,0 +1,101 @@
+<app-header></app-header>
+
+<bit-table-v2
+  [tableDef]="table"
+  [displayedColumns]="displayedColumns()"
+  [selection]="selection()"
+  [loading]="!firstLoaded()"
+  [filter]="filter"
+>
+  <bit-table-toolbar [rangeLabel]="rangeLabel">
+    @if (organization()?.useGroups) {
+      <bit-filter-menu
+        key="groupNames"
+        icon="bwi-users"
+        [placeholderText]="'groups' | i18n"
+        multiple
+      >
+        @for (name of groupNames(); track name) {
+          <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    } @else {
+      <bit-filter-menu
+        key="collectionNames"
+        icon="bwi-collection-shared"
+        [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
+        multiple
+      >
+        @for (name of collectionNames(); track name) {
+          <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+  </bit-table-toolbar>
+
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
+    <span slot="title">{{ "noMembersInvitedToOrg" | i18n }}</span>
+  </bit-status-lockup>
+
+  <!-- Name -->
+  <bit-column sortable defaultSort="asc" [sortFn]="sortByName" width="minmax(240px, 2fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <bit-avatar
+        slot="start"
+        size="sm"
+        [text]="row | userName"
+        [id]="row | avatarId"
+        [color]="row.avatarColor"
+      ></bit-avatar>
+      {{ row.name ?? row.email }}
+      @if (row.name) {
+        <span slot="secondary">{{ row.email }}</span>
+      }
+    </bit-cell>
+  </bit-column>
+
+  <!-- Status -->
+  <bit-column sortable [sortFn]="sortByStatus" width="minmax(220px, 1fr)">
+    <bit-header-cell>{{ "status" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.status; let row">
+      @let badge = statusBadge(row.status);
+      @if (badge) {
+        <span bitBadge [variant]="badge.variant">{{ badge.labelKey | i18n }}</span>
+      }
+    </bit-cell>
+  </bit-column>
+
+  <!-- Role -->
+  <bit-column sortable width="minmax(120px, 1fr)">
+    <bit-header-cell>{{ "role" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type | userType }}</bit-cell>
+  </bit-column>
+
+  <!-- Groups: shown for organizations that use groups -->
+  <bit-column sortable [sortFn]="sortByGroups" width="minmax(160px, 1fr)">
+    <bit-header-cell>{{ "groups" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.groupNames; let row">
+      <bit-chip-group
+        size="small"
+        [chips]="groupChips().get(row) ?? []"
+        (chipSelect)="filterBy('groupNames', $event.id)"
+      ></bit-chip-group>
+    </bit-cell>
+  </bit-column>
+
+  <!-- Collections: shown instead of Groups for organizations that don't use groups -->
+  <bit-column sortable [sortFn]="sortByCollections" width="minmax(160px, 1fr)">
+    <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.collectionNames; let row">
+      <bit-chip-group
+        size="small"
+        [chips]="collectionChips().get(row) ?? []"
+        (chipSelect)="filterBy('collectionNames', $event.id)"
+      ></bit-chip-group>
+    </bit-cell>
+  </bit-column>
+
+  <bit-table-paginator [pageSize]="10"></bit-table-paginator>
+</bit-table-v2>
