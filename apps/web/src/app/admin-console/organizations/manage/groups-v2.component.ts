@@ -35,12 +35,15 @@ import {
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { CollectionId } from "@bitwarden/common/types/guid";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
   BitCellComponent,
   BitCellDefDirective,
@@ -56,6 +59,7 @@ import {
   defineTable,
   DialogService,
   FilterMenuModule,
+  type FilterOptionNode,
   IconModule,
   MenuModule,
   SearchModule,
@@ -63,6 +67,7 @@ import {
   type SortFn,
   StatusLockupComponent,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
@@ -110,6 +115,7 @@ type GroupFilters = {
     BulkActionsBarComponent,
     BulkActionComponent,
     StatusLockupComponent,
+    TooltipDirective,
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
@@ -203,13 +209,16 @@ export class GroupsV2Component {
     const hasCollection = (row: GroupRow, collectionId: string) =>
       row.details.collections.some((c) => c.id === collectionId);
 
-    return Object.values(collectionMap)
-      .sort((a, b) => this.i18nService.collator?.compare(a.name, b.name) ?? 0)
-      .map((collection) => ({
-        value: collection.id,
-        label: collection.name,
-        count: rows.filter((row) => hasCollection(row, collection.id)).length,
-      }));
+    const toFilterOption = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
+      value: node.node.id as CollectionId,
+      label: node.node.name,
+      count: rows.filter((row) => hasCollection(row, node.node.id)).length,
+      options: node.children.map(toFilterOption),
+    });
+
+    return getNestedCollectionTree(Object.values(collectionMap))
+      .map(toFilterOption)
+      .sort((a, b) => this.i18nService.collator?.compare(a.label, b.label) ?? 0);
   });
 
   private readonly fetchedRows = toSignal(this.rowsData$);
@@ -254,6 +263,10 @@ export class GroupsV2Component {
 
     return matchesSearch && matchesCollections;
   };
+
+  protected readonly sortByName: SortFn = (a: GroupRow, b: GroupRow) =>
+    this.i18nService.collator?.compare(a.details.name, b.details.name) ??
+    a.details.name.localeCompare(b.details.name);
 
   protected readonly sortByCollections: SortFn = (a: GroupRow, b: GroupRow) => {
     const first = a.collectionChips.at(0)?.label;

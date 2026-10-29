@@ -41,10 +41,17 @@
     </button>
   </bit-table-toolbar>
 
-  <bit-column sortable defaultSort="asc" width="minmax(200px, 1fr)">
+  <bit-column sortable defaultSort="asc" [sortFn]="sortByName" width="minmax(200px, 1fr)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.details; let row">
-      <button type="button" bitLink class="tw-font-medium" (click)="edit(row)">
+      <button
+        type="button"
+        bitLink
+        truncate
+        class="tw-font-medium"
+        [bitTooltip]="row.details.name"
+        (click)="edit(row)"
+      >
         {{ row.details.name }}
       </button>
     </bit-cell>
