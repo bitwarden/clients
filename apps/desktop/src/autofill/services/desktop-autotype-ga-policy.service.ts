@@ -13,7 +13,7 @@ import { autotypeFeatureFlagState$ } from "@bitwarden/common/desktop-native/serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable({ providedIn: "root" })
-export class DesktopAutotypeGaPolicy {
+export class DesktopAutotypeGaPolicyService {
   constructor(
     private readonly accountService: AccountService,
     private readonly authService: AuthService,
