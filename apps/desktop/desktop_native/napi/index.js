@@ -44,12 +44,6 @@ switch (platform) {
           "@bitwarden/desktop-napi-win32-x64-msvc",
         );
         break;
-      case "ia32":
-        nativeBinding = loadFirstAvailable(
-          ["desktop_napi.win32-ia32-msvc.node"],
-          "@bitwarden/desktop-napi-win32-ia32-msvc",
-        );
-        break;
       case "arm64":
         nativeBinding = loadFirstAvailable(
           ["desktop_napi.win32-arm64-msvc.node"],
