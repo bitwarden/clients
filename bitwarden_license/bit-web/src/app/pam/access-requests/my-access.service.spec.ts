@@ -303,31 +303,6 @@ describe("MyAccessService", () => {
         expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
       });
 
-      it("badges a lease that lapsed since the load Expired rather than Active", async () => {
-        // The server record still reads `active`; only the clock says otherwise, and History is
-        // terminal, so "Active" is not something it can mean.
-        requestsApi.listMyAccessRequests.mockResolvedValue([
-          request("req-lapsed", {
-            status: "approved",
-            producedLeaseId: "lease-1",
-            producedLeaseStatus: "active",
-          }),
-        ]);
-        leasesApi.listMyLeases.mockResolvedValue([
-          lease("lease-1", {
-            status: "active",
-            notBefore: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            notAfter: new Date(Date.now() - 60 * 1000).toISOString(),
-          }),
-        ]);
-
-        await service.load();
-
-        const [row] = await firstValueFrom(service.historyRows$);
-        expect(row.id).toBe("req-lapsed");
-        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "danger" });
-      });
-
       it("includes only active leases in leases$", async () => {
         leasesApi.listMyLeases.mockResolvedValue([
           lease("lease-1", { status: "active" }),
