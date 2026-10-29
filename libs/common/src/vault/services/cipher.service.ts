@@ -380,7 +380,12 @@ export class CipherService implements CipherServiceAbstraction {
         PERF_TRACK,
         "getAllDecrypted",
       );
-      const result = await this.cipherSdkService.getAllDecrypted(userId);
+      // Without localData, which is re-attached below: a failure to read it must not fail this.
+      const encrypted = Object.values(await firstValueFrom(this.ciphers$(userId)));
+      const result = await this.cipherSdkService.decryptAll(
+        encrypted.map((data) => new Cipher(data)),
+        userId,
+      );
       sdkMeasurement.finish([
         ["Items", result.successes.length],
         ["Failures", result.failures.length],
