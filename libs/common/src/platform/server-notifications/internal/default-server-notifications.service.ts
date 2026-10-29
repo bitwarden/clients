@@ -13,8 +13,6 @@ import {
   tap,
 } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { PerfTrackGroup } from "@bitwarden/logging";
 

@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { ObservedValueOf, of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-
 import { newGuid } from "@bitwarden/guid";
 import { UserId } from "@bitwarden/user-core";
 

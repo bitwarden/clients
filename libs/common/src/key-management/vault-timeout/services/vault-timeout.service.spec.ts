@@ -3,8 +3,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-
 import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { FakeAccountService, mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";

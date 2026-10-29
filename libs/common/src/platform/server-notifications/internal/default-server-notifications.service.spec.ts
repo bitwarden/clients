@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subject } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Measurement } from "@bitwarden/logging";
 
