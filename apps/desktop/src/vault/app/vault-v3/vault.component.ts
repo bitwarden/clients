@@ -473,8 +473,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
 
-  // A getter, not `computed()`: `scopedCollections`/`allOrganizations` are plain fields assigned
-  // imperatively, not signals.
   protected get collectionMenu(): CollectionMenuTarget | undefined {
     if (!this.vfo1Foundation()) {
       return undefined;
