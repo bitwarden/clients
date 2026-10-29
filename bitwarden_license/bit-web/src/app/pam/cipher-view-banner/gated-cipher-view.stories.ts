@@ -19,6 +19,7 @@ import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-r
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -35,6 +36,7 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item-details-state-badge.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { MyLeasesService } from "../services/my-leases.service";
 import {
   HOUR,
   accessRequest,
@@ -118,6 +120,7 @@ function provideStoryCipherView() {
       useValue: { getChangePasswordUrl: () => Promise.resolve(undefined) },
     },
     { provide: CipherService, useValue: { ciphers$: () => of({}) } },
+    { provide: RevealedCipherService, useValue: { revealed$: () => of(new Map()) } },
     {
       provide: CipherRiskService,
       useValue: { computeCipherRiskForUser: () => Promise.resolve(undefined) },
@@ -160,8 +163,13 @@ function gated(state: () => Record<string, unknown>) {
       },
       {
         provide: AccessLeaseSdkService,
-        useValue: { extendLease: () => Promise.resolve({}), endLease: () => Promise.resolve() },
+        useValue: {
+          extendLease: () => Promise.resolve({}),
+          endLease: () => Promise.resolve(),
+          listMyLeases: () => Promise.resolve([]),
+        },
       },
+      MyLeasesService,
       {
         provide: AccessRefreshService,
         useValue: { accessChanged$: () => EMPTY, notifyAccessChanged: () => {} },
