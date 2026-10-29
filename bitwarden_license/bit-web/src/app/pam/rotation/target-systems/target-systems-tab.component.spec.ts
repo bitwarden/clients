@@ -424,6 +424,41 @@ describe("TargetSystemsTabComponent", () => {
       );
       expect(accessConnectorsService.forgetTargetSystem).not.toHaveBeenCalled();
     }));
+
+    it("shows the server's reason when the SDK refuses the delete", fakeAsync(() => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      targetSystemsService.delete.mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 400 Bad Request: {"object":"error",' +
+              '"message":"This target system still has rotation configs. Delete them before deleting the target system."}',
+          ),
+          { name: "RotationError", variant: "Api" },
+        ),
+      );
+
+      void (component as unknown as DeleteComp).confirmDelete(makeSystem({ id: sysId("sys-1") }));
+      flushMicrotasks();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message:
+          "This target system still has rotation configs. Delete them before deleting the target system.",
+      });
+    }));
+
+    it("falls back to the generic message for an error with no server reason", fakeAsync(() => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      targetSystemsService.delete.mockRejectedValue(new Error("fail"));
+
+      void (component as unknown as DeleteComp).confirmDelete(makeSystem({ id: sysId("sys-1") }));
+      flushMicrotasks();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "unexpectedError",
+      });
+    }));
   });
 
   describe("in-flight row guard", () => {
