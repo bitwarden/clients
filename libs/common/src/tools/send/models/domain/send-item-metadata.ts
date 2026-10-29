@@ -15,9 +15,9 @@ export class SendItemMetadata extends Domain {
   /** The name of the organization the vault item being sent belongs to */
   organizationName?: EncString;
   /** The date the vault item being sent was created */
-  creationDate: string;
+  creationDate?: string;
   /** The date the vault item being sent was last edited */
-  revisionDate: string;
+  revisionDate?: string;
 
   constructor(data: SendItemMetadataData) {
     super();
