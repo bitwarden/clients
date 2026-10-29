@@ -1232,6 +1232,9 @@
   "restrictedItemChangeRefused": {
     "message": "This item is restricted. Your change was not saved."
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "overwritePasswordConfirmation": {
     "message": "Are you sure you want to overwrite the current password?"
   },
@@ -7514,8 +7517,8 @@
   "coachmarkVaultListTitle": {
     "message": "All your vaults in one place"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Quickly see personal items or items in a vault you share with others."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Collections and folders have new names"

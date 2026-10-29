@@ -1,13 +1,18 @@
+import { NgZone } from "@angular/core";
+
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
+import { CIPHER_VIEW_BANNER, ITEM_DETAILS_BADGE } from "@bitwarden/vault";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
@@ -16,6 +21,8 @@ import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowl
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
 import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
+import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
+import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
@@ -28,6 +35,7 @@ import { DefaultLeasingErrorService } from "./services/default-leasing-error.ser
 import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { MyLeasesService } from "./services/my-leases.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
+import { PamRevealedCipherService } from "./services/pam-revealed-cipher.service";
 
 import {
   AccessEventService,
@@ -116,6 +124,14 @@ export function providePam(): SafeProvider[] {
       deps: [AccessLeaseSdkService, LogService],
     }),
     safeProvider({
+      provide: CIPHER_VIEW_BANNER,
+      useValue: CipherViewBannerComponent,
+    }),
+    safeProvider({
+      provide: ITEM_DETAILS_BADGE,
+      useValue: ItemDetailsStateBadgeComponent,
+    }),
+    safeProvider({
       provide: AccessEventService,
       // A factory, since the service takes the notification stream rather than the service.
       useFactory: (
@@ -146,6 +162,20 @@ export function providePam(): SafeProvider[] {
         AccountService,
         OrganizationService,
         ConfigService,
+        LogService,
+      ],
+    }),
+    safeProvider({
+      provide: RevealedCipherService,
+      useClass: PamRevealedCipherService,
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        AccessLeaseSdkService,
+        AccountService,
+        AuthService,
+        NgZone,
         LogService,
       ],
     }),
