@@ -135,9 +135,10 @@ export type SharedFoldersTableFilters = {
  *
  * ## What a client provides
  *
- * Every write goes through a dialog the client supplies as a token, so a client that provides none
- * offers no write action it can't carry out — see {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}.
+ * Every collection-management write goes through a dialog the client supplies as a token, so a
+ * client that provides none offers no write action it can't carry out — see
+ * {@link COLLECTION_DIALOG}, {@link BULK_DELETE_DIALOG}, and
+ * {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. Pin/Unpin needs none.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  */
@@ -225,16 +226,8 @@ export class SharedFoldersComponent {
     ),
   );
 
-  /**
-   * The ids the user pinned, as a set. Read inside the table filter and the Name cell, so both
-   * follow a pin or unpin made anywhere, the row menu included.
-   */
-  private readonly pinnedIds = toSignal(
-    this.userId$.pipe(
-      switchMap((userId) => this.pinnedSharedFolders.pinnedIds$(userId)),
-      map((ids) => new Set<string>(ids)),
-    ),
-    { initialValue: new Set<string>() },
+  private readonly pinnedIds = computed(
+    () => new Set<string>(this.pinnedSharedFolders.activePinnedIds()),
   );
 
   protected readonly noPinned = computed(() => {
