@@ -19,7 +19,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
-import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   BULK_DELETE_DIALOG,
   COLLECTION_DIALOG,
@@ -56,16 +56,8 @@ import { WebLayoutModule } from "./web-layout.module";
     CoachmarkComponent,
   ],
   providers: [
-    safeProvider({
-      provide: COLLECTION_DIALOG,
-      useClass: CollectionWebDialogAdapter,
-      useAngularDecorators: true,
-    }),
-    safeProvider({
-      provide: BULK_DELETE_DIALOG,
-      useClass: BulkDeleteDialogWebAdapter,
-      useAngularDecorators: true,
-    }),
+    { provide: COLLECTION_DIALOG, useClass: CollectionWebDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
   ],
 })
 export class UserLayoutComponent implements OnInit {
