@@ -19,9 +19,9 @@ import {
   HOUR,
   MINUTE,
   fromNow,
-  liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
+  startClockAtStoryNow,
   storyNames,
 } from "../testing/story-fixtures";
 
@@ -386,30 +386,27 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-/**
- * Stamped against the real clock, since the Time period presets measure from `Date.now()` and a
- * {@link fromNow} fixture is anchored to a fixed past instant.
- */
-function liveEvents(): AccessAuditEventResponse[] {
+/** Spread out in time, so each Time period preset keeps a different subset. */
+function presetEvents(): AccessAuditEventResponse[] {
   return [
-    event({ kind: AccessAuditEventKind.CredentialAccessed, occurredAt: liveFromNow(-HOUR) }),
+    event({ kind: AccessAuditEventKind.CredentialAccessed, occurredAt: fromNow(-HOUR) }),
     event({
       kind: AccessAuditEventKind.LeaseRevoked,
-      occurredAt: liveFromNow(-2 * DAY),
+      occurredAt: fromNow(-2 * DAY),
       leaseId: "lease-2",
       ...APPROVER,
       detail: "Incident closed early.",
     }),
     event({
       kind: AccessAuditEventKind.RequestApproved,
-      occurredAt: liveFromNow(-20 * DAY),
+      occurredAt: fromNow(-20 * DAY),
       cipherId: "cipher-2",
       collectionId: "col-2",
       ...OTHER_REQUESTER,
     }),
     event({
       kind: AccessAuditEventKind.RequestSubmitted,
-      occurredAt: liveFromNow(-60 * DAY),
+      occurredAt: fromNow(-60 * DAY),
       cipherId: "cipher-3",
       ...OTHER_REQUESTER,
     }),
@@ -422,11 +419,12 @@ async function selectChipOption(
   chip: string,
   option: string,
 ): Promise<void> {
-  const trigger = canvasElement.querySelector<HTMLButtonElement>(
-    `bit-filter-menu button[title^="${chip}"]`,
-  )!;
-  await userEvent.click(trigger);
-  await userEvent.click(await within(document.body).findByText(option));
+  await userEvent.click(
+    await within(canvasElement).findByRole("button", { name: new RegExp(`^${chip}`) }),
+  );
+  // Scoped to the popover, since a row or the chip's hidden option slot can carry the same text.
+  const menu = await within(document.body).findByRole("dialog", { name: chip });
+  await userEvent.click(await within(menu).findByText(option));
   // Close the multi-select, or the next chip's click lands on this menu's backdrop.
   await userEvent.keyboard("{Escape}");
 }
@@ -508,6 +506,7 @@ function audit(
 export default {
   title: "Web/PAM/Access Audit",
   component: AccessAuditComponent,
+  beforeEach: startClockAtStoryNow,
   decorators: [
     applicationConfig({
       providers: [
@@ -574,8 +573,7 @@ export const EntityLinks: Story = {
 export const Refreshing: Story = {
   decorators: [audit({ refreshPending: true })],
   play: async ({ canvasElement }) => {
-    const update = canvasElement.querySelector<HTMLButtonElement>("#access-audit_button_refresh")!;
-    await fireEvent.click(update);
+    await fireEvent.click(await within(canvasElement).findByRole("button", { name: "Update" }));
   },
 };
 
@@ -594,7 +592,7 @@ export const NoMatches: Story = {
 
 /** A preset in force; the Time period chip shows its selection like the other chips. */
 export const TimePeriodFiltered: Story = {
-  decorators: [audit({ events: liveEvents() })],
+  decorators: [audit({ events: presetEvents() })],
   play: async ({ canvasElement }) => {
     await selectChipOption(canvasElement, "Time period", "Past 7 days");
   },
@@ -605,7 +603,7 @@ export const TimePeriodFiltered: Story = {
  * loaded rows.
  */
 export const FiltersActive: Story = {
-  decorators: [audit({ events: liveEvents() })],
+  decorators: [audit({ events: presetEvents() })],
   play: async ({ canvasElement }) => {
     await selectChipOption(canvasElement, "Time period", "Past 30 days");
     await selectChipOption(canvasElement, "Event", "Request approved");
