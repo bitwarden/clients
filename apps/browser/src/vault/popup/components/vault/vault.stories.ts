@@ -375,7 +375,7 @@ const buildNotificationPolicies = (args: StoryArgs) => {
 /**
  * Tasks backing `vault-at-risk-password-callout`. `pendingTasks$` joins each task to a cipher by
  * `cipherId` and keeps only the editable, password-visible ones, so tasks have to point at ciphers
- * the story provides and `CipherService.cipherViews$` has to return them.
+ * the story provides and `CipherService.cipherListViews$` has to return them.
  */
 const buildAtRiskTask = (
   cipherId: PopupCipherViewLike["id"],
@@ -554,6 +554,8 @@ const buildProviders = (args: StoryArgs) => {
         // No decryption failures, so the failure dialog never opens during a snapshot.
         failedToDecryptCiphers$: () => of([]),
         cipherViews$: () => of(atRiskCiphers),
+        // The at-risk password callout matches tasks to list views.
+        cipherListViews$: () => of(atRiskCiphers),
         ciphers$: () => of({}),
       },
     },

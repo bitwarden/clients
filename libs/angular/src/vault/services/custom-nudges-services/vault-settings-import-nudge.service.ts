@@ -25,7 +25,8 @@ export class VaultSettingsImportNudgeService extends DefaultSingleNudgeService {
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
-      this.cipherService.cipherViews$(userId),
+      // List views: only the item count is needed, not their decrypted contents.
+      this.cipherService.cipherListViews$(userId),
       this.organizationService.organizations$(userId),
       this.collectionService.decryptedCollections$(userId),
     ]).pipe(

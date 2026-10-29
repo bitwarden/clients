@@ -4,6 +4,7 @@ import { combineLatest, filter, Observable, switchMap } from "rxjs";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
@@ -20,7 +21,8 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
-      this.cipherService.cipherViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+      // List views: only the item types are needed, not their decrypted contents.
+      this.cipherService.cipherListViews$(userId).pipe(filter((ciphers) => ciphers != null)),
     ]).pipe(
       switchMap(async ([nudgeStatus, ciphers]) => {
         if (nudgeStatus.hasSpotlightDismissed) {
@@ -47,7 +49,9 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
             break;
         }
 
-        const ciphersBoolean = ciphers.some((cipher) => cipher.type === currentType);
+        const ciphersBoolean = ciphers.some(
+          (cipher) => CipherViewLikeUtils.getType(cipher) === currentType,
+        );
 
         if (ciphersBoolean && !nudgeStatus.hasSpotlightDismissed) {
           const dismissedStatus = {
