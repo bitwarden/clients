@@ -85,15 +85,15 @@ describe("RotationShellComponent", () => {
     fixture.detectChanges();
   };
 
-  it("renders the three tab links ordered by the setup each one requires", async () => {
+  it("renders the three tab links with Managed credentials first, as designed", async () => {
     await init();
     const labels = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll("bit-tab-link"),
     ).map((el) => el.textContent?.trim());
     expect(labels).toEqual([
-      "pamRotationTabAccessConnectors",
-      "pamRotationTabTargetSystems",
       "pamRotationTabManagedCredentials",
+      "pamRotationTabTargetSystems",
+      "pamRotationTabAccessConnectors",
     ]);
   });
 
@@ -231,9 +231,9 @@ describe("RotationShellComponent (real router)", () => {
     return harness.fixture.nativeElement.querySelector("app-header") as HTMLElement;
   };
 
-  it("lands on the access connectors tab from the shell's bare path", async () => {
+  it("lands on the managed credentials tab from the shell's bare path", async () => {
     await harness.navigateByUrl("/rotation", RotationShellComponent);
-    expect(router.url).toBe("/rotation/access-connectors");
+    expect(router.url).toBe("/rotation/managed-credentials");
   });
 
   it.each(["access-connectors", "target-systems", "managed-credentials"])(

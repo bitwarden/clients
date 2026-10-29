@@ -1848,11 +1848,16 @@ describe("RotationConfigEditComponent — managed credential detail", () => {
       expect(rotationSdk.getConfig).toHaveBeenCalledTimes(2);
     });
 
-    it("does not pause when the pause hook declines", async () => {
-      const { component, fixture, rotationSdk } = setup({ configId: configId("cfg-1") });
+    it("does not pause when the confirmation is declined", async () => {
+      const { component, fixture, rotationSdk, dialogService } = setup({
+        configId: configId("cfg-1"),
+      });
       await fixture.whenStable();
-      component.openPauseDialog = () => Promise.resolve(false);
+      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
       await component.pause();
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamRotationConfigPauseContent" } }),
+      );
       expect(rotationSdk.pauseConfig).not.toHaveBeenCalled();
     });
 
@@ -1875,6 +1880,20 @@ describe("RotationConfigEditComponent — managed credential detail", () => {
       await fixture.whenStable();
       await component.rotateNow();
       expect(rotationSdk.rotateNow).toHaveBeenCalledWith(ORG_ID, configId("cfg-1"));
+    });
+
+    it("does not rotate now when the sign-out confirmation is declined", async () => {
+      const { component, fixture, rotationSdk, dialogService } = setup({
+        configId: configId("cfg-1"),
+      });
+      await fixture.whenStable();
+      component.accountForm.controls.terminateSessions.setValue(true);
+      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      await component.rotateNow();
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
+      );
+      expect(rotationSdk.rotateNow).not.toHaveBeenCalled();
     });
 
     it("records a manual rotation only once the confirmation is accepted", async () => {

@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChildren,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -35,6 +36,7 @@ import {
   BitTableV2Component,
   ButtonModule,
   DialogService,
+  FilterMenuComponent,
   FilterMenuModule,
   IconButtonModule,
   IconTileVariant,
@@ -53,6 +55,7 @@ import {
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AccessConnectorRegisterDialogComponent } from "../access-connectors/access-connector-register-dialog.component";
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { THEN_MANAGED_CREDENTIAL, THEN_QUERY_PARAM } from "../create-flow";
 import { filterOptions } from "../filter-options";
@@ -71,6 +74,7 @@ import { RowBusyTracker } from "../row-busy-tracker";
 import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { confirmPauseRotation, confirmRotateNow } from "./rotation-action-dialogs";
 import {
   ROTATION_STATUS_BADGES,
   RotationConfigRow,
@@ -146,6 +150,16 @@ export class ManagedCredentialsTabComponent {
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
+  private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
+    initialValue: [],
+  });
+  private readonly accessConnectorsLoading = toSignal(this.accessConnectorsService.loading$, {
+    initialValue: true,
+  });
+  private readonly accessConnectorsLoadError = toSignal(this.accessConnectorsService.loadError$, {
+    initialValue: null,
+  });
+
   private readonly targetSystemsLoading = toSignal(this.targetSystemsService.loading$, {
     initialValue: true,
   });
@@ -158,9 +172,67 @@ export class ManagedCredentialsTabComponent {
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() == null,
   );
 
+  /**
+   * What the empty table asks for first. An org needs an access connector and a target system
+   * before a credential can rotate, so the empty state walks through them in that order. A read
+   * that hasn't landed, or failed, is not taken as proof that something is missing, and it isn't
+   * taken as proof that nothing is: the action stays "unknown" and offers no button.
+   */
+  protected readonly emptyStateAction = computed<EmptyStateAction>(() => {
+    const connectorsKnown =
+      !this.accessConnectorsLoading() && this.accessConnectorsLoadError() == null;
+    if (!connectorsKnown || !this.targetSystemsKnown()) {
+      return "unknown";
+    }
+    if (this.accessConnectors().length === 0) {
+      return "access-connector";
+    }
+    if (!this.hasTargetSystems()) {
+      return "target-system";
+    }
+    return "credential";
+  });
+
+  /**
+   * The empty state's one primary action, or null while the prerequisites are unknown;
+   * `idSuffix` keeps each variant's button addressable.
+   */
+  protected readonly emptyStateCta = computed(() => {
+    switch (this.emptyStateAction()) {
+      case "unknown":
+        return null;
+      case "access-connector":
+        return {
+          idSuffix: "add-access-connector-empty",
+          labelKey: "pamRotationConfigAddAccessConnectorCta",
+          run: (): void => void this.registerAccessConnector(),
+        };
+      case "target-system":
+        return {
+          idSuffix: "setup-target-system",
+          labelKey: "pamRotationConfigSetUpTargetSystem",
+          run: () => void this.setUpTargetSystem(),
+        };
+      case "credential":
+        return {
+          idSuffix: "new-empty",
+          labelKey: "pamRotationConfigAddEmptyCta",
+          run: () => void this.openCreate(),
+        };
+    }
+  });
+
   protected readonly table = defineTable<RotationConfigRow, "actions">(this.rows);
 
   protected readonly searchControl = new FormControl("", { nonNullable: true });
+
+  private readonly filterMenus = viewChildren(FilterMenuComponent);
+
+  /** Resets every chip and the search box, for the empty state shown when they match nothing. */
+  protected readonly clearFilters = (): void => {
+    this.filterMenus().forEach((menu) => menu.clear());
+    this.searchControl.setValue("");
+  };
 
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p.organizationId as OrganizationId)),
@@ -288,9 +360,11 @@ export class ManagedCredentialsTabComponent {
   }
 
   constructor() {
-    // The rotation shell loads the configs on mount, so the tab only adds its collections.
+    // The rotation shell loads the configs on mount, so the tab only adds its collections and the
+    // access connectors the empty state asks about.
     effect(() => {
       void this.loadCollections(this.organizationId());
+      void this.accessConnectorsService.load(this.organizationId());
     });
   }
 
@@ -325,6 +399,22 @@ export class ManagedCredentialsTabComponent {
   protected readonly retryLoad = (): Promise<void> => {
     this.retried.set(true);
     return this.loadAll(this.organizationId());
+  };
+
+  /** Bound to the empty state shown when the org has no access connector yet. */
+  protected readonly registerAccessConnector = async (): Promise<void> => {
+    const orgId = this.organizationId();
+    const ref = AccessConnectorRegisterDialogComponent.open(this.dialogService, {
+      data: { organizationId: orgId },
+    });
+    const result = await ref.closed.toPromise();
+    if (result) {
+      await this.accessConnectorsService.registerCompleted(orgId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
+      });
+    }
   };
 
   protected readonly openCreate = (): Promise<boolean> =>
@@ -412,6 +502,9 @@ export class ManagedCredentialsTabComponent {
 
   protected readonly rotateNow = (row: RotationConfigRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
+      if (row.config.sealed?.terminateSessions && !(await confirmRotateNow(this.dialogService))) {
+        return;
+      }
       try {
         await this.configsService.rotateNow(row.config);
         this.toastService.showToast({
@@ -448,13 +541,7 @@ export class ManagedCredentialsTabComponent {
 
   protected readonly pause = (row: RotationConfigRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamRotationConfigPauseRotation" },
-        content: { key: "pamRotationConfigPauseContent" },
-        acceptButtonText: { key: "pamRotationConfigPauseRotation" },
-        cancelButtonText: { key: "cancel" },
-        type: "warning",
-      });
+      const confirmed = await confirmPauseRotation(this.dialogService);
       if (!confirmed) {
         return;
       }
@@ -492,7 +579,7 @@ export class ManagedCredentialsTabComponent {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamRotationConfigDeleteConfirmTitle" },
         content: { key: "pamRotationConfigDeleteConfirmContent" },
-        acceptButtonText: { key: "remove" },
+        acceptButtonText: { key: "pamRotationConfigRemoveFromRotation" },
         cancelButtonText: { key: "cancel" },
         type: "warning",
       });
@@ -518,6 +605,8 @@ export class ManagedCredentialsTabComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
+
+type EmptyStateAction = "access-connector" | "target-system" | "credential" | "unknown";
 
 const ROTATION_TRIGGER_OPTIONS = [
   { value: "schedule", labelKey: "pamRotationTriggerSchedule" },

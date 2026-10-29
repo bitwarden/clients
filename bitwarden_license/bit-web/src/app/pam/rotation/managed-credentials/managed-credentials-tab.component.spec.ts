@@ -12,6 +12,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
+import { AccessConnectorRegisterDialogComponent } from "../access-connectors/access-connector-register-dialog.component";
 import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
 import { OrgCiphersService } from "../org-ciphers.service";
 import { TargetSystemMethod } from "../rotation";
@@ -95,11 +96,18 @@ function makeConfigsServiceStub(
   };
 }
 
-function makeAccessConnectorsProvider() {
+function makeAccessConnectorsStub(connectors: unknown[] = [{ id: "ac-1" }]) {
   return {
-    provide: AccessConnectorsService,
-    useValue: { load: jest.fn().mockResolvedValue(undefined) },
+    accessConnectors$: new BehaviorSubject<unknown[]>(connectors),
+    loading$: new BehaviorSubject(false),
+    loadError$: new BehaviorSubject<unknown | null>(null),
+    load: jest.fn().mockResolvedValue(undefined),
+    registerCompleted: jest.fn().mockResolvedValue(undefined),
   };
+}
+
+function makeAccessConnectorsProvider(stub = makeAccessConnectorsStub()) {
+  return { provide: AccessConnectorsService, useValue: stub };
 }
 
 function makeCipherCollectionProviders(
@@ -195,7 +203,7 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  describe("first-run lockup", () => {
+  describe("first-run empty state", () => {
     /**
      * An empty target list after a failed read isn't an org without targets, so it shows the
      * load-error state rather than the set-up invitation.
@@ -207,7 +215,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
-      expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
+      expect(el.textContent).not.toContain("pamRotationConfigEmptyStateGetStarted");
     });
 
     it("keeps the table while the target-system read is still in flight", () => {
@@ -216,16 +224,20 @@ describe("ManagedCredentialsTabComponent", () => {
       fixture.detectChanges();
 
       expect((fixture.nativeElement as HTMLElement).textContent).not.toContain(
-        "pamNoTargetSystemsYetTitle",
+        "pamRotationConfigSetUpTargetSystem",
       );
     });
 
-    it("invites the operator to set one up when the read landed with none", () => {
+    it("invites the operator to set up a target system when the read landed with none", () => {
       setupTestBed(true, [], true);
+      configsService.rows$.next([]);
+      fixture.detectChanges();
 
-      expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-        "pamNoTargetSystemsYetTitle",
-      );
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain("pamRotationConfigEmptyStateGetStarted");
+      expect(
+        el.querySelector("#managed-credentials-tab_button_setup-target-system"),
+      ).not.toBeNull();
     });
   });
 
@@ -238,7 +250,6 @@ describe("ManagedCredentialsTabComponent", () => {
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
-      expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
       expect(el.textContent).not.toContain("pamRotationConfigEmptyState");
     });
 
@@ -304,6 +315,24 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
+    });
+
+    it("asks first when End active sessions is on, and rotates only once accepted", async () => {
+      const row = makeRow({ sealed: rotationConfigSealedFields({ terminateSessions: true }) });
+      dialogService.openSimpleDialog.mockResolvedValueOnce(false);
+      await component.rotateNow(row);
+      expect(configsService.rotateNow).not.toHaveBeenCalled();
+
+      await component.rotateNow(row);
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamRotationConfigRotateNowConfirmContent" } }),
+      );
+      expect(configsService.rotateNow).toHaveBeenCalledWith(row.config);
+    });
+
+    it("rotates without asking when End active sessions is off", async () => {
+      await component.rotateNow(makeRow());
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
     });
 
     it("shows an error toast when rotateNow throws", async () => {
@@ -828,10 +857,11 @@ describe("ManagedCredentialsTabComponent", () => {
 describe("ManagedCredentialsTabComponent table", () => {
   let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
   let configsService: ReturnType<typeof makeConfigsServiceStub>;
-  let dialogService: { openSimpleDialog: jest.Mock };
+  let dialogService: { openSimpleDialog: jest.Mock; open: jest.Mock };
   let toastService: { showToast: jest.Mock };
   let dialogResult = false;
   let router: Router;
+  let accessConnectorsService: ReturnType<typeof makeAccessConnectorsStub>;
 
   beforeEach(() => {
     dialogResult = false;
@@ -940,12 +970,23 @@ describe("ManagedCredentialsTabComponent table", () => {
     {
       ciphers = [],
       collections = [],
-    }: { ciphers?: CipherView[]; collections?: CollectionAdminView[] } = {},
+      connectors = [{ id: "ac-1" }],
+      targetSystems = [{ id: "ts-1" }],
+    }: {
+      ciphers?: CipherView[];
+      collections?: CollectionAdminView[];
+      connectors?: unknown[];
+      targetSystems?: unknown[];
+    } = {},
   ): HTMLElement {
     TestBed.resetTestingModule();
-    const targetSystemsService = makeTargetSystemsServiceStub();
+    const targetSystemsService = makeTargetSystemsServiceStub(targetSystems);
+    accessConnectorsService = makeAccessConnectorsStub(connectors);
     configsService = makeConfigsServiceStub(targetSystemsService, rows);
-    dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(dialogResult) };
+    dialogService = {
+      openSimpleDialog: jest.fn().mockResolvedValue(dialogResult),
+      open: jest.fn().mockReturnValue({ closed: of(undefined) }),
+    };
     toastService = { showToast: jest.fn() };
 
     TestBed.configureTestingModule({
@@ -955,7 +996,7 @@ describe("ManagedCredentialsTabComponent table", () => {
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
         { provide: RotationConfigsService, useValue: configsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
-        makeAccessConnectorsProvider(),
+        makeAccessConnectorsProvider(accessConnectorsService),
         ...makeCipherCollectionProviders(ciphers, collections),
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
@@ -1540,7 +1581,7 @@ describe("ManagedCredentialsTabComponent table", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           title: { key: "pamRotationConfigDeleteConfirmTitle" },
-          acceptButtonText: { key: "remove" },
+          acceptButtonText: { key: "pamRotationConfigRemoveFromRotation" },
         }),
       );
       expect(configsService.delete).toHaveBeenCalledWith(active.config);
@@ -1570,14 +1611,145 @@ describe("ManagedCredentialsTabComponent table", () => {
     fixture.detectChanges();
 
     expect(bodyRows(el)).toHaveLength(0);
-    expect(text(el.querySelector("bit-table-v2")!)).toContain("pamRotationConfigNoResultsFiltered");
+    expect(text(el.querySelector("bit-table-v2")!)).toContain("noItemsMatchSelectedFilters");
   });
 
-  it("keeps the empty-state lockup, not an empty table, when there are no credentials", () => {
-    const el = render([]);
+  describe("empty state", () => {
+    it("keeps the toolbar and the column headers around the empty message", () => {
+      const el = render([]);
 
-    expect(el.querySelector("bit-table-v2")).toBeNull();
-    expect(el.textContent).toContain("pamRotationConfigEmptyState");
+      expect(el.querySelector("bit-table-v2 bit-table-toolbar")).not.toBeNull();
+      expect(el.querySelector("bit-table-v2 bit-header-row")).not.toBeNull();
+      expect(bodyRows(el)).toHaveLength(0);
+      expect(text(el.querySelector("bit-table-v2")!)).toContain("pamRotationConfigEmptyState");
+    });
+
+    it("offers Add managed credential once the prerequisites exist", () => {
+      const el = render([]);
+
+      expect(text(el)).toContain("pamRotationConfigEmptyStateDescription");
+      expect(text(el)).not.toContain("pamRotationConfigEmptyStateGetStarted");
+      const button = el.querySelector<HTMLButtonElement>(
+        "#managed-credentials-tab_button_new-empty",
+      );
+      expect(text(button!)).toContain("pamRotationConfigAddEmptyCta");
+    });
+
+    it("asks for an access connector first, with the get-started copy", () => {
+      const el = render([], { connectors: [] });
+
+      expect(text(el)).toContain("pamRotationConfigEmptyStateGetStarted");
+      const button = el.querySelector<HTMLButtonElement>(
+        "#managed-credentials-tab_button_add-access-connector-empty",
+      );
+      expect(text(button!)).toContain("pamRotationConfigAddAccessConnectorCta");
+      expect(el.querySelector("#managed-credentials-tab_button_new-empty")).toBeNull();
+    });
+
+    describe("registering an access connector", () => {
+      const ADD_BUTTON = "#managed-credentials-tab_button_add-access-connector-empty";
+
+      async function clickAdd(el: HTMLElement, closeResult: unknown): Promise<void> {
+        dialogService.open.mockReturnValue({ closed: of(closeResult) });
+        el.querySelector<HTMLButtonElement>(ADD_BUTTON)!.click();
+        await fixture.whenStable();
+      }
+
+      it("opens the register dialog for the org", async () => {
+        const el = render([], { connectors: [] });
+
+        await clickAdd(el, undefined);
+
+        expect(dialogService.open).toHaveBeenCalledWith(
+          AccessConnectorRegisterDialogComponent,
+          expect.objectContaining({ data: { organizationId: ORGANIZATION_ID } }),
+        );
+      });
+
+      it("refreshes the connectors and shows the success toast once registered", async () => {
+        const el = render([], { connectors: [] });
+
+        await clickAdd(el, true);
+
+        expect(accessConnectorsService.registerCompleted).toHaveBeenCalledWith(ORGANIZATION_ID);
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "success",
+          message: "pamAccessConnectorRegistered",
+        });
+      });
+
+      it("does nothing more when the dialog is dismissed", async () => {
+        const el = render([], { connectors: [] });
+
+        await clickAdd(el, undefined);
+
+        expect(accessConnectorsService.registerCompleted).not.toHaveBeenCalled();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+    });
+
+    it("asks for a target system when the connector exists but no target system does", () => {
+      const el = render([], { targetSystems: [] });
+
+      expect(text(el)).toContain("pamRotationConfigEmptyStateGetStarted");
+      expect(
+        el.querySelector("#managed-credentials-tab_button_setup-target-system"),
+      ).not.toBeNull();
+    });
+
+    it("offers no button when the access connector read failed", () => {
+      const el = render([]);
+      accessConnectorsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+
+      expect(text(el)).toContain("pamRotationConfigEmptyState");
+      expect(el.querySelector("bit-status-lockup button")).toBeNull();
+    });
+
+    it("loads the access connectors for the org on mount", () => {
+      render([]);
+
+      expect(accessConnectorsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+    });
+  });
+
+  describe("filtered-empty state", () => {
+    const CLEAR_ALL = "#managed-credentials-tab_button_clear-all";
+
+    it("offers a secondary Clear all button under the message", () => {
+      const el = render();
+      chip("status").toggle("paused");
+      chip("targetSystem").toggle(sysId("1"));
+      fixture.detectChanges();
+
+      const button = el.querySelector<HTMLButtonElement>(CLEAR_ALL)!;
+      expect(text(button)).toContain("clearAll");
+    });
+
+    it("resets the chips and the search box, bringing the rows back", () => {
+      const el = render();
+      const all = bodyRows(el).length;
+      chip("status").toggle("paused");
+      chip("targetSystem").toggle(sysId("1"));
+      fixture.componentInstance["searchControl"].setValue("nothing matches this");
+      fixture.detectChanges();
+      expect(bodyRows(el)).toHaveLength(0);
+
+      el.querySelector<HTMLButtonElement>(CLEAR_ALL)!.click();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["searchControl"].value).toBe("");
+      expect(chip("status").value()).toEqual([]);
+      expect(chip("targetSystem").value()).toEqual([]);
+      expect(bodyRows(el)).toHaveLength(all);
+      expect(el.querySelector(CLEAR_ALL)).toBeNull();
+    });
+
+    it("is not offered when the org has no credentials at all", () => {
+      const el = render([]);
+
+      expect(el.querySelector(CLEAR_ALL)).toBeNull();
+    });
   });
 
   describe("create action placement", () => {
@@ -1588,13 +1760,17 @@ describe("ManagedCredentialsTabComponent table", () => {
 
       expect(el.querySelector("bit-table-toolbar")).not.toBeNull();
       expect(el.querySelector(BUTTON_ID)).toBeNull();
-      expect(text(el.querySelector("bit-table-toolbar")!)).not.toContain("pamRotationConfigNew");
+      expect(text(el.querySelector("bit-table-toolbar")!)).not.toContain(
+        "pamRotationConfigAddEmptyCta",
+      );
     });
 
     it("leaves the create action to the empty state when there are no credentials", () => {
       const el = render([]);
 
-      expect(el.querySelector("bit-table-toolbar")).toBeNull();
+      expect(text(el.querySelector("bit-table-toolbar")!)).not.toContain(
+        "pamRotationConfigAddEmptyCta",
+      );
       expect(el.querySelector(BUTTON_ID)).toBeNull();
       expect(el.querySelector("#managed-credentials-tab_button_new-empty")).not.toBeNull();
     });
@@ -1828,9 +2004,7 @@ describe("ManagedCredentialsTabComponent table", () => {
       fixture.detectChanges();
 
       expect(rowNames(el)).toEqual([]);
-      expect(text(el.querySelector("bit-table-v2")!)).toContain(
-        "pamRotationConfigNoResultsFiltered",
-      );
+      expect(text(el.querySelector("bit-table-v2")!)).toContain("noItemsMatchSelectedFilters");
     });
 
     it("keeps the toolbar in place when the filters empty the table", () => {
