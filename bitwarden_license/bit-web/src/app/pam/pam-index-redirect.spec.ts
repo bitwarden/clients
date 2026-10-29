@@ -47,6 +47,7 @@ const routes: Routes = [
             children: [],
           },
           { path: "access-rules", component: BlankComponent },
+          { path: "audit", component: BlankComponent },
           { path: "rotation", component: BlankComponent },
         ],
       },
