@@ -25,7 +25,9 @@
               <input type="radio" bitRadio id="annual-cadence-button" [value]="'annually'" />
               <bit-label>
                 {{ "annual" | i18n }}
-                - {{ prices?.annually | currency: "$" }} /{{ "yr" | i18n }}
+                @if (!showPreviewCart) {
+                  - {{ prices?.annually | currency: "$" }} /{{ "yr" | i18n }}
+                }
               </bit-label>
             </bit-form-control>
           </div>
@@ -35,7 +37,9 @@
                 <input type="radio" bitRadio id="monthly-cadence-button" [value]="'monthly'" />
                 <bit-label>
                   {{ "monthly" | i18n }}
-                  - {{ prices?.monthly | currency: "$" }} /{{ "monthAbbr" | i18n }}
+                  @if (!showPreviewCart) {
+                    - {{ prices?.monthly | currency: "$" }} /{{ "monthAbbr" | i18n }}
+                  }
                 </bit-label>
               </bit-form-control>
             </div>
