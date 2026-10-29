@@ -13,16 +13,16 @@ export const UNLOCK_RUNS = 10;
 // `VAULT_RENDERED_MARK` (libs/vault/src/utils/vault-performance.ts): first paint of the vault list.
 const VAULT_RENDERED_MARK = "Vault rendered";
 const UNLOCK_STARTED_MARK = "[e2e] Unlock started";
-// Every unlock button sits in the shared lock screen (libs/key-management-ui).
-const UNLOCK_TRIGGER = "bit-lock button";
+// Every unlock form and button sits in the shared lock screen (libs/key-management-ui).
+const LOCK_SCREEN = "bit-lock";
 const RENDER_TIMEOUT_MS = 5 * 60_000;
 const REPORT_FILE = "unlock.json";
 
-type Marks = { started: string; rendered: string; trigger: string };
+type Marks = { started: string; rendered: string; lockScreen: string };
 const MARKS: Marks = {
   started: UNLOCK_STARTED_MARK,
   rendered: VAULT_RENDERED_MARK,
-  trigger: UNLOCK_TRIGGER,
+  lockScreen: LOCK_SCREEN,
 };
 
 export type TimingSummary = {
@@ -34,27 +34,52 @@ export type TimingSummary = {
 };
 
 /**
- * Runs in the page. Marks the unlock start when a lock screen button is clicked. The capture
- * listener runs before the app's own handler, so no unlock work precedes the mark. Clearing
- * both marks keeps one run from reading the previous run's render.
+ * Runs in the page. Marks the unlock start when a lock screen form is submitted, or a button
+ * that submits no form is clicked (biometrics). A submit covers every way a build starts
+ * unlocking: a click, a press, or the PIN once fully typed. Capture listeners run before the
+ * app's own handlers, so no unlock work precedes the mark.
+ *
+ * A submit during an unlock in flight, e.g. a click after the PIN already started it, keeps
+ * the first mark. Clearing the render mark keeps one run from reading the previous run's.
  */
-function markUnlockClicks({ started, rendered, trigger }: Marks) {
+function markUnlockStarts({ started, rendered, lockScreen }: Marks) {
   const scope = window as any;
   if (scope.__e2eUnlockMarks) {
     return;
   }
   scope.__e2eUnlockMarks = true;
 
+  const markStart = () => {
+    const start = performance.getEntriesByName(started, "mark").at(-1);
+    const end = performance.getEntriesByName(rendered, "mark").at(-1);
+    if (start != null && (end == null || end.startTime < start.startTime)) {
+      return;
+    }
+
+    performance.clearMarks(started);
+    performance.clearMarks(rendered);
+    performance.mark(started);
+  };
+
+  const inLockScreen = (target: EventTarget | null) =>
+    target instanceof Element && target.closest(lockScreen) != null;
+
+  window.addEventListener(
+    "submit",
+    (event) => {
+      if (inLockScreen(event.target)) {
+        markStart();
+      }
+    },
+    { capture: true },
+  );
   window.addEventListener(
     "click",
     (event) => {
-      if (!(event.target instanceof Element) || event.target.closest(trigger) == null) {
-        return;
+      const button = event.target instanceof Element ? event.target.closest("button") : null;
+      if (inLockScreen(button) && button!.type !== "submit") {
+        markStart();
       }
-
-      performance.clearMarks(started);
-      performance.clearMarks(rendered);
-      performance.mark(started);
     },
     { capture: true },
   );
@@ -62,8 +87,8 @@ function markUnlockClicks({ started, rendered, trigger }: Marks) {
 
 /** Marks unlock starts in every document the context opens from now on. */
 export async function trackUnlocks(page: Page) {
-  await page.context().addInitScript(markUnlockClicks, MARKS);
-  await page.evaluate(markUnlockClicks, MARKS);
+  await page.context().addInitScript(markUnlockStarts, MARKS);
+  await page.evaluate(markUnlockStarts, MARKS);
 }
 
 /**
