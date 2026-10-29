@@ -383,7 +383,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   /**
    * The id of the cipher kept in sync with local state, so a background sync refreshes the dialog.
-   * Unset for new, admin console and restricted ciphers.
+   * Unset for new and restricted ciphers, and admin console ciphers loaded from the admin API.
    */
   private readonly syncedCipherId$ = new BehaviorSubject<CipherId | undefined>(undefined);
 
@@ -508,7 +508,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.cipher.organizationId,
       );
 
-      this.followLocalState(this.cipher);
+      await this.followLocalState(this.cipher);
     }
 
     this.showRestore = await this.canUserRestore();
@@ -591,7 +591,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
-    this.followLocalState(this.cipher);
+    await this.followLocalState(this.cipher);
 
     // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
     this.canEdit = await firstValueFrom(
@@ -895,12 +895,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   /**
    * Keeps `cipher` in sync with local state, so changes from a background sync show without
-   * reopening the dialog. Admin console ciphers may not be in local state, and restricted ciphers
-   * follow `displayView$` instead.
+   * reopening the dialog. Restricted ciphers follow `displayView$` instead, and admin ciphers come
+   * from the admin API.
    */
-  private followLocalState(cipher: CipherView): void {
-    if (this.formConfig.isAdminConsole || this.formConfig.admin || this.storedView != null) {
+  private async followLocalState(cipher: CipherView): Promise<void> {
+    if (this.formConfig.admin || this.storedView != null) {
       return;
+    }
+    // The admin console loads a cipher missing from local state (e.g. unassigned) from the admin
+    // API. Following it would read its absence as a delete and close the dialog.
+    if (this.formConfig.isAdminConsole) {
+      const userId = await firstValueFrom(this.userId$);
+      if ((await this.cipherService.get(cipher.id, userId)) == null) {
+        return;
+      }
     }
     this.syncedCipherId$.next(cipher.id as CipherId);
   }

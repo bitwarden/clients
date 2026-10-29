@@ -1067,8 +1067,35 @@ describe("VaultItemDialogComponent", () => {
       expect(close).toHaveBeenCalledWith(VaultItemDialogResult.Deleted);
     });
 
-    it("does not follow local state in the admin console", async () => {
+    it("follows an admin console cipher that is in local state", async () => {
       await open({ isAdminConsole: true });
+      const syncedView = {
+        ...openedView,
+        revisionDate: new Date("2026-10-02T00:00:00.000Z"),
+      } as unknown as CipherView;
+
+      localView$.next(syncedView);
+      await settle();
+
+      expect(cipherServiceMock.cipherView$).toHaveBeenCalledWith("test-user-id", "cipher-1");
+      expect(component["cipher"]).toBe(syncedView);
+    });
+
+    it("does not follow an admin console cipher missing from local state", async () => {
+      jest.spyOn(component as any, "getDecryptedCipherView").mockResolvedValue(openedView);
+      cipherServiceMock.get.mockResolvedValue(null);
+      component.setTestParams({ mode: "view" });
+      component.setTestFormConfig({ originalCipher: storedCipher, isAdminConsole: true });
+
+      await component.ngOnInit();
+      await settle();
+
+      expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it("does not follow a cipher loaded with admin access", async () => {
+      await open({ isAdminConsole: true, admin: true });
 
       expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
     });
