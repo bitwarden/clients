@@ -1,0 +1,99 @@
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ReactiveFormsModule, Validators, FormBuilder } from "@angular/forms";
+
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { RotationSdkService } from "../rotation-sdk.service";
+
+import { AccessConnectorTokenDialogComponent } from "./access-connector-token-dialog.component";
+
+export type AccessConnectorRegisterDialogParams = {
+  organizationId: OrganizationId;
+};
+
+/** `undefined` when dismissed without registering. */
+export type AccessConnectorRegisterDialogResult = { registered: true } | undefined;
+
+/**
+ * Name-entry dialog for a new access connector. On success it closes itself, then opens
+ * {@link AccessConnectorTokenDialogComponent} to show the one-time token.
+ */
+@Component({
+  selector: "app-access-connector-register-dialog",
+  templateUrl: "./access-connector-register-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    AsyncActionsModule,
+    ButtonModule,
+    DialogModule,
+    FormFieldModule,
+    I18nPipe,
+  ],
+})
+export class AccessConnectorRegisterDialogComponent {
+  protected readonly params = inject<AccessConnectorRegisterDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<AccessConnectorRegisterDialogResult>>(DialogRef);
+  private readonly dialogService = inject(DialogService);
+  private readonly rotationSdk = inject(RotationSdkService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
+  private readonly fb = inject(FormBuilder);
+
+  protected readonly form = this.fb.nonNullable.group({
+    name: ["", [Validators.required, Validators.maxLength(200)]],
+  });
+
+  protected readonly submit = async (): Promise<void> => {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+
+    const name = this.form.controls.name.value;
+
+    try {
+      const { token } = await this.rotationSdk.registerConnector(this.params.organizationId, name);
+
+      await this.dialogRef.close({ registered: true });
+
+      AccessConnectorTokenDialogComponent.open(this.dialogService, {
+        data: { accessConnectorName: name, token },
+      });
+    } catch (e) {
+      const message =
+        e instanceof ErrorResponse
+          ? (e.message ?? this.i18nService.t("unexpectedError"))
+          : this.i18nService.t("unexpectedError");
+      this.toastService.showToast({ variant: "error", message });
+    }
+  };
+
+  protected cancel(): void {
+    void this.dialogRef.close(undefined);
+  }
+
+  static open(
+    dialogService: DialogService,
+    config: DialogConfig<AccessConnectorRegisterDialogParams>,
+  ): DialogRef<AccessConnectorRegisterDialogResult> {
+    return dialogService.open<
+      AccessConnectorRegisterDialogResult,
+      AccessConnectorRegisterDialogParams
+    >(AccessConnectorRegisterDialogComponent, config);
+  }
+}

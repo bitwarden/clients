@@ -544,9 +544,7 @@ export class AccessRuleEditComponent implements HasUnsavedChangesDialog {
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog(
-      accessRuleDeleteConfirmOptions(existing.name),
-    );
+    const confirmed = await this.dialogService.openSimpleDialog(accessRuleDeleteConfirmOptions());
     if (!confirmed) {
       return;
     }
