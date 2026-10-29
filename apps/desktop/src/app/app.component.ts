@@ -5,7 +5,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
 
-import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
+import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
@@ -147,7 +147,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
-    private accountDeletionService: AccountDeletionService,
+    private accountDeletionDialogService: AccountDeletionDialogService,
     private premiumCheckoutPendingService: PremiumCheckoutPendingService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountSwitcherService: AccountSwitcherService,
@@ -928,7 +928,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
-    await this.accountDeletionService.openDeleteAccountFlow();
+    await this.accountDeletionDialogService.openDeleteAccountFlow();
   }
 
   private async processPendingAuthRequests() {
