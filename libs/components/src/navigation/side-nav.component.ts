@@ -53,6 +53,7 @@ export type SideNavHeaderBorder = "always" | "scrolled";
     class: "tw-block tw-h-full tw-col-start-1 tw-row-start-1",
     "[class]":
       "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50 tw-max-w-[90%]' : ''",
+    "(document:keydown.escape)": "handleEscape($event)",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -114,15 +115,18 @@ export class SideNavComponent {
       !this.reducedMotion(),
   );
 
-  protected readonly handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      this.sideNavService.open.set(false);
-      this.toggleButton()?.nativeElement.focus();
-      return false;
+  // Overlay focus can sit outside the nav (e.g. on <main> after a drag), so Escape is handled at
+  // the document. Skip ones a menu or popover already handled.
+  protected handleEscape(event: Event) {
+    const focusInNav = event.composedPath().includes(this.elementRef.nativeElement);
+    if (event.defaultPrevented || !(this.sideNavService.isOverlay() || focusInNav)) {
+      return;
     }
 
-    return true;
-  };
+    event.preventDefault();
+    this.sideNavService.open.set(false);
+    this.toggleButton()?.nativeElement.focus();
+  }
 
   protected onDragMoved(event: CdkDragMove) {
     const rectX = this.elementRef.nativeElement.getBoundingClientRect().x;

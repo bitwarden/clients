@@ -163,6 +163,7 @@ import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
+import { vaultListCiphers$ } from "./vault-list-ciphers";
 import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
 import { VaultListComponent } from "./vault-list.component";
 
@@ -734,9 +735,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
-    const _ciphers = this.cipherService
-      .cipherListViews$(activeUserId)
-      .pipe(filter((c) => c !== null));
+    const _ciphers = vaultListCiphers$(this.cipherService, activeUserId, this.vfo1Foundation$).pipe(
+      filter((c) => c !== null),
+    );
 
     /**
      * This observable filters the ciphers based on the active user ID and the restricted item types.

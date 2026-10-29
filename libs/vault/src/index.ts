@@ -33,6 +33,7 @@ export {
 export { DownloadAttachmentComponent } from "./components/download-attachment/download-attachment.component";
 export { TruncatedFilenameComponent } from "./components/truncated-filename";
 export { truncateFilename } from "./components/truncated-filename/truncate-filename";
+export { deleteFailureMessageKey } from "./utils/delete-failure-message";
 export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
@@ -135,6 +136,32 @@ export {
 
 export { CIPHER_VIEW_BANNER, type CipherViewBanner } from "./tokens/cipher-view-banner.token";
 export { ITEM_DETAILS_BADGE, type ItemDetailsBadge } from "./tokens/item-details-badge.token";
+export {
+  SHARED_FOLDER_DECORATION,
+  type SharedFolderDecoration,
+} from "./tokens/shared-folder-decoration.token";
+export {
+  VAULT_ITEM_COLUMN,
+  type VaultItemColumn,
+  type VaultItemColumnScope,
+} from "./tokens/vault-item-column.token";
+export {
+  VAULT_ITEM_FILTER,
+  type VaultItemFilter,
+  type VaultItemFilterOption,
+} from "./tokens/vault-item-filter.token";
+export { VAULT_ROW_ACTIONS } from "./tokens/vault-row-actions.token";
+export {
+  ACTIVE_FILTER_ID,
+  MY_REQUESTS_FILTER_ID,
+  PENDING_FILTER_ID,
+  PRIVILEGED_FILTER_ID,
+  READY_FILTER_ID,
+  UNAVAILABLE_FILTER_ID,
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "./tokens/vault-controlled-access-filter.token";
+export type { ControlledAccessFilterOption } from "./tokens/vault-controlled-access-filter.token";
 
 export {
   COLLECTION_DIALOG,

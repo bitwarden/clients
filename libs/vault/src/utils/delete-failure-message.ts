@@ -9,5 +9,7 @@ import {
  * agree.
  */
 export function deleteFailureMessageKey(cipher: CipherViewLike): string {
-  return CipherViewLikeUtils.isPartial(cipher) ? "restrictedItemChangeRefused" : "deleteItemError";
+  return CipherViewLikeUtils.isRestricted(cipher)
+    ? "restrictedItemChangeRefused"
+    : "deleteItemError";
 }

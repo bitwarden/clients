@@ -69,6 +69,9 @@ export { formatRemaining } from "./date/format-remaining";
 export { liveActiveLease, rereadOnLapse } from "./helpers/lease-liveness";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
+export { isActionableRequest } from "./helpers/actionable-requests";
+export { canApprove } from "./helpers/can-approve";
+export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
@@ -109,4 +112,9 @@ export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
 export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
 export { activateAccessErrorMessageKey } from "./helpers/activate-access-error";
+export {
+  DECIDE_ACCESS_SERVER_ERRORS,
+  decideAccessErrorMessageKey,
+  isRequestNoLongerPendingError,
+} from "./helpers/decide-access-error";
 export { selectedFilterStrings } from "./helpers/selected-filter-strings";
