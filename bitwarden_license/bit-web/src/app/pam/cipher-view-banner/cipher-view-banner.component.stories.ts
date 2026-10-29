@@ -25,6 +25,7 @@ import {
   liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
+  startClockAtStoryNow,
 } from "../testing/story-fixtures";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
@@ -157,6 +158,7 @@ export default {
     }),
   ],
   args: { cipher: gatedCipher() },
+  beforeEach: startClockAtStoryNow,
 } as Meta<CipherViewBannerComponent>;
 
 type Story = StoryObj<CipherViewBannerComponent>;

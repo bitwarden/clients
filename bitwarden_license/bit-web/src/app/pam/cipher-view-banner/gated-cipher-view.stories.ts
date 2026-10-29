@@ -38,11 +38,14 @@ import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 import {
+  DAY,
   HOUR,
   accessRequest,
+  fromNow,
   liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
+  startClockAtStoryNow,
 } from "../testing/story-fixtures";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
@@ -58,6 +61,8 @@ function loginCipher(id: string, name: string, uri: string): CipherView {
   cipher.name = name;
   cipher.type = CipherType.Login;
   cipher.login.uris = [Object.assign(new LoginUriView(), { uri })];
+  cipher.creationDate = new Date(fromNow(-30 * DAY));
+  cipher.revisionDate = new Date(fromNow(-DAY));
   return cipher;
 }
 
@@ -197,6 +202,7 @@ export default {
     }),
   ],
   args: { cipher: gatedCipher() },
+  beforeEach: startClockAtStoryNow,
 } as Meta<CipherViewComponent>;
 
 type Story = StoryObj<CipherViewComponent>;
