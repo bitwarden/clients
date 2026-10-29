@@ -5,7 +5,8 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
 }));
 
 import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject } from "rxjs";
@@ -29,19 +30,28 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogRef, DialogService, PopoverModule } from "@bitwarden/components";
+import { DialogRef, DialogService, PopoverModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
+  BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
+  BulkDeleteDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionDialogOutcome,
+  CollectionDialogRef,
+  CollectionDialogTab,
+  CollectionOptionsMenuComponent,
   DecryptionFailureDialogComponent,
   ARCHIVE_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   MY_VAULT_ROUTE,
+  sharedFoldersCommands,
   TRASH_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -53,6 +63,7 @@ import {
   Vfo1I18nPipe,
   CoachmarkComponent,
   CoachmarkService,
+  PinnedSharedFoldersService,
 } from "@bitwarden/vault";
 
 import {
@@ -93,6 +104,8 @@ describe("VaultNextComponent", () => {
   let webVaultPromptService: MockProxy<WebVaultPromptService>;
   let coachmarkService: MockProxy<CoachmarkService>;
   let collectionService: MockProxy<CollectionService>;
+  let collectionDialog: MockProxy<CollectionDialogRef>;
+  let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let addItemDialogOpen: jest.SpyInstance;
   let addEditFolderDialogOpen: jest.SpyInstance;
 
@@ -264,6 +277,9 @@ describe("VaultNextComponent", () => {
     collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(collections$);
 
+    collectionDialog = mock<CollectionDialogRef>();
+    bulkDeleteDialog = mock<BulkDeleteDialogRef>();
+
     // Needed only by the projected toolbar button's i18n pipe.
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
@@ -360,6 +376,7 @@ describe("VaultNextComponent", () => {
             Vfo1I18nPipe,
             VaultRemountOnDirective,
             CoachmarkComponent,
+            CollectionOptionsMenuComponent,
             PopoverModule,
           ],
           schemas: [NO_ERRORS_SCHEMA],
@@ -367,6 +384,16 @@ describe("VaultNextComponent", () => {
             { provide: WebVaultItemActionsService, useValue: itemActions },
             { provide: WebVaultPromptService, useValue: webVaultPromptService },
             { provide: VaultBatchBarService, useValue: batchBarService },
+            { provide: COLLECTION_DIALOG, useValue: collectionDialog },
+            { provide: BULK_DELETE_DIALOG, useValue: bulkDeleteDialog },
+            {
+              provide: PinnedSharedFoldersService,
+              useValue: mock<PinnedSharedFoldersService>({
+                pinnedIds$: () => of([]),
+                activePinnedIds: signal([]),
+              }),
+            },
+            { provide: ToastService, useValue: mock<ToastService>() },
           ],
         },
       })
@@ -873,6 +900,89 @@ describe("VaultNextComponent", () => {
       it("shows breadcrumbs rather than a header tile", () => {
         expect(component().showBreadcrumbs()).toBe(true);
         expect(component().headerTile()).toBeUndefined();
+      });
+
+      describe("the collection options menu", () => {
+        const manageableFolder = () =>
+          Object.assign(buildCollection(engineeringId, organizationId), { manage: true });
+
+        it("resolves the viewed folder and its organization for the menu", () => {
+          collections$.next([manageableFolder()]);
+          fixture.detectChanges();
+
+          expect(component().currentCollection()?.id).toBe(engineeringId);
+          expect(component().currentOrganization()?.id).toBe(organizationId);
+        });
+
+        describe("navigating away when the viewed folder disappears", () => {
+          it("goes to the organization's shared folders list once the viewed folder disappears", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            collections$.next([]);
+            fixture.detectChanges();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("stays put while the viewed folder is still there", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("does nothing once the viewed folder disappears if the viewer has since moved to a different one", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            scopeTo(organizationId, designId);
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("navigates away when editing Access through the real child component leaves the viewer unassigned", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            collectionDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              fixture.detectChanges();
+              return CollectionDialogOutcome.Saved;
+            });
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["editCollection"](CollectionDialogTab.Info);
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+
+          it("navigates away when deleting through the real child component's delete()", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            bulkDeleteDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              fixture.detectChanges();
+              return BulkDeleteDialogResult.Deleted;
+            });
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["delete"]();
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+        });
       });
     });
 

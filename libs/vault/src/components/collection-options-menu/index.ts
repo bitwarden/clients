@@ -1,4 +1,1 @@
-export {
-  CollectionOptionsMenuComponent,
-  type CollectionActionResult,
-} from "./collection-options-menu.component";
+export { CollectionOptionsMenuComponent } from "./collection-options-menu.component";
