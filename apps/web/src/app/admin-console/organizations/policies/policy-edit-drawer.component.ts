@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControlStatus } from "@angular/forms";
 import {
   EMPTY,
@@ -97,11 +97,15 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly loading = signal(true);
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
   protected readonly policyEnabled = signal(false);
-  /** Emits the policy component once its form has been populated with the loaded policy. */
-  private readonly loadedPolicyComponent$ = new Subject<BasePolicyEditComponent>();
+  /**
+   * Emits the policy component once its form has been populated with the loaded policy.
+   * Subclasses must run change detection (so the policy component's ngOnInit and effects populate
+   * the form) before emitting, since {@link policyChanged$} records the initial state on emission.
+   */
+  protected readonly loadedPolicyComponent$ = new Subject<BasePolicyEditComponent>();
   /**
    * Whether the policy form differs from its state when the dialog finished loading.
-   * Stays false until {@link trackPolicyChanges} has recorded the initial state. Comparing against
+   * Stays false until {@link loadedPolicyComponent$} emits and the initial state is recorded. Comparing against
    * the initial form state, rather than the stored policy data, means policies that fill in
    * defaults for unsaved data or transform data before saving don't appear changed as soon as
    * they load.
@@ -148,14 +152,6 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
       variant: "success",
       message: this.i18nService.t("editedPolicyId", policyName),
     });
-  }
-
-  /** Records the policy form's initial state so that {@link policyChanged$} tracks edits to it. */
-  protected trackPolicyChanges(component: BasePolicyEditComponent): void {
-    // Run the policy component's ngOnInit and effects so the form is populated before recording
-    // its initial state.
-    this.cdr.detectChanges();
-    this.loadedPolicyComponent$.next(component);
   }
 
   protected isFormDirty(): boolean {
@@ -247,7 +243,16 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
 
   protected readonly policyType = PolicyType;
   protected readonly enabled = false;
-  private readonly dataStatus = signal<FormControlStatus>("VALID");
+  private readonly dataStatus = toSignal(
+    toObservable(this.policyComponent).pipe(
+      switchMap((component) =>
+        component?.data
+          ? component.data.statusChanges.pipe(startWith(component.data.status))
+          : of<FormControlStatus>("VALID"),
+      ),
+    ),
+    { initialValue: "VALID" },
+  );
   private readonly canToggleState = signal(true);
 
   // Disable the Save button if one of the three is true:
@@ -348,13 +353,11 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     this.policyEnabled.set(this.data.policy.enabled(policyResponse));
     this.canToggleState.set(policyResponse.canToggleState);
 
-    component.data?.statusChanges
-      .pipe(startWith(component.data.status), takeUntilDestroyed(this.destroyRef))
-      .subscribe((status) => this.dataStatus.set(status));
-
+    // Run the policy component's ngOnInit and effects so the form is populated before recording
+    // its initial state.
     this.cdr.detectChanges();
     this.setupDiscardGuard();
-    this.trackPolicyChanges(component);
+    this.loadedPolicyComponent$.next(component);
   }
 
   override readonly submit = async () => {

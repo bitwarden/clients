@@ -160,7 +160,10 @@ export class MultiStepPolicyEditDialogComponent
     this.policySteps.set(component.policySteps ?? []);
 
     this.setupDiscardGuard();
-    this.trackPolicyChanges(component);
+    // Run the policy component's ngOnInit and effects so the form is populated before recording
+    // its initial state.
+    this.cdr.detectChanges();
+    this.loadedPolicyComponent$.next(component);
   }
 
   override readonly submit = async () => {
