@@ -1,12 +1,21 @@
 <bit-dialog background="alt" dialogSize="large">
-  <span bitDialogTitle>{{ "pamAccessRequestTitle" | i18n }}</span>
+  <span bitDialogTitle>{{
+    (confirmingWithdraw() ? "pamInboxWithdrawApproval" : "pamAccessRequestTitle") | i18n
+  }}</span>
 
   <div bitDialogContent>
     @if (loading() && request() == null && !notFound() && !loadError()) {
       <p bitTypography="body1" class="tw-text-muted">{{ "loading" | i18n }}</p>
     } @else if (request(); as r) {
+      <!--
+        One summary across both of the dialog's faces: the confirmation keeps the item on screen so
+        the destructive action always has its context, and the instance survives the switch.
+      -->
       <pam-request-summary
-        data-testid="request-detail-summary"
+        [attr.data-testid]="
+          confirmingWithdraw() ? 'withdraw-confirm-summary' : 'request-detail-summary'
+        "
+        [hideDetails]="confirmingWithdraw()"
         [cipher]="cipherFor(r.cipherId) ?? null"
         [itemName]="cipherName() ?? ''"
         [organizationName]="organizationName()"
@@ -18,81 +27,75 @@
         [exactWindow]="exactWindowText()"
         [reason]="reason()"
       >
-        <pam-summary-field [label]="'pamColumnStatus' | i18n">
-          <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-            @if (badge()?.badgeState; as state) {
-              <app-pam-access-state-badge [state]="state" />
-            } @else if (badge()?.statusBadge; as b) {
-              <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
-            }
-            @if (extension(); as ext) {
-              <span bitBadge variant="secondary" data-testid="request-detail-lease-extended">
-                {{
-                  "pamExtendedBadge"
-                    | i18n: (ext.addedSeconds | durationShort) : (ext.until | date: "short")
-                }}
-              </span>
-            }
-          </span>
-        </pam-summary-field>
-
-        @if (leaseEndsAt(); as endsAt) {
-          <pam-summary-field [label]="'pamColumnRemaining' | i18n">
-            <span data-testid="request-detail-remaining">{{
-              endsAt | remainingTime: nowMs()
-            }}</span>
-          </pam-summary-field>
-        }
+        <!-- Status reads with the item's name, so the badge is projected into the card header. -->
+        <span slot="badge">
+          @if (badge()?.badgeState; as state) {
+            <app-pam-access-state-badge [state]="state" />
+          } @else if (badge()?.statusBadge; as b) {
+            <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
+          }
+          @if (extension(); as ext) {
+            <span bitBadge variant="secondary" data-testid="request-detail-lease-extended">
+              {{
+                "pamExtendedBadge"
+                  | i18n: (ext.addedSeconds | durationShort) : (ext.until | date: "short")
+              }}
+            </span>
+          }
+        </span>
 
         <pam-summary-field [label]="'pamColumnSubmitted' | i18n">
           {{ r.submittedAt | date: "medium" }}
         </pam-summary-field>
-
-        @if (r.resolvedAt) {
-          <pam-summary-field [label]="'pamColumnResolved' | i18n">
-            {{ r.resolvedAt | date: "medium" }}
-          </pam-summary-field>
-        }
       </pam-request-summary>
 
-      @if (decisions().length > 0) {
+      @if (confirmingWithdraw()) {
+        <bit-callout type="warning" data-testid="withdraw-confirm-warning">
+          {{ "pamInboxWithdrawApprovalConfirm" | i18n: cipherName() ?? "" }}
+        </bit-callout>
+
+        <bit-form-field>
+          <bit-label>{{ "pamWithdrawReasonLabel" | i18n }}</bit-label>
+          <textarea
+            bitInput
+            rows="3"
+            id="access-request-dialog_input_withdraw-reason"
+            data-testid="withdraw-confirm-reason"
+            [formControl]="withdrawReason"
+            [attr.placeholder]="'pamWithdrawReasonPlaceholder' | i18n"
+          ></textarea>
+          <bit-hint>{{ "pamWithdrawReasonHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      } @else if (decisionSummary() || r.resolvedAt) {
         <h2 bitTypography="h6" class="tw-mb-2">
           {{ "pamAccessRequestDecisionLogTitle" | i18n }}
         </h2>
-        <bit-card data-testid="request-detail-decision-log">
-          <ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-4 tw-p-0">
-            @for (decision of decisions(); track $index) {
-              <li class="tw-flex tw-flex-col tw-gap-1">
-                <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-sm/5">
-                  <span
-                    bitBadge
-                    [variant]="
-                      decision.outcome === 'approved'
-                        ? 'success'
-                        : decision.outcome === 'denied'
-                          ? 'danger'
-                          : 'secondary'
-                    "
-                  >
-                    {{ decision.labelKey | i18n }}
-                  </span>
-                  <span>
-                    @if (decision.automatic) {
-                      {{ "pamResolverAccessRule" | i18n }}
-                    } @else if (decision.who) {
-                      {{ decision.who }}
-                    } @else {
-                      {{ "pamResolverUnknown" | i18n }}
-                    }
-                  </span>
-                  <span class="tw-text-muted">{{ decision.decidedAt | date: "medium" }}</span>
-                </div>
-                @if (decision.comment) {
-                  <div class="tw-text-sm/5">{{ decision.comment }}</div>
-                }
-              </li>
+        <bit-card data-testid="request-detail-decision">
+          <div class="tw-flex tw-flex-col tw-gap-4">
+            @if (decisionSummary(); as decision) {
+              <pam-summary-field [label]="decision.byLabelKey | i18n">
+                {{ decision.who }}
+              </pam-summary-field>
+
+              @if (decision.email; as email) {
+                <pam-summary-field [label]="'pamDecisionEmail' | i18n">
+                  {{ email }}
+                </pam-summary-field>
+              }
+
+              @if (decision.comment; as comment) {
+                <pam-summary-field [label]="'pamDecisionComment' | i18n">
+                  <span class="tw-whitespace-pre-wrap tw-break-words">{{ comment }}</span>
+                </pam-summary-field>
+              }
             }
-          </ul>
+
+            @if (r.resolvedAt; as resolvedAt) {
+              <pam-summary-field [label]="'pamColumnResolved' | i18n">
+                {{ resolvedAt | date: "medium" }}
+              </pam-summary-field>
+            }
+          </div>
         </bit-card>
       }
     } @else if (notFound()) {
@@ -106,111 +109,141 @@
     }
   </div>
 
+  <!--
+    The viewer's own action leads, Close sits beside it, and Deny is pushed to the far edge so it
+    cannot be reached for by mistake. A state offering nothing to do is left with Close alone.
+  -->
   <ng-container bitDialogFooter>
-    @if (canDecide()) {
+    @if (confirmingWithdraw()) {
       <button
         type="button"
         bitButton
-        buttonType="primary"
-        id="access-request-dialog_button_approve"
-        [loading]="deciding()"
-        [disabled]="deciding()"
-        (click)="decide('approve')"
-      >
-        {{ "pamInboxApprove" | i18n }}
-      </button>
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        id="access-request-dialog_button_deny"
-        [disabled]="deciding()"
-        (click)="decide('deny')"
-      >
-        {{ "pamInboxDeny" | i18n }}
-      </button>
-    }
-    @if (canWithdrawApproval()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        id="access-request-dialog_button_withdraw-approval"
+        buttonType="danger"
+        id="access-request-dialog_button_confirm-withdraw"
         [loading]="withdrawing()"
-        [disabled]="withdrawing()"
-        (click)="withdrawApproval()"
+        [disabled]="!withdrawReasonGiven() || withdrawing()"
+        (click)="confirmWithdraw()"
       >
         {{ "pamInboxWithdrawApproval" | i18n }}
       </button>
-    }
-    @if (canRevoke()) {
       <button
         type="button"
         bitButton
         buttonType="secondary"
-        id="access-request-dialog_button_revoke"
-        [loading]="revoking()"
-        [disabled]="revoking()"
-        (click)="revoke()"
+        id="access-request-dialog_button_cancel-withdraw"
+        [disabled]="withdrawing()"
+        (click)="cancelWithdraw()"
       >
-        {{ "pamInboxRevoke" | i18n }}
+        {{ "cancel" | i18n }}
       </button>
-    }
-    @if (canStart()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="primary"
-        id="access-request-dialog_button_start"
-        [loading]="starting()"
-        [disabled]="starting()"
-        (click)="startAccess()"
-      >
-        {{ "pamStartLeaseButton" | i18n }}
-      </button>
-    }
-    @if (canCancel()) {
+    } @else {
+      @if (canDecide()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          id="access-request-dialog_button_approve"
+          [loading]="deciding()"
+          [disabled]="deciding()"
+          (click)="decide('approve')"
+        >
+          {{ "pamInboxApprove" | i18n }}
+        </button>
+      }
+      @if (canWithdrawApproval()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          id="access-request-dialog_button_withdraw-approval"
+          [loading]="withdrawing()"
+          [disabled]="withdrawing()"
+          (click)="withdrawApproval()"
+        >
+          {{ "pamInboxWithdrawApproval" | i18n }}
+        </button>
+      }
+      @if (canStart()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          id="access-request-dialog_button_start"
+          [loading]="starting()"
+          [disabled]="starting()"
+          (click)="startAccess()"
+        >
+          {{ "pamStartSessionButton" | i18n }}
+        </button>
+      }
+      @if (canCancel()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          id="access-request-dialog_button_cancel-request"
+          [loading]="cancelling()"
+          [disabled]="cancelling()"
+          (click)="cancel()"
+        >
+          {{ "cancelRequest" | i18n }}
+        </button>
+      }
+      @if (canRevoke()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="danger"
+          id="access-request-dialog_button_revoke"
+          [loading]="revoking()"
+          [disabled]="revoking()"
+          (click)="revoke()"
+        >
+          {{ "pamEndSessionButton" | i18n }}
+        </button>
+      }
+      @if (canEndLease()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="danger"
+          id="access-request-dialog_button_end-lease"
+          [loading]="ending()"
+          [disabled]="ending()"
+          (click)="endLease()"
+        >
+          {{ "pamEndLeaseButton" | i18n }}
+        </button>
+      }
       <button
         type="button"
         bitButton
         buttonType="secondary"
-        id="access-request-dialog_button_cancel-request"
-        [loading]="cancelling()"
-        [disabled]="cancelling()"
-        (click)="cancel()"
+        bitDialogClose
+        id="access-request-dialog_button_close"
       >
-        {{ "cancelRequest" | i18n }}
+        {{ "close" | i18n }}
       </button>
-    }
-    @if (canEndLease()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        id="access-request-dialog_button_end-lease"
-        [loading]="ending()"
-        [disabled]="ending()"
-        (click)="endLease()"
-      >
-        {{ "pamEndLeaseButton" | i18n }}
-      </button>
-    }
-    @if (canStart()) {
-      @if (request(); as r) {
-        <span class="tw-ms-auto tw-text-xs tw-text-muted">
-          {{ "pamActivateWithin" | i18n: (r.leaseNotAfter | remainingTime: nowMs()) }}
-        </span>
+      @if (canStart()) {
+        @if (request(); as r) {
+          <span class="tw-ms-auto tw-text-xs tw-text-muted">
+            {{ "pamActivateWithin" | i18n: (r.leaseNotAfter | remainingTime: nowMs()) }}
+          </span>
+        }
+      }
+      @if (canDecide()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="danger"
+          class="tw-ms-auto"
+          id="access-request-dialog_button_deny"
+          [disabled]="deciding()"
+          (click)="decide('deny')"
+        >
+          {{ "pamInboxDeny" | i18n }}
+        </button>
       }
     }
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      bitDialogClose
-      id="access-request-dialog_button_close"
-      [class.tw-ms-auto]="!canStart()"
-    >
-      {{ "close" | i18n }}
-    </button>
   </ng-container>
 </bit-dialog>

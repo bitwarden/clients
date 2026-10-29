@@ -11,6 +11,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { filter } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -21,11 +22,13 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
   ButtonModule,
+  CalloutModule,
   CardComponent,
   DIALOG_DATA,
   DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
   StatusLockupComponent,
   SvgComponent,
   ToastService,
@@ -43,6 +46,7 @@ import {
   relativeStart,
 } from "../..";
 import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
+import type { AccessBadgeState } from "../../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
@@ -51,16 +55,22 @@ import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
 import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
 import { emptyResolvedNames, organizationNameFor } from "../access-name-resolver.service";
-import { historyDisplayStatus, lapsedGrantBadge } from "../my-access-row";
+import { TerminalStatusBadge, historyDisplayStatus, lapsedGrantBadge } from "../my-access-row";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 
-const DECISION_LABEL_KEYS = {
-  approved: "pamStatusApproved",
-  denied: "pamStatusDenied",
-  endedByHolder: "pamAuditKindAccessEndedByRequester",
-  revoked: "pamAuditKindAccessRevoked",
-} as const;
+/** What the item card badges with: the shared access pill, or a plain terminal-status chip. */
+type DialogBadge = {
+  readonly badgeState: AccessBadgeState | null;
+  readonly statusBadge: TerminalStatusBadge | null;
+};
+
+/**
+ * Shared instances, since `badge` recomputes on the clock and a fresh object each tick would
+ * restart the pill's own countdown.
+ */
+const READY_BADGE: DialogBadge = { badgeState: { kind: "ready" }, statusBadge: null };
+const LAPSED_BADGE: DialogBadge = { badgeState: null, statusBadge: lapsedGrantBadge };
 
 export type AccessRequestDialogParams = {
   /**
@@ -84,8 +94,11 @@ export type AccessRequestDialogParams = {
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
+    CalloutModule,
     CardComponent,
     DialogModule,
+    FormFieldModule,
+    ReactiveFormsModule,
     StatusLockupComponent,
     SvgComponent,
     TypographyModule,
@@ -155,14 +168,32 @@ export class AccessRequestDialogComponent implements OnInit {
   protected readonly withdrawing = signal(false);
   protected readonly revoking = signal(false);
 
+  /** The activation deadline as a number, parsed once per request rather than per reader. */
+  private readonly leaseNotAfterMs = computed(() => {
+    const request = this.request();
+    return request == null ? null : Date.parse(request.leaseNotAfter);
+  });
+
   protected readonly badge = computed(() => {
     const request = this.request();
     if (request == null) {
       return null;
     }
-    return isUnstartedApproval(request) && Date.parse(request.leaseNotAfter) <= this.nowMs()
-      ? { badgeState: null, statusBadge: lapsedGrantBadge }
-      : historyDisplayStatus(request);
+    // A running lease badges as its own countdown, which escalates to "ending soon" on the
+    // threshold the pill owns — so the dialog never has to name either state itself.
+    const endsAt = this.leaseEndsAt();
+    if (endsAt != null) {
+      return {
+        badgeState: { kind: "active", expiresAt: new Date(endsAt) } as const,
+        statusBadge: null,
+      };
+    }
+    if (isUnstartedApproval(request)) {
+      // An approval still inside its window badges "Ready to use" on both sides of the dialog.
+      // The tables keep saying "Approved" to an approver, who has nothing to use themselves.
+      return (this.leaseNotAfterMs() ?? 0) <= this.nowMs() ? LAPSED_BADGE : READY_BADGE;
+    }
+    return historyDisplayStatus(request);
   });
 
   protected readonly duration = computed(() => {
@@ -194,36 +225,51 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected readonly requesterEmail = computed(() => this.request()?.requesterEmail ?? null);
 
-  /** The recorded decisions as a view model, oldest first (as the server returns them). */
-  protected readonly decisions = computed(() => {
+  /**
+   * The decision that resolved the request, as the "Decision" card reads it: who decided, how to
+   * reach them, and any note they left. The full log stays in the audit trail; this names only the
+   * outcome the viewer is looking at. Null until something has been decided.
+   */
+  protected readonly decisionSummary = computed(() => {
     const request = this.request();
     if (request == null) {
-      return [];
+      return null;
     }
-    return request.decisions.map((decision) => {
-      const approver = humanApprover(decision);
-      const denied = decision.verdict === "deny";
-      // A Deny on a request that didn't end Denied is a lease end; revoke and self-end record
-      // their reason as Deny.
-      const leaseEnd = denied && request.status !== "denied";
-      const outcome = !denied
-        ? "approved"
-        : !leaseEnd
-          ? "denied"
-          : approver?.id === request.requesterId
-            ? "endedByHolder"
-            : "revoked";
-      return {
-        automatic: decision.decider === "automatic",
-        // Null when neither field resolved; the template names that an unknown approver.
-        who: approver?.name || approver?.email || null,
-        outcome,
-        labelKey: DECISION_LABEL_KEYS[outcome],
-        comment: decision.comment,
-        decidedAt: decision.decidedAt,
-      };
-    });
+    // The resolving decision is the last the server recorded; earlier ones are superseded.
+    const decision = request.decisions.at(-1);
+    if (decision == null) {
+      return null;
+    }
+    const approver = humanApprover(decision);
+    const named = approver?.name || approver?.email || null;
+    return {
+      byLabelKey: request.status === "denied" ? "pamDecisionDeniedBy" : "pamDecisionApprovedBy",
+      who:
+        decision.decider === "automatic"
+          ? this.i18nService.t("pamResolverAccessRule")
+          : (named ?? this.i18nService.t("pamResolverUnknown")),
+      // Only worth a row of its own when it isn't already standing in as the name.
+      email: approver?.email && approver.email !== approver.name ? approver.email : null,
+      comment: decision.comment,
+    };
   });
+
+  /**
+   * The withdraw confirmation is a second face of this dialog rather than a separate one, so the
+   * item it concerns stays on screen while the approver writes the note.
+   */
+  protected readonly confirmingWithdraw = signal(false);
+
+  protected readonly withdrawReason = new FormControl("", { nonNullable: true });
+
+  private readonly withdrawReasonText = toSignal(this.withdrawReason.valueChanges, {
+    initialValue: "",
+  });
+
+  /** The server rejects a managing approver's withdrawal without a note, so the action waits. */
+  protected readonly withdrawReasonGiven = computed(
+    () => this.withdrawReasonText().trim().length > 0,
+  );
 
   protected readonly leaseActive = computed(() => this.request()?.producedLeaseStatus === "active");
 
@@ -413,15 +459,30 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   }
 
-  protected async withdrawApproval(): Promise<void> {
+  /** Turns the dialog over to its confirmation face; the withdrawal itself waits for a reason. */
+  protected withdrawApproval(): void {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
+    this.withdrawReason.setValue("");
+    this.confirmingWithdraw.set(true);
+  }
+
+  /** Returns to the request, keeping the note so re-opening the confirmation does not lose it. */
+  protected cancelWithdraw(): void {
+    this.confirmingWithdraw.set(false);
+  }
+
+  protected async confirmWithdraw(): Promise<void> {
+    if (!this.withdrawReasonGiven() || this.withdrawing()) {
+      return;
+    }
+    const reason = this.withdrawReason.value.trim();
     await this.approverActions.withdrawApproval(
-      this.cipherName() ?? "",
-      () => this.detail.withdrawApproval(),
+      () => this.detail.withdrawApproval(reason),
       (busy) => this.withdrawing.set(busy),
     );
+    this.confirmingWithdraw.set(false);
   }
 
   protected async revoke(): Promise<void> {

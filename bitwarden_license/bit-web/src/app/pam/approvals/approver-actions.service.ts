@@ -77,23 +77,11 @@ export class ApproverActionsService {
   }
 
   /**
-   * Confirm and withdraw an approval the requester has not started. The confirm names the item,
-   * so pass as `cipherName` the text the caller shows for it.
+   * Withdraws an approval the requester has not started. The caller confirms — the access request
+   * dialog does so in place, collecting the reason the server requires — so this only runs the
+   * mutation and reports it.
    */
-  async withdrawApproval(
-    cipherName: string,
-    run: () => Promise<void>,
-    busy: ApproverActionBusy,
-  ): Promise<void> {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamInboxWithdrawApproval" },
-      content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: [cipherName] },
-      acceptButtonText: { key: "pamInboxWithdrawApproval" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
+  async withdrawApproval(run: () => Promise<void>, busy: ApproverActionBusy): Promise<void> {
     await this.perform(
       run,
       busy,
