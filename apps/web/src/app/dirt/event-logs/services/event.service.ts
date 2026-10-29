@@ -1023,7 +1023,50 @@ export class EventService {
           this.getShortId(ev.userId),
         );
         break;
-
+      case EventType.Send_PolicyDisabled:
+        msg = this.i18nService.t("sendDisabledByPolicy", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "sendDisabledByPolicy",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_PolicyEnabled:
+        msg = this.i18nService.t("sendEnabledByPolicy", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "sendEnabledByPolicy",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_Item:
+        msg = this.i18nService.t("createdItemSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdItemSend",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Edited_Item:
+        msg = this.i18nService.t("editedItemSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedItemSend", this.formatSendIdText(ev, options));
+        break;
+      case EventType.Send_Deleted_Item:
+        msg = this.i18nService.t("deletedItemSend", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedItemSend",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Accessed_Item:
+        msg = this.i18nService.t(
+          "accessedItemSend",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedItemSend",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
+        break;
       default:
         break;
     }
