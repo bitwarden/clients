@@ -1,7 +1,11 @@
+import { Observable } from "rxjs";
+
 import { PinLockType, PinSettingsClient } from "@bitwarden/sdk-internal";
 
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { PIN_LENGTH } from "../state-definitions";
 import { assertParametersNonNull, withPasswordManagerSdk } from "../utils";
 
 import { PinServiceAbstraction } from "./pin.service.abstraction";
@@ -10,7 +14,10 @@ import { PinServiceAbstraction } from "./pin.service.abstraction";
  * A thin wrapper around the SDK. Pin is entirely managed in the SDK.
  */
 export class PinService implements PinServiceAbstraction {
-  constructor(private sdkService: SdkService) {}
+  constructor(
+    private sdkService: SdkService,
+    private stateProvider: StateProvider,
+  ) {}
 
   @assertParametersNonNull()
   async getPinLockType(userId: UserId): Promise<PinLockType | undefined> {
@@ -43,16 +50,27 @@ export class PinService implements PinServiceAbstraction {
 
   @assertParametersNonNull()
   async setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void> {
-    return await this.withPinSettingsClient(userId, async (client) => {
+    await this.withPinSettingsClient(userId, async (client) => {
       return await client.set_pin(pin, pinLockType);
     });
+    await this.rememberPinLength(pin, userId);
   }
 
   @assertParametersNonNull()
   async unsetPin(userId: UserId): Promise<void> {
-    return await this.withPinSettingsClient(userId, async (client) => {
+    await this.withPinSettingsClient(userId, async (client) => {
       return await client.unset_pin();
     });
+    await this.stateProvider.setUserState(PIN_LENGTH, null, userId);
+  }
+
+  pinLength$(userId: UserId): Observable<number | null> {
+    return this.stateProvider.getUserState$(PIN_LENGTH, userId);
+  }
+
+  @assertParametersNonNull()
+  async rememberPinLength(pin: string, userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(PIN_LENGTH, pin.length, userId);
   }
 
   @assertParametersNonNull()

@@ -161,6 +161,17 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
   );
 
 /**
+ * The PIN's length, so the lock screen can try the PIN as soon as that many characters are typed.
+ *
+ * @remarks Stored unencrypted: the lock screen reads it while locked. It reveals the length of
+ * the PIN, nothing else about it.
+ */
+export const PIN_LENGTH = new UserKeyDefinition<number>(PIN_DISK, "pinLength", {
+  deserializer: (jsonValue) => jsonValue,
+  clearOn: ["logout"],
+});
+
+/**
  * The PIN, encrypted by the UserKey.
  */
 export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncString>(

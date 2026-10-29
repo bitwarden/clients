@@ -1636,7 +1636,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PinServiceAbstraction,
     useClass: PinService,
-    deps: [SdkService],
+    deps: [SdkService, StateProvider],
   }),
   safeProvider({
     provide: WebAuthnLoginPrfKeyServiceAbstraction,

@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { PinLockType } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
@@ -60,4 +62,14 @@ export abstract class PinServiceAbstraction {
    * @throws If the pin lock type is ephemeral but the ephemeral pin protected user key envelope is not available
    */
   abstract validatePin(pin: string, userId: UserId): Promise<boolean>;
+
+  /**
+   * The length of the user's PIN, if known: saved when the PIN is set, and when it unlocks.
+   */
+  abstract pinLength$(userId: UserId): Observable<number | null>;
+
+  /**
+   * Saves the length of `pin`, e.g. after it unlocked, for PINs set before lengths were saved.
+   */
+  abstract rememberPinLength(pin: string, userId: UserId): Promise<void>;
 }

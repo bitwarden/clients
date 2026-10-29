@@ -1042,7 +1042,7 @@ export default class MainBackground {
       this.logService,
     );
 
-    this.pinService = new PinService(this.sdkService);
+    this.pinService = new PinService(this.sdkService, this.stateProvider);
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);

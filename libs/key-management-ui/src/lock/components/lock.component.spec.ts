@@ -16,6 +16,7 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -88,6 +89,7 @@ describe("LockComponent", () => {
   const mockUnlockService = mock<UnlockService>();
   const mockWebAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
   const mockEncryptedMigrator = mock<EncryptedMigrator>();
+  const mockPinService = mock<PinServiceAbstraction>();
   const mockActivatedRoute = {
     snapshot: {
       paramMap: {
@@ -156,6 +158,7 @@ describe("LockComponent", () => {
         { provide: WebAuthnPrfUnlockService, useValue: mockWebAuthnPrfUnlockService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: EncryptedMigrator, useValue: mockEncryptedMigrator },
+        { provide: PinServiceAbstraction, useValue: mockPinService },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
@@ -163,6 +166,59 @@ describe("LockComponent", () => {
 
     fixture = TestBed.createComponent(LockComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("PIN length", () => {
+    const form = () => ({ requestSubmit: jest.fn() }) as unknown as HTMLFormElement;
+
+    beforeEach(() => {
+      component.activeAccount = { id: userId } as any;
+      mockPinService.pinLength$.mockReturnValue(of(4));
+    });
+
+    it("tries the PIN once it has the saved PIN's length", async () => {
+      const pinForm = form();
+
+      await component["tryPinWhenComplete"]("1234", pinForm);
+
+      expect(pinForm.requestSubmit).toHaveBeenCalled();
+    });
+
+    it("waits while the PIN is shorter or longer than the saved length", async () => {
+      const pinForm = form();
+
+      await component["tryPinWhenComplete"]("123", pinForm);
+      await component["tryPinWhenComplete"]("12345", pinForm);
+
+      expect(pinForm.requestSubmit).not.toHaveBeenCalled();
+    });
+
+    it("waits for the Unlock button when no length is saved", async () => {
+      mockPinService.pinLength$.mockReturnValue(of(null));
+      const pinForm = form();
+
+      await component["tryPinWhenComplete"]("1234", pinForm);
+
+      expect(pinForm.requestSubmit).not.toHaveBeenCalled();
+    });
+
+    it("saves the PIN's length after it unlocks", async () => {
+      component.formGroup = new FormBuilder().group({ pin: ["123456"] });
+      mockUnlockService.unlockWithPin.mockResolvedValue(undefined);
+
+      await component["unlockViaPin"]();
+
+      expect(mockPinService.rememberPinLength).toHaveBeenCalledWith("123456", userId);
+    });
+
+    it("does not save the length of a wrong PIN", async () => {
+      component.formGroup = new FormBuilder().group({ pin: ["9999"] });
+      mockUnlockService.unlockWithPin.mockRejectedValue(new Error("wrong PIN"));
+
+      await component["unlockViaPin"]();
+
+      expect(mockPinService.rememberPinLength).not.toHaveBeenCalled();
+    });
   });
 
   describe("unlocked$", () => {

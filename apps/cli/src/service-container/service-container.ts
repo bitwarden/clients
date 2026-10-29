@@ -796,7 +796,7 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    this.pinService = new PinService(this.sdkService);
+    this.pinService = new PinService(this.sdkService, this.stateProvider);
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
