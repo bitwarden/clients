@@ -653,6 +653,32 @@ describe("Cipher Service", () => {
 
         expect(result).toEqual([normalListView, partialListView]);
       });
+
+      it("keeps list views decrypted after a cache clear that finishes late", async () => {
+        const emitted: unknown[] = [];
+        const subscription = cipherService
+          .cipherListViewsIncludingRestricted$(mockUserId)
+          .subscribe((views) => emitted.push(views));
+        await new Promise((resolve) => setTimeout(resolve));
+
+        // Clearing writes state first, which is slow while the background is busy decrypting.
+        let finishStateClear!: () => void;
+        jest
+          .spyOn(cipherService as any, "clearDecryptedCiphersState")
+          .mockReturnValue(new Promise<void>((resolve) => (finishStateClear = resolve)));
+        const clearing = cipherService.clearCache(mockUserId);
+
+        // A decrypt of the latest ciphers completes while the clear is still running.
+        stateProvider.singleUser
+          .getFake(mockUserId, ENCRYPTED_CIPHERS)
+          .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
+        await new Promise((resolve) => setTimeout(resolve));
+        finishStateClear();
+        await clearing;
+
+        expect(emitted.at(-1)).toEqual([normalListView, partialListView]);
+        subscription.unsubscribe();
+      });
     });
 
     it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {

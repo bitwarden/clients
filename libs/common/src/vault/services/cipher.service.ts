@@ -262,10 +262,12 @@ export class CipherService implements CipherServiceAbstraction {
   async clearCache(userId?: UserId): Promise<void> {
     const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
     userId ??= activeUserId;
-    await this.clearDecryptedCiphersState(userId);
 
-    // Force the cached cipherView$ observable(s) to emit a null value
+    // Force the cached cipherView$ observable(s) to emit a null value. Before the state write
+    // below: a decrypt that finishes while it runs must not be overwritten by the null after,
+    // which would leave the views null until the ciphers change again.
     this.clearCipherViewsForUser$.next(userId);
+    await this.clearDecryptedCiphersState(userId);
   }
 
   /**
