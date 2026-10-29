@@ -58,6 +58,14 @@ export class DefaultFillCipherPolicy implements FillCipherPolicy {
     return (await this.cipherService.getNextCipherForUrl(url, userId)) ?? undefined;
   }
 
+  async nextCardCipher(userId: UserId): Promise<CipherView | undefined> {
+    return (await this.cipherService.getNextCardCipher(userId)) ?? undefined;
+  }
+
+  async nextIdentityCipher(userId: UserId): Promise<CipherView | undefined> {
+    return (await this.cipherService.getNextIdentityCipher(userId)) ?? undefined;
+  }
+
   advanceRotation(url: string): void {
     this.cipherService.updateLastUsedIndexForUrl(url);
   }
