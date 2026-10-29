@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -20,7 +28,6 @@ import {
   TypographyModule,
   CalloutComponent,
   LinkModule,
-  TooltipDirective,
 } from "@bitwarden/components";
 
 export interface AutofillConfirmationDialogParams {
@@ -48,6 +55,15 @@ const FULL_URI_MATCH_STRATEGIES = [
 
 @Component({
   templateUrl: "./autofill-confirmation-dialog.component.html",
+  // URI rows scroll horizontally in sync without showing a scrollbar
+  styles: `
+    [data-hidden-scrollbar] {
+      scrollbar-width: none;
+    }
+    [data-hidden-scrollbar]::-webkit-scrollbar {
+      display: none;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BadgeComponent,
@@ -58,7 +74,6 @@ const FULL_URI_MATCH_STRATEGIES = [
     LinkModule,
     TypographyModule,
     JslibModule,
-    TooltipDirective,
   ],
 })
 export class AutofillConfirmationDialogComponent {
@@ -74,6 +89,9 @@ export class AutofillConfirmationDialogComponent {
   readonly savedUrls = signal<LoginUriView[]>(this.params.savedUris ?? []);
 
   readonly currentUrl = signal<string>(this.params.currentUrl);
+
+  private readonly uriScrollers = viewChildren<ElementRef<HTMLElement>>("uriScroller");
+  private readonly sharedUriScrollLeft = signal(0);
 
   /**
    * When any of the saved URIs contain a `FULL_URI_MATCH_STRATEGIES` setting,
@@ -150,6 +168,21 @@ export class AutofillConfirmationDialogComponent {
          after:tw-content-[''] after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0
          after:tw-h-8 after:tw-bg-gradient-to-t after:tw-from-background after:tw-to-transparent`,
   );
+
+  /** Scrolls all URI rows together; shorter rows stay clamped at their end until the offset returns. */
+  syncUriScroll(source: HTMLElement) {
+    const expected = Math.min(this.sharedUriScrollLeft(), source.scrollWidth - source.clientWidth);
+    // Ignore scroll events triggered by our own sync (the row was clamped to its max)
+    if (Math.abs(source.scrollLeft - expected) < 1) {
+      return;
+    }
+    this.sharedUriScrollLeft.set(source.scrollLeft);
+    for (const { nativeElement } of this.uriScrollers()) {
+      if (nativeElement !== source) {
+        nativeElement.scrollLeft = source.scrollLeft;
+      }
+    }
+  }
 
   toggleSavedUrlExpandedState() {
     this.savedUrlsExpanded.update((v) => !v);
