@@ -82,7 +82,7 @@
     "@storybook/addon-links": "10.6.0",
     "@storybook/addon-themes": "10.6.0",
     "@storybook/angular": "10.6.0",
-    "@storybook/test-runner": "0.24.4",
+    "@storybook/test-runner": "0.26.0",
     "@storybook/web-components-vite": "10.6.0",
     "@tailwindcss/container-queries": "0.1.1",
     "@types/chrome": "0.1.28",
