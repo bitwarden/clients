@@ -598,7 +598,6 @@ describe("VaultItemDialogComponent", () => {
       });
 
       it("switches to view mode after a failed save left the decrypted cache empty", async () => {
-        // A failed save clears the cache, and cipherView$ then never emits.
         cipherServiceMock.cipherView$.mockReturnValue(NEVER);
         cipherServiceMock.get.mockResolvedValue({ id: "cipher-id" } as unknown as Cipher);
         cipherServiceMock.decrypt.mockResolvedValue({ id: "cipher-id" } as any);

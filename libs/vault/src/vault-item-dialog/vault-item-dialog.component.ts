@@ -125,7 +125,7 @@ export const VaultItemDialogResult = {
   Saved: "saved",
 
   /**
-   * A cipher was deleted, from this dialog or elsewhere, or the user lost access to it.
+   * A cipher was deleted from this dialog, permanently deleted elsewhere, or the user lost access to it.
    */
   Deleted: "deleted",
 
@@ -382,8 +382,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The id of the cipher kept in sync with local state, so a background sync refreshes the dialog.
-   * Unset for new and restricted ciphers, and admin console ciphers loaded from the admin API.
+   * The id of the cipher kept in sync with local state. Unset until {@link followLocalState} accepts
+   * one.
    */
   private readonly syncedCipherId$ = new BehaviorSubject<CipherId | undefined>(undefined);
 
@@ -927,7 +927,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       if (this.deleting || (await this.cipherService.get(cipherId, userId)) != null) {
         return;
       }
-      // Deleted elsewhere, or the user lost access to it.
+      // Permanently deleted elsewhere, or the user lost access to it.
       this._cipherModified = false;
       await this.dialogRef.close(VaultItemDialogResult.Deleted);
       return;
