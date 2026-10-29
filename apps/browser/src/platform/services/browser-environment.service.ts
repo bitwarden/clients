@@ -79,5 +79,8 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
       notifications: env.notifications,
       events: env.events,
     });
+    // setEnvironment replaces the whole state, so apply the SSO-only flag after it. Coerce
+    // defensively: a boolean schema value arrives as `true`, but a registry DWORD may surface as 1.
+    await this.setSsoOnly(env.ssoOnly === true || (env.ssoOnly as unknown) === 1);
   }
 }
