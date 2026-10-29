@@ -587,6 +587,26 @@ describe("VaultItemDialogComponent", () => {
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 
+      it("keeps an admin's original cipher from the admin API", async () => {
+        const adminCipher = {
+          id: "cipher-id",
+          edit: true,
+          viewPassword: true,
+        } as unknown as Cipher;
+        component.setTestFormConfig({ mode: "edit", admin: true, originalCipher: adminCipher });
+        cipherServiceMock.get.mockResolvedValue({
+          id: "cipher-id",
+          edit: false,
+          viewPassword: false,
+        } as unknown as Cipher);
+        cipherServiceMock.decrypt.mockResolvedValue({ id: "cipher-id" } as any);
+
+        await component.cancel();
+
+        expect(component["formConfig"].originalCipher).toBe(adminCipher);
+        expect((component as any).changeMode).toHaveBeenCalledWith("view");
+      });
+
       it("leaves the existing cipher in place when local state has no cipher", async () => {
         const originalCipher = component["cipher"];
         cipherServiceMock.get.mockResolvedValue(null);

@@ -762,7 +762,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           : await this.cipherService.decrypt(storedCipher, activeUserId);
       if (latestCipher != null && !latestCipher.decryptionFailure) {
         this.cipher = latestCipher;
-        this.formConfig.originalCipher = storedCipher;
+        // An admin's original cipher comes from the admin API, which grants permissions the
+        // member's local copy may lack.
+        if (!this.formConfig.admin) {
+          this.formConfig.originalCipher = storedCipher;
+        }
       }
     }
 
