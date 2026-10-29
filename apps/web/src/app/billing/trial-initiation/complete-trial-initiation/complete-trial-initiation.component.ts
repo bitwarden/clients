@@ -3,7 +3,7 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { combineLatest, firstValueFrom } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -70,8 +70,9 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** True when PAM billing support is enabled */
-  pamBillingSupportEnabled = false;
+  /** Both the PAM-billing and preview-cart flags are on. PC is only offered when the preview
+   * cart — the only path that prices it — is available, so the shown total matches the charge. */
+  private privilegedControlsAvailable = false;
 
   /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
   includesPrivilegedControls = false;
@@ -121,13 +122,15 @@ export class CompleteTrialInitiationComponent {
       this.applyParams(this.params);
     });
 
-    // The flag only drives Privileged Controls eligibility; keep it off the one-time param
+    // The flags only drive Privileged Controls eligibility; keep them off the one-time param
     // side effects (toast, sponsorship), which a cold config (false → true) would otherwise replay.
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PamBillingSupport)
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
+      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
+    ])
       .pipe(takeUntilDestroyed())
-      .subscribe((pamBillingSupportEnabled) => {
-        this.pamBillingSupportEnabled = pamBillingSupportEnabled;
+      .subscribe(([pamBillingSupport, previewDrivenCart]) => {
+        this.privilegedControlsAvailable = pamBillingSupport && previewDrivenCart;
         this.includesPrivilegedControls = this.params
           ? this.shouldIncludePrivilegedControls(this.params)
           : false;
@@ -428,7 +431,7 @@ export class CompleteTrialInitiationComponent {
     // Privileged Controls is only available for Enterprise Password Manager trials
 
     return (
-      this.pamBillingSupportEnabled &&
+      this.privilegedControlsAvailable &&
       this.product === ProductType.PasswordManager &&
       params.productTier === ProductTierType.Enterprise &&
       params.privilegedControlsRequested

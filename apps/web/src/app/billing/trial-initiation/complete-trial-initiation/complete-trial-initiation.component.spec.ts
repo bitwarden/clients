@@ -11,6 +11,7 @@ import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { InitiationPath, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -32,6 +33,7 @@ describe("CompleteTrialInitiationComponent", () => {
   let mockOrganizationBillingService: MockProxy<OrganizationBillingServiceAbstraction>;
   let mockAccountService: MockProxy<AccountService>;
   let pamBillingSupport$: BehaviorSubject<boolean>;
+  let previewDrivenCart$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     mockRouter = mock<Router>();
@@ -46,9 +48,13 @@ describe("CompleteTrialInitiationComponent", () => {
     // Mock activeAccount$ to return a valid user ID
     mockAccountService.activeAccount$ = of({ id: "user-id-123" } as any);
 
-    // The PAM billing-support flag, controllable per test. Defaults to off.
+    // Feature flags, controllable per test. PAM billing-support defaults off; the preview-cart
+    // flag defaults on, so tests that only toggle PAM see Privileged Controls follow PAM.
     pamBillingSupport$ = new BehaviorSubject<boolean>(false);
-    mockConfigService.getFeatureFlag$.mockReturnValue(pamBillingSupport$);
+    previewDrivenCart$ = new BehaviorSubject<boolean>(true);
+    mockConfigService.getFeatureFlag$.mockImplementation((key) =>
+      key === FeatureFlag.PamBillingSupport ? pamBillingSupport$ : previewDrivenCart$,
+    );
 
     await TestBed.configureTestingModule({
       declarations: [CompleteTrialInitiationComponent],
@@ -370,6 +376,20 @@ describe("CompleteTrialInitiationComponent", () => {
         product: "0,2",
         productTier: ProductTierType.Enterprise,
       });
+      expect(component.product).toBe(ProductType.PasswordManager);
+      expect(component.includesPrivilegedControls).toBe(false);
+    });
+
+    it("excludes Privileged Controls when the preview-cart flag is off even if PAM is on", () => {
+      // Without the preview cart, pricing would come from the legacy endpoint that ignores PC,
+      // so PC must not be offered or charged.
+      previewDrivenCart$.next(false);
+      pamBillingSupport$.next(true);
+      mockActivatedRoute.queryParams.next({
+        product: "0,2",
+        productTier: ProductTierType.Enterprise,
+      });
+
       expect(component.product).toBe(ProductType.PasswordManager);
       expect(component.includesPrivilegedControls).toBe(false);
     });
