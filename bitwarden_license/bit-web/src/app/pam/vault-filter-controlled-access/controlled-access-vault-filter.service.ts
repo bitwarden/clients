@@ -23,7 +23,6 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { MY_REQUESTS_FILTER_ID, PRIVILEGED_FILTER_ID } from "@bitwarden/vault";
 import {
   ACTIVE_FILTER_ID,
   MY_REQUESTS_FILTER_ID,
