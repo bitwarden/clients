@@ -90,64 +90,64 @@ describe("TabsBackground", () => {
       jest.useRealTimers();
     });
 
-    /** Emits the replay that the subscription skips, then waits out the debounce. */
-    const replay = async (id: UserId) => {
-      changed[id].next();
-      await jest.advanceTimersByTimeAsync(100);
-    };
+    const settle = () => jest.advanceTimersByTimeAsync(0);
 
-    it("does not refresh on the replay when it subscribes", async () => {
-      await replay(userId);
-
-      expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
-      expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
-    });
-
-    it("refreshes the context menu and all inline menu ciphers once per burst of changes", async () => {
-      await replay(userId);
-
+    it("refreshes the context menu and all inline menu ciphers on the first emission", async () => {
       changed[userId].next();
-      changed[userId].next();
-      await jest.advanceTimersByTimeAsync(100);
+      await settle();
 
       expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(1);
       expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalledTimes(1);
       expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalledWith();
     });
 
+    it("refreshes once for the emissions of one tick", async () => {
+      changed[userId].next();
+      changed[userId].next();
+      await settle();
+
+      expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(1);
+      expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalledTimes(1);
+    });
+
+    it("refreshes again for a later change", async () => {
+      changed[userId].next();
+      await settle();
+      changed[userId].next();
+      await settle();
+
+      expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(2);
+      expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalledTimes(2);
+    });
+
     it("follows the active account", async () => {
-      await replay(userId);
       activeAccount$.next({ id: otherUserId } as Account);
-      await replay(otherUserId);
 
       changed[userId].next();
-      await jest.advanceTimersByTimeAsync(100);
+      await settle();
       expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
 
       changed[otherUserId].next();
-      await jest.advanceTimersByTimeAsync(100);
+      await settle();
       expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(1);
     });
 
     it("drops a change pending when the user locks", async () => {
-      await replay(userId);
-
       changed[userId].next();
       authStatuses$.next({ [userId]: AuthenticationStatus.Locked });
-      await jest.advanceTimersByTimeAsync(100);
+      await settle();
 
       expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
       expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
     });
 
     it("keeps refreshing after a refresh fails", async () => {
-      await replay(userId);
       mainBackground.refreshMenu.mockRejectedValueOnce(new Error("failed"));
 
       changed[userId].next();
-      await jest.advanceTimersByTimeAsync(100);
+      await settle();
       changed[userId].next();
-      await jest.advanceTimersByTimeAsync(100);
+      await settle();
 
       expect(mainBackground.logService.error).toHaveBeenCalledTimes(1);
       expect(mainBackground.refreshMenu).toHaveBeenCalledTimes(2);

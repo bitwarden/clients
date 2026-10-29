@@ -35,9 +35,9 @@ export class PamFillCipherPolicy extends DefaultFillCipherPolicy {
 
   override changed$(userId: UserId): Observable<void> {
     return merge(
-      this.cipherService.ciphers$(userId),
-      this.revealedCipherService.revealed$(userId),
-    ).pipe(map((): void => undefined));
+      super.changed$(userId),
+      this.revealedCipherService.revealed$(userId).pipe(map((): void => undefined)),
+    );
   }
 
   override async ciphers(userId: UserId, use: CipherUse): Promise<CipherView[]> {
