@@ -499,8 +499,11 @@ export function collectionMenuTargetForScope(
   collections: readonly CollectionView[],
   organizations: readonly Organization[],
 ): CollectionMenuTarget | undefined {
+  if (scope.type !== VaultScopeType.Organization) {
+    return undefined;
+  }
   const collectionId = scopedSharedFolderId(scope);
-  if (collectionId == null || !isGuid(collectionId) || scope.type !== VaultScopeType.Organization) {
+  if (collectionId == null || !isGuid(collectionId)) {
     return undefined;
   }
 
