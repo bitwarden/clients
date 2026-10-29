@@ -30,7 +30,6 @@ import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
-import { MessageSender } from "../../platform/messaging";
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
@@ -97,7 +96,6 @@ export class CipherService implements CipherServiceAbstraction {
     private accountService: AccountService,
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
-    private messageSender: MessageSender,
     private cipherSdkService: CipherSdkService,
   ) {}
 
@@ -114,8 +112,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   /**
    * Decrypted views including restricted ciphers, for derived streams to keep or drop.
-   * Keep this the only full-view decrypt subscription so decryption, the decrypted-cipher cache
-   * and the overlay refresh run once.
+   * Keep this the only full-view decrypt subscription so decryption and the decrypted-cipher cache
+   * run once.
    */
   private cipherViewsIncludingRestricted$ = perUserCache$(
     (userId: UserId): Observable<CipherView[] | null> => {
@@ -126,9 +124,6 @@ export class CipherService implements CipherServiceAbstraction {
       ]).pipe(
         filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
         switchMap(() => this.getAllDecryptedIncludingRestricted(userId)),
-        tap(() => {
-          this.messageSender.send("updateOverlayCiphers");
-        }),
       );
     },
     this.clearCipherViewsForUser$,
