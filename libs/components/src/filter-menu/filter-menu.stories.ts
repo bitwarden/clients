@@ -432,7 +432,30 @@ const searchForPlay =
   };
 
 /**
- * No option matches the search term. The in-menu search needs more than ten options.
+ * `searchable` shows the in-menu search on a chip with ten or fewer options.
+ */
+export const Searchable: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+        <bit-filter-menu key="status" placeholderText="Status" multiple searchable>
+          <bit-filter-option [value]="'invited'" [count]="4">Invited</bit-filter-option>
+          <bit-filter-option [value]="'accepted'" [count]="4">Needs confirmation</bit-filter-option>
+          <bit-filter-option [value]="'confirmed'" [count]="60">Active</bit-filter-option>
+        </bit-filter-menu>
+      </div>
+    `,
+  }),
+  play: async (context) => {
+    // The search only exists while the menu is open, so open it for the snapshot.
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
+  },
+};
+
+/**
+ * No option matches the search term. Without `searchable`, the in-menu search needs more than ten
+ * options.
  */
 export const NoMatchingItems: Story = {
   render: () => ({

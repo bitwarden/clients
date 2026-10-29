@@ -42,7 +42,7 @@
       {{ "inviteMember" | i18n }}
     </button>
 
-    <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple>
+    <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple searchable>
       @if (hasStagedMembers()) {
         <bit-filter-option [value]="userStatusType.Staged">{{ "staged" | i18n }}</bit-filter-option>
       }
@@ -68,6 +68,7 @@
         icon="bwi-users"
         [placeholderText]="'groups' | i18n"
         multiple
+        searchable
       >
         @for (name of groupNames(); track name) {
           <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
@@ -79,6 +80,7 @@
         icon="bwi-collection-shared"
         [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
         multiple
+        searchable
       >
         @for (name of collectionNames(); track name) {
           <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
