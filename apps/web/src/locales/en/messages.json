@@ -19784,6 +19784,15 @@
   "pamAuditNoMatchesMessage": {
     "message": "No events match the current filters."
   },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Choose a date within the last $DAYS$ days.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
   "pamAuditColumnEvent": {
     "message": "Event"
   },
