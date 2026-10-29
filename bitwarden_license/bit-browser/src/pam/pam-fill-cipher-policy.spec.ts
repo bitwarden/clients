@@ -6,7 +6,6 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { PamFillCipherPolicy } from "./pam-fill-cipher-policy";
@@ -42,12 +41,13 @@ describe("PamFillCipherPolicy", () => {
   });
 
   describe("changed$", () => {
-    it("emits for stored cipher changes and revealed view changes", async () => {
-      const ciphers$ = new Subject<Record<CipherId, CipherData>>();
-      cipherService.ciphers$.mockReturnValue(ciphers$);
+    it("emits for decrypted stored cipher changes and revealed view changes", async () => {
+      const cipherViews$ = new Subject<CipherView[] | null>();
+      cipherService.cipherViews$.mockReturnValue(cipherViews$);
 
       const emitted = firstValueFrom(policy.changed$(userId).pipe(take(3), toArray()));
-      ciphers$.next({});
+      cipherViews$.next(null);
+      cipherViews$.next([view("stored")]);
       reveal(view("revealed"));
 
       expect(await emitted).toEqual([undefined, undefined, undefined]);
