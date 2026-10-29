@@ -1,6 +1,7 @@
 import { createPromptModule } from "inquirer";
 import { mock } from "jest-mock-extended";
 
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -23,7 +24,7 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
   const keyConnectorUrl = "https://keyconnector.example.com";
 
   const keyConnectorService = mock<KeyConnectorService>();
-  const logout = jest.fn();
+  const logoutService = mock<LogoutService>();
   const i18nService = mock<I18nService>();
 
   beforeEach(async () => {
@@ -31,7 +32,7 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
       userId,
       keyConnectorUrl,
       keyConnectorService,
-      logout,
+      logoutService,
       i18nService,
     );
 
@@ -69,7 +70,7 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
           ),
         ),
       );
-      expect(logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorRequiresInteraction");
     });
 
     it("should logout and return error response if interaction answer is cancel", async () => {
@@ -87,7 +88,7 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
       expect(response).not.toBeNull();
       expect(response.success).toEqual(false);
       expect(response).toEqual(Response.error("You have been logged out."));
-      expect(logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "userInitiated");
     });
 
     it("should convert new sso user to key connector and return success response if answer is confirmed", async () => {
@@ -122,7 +123,7 @@ describe("ConfirmKeyConnectorDomainCommand", () => {
       );
 
       await expect(command.run()).rejects.toThrow("Migration failed");
-      expect(logout).toHaveBeenCalled();
+      expect(logoutService.logout).toHaveBeenCalledWith(userId, "keyConnectorError");
     });
 
     function assertPrompt(prompt: unknown) {

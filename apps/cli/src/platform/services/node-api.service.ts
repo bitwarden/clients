@@ -5,6 +5,7 @@ import * as fe from "node-fetch";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -26,7 +27,7 @@ export class NodeApiService extends ApiService {
     appIdService: AppIdService,
     refreshAccessTokenErrorCallback: () => Promise<void>,
     logService: LogService,
-    logoutCallback: () => Promise<void>,
+    logoutService: LogoutService,
     vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     accountService: AccountService,
     customUserAgent: string = null,
@@ -38,7 +39,7 @@ export class NodeApiService extends ApiService {
       appIdService,
       refreshAccessTokenErrorCallback,
       logService,
-      logoutCallback,
+      logoutService,
       vaultTimeoutSettingsService,
       accountService,
       { createRequest: (url, request) => new Request(url, request) },
