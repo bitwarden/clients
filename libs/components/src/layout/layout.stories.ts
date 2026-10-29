@@ -114,7 +114,7 @@ export const StickyHeaderAndFooterVfo1: Story = {
             icon="bwi-up-down-btn"
           ></bit-nav-item>
           @for (item of items; track item) {
-          <bit-nav-item text="Collection {{ item }}" icon="bwi-collection"></bit-nav-item>
+          <bit-nav-item text="Shared folder {{ item }}" icon="bwi-shared-folder"></bit-nav-item>
           }
           <bit-nav-item slot="account" text="My account" icon="bwi-user"></bit-nav-item>
         </bit-side-nav>
@@ -234,7 +234,7 @@ export const BannerAndHeader: Story = {
       <bit-layout>
         <bit-side-nav>
           <bit-nav-item text="Members" icon="bwi-user" [route]="['members']"></bit-nav-item>
-          <bit-nav-item text="Groups" icon="bwi-collection" [route]="['groups']"></bit-nav-item>
+          <bit-nav-item text="Groups" icon="bwi-shared-folder" [route]="['groups']"></bit-nav-item>
         </bit-side-nav>
         <bit-banner> This organization is being accessed by a provider. </bit-banner>
         <div>

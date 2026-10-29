@@ -285,22 +285,22 @@ const Template: Story = {
             <bit-nav-item text="Export"></bit-nav-item>
           </bit-nav-group>
           <bit-nav-group text="Organizations" icon="bwi-business" [open]="true">
-            <bit-nav-item text="Acme Corp" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Acme Corp" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-item text="Acme Corp — Vault"></bit-nav-item>
             <bit-nav-item text="Acme Corp — Members"></bit-nav-item>
             <bit-nav-item text="Acme Corp — Settings"></bit-nav-item>
-            <bit-nav-item text="My Family" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="My Family" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-item text="My Family — Vault"></bit-nav-item>
             <bit-nav-item text="My Family — Members"></bit-nav-item>
-            <bit-nav-item text="Initech" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Initech" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-item text="Initech — Vault"></bit-nav-item>
             <bit-nav-item text="Initech — Members"></bit-nav-item>
             <bit-nav-item text="Initech — Settings"></bit-nav-item>
-            <bit-nav-item text="Umbrella Corp" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp — Vault"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp — Members"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp — Settings"></bit-nav-item>
-            <bit-nav-item text="Stark Industries" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Stark Industries" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-item text="Stark Industries — Vault"></bit-nav-item>
             <bit-nav-item text="Stark Industries — Members"></bit-nav-item>
             <bit-nav-item text="Stark Industries — Settings"></bit-nav-item>
@@ -388,11 +388,11 @@ const RealisticTemplate: StoryObj<
           <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
           <bit-nav-group text="All items" route="all" [open]="true">
 
-            <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
+            <bit-nav-group text="Engineering" icon="bwi-shared-folder" route="eng">
               <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
               <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
             </bit-nav-group>
-            <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
+            <bit-nav-group text="Operations" icon="bwi-shared-folder" route="ops">
               <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
               <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
             </bit-nav-group>
@@ -445,7 +445,7 @@ export const RealisticSideNavV2: Story = {
             <bit-icon-tile icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
             <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
             <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
-            <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Shared folders" route="shared" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-section icon="bwi-pin" label="Pinned">
               <bit-nav-group text="Engineering" route="eng">
                 <bit-nav-item text="Frontend" route="eng-fe" icon="bwi-desktop"></bit-nav-item>
@@ -455,7 +455,7 @@ export const RealisticSideNavV2: Story = {
                   <bit-nav-item text="Another thing nested" route="eng-nested-b"></bit-nav-item>
                 </bit-nav-group>
               </bit-nav-group>
-              <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
+              <bit-nav-group text="Operations" icon="bwi-shared-folder" route="ops">
                 <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
                 <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
               </bit-nav-group>
@@ -519,13 +519,13 @@ export const RealisticSideNavV2CollapsedAccount: Story = {
             <bit-icon-tile icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
             <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
             <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
-            <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-item text="Shared folders" route="shared" icon="bwi-shared-folder"></bit-nav-item>
             <bit-nav-section icon="bwi-pin" label="Pinned">
-              <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
+              <bit-nav-group text="Engineering" icon="bwi-shared-folder" route="eng">
                 <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
                 <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
               </bit-nav-group>
-              <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
+              <bit-nav-group text="Operations" icon="bwi-shared-folder" route="ops">
                 <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
                 <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
               </bit-nav-group>
