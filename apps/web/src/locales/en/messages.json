@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "No items match selected filters"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
+  },
   "noItemsMatchSearchTerm": {
     "message": "No items match \"$SEARCH_TERM$\"",
     "placeholders": {

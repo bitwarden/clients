@@ -501,7 +501,7 @@ export const StatusFilterWithoutStaged: Story = {
 
 /**
  * Opens with a Status selection that matches no member, so the table shows "No items match
- * selected filters" with Clear all, which puts Status back to its default.
+ * the selected filters" with Clear all, which puts Status back to its default.
  */
 export const NoMatches: Story = {
   name: "No matches",

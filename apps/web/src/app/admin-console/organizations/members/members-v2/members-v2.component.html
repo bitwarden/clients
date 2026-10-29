@@ -90,9 +90,9 @@
   <!-- With members loaded, an empty table means the search or filters hide them all. -->
   @let noMatches = members().length > 0;
   <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="noMatches ? noResultsIcon : emptyIcon"></bit-svg>
+    <bit-svg slot="graphic" [content]="noMatches ? noMatchesIcon : emptyIcon"></bit-svg>
     <span slot="title">{{
-      (noMatches ? "noItemsMatchSelectedFilters" : "noMembersInvitedToOrg") | i18n
+      (noMatches ? "noItemsMatchTheSelectedFilters" : "noMembersInvitedToOrg") | i18n
     }}</span>
     @if (noMatches) {
       <button
@@ -101,6 +101,7 @@
         type="button"
         bitButton
         buttonType="secondary"
+        startIcon="bwi-clear"
         (click)="clearAllFilters()"
       >
         {{ "clearAll" | i18n }}

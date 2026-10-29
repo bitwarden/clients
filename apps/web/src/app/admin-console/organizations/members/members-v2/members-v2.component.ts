@@ -23,7 +23,7 @@ import {
 } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { NoResults, RegistrationUserAddIcon } from "@bitwarden/assets/svg";
+import { RegistrationUserAddIcon, SearchFolder } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -149,7 +149,7 @@ export class MembersV2Component {
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly emptyIcon = RegistrationUserAddIcon;
-  protected readonly noResultsIcon = NoResults;
+  protected readonly noMatchesIcon = SearchFolder;
   protected readonly revocationReasons = REVOCATION_REASON_OPTIONS;
   protected readonly memberTab = MemberDialogTab;
   protected readonly userStatusType = OrganizationUserStatusType;
