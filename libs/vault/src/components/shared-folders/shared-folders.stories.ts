@@ -1,5 +1,11 @@
 import { PortalModule } from "@angular/cdk/portal";
-import { ChangeDetectionStrategy, Component, importProvidersFrom, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  importProvidersFrom,
+  inject,
+  signal,
+} from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
@@ -158,18 +164,26 @@ const withVault: Decorator = (storyFn, context) => {
     } as Organization,
   ];
 
-  // Held in memory, so Pin to sidebar and Unpin from sidebar toggle in the story.
+  // Held in memory, so Pin to sidebar and Unpin from sidebar toggle in the story. Mirrored into a
+  // signal alongside the subject: the real service exposes `activePinnedIds` as a signal, and the
+  // table and the row menu both read it directly rather than subscribing to `pinnedIds$`.
   const pinned$ = new BehaviorSubject<CollectionId[]>(args.pinnedIds as CollectionId[]);
+  const activePinnedIds = signal<CollectionId[]>(pinned$.value);
   const pinnedSharedFolders = {
     pinnedIds$: () => pinned$,
+    activePinnedIds,
     pin: (_userId: UserId, id: CollectionId) => {
       action("pin")(id);
-      pinned$.next([...pinned$.value, id]);
+      const next = [...pinned$.value, id];
+      pinned$.next(next);
+      activePinnedIds.set(next);
       return Promise.resolve();
     },
     unpin: (_userId: UserId, id: CollectionId) => {
       action("unpin")(id);
-      pinned$.next(pinned$.value.filter((pinnedId) => pinnedId !== id));
+      const next = pinned$.value.filter((pinnedId) => pinnedId !== id);
+      pinned$.next(next);
+      activePinnedIds.set(next);
       return Promise.resolve();
     },
   };
