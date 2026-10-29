@@ -2070,8 +2070,6 @@ export default class MainBackground {
         this.messagingService.send("locked", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
-        await this.refreshMenu();
-        await this.updateOverlayCiphers();
         await this.syncService.fullSync(false);
       }
     } finally {
