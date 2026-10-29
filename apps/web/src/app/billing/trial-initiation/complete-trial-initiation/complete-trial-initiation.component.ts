@@ -3,7 +3,7 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -92,6 +92,9 @@ export class CompleteTrialInitiationComponent {
   trialLength!: number;
   paymentOptional = false;
 
+  /** Parsed query-param model for the current navigation. */
+  private params?: TrialInitiationParams;
+
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
     billingEmail: [""],
@@ -113,14 +116,21 @@ export class CompleteTrialInitiationComponent {
     private configService: ConfigService,
     private accountService: AccountService,
   ) {
-    combineLatest([
-      this.route.queryParams,
-      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
-    ])
+    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe((queryParams) => {
+      this.params = parseTrialInitiationParams(queryParams);
+      this.applyParams(this.params);
+    });
+
+    // The flag only drives Privileged Controls eligibility; keep it off the one-time param
+    // side effects (toast, sponsorship), which a cold config (false → true) would otherwise replay.
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PamBillingSupport)
       .pipe(takeUntilDestroyed())
-      .subscribe(([queryParams, pamBillingSupportEnabled]) => {
+      .subscribe((pamBillingSupportEnabled) => {
         this.pamBillingSupportEnabled = pamBillingSupportEnabled;
-        this.applyParams(parseTrialInitiationParams(queryParams));
+        this.includesPrivilegedControls = this.params
+          ? this.shouldIncludePrivilegedControls(this.params)
+          : false;
       });
 
     this.orgInfoFormGroup.controls.name.valueChanges

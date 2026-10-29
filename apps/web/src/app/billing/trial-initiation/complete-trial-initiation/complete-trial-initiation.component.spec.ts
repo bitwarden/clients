@@ -432,6 +432,35 @@ describe("CompleteTrialInitiationComponent", () => {
     });
   });
 
+  describe("one-time param side effects", () => {
+    it("shows the email-verified toast once when the PAM flag resolves after the params arrive", () => {
+      const toastService = TestBed.inject(ToastService) as MockProxy<ToastService>;
+
+      // Cold config: the flag starts at its default (false), then resolves true once the server
+      // config lands — the common marketing-link path where the vault was never loaded.
+      mockActivatedRoute.queryParams.next({
+        fromEmail: "true",
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+      });
+      pamBillingSupport$.next(true);
+
+      expect(toastService.showToast).toHaveBeenCalledTimes(1);
+    });
+
+    it("still enables Privileged Controls when the flag resolves after the params arrive", () => {
+      mockActivatedRoute.queryParams.next({
+        product: "0,2",
+        productTier: ProductTierType.Enterprise,
+      });
+      expect(component.includesPrivilegedControls).toBe(false);
+
+      pamBillingSupport$.next(true);
+
+      expect(component.includesPrivilegedControls).toBe(true);
+    });
+  });
+
   describe("Integration: paymentOptional acceptance criteria", () => {
     it("AC2: should hide billing step when paymentOptional=true regardless of trialLength", () => {
       mockActivatedRoute.queryParams.next({
