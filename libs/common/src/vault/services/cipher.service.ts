@@ -151,8 +151,8 @@ export class CipherService implements CipherServiceAbstraction {
   }, this.clearCipherViewsForUser$);
 
   /**
-   * Decrypted list views including restricted ciphers, for the web vault list and its
-   * filters; everything else uses {@link cipherListViews$}.
+   * Decrypted list views including restricted ciphers, for the vault lists and their filters;
+   * everything else uses {@link cipherListViews$}.
    */
   cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
@@ -1085,14 +1085,6 @@ export class CipherService implements CipherServiceAbstraction {
   /**
    * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} (full sync)
    * stays authoritative. The check reads the stored copy in the same state update as the write.
-   *
-   * Server ask: a storable single-item read for push sync. `GET /ciphers/{id}/details` returns the
-   * restricted copy unless the reveal opts in to the full cipher (fallback: push sync sends
-   * `?storable=true`). PAM to confirm the callers of `/details`.
-   *
-   * SDK ask (`bitwarden-vault`): guard every stored write response at the repository level
-   * (`edit_partial`, `update_collection`, restore, archive, delete, `move_many`), not only
-   * `submit_cipher_edit` and share.
    */
   async upsert(
     cipher: CipherData | CipherData[],
