@@ -76,6 +76,14 @@ describe("CliLogoutService", () => {
       expect(folderService.clear).toHaveBeenCalledWith(userId);
     });
 
+    it("uploads events before it clears the tokens that the upload needs", async () => {
+      await sut.logout(userId, "userInitiated");
+
+      expect(eventUploadService.uploadEvents.mock.invocationCallOrder[0]).toBeLessThan(
+        tokenService.clearTokens.mock.invocationCallOrder[0],
+      );
+    });
+
     it("clears state, tokens, and the account for the given user", async () => {
       await sut.logout(userId, "userInitiated");
 
