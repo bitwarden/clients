@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   signal,
+  viewChild,
   viewChildren,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -22,7 +23,7 @@ import {
 } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { RegistrationUserAddIcon } from "@bitwarden/assets/svg";
+import { NoResults, RegistrationUserAddIcon } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -81,6 +82,13 @@ import {
 import { MemberActionsService } from "../services/member-actions/member-actions.service";
 import { MemberActionResult } from "../services/member-actions/member-actions.types";
 
+import {
+  matchesStatus,
+  MemberFilters,
+  MembershipKey,
+  REVOCATION_REASON_OPTIONS,
+} from "./members-filter";
+
 /** Badge text and variant per status, listed in the order the Status column sorts. */
 const STATUS_BADGES = [
   { status: OrganizationUserStatusType.Staged, labelKey: "staged", variant: "secondary" },
@@ -95,11 +103,6 @@ const STATUS_BADGES = [
 ] as const;
 
 type StatusBadge = (typeof STATUS_BADGES)[number];
-
-/** The membership columns a chip can filter by, each keyed by the column it filters. */
-type MembershipKey = "groupNames" | "collectionNames";
-
-type MemberFilters = Partial<Record<MembershipKey, string[]>> & { search?: string };
 
 @Component({
   templateUrl: "members-v2.component.html",
@@ -146,6 +149,8 @@ export class MembersV2Component {
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly emptyIcon = RegistrationUserAddIcon;
+  protected readonly noResultsIcon = NoResults;
+  protected readonly revocationReasons = REVOCATION_REASON_OPTIONS;
   protected readonly memberTab = MemberDialogTab;
   protected readonly userStatusType = OrganizationUserStatusType;
 
@@ -239,6 +244,12 @@ export class MembersV2Component {
     this.chipsByMember("collectionNames", "bwi-collection-shared"),
   );
 
+  /** The Staged option only shows for organizations with staged members. */
+  protected readonly hasStagedMembers = computed(() =>
+    this.members().some((member) => member.status === OrganizationUserStatusType.Staged),
+  );
+
+  private readonly membersTable = viewChild(BitTableV2Component);
   private readonly filterMenus = viewChildren(FilterMenuComponent);
 
   /**
@@ -253,11 +264,12 @@ export class MembersV2Component {
     : {};
 
   /**
-   * Members matching the search on name, email or id, and in any of the selected groups or
-   * collections. Names stand in for ids, as on the chips.
+   * Members matching the search on name, email or id, the Status filter, and in any of the
+   * selected groups or collections. Names stand in for ids, as on the chips.
    */
   protected readonly filter = (row: OrganizationUserView, filters: MemberFilters) =>
     this.matchesSearch(row, filters.search) &&
+    matchesStatus(row, filters.status) &&
     this.matchesAny(row.groupNames, filters.groupNames) &&
     this.matchesAny(row.collectionNames, filters.collectionNames);
 
@@ -499,6 +511,13 @@ export class MembersV2Component {
     this.filterMenus()
       .find((menu) => menu.key() === key)
       ?.setValue([name]);
+  }
+
+  /** Resets the search and every filter, so Status returns to its default. */
+  protected clearAllFilters() {
+    this.membersTable()
+      ?.filterControls()
+      .forEach((control) => control.setValue(control.clearedValue()));
   }
 
   protected statusBadge(status: OrganizationUserStatusType): StatusBadge | undefined {

@@ -42,6 +42,26 @@
       {{ "inviteMember" | i18n }}
     </button>
 
+    <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple>
+      @if (hasStagedMembers()) {
+        <bit-filter-option [value]="userStatusType.Staged">{{ "staged" | i18n }}</bit-filter-option>
+      }
+      <bit-filter-option [value]="userStatusType.Invited">{{ "invited" | i18n }}</bit-filter-option>
+      <bit-filter-option [value]="userStatusType.Accepted">{{
+        "needsConfirmation" | i18n
+      }}</bit-filter-option>
+      <bit-filter-option [value]="userStatusType.Confirmed">{{
+        "active" | i18n
+      }}</bit-filter-option>
+      <!-- Revoked members match on their reason, so checking Revoked checks every reason. -->
+      <bit-filter-option [value]="userStatusType.Revoked">
+        {{ "revoked" | i18n }}
+        @for (reason of revocationReasons; track reason.value) {
+          <bit-filter-option [value]="reason.value">{{ reason.labelKey | i18n }}</bit-filter-option>
+        }
+      </bit-filter-option>
+    </bit-filter-menu>
+
     @if (organization?.useGroups) {
       <bit-filter-menu
         key="groupNames"
@@ -67,9 +87,25 @@
     }
   </bit-table-toolbar>
 
+  <!-- With members loaded, an empty table means the search or filters hide them all. -->
+  @let noMatches = members().length > 0;
   <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
-    <span slot="title">{{ "noMembersInvitedToOrg" | i18n }}</span>
+    <bit-svg slot="graphic" [content]="noMatches ? noResultsIcon : emptyIcon"></bit-svg>
+    <span slot="title">{{
+      (noMatches ? "noItemsMatchSelectedFilters" : "noMembersInvitedToOrg") | i18n
+    }}</span>
+    @if (noMatches) {
+      <button
+        id="members-v2_button_clear-all-filters"
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        (click)="clearAllFilters()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
   </bit-status-lockup>
 
   <!-- Name -->

@@ -19,6 +19,7 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -186,6 +187,30 @@ const rowActionMembers: OrganizationUserView[] = [
     claimedByOrganization: true,
     canRemove: false,
   }),
+];
+
+/** A revoked member for each revocation reason, plus a Staged one, for the Status filter. */
+const statusFilterMembers: OrganizationUserView[] = [
+  ...mockMembers.filter((member) => member.status !== OrganizationUserStatusType.Revoked),
+  ...(
+    [
+      ["Manual", RevocationReasonType.Manual],
+      ["Declined", RevocationReasonType.OrganizationDataOwnershipPolicyNonCompliance],
+      ["Single org", RevocationReasonType.SingleOrgPolicyNonCompliance],
+      ["Two-step", RevocationReasonType.TwoFactorPolicyNonCompliance],
+      ["Unknown", RevocationReasonType.Unknown],
+    ] as const
+  ).map(([label, revocationReason], i) =>
+    mockUser({
+      id: `revoked-${revocationReason}` as Guid,
+      name: `Revoked ${label}`,
+      email: `revoked${i}@example.com`,
+      status: OrganizationUserStatusType.Revoked,
+      revocationReason,
+      canRestore: true,
+      canRevoke: false,
+    }),
+  ),
 ];
 
 function makeOrganizationService(org: Organization) {
@@ -453,4 +478,33 @@ export const SearchFromUrl: Story = {
   name: "Search from URL",
   render: makeRender(mockMembers),
   decorators: [atUrl(`/organizations/${ORG_ID}/members?members.search=member%201`)],
+};
+
+/**
+ * Open the Status filter: Staged shows, and Revoked expands into a member for each revocation
+ * reason, including No reason recorded. Revoked members stay hidden until checked.
+ */
+export const StatusFilter: Story = {
+  name: "Status filter",
+  render: makeRender(statusFilterMembers),
+};
+
+/**
+ * Without Staged members, the Status filter hides the Staged option.
+ */
+export const StatusFilterWithoutStaged: Story = {
+  name: "Status filter without Staged",
+  render: makeRender(
+    statusFilterMembers.filter((member) => member.status !== OrganizationUserStatusType.Staged),
+  ),
+};
+
+/**
+ * Opens with a Status selection that matches no member, so the table shows "No items match
+ * selected filters" with Clear all, which puts Status back to its default.
+ */
+export const NoMatches: Story = {
+  name: "No matches",
+  render: makeRender(mockMembers),
+  decorators: [atUrl(`/organizations/${ORG_ID}/members?members.status=revoked-4`)],
 };

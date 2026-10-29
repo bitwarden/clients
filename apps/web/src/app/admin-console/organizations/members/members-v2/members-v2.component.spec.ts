@@ -320,6 +320,39 @@ describe("MembersV2Component", () => {
     });
   });
 
+  describe("status filter", () => {
+    const members = [
+      member({ id: "confirmed" as Guid }),
+      member({ id: "revoked" as Guid, status: OrganizationUserStatusType.Revoked }),
+    ];
+
+    beforeEach(async () => {
+      await setup({}, members);
+    });
+
+    it("hides revoked members by default", () => {
+      expect(members.filter((m) => component.filter(m, {})).map((m) => m.id)).toEqual([
+        "confirmed",
+      ]);
+    });
+
+    it("shows revoked members whose reason is checked", () => {
+      expect(
+        members.filter((m) => component.filter(m, { status: ["revoked-0"] })).map((m) => m.id),
+      ).toEqual(["revoked"]);
+    });
+
+    it("hides the Staged option without staged members", () => {
+      expect(component.hasStagedMembers()).toBe(false);
+    });
+  });
+
+  it("shows the Staged option with staged members", async () => {
+    await setup({}, [member({ status: OrganizationUserStatusType.Staged })]);
+
+    expect(component.hasStagedMembers()).toBe(true);
+  });
+
   describe("Event Logs deep link", () => {
     const confirmed = member({ id: "confirmed" as Guid });
     const invited = member({ id: "invited" as Guid, status: OrganizationUserStatusType.Invited });
