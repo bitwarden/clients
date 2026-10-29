@@ -66,7 +66,11 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
+import {
+  CipherUse,
+  FillCipherPolicy,
+  SaveCandidate,
+} from "../services/abstractions/fill-cipher-policy";
 
 import {
   AddChangePasswordNotificationQueueMessage,
@@ -111,6 +115,17 @@ type CiphersByInputMatchCategory = {
   usernameOnlyMatches: CipherView["id"][];
   usernamePasswordMatches: CipherView["id"][];
 };
+
+/** The form values a save of this queue message would write to a cipher. */
+function saveCandidateFor(
+  queueMessage: AddLoginQueueMessage | AddChangePasswordNotificationQueueMessage,
+  tab: chrome.tabs.Tab,
+): SaveCandidate {
+  if (queueMessage.type === NotificationType.AddLogin) {
+    return queueMessage.data;
+  }
+  return { uri: tab.url ?? "", newPassword: queueMessage.data.newPassword };
+}
 
 export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
@@ -1263,6 +1278,17 @@ export default class NotificationBackground {
         continue;
       }
 
+      if (
+        !(await this.fillCipherPolicy.canOfferSave(
+          saveCandidateFor(queueMessage, tab),
+          activeUserId,
+        ))
+      ) {
+        this.notificationQueue.splice(i, 1);
+        await BrowserApi.tabSendMessageData(tab, "closeNotificationBar", { closedByUser: false });
+        return;
+      }
+
       if (queueMessage.type === NotificationType.ChangePassword) {
         const {
           data: { newPassword },
@@ -1287,10 +1313,6 @@ export default class NotificationBackground {
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
       if (queueMessage.wasVaultLocked) {
-        if (!(await this.fillCipherPolicy.canOfferSave(queueMessage.data, activeUserId))) {
-          continue;
-        }
-
         const allCiphers = await this.fillCipherPolicy.ciphersForUrl(
           queueMessage.data.uri,
           activeUserId,
@@ -1457,6 +1479,9 @@ export default class NotificationBackground {
       const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
       cipherView.organizationId = organizationId;
       cipherView.folderId = folder;
+      if (userId && !(await this.fillCipherPolicy.canOfferSave(queueItem.data, userId))) {
+        cipherView.login.password = "";
+      }
 
       if (userId) {
         await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
