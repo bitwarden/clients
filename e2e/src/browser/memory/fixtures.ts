@@ -12,6 +12,11 @@ const DEVELOPER_MODE_TOGGLE = "#devMode";
 const TOGGLE_STATE = "aria-checked";
 const DEBUGGING_PORT = 9333;
 
+/** Shows the browser window, e.g. `E2E_HEADED=1`; by default it opens off-screen. */
+const HEADED = process.env.E2E_HEADED != null;
+// Playwright already passes the flags that keep hidden windows from being throttled.
+const OFF_SCREEN = "--window-position=-10000,-10000";
+
 /**
  * Like the browser fixture (../fixtures.ts), minus tracing and video: both keep
  * snapshots of the pages they record, which would show up in the heaps measured.
@@ -24,11 +29,13 @@ export const test = base.extend<{ context: BrowserContext; debuggingPort: number
 
     const context = await chromium.launchPersistentContext(PROFILE_DIR, {
       channel: "chromium",
+      // Headless restarts the extension's service worker, which leaves the popup loading.
       headless: false,
       args: [
         `--load-extension=${BROWSER_BUILD_DIR}`,
         `--disable-extensions-except=${BROWSER_BUILD_DIR}`,
         `--remote-debugging-port=${debuggingPort}`,
+        ...(HEADED ? [] : [OFF_SCREEN]),
       ],
     });
 

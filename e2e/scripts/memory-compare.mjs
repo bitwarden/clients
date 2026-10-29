@@ -2,10 +2,11 @@
 //
 //   node e2e/scripts/memory-compare.mjs <before-label>[,<label>...] <after-label>[,<label>...]
 //
-// Labels name `.debug/e2e/memory/<label>/report.json`. Several labels per side are
+// Labels name `.debug/e2e/memory/<label>/`: its report.json, and unlock.json when the
+// unlock suite ran under the same label. Several labels per side are
 // reduced to their median, since process footprints vary from run to run.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const MEMORY_DIR = resolve(import.meta.dirname, "../../.debug/e2e/memory");
@@ -104,5 +105,36 @@ for (const [phase, metricsBefore] of before) {
     console.log(
       `| ${phase} | ${key} | ${format(key, valueBefore)} | ${format(key, valueAfter)} | ${change(valueBefore, valueAfter)} |`,
     );
+  }
+}
+
+/** Unlock method -> median ms across runs, from each label's `unlock.json`, if any. */
+function unlockTimings(labels) {
+  const files = labels
+    .split(",")
+    .map((label) => resolve(MEMORY_DIR, label, "unlock.json"))
+    .filter((file) => existsSync(file))
+    .map((file) => JSON.parse(readFileSync(file, "utf8")));
+  const methods = new Set(files.flatMap((timings) => Object.keys(timings)));
+
+  return new Map(
+    [...methods].map((method) => [
+      method,
+      median(files.filter((t) => t[method] != null).map((t) => t[method].medianMs)),
+    ]),
+  );
+}
+
+const unlockBefore = unlockTimings(beforeArg);
+const unlockAfter = unlockTimings(afterArg);
+if (unlockBefore.size > 0 && unlockAfter.size > 0) {
+  console.log("\n| unlock to vault rendered | before (ms) | after (ms) | change |");
+  console.log("|---|---:|---:|---:|");
+  for (const [method, msBefore] of unlockBefore) {
+    const msAfter = unlockAfter.get(method);
+    if (msAfter == null) {
+      continue;
+    }
+    console.log(`| ${method} | ${msBefore} | ${msAfter} | ${change(msBefore, msAfter)} |`);
   }
 }

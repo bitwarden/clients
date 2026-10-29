@@ -26,6 +26,13 @@ const SNAPSHOTS = process.env.E2E_HEAP_SNAPSHOT != null;
 /** What a phase found beyond memory readings, e.g. decrypt calls or cache state. */
 type Findings = Record<string, unknown>;
 
+/** Where this run's results land: `memory/<E2E_MEMORY_LABEL>/`. */
+export function reportDir(): string {
+  const dir = join(MEMORY_DIR, LABEL);
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
 type Phase = {
   name: string;
   processes: ProcessMemory[];
@@ -36,11 +43,9 @@ type Phase = {
 /** Measures the extension phase by phase and writes `memory/<label>/report.json`. */
 export class MemoryReport {
   private phases: Phase[] = [];
-  private dir = join(MEMORY_DIR, LABEL);
+  private dir = reportDir();
 
-  constructor(private port: number) {
-    mkdirSync(this.dir, { recursive: true });
-  }
+  constructor(private port: number) {}
 
   async record(name: string, targets: Target[], findings?: Findings): Promise<Phase> {
     const measured: TargetMemory[] = [];
