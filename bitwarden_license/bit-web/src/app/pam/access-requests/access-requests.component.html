@@ -1,8 +1,17 @@
 <app-header [title]="'pamAccessRequestsTitle' | i18n">
+  @if (canApprove()) {
+    <div slot="subtitle">{{ "pamAccessRequestsSubtitle" | i18n }}</div>
+  }
   <bit-tab-nav-bar slot="tabs" [label]="'pamAccessRequestsTitle' | i18n">
+    @if (canApprove()) {
+      <bit-tab-link route="approvals" [berryValue]="approvalsCount()">{{
+        "pamTabApprovals" | i18n
+      }}</bit-tab-link>
+    }
     <bit-tab-link route="my-requests" [berryValue]="myRequestsCount()">{{
       "pamTabMyRequests" | i18n
     }}</bit-tab-link>
+    <bit-tab-link route="history">{{ "pamTabHistory" | i18n }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>
 

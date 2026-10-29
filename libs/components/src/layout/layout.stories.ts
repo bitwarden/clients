@@ -108,6 +108,11 @@ export const StickyHeaderAndFooterVfo1: Story = {
       <bit-layout>
         <bit-side-nav>
           <bit-nav-logo [openIcon]="logo" [route]="['']" label="Password Manager"></bit-nav-logo>
+          <bit-nav-item
+            slot="product-switcher"
+            text="Switcher"
+            icon="bwi-up-down-btn"
+          ></bit-nav-item>
           @for (item of items; track item) {
           <bit-nav-item text="Collection {{ item }}" icon="bwi-collection"></bit-nav-item>
           }
@@ -132,6 +137,52 @@ export const StickyHeaderAndFooterVfo1: Story = {
     scroller.scrollTop = 400;
     await waitFor(async () => await expect(scroller.scrollTop).toBeGreaterThan(0));
   },
+};
+
+export const HeaderBorderAlwaysVfo1: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo },
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav headerBorder="always">
+          <bit-nav-logo [openIcon]="logo" [route]="['']" label="Admin Console"></bit-nav-logo>
+          <bit-nav-item
+            slot="product-switcher"
+            text="Switcher"
+            icon="bwi-up-down-btn"
+          ></bit-nav-item>
+          <bit-nav-item text="Members" icon="bwi-user"></bit-nav-item>
+          <bit-nav-item text="Groups" icon="bwi-users"></bit-nav-item>
+        </bit-side-nav>
+        <bit-callout title="Foobar"> Hello world! </bit-callout>
+      </bit-layout>
+    `,
+  }),
+};
+
+/** Tall switcher content scrolls within a capped row so body rows stay reachable. */
+export const ExpandedSwitcherVfo1: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo, orgs: Array.from({ length: 20 }, (_, i) => i) },
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav headerBorder="always">
+          <bit-nav-logo [openIcon]="logo" [route]="['']" label="Admin Console"></bit-nav-logo>
+          <bit-nav-group slot="product-switcher" text="Acme Inc." icon="bwi-business" [open]="true">
+            @for (org of orgs; track org) {
+            <bit-nav-item text="Organization {{ org }}"></bit-nav-item>
+            }
+          </bit-nav-group>
+          <bit-nav-item text="Members" icon="bwi-user"></bit-nav-item>
+          <bit-nav-item text="Groups" icon="bwi-users"></bit-nav-item>
+          <bit-nav-item text="Settings" icon="bwi-cog"></bit-nav-item>
+        </bit-side-nav>
+        <bit-callout title="Foobar"> Hello world! </bit-callout>
+      </bit-layout>
+    `,
+  }),
 };
 
 export const SkipLinks: Story = {

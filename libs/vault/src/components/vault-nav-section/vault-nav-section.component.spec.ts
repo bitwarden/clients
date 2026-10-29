@@ -7,6 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,6 +18,7 @@ import {
   NavigationModule,
   PopoverAnchorForDirective,
   SideNavService,
+  ToastService,
 } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
@@ -214,6 +216,11 @@ describe("VaultNavSectionComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: VAULT_NAV_ORGANIZATION_OPTIONS, useFactory: () => organizationOptions },
         { provide: CoachmarkService, useValue: coachmarkService },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+        },
         {
           provide: CollectionService,
           useValue: mock<CollectionService>({ decryptedCollections$: () => collections$ }),

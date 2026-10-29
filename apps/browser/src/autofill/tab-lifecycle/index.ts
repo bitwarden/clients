@@ -1,5 +1,5 @@
 export { TabState, TabEdgeCause } from "./enums";
-export type { BufferAction, TabEdge, TabLifecycleEvent } from "./types";
+export type { BufferAction, TabEdge, TabLifecycleEvent, TransitionReport } from "./types";
 export { COOL_DOWN_MS, SETTLE_MS, tabLifecycle } from "./rx";
 export {
   bufferPageTransition,
@@ -9,3 +9,5 @@ export {
   resolvePageTransition,
   retirePageTransition,
 } from "./utils";
+
+export * from "./transition-buffer";

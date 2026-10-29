@@ -1,34 +1,41 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideRouter } from "@angular/router";
+import { NavigationEnd, provideRouter, Router } from "@angular/router";
 import {
   FakeAccountService,
   mockAccountServiceWith,
 } from "@bitwarden/common/../spec/fake-account-service";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import { NavigationModule, SideNavService, ToastService } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
+import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
 
 import { VaultPinnedNavComponent } from "./vault-pinned-nav.component";
 
 const userId = "user-id" as UserId;
 const orgId = "org-a" as OrganizationId;
 
-const collection = (id: string, name: string, organizationId = orgId) =>
-  new CollectionView({ id: id as CollectionId, organizationId, name });
+const collection = (id: string, name: string, organizationId = orgId) => {
+  const view = new CollectionView({ id: id as CollectionId, organizationId, name });
+  view.manage = true;
+  return view;
+};
 
 @Component({ template: "", changeDetection: ChangeDetectionStrategy.OnPush })
 class DummyComponent {}
@@ -82,13 +89,23 @@ describe("VaultPinnedNavComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: StateProvider, useValue: new FakeStateProvider(accountService) },
         { provide: I18nService, useValue: i18nService },
+        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({
+            organizations$: () => of([{ id: orgId, isAdmin: false } as Organization]),
+          }),
+        },
+        { provide: COLLECTION_DIALOG, useValue: mock<CollectionDialogRef>() },
+        { provide: BULK_DELETE_DIALOG, useValue: mock<BulkDeleteDialogRef>() },
         {
           provide: CollectionService,
           useValue: mock<CollectionService>({ decryptedCollections$: () => collections$ }),
         },
         provideRouter([
           { path: "vault/:vaultId", component: DummyComponent },
+          { path: "vault/:vaultId/shared-folders", component: DummyComponent },
           { path: "vault/:vaultId/shared-folders/:collectionId", component: DummyComponent },
         ]),
       ],
@@ -160,6 +177,57 @@ describe("VaultPinnedNavComponent", () => {
 
       expect(text()).not.toContain("pinnedEmptyStatePrefix");
       expect(text()).not.toContain("Finance");
+    });
+
+    it("unpins a folder from its options menu", async () => {
+      await service.pin(userId, "3" as CollectionId);
+      await settle();
+
+      (fixture.nativeElement.querySelector("button[bitIconButton]") as HTMLElement).click();
+      await settle();
+      (document.querySelector("#vault-pinned-nav_menu-item_unpin-3") as HTMLElement).click();
+      await settle();
+
+      expect(text()).not.toContain("Finance");
+    });
+
+    it("offers Unpin only on folders the user pinned", async () => {
+      await service.pin(userId, "1" as CollectionId);
+      await settle();
+      (
+        fixture.nativeElement.querySelector(
+          "[data-testid='nav-group-collapse-arrow']",
+        ) as HTMLElement
+      ).click();
+      await settle();
+
+      const optionButtons = Array.from(
+        fixture.nativeElement.querySelectorAll("button[aria-haspopup='menu']"),
+      ) as HTMLElement[];
+      expect(optionButtons).toHaveLength(2);
+
+      optionButtons[1].click();
+      await settle();
+
+      expect(document.querySelector("[id^='vault-pinned-nav_menu-item_edit-']")).not.toBeNull();
+      expect(document.querySelector("[id^='vault-pinned-nav_menu-item_unpin-']")).toBeNull();
+    });
+
+    it("leaves a folder's page for the shared folders list once the folder is deleted", async () => {
+      await service.pin(userId, "3" as CollectionId);
+      await settle();
+      const router = TestBed.inject(Router);
+      await router.navigateByUrl("/vault/org-a/shared-folders/3");
+      await settle();
+
+      const redirected = firstValueFrom(
+        router.events.pipe(filter((event) => event instanceof NavigationEnd)),
+      );
+      collections$.next([collection("1", "Design"), collection("2", "Design/Brand")]);
+      await settle();
+      await redirected;
+
+      expect(router.url).toBe("/vault/org-a/shared-folders");
     });
 
     it("links a leaf folder to its folder in the organization's vault", async () => {
