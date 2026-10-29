@@ -49,7 +49,7 @@ function step(
 
 /**
  * The lifecycle of one tab, as `lifecycle.design.md` describes it: events in, state changes out.
- * The seed is not emitted. Compose under `groupBy(tabId)` + `takeUntil(tabRemoved$)` for every tab.
+ * The seed is not emitted. It runs one tab; `TabLifecycles` runs every tab.
  *
  * Events that change nothing are dropped. The source should still deliver one event per genuine
  * change, addressed only to the tabs it concerns.
