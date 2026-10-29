@@ -20,7 +20,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { withLatestReady } from "@bitwarden/common/tools/rx";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -155,7 +154,6 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   constructor(
     private lifecycleService: AutofillLifecycleService,
     private autofillService: AutofillService,
-    private cipherService: CipherService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
@@ -533,8 +531,8 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     const cacheKey = cipherType === CipherType.Card ? "cardCiphers" : "identityCiphers";
     const cipher =
       cipherType === CipherType.Card
-        ? await this.cipherService.getNextCardCipher(activeUserId)
-        : await this.cipherService.getNextIdentityCipher(activeUserId);
+        ? await this.fillCipherPolicy.nextCardCipher(activeUserId)
+        : await this.fillCipherPolicy.nextIdentityCipher(activeUserId);
     return cipher ? { cipher, cacheKey } : undefined;
   }
 

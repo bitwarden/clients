@@ -86,6 +86,29 @@ describe("DefaultFillCipherPolicy", () => {
     expect(await policy.nextCipherForUrl(url, userId)).toBeUndefined();
   });
 
+  it.each([
+    ["nextCardCipher", "getNextCardCipher"],
+    ["nextIdentityCipher", "getNextIdentityCipher"],
+  ] as const)("%s returns the next cipher of the stored rotation", async (method, delegate) => {
+    const next = view("next");
+    cipherService[delegate].mockResolvedValue(next);
+
+    expect(await policy[method](userId)).toBe(next);
+    expect(cipherService[delegate]).toHaveBeenCalledWith(userId);
+  });
+
+  it.each([
+    ["nextCardCipher", "getNextCardCipher"],
+    ["nextIdentityCipher", "getNextIdentityCipher"],
+  ] as const)(
+    "%s returns undefined when the stored rotation is empty",
+    async (method, delegate) => {
+      cipherService[delegate].mockResolvedValue(null);
+
+      expect(await policy[method](userId)).toBeUndefined();
+    },
+  );
+
   it("advances the stored rotation", () => {
     policy.advanceRotation(url);
 
