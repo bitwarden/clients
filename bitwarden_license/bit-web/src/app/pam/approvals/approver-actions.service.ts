@@ -8,10 +8,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DecideDialogComponent, DecideDialogParams } from "./decide-dialog/decide-dialog.component";
-import {
-  WithdrawApprovalDialogComponent,
-  WithdrawApprovalDialogParams,
-} from "./withdraw-approval-dialog/withdraw-approval-dialog.component";
 
 /** Raised once the approver confirms and the mutation starts; lowered once it settles. */
 export type ApproverActionBusy = (busy: boolean) => void;
@@ -80,22 +76,13 @@ export class ApproverActionsService {
   }
 
   /**
-   * Confirm and withdraw an approval the requester has not started. The dialog collects the
-   * reason the server requires from an approver, and `run` gets it.
+   * Withdraws an approval the requester has not started. The caller confirms — the access request
+   * dialog does so in place, collecting the reason the server requires — so this only runs the
+   * mutation and reports it.
    */
-  async withdrawApproval(
-    params: WithdrawApprovalDialogParams,
-    run: (reason: string) => Promise<void>,
-    busy: ApproverActionBusy,
-  ): Promise<void> {
-    const result = await firstValueFrom(
-      WithdrawApprovalDialogComponent.open(this.dialogService, { data: params }).closed,
-    );
-    if (!result?.confirmed) {
-      return;
-    }
+  async withdrawApproval(run: () => Promise<void>, busy: ApproverActionBusy): Promise<void> {
     await this.perform(
-      () => run(result.reason),
+      run,
       busy,
       "pamInboxApprovalWithdrawnToast",
       () => "pamInboxWithdrawApprovalFailed",

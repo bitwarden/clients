@@ -5,7 +5,12 @@
     } @else {
       <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
     }
-    <span bitTypography="body1" class="tw-font-bold">{{ itemName() }}</span>
+    <span bitTypography="body1" class="tw-min-w-0 tw-flex-1 tw-font-bold">{{ itemName() }}</span>
+    <!-- The item's status reads with its name, so the badge sits on this row rather than among
+         the fields below. Empty for hosts that project none. -->
+    <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 empty:tw-hidden">
+      <ng-content select="[slot=badge]"></ng-content>
+    </span>
   </div>
 
   @if (organizationName() || collectionName()) {
