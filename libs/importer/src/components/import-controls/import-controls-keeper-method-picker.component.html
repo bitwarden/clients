@@ -1,0 +1,8 @@
+<bit-radio-group [formControlName]="controlName()" [block]="true">
+  <bit-label>{{ labelKey() | i18n }}</bit-label>
+  @for (method of methods(); track method) {
+    <bit-radio-button class="tw-block" [value]="method" [id]="idPrefix() + method">
+      <bit-label>{{ labelFn()(method) | i18n }}</bit-label>
+    </bit-radio-button>
+  }
+</bit-radio-group>

@@ -23,7 +23,7 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { LogService } from "@bitwarden/logging";
+import { limitPerformanceMeasurements, LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { VersionService } from "../platform/version.service";
@@ -58,6 +58,7 @@ export class InitService {
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.run();
 

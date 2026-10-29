@@ -9,6 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { limitPerformanceMeasurements } from "@bitwarden/logging";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
@@ -36,6 +37,7 @@ export class InitService {
 
   init() {
     return async () => {
+      limitPerformanceMeasurements();
       await this.sdkLoadService.loadAndInit();
       this.unlockService.init();
       await this.ipcService.init();

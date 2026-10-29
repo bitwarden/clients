@@ -1272,6 +1272,38 @@ describe("ApiService", () => {
     });
   });
 
+  describe("getSync", () => {
+    it.each([
+      ["the given user", testInactiveUser, testInactiveUser],
+      ["the active user when no user is given", undefined, true],
+    ])("sends the request as %s", async (_, userId, expectedAuth) => {
+      const send = jest.spyOn(sut, "send").mockResolvedValue({});
+
+      await sut.getSync(userId);
+
+      expect(send).toHaveBeenCalledWith(
+        "GET",
+        expect.stringContaining("/sync"),
+        null,
+        expectedAuth,
+        true,
+      );
+    });
+  });
+
+  describe("getAccountRevisionDate", () => {
+    it.each([
+      ["the given user", testInactiveUser, testInactiveUser],
+      ["the active user when no user is given", undefined, true],
+    ])("sends the request as %s", async (_, userId, expectedAuth) => {
+      const send = jest.spyOn(sut, "send").mockResolvedValue(1);
+
+      await sut.getAccountRevisionDate(userId);
+
+      expect(send).toHaveBeenCalledWith("GET", "/accounts/revision-date", null, expectedAuth, true);
+    });
+  });
+
   describe("postEventsCollect", () => {
     beforeEach(() => {
       environmentService.environment$ = of({

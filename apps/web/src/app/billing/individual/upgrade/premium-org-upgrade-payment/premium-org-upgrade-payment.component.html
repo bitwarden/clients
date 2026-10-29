@@ -39,7 +39,7 @@
     <section>
       @if (previewFailed()) {
         <bit-callout type="danger" data-testid="invoice-preview-error">
-          {{ "invoicePreviewErrorMessage" | i18n }}
+          {{ previewErrorMessageKey() | i18n }}
         </bit-callout>
       }
       <billing-cart-summary

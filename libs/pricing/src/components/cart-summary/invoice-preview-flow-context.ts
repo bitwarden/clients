@@ -13,6 +13,7 @@ export const InvoicePreviewFlowContext = Object.freeze({
   OrganizationCheckout: "organization-checkout",
   OrganizationPlanChange: "organization-plan-change",
   OrganizationSubscriptionPage: "organization-subscription-page",
+  RestartSubscription: "restart-subscription",
 } as const);
 
 export type InvoicePreviewFlowContext =

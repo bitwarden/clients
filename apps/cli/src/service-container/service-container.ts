@@ -164,6 +164,7 @@ import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/ci
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
@@ -176,6 +177,7 @@ import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/defau
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -298,6 +300,7 @@ export class ServiceContainer {
   hibpApiService: HibpApiService;
   environmentService: EnvironmentService;
   cipherSdkService: CipherSdkService;
+  revealedCipherService: RevealedCipherService;
   cipherService: CipherService;
   cipherRiskService: CipherRiskService;
   folderService: InternalFolderService;
@@ -605,6 +608,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.accountCryptographicStateService,
       this.biometricsService,
+      this.sdkService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -697,6 +701,7 @@ export class ServiceContainer {
       this.stateService,
       this.tokenService,
     );
+    this.revealedCipherService = new NoopRevealedCipherService();
 
     this.configService = new DefaultConfigService(
       this.configApiService,
@@ -819,6 +824,8 @@ export class ServiceContainer {
       this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
+      this.sdkService,
       this.autoUnlockService,
     );
 
@@ -1203,6 +1210,7 @@ export class ServiceContainer {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.revealedCipherService,
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);

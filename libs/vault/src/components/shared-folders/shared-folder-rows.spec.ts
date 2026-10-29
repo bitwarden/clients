@@ -12,7 +12,9 @@ import { sharedFolderRows } from "./shared-folder-rows";
 const organizationId = "org-1" as OrganizationId;
 const otherOrganizationId = "org-2" as OrganizationId;
 
-type CollectionFlags = Partial<Pick<CollectionView, "readOnly" | "hidePasswords" | "manage">>;
+type CollectionFlags = Partial<
+  Pick<CollectionView, "readOnly" | "hidePasswords" | "manage" | "hasEnabledAccessRule">
+>;
 
 const buildCollection = (
   id: string,
@@ -267,5 +269,48 @@ describe("sharedFolderRows", () => {
       ["second", 2],
       ["empty", 0],
     ]);
+  });
+  describe("privileged controls", () => {
+    const governed = (id: string) => buildCollection(id, { hasEnabledAccessRule: true });
+
+    const gatedIds = (collections: CollectionView[], ciphers: CipherView[] = []) =>
+      sharedFolderRows({ organizationId, organization: undefined, collections, ciphers })
+        .filter((row) => row.hasEnabledAccessRule)
+        .map((row) => row.id);
+
+    it("marks a folder an enabled access rule governs", () => {
+      expect(gatedIds([governed("gated"), buildCollection("open")])).toEqual(["gated"]);
+    });
+
+    it("leaves an ungoverned folder unmarked", () => {
+      expect(gatedIds([buildCollection("open")])).toEqual([]);
+    });
+
+    it("marks a governed folder holding no items", () => {
+      expect(gatedIds([governed("gated")])).toEqual(["gated"]);
+    });
+
+    it("marks a governed folder whose items all arrive whole", () => {
+      expect(gatedIds([governed("gated")], [buildCipher("readable", ["gated"])])).toEqual([
+        "gated",
+      ]);
+    });
+
+    it("ignores a governed folder belonging to another organization", () => {
+      expect(
+        gatedIds([buildCollection("gated", { hasEnabledAccessRule: true }, otherOrganizationId)]),
+      ).toEqual([]);
+    });
+
+    it("counts a governed folder's items like any other folder's", () => {
+      const [row] = sharedFolderRows({
+        organizationId,
+        organization: undefined,
+        collections: [governed("gated")],
+        ciphers: [buildCipher("one", ["gated"]), buildCipher("two", ["gated"])],
+      });
+
+      expect(row).toEqual(expect.objectContaining({ items: 2, hasEnabledAccessRule: true }));
+    });
   });
 });
