@@ -242,7 +242,6 @@ export class TrialBillingStepComponent implements OnInit {
         message: this.i18nService.t("organizationReadyToGo"),
       });
 
-      // Describe the cadence the user actually selected, priced from the current plans.
       const prices = await firstValueFrom(this.prices$);
       this.organizationCreated.emit({
         organizationId: organization.id,
