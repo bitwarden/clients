@@ -52,7 +52,6 @@ describe("BrowserForegroundIpcTransport", () => {
   });
 
   it("assigns each port a new id and stamps it as the source", () => {
-    transport.start();
     const first = createPort();
     const second = createPort();
     connect(first.port);
@@ -67,7 +66,6 @@ describe("BrowserForegroundIpcTransport", () => {
   });
 
   it("does not reuse the id of a disconnected port", () => {
-    transport.start();
     const first = createPort();
     connect(first.port);
     first.disconnect();
@@ -77,31 +75,6 @@ describe("BrowserForegroundIpcTransport", () => {
     second.emit(ipcMessage({ BrowserBackground: { id: "Own" } }));
 
     expect(receive.mock.calls[0][0].source).toEqual({ BrowserForeground: { id: 2 } });
-  });
-
-  it("holds messages until started", () => {
-    const { port, emit } = createPort();
-    connect(port);
-    emit(ipcMessage({ BrowserBackground: { id: "Own" } }));
-
-    expect(receive).not.toHaveBeenCalled();
-
-    transport.start();
-
-    expect(receive).toHaveBeenCalledTimes(1);
-  });
-
-  it("drops the oldest held messages past the limit", () => {
-    const { port, emit } = createPort();
-    connect(port);
-    for (let i = 0; i < 21; i++) {
-      emit(ipcMessage({ BrowserBackground: { id: "Own" } }, [i]));
-    }
-
-    transport.start();
-
-    expect(receive).toHaveBeenCalledTimes(20);
-    expect(receive.mock.calls[0][0].payload).toEqual(new Uint8Array([1]));
   });
 
   it("ignores ports with another name", () => {
@@ -119,7 +92,6 @@ describe("BrowserForegroundIpcTransport", () => {
   });
 
   it("ignores messages not addressed to the background", () => {
-    transport.start();
     const { port, emit } = createPort();
     connect(port);
 
