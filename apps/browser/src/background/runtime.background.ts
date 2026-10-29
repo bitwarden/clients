@@ -411,12 +411,7 @@ export default class RuntimeBackground {
         break;
       case "syncCompleted":
         if (msg.successfully) {
-          setTimeout(async () => {
-            await this.main.refreshMenu();
-          }, 2000);
           await this.configService.ensureConfigFetched();
-          await this.main.updateOverlayCiphers();
-
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
@@ -443,9 +438,6 @@ export default class RuntimeBackground {
         break;
       }
       case "bgUpdateContextMenu":
-      case "editedCipher":
-      case "addedCipher":
-      case "deletedCipher":
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {

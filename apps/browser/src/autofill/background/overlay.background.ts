@@ -234,13 +234,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.triggerDestroyInlineMenuListeners(tab, message.subFrameData?.frameId),
       ),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
-    doFullSync: () => this.updateOverlayCiphers(),
-    addedCipher: () => this.updateOverlayCiphers(),
-    addEditCipherSubmitted: () => this.updateOverlayCiphers(),
-    editedCipher: () => this.updateOverlayCiphers(),
-    deletedCipher: () => this.updateOverlayCiphers(),
-    bgSaveCipher: () => this.updateOverlayCiphers(),
-    updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) =>
       void this.withSenderTab(sender, (tab) => this.abortFido2ActiveRequest(tab.id)),
     routeTargetedFieldsToFrame: ({ message, sender }) =>

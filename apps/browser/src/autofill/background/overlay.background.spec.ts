@@ -3245,24 +3245,25 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("extension messages that trigger an update of the inline menu ciphers", () => {
+    describe("cipher change messages", () => {
       const extensionMessages = [
         "doFullSync",
         "addedCipher",
         "addEditCipherSubmitted",
         "editedCipher",
         "deletedCipher",
+        "bgSaveCipher",
+        "updateOverlayCiphers",
       ];
 
       beforeEach(() => {
         jest.spyOn(overlayBackground, "updateOverlayCiphers").mockImplementation();
       });
 
-      extensionMessages.forEach((message) => {
-        it(`triggers an update of the overlay ciphers when the ${message} message is received`, () => {
-          sendMockExtensionMessage({ command: message });
-          expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
-        });
+      // `TabsBackground` refreshes the inline menu ciphers on `FillCipherPolicy.changed$`.
+      it.each(extensionMessages)("does not update the overlay ciphers for %s", (message) => {
+        sendMockExtensionMessage({ command: message });
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
     });
 
