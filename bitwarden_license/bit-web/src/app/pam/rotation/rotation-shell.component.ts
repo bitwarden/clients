@@ -30,6 +30,11 @@ export class RotationShellComponent {
     { requireSync: true },
   );
 
+  /** Configs awaiting a manual rotation confirmation, for the tab berry. */
+  protected readonly awaitingManualCount = toSignal(this.configsService.awaitingManualCount$, {
+    initialValue: 0,
+  });
+
   constructor() {
     // Loads on org change, and again on remount when the user navigates back from a form page.
     effect(() => {

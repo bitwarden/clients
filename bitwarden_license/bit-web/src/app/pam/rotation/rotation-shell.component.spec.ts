@@ -20,11 +20,13 @@ class ResizeObserverStub {
 
 describe("RotationShellComponent", () => {
   let fixture: ComponentFixture<RotationShellComponent>;
+  let awaitingManualCount$: BehaviorSubject<number>;
   let loadMock: jest.Mock;
 
   const ORG_ID = "org-abc-123";
 
   beforeEach(async () => {
+    awaitingManualCount$ = new BehaviorSubject<number>(0);
     loadMock = jest.fn().mockResolvedValue(undefined);
 
     const i18nService = { t: (key: string) => key };
@@ -42,7 +44,7 @@ describe("RotationShellComponent", () => {
         },
         {
           provide: RotationConfigsService,
-          useValue: { load: loadMock },
+          useValue: { awaitingManualCount$, load: loadMock },
         },
         { provide: I18nService, useValue: i18nService },
       ],
@@ -71,5 +73,14 @@ describe("RotationShellComponent", () => {
   it("calls load on RotationConfigsService with the organization id on init", async () => {
     await init();
     expect(loadMock).toHaveBeenCalledWith(ORG_ID);
+  });
+
+  it("passes the awaiting-manual count to the Managed credentials tab berry", async () => {
+    awaitingManualCount$.next(3);
+    await init();
+    const count = (
+      fixture.componentInstance as unknown as { awaitingManualCount: () => number }
+    ).awaitingManualCount();
+    expect(count).toBe(3);
   });
 });

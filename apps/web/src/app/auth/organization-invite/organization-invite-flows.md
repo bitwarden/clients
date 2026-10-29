@@ -379,6 +379,8 @@ whoever authenticates against the link at accept time.
      stashed + persisted + logged out)
    - `email-domain-not-allowed` → shared error UI with the user's
      domain interpolated
+   - `email-not-verified` → OTP state. See
+     [Email not verified (OTP step)](#email-not-verified-otp-step).
    - Other classified error kinds → shared error UI via
      `getOpenOrgInviteAcceptErrorUi`
    - See [Accept-time rejections](#accept-time-rejections) for the category
@@ -569,6 +571,31 @@ outcomes:
    standalone surface — the status endpoint's `not-found` renders
    inline, not here.
 
+#### Email not verified (OTP step)
+
+The server can reject open invite enrollment with `email-not-verified`. So
+that this rejection does not end the flow, `/join` offers the user an easy
+way to verify their email in place:
+
+1. `acceptOpenOrgInvite` returns `email-not-verified` and **keeps** the
+   stashed open invite. Every other accept failure clears it.
+2. `authedHandler` switches to the `EmailVerificationOtp` view state and
+   calls `POST /accounts/request-otp`, which emails a code to the
+   authenticated user. Resend calls the same endpoint again and confirms
+   success with a toast. A failed request shows an error toast.
+3. The user submits the code to `POST /accounts/verify-otp`. A valid code
+   sets `EmailVerified` on the server, and the component marks the local
+   account's `emailVerified` as true so the client does not wait for the
+   next sync. A rejected code keeps the OTP state and shows
+   `invalidVerificationCode` on the code field.
+4. After a valid code, the component retries `acceptOpenOrgInvite`. The
+   kept stash matches the invite, so the retry skips the MP-policy detour
+   and does not log the user out.
+
+A reload of `/join` while the OTP state shows re-runs `authedHandler`. The
+kept stash skips the MP-policy detour, the accept fails with
+`email-not-verified` again, and the OTP state shows with a new code.
+
 #### Status errors before accept
 
 `getOpenOrgInviteStatus(organizationId, code)` is called both from
@@ -590,6 +617,20 @@ categorizing SDK / server rejections into client-consumable kinds across
 status/membership, seat/plan, policy violations, provider constraints,
 domain/crypto, and an `unexpected` fallback carrying a best-effort
 message. Kind-to-UI mapping lives in `getOpenOrgInviteAcceptErrorUi`.
+
+The service classifies by the SDK's `AcceptInviteLinkError` variant
+(`classifyOpenOrgInviteAcceptError`). The SDK parses the server's coded
+validation errors, so each typed variant (for example
+`AlreadyOrganizationMember`) maps directly to its kind; the client doesn't
+parse response bodies for these. The SDK messages are English only, which is
+why the UI keys its localized copy off the kind. Two paths differ:
+
+- `Api` — responses in the legacy error body, which the `/accept` endpoint
+  still sends. These go through the older status + server-message matching
+  (`classifyOpenOrgInviteLegacyApiError`). The two `auto-confirm-*` kinds are
+  only reachable this way.
+- `Unknown`, client-side SDK errors, and any variant a newer SDK adds →
+  `unexpected`.
 
 ### Open-invite state and sealed-secret record
 

@@ -33,7 +33,7 @@ import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
-import { EncryptionContext } from "../abstractions/cipher.service";
+import { EncryptionContext, RestrictedCipherWriteError } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
@@ -43,6 +43,7 @@ import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
 import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
@@ -438,7 +439,7 @@ describe("Cipher Service", () => {
     });
 
     it("excludes partial (PAM-gated) ciphers from rotation", async () => {
-      // Drop the beforeEach mock so the real cipherViews$ filter chain runs.
+      // The real cipherViews$ chain is what drops partials, so undo the beforeEach's mock.
       (cipherService.cipherViews$ as jest.Mock).mockRestore();
       stateProvider.singleUser
         .getFake(mockUserId, ENCRYPTED_CIPHERS)
@@ -455,11 +456,12 @@ describe("Cipher Service", () => {
       partial.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
+      // Rotating a partial would overwrite its suppressed fields with blanks.
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledTimes(1);
       expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
         normal,
@@ -517,7 +519,7 @@ describe("Cipher Service", () => {
 
       const decryptedView = new CipherView(encryptionContext.cipher);
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
@@ -605,7 +607,7 @@ describe("Cipher Service", () => {
       partial.id = "partial" as CipherId;
       partial.partial = true;
 
-      (cipherService as any).cipherViewsWithPartials$ = jest
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest
         .fn()
         .mockReturnValue(of([normal, partial]));
     });
@@ -617,7 +619,7 @@ describe("Cipher Service", () => {
     });
 
     it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
-      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest.fn().mockReturnValue(of(null));
 
       const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
 
@@ -644,8 +646,10 @@ describe("Cipher Service", () => {
         expect(result).toEqual([normalListView]);
       });
 
-      it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
-        const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+      it("cipherListViewsIncludingRestricted$ retains partial ciphers", async () => {
+        const result = await firstValueFrom(
+          cipherService.cipherListViewsIncludingRestricted$(mockUserId),
+        );
 
         expect(result).toEqual([normalListView, partialListView]);
       });
@@ -653,7 +657,7 @@ describe("Cipher Service", () => {
 
     it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getAllDecrypted(mockUserId);
@@ -673,7 +677,7 @@ describe("Cipher Service", () => {
       partialCard.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normalCard, partialCard]);
 
       const result = await (cipherService as any).getAllDecryptedCiphersOfType(
@@ -682,6 +686,159 @@ describe("Cipher Service", () => {
       );
 
       expect(result).toEqual([normalCard]);
+    });
+  });
+
+  describe("updateWithServer() routing", () => {
+    const cipherId = cipherData.id as CipherId;
+    const restrictedData = { ...cipherData, partialData: "{}" } as CipherData;
+    const sdkResult = new CipherView();
+
+    /** A decrypted view of the cipher: the request, the stored copy, or a supplied original. */
+    const view = (overrides: Partial<CipherView> = {}): CipherView =>
+      Object.assign(new CipherView(), {
+        id: cipherId,
+        type: CipherType.Login,
+        name: "name",
+        login: new LoginView(),
+        edit: true,
+        favorite: false,
+        ...overrides,
+      });
+
+    const store = (data: CipherData) =>
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({ [cipherId]: data });
+
+    const expectNoSdkWrite = () => {
+      expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
+      expect(cipherSdkService.updateUserFieldsWithServer).not.toHaveBeenCalled();
+      expect(cipherSdkService.updateWithRevealedOriginal).not.toHaveBeenCalled();
+    };
+
+    beforeEach(() => {
+      cipherSdkService.updateWithServer.mockResolvedValue(sdkResult);
+      cipherSdkService.updateUserFieldsWithServer.mockResolvedValue(sdkResult);
+      cipherSdkService.updateWithRevealedOriginal.mockResolvedValue(sdkResult);
+      // The stored copy of a restricted cipher decrypts to a restricted view.
+      jest.spyOn(cipherService, "decrypt").mockImplementation(async () => view({ partial: true }));
+    });
+
+    it("keeps the admin path for an admin edit, restricted or not (row 0)", async () => {
+      store(restrictedData);
+      const request = view({ partial: true, name: "changed" });
+      const original = view();
+
+      await cipherService.updateWithServer(request, userId, original, true);
+
+      expect(cipherSdkService.updateWithServer).toHaveBeenCalledWith(
+        request,
+        userId,
+        original,
+        true,
+      );
+    });
+
+    it("saves user fields of a restricted view when only they changed (row 1)", async () => {
+      store(restrictedData);
+      const request = view({ partial: true, favorite: true, folderId: cipherData.folderId });
+      const clearCacheSpy = jest.spyOn(cipherService, "clearCache");
+
+      const result = await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateUserFieldsWithServer).toHaveBeenCalledWith(request, userId);
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+      expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
+      expect(result).toBe(sdkResult);
+    });
+
+    it("refuses any other change to a restricted view, with no network call (row 1)", async () => {
+      store(restrictedData);
+
+      await expect(
+        cipherService.updateWithServer(view({ partial: true, name: "changed" }), userId),
+      ).rejects.toThrow(RestrictedCipherWriteError);
+
+      expectNoSdkWrite();
+    });
+
+    it("refuses a restricted view with no stored copy to compare against (row 1)", async () => {
+      stateProvider.singleUser.getFake(userId, ENCRYPTED_CIPHERS).nextState({});
+
+      await expect(
+        cipherService.updateWithServer(view({ partial: true, favorite: true }), userId),
+      ).rejects.toThrow(RestrictedCipherWriteError);
+
+      expectNoSdkWrite();
+    });
+
+    it("saves user fields when the user cannot edit the item (row 2)", async () => {
+      store(cipherData);
+      const request = view({ edit: false, favorite: true });
+
+      await cipherService.updateWithServer(request, userId);
+
+      expect(cipherSdkService.updateUserFieldsWithServer).toHaveBeenCalledWith(request, userId);
+      expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
+    });
+
+    it("edits against the stored original when it is full (row 3)", async () => {
+      store(cipherData);
+      const request = view({ name: "changed" });
+      const original = view();
+
+      await cipherService.updateWithServer(request, userId, original);
+
+      expect(cipherSdkService.updateWithServer).toHaveBeenCalledWith(
+        request,
+        userId,
+        original,
+        undefined,
+      );
+      expect(cipherSdkService.updateWithRevealedOriginal).not.toHaveBeenCalled();
+    });
+
+    it("edits a restricted stored cipher against the supplied full original (row 3)", async () => {
+      store(restrictedData);
+      const request = view({ name: "changed" });
+      const original = view();
+      const clearCacheSpy = jest.spyOn(cipherService, "clearCache");
+
+      const result = await cipherService.updateWithServer(request, userId, original);
+
+      expect(cipherSdkService.updateWithRevealedOriginal).toHaveBeenCalledWith(
+        request,
+        original,
+        userId,
+      );
+      expect(clearCacheSpy).toHaveBeenCalledWith(userId);
+      expect(cipherSdkService.updateWithServer).not.toHaveBeenCalled();
+      expect(result).toBe(sdkResult);
+    });
+
+    it.each([
+      ["no original", undefined],
+      ["a restricted original", view({ partial: true })],
+      ["an original of another cipher", view({ id: "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b29" })],
+    ])("refuses a restricted stored cipher given %s (row 3)", async (_, original) => {
+      store(restrictedData);
+
+      await expect(
+        cipherService.updateWithServer(view({ name: "changed" }), userId, original),
+      ).rejects.toThrow(RestrictedCipherWriteError);
+
+      expectNoSdkWrite();
+    });
+
+    it("sends deletes and restores of a restricted cipher to the server unchecked", async () => {
+      store(restrictedData);
+
+      await cipherService.deleteWithServer(cipherId, userId);
+      await cipherService.softDeleteWithServer(cipherId, userId);
+      await cipherService.restoreWithServer(cipherId, userId);
+
+      expect(cipherSdkService.deleteWithServer).toHaveBeenCalledWith(cipherId, userId, false);
+      expect(cipherSdkService.softDeleteWithServer).toHaveBeenCalledWith(cipherId, userId, false);
+      expect(cipherSdkService.restoreWithServer).toHaveBeenCalledWith(cipherId, userId, false);
     });
   });
 

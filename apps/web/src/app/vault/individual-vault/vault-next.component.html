@@ -4,6 +4,8 @@
 <app-header [title]="title()">
   @if (showBreadcrumbs()) {
     <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
+  } @else if (scopedFolderId(); as folderId) {
+    <vault-my-folder-breadcrumbs slot="breadcrumbs" [folderId]="folderId" />
   } @else if (headerTile(); as tile) {
     <bit-icon-tile
       slot="title-prefix"
@@ -14,6 +16,10 @@
       size="sm"
       aria-hidden="true"
     />
+  }
+
+  @if (scopedFolderId(); as folderId) {
+    <vault-my-folder-menu slot="title-suffix" [folderId]="folderId" />
   }
 </app-header>
 
@@ -28,10 +34,11 @@
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
-<vault-shared-folder-card-grid
+<vault-card-grid
   [collections]="scopedCollections()"
+  [folders]="folders()"
   [scope]="vaultScope()"
-></vault-shared-folder-card-grid>
+></vault-card-grid>
 
 <!-- Remounted per scope: the table reads its filters from the URL once, at mount. -->
 <vault-items-table
@@ -52,6 +59,7 @@
   [organizationName]="emptyVaultOrganizationName()"
   [hasMultipleVaults]="hasMultipleVaults()"
   [sharedFolderName]="emptySharedFolderName()"
+  [folderName]="emptyFolderName()"
 >
   @if (showItemCreation()) {
     <vault-new-cipher-menu

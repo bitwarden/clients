@@ -1,4 +1,5 @@
 import { TemplatePortal } from "@angular/cdk/portal";
+import { NgComponentOutlet } from "@angular/common";
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -73,6 +74,10 @@ import {
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
 import {
+  SHARED_FOLDER_DECORATION,
+  SharedFolderDecoration,
+} from "../../tokens/shared-folder-decoration.token";
+import {
   BULK_BAR_CLEARANCE,
   VAULT_TABLE_MIN_HEIGHT,
   VAULT_TABLE_ROW_HEIGHT,
@@ -124,6 +129,8 @@ export type SharedFoldersTableFilters = {
    * unfiltered.
    */
   pinned?: boolean;
+
+  controlledAccess?: boolean;
 };
 
 /**
@@ -180,6 +187,7 @@ export type SharedFoldersTableFilters = {
     IconTileComponent,
     LinkModule,
     MenuModule,
+    NgComponentOutlet,
     RouterLink,
     SearchModule,
     SkeletonTextComponent,
@@ -199,6 +207,11 @@ export class SharedFoldersComponent {
   private readonly layoutFooter = inject(LayoutFooterService);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
+
+  /** Host-provided decoration after each folder's name; null when unprovided. */
+  protected readonly decoration: SharedFolderDecoration | null = inject(SHARED_FOLDER_DECORATION, {
+    optional: true,
+  });
 
   private readonly bulkBarTemplate = viewChild.required<TemplateRef<unknown>>("bulkBar");
 
@@ -229,7 +242,7 @@ export class SharedFoldersComponent {
         combineLatest([
           this.collectionService.decryptedCollections$(userId),
           // Emits null until the first decrypt completes.
-          this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+          this.cipherService.cipherListViewsIncludingRestricted$(userId).pipe(filterOutNullish()),
           this.organizationService.organizations$(userId),
         ]),
       ),
@@ -376,6 +389,14 @@ export class SharedFoldersComponent {
   /** Whether the chip has anything to narrow. One distinct permission can't exclude a row. */
   protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
 
+  protected readonly showControlledAccess = computed(() => {
+    const folders = this.sharedFolders();
+    return (
+      folders.some((row) => row.hasEnabledAccessRule) &&
+      folders.some((row) => !row.hasEnabledAccessRule)
+    );
+  });
+
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
   protected readonly vaultScopeCommands = vaultScopeCommands;
@@ -416,7 +437,8 @@ export class SharedFoldersComponent {
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) &&
     this.matchesPermissions(row, values.permissions) &&
-    this.matchesPinned(row, values.pinned);
+    this.matchesPinned(row, values.pinned) &&
+    this.matchesControlledAccess(row, values.controlledAccess);
 
   constructor() {
     // Carry the selection onto each new set of rows — see `reconcileSelection`. The rows and the
@@ -583,6 +605,10 @@ export class SharedFoldersComponent {
   /** Reads the pinned set, so the table re-filters when a pin changes. `undefined` is unfiltered. */
   private matchesPinned(row: SharedFolderRow, pinned: boolean | undefined): boolean {
     return !pinned || this.pinnedIds().has(row.id);
+  }
+
+  private matchesControlledAccess(row: SharedFolderRow, ruleOnly: boolean | undefined): boolean {
+    return !ruleOnly || row.hasEnabledAccessRule;
   }
 
   protected hasActiveChipFilters(
