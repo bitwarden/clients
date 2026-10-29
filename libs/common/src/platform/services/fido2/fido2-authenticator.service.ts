@@ -6,7 +6,7 @@ import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
-import { CipherId } from "../../../types/guid";
+import { CipherId, UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
@@ -14,6 +14,8 @@ import { CipherType } from "../../../vault/enums/cipher-type";
 import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
+import { CipherViewLikeUtils } from "../../../vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "../../../vault/utils/observable-utilities";
 import {
   Fido2AlgorithmIdentifier,
   Fido2AuthenticatorError,
@@ -417,7 +419,7 @@ export class Fido2AuthenticatorService<
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers
       .filter(
         (cipher) =>
@@ -439,7 +441,7 @@ export class Fido2AuthenticatorService<
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
@@ -455,9 +457,28 @@ export class Fido2AuthenticatorService<
     );
   }
 
+  /**
+   * Ciphers holding a passkey, fully decrypted. Picked on list views first, so a passkey
+   * lookup never decrypts the whole vault.
+   */
+  private async passkeyCiphers(userId: UserId): Promise<CipherView[]> {
+    const listViews = await firstValueFrom(
+      this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+    );
+    const ids = listViews
+      .filter(
+        (cipher) =>
+          CipherViewLikeUtils.hasFido2Credentials(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
+      )
+      .map((cipher) => CipherViewLikeUtils.getId(cipher))
+      .filter((id) => id != null);
+
+    return this.cipherService.getAllDecryptedForIds(userId, ids);
+  }
+
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+    const ciphers = await this.passkeyCiphers(activeUserId);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
