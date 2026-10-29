@@ -86,7 +86,7 @@ export class AccessRequestsSdkService implements AccessRequestSdkService {
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
           using ref = sdk.take();
-          return await ref.value.commercial().pam().access_requests().cancel(id, reason);
+          return await ref.value.commercial().pam().access_requests().cancel(id, { reason });
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to cancel access request: ${error}`);
