@@ -9,6 +9,8 @@ import { RotationConfigsService } from "./managed-credentials/rotation-configs.s
 import { OrgCiphersService } from "./org-ciphers.service";
 import { ROTATION_TABS } from "./rotation-links";
 import { RotationShellComponent } from "./rotation-shell.component";
+import { TargetSystemEditComponent } from "./target-systems/target-system-edit.component";
+import { TargetSystemsTabComponent } from "./target-systems/target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /** Whether a navigation off a detail page leaves the record it was editing behind. */
@@ -44,6 +46,18 @@ export const rotationRoutes: Routes = [
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
+    path: `${ROTATION_TABS.targetSystems}/new`,
+    component: TargetSystemEditComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    data: { titleId: "pamTargetSystemCreateTitle" },
+  },
+  {
+    path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
+    component: TargetSystemEditComponent,
+    canDeactivate: [unsavedChangesDialogGuard],
+    data: { titleId: "pamTargetSystemEditTitle" },
+  },
+  {
     path: "",
     component: RotationShellComponent,
     providers: [
@@ -53,6 +67,11 @@ export const rotationRoutes: Routes = [
       OrgCiphersService,
     ],
     children: [
+      {
+        path: ROTATION_TABS.targetSystems,
+        component: TargetSystemsTabComponent,
+        data: { titleId: "pamRotationTabTargetSystems" },
+      },
       {
         path: ROTATION_TABS.managedCredentials,
         component: ManagedCredentialsTabComponent,
