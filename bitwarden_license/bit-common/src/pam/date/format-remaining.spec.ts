@@ -1,4 +1,4 @@
-import { formatRemaining } from "./format-remaining";
+import { formatRemaining, formatRemainingLong } from "./format-remaining";
 
 describe("formatRemaining", () => {
   it.each([
@@ -30,5 +30,29 @@ describe("formatRemaining", () => {
     ]);
 
     expect(formatRemaining("de", (2 * 60 + 5) * 60_000)).toBe(expected);
+  });
+});
+
+describe("formatRemainingLong", () => {
+  const DAY = 24 * 60 * 60_000;
+
+  it.each([
+    [0, "0 seconds"],
+    [-1000, "0 seconds"],
+    [Number.NaN, "0 seconds"],
+    [1000, "1 second"],
+    [30_000, "30 seconds"],
+    [60_000, "1 minute"],
+    [59_500, "1 minute"], // ceils up to the next minute
+    [4 * 60_000, "4 minutes"],
+    [59 * 60_000, "59 minutes"],
+    [60 * 60_000, "1 hour"],
+    [(2 * 60 + 59) * 60_000, "2 hours"],
+    [23 * 60 * 60_000, "23 hours"],
+    [DAY, "1 day"],
+    [20 * DAY, "20 days"],
+    [20 * DAY + 23 * 60 * 60_000, "20 days"],
+  ])("formats %dms as %s", (ms, expected) => {
+    expect(formatRemainingLong("en-US", ms)).toBe(expected);
   });
 });

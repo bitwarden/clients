@@ -27,6 +27,30 @@ export function formatRemaining(locale: string, remainingMs: number): string {
   return listFor(locale).format(parts);
 }
 
+/**
+ * The time left in its largest whole unit, spelled out, such as "4 minutes" or "20 days". Seconds
+ * and minutes round up so a countdown never undersells; hours and days round down so a larger
+ * unit never promises time that is not left.
+ */
+export function formatRemainingLong(locale: string, remainingMs: number): string {
+  if (!Number.isFinite(remainingMs) || remainingMs <= 0) {
+    return formatUnit(locale, 0, "second", "long");
+  }
+  const totalSeconds = Math.ceil(remainingMs / 1000);
+  if (totalSeconds < 60) {
+    return formatUnit(locale, totalSeconds, "second", "long");
+  }
+  const totalMinutes = Math.ceil(totalSeconds / 60);
+  if (totalMinutes < 60) {
+    return formatUnit(locale, totalMinutes, "minute", "long");
+  }
+  const totalHours = Math.floor(totalMinutes / 60);
+  if (totalHours < 24) {
+    return formatUnit(locale, totalHours, "hour", "long");
+  }
+  return formatUnit(locale, Math.floor(totalHours / 24), "day", "long");
+}
+
 function listFor(locale: string): Intl.ListFormat {
   let list = lists.get(locale);
   if (!list) {
