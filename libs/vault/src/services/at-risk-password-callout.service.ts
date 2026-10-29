@@ -8,6 +8,7 @@ import {
   VAULT_AT_RISK_PASSWORDS_MEMORY,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { UserId } from "@bitwarden/user-core";
 
@@ -36,18 +37,19 @@ export class AtRiskPasswordCalloutService {
   pendingTasks$(userId: UserId): Observable<SecurityTask[]> {
     return combineLatest([
       this.taskService.pendingTasks$(userId),
-      this.cipherService.cipherViews$(userId),
+      // List views: only ids and permissions are needed, not their decrypted contents.
+      this.cipherService.cipherListViews$(userId),
     ]).pipe(
       map(([tasks, ciphers]) => {
         return tasks.filter((t: SecurityTask) => {
-          const associatedCipher = ciphers.find((c) => c.id === t.cipherId);
+          const associatedCipher = ciphers.find((c) => CipherViewLikeUtils.getId(c) === t.cipherId);
 
           return (
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             associatedCipher &&
             associatedCipher.edit &&
             associatedCipher.viewPassword &&
-            !associatedCipher.isDeleted
+            !CipherViewLikeUtils.isDeleted(associatedCipher)
           );
         });
       }),
