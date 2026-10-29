@@ -8,6 +8,10 @@ import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
@@ -31,6 +35,7 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
 import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
@@ -76,6 +81,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
+import { MainSdkService } from "./services/main-sdk.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -113,6 +119,7 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  policyService: PolicyService;
 
   constructor() {
     // Set paths for portable builds
@@ -225,6 +232,18 @@ export class Main {
     );
 
     this.govModeService = new DefaultGovModeService(this.environmentService);
+
+    const sdkService = new MainSdkService(
+      this.environmentService,
+      new DefaultManagedSettingsService(SdkLoadService.Ready),
+    );
+    this.policyService = new DefaultPolicyService(
+      stateProvider,
+      new DefaultOrganizationService(stateProvider),
+      accountService,
+      new DefaultNewPolicyService(stateProvider),
+      () => sdkService,
+    );
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,
