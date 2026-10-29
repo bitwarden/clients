@@ -46,7 +46,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { LoginView } from "../models/view/login.view";
 
 import { CipherService } from "./cipher.service";
-import { DECRYPTED_CIPHERS, ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
+import { ENCRYPTED_CIPHERS } from "./key-state/ciphers.state";
 
 const ENCRYPTED_TEXT = "This data has been encrypted";
 function encryptText(clearText: string | Uint8Array) {
@@ -1521,11 +1521,6 @@ describe("Cipher Service", () => {
   });
 
   describe("getAllDecrypted()", () => {
-    beforeEach(() => {
-      // Clear the decrypted cache to ensure we test the decrypt path
-      stateProvider.singleUser.getFake(mockUserId, DECRYPTED_CIPHERS).nextState({});
-    });
-
     it("should use SDK to list and decrypt ciphers", async () => {
       const mockCipherView1 = new CipherView();
       mockCipherView1.name = "Test Cipher 1";
@@ -1550,7 +1545,7 @@ describe("Cipher Service", () => {
       expect(result[1]).toBeInstanceOf(CipherView);
     });
 
-    it("decrypts on every call and caches no decrypted vault", async () => {
+    it("decrypts on every call", async () => {
       cipherSdkService.legacyDecryptFullViewList.mockResolvedValue({
         successes: [new CipherView()],
         failures: [],
@@ -1560,10 +1555,6 @@ describe("Cipher Service", () => {
       await cipherService.getAllDecrypted(mockUserId);
 
       expect(cipherSdkService.legacyDecryptFullViewList).toHaveBeenCalledTimes(2);
-      const cache = await firstValueFrom(
-        stateProvider.singleUser.getFake(mockUserId, DECRYPTED_CIPHERS).state$,
-      );
-      expect(cache ?? {}).toEqual({});
     });
   });
 

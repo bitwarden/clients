@@ -60,7 +60,6 @@ import { hydrateCiphersWithLocalData } from "../utils/hydrate-ciphers-with-local
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
-  DECRYPTED_CIPHERS,
   ENCRYPTED_CIPHERS,
   FAILED_DECRYPTED_CIPHERS,
   LOCAL_DATA_KEY,
@@ -1639,9 +1638,7 @@ export class CipherService implements CipherServiceAbstraction {
     await this.stateProvider.setUserState(ENCRYPTED_CIPHERS, null, userId);
   }
 
-  /** Wipes a decrypted vault that versions before it stopped being cached may have left. */
   private async clearDecryptedCiphersState(userId: UserId) {
-    await this.stateProvider.setUserState(DECRYPTED_CIPHERS, null, userId);
     await this.setFailedDecryptedCiphers(null, userId);
     this.clearSortedCiphers();
   }
