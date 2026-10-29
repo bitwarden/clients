@@ -39,7 +39,9 @@ export class ForegroundCipherService extends CipherService {
             userId,
           }),
         ),
-        map((response) => response.result),
+        // No answer, e.g. from a background still starting after a restart, is not ready yet;
+        // the background announces its list views once it has decrypted them.
+        map((response) => response?.result ?? null),
       ),
     this.clearListViews$,
   );

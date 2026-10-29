@@ -56,6 +56,21 @@ describe("ForegroundCipherService", () => {
     expect(sendMessageWithResponse).toHaveBeenCalledTimes(2);
   });
 
+  it("waits for the background's announcement when the background did not answer", async () => {
+    // Chrome calls back without a response when no listener is registered yet.
+    sendMessageWithResponse.mockResolvedValueOnce(undefined);
+    const emitted: (CipherListView[] | null)[] = [];
+    service.cipherListViewsIncludingRestricted$(userId).subscribe((views) => emitted.push(views));
+    await Promise.resolve();
+    expect(emitted).toEqual([null]);
+
+    messages$.next({ command: "updateOverlayCiphers" });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(emitted.at(-1)).toEqual(listViews("first"));
+  });
+
   it("drops its copy of the list views when the cache is cleared", async () => {
     const emitted: (CipherListView[] | null)[] = [];
     service.cipherListViewsIncludingRestricted$(userId).subscribe((views) => emitted.push(views));
