@@ -11,8 +11,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { RouterModule } from "@angular/router";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { filter } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -53,6 +52,18 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import {
+  AccessRequestView,
+  activateAccessErrorMessageKey,
+  durationLabel,
+  exactWindow,
+  humanApprover,
+  reasonText,
+  relativeStart,
+} from "../..";
+import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
+import type { AccessBadgeState } from "../../access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
 import { isLiveManagedLease, isUnstartedApproval } from "../../approvals/managed-lease-row";
 import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
@@ -109,7 +120,6 @@ export type AccessRequestDialogParams = {
     DialogModule,
     FormFieldModule,
     ReactiveFormsModule,
-    RouterModule,
     StatusLockupComponent,
     SvgComponent,
     TypographyModule,
@@ -194,7 +204,7 @@ export class AccessRequestDialogComponent implements OnInit {
       return null;
     }
     // A running lease badges as its own countdown, which escalates to "ending soon" on the
-    // threshold the pill owns, so the dialog never has to name either state itself.
+    // threshold the pill owns — so the dialog never has to name either state itself.
     const endsAt = this.leaseEndsAt();
     if (endsAt != null) {
       return {
@@ -237,6 +247,8 @@ export class AccessRequestDialogComponent implements OnInit {
       : request.requesterName || request.requesterEmail || uuidAsString(request.requesterId);
   });
 
+  protected readonly requesterEmail = computed(() => this.request()?.requesterEmail ?? null);
+
   /**
    * The decision that resolved the request, as the "Decision" card reads it: who decided, how to
    * reach them, and any note they left. The full log stays in the audit trail; this names only the
@@ -253,17 +265,12 @@ export class AccessRequestDialogComponent implements OnInit {
       return null;
     }
     const approver = humanApprover(decision);
-    // A holder ending their own lease is the requester, whose name the request already carries
-    // when their decision doesn't.
-    const named =
-      approver?.name ||
-      approver?.email ||
-      (approver != null && approver.id === request.requesterId ? this.requesterDisplay() : null);
+    const named = approver?.name || approver?.email || null;
     return {
-      byLabelKey: decisionLabelKey(decision.verdict, request.status, approver, request.requesterId),
+      byLabelKey: request.status === "denied" ? "pamDecisionDeniedBy" : "pamDecisionApprovedBy",
       who:
         decision.decider === "automatic"
-          ? this.i18nService.t("pamDecisionAutomatic")
+          ? this.i18nService.t("pamResolverAccessRule")
           : (named ?? this.i18nService.t("pamResolverUnknown")),
       // Only worth a row of its own when it isn't already standing in as the name.
       email: approver?.email && approver.email !== approver.name ? approver.email : null,
@@ -277,34 +284,13 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly confirmingWithdraw = signal(false);
 
-  protected readonly withdrawReason = new FormControl("", {
-    nonNullable: true,
-    validators: [Validators.required],
-  });
-
-  /**
-   * The withdraw warning in runs of plain and bold text. Translated as one sentence, so each
-   * locale keeps its own word order, then split at the item and requester names, which read in
-   * bold. Rendered as text, never HTML, since both names are user-supplied.
-   */
-  protected readonly withdrawWarning = computed(() =>
-    boldRuns(
-      this.i18nService.t(
-        "pamWithdrawApprovalConfirmMessage",
-        WITHDRAW_ITEM_MARK,
-        WITHDRAW_REQUESTER_MARK,
-      ),
-      new Map([
-        [WITHDRAW_ITEM_MARK, this.cipherName() ?? ""],
-        [WITHDRAW_REQUESTER_MARK, this.requesterDisplay() ?? ""],
-      ]),
-    ),
-  );
+  protected readonly withdrawReason = new FormControl("", { nonNullable: true });
 
   private readonly withdrawReasonText = toSignal(this.withdrawReason.valueChanges, {
     initialValue: "",
   });
 
+  /** The server rejects a managing approver's withdrawal without a note, so the action waits. */
   protected readonly withdrawReasonGiven = computed(
     () => this.withdrawReasonText().trim().length > 0,
   );
@@ -533,14 +519,12 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   }
 
-  /**
-   * Turns the dialog over to its confirmation face; the withdrawal itself waits for a reason. Any
-   * note from an earlier Cancel or failed attempt is still there.
-   */
+  /** Turns the dialog over to its confirmation face; the withdrawal itself waits for a reason. */
   protected withdrawApproval(): void {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
+    this.withdrawReason.setValue("");
     this.confirmingWithdraw.set(true);
   }
 
@@ -554,15 +538,11 @@ export class AccessRequestDialogComponent implements OnInit {
       return;
     }
     const reason = this.withdrawReason.value.trim();
-    const withdrawn = await this.approverActions.withdrawApproval(
+    await this.approverActions.withdrawApproval(
       () => this.detail.withdrawApproval(reason),
       (busy) => this.withdrawing.set(busy),
     );
-    // A failure keeps the confirmation, and the reason, open so the approver can retry as is.
-    if (withdrawn) {
-      this.withdrawReason.setValue("");
-      this.confirmingWithdraw.set(false);
-    }
+    this.confirmingWithdraw.set(false);
   }
 
   protected async revoke(): Promise<void> {
