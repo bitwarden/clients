@@ -3000,6 +3000,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     try {
       this.closeInlineMenu(sender);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      if (
+        login &&
+        cipherView.type === CipherType.Login &&
+        !(await this.fillCipherPolicy.canOfferSave(
+          {
+            uri: login.uri || sender.tab?.url || "",
+            username: login.username,
+            password: login.password,
+          },
+          activeUserId,
+        ))
+      ) {
+        cipherView.login.password = "";
+      }
       await this.cipherService.setAddEditCipherInfo(
         {
           cipher: cipherView,

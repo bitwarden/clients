@@ -1842,6 +1842,57 @@ describe("OverlayBackground", () => {
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
 
+      it("leaves the password out of a new login draft the fill cipher policy does not offer", async () => {
+        jest.spyOn(fillCipherPolicy, "canOfferSave").mockResolvedValueOnce(false);
+
+        sendMockExtensionMessage(
+          {
+            command: "autofillOverlayAddNewVaultItem",
+            addNewCipherType: CipherType.Login,
+            login: {
+              uri: "https://tacos.com",
+              hostname: "",
+              username: "username",
+              password: "revealed",
+            },
+          },
+          sender,
+        );
+        jest.advanceTimersByTime(100);
+        await flushPromises();
+
+        expect(fillCipherPolicy.canOfferSave).toHaveBeenCalledWith(
+          { uri: "https://tacos.com", username: "username", password: "revealed" },
+          expect.anything(),
+        );
+        const { cipher } = jest.mocked(cipherService.setAddEditCipherInfo).mock.calls[0][0];
+        expect(cipher.login.username).toBe("username");
+        expect(cipher.login.password).toBe("");
+        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
+      });
+
+      it("keeps the password in a new login draft the fill cipher policy offers", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "autofillOverlayAddNewVaultItem",
+            addNewCipherType: CipherType.Login,
+            login: {
+              uri: "https://tacos.com",
+              hostname: "",
+              username: "username",
+              password: "password",
+            },
+          },
+          sender,
+        );
+        jest.advanceTimersByTime(100);
+        await flushPromises();
+
+        const { cipher } = jest.mocked(cipherService.setAddEditCipherInfo).mock.calls[0][0];
+        expect(cipher.login.password).toBe("password");
+        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
+      });
+
       it("creates a new card cipher", async () => {
         overlayBackground["currentAddNewItemData"].addNewCipherType = CipherType.Card;
 
