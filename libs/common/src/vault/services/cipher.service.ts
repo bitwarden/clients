@@ -368,24 +368,44 @@ export class CipherService implements CipherServiceAbstraction {
    */
   private async getAllDecryptedIncludingRestricted(userId: UserId): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers(userId);
-    if (decCiphers != null && decCiphers.length !== 0) {
-      return decCiphers;
-    }
-
-    // `localData` (e.g. lastUsedDate) is a client-only field the SDK does not populate on the
-    // decrypted views. Re-attach it here so every consumer of `cipherViews$`/`getAllDecrypted`
-    // sees it, matching the legacy and list-view decryption paths.
-    // (Note, the cached views above are already hydrated)
-    let localData: Record<CipherId, LocalData> | undefined;
-
-    // Wrap `localData` in try-catch so a failure to hydrate data doesn't cascade to a larger failed experience
-    try {
-      localData = await firstValueFrom(this.localData$(userId));
-    } catch {
-      localData = undefined;
-    }
 
     try {
+      // The encrypted state is updated by sync before the sync request completes. Listing
+      // through the SDK's in-memory vault can briefly return an older (or empty) list after
+      // that update, so decrypt the state that was just committed instead.
+      const encryptedCiphers = await firstValueFrom(
+        this.encryptedCiphersState(userId).state$.pipe(filter((ciphers) => ciphers != null)),
+      );
+      const currentCiphers = Object.values(encryptedCiphers);
+      const viewsMatchCurrentState = (views: CipherView[]) => {
+        const viewsById = new Map(views.map((cipher) => [cipher.id, cipher] as const));
+        return (
+          viewsById.size === currentCiphers.length &&
+          currentCiphers.every((cipher) => {
+            const view = viewsById.get(cipher.id);
+            return view != null && view.revisionDate?.getTime() === Date.parse(cipher.revisionDate);
+          })
+        );
+      };
+
+      // A nonempty cache can also be incomplete after sync, so only use it when it still matches
+      // the encrypted state.
+      if (decCiphers.length !== 0 && viewsMatchCurrentState(decCiphers)) {
+        return decCiphers;
+      }
+
+      // `localData` (e.g. lastUsedDate) is a client-only field the SDK does not populate on the
+      // decrypted views. Re-attach it here so every consumer of `cipherViews$`/`getAllDecrypted`
+      // sees it, matching the legacy and list-view decryption paths.
+      let localData: Record<CipherId, LocalData> | undefined;
+
+      // Wrap `localData` in try-catch so a failure to hydrate data doesn't cascade to a larger failed experience
+      try {
+        localData = await firstValueFrom(this.localData$(userId));
+      } catch {
+        localData = undefined;
+      }
+
       const sdkMeasurement = this.logService.startMeasurement(
         PERF_TRACK_GROUP,
         PERF_TRACK,
@@ -397,12 +417,26 @@ export class CipherService implements CipherServiceAbstraction {
         ["Failures", result.failures.length],
       ]);
 
-      const sortedSuccesses = hydrateCiphersWithLocalData(result.successes, localData).sort(
+      const sdkListMatchesState = viewsMatchCurrentState([...result.successes, ...result.failures]);
+
+      let successes = result.successes;
+      let failures = result.failures;
+      if (!sdkListMatchesState) {
+        const ciphers = currentCiphers.map(
+          (cipher) => new Cipher(cipher, localData?.[cipher.id as CipherId]),
+        );
+        [successes, failures] = await this.cipherEncryptionService.decryptManyLegacy(
+          ciphers,
+          userId,
+        );
+      }
+
+      const sortedSuccesses = hydrateCiphersWithLocalData(successes, localData).sort(
         this.getLocaleSortingFunction(),
       );
 
       await this.setDecryptedCipherCache(sortedSuccesses, userId);
-      await this.setFailedDecryptedCiphers(result.failures, userId);
+      await this.setFailedDecryptedCiphers(failures, userId);
 
       return sortedSuccesses;
     } catch {

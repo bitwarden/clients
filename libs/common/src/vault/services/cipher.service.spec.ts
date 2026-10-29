@@ -1499,30 +1499,82 @@ describe("Cipher Service", () => {
       stateProvider.singleUser.getFake(mockUserId, DECRYPTED_CIPHERS).nextState({});
     });
 
-    it("should use SDK to list and decrypt ciphers", async () => {
-      const mockCipherView1 = new CipherView();
-      mockCipherView1.name = "Test Cipher 1";
-      const mockCipherView2 = new CipherView();
-      mockCipherView2.name = "Test Cipher 2";
+    it("decrypts the current encrypted state when the SDK vault list is stale and empty", async () => {
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted").mockResolvedValue({
-        successes: [mockCipherView1, mockCipherView2],
+      const currentCipherView = new CipherView();
+      currentCipherView.id = cipherData.id;
+      currentCipherView.name = "Current item";
+      currentCipherView.revisionDate = new Date(cipherData.revisionDate);
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [], failures: [] });
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[currentCipherView], []]);
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(cipherSdkService.getAllDecrypted).toHaveBeenCalledWith(mockUserId);
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [expect.objectContaining({ id: cipherData.id })],
+        mockUserId,
+      );
+      expect(result).toEqual([currentCipherView]);
+    });
+
+    it("re-decrypts current state when the SDK returns an older revision of an existing item", async () => {
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
+
+      const staleCipherView = new CipherView();
+      staleCipherView.id = cipherData.id;
+      staleCipherView.revisionDate = new Date("2021-01-01T00:00:00.000Z");
+      const currentCipherView = new CipherView();
+      currentCipherView.id = cipherData.id;
+      currentCipherView.revisionDate = new Date(cipherData.revisionDate);
+      cipherSdkService.getAllDecrypted.mockResolvedValue({
+        successes: [staleCipherView],
+        failures: [],
+      });
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[currentCipherView], []]);
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledWith(
+        [expect.objectContaining({ id: cipherData.id })],
+        mockUserId,
+      );
+      expect(result).toEqual([currentCipherView]);
+    });
+
+    it("uses the SDK result when its items and revisions match current encrypted state", async () => {
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
+
+      const currentCipherView = new CipherView();
+      currentCipherView.id = cipherData.id;
+      currentCipherView.revisionDate = new Date(cipherData.revisionDate);
+      cipherSdkService.getAllDecrypted.mockResolvedValue({
+        successes: [currentCipherView],
         failures: [],
       });
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(mockUserId);
-      expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(CipherView);
-      expect(result[1]).toBeInstanceOf(CipherView);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result).toEqual([currentCipherView]);
     });
 
     it("should serve the decrypted cache without calling the SDK when the cache is populated", async () => {
       const cachedView = new CipherView();
-      cachedView.id = "cached-cipher-id" as CipherId;
+      cachedView.id = cipherData.id;
       cachedView.name = "Cached Cipher";
+      cachedView.revisionDate = new Date(cipherData.revisionDate);
 
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
       stateProvider.singleUser
         .getFake(mockUserId, DECRYPTED_CIPHERS)
         .nextState({ [cachedView.id]: cachedView });
@@ -1534,6 +1586,33 @@ describe("Cipher Service", () => {
       expect(sdkServiceSpy).not.toHaveBeenCalled();
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Cached Cipher");
+    });
+
+    it("refreshes a decrypted cache that does not match current encrypted state", async () => {
+      const staleCachedView = new CipherView();
+      staleCachedView.id = "stale-cached-cipher-id" as CipherId;
+      staleCachedView.name = "Stale cached item";
+      stateProvider.singleUser
+        .getFake(mockUserId, DECRYPTED_CIPHERS)
+        .nextState({ [staleCachedView.id]: staleCachedView });
+      stateProvider.singleUser
+        .getFake(mockUserId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherData.id]: cipherData } as Record<CipherId, CipherData>);
+
+      const currentCipherView = new CipherView();
+      currentCipherView.id = cipherData.id;
+      currentCipherView.name = "Current item";
+      currentCipherView.revisionDate = new Date(cipherData.revisionDate);
+      cipherSdkService.getAllDecrypted.mockResolvedValue({
+        successes: [currentCipherView],
+        failures: [],
+      });
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(cipherSdkService.getAllDecrypted).toHaveBeenCalledWith(mockUserId);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result).toEqual([currentCipherView]);
     });
   });
 
@@ -1620,7 +1699,7 @@ describe("Cipher Service", () => {
     });
   });
 
-  describe("getAllDecrypted (SDK path) localData hydration", () => {
+  describe("getAllDecrypted localData hydration", () => {
     beforeEach(() => {});
 
     it("re-attaches localData to SDK-decrypted ciphers", async () => {
@@ -1634,7 +1713,11 @@ describe("Cipher Service", () => {
       const sdkView = new CipherView();
       sdkView.id = cipherId;
       sdkView.localData = undefined;
-      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherId]: { ...cipherData, id: cipherId } as CipherData });
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [], failures: [] });
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[sdkView], []]);
 
       const [result] = await cipherService.getAllDecrypted(userId);
 
@@ -1649,7 +1732,11 @@ describe("Cipher Service", () => {
 
       const sdkView = new CipherView();
       sdkView.id = cipherId;
-      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CIPHERS)
+        .nextState({ [cipherId]: { ...cipherData, id: cipherId } as CipherData });
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [], failures: [] });
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[sdkView], []]);
 
       const result = await cipherService.getAllDecrypted(userId);
 
