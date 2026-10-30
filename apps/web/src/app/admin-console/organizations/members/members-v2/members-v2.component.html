@@ -9,14 +9,67 @@
   [selection]="selection()"
   [loading]="!firstLoaded()"
   [filter]="filter"
+  [filters]="initialFilters"
+  queryParam="members"
 >
   <bit-table-toolbar [rangeLabel]="rangeLabel">
+    <bit-search class="tw-flex-1" [placeholder]="'searchMembers' | i18n"></bit-search>
+
+    <!-- One element per `@if`: a block with multiple roots isn't matched by the `end` slot. -->
+    @if (canManage) {
+      <button
+        id="members-v2_button_export"
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        (click)="exportMembers()"
+      >
+        {{ "exportVerb" | i18n }}
+      </button>
+    }
+    @if (canManage) {
+      <button
+        id="members-v2_button_invite"
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        [disabled]="!firstLoaded() || !organization"
+        (click)="organization && invite(organization)"
+      >
+        {{ "inviteMember" | i18n }}
+      </button>
+    }
+
+    <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple searchable>
+      @if (hasStagedMembers()) {
+        <bit-filter-option [value]="userStatusType.Staged">{{ "staged" | i18n }}</bit-filter-option>
+      }
+      <bit-filter-option [value]="userStatusType.Invited">{{ "invited" | i18n }}</bit-filter-option>
+      <bit-filter-option [value]="userStatusType.Accepted">{{
+        "needsConfirmation" | i18n
+      }}</bit-filter-option>
+      <bit-filter-option [value]="userStatusType.Confirmed">{{
+        "active" | i18n
+      }}</bit-filter-option>
+      <!-- Revoked members match on their reason, so checking Revoked checks every reason. -->
+      <bit-filter-option [value]="userStatusType.Revoked">
+        {{ "revoked" | i18n }}
+        @for (reason of revocationReasons; track reason.value) {
+          <bit-filter-option [value]="reason.value">{{ reason.labelKey | i18n }}</bit-filter-option>
+        }
+      </bit-filter-option>
+    </bit-filter-menu>
+
     @if (organization?.useGroups) {
       <bit-filter-menu
         key="groupNames"
         icon="bwi-users"
         [placeholderText]="'groups' | i18n"
         multiple
+        searchable
       >
         @for (name of groupNames(); track name) {
           <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
@@ -28,6 +81,7 @@
         icon="bwi-collection-shared"
         [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
         multiple
+        searchable
       >
         @for (name of collectionNames(); track name) {
           <bit-filter-option [value]="name">{{ name }}</bit-filter-option>
@@ -36,13 +90,29 @@
     }
   </bit-table-toolbar>
 
+  <!-- No matches: filters hide every member, with Clear all. Otherwise: the org has no members. -->
   <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="emptyIcon"></bit-svg>
-    <span slot="title">{{ "noMembersInvitedToOrg" | i18n }}</span>
+    <bit-svg slot="graphic" [content]="noMatches() ? noMatchesIcon : emptyIcon"></bit-svg>
+    <span slot="title">{{
+      (noMatches() ? "noItemsMatchTheSelectedFilters" : "noMembersInvitedToOrg") | i18n
+    }}</span>
+    @if (noMatches()) {
+      <button
+        id="members-v2_button_clear-all-filters"
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-clear"
+        (click)="clearAllFilters()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
   </bit-status-lockup>
 
   <!-- Name -->
-  <bit-column sortable defaultSort="asc" [sortFn]="sortByName" width="minmax(240px, 2fr)">
+  <bit-column sortable [sortFn]="sortByName" width="minmax(240px, 2fr)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">
       <bit-avatar

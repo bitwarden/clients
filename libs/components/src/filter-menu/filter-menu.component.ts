@@ -223,6 +223,12 @@ export class FilterMenuComponent
   /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
   readonly icon = input<BitwardenIcon>();
 
+  /**
+   * Shows the in-menu search however few options there are. Without it, the search shows once
+   * the menu has more than ten options.
+   */
+  readonly searchable = input(false, { transform: booleanAttribute });
+
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 
   protected readonly triggerPaddingClass = computed(() =>
@@ -390,8 +396,10 @@ export class FilterMenuComponent
   /** Whether any option has children — nesting requires `multiple`. */
   protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.expandable()));
 
-  /** Whether the menu has enough options to warrant the in-menu search box. */
-  protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
+  /** Whether to show the in-menu search box: opted in, or enough options to warrant it. */
+  protected readonly showSearch = computed(
+    () => this.searchable() || this.allOptions().length > SEARCH_THRESHOLD,
+  );
 
   /**
    * How many options the running search matched, or `undefined` when no search is running. Shown
