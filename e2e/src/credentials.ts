@@ -55,8 +55,32 @@ function parse(contents: string): Map<string, Record<string, string>> {
   return sections;
 }
 
-/** Reads the account named by `E2E_ACCOUNT`, falling back to the default. */
+/**
+ * Reads the account from `E2E_EMAIL`, `E2E_PASSWORD` and `E2E_SERVER` when set, which is how
+ * CI passes it in. Otherwise reads the account named by `E2E_ACCOUNT` from the credentials file.
+ */
 export function account(): Account {
+  return fromEnv() ?? fromFile();
+}
+
+/** All three variables, or none: a partial set is a misconfigured job, not a fallback. */
+function fromEnv(): Account | undefined {
+  const { E2E_EMAIL: email, E2E_PASSWORD: password, E2E_SERVER: server } = process.env;
+  const values = [email, password, server];
+
+  if (values.every((value) => !value)) {
+    return undefined;
+  }
+
+  if (!email || !password || !server) {
+    throw new Error("Set all of E2E_EMAIL, E2E_PASSWORD and E2E_SERVER, or none.");
+  }
+
+  return { email, password, server: vaultUrl(server) };
+}
+
+/** Reads the account named by `E2E_ACCOUNT`, falling back to the default. */
+function fromFile(): Account {
   const name = process.env.E2E_ACCOUNT ?? DEFAULT_ACCOUNT;
 
   let contents: string;

@@ -53,6 +53,16 @@ The web suite builds and serves the client itself when `server` is the dev serve
 E2E_ACCOUNT=usdev-e2e npm run test:e2e:web
 ```
 
+`E2E_EMAIL`, `E2E_PASSWORD` and `E2E_SERVER` take precedence over the file when all
+three are set. CI uses them.
+
+## CI
+
+`.github/workflows/test-e2e-usdev.yml` runs the web, browser and shared suites against
+usdev nightly, and on a PR when it is labeled `force-e2e`. The web suite drives the
+deployed usdev vault, so a PR's web changes are not under test; browser and shared
+build the extension from the PR.
+
 ## Headless
 
 Only the web suite is headless. The others open a window:

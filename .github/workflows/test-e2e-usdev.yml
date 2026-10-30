@@ -1,0 +1,110 @@
+# Runs the e2e Playwright suites (e2e/) against the usdev environment.
+# Nightly, and on demand by labeling a PR "force-e2e". Fork PRs get no secrets, so they are skipped.
+# The web suite drives the deployed usdev vault; browser and shared build the extension from the checkout.
+
+name: Test E2E (usdev)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+
+# The suites share one usdev account and mutate it (e.g. passkeys), so runs never overlap.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+permissions: {}
+
+jobs:
+  test:
+    name: ${{ matrix.suite.name }}
+    if: >-
+      github.event_name != 'pull_request'
+      || (github.event.label.name == 'force-e2e'
+        && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      # One suite at a time, for the same shared account.
+      max-parallel: 1
+      matrix:
+        suite:
+          - name: web
+            command: npm run test:e2e:web
+          # Extensions and the shared suite need a headed Chromium, hence the virtual display.
+          - name: browser
+            command: xvfb-run -a npm run test:e2e:browser
+          - name: shared
+            command: xvfb-run -a npm run test:e2e:shared
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "gh-clients"
+          secrets: "E2E-USDEV-EMAIL,E2E-USDEV-PASSWORD"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Run ${{ matrix.suite.name }} suite
+        env:
+          CI: true
+          E2E_EMAIL: ${{ steps.get-kv-secrets.outputs.E2E-USDEV-EMAIL }}
+          E2E_PASSWORD: ${{ steps.get-kv-secrets.outputs.E2E-USDEV-PASSWORD }}
+          E2E_SERVER: vault.usdev.bitwarden.pw
+          _COMMAND: ${{ matrix.suite.command }}
+        run: $_COMMAND
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-usdev-${{ matrix.suite.name }}
+          path: |
+            e2e/test-results/
+            e2e/playwright-report/
+          if-no-files-found: ignore
