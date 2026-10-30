@@ -464,7 +464,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
-import { AccountDeletionService } from "../auth/account-deletion/account-deletion.service";
+import { AccountDeletionDialogService } from "../auth/account-deletion";
 import { DefaultDeviceManagementComponentService } from "../auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "../auth/device-management/device-management-component.service.abstraction";
 import {
@@ -2096,8 +2096,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: AccountDeletionService,
-    useClass: AccountDeletionService,
+    provide: AccountDeletionDialogService,
+    useClass: AccountDeletionDialogService,
     deps: [AccountServiceAbstraction, OrganizationServiceAbstraction, DialogService],
   }),
   safeProvider({

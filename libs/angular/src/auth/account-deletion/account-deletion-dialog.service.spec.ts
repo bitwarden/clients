@@ -12,7 +12,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
-import { AccountDeletionService } from "./account-deletion.service";
+import { AccountDeletionDialogService } from "./account-deletion-dialog.service";
 import { DeleteAccountDialogComponent } from "./delete-account-dialog/delete-account-dialog.component";
 
 // isOwner is a computed getter (reads from type), so set type directly
@@ -27,8 +27,8 @@ function makeOrg(overrides: Partial<Organization> = {}): Organization {
   return org;
 }
 
-describe("AccountDeletionService", () => {
-  let service: AccountDeletionService;
+describe("AccountDeletionDialogService", () => {
+  let service: AccountDeletionDialogService;
 
   let accountService: FakeAccountService;
   let organizationService: MockProxy<OrganizationService>;
@@ -51,7 +51,7 @@ describe("AccountDeletionService", () => {
     dialogService.openSimpleDialog.mockResolvedValue(false);
     jest.spyOn(DeleteAccountDialogComponent, "open").mockReturnValue(mockDeleteDialogRef);
 
-    service = new AccountDeletionService(accountService, organizationService, dialogService);
+    service = new AccountDeletionDialogService(accountService, organizationService, dialogService);
   });
 
   afterEach(() => {

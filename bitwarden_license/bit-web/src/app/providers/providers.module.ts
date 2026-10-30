@@ -19,13 +19,13 @@ import {
 } from "@bitwarden/web-vault/app/billing/payment/components";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
-import { InvoicesComponent } from "../../billing/providers/billing-history/invoices.component";
-import { NoInvoicesComponent } from "../../billing/providers/billing-history/no-invoices.component";
-import { ProviderBillingHistoryComponent } from "../../billing/providers/billing-history/provider-billing-history.component";
-import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
-import { ProviderSubscriptionStatusComponent } from "../../billing/providers/subscription/provider-subscription-status.component";
-import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
-import { EventsComponent } from "../../dirt/provider-events/events.component";
+import { InvoicesComponent } from "../billing/providers/billing-history/invoices.component";
+import { NoInvoicesComponent } from "../billing/providers/billing-history/no-invoices.component";
+import { ProviderBillingHistoryComponent } from "../billing/providers/billing-history/provider-billing-history.component";
+import { SetupBusinessUnitComponent } from "../billing/providers/setup/setup-business-unit.component";
+import { ProviderSubscriptionStatusComponent } from "../billing/providers/subscription/provider-subscription-status.component";
+import { ProviderSubscriptionComponent } from "../billing/providers/subscription/provider-subscription.component";
+import { EventsComponent } from "../dirt/provider-events/events.component";
 
 import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog.component";
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";

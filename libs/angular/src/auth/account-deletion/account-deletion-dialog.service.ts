@@ -11,7 +11,7 @@ import { DialogService } from "@bitwarden/components";
 import { DeleteAccountDialogComponent } from "./delete-account-dialog/delete-account-dialog.component";
 
 @Injectable()
-export class AccountDeletionService {
+export class AccountDeletionDialogService {
   constructor(
     private accountService: AccountService,
     private organizationService: OrganizationService,
