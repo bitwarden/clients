@@ -6,12 +6,15 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import type {
+  AccessLeaseId,
+  AccessRequestView,
+} from "@bitwarden/bit-common/pam/abstractions/access-lease";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";

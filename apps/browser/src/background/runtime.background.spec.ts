@@ -14,7 +14,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -35,6 +34,7 @@ import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums
 import { AutofillOutcome } from "../autofill/enums/autofill-outcome.enum";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
+import { CipherUse, FillCipherPolicy } from "../autofill/services/abstractions/fill-cipher-policy";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { crossContextBoundary, tagAsExternalMessage } from "../autofill/spec/testing-utils";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -207,13 +207,13 @@ describe("RuntimeBackground collection dispatch", () => {
 
   describe("fillCipherForPopup", () => {
     const cipher = Object.assign(new CipherView(), { id: "cipher-1" });
-    let cipherService: MockProxy<CipherService>;
+    let fillCipherPolicy: MockProxy<FillCipherPolicy>;
 
     beforeEach(() => {
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
-      cipherService = mock<CipherService>();
-      cipherService.getAllDecrypted.mockResolvedValue([cipher]);
-      (main as any).cipherService = cipherService;
+      fillCipherPolicy = mock<FillCipherPolicy>();
+      fillCipherPolicy.ciphers.mockResolvedValue([cipher]);
+      (main as any).fillCipherPolicy = fillCipherPolicy;
       autofillOrchestrator.unsafeAutofillTabWithCipher.mockResolvedValue({
         outcome: AutofillOutcome.Filled,
         totp: "totp-123",
@@ -230,6 +230,15 @@ describe("RuntimeBackground collection dispatch", () => {
       expect(result).toEqual({ outcome: AutofillOutcome.Filled, totp: "totp-123" });
     });
 
+    it("looks up the cipher as a user fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
+        popupSender,
+      );
+
+      expect(fillCipherPolicy.ciphers).toHaveBeenCalledWith("user-1", CipherUse.UserFill);
+    });
+
     it("security: rejects a content-script sender without fetching or filling", async () => {
       // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
       // removed without this failing. The spy calls through to detect regressions inside the guard.
@@ -244,7 +253,7 @@ describe("RuntimeBackground collection dispatch", () => {
       // Logging the rejection is part of the security requirement: the warning is the
       // observable record that the boundary fired on this sender.
       expect(logService.warning).toHaveBeenCalled();
-      expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
+      expect(fillCipherPolicy.ciphers).not.toHaveBeenCalled();
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
     });
 

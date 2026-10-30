@@ -11,11 +11,6 @@ import {
   merge,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
 import {
   AccessDecisionVerdict,
   AccessEventService,
@@ -28,7 +23,12 @@ import {
   ApprovalSdkService,
   canApprove,
   isRequestNoLongerPendingError,
-} from "..";
+} from "@bitwarden/bit-common/pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
 import {
   AccessNameResolverService,
   ResolvedNames,

@@ -17,11 +17,11 @@ identified by matching the server's English sentence.
 The web client now keeps **three** such catalogs, twenty-eight sentences in total, matched with
 `String.includes()`:
 
-- [`helpers/request-access-error.ts`](../bitwarden_license/bit-web/src/app/pam/helpers/request-access-error.ts)
+- [`helpers/request-access-error.ts`](../bitwarden_license/bit-common/src/pam/helpers/request-access-error.ts)
   — twelve sentences from the lease-request endpoint.
-- [`helpers/activate-access-error.ts`](../bitwarden_license/bit-web/src/app/pam/helpers/activate-access-error.ts)
+- [`helpers/activate-access-error.ts`](../bitwarden_license/bit-common/src/pam/helpers/activate-access-error.ts)
   — nine from the activation endpoint.
-- [`helpers/access-rule-error.ts`](../bitwarden_license/bit-web/src/app/pam/helpers/access-rule-error.ts)
+- [`helpers/access-rule-error.ts`](../bitwarden_license/bit-common/src/pam/helpers/access-rule-error.ts)
   — seven from the access-rule write endpoints: six the server words, plus one the SDK raises
   locally before the request ever leaves the client.
 

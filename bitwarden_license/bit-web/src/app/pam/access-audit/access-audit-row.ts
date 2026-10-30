@@ -1,4 +1,8 @@
-import { LabelValue, durationLabel, exactWindow } from "../helpers/approval-window";
+import {
+  LabelValue,
+  durationLabel,
+  exactWindow,
+} from "@bitwarden/bit-common/pam/helpers/approval-window";
 
 import {
   AccessAuditEventKind,

@@ -5,6 +5,10 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import {
+  accessConnectorDeactivateConfirmOptions,
+  accessConnectorDeleteConfirmOptions,
+} from "@bitwarden/bit-common/pam/helpers/access-connector-confirm";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -33,10 +37,6 @@ import {
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  accessConnectorDeactivateConfirmOptions,
-  accessConnectorDeleteConfirmOptions,
-} from "../../helpers/access-connector-confirm";
 import { HasUnsavedChangesDialog } from "../../unsaved-changes.guard";
 import {
   AssignmentPickerColumn,

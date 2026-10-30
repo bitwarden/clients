@@ -1,4 +1,4 @@
-import type { AccessRequestId } from "../abstractions/access-lease";
+import type { AccessRequestId } from "@bitwarden/bit-common/pam/abstractions/access-lease";
 
 import { MyAccessRequestRow } from "./my-access-row";
 

@@ -15,11 +15,15 @@ import {
 } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -65,6 +69,9 @@ describe("ItemMoreOptionsComponent", () => {
     getUrlEquivalentDomains: jest.fn().mockReturnValue(of(new Set<string>())),
   };
 
+  const revealedCipherService = mock<RevealedCipherService>();
+  let revealed$: BehaviorSubject<ReadonlyMap<CipherId, CipherView>>;
+
   const baseCipher = {
     id: "cipher-1",
     login: {
@@ -85,12 +92,15 @@ describe("ItemMoreOptionsComponent", () => {
 
   beforeEach(waitForAsync(async () => {
     jest.clearAllMocks();
+    revealed$ = new BehaviorSubject<ReadonlyMap<CipherId, CipherView>>(new Map());
+    revealedCipherService.revealed$.mockReturnValue(revealed$);
 
     cipherService.getFullCipherView.mockImplementation(async (c) => ({ ...baseCipher, ...c }));
 
     TestBed.configureTestingModule({
       imports: [ItemMoreOptionsComponent, NoopAnimationsModule],
       providers: [
+        { provide: RevealedCipherService, useValue: revealedCipherService },
         { provide: CipherService, useValue: cipherService },
         { provide: VaultPopupAutofillService, useValue: autofillSvc },
 
@@ -396,6 +406,28 @@ describe("ItemMoreOptionsComponent", () => {
         expect(autofillSvc.doAutofill).not.toHaveBeenCalled();
         expect(autofillSvc.doAutofillAndSave).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("restricted ciphers", () => {
+    it("offers only the user fields for a restricted cipher without a revealed view", () => {
+      component.cipher = { ...baseCipher, partial: true };
+
+      expect(component.canEdit).toBe(false);
+      expect(component.canAutofill).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.Share)).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.UserFields)).toBe(true);
+    });
+
+    it("allows edit of a revealed view, but not share or assign collections", () => {
+      const revealed = { ...baseCipher, partial: false } as CipherView;
+      revealed$.next(new Map([["cipher-1" as CipherId, revealed]]));
+      component.cipher = revealed;
+
+      expect(component.canEdit).toBe(true);
+      expect(component.canAutofill).toBe(true);
+      expect(component["allows"](RestrictedCipherAction.Share)).toBe(false);
+      expect(component["allows"](RestrictedCipherAction.AssignCollections)).toBe(false);
     });
   });
 

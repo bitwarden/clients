@@ -19,6 +19,7 @@ import {
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { DefaultFillCipherPolicy } from "../services/default-fill-cipher-policy";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -43,6 +44,7 @@ describe("DefaultAutofillOrchestrator", () => {
   let accountService: MockProxy<AccountService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let updateOverlayCiphers: jest.Mock<Promise<void>, []>;
+  let fillCipherPolicy: DefaultFillCipherPolicy;
   const logService = mock<LogService>();
 
   let pageTransitionResolved$: Subject<PageTransitionResolved>;
@@ -121,12 +123,12 @@ describe("DefaultAutofillOrchestrator", () => {
     new DefaultAutofillOrchestrator(
       lifecycleService,
       autofillService,
-      cipherService,
       autofillSettingsService,
       accountService,
       platformUtilsService,
       updateOverlayCiphers,
       logService,
+      fillCipherPolicy,
       now,
     );
 
@@ -185,6 +187,9 @@ describe("DefaultAutofillOrchestrator", () => {
 
     platformUtilsService = mock<PlatformUtilsService>();
     updateOverlayCiphers = jest.fn().mockResolvedValue(undefined);
+    fillCipherPolicy = new DefaultFillCipherPolicy(cipherService);
+    jest.spyOn(fillCipherPolicy, "nextCipherForUrl");
+    jest.spyOn(fillCipherPolicy, "advanceRotation");
 
     autofillOrchestrator = construct();
     autofillOrchestrator.init();
@@ -640,8 +645,8 @@ describe("DefaultAutofillOrchestrator", () => {
     });
 
     it.each([
-      ["card", CipherType.Card, "cardCiphers", "getNextCardCipher"],
-      ["identity", CipherType.Identity, "identityCiphers", "getNextIdentityCipher"],
+      ["card", CipherType.Card, "cardCiphers", "nextCardCipher"],
+      ["identity", CipherType.Identity, "identityCiphers", "nextIdentityCipher"],
     ] as const)(
       "collects the tab and fills a %s with no page-load/keyboard side effects",
       async (_label, cipherType, cacheKey, selector) => {
@@ -650,7 +655,7 @@ describe("DefaultAutofillOrchestrator", () => {
         autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
         // The row names the selection method for its type, so the case's cipher is wired without a
         // branch on cipherType.
-        cipherService[selector].mockResolvedValue(cipher);
+        jest.spyOn(fillCipherPolicy, selector).mockResolvedValue(cipher);
         autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
 
         autofillOrchestrator.autofillActiveTabForCipherType(pd.tab, cipherType);
@@ -1273,6 +1278,45 @@ describe("DefaultAutofillOrchestrator", () => {
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("fill cipher policy", () => {
+    it("selects the next cipher from the policy for a keyboard command", async () => {
+      const pd = pageDetail(1, 0);
+      const cipher = makeCipher(CipherType.Login, { id: "from-policy" });
+      jest.spyOn(fillCipherPolicy, "nextCipherForUrl").mockResolvedValue(cipher);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      autofillService.doAutoFill.mockResolvedValue({ outcome: AutofillOutcome.Filled });
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pd.tab);
+      await flushPromises();
+
+      expect(fillCipherPolicy.nextCipherForUrl).toHaveBeenCalledWith(DEFAULT_URL, "user-1");
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(expect.objectContaining({ cipher }));
+      expect(fillCipherPolicy.advanceRotation).toHaveBeenCalledWith(DEFAULT_URL);
+    });
+
+    it("never uses the user fill rotation for a page-load fill", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(fillCipherPolicy.nextCipherForUrl).not.toHaveBeenCalled();
+      expect(cipherService.getLastUsedForUrl).toHaveBeenCalled();
+    });
+
+    it("never uses the user fill rotation for an auto-submit fill", async () => {
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitAutomatedLoginStep(pd);
+      await flushPromises();
+
+      expect(fillCipherPolicy.nextCipherForUrl).not.toHaveBeenCalled();
+      expect(cipherService.getLastUsedForUrl).toHaveBeenCalled();
     });
   });
 });

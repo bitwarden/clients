@@ -87,6 +87,7 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { CipherUse, FillCipherPolicy } from "../services/abstractions/fill-cipher-policy";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import { didFillOccur, shouldAutoCopyTotp } from "../types/fill-result";
 import {
@@ -233,13 +234,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.triggerDestroyInlineMenuListeners(tab, message.subFrameData?.frameId),
       ),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
-    doFullSync: () => this.updateOverlayCiphers(),
-    addedCipher: () => this.updateOverlayCiphers(),
-    addEditCipherSubmitted: () => this.updateOverlayCiphers(),
-    editedCipher: () => this.updateOverlayCiphers(),
-    deletedCipher: () => this.updateOverlayCiphers(),
-    bgSaveCipher: () => this.updateOverlayCiphers(),
-    updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) =>
       void this.withSenderTab(sender, (tab) => this.abortFido2ActiveRequest(tab.id)),
     routeTargetedFieldsToFrame: ({ message, sender }) =>
@@ -292,6 +286,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     /** Publishes the retry queued for after the unlock. */
     private intraprocessMessageSender: IntraprocessMessageSender,
     private messageListener: MessageListener,
+    private fillCipherPolicy: FillCipherPolicy,
   ) {
     this.initOverlayEventObservables();
   }
@@ -584,7 +579,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
+      await this.fillCipherPolicy.ciphersForUrl(
+        currentTab.url || "",
+        activeUserId,
+        CipherUse.UserFill,
+      )
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return this.cardAndIdentityCiphers
@@ -608,11 +607,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SshKey,
-      ])
+      await this.fillCipherPolicy.ciphersForUrl(currentTab.url || "", userId, CipherUse.UserFill, {
+        includeOtherTypes: [CipherType.Card, CipherType.Identity, CipherType.SshKey],
+      })
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     if (!this.cardAndIdentityCiphers) {
@@ -2996,6 +2993,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     try {
       this.closeInlineMenu(sender);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      if (
+        login &&
+        cipherView.type === CipherType.Login &&
+        !(await this.fillCipherPolicy.canOfferSave(
+          {
+            uri: login.uri || sender.tab?.url || "",
+            username: login.username,
+            password: login.password,
+          },
+          activeUserId,
+        ))
+      ) {
+        cipherView.login.password = "";
+      }
       await this.cipherService.setAddEditCipherInfo(
         {
           cipher: cipherView,

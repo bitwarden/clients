@@ -7,9 +7,12 @@ import { CipherView } from "../models/view/cipher.view";
  * Full views of restricted ciphers. A licensed feature implements it. The default reveals nothing.
  *
  * Every implementation must follow these rules:
- * - Keep the views in process memory only. Never persist them, encrypted or decrypted (no
- *   `StateProvider` key).
- * - Clear a user's views when that user leaves the unlocked state or logs out, in every process.
+ * - Never write a view to disk, encrypted or decrypted. Keep decrypted views in process memory.
+ *   Processes of one client can share an encrypted copy through session memory state (a
+ *   `"memory"` `StateDefinition`). Never use `"memory-large-object"`: the MV3 browser backs it with
+ *   disk.
+ * - Clear a user's views and shared copies when that user leaves the unlocked state or logs out,
+ *   in every process.
  * - Return only full (not partial) views whose `id` is the requested cipher.
  * - Never return a view after its reveal ends.
  */
