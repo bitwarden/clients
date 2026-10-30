@@ -187,7 +187,8 @@ jobs:
               }
             }
 
-  # On a failed nightly (or manual) run: one Slack message naming the failed suites.
+  # On a failed nightly (or manual) run: one Slack message linking each failed suite's job,
+  # whose log lists the failing tests.
   notify:
     name: Notify Slack
     needs: test
@@ -203,7 +204,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           SUITES=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" --paginate \
-            --jq '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")')
+            --jq '[.jobs[] | select(.conclusion == "failure") | "<\(.html_url)|\(.name)>"] | join(", ")')
           echo "suites=$SUITES" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Azure
@@ -235,7 +236,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "E2E (usdev) <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|run> failed: ${{ steps.failed.outputs.suites }}"
+                    "text": "E2E (usdev) failed: ${{ steps.failed.outputs.suites }}"
                   }
                 }
               ]
