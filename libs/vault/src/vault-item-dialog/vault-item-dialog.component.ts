@@ -3,6 +3,7 @@
 import { CommonModule, NgComponentOutlet } from "@angular/common";
 import {
   Component,
+  DestroyRef,
   ElementRef,
   inject,
   Inject,
@@ -33,6 +34,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/commo
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
@@ -41,6 +43,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import {
   AsyncActionsModule,
   BitIconButtonComponent,
@@ -70,6 +76,7 @@ import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
 import { VaultViewPasswordHistoryService } from "../services/view-password-history.service";
 import { SHARE_ITEM_ENTRY_POINT } from "../tokens/share-item-entry-point.token";
+import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -249,8 +256,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.isTrashFilter && !this.showRestore;
   }
 
+  /**
+   * The footer's trailing Archive/Unarchive/Delete icon buttons. Archive is a user field, so it
+   * shows for a restricted cipher too; Delete is gated separately by {@link showDeleteButton}.
+   */
   protected get showActionButtons() {
     return this.cipher !== null && this.formConfig.mode !== "clone";
+  }
+
+  /** The footer's Delete icon button, withheld for a restricted cipher, revealed or not. */
+  protected get showDeleteButton() {
+    return (
+      this.cipher != null &&
+      RestrictedCipherPolicy.allows(this.cipher, RestrictedCipherAction.Delete, this.revealedView)
+    );
   }
 
   /**
@@ -271,13 +290,25 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return !this.canEdit && this.formConfig.mode !== "partial-edit";
   }
 
-  /** Gated cipher: saving it would clobber the fields the server suppressed with blanks. */
-  protected get isPartialData() {
-    return this.cipher?.partial ?? false;
+  /**
+   * True for a restricted cipher, whose sensitive fields the server suppressed, until its full view
+   * is revealed. Must not be edited, or saving would overwrite those fields with blanks.
+   */
+  protected get editBlockedByRestriction() {
+    return (
+      this.cipher != null &&
+      !RestrictedCipherPolicy.allows(this.cipher, RestrictedCipherAction.Edit, this.revealedView)
+    );
   }
 
   protected get showEdit() {
-    return this.showCipherView && !this.isTrashFilter && !this.showRestore && !this.isPartialData;
+    // The host banner owns a restricted cipher's access flow until the full cipher is revealed.
+    return (
+      this.showCipherView &&
+      !this.isTrashFilter &&
+      !this.showRestore &&
+      !this.editBlockedByRestriction
+    );
   }
 
   protected get showCipherView() {
@@ -330,6 +361,22 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected confirmedPremiumUpgrade = false;
 
+  /** The stored view of a restricted cipher. Shown whenever no revealed view exists. */
+  private storedView?: CipherView;
+
+  /** True while {@link cipher} is the revealed view from {@link RevealedCipherService}. */
+  private revealed = false;
+
+  /** {@link cipher} while it is the revealed view, for the restricted-data rule. */
+  private get revealedView(): CipherView | undefined {
+    return this.revealed ? this.cipher : undefined;
+  }
+
+  /** Settles once every view `displayView$` has delivered so far is applied. */
+  private displayViewApplied: Promise<void> = Promise.resolve();
+
+  private readonly destroyRef = inject(DestroyRef);
+
   /**
    * The client's share entry point, if it has one. See {@link SHARE_ITEM_ENTRY_POINT}.
    *
@@ -359,6 +406,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
     private configService: ConfigService,
+    private revealedCipherService: RevealedCipherService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -388,6 +436,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         (o) => o.id === this.cipher.organizationId,
       );
 
+      if (RestrictedCipherPolicy.isRestricted(this.cipher)) {
+        await this.followRevealedView(this.cipher);
+      }
+
       this.canDelete = await firstValueFrom(
         this.cipherAuthorizationService.canDeleteCipher$(
           this.cipher,
@@ -402,8 +454,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         ),
       );
 
-      // If the cipher cannot be edited and the dialog opened in form mode, force to view mode
-      if ((this.disableEdit || this.isPartialData) && this.params.mode === "form") {
+      if ((this.disableEdit || this.editBlockedByRestriction) && this.params.mode === "form") {
         this.params.mode = "view";
         this.loadForm = false;
         this.updateTitle();
@@ -441,8 +492,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * @param cipherView - The newly saved cipher.
    */
   protected async onCipherSaved(cipherView: CipherView) {
+    const activeUserId = await firstValueFrom(this.userId$);
+    let cipher = await this.cipherService.get(cipherView.id, activeUserId);
+    const adminReload = this.formConfig.isAdminConsole && (cipher == null || this.formConfig.admin);
+
     // We successfully saved the cipher, update the dialog state and switch to view mode.
-    this.cipher = cipherView;
+    // A restricted cipher's save result is restricted too; its view arrives through displayView$.
+    if (this.storedView == null || adminReload) {
+      this.cipher = cipherView;
+    }
     this.collections = this.formConfig.collections.filter((c) =>
       cipherView.collectionIds?.includes(c.id),
     );
@@ -452,11 +510,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.formConfig.mode = "edit";
       this.formConfig.initialValues = null;
     }
-    const activeUserId = await firstValueFrom(this.userId$);
-    let cipher = await this.cipherService.get(cipherView.id, activeUserId);
 
     // When the form config is used within the Admin Console, retrieve the cipher from the admin endpoint (if not found in local state)
-    if (this.formConfig.isAdminConsole && (cipher == null || this.formConfig.admin)) {
+    if (adminReload) {
       const cipherResponse = await this.apiService.getCipherAdmin(cipherView.id);
       cipherResponse.edit = true;
       cipherResponse.viewPassword = true;
@@ -466,6 +522,27 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       // Update organizationUseTotp from server response
       this.cipher.organizationUseTotp = cipher.organizationUseTotp;
+    } else if (this.storedView != null) {
+      // Re-read the saved restricted copy first, so a fall back shows the saved name and URIs.
+      if (cipher != null) {
+        this.storedView =
+          (await this.cipherService.decrypt(cipher, activeUserId)) ?? this.storedView;
+      }
+      // Reveal the saved cipher again, and wait for displayView$ to show it or the fall back.
+      await this.revealedCipherService.refresh(activeUserId, this.storedView.id as CipherId);
+      await this.displayViewApplied;
+
+      if (!this.revealed) {
+        // The reveal ended or the read failed. Stay on the restricted copy, as reopening would,
+        // rather than leave blanks an Edit could write over the suppressed fields.
+        this._cipherModified = true;
+        if (cipher != null) {
+          this.formConfig.originalCipher = cipher;
+        }
+        this.showStoredView();
+        await this.changeMode("view");
+        return;
+      }
     }
 
     // Store the updated cipher so any following edits use the most up to date cipher
@@ -518,19 +595,24 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     try {
       await this.deleteCipher();
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("success"),
-        message: this.i18nService.t(
-          this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem",
-        ),
-      });
-      this.messagingService.send(
-        this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
-      );
     } catch (e) {
+      // Reporting Deleted would close the dialog on a delete the server refused.
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(deleteFailureMessageKey(this.cipher)),
+      });
+      return;
     }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("success"),
+      message: this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
+    });
+    this.messagingService.send(
+      this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
+    );
     this._cipherModified = false;
     await this.dialogRef.close(VaultItemDialogResult.Deleted);
   };
@@ -563,7 +645,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ) {
       const activeUserId = await firstValueFrom(this.userId$);
 
-      let updatedCipherView: CipherView;
+      let updatedCipherView: CipherView | undefined;
 
       if (this.formConfig.admin) {
         const cipherResponse = await this.apiService.getCipherAdmin(
@@ -573,6 +655,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         const cipher = new Cipher(cipherData);
 
         updatedCipherView = await this.cipherService.decrypt(cipher, activeUserId);
+      } else if (this.storedView != null) {
+        const cipherId = this.storedView.id as CipherId;
+        await this.revealedCipherService.refresh(activeUserId, cipherId);
+        updatedCipherView = this.revealedCipherService.get(activeUserId, cipherId);
       } else {
         updatedCipherView = await firstValueFrom(
           this.cipherService.cipherView$(
@@ -582,12 +668,22 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         );
       }
 
-      this.cipherFormComponent().patchCipher((currentCipher) => {
-        currentCipher.attachments = updatedCipherView.attachments;
-        currentCipher.revisionDate = updatedCipherView.revisionDate;
+      // Missing when, for example, a restricted cipher's reveal ended before the re-read.
+      if (updatedCipherView == null) {
+        this.logService.error(
+          new Error(
+            `Could not reload cipher ${this.formConfig.originalCipher?.id} after an attachment change.`,
+          ),
+        );
+      } else {
+        const reloadedCipherView = updatedCipherView;
+        this.cipherFormComponent().patchCipher((currentCipher) => {
+          currentCipher.attachments = reloadedCipherView.attachments;
+          currentCipher.revisionDate = reloadedCipherView.revisionDate;
 
-        return currentCipher;
-      });
+          return currentCipher;
+        });
+      }
 
       this._cipherModified = true;
     }
@@ -608,12 +704,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     }
 
     // Refresh from local state so attachments modified during edit aren't stale in view mode.
-    const activeUserId = await firstValueFrom(this.userId$);
-    const latestCipher = await firstValueFrom(
-      this.cipherService.cipherView$(activeUserId, this.cipher.id as CipherId),
-    );
-    if (latestCipher != null) {
-      this.cipher = latestCipher;
+    // A restricted cipher already shows the current view from displayView$.
+    if (this.storedView == null) {
+      const activeUserId = await firstValueFrom(this.userId$);
+      const latestCipher = await firstValueFrom(
+        this.cipherService.cipherView$(activeUserId, this.cipher.id as CipherId),
+      );
+      if (latestCipher != null) {
+        this.cipher = latestCipher;
+      }
     }
 
     // We're in Form mode, and we have a cipher, switch back to View mode.
@@ -684,6 +783,64 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       });
     }
   };
+
+  /**
+   * Shows the revealed view of the restricted `storedView` while one exists, and the stored view
+   * otherwise. Edit and deep links reveal first, so the permission checks see the revealed view.
+   * `formConfig.originalCipher` stays the stored restricted cipher.
+   */
+  private async followRevealedView(storedView: CipherView): Promise<void> {
+    this.storedView = storedView;
+    const activeUserId = await firstValueFrom(this.userId$);
+    // PoC: reveal before subscribing, so the first view is the revealed one when the user may see
+    // it. `displayView$` alone first emits the stored view and reveals later.
+    await this.revealedCipherService.getOrReveal(activeUserId, storedView.id as CipherId);
+
+    this.revealedCipherService
+      .displayView$(activeUserId, storedView)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((view) => {
+        // Chained, so a fall back never lands before an in-flight reveal's permission reads.
+        this.displayViewApplied = this.displayViewApplied
+          .then(() => this.applyDisplayView(view))
+          .catch((e: unknown) => this.logService.error(e));
+      });
+    // The first view arrives on subscribe. Wait for it, so the permission checks see it.
+    await this.displayViewApplied;
+  }
+
+  private async applyDisplayView(view: CipherView): Promise<void> {
+    // The holder only stores full views, so a restricted view is the stored fall back.
+    if (RestrictedCipherPolicy.isRestricted(view)) {
+      if (this.revealed) {
+        this.showStoredView();
+      }
+      return;
+    }
+    if (view === this.cipher) {
+      return;
+    }
+    this.cipher = view;
+    this.revealed = true;
+    this.canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(view, this.params.isAdminConsoleAction),
+    );
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(view, this.params.isAdminConsoleAction),
+    );
+    this.updateTitle();
+  }
+
+  /** Falls back to the stored restricted view, leaving form mode since the form holds the full view. */
+  private showStoredView(): void {
+    this.cipher = this.storedView;
+    this.revealed = false;
+    this.loadForm = false;
+    this.params.mode = "view";
+    this.canEdit = false;
+    this.canDelete = false;
+    this.updateTitle();
+  }
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
     if (config.originalCipher == null) {

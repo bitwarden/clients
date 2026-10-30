@@ -3,6 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -117,7 +118,7 @@ export class SendAddEditDialogComponent {
         add: "newItemHeaderFileSendV2",
       },
       [SendType.Item]: {
-        view: "viewItem",
+        view: "viewSharedItem",
         edit: "editItem",
         add: "addItem",
       },
@@ -173,6 +174,7 @@ export class SendAddEditDialogComponent {
     private dialogService: DialogService,
     private sendFormService: SendFormService,
     private sendPolicyService: SendPolicyService,
+    private router: Router,
   ) {
     // We only want to load from the input params the first time the component initializes,
     // since the makeCopy function works by replacing the config object and re-initializing
@@ -427,5 +429,9 @@ export class SendAddEditDialogComponent {
       },
     };
     await this.init();
+  }
+
+  protected async onGoToItem(cipherId: string) {
+    await this.router.navigate(["/vault"], { queryParams: { itemId: cipherId, action: "view" } });
   }
 }

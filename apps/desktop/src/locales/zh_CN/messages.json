@@ -4271,7 +4271,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
+    "message": "您需要在某个受信任的设备上登录，或请求管理员为您分配一个密码。"
   },
   "region": {
     "message": "区域"
@@ -4573,7 +4573,7 @@
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "此文件使用了不受支持的加密设置，无法导入。"
   },
   "importNothingError": {
     "message": "没有导入任何内容。"
@@ -5280,7 +5280,7 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "$COUNT$ 个 1Password 项目或密码库无法导入",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5289,52 +5289,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "发生错误。请检查您的凭据，然后重试。"
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "仅支持使用密码登录。"
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "仅支持使用密码登录。请重试或使用其他导入方式。"
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "请输入有效的电子邮箱地址或使用其他导入方式。"
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "发生错误。请重试或使用其他导入方式。"
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "必须填写电子邮箱。"
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "请输入有效的电子邮箱地址。"
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "必须填写登录地址。"
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "请输入有效的登录地址。"
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "必须填写安全密钥。"
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "请输入有效的安全密钥。"
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "必须填写密码。"
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "请输入有效的验证码。"
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "登录地址"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password 电子邮箱"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "输入您用于登录 1Password 的电子邮箱"
   },
   "secretKey": {
     "message": "安全密钥"
@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "添加共享文件夹以安全地与其他成员共享密码库项目。"
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pin to sidebar",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Unpin from sidebar",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pinned to sidebar",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ unpinned from sidebar",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Find a shared folder in this vault and select",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "from the Options menu.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
+  },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7278,22 +7321,28 @@
     "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "新增内容"
   },
   "tourTheNewVaultDescription": {
     "message": "凭借更新后的导航和设计，查找所需内容变得前所未有的简单。"
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "所有密码库汇聚一处"
   },
   "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+    "message": "个人、家庭及企业密码库现已统一列示于此。"
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "集合和文件夹拥有新的名称"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "功能保持不变，名称更加直观。「集合」现更名为「共享文件夹」，「文件夹」则更名为「我的文件夹」。"
+  },
+  "coachmarkFiltersTitle": {
+    "message": "组合使用筛选"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "可同时选择多个筛选，精准锁定您所需的结果。即使您跳转至其他页面，筛选依然有效。"
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",

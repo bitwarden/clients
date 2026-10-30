@@ -101,6 +101,7 @@ export class Collection extends Domain {
     collection.manage = sdkCollection.manage;
     collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
     collection.type = sdkCollection.type;
+    collection.hasEnabledAccessRule = sdkCollection.hasEnabledAccessRule ?? false;
     return collection;
   }
 
@@ -118,6 +119,7 @@ export class Collection extends Domain {
       manage: this.manage,
       defaultUserCollectionEmail: this.defaultUserCollectionEmail,
       type: this.type,
+      hasEnabledAccessRule: this.hasEnabledAccessRule,
     };
   }
 
