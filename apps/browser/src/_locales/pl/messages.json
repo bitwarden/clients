@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Brak elementów w Moim sejfie"
   },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Brak elementów w Moich elementach"
   },
@@ -805,7 +819,7 @@
     "message": "Uruchom stronę internetową"
   },
   "launchWebsiteForName": {
-    "message": "Otwórz witrynę dla $ITEMNAME$",
+    "message": "Uruchom stronę $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Element został przeniesiony do kosza"
   },
+  "deleteItemError": {
+    "message": "Nie można usunąć elementu."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
   "overwritePassword": {
     "message": "Zastąp hasło"
   },
@@ -1469,13 +1489,13 @@
     "message": "Autouzupełnianie korzysta z pomocy przy wypełnianiu na tej stronie."
   },
   "activateFillAssistV2": {
-    "message": "Włącz pomoc przy wypełnianiu"
+    "message": "Włącz asystenta autouzupełniania"
   },
   "activateFillAssistDescriptionV2": {
     "message": "Pomoc przy wypełnianiu zwiększa dokładność autouzupełniania w obsługiwanych witrynach, korzystając z reguł specyficznych dla witryny. Gdy korzystasz z tej funkcji, żadne dane nie są zbierane ani zapisywane."
   },
   "aboutFillAssistLabelV2": {
-    "message": "Informacje o pomocy przy wypełnianiu"
+    "message": "O asystencie autouzupełniania"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
     "message": "Zezwalaj witrynom na wykluczanie pól z autouzupełniania"
@@ -1559,7 +1579,7 @@
     "message": "Importuj dane"
   },
   "importSourceSelectTitle": {
-    "message": "Wybierz swoje źródło"
+    "message": "Wybierz źródło"
   },
   "importSourceSelectDescription": {
     "message": "Wybierz menedżera haseł lub przeglądarkę, z której importujesz."
@@ -4287,11 +4307,11 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Wpisz prawidłowy adres URL",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "Wykryto niebezpieczny adres URL",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -4299,11 +4319,11 @@
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "Zaufaj adresowi URL",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
-    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "message": "Adres URL został oznaczony jako zaufany. Możesz edytować go w dowolnym momencie.",
     "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
@@ -5307,39 +5327,39 @@
     "message": "Prześlij plik"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Wklej jako zwykły tekst"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Zwykły tekst"
   },
   "profile": {
     "message": "Profil"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "Importuj ręcznie"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Importuj bezpośrednio"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "Najszybsze"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Importuj dane"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Importuj dane w kilka minut"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "Importuj elementy bezpośrednio z",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": ", aby pobrać wszystkie dane.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "message": "Importuj z $VENDOR$ lub skopiuj i wklej zawartość eksportu.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5348,13 +5368,13 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Select the profile you wish to import passwords from."
+    "message": "Wybierz profil, z którego chcesz zaimportować hasła."
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "Nie znaleziono profili przeglądarki"
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "Zaloguj się do $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5396,7 +5416,7 @@
     "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Szybkie i bezpieczne"
   },
   "importDataSecureByDesignBodyV2": {
     "message": "This process is end-to-end encrypted. No export file needed."
@@ -5647,7 +5667,7 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Hasło jest wymagane."
   },
   "filePasswordRequired": {
     "message": "File password is required"
@@ -5699,6 +5719,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "Podczas eksportowania danych pominięto 1 uszkodzony załącznik. Wszystkie pozostałe dane zostały wyeksportowane."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "Podczas eksportu pominięto $COUNT$ uszkodzonych załączników. Wszystkie pozostałe dane sejfu i załączniki wyeksportowano pomyślnie.",
@@ -5803,22 +5835,22 @@
     "message": "Adres e-mail LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Adres e-mail jest wymagany."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Wpisz prawidłowy adres e-mail."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Hasło jest wymagane."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Wpisz prawidłowe hasło"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Wpisz prawidłowy kod weryfikacyjny."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Wpisz hasło główne LastPass."
   },
   "lastPassLoginCodeDesc": {
     "message": "Please enter the verification code below."
@@ -5833,13 +5865,13 @@
     "message": "Importowanie konta..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Serwer"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Adres e-mail jest wymagany."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Wpisz prawidłowy adres e-mail."
   },
   "keeperLoginUnsupportedTwoFactor": {
     "message": "Unsupported two-factor method. Switch methods or import manually."
@@ -5848,7 +5880,7 @@
     "message": "Device approval method"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Wpisz prawidłowy kod weryfikacyjny."
   },
   "keeperLoginCodeResent": {
     "message": "Resent verification code"
@@ -5863,13 +5895,13 @@
     "message": "Please check your email and enter the verification code below."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Wpisz kod z aplikacji uwierzytelniającej."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Wpisz kod z wiadomości tekstowej."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Wpisz hasło główne Keeper."
   },
   "keeperLoginDnaSent": {
     "message": "Keeper DNA sent"
@@ -5884,7 +5916,7 @@
     "message": "We’ve sent an admin approval request to your admin."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Hasło jest wymagane."
   },
   "keeperLoginPasswordInvalid": {
     "message": "Enter a valid password."
@@ -5953,10 +5985,10 @@
     "message": "An error has occurred. Try again or use a different import method."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "Adres e-mail jest wymagany."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Wpisz prawidłowy adres e-mail."
   },
   "signInAddressIsRequired": {
     "message": "Sign-in address is required."
@@ -5965,34 +5997,34 @@
     "message": "Enter a valid sign-in address."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Klucz tajny jest wymagany."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Wpisz prawidłowy klucz tajny."
   },
   "passwordIsRequired": {
     "message": "Hasło jest wymagane."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Wpisz prawidłowy kod weryfikacyjny."
   },
   "signInAddress": {
     "message": "Sign-in address"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "Adres e-mail 1Password"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "Wpisz adres e-mail, którego używasz do logowania się do 1Password"
   },
   "secretKey": {
-    "message": "Secret key"
+    "message": "Klucz tajny"
   },
   "secretKeyAndPassword": {
-    "message": "Secret key and password"
+    "message": "Klucz tajny i hasło"
   },
   "secretKeyAndPasswordDesc": {
-    "message": "Your account is secured with a Secret Key and password. You will need to enter both to continue."
+    "message": "Konto jest zabezpieczone za pomocą klucza tajnego i hasła. Aby kontynuować, musisz wpisać oba elementy."
   },
   "keeperEmail": {
     "message": "Adres e-mail Keeper"
@@ -8340,7 +8372,7 @@
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ słabych haseł",
+    "message": "Słabe hasła: $COUNT$",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -8354,7 +8386,7 @@
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "Wszystkie Twoje hasła są silne",
+    "message": "Wszystkie hasła są silne",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
@@ -8380,7 +8412,7 @@
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "Wszystkie Twoje hasła są unikalne",
+    "message": "Wszystkie hasła są unikalne",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
@@ -8427,7 +8459,7 @@
     "message": "Te hasła można łatwo odgadnąć, ponieważ są zbyt krótkie lub proste. Wzmocnij je, czyniąc je bardziej złożonymi."
   },
   "reusedPasswordsTitle": {
-    "message": "Hasła używane ponownie"
+    "message": "Identyczne hasła"
   },
   "reusedPasswordsDescription": {
     "message": "Te dane logowania mają ponownie użyte hasło. Utwórz unikalne hasło dla każdego konta, aby uniemożliwić komuś dostęp do wielu kont za pomocą jednego hasła."
@@ -8437,6 +8469,15 @@
   },
   "passwordHasAdditionalRisks": {
     "message": "To hasło ma dodatkowe ryzyka:"
+  },
+  "excludeFromList": {
+    "message": "Wyklucz z listy"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Exclude anyway"
   },
   "reused": {
     "message": "Używane ponownie",
@@ -8459,7 +8500,7 @@
     "message": "Wszystkie Twoje hasła są silne."
   },
   "reusedPasswordEmpty": {
-    "message": "Wszystkie Twoje hasła są unikalne."
+    "message": "Wszystkie hasła są unikalne."
   },
   "youreAllSet": {
     "message": "Wszystko gotowe!"
@@ -8507,7 +8548,7 @@
     "description": "Heading for the list of currently active share links for a vault item"
   },
   "linkCopiedToClipboard": {
-    "message": "Link skopiowany do schowka",
+    "message": "Link został skopiowany do schowka",
     "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
   },
   "linkSaveFailed": {
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Nieznany element. Może być konieczne poproszenie o uprawnienie dostępu do tego elementu."
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden has a new look",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8571,11 +8621,11 @@
     "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
   },
   "exploreTheNewVault": {
-    "message": "Explore the new vault",
+    "message": "Odkryj nowy sejf",
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ z $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Switch between vaults"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
   },
   "coachmarkFiltersTitle": {
     "message": "Mix and match filters"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }

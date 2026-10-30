@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "「我的密码库」中没有项目"
   },
+  "noItemsInFolder": {
+    "message": "$FOLDER_NAME$ 中没有项目",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "将项目添加到此文件夹。您将可以使用密码库筛选功能快速访问它们。",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "「我的项目」中没有项目"
   },
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "项目已发送到回收站"
   },
+  "deleteItemError": {
+    "message": "无法删除项目。"
+  },
+  "restrictedItemChangeRefused": {
+    "message": "此项目受到限制。您的更改未被保存。"
+  },
   "overwritePassword": {
     "message": "覆盖密码"
   },
@@ -1426,7 +1446,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "哦不！我们无法保存它。请尝试手动输入详细信息。",
+    "message": "糟糕！我们无法保存它。请尝试手动输入详细信息。",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1490,7 +1510,7 @@
     "message": "使用网站上标记有 `data-bwautofill` 属性的任何 span 元素。"
   },
   "enableBasicAuthResponseLabel": {
-    "message": "自动填充浏览器登录提示",
+    "message": "浏览器登录自动填充提示",
     "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "enableBasicAuthResponseHint": {
@@ -2169,7 +2189,7 @@
     "message": "网页加载时如果检测到登录表单，则执行自动填充。"
   },
   "experimentalFeature": {
-    "message": "被攻破或不受信任的网站可能会利用页面加载时的自动填充功能。"
+    "message": "被入侵或不受信任的网站可能会利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "进一步了解风险"
@@ -5381,7 +5401,7 @@
     "message": "我们将询问您的登录信息"
   },
   "importDataLoginInfoBody": {
-    "message": "在下一步中，请登录您的 $VENDOR$ 账户。",
+    "message": "下一步，请登录您的 $VENDOR$ 账户。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5396,16 +5416,16 @@
     "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "快速且安全"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "此过程是端到端加密的。无需导出文件。"
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "您只需登录即可"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "下一步，您需要输入您的 $VENDOR$ 登录详细信息。",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "将要转移的内容"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "您的登录、其他项目以及文件夹将转移。通行密钥和附件可能被排除在外。"
   },
   "importAcceptedFormats": {
     "message": "可接受的格式：$FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "导出过程中跳过了 1 个损坏的附件。其余所有密码库数据和附件均已成功导出。"
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "导出过程中跳过了 $COUNT$ 个损坏的附件。其余所有密码库数据和附件均已成功导出。",
     "placeholders": {
@@ -5803,91 +5835,91 @@
     "message": "LastPass Email"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "必须填写电子邮箱。"
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "请输入有效的电子邮箱地址。"
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "必须填写密码。"
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "请输入有效的密码"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "请输入有效的验证码。"
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "请输入您的 LastPass 主密码。"
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "请在下面输入验证码。"
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "正在等待 SSO 身份验证"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "登录后，我们将继续自动导入。"
   },
   "importingYourAccount": {
     "message": "正在导入您的账户..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "服务器"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "必须填写电子邮箱。"
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "请输入有效的电子邮箱地址。"
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "不受支持的双重身份验证方式。请切换方式或手动导入。"
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "设备批准方式"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "请输入有效的验证码。"
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "重新发送验证码"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Keeper Push 通知已发送到认可的设备。"
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "选择下方的一种方式来批准此设备。"
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "请检查您的电子邮箱然后在下面输入验证码。"
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "请输入来自您的验证器 App 的代码。"
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "请输入通过短信发送的代码。"
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "请输入您的 Keeper 主密码。"
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA 已发送"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "批准您设备上的 Keeper DNA 通知。"
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "您的批准请求将被取消。确定要继续吗？"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "我们已经向您的管理员发送了管理员批准请求。"
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "必须填写密码。"
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "请输入有效的密码。"
   },
   "lastPassMFARequired": {
     "message": "需要 LastPass 多重身份验证"
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "此密码还存在其他风险："
   },
+  "excludeFromList": {
+    "message": "从列表中排除"
+  },
+  "excludeFromListDesc": {
+    "message": "排除并不能消除密码风险。为保护您的账户，请先更改密码。"
+  },
+  "excludeAnyway": {
+    "message": "仍要排除"
+  },
   "reused": {
     "message": "重复使用",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   },
+  "viewSharedItem": {
+    "message": "查看共享项目"
+  },
+  "copyShareLink": {
+    "message": "复制共享链接"
+  },
+  "unableToDetermineItemId": {
+    "message": "无法确定项目 ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden 拥有一个新的外观",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "在密码库间切换"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "借助全新的密码库切换器，您可以快速查看您的私人密码库，或与他人共享的密码库。"
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
   },
   "coachmarkFiltersTitle": {
     "message": "组合使用筛选"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "恢复默认设置"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "浏览器登录自动填充提示",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "响应匹配此登录项目的网站的基本 HTTP 身份验证提示。"
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "网站可能在您不知情的情况下触发此类提示，这可能会暴露您的凭据。",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "启用主密码二次验证吗？"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }

@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Nincsenek elemek a saját széfben."
   },
+  "noItemsInFolder": {
+    "message": "Nincsenek elemek $VAULT_NAME$ mappában.",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Elemek hozzáadása ehhez a mappához. Gyorsan elérhetjük őket a széf szűrők segítségével.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Nincsenek elemek a Saját elemekben."
   },
@@ -1236,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Az elem a lomtárba került."
+  },
+  "deleteItemError": {
+    "message": "Nem sikerült törölni az elemet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Ez az elem korlátozott. A változás nem lett mentve."
   },
   "overwritePassword": {
     "message": "Jelszó felülírása"
@@ -5396,16 +5416,16 @@
     "message": "Megőrzött mappa struktúrájú bejelentkezések, kártyák, személyazonosságok, biztonságos jegyzetek és TOTP elemek."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Gyors és biztonságos"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Ez a folyamat végponttól végpontig titkosított. Nincs szükség exportálás fájlra."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Csak a bejelentkezés kell"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "A következő lépésben adjuk meg $VENDOR$ bejelentkezési adatait.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Mi kerül átvitelre"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "A bejelentkezések, egyéb elemek és mappák átkerülnek. A belépőkulcsok és a mellékletek kizárhatók."
   },
   "importAcceptedFormats": {
     "message": "Elfogadva: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
     "placeholders": {
@@ -5803,91 +5835,91 @@
     "message": "LastPass email cím"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Email cím megadása kötelező."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Adjunk meg egy érvényes email címet."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Jelszó megadása szükséges."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": ""
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Érvényes ellenőrző kódot adjunk meg."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Adjuk meg a Lastpass mesterjelszót."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Adjuk meg az ellenőző kódot lentebb."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Várakozás SSO hitelesítésre"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "A bejelentkezés után az importálás automatikusan folytatódik."
   },
   "importingYourAccount": {
     "message": "A iók importálása folyamatban van..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Szerver"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Email cím megadása kötelező."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Adjunk meg egy érvényes email címet."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Nem támogatott kéttényezős metódus. Metódus váltás vagy manuális importálás."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Eszköz jóváhagyás szükséges."
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Érvényes ellenőrző kódot adjunk meg."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Az ellenőrző kód ismét elküldésre került."
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "A Keeper Push értesítés elküldésre került a jóváhagyott eszközre."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Hagyjuk jóvá ezt az eszközt a metódus kiválasztásával lentebb."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Ellenőrizzük az email címet és írjuk be az alábbi ellenőrző kódot."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Adjuk meg a hitelesítő alkalmazás által generált kódot."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Adjuk meg a szöveges üzenetben küldött kódot."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Adjuk meg a Keeper mesterjelszót."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "A Keeper DNA elküldésre került."
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "A Keeper DNA értesítés jóváhagyása az eszközön."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "A jóváhagyási kérelem törlésre kerül. Biztos, hogy folytatni akarjuk?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Elküldésre került egy adminisztrátori jóváhagyási kérelem az adminisztrátornak."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Jelszó megadása szükséges."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Adjunk meg egy érvényes jelszót."
   },
   "lastPassMFARequired": {
     "message": "LastPass többtényezős hitelesítés szükséges"
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Ez a jelszó további kockázatokkal jár:"
   },
+  "excludeFromList": {
+    "message": "Kizárás a listából"
+  },
+  "excludeFromListDesc": {
+    "message": "A kizárás nem javítja a jelszó kockázatát. A fiók védelme érdekében először módosítsuk a jelszót."
+  },
+  "excludeAnyway": {
+    "message": "Kizárás bárhogyan"
+  },
   "reused": {
     "message": "Újrafelhasznált",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Ismeretlen elem, lehet hogy egy másik fiókkal kell bejelentkezni az elem eléréséhez."
   },
+  "viewSharedItem": {
+    "message": "Megosztott elem megtekintése"
+  },
+  "copyShareLink": {
+    "message": "Megosztási hivatkozás másolása"
+  },
+  "unableToDetermineItemId": {
+    "message": "Nem határozható meg az elem azonosítója."
+  },
   "newExperienceDialogTitle": {
     "message": "A Bitwarden új külsővel rendelkezik.",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Váltás a széfek között"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "Az új széfváltóval gyorsan megtekinthető a személyes széf vagy a másokkal megosztott széf."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "Az új széf váltóval gyorsan láthatjuk a másokkal megosztott széfben lévő elemeket vagy a személyes elemeket."
   },
   "coachmarkFiltersTitle": {
     "message": "Szűrők keverése és összeillesztése"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Visszaállítás alaphelyzetbe"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Böngésző bejelentkezési felszólítások automatikus kitöltése",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Válaszoljunk az alapvető HTTP hitelesítési kérdésekre azokról a webhelyekről, amelyek megfelelnek ennek a bejelentkezési elemnek."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Súgó cikk megnyitása a böngészőbeli bejelentkezési adatok automatikus kitöltéséről"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "A webhelyek a tudtunk nélkül aktiválhatják ezeket az utasításokat, ami felfedheti a hitelesítéseket.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "A beállítás használatához válasszunk egy \"Alapértelmezett\" beállítástól eltérő egyezés érzékelési lehetőséget a bejelentkezési elem minden webhelyéhez."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Kapcsoljuk be az automatikus kitöltést a böngésző bejelentkezési utasításaihoz?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "A mesterjelszó új bekérés kikapcsolásra kerül ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "A mesterjelszó újbóli bekérése?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Alapértelmezett találat érzékelés?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Az automatikus kitöltés a böngésző bejelentkezési utasításaihoz kikapcsolásra került."
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Ez az elemhez be van kapcsolva a mesterjelszó újra bekérése, így a böngésző bejelentkezési utasításainak automatikus kitöltése ki volt kapcsolva. Mentsük el az elemet a módosítás megtartásához."
   }
 }
