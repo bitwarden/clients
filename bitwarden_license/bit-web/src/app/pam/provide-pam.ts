@@ -1,5 +1,6 @@
 import { NgZone } from "@angular/core";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -29,6 +30,7 @@ import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/i
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
+import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
 import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
@@ -61,6 +63,7 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-l
 import {
   AccessEventService,
   ApprovalSdkService,
+  AuditApiService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
@@ -115,6 +118,12 @@ export function providePam(): SafeProvider[] {
       provide: LeasingErrorService,
       useClass: DefaultLeasingErrorService,
       deps: [],
+    }),
+    // HTTP-backed until the SDK has an audit client (see `audit-api.service.ts`).
+    safeProvider({
+      provide: AuditApiService,
+      useClass: DefaultAuditApiService,
+      deps: [ApiService, AccountService],
     }),
     safeProvider({
       provide: RotationSdkService,

@@ -185,7 +185,7 @@ describe("VaultPinnedNavComponent", () => {
 
       (fixture.nativeElement.querySelector("button[bitIconButton]") as HTMLElement).click();
       await settle();
-      (document.querySelector("#vault-pinned-nav_menu-item_unpin-3") as HTMLElement).click();
+      (document.querySelector("#vault-pinned-nav_menu-item_pin-3") as HTMLElement).click();
       await settle();
 
       expect(text()).not.toContain("Finance");
@@ -210,7 +210,7 @@ describe("VaultPinnedNavComponent", () => {
       await settle();
 
       expect(document.querySelector("[id^='vault-pinned-nav_menu-item_edit-']")).not.toBeNull();
-      expect(document.querySelector("[id^='vault-pinned-nav_menu-item_unpin-']")).toBeNull();
+      expect(document.querySelector("[id^='vault-pinned-nav_menu-item_pin-']")).toBeNull();
     });
 
     it("leaves a folder's page for the shared folders list once the folder is deleted", async () => {
