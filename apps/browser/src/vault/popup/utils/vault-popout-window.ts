@@ -158,6 +158,7 @@ async function closeAddEditVaultItemPopout(delayClose = 0) {
  *
  * @param senderTab - The tab that sent the request.
  * @param options - Options passed as query params to the popout.
+ * @returns The id of the popout and whether it was opened as a tab (instead of a window).
  */
 async function openFido2Popout(
   senderTab: chrome.tabs.Tab,
@@ -165,7 +166,7 @@ async function openFido2Popout(
     sessionId: string;
     fallbackSupported: boolean;
   },
-): Promise<chrome.windows.Window["id"]> {
+): Promise<{ id: number; isTab: boolean }> {
   const { sessionId, fallbackSupported } = options;
   const promptWindowPath =
     "popup/index.html#/fido2" +
@@ -181,7 +182,7 @@ async function openFido2Popout(
     windowOptions: { height: 570 },
   });
 
-  return popoutWindow.id;
+  return { id: popoutWindow.id, isTab: BrowserPopupUtils.isTab(popoutWindow) };
 }
 
 /**
