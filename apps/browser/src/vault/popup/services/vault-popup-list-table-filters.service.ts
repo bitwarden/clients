@@ -65,14 +65,14 @@ interface CachedTableFilterState {
 /**
  * Each vault's chip selection for a user, keyed by {@link scopeKey}. Stored per user so that
  * switching accounts brings back that user's filters, which the popup view cache can't do — the
- * background clears it on every account switch. Cleared only on logout.
+ * background clears it on every account switch. Cleared on lock and logout.
  */
 const VAULT_TABLE_FILTERS = UserKeyDefinition.record<CachedTableFilterState>(
   VAULT_TABLE_FILTERS_DISK,
   "tableFiltersByScope",
   {
     deserializer: (v) => v,
-    clearOn: ["logout"],
+    clearOn: ["lock", "logout"],
   },
 );
 
@@ -82,7 +82,7 @@ const VAULT_SELECTED_SCOPE = new UserKeyDefinition<string | null>(
   "selectedScopeId",
   {
     deserializer: (v) => v,
-    clearOn: ["logout"],
+    clearOn: ["lock", "logout"],
   },
 );
 
@@ -92,7 +92,7 @@ const VAULT_SEARCH_TEXT = UserKeyDefinition.record<string>(
   "searchTextByScope",
   {
     deserializer: (v) => v,
-    clearOn: ["logout"],
+    clearOn: ["lock", "logout"],
   },
 );
 
