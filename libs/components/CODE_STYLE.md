@@ -45,11 +45,15 @@ How we write components in this library. For what belongs in the library and PR 
 
 ## Accessibility
 
+- Meet WCAG 2.2 AA. Check the current WCAG and ARIA APG guidance for the pattern being built rather than relying on memory.
+- Prefer native elements and semantics over ARIA. Add ARIA only to fill gaps native HTML can't.
 - Every interactive state must be reachable by keyboard, with defined screen reader behavior (accessible names, roles, state announcements).
+- Manage focus for overlays and dynamic content: move focus in on open, trap it where the pattern requires, and restore it on close.
 
 ## Docs, Stories & Tests
 
 - Every component class and public input gets a JSDoc comment (`/** */`, not `//`). Use `@deprecated` to point to replacements.
 - MDX describes usage only: no internals, no restating what the story already shows.
 - Use play functions to capture interactive states (hover, focus, open, validation errors) for visual regression.
+- Prefer Storybook coverage over unit tests. Unit tests never cover Angular internals or styling.
 - Test internal helper components through their public component.

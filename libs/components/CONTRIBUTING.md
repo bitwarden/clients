@@ -3,7 +3,7 @@
 ## What Belongs Here
 
 - This library holds low-level, domain-agnostic UI. Domain-coupled UI (ciphers, billing, onboarding tours) belongs in the owning team's folder; business logic belongs in services.
-- Promote UI into this library once a second team needs it.
+- Promote UI into this library once a second team needs it. Promotion usually requires rework first: decouple business logic and generalize inputs and slots.
 
 ## Requirements
 
