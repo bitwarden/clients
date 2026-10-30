@@ -37,14 +37,10 @@ import {
   PageDetail,
 } from "../services/abstractions/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
-import {
-  AUTOFILL_ABSENT,
-  AUTOFILL_DENIED,
-  FillResult,
-  shouldAutoCopyTotp,
-} from "../types/fill-result";
 
-import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
+import { AutofillOrchestrator } from "./abstractions";
+import type { FillResult } from "./types";
+import { AUTOFILL_ABSENT, AUTOFILL_DENIED, shouldAutoCopyTotp } from "./utils";
 
 /**
  * A fill the background drives from a runtime message or a resolved page
@@ -144,7 +140,7 @@ const requireActiveTab = Symbol("requireActiveTab");
 type CommitOverrides = { [requireActiveTab]?: boolean };
 
 /**
- * Default implementation of {@link AutofillOrchestrator}. See `orchestrator.design.md` for the
+ * Default implementation of {@link AutofillOrchestrator}. See `orchestration/design.md` for the
  * sequencing and invariants it upholds.
  */
 export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
@@ -333,7 +329,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       return;
     }
     // A user-initiated fill is tab-scoped: it fills the active tab across all frames in one pass,
-    // so it carries no frame id and serializes per tab (see `orchestrator.design.md`, "Fills do not
+    // so it carries no frame id and serializes per tab (see `orchestration/design.md`, "Fills do not
     // race"). It deliberately does not share a per-frame lane with page-load fills.
     this.fillRequest$.next(
       kind === "command"
@@ -429,7 +425,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    *
    * A rejection here abandons the fill silently. That is safe because it is confined to page-load
    * and self-correcting — the page now in the frame raises its own opportunity — and because a
-   * user-initiated fill never reaches this guard. See `orchestrator.design.md`, "A credential
+   * user-initiated fill never reaches this guard. See `orchestration/design.md`, "A credential
    * reaches only the origin it was chosen for", for the security/UX rationale.
    */
   private reportedFrameIsFresh(request: FillRequest, pageDetails: PageDetail[]): boolean {

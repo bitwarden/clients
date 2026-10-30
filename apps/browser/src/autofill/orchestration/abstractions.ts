@@ -1,15 +1,16 @@
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AutoFillOptions, PageDetail } from "../../services/abstractions/autofill.service";
-import { AutofillTriageResponse } from "../../types/autofill-triage";
-import { FillResult } from "../../types/fill-result";
+import { AutoFillOptions, PageDetail } from "../services/abstractions/autofill.service";
+import { AutofillTriageResponse } from "../types/autofill-triage";
+
+import type { FillResult } from "./types";
 
 /**
  * The single owner of fill execution in the background. It reduces every fill request — page load,
  * keyboard command, card / identity, caller-supplied cipher, and auto-submit — to one concrete
  * instruction for the autofill service, serializes execution per `(tab, frame)`, and upholds the
- * fill invariants (correct origin, foreground/active tab). See `orchestrator.design.md`.
+ * fill invariants (correct origin, foreground/active tab). See `orchestration/design.md`.
  *
  * The default implementation is `DefaultAutofillOrchestrator`.
  */

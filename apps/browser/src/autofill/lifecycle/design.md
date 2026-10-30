@@ -209,7 +209,7 @@ An opportunity stays live only while the conditions that resolved it hold. It is
 - the active account locks or logs out;
 - the active account changes.
 
-Retirement is a single signal, whatever its cause. Once an opportunity is retired, nothing more is done on its behalf: execution in progress ends, and any pending re-attempt is abandoned (see [`orchestrator.design.md`](../orchestrator.design.md#each-opportunity-reaches-one-conclusion-on-its-own-merits)). A transition that was dropped never became an opportunity, so it needs no retirement.
+Retirement is a single signal, whatever its cause. Once an opportunity is retired, nothing more is done on its behalf: execution in progress ends, and any pending re-attempt is abandoned (see [`orchestration/design.md`](../orchestration/design.md#each-opportunity-reaches-one-conclusion-on-its-own-merits)). A transition that was dropped never became an opportunity, so it needs no retirement.
 
 ## The lifecycle protocol
 

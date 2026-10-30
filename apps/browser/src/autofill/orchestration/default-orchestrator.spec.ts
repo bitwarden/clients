@@ -26,13 +26,13 @@ import {
   createPageDetailMock,
 } from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
-import { FillResult } from "../types/fill-result";
 
 import {
   DefaultAutofillOrchestrator,
   LIVE_TAB_SEED_MAX_RETRIES,
   LIVE_TAB_SEED_RETRY_DELAY_MS,
-} from "./autofill-orchestrator";
+} from "./default-orchestrator";
+import type { FillResult } from "./types";
 
 describe("DefaultAutofillOrchestrator", () => {
   let autofillOrchestrator: DefaultAutofillOrchestrator;

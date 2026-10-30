@@ -1,12 +1,7 @@
 import { AutofillOutcome } from "../enums/autofill-outcome.enum";
 
-import {
-  AUTOFILL_ABSENT,
-  AUTOFILL_DENIED,
-  didFillOccur,
-  FillResult,
-  shouldAutoCopyTotp,
-} from "./fill-result";
+import type { FillResult } from "./types";
+import { AUTOFILL_ABSENT, AUTOFILL_DENIED, didFillOccur, shouldAutoCopyTotp } from "./utils";
 
 describe("didFillOccur", () => {
   it.each([AutofillOutcome.Filled, AutofillOutcome.Absent])(

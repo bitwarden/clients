@@ -288,6 +288,7 @@ export default tseslint.config(
     ignores: [
       "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
       "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
+      "apps/browser/src/autofill/orchestration/**/*.ts", // The orchestrator is the one caller of the fill methods below
       "apps/browser/src/platform/background.ts",
       "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
@@ -318,7 +319,6 @@ export default tseslint.config(
   {
     files: ["apps/browser/src/**/background/**/*.ts"],
     ignores: [
-      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
       "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
     rules: {
@@ -860,7 +860,7 @@ function doAutoFillSyntaxRule() {
     selector:
       "CallExpression[callee.type='MemberExpression'][callee.property.name=/^doAutoFill(ActiveTab|OnTab)?$/]",
     message:
-      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestrator.design.md for additional information.",
+      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestration/design.md for additional information.",
   };
 }
 
@@ -874,6 +874,6 @@ function unsafeAutofillTabWithCipherSyntaxRule() {
     selector:
       "CallExpression[callee.type='MemberExpression'][callee.property.name='unsafeAutofillTabWithCipher']",
     message:
-      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
+      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestration/design.md for additional information.",
   };
 }

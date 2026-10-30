@@ -5,15 +5,15 @@
 # The autofill orchestrator
 
 > [!NOTE]
-> Companion to [autofill.design.md](./autofill.design.md) — the autofill feature and its policies —
-> and [lifecycle/design.md](./lifecycle/design.md) — _when_ a frame is worth engaging. This document
+> Companion to [autofill.design.md](../autofill.design.md) — the autofill feature and its policies —
+> and [lifecycle/design.md](../lifecycle/design.md) — _when_ a frame is worth engaging. This document
 > covers how a fill is carried out safely once it is warranted.
 
 The orchestrator is the single owner of fill execution. Every fill operation must flow through it.
 It takes each request, reduces it to a concrete instruction — this cipher, into this target — hands
 that to the autofill service, interprets the result, and reports an outcome.
 
-It does not decide _when_ a fill is appropriate. The [monitoring lifecycle](./lifecycle/design.md)
+It does not decide _when_ a fill is appropriate. The [monitoring lifecycle](../lifecycle/design.md)
 decides that; the orchestrator consumes its decisions and executes them. Coordination is the
 lifecycle's concern and execution is the orchestrator's, so the flow has a single source of
 sequencing truth.
@@ -28,7 +28,7 @@ A fill separates into a step that only observes and a step that acts:
   safe to fill, dispatches the fill, and — only if a credential was actually placed — runs the
   effects it books itself. Effects owned by the surface that asked for the fill, such as copying a
   verification code, are that surface's to run and follow their own rule (see
-  [Autofill: Outcomes](./autofill.design.md#outcomes)).
+  [Autofill: Outcomes](../autofill.design.md#outcomes)).
 
 Keeping these apart is load-bearing, not stylistic: every protection a credential needs belongs with
 the commit, at the moment the credential is placed, and never with the harmless read. Between the two
@@ -44,7 +44,7 @@ is what they protect.
 ### A credential fills only the tab the user is working in
 
 A commit fills only the active, foreground tab — never a background one. Two layers uphold this. The
-[monitoring lifecycle](./lifecycle/design.md) engages only the tab the user is working in, so a
+[monitoring lifecycle](../lifecycle/design.md) engages only the tab the user is working in, so a
 page-load opportunity is aimed at the foreground from the start. The commit then re-verifies
 foreground at the instant it fills — defense-in-depth against a race the first layer cannot close: an
 opportunity can resolve, or a user-initiated fill be issued, and then the user switches tabs before
@@ -54,7 +54,7 @@ foreground when the fill began but is not when it lands.
 Verifying the target is foreground is the **default** for every fill, and exactly one path opts out:
 the popup's fill round-trip. When a popout window is focused there is no active content tab for the
 check to match, so it names its own target instead. Its target must still be its window's active
-tab, as the [tab lifecycle](./lifecycle/design.md#the-tab-lifecycle) tracks it: warming up, warm or
+tab, as the [tab lifecycle](../lifecycle/design.md#the-tab-lifecycle) tracks it: warming up, warm or
 hot. Opting out of the foreground check does not opt out of attention altogether. Every other
 caller-supplied fill is supplied by active-tab controls, and thus stays foreground-verified.
 
@@ -105,7 +105,7 @@ The re-attempt is internal to executing a single opportunity, so the orchestrato
 across opportunities. Each opportunity is judged only on its own merits, and there is no state to leak
 or desynchronize between them.
 
-When the lifecycle [retires](./lifecycle/design.md#retiring-an-opportunity) an opportunity, its
+When the lifecycle [retires](../lifecycle/design.md#retiring-an-opportunity) an opportunity, its
 execution cancels the remainder of its operations. For example, an opportunity cancelled while
 selecting a cipher will not re-attempt or commit the fill. A retired opportunity has no execution
 in flight.
@@ -119,7 +119,7 @@ in flight.
 The orchestrator collects the details it fills rather than acting on details gathered elsewhere, so a
 collect is always sequenced with the fill it feeds. Fills serialize at the granularity they target:
 a page-load fill per frame, so a newer opportunity for a frame already filling
-[retires](./lifecycle/design.md#retiring-an-opportunity) the one in flight and runs once its
+[retires](../lifecycle/design.md#retiring-an-opportunity) the one in flight and runs once its
 execution has ended; a user-initiated fill per tab, since it fills the whole tab in one pass. Sequencing collect-then-fill
 this way prevents two fills of the same scope from interleaving into a double fill or a fill of the
 wrong page.
@@ -148,7 +148,7 @@ Automated login both fills and submits, the highest-stakes fill of all. The orch
 special path: it runs through the same commit as any other fill — including the foreground
 verification — so a credential is never submitted into a background tab. What makes a submit
 _higher_ stakes, and the per-step host approval that authorizes one, belong to the feature and are
-described in [autofill.design.md](./autofill.design.md#automated-login-auto-submit).
+described in [autofill.design.md](../autofill.design.md#automated-login-auto-submit).
 
 ## Exercising a fill outside an input method
 
@@ -165,4 +165,4 @@ target, it fills and reports whether it did. That operation makes no selection, 
 foreground decision — the orchestrator supplies the cipher and target and runs the checks above the
 seam. Keeping the fill contract this narrow is what lets the invariants live in one place rather than
 being re-derived at each entry point. (The autofill service also carries responsibilities that sit
-outside this seam; see [autofill.design.md](./autofill.design.md#the-autofill-service).)
+outside this seam; see [autofill.design.md](../autofill.design.md#the-autofill-service).)

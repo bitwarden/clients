@@ -14,7 +14,7 @@ Autofill and the monitoring lifecycle are separate concerns. The
 [monitoring lifecycle](./lifecycle/design.md) decides _when a frame is worth engaging_ — it
 reconciles the page, account, extension, and tab lifecycles and, when a page transition resolves,
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
-Autofill decides _whether and how to fill_. The [orchestrator](./orchestrator.design.md) coordinates
+Autofill decides _whether and how to fill_. The [orchestrator](./orchestration/design.md) coordinates
 the fill action, including resolving concurrent autofill requests. It decides which contexts are
 targeted, how autofill operations are sequenced, and secures the autofill workflow at large.
 
@@ -50,7 +50,7 @@ opportunity, autofill applies its policy before it commits a fill:
   a policy decision, and not re-attempted.
 
 The opportunity is per frame, so simultaneous page loads across frames are decided independently.
-Once policy permits, the fill is carried out by the [orchestrator](./orchestrator.design.md).
+Once policy permits, the fill is carried out by the [orchestrator](./orchestration/design.md).
 
 A page-load fill targets **the frame that produced the transition**, resolved live, by identity, at the
 moment of the fill. It must not use a snapshot carried from when the transition was reported.
@@ -116,7 +116,7 @@ entitlement to verification codes for that cipher. A denial forbids the release 
 
 The autofill service's **fill operation** is a narrow primitive: given a concrete cipher and a
 target, it fills and reports whether it did. It makes no selection, targeting, or foreground
-decision. The [orchestrator](./orchestrator.design.md) chooses the cipher, verifies the tab the
+decision. The [orchestrator](./orchestration/design.md) chooses the cipher, verifies the tab the
 user is working in, and sequences the collect with other autofill operations. Keeping the
 fill contract narrow lets autofill's fill invariants live in one place rather than being
 re-derived at every entry point.
