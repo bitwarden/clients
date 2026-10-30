@@ -41,6 +41,8 @@ type TargetingRules = {
    * testing), multi-step flows at a single URI (e.g. SPAs), etc
    */
   forms?: FormContent[];
+  /** Site-wide fragment states that render the same form content on any page of the host */
+  fragments?: FragmentRules;
   /**
    * The presence of a key with a `null`, `undefined`, or empty value
    * is not meaningful and should be ignored.
@@ -48,17 +50,36 @@ type TargetingRules = {
   pathnames?: {
     /**
      * The presence of a key with a `null`, `undefined`, or empty value
-     * indicates the page should be ignored (e.g. Autofill should not be used).
+     * indicates the page should be ignored (e.g. Autofill should not be used),
+     * in all of its fragment states.
      */
-    [pathname: Pathname]: {
-      /**
-       * Multiple form definitions for a given page allows for mixed form types
-       * (e.g. a billing / shipping combo), unpredictable renders (e.g. multivariate
-       * testing), multi-step flows at a single URI (e.g. SPAs), etc
-       */
-      forms: FormContent[];
-    } | null;
+    [pathname: Pathname]: PathnameRules | null;
   };
+};
+
+type PathnameRules = {
+  /**
+   * Multiple form definitions for a given page allows for mixed form types
+   * (e.g. a billing / shipping combo), unpredictable renders (e.g. multivariate
+   * testing), multi-step flows at a single URI (e.g. SPAs), etc
+   */
+  forms?: FormContent[];
+  /** Fragment states specific to this page */
+  fragments?: FragmentRules;
+};
+
+/**
+ * Maps URI fragments to fragment-specific form descriptions, for pages whose
+ * form content is determined by the fragment.
+ */
+export type FragmentRules = {
+  /**
+   * The presence of a key with a `null` value indicates the fragment state
+   * should be ignored.
+   */
+  [fragment: Fragment]: {
+    forms: FormContent[];
+  } | null;
 };
 
 export type FormPurposeCategory =
@@ -111,6 +132,9 @@ export type FormContent = {
 
 /** A URL pathname; must start with `/` */
 export type Pathname = `/${string}`;
+
+/** A URI fragment; must start with `#` */
+export type Fragment = `#${string}`;
 
 /**
  * A CSS selector which can optionally include the `>>>` combinator to

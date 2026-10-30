@@ -1,9 +1,11 @@
 import { Observable } from "rxjs";
 
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
-import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
-import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { SdkUnlockRequest } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  ProfileProviderOrganizationResponse,
+  ProfileProviderResponse,
+} from "@bitwarden/common/provider";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
