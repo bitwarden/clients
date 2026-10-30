@@ -156,7 +156,7 @@ describe("GroupsV2Component", () => {
       name: "Engineering Team",
       collections: [{ id: "col-eng", readOnly: false, hidePasswords: false, manage: true }],
     });
-    const row = { details: group, collectionBadges: [] };
+    const row = { details: group, collectionChips: [] };
 
     beforeEach(() => createComponent());
 
@@ -206,8 +206,8 @@ describe("GroupsV2Component", () => {
   describe("confirmDelete", () => {
     const group1 = makeGroup({ id: "group-1", name: "Engineering Team" });
     const group2 = makeGroup({ id: "group-2", name: "Design Team" });
-    const row1 = { details: group1, collectionBadges: [] };
-    const row2 = { details: group2, collectionBadges: [] };
+    const row1 = { details: group1, collectionChips: [] };
+    const row2 = { details: group2, collectionChips: [] };
 
     beforeEach(async () => {
       createComponent();
@@ -253,7 +253,7 @@ describe("GroupsV2Component", () => {
       );
       expect(mockGroupService.deleteMany).toHaveBeenCalledWith(orgId, ["group-1", "group-2"]);
       expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success", message: "groupsDeleted" }),
+        expect.objectContaining({ variant: "success", message: "groupsDeleted:2" }),
       );
     });
 
@@ -285,7 +285,7 @@ describe("GroupsV2Component", () => {
 
     it("deletes whatever the table last reported as selected", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionBadges: [] };
+      const row = { details: group, collectionChips: [] };
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
       mockGroupService.deleteMany.mockResolvedValue(undefined);
 
@@ -307,7 +307,7 @@ describe("GroupsV2Component", () => {
 
     it("opens the edit dialog for the clicked row's group, scoped to the current organization", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionBadges: [] };
+      const row = { details: group, collectionChips: [] };
 
       mockDialogService.open.mockReturnValue({
         closed: of(GroupAddEditDialogResultType.Saved),
@@ -323,24 +323,24 @@ describe("GroupsV2Component", () => {
       );
     });
 
-    it("shows a 'Group edited' toast and refreshes the list when the dialog reports Saved", async () => {
+    it("refreshes the list when the dialog reports Saved", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionBadges: [] };
+      const row = { details: group, collectionChips: [] };
 
       mockDialogService.open.mockReturnValue({
         closed: of(GroupAddEditDialogResultType.Saved),
       } as any);
+      mockGroupService.getAllDetails.mockClear();
 
       await component.edit(row);
 
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success", message: "groupEdited" }),
-      );
+      expect(mockGroupService.getAllDetails).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
     });
 
-    it("does not toast, but removes the row, when the dialog reports Deleted", async () => {
+    it("removes the row and does not toast, when the dialog reports Deleted", async () => {
       const group = makeGroup({ id: "group-1" });
-      const row = { details: group, collectionBadges: [] };
+      const row = { details: group, collectionChips: [] };
 
       mockDialogService.open.mockReturnValue({
         closed: of(GroupAddEditDialogResultType.Deleted),
@@ -348,6 +348,7 @@ describe("GroupsV2Component", () => {
 
       await component.edit(row);
 
+      expect(component["rows"]()).not.toContain(row);
       expect(mockToastService.showToast).not.toHaveBeenCalled();
     });
   });

@@ -136,8 +136,7 @@ export class GroupsV2Component {
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
 
-  private readonly tableRef =
-    viewChild.required<BitTableV2Component<GroupRow>>(BitTableV2Component);
+  private readonly tableRef = viewChild<BitTableV2Component<GroupRow>>(BitTableV2Component);
 
   private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
 
@@ -237,7 +236,7 @@ export class GroupsV2Component {
 
     effect(() => {
       const currentRows = new Set(this.rows());
-      const model = this.tableRef().selectionModel();
+      const model = this.tableRef()?.selectionModel();
       const stale = model?.selected().filter((row) => !currentRows.has(row)) ?? [];
       if (stale.length > 0) {
         model?.deselect(...stale);
