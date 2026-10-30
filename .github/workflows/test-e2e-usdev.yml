@@ -193,28 +193,15 @@ jobs:
               }
             }
 
-  # On a failed nightly (or manual) run: triggers a Slack workflow with LINK set to each failed
-  # suite's job, whose log lists the failing tests. Falls back to the run if no job failed.
+  # On a failed nightly (or manual) run: triggers a Slack workflow with LINK set to the run.
   notify:
     name: Notify Slack
     needs: test
     if: ${{ always() && github.event_name != 'pull_request' && needs.test.result == 'failure' }}
     runs-on: ubuntu-24.04
     permissions:
-      actions: read
       id-token: write
     steps:
-      - name: Build Slack payload
-        id: failed
-        env:
-          GH_TOKEN: ${{ github.token }}
-          _RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          LINKS=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" --paginate \
-            --jq '.jobs[] | select(.conclusion == "failure") | .html_url')
-          PAYLOAD=$(jq -cn --arg links "${LINKS:-$_RUN_URL}" '{LINK: $links}')
-          echo "payload=$PAYLOAD" >> "$GITHUB_OUTPUT"
-
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -237,4 +224,5 @@ jobs:
         with:
           webhook: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-SLACK-WEBHOOK }}
           webhook-type: webhook-trigger
-          payload: ${{ steps.failed.outputs.payload }}
+          payload: |
+            {"LINK": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}
