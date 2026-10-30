@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "LastPass Email"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "包含共享文件夹"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "登录、支付卡、身份、安全笔记，以及 TOTP，且会保留原有的文件夹结构。"
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "可接受的格式：$FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "管理账户恢复"
   },
+  "manageAccessRules": {
+    "message": "Manage access rules"
+  },
+  "manageRotation": {
+    "message": "Manage rotation"
+  },
   "disableRequiredError": {
     "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能停用此策略。",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "添加共享文件夹以安全地与其他成员共享密码库项目。"
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pin to sidebar",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Unpin from sidebar",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pinned to sidebar",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ unpinned from sidebar",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Find a shared folder in this vault and select",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "from the Options menu.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
+  },
   "noMembersAdded": {
     "message": "未添加任何成员"
   },
@@ -12447,15 +12547,15 @@
     "message": "此用户可以访问 Secrets Manager"
   },
   "privilegedControls": {
-    "message": "特权控制",
+    "message": "Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
-    "message": "激活用户对特权控制的访问权限。",
+    "message": "激活用户对 Privileged Controls 的访问权限。",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "userAccessPrivilegedControls": {
-    "message": "此用户可以访问特权控制",
+    "message": "此用户可以访问 Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
@@ -12904,7 +13004,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
+    "message": "您需要在某个受信任的设备上登录，或请求管理员为您分配一个密码。"
   },
   "trustedDeviceEncryption": {
     "message": "受信任设备加密"
@@ -13029,7 +13129,7 @@
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activatedAccessToPrivilegedControls": {
-    "message": "激活了对特权控制的访问权限",
+    "message": "激活了对 Privileged Controls 的访问权限",
     "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateAccess": {
@@ -13040,14 +13140,14 @@
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "bulkEnablePrivilegedControlsDescription": {
-    "message": "授予以下成员对特权控制的访问权限。",
+    "message": "授予以下成员对 Privileged Controls 的访问权限。",
     "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateSecretsManager": {
     "message": "激活 Secrets Manager"
   },
   "activatePrivilegedControls": {
-    "message": "激活特权控制",
+    "message": "激活 Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Secrets Manager 方案价格"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls 方案价格",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Password Manager"
@@ -16069,7 +16173,7 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "使用 Bitwarden 浏览器扩展，您可以轻松地创建新的登录，直接从您的浏览器工具栏访问已保存的登录，以及使用 Bitwarden 自动填充功能快速登录账户。"
+    "message": "借助 Bitwarden 浏览器扩展，您可以轻松地创建新的登录，直接从您的浏览器工具栏访问已保存的登录，以及使用 Bitwarden 自动填充功能快速登录账户。"
   },
   "restart": {
     "message": "重启"
@@ -17334,7 +17438,7 @@
     "message": "1Password 电子邮箱"
   },
   "onePasswordEmailHint": {
-    "message": "输入您用于登录1Password 的电子邮箱"
+    "message": "输入您用于登录 1Password 的电子邮箱"
   },
   "secretKey": {
     "message": "安全密钥"
@@ -17545,6 +17649,63 @@
   },
   "importingYourAccount": {
     "message": "正在导入您的账户..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "passcode": {
     "message": "通行代码"
@@ -17803,6 +17964,118 @@
   "pamAccessRequestsTitle": {
     "message": "访问请求"
   },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ 分钟",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 小时"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ 小时",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "现在开始"
+  },
+  "pamInboxStartToday": {
+    "message": "今天"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "明天"
+  },
+  "pamInboxStartInDays": {
+    "message": "$DAYS$ 天内",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "无法发起访问。"
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "批准的访问窗口尚未开始。"
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "批准的访问窗口已经结束。"
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "此请求尚未被批准。"
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "此请求已无法激活。"
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "此请求的访问权限已被使用，已不再有效。"
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "同一时间只能有一名用户拥有此项目的有效访问权限。请在当前访问结束后重试。"
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "不允许从您的当前网络访问此项目。"
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "当前不允许访问此项目。"
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "目前不允许访问此项目。"
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "需要 Privileged Controls 许可证。请联系管理员激活您的许可证。",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "您已经拥有此项目的有效访问权限。"
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "您已经有此项目已批准的请求。"
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "您已经拥有此项目待处理的请求。"
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d 前",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h 前",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "刚刚"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m 前",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "pamAccessRules": {
     "message": "访问规则"
   },
@@ -17951,7 +18224,7 @@
     "message": "同一时间只能有一名用户拥有有效访问权限"
   },
   "pamAccessRuleSingleActiveAccessHint": {
-    "message": "获得批准的其他人员可在当前访问结束或被撤销后，尝试开始访问。"
+    "message": "获得批准的其他人员可以在当前访问结束或被撤销后尝试发起访问。"
   },
   "pamAccessRuleAllowAccessExtensions": {
     "message": "允许访问扩展"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "按比例的 Secrets Manager 费用"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "按比例的 Privileged Controls 费用",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "按比例的服务账户费用"

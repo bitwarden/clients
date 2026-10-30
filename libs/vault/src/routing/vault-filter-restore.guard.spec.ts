@@ -13,9 +13,10 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { ALL_ITEMS_SCOPE, VaultScopeType } from "../models/vault-scope";
 
+import { VAULT_SCOPE_PARAM } from "./route-vault-scope";
 import { VaultFilterMemoryService } from "./vault-filter-memory.service";
 import { vaultFilterRestoreGuard } from "./vault-filter-restore.guard";
-import { VAULT_FILTER_SCOPE, VAULT_SCOPE_PARAM } from "./vault-filter-scope";
+import { VAULT_FILTER_SCOPE } from "./vault-filter-scope";
 
 jest.mock("@angular/router", () => ({
   ...jest.requireActual("@angular/router"),

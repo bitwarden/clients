@@ -140,4 +140,49 @@ describe("OrganizationVaultExportService", () => {
       expect(exportedIds(result.data as string)).toEqual(["visible"]);
     });
   });
+
+  describe("getManagedExportGatedItemCount", () => {
+    function localCiphers(adjust: (responses: CipherResponse[]) => void = () => {}) {
+      const responses = cipherResponses();
+      adjust(responses);
+      cipherService.getAll.mockResolvedValue(
+        responses.map((response) => new Cipher(new CipherData(response))),
+      );
+    }
+
+    it("counts the gated items a managed collections export leaves out", async () => {
+      localCiphers();
+
+      const count = await service.getManagedExportGatedItemCount(userId, organizationId);
+      const result = await service.getOrganizationExport(
+        userId,
+        organizationId,
+        "encrypted_json",
+        true,
+      );
+
+      expect(count).toBe(1);
+      expect(exportedIds(result.data as string)).toEqual(["visible"]);
+    });
+
+    it("ignores gated items outside the managed collections", async () => {
+      localCiphers(([, gated]) => (gated.collectionIds = ["col-2"]));
+
+      expect(await service.getManagedExportGatedItemCount(userId, organizationId)).toBe(0);
+    });
+
+    it("ignores deleted gated items", async () => {
+      localCiphers(([, gated]) => (gated.deletedDate = "2026-01-01T00:00:00Z"));
+
+      expect(await service.getManagedExportGatedItemCount(userId, organizationId)).toBe(0);
+    });
+
+    it("ignores gated items in other organizations", async () => {
+      localCiphers();
+
+      expect(await service.getManagedExportGatedItemCount(userId, "org-2" as OrganizationId)).toBe(
+        0,
+      );
+    });
+  });
 });

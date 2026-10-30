@@ -1390,13 +1390,13 @@
     "message": "Välj en fil"
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file"
+    "message": "Den filtypen accepteras inte för den här källan. Välj en annan fil"
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content"
+    "message": "Klistra in det exporterade innehållet"
   },
   "fileTypeNotSupported": {
-    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "message": "Den här filtypen stöds inte. Välj en $TYPES$ fil",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -1405,10 +1405,10 @@
     }
   },
   "pasteContentFormatMismatch": {
-    "message": "The pasted content doesn't match the selected format"
+    "message": "Det inklistrade innehållet stämmer inte med det valda formatet"
   },
   "errorReadingFile": {
-    "message": "The selected file could not be read"
+    "message": "Det gick inte att läsa den valda filen"
   },
   "maxFileSize": {
     "message": "Maximal filstorlek är 500 MB."
@@ -1769,7 +1769,7 @@
     "message": "Ange bas-URL:en för din lokala Bitwarden-installation. Exempel: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "För avancerad konfiguration kan du ange bas-URL:en för varje tjänst separat."
+    "message": "För avancerad konfiguration kan du ange basadressen för varje tjänst separat."
   },
   "selfHostedEnvFormInvalid": {
     "message": "Du måste lägga till antingen basserverns URL eller minst en anpassad miljö."
@@ -3510,7 +3510,7 @@
     "message": "Ditt valvs tid för timeout överskrider de begränsningar som fastställts av din organisation."
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Din organisations policy har fastställt den maximalt tillåtna tidsgränsen för valvet till $HOURS$ timmar och $MINUTES$ minuter.",
+    "message": "Organisationens policyer har angett att valvets maximalt tillåtna tidsgräns är $HOURS$ timmar och $MINUTES$ minuter.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4573,7 +4573,7 @@
     "message": "Data är inte korrekt formaterade. Kontrollera importfilen och försök igen."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Den här filen använder krypteringsinställningar som inte stöds och kan inte importeras."
   },
   "importNothingError": {
     "message": "Ingenting har importerats."
@@ -4681,7 +4681,7 @@
     "message": "Välj källa"
   },
   "importData": {
-    "message": "Import data"
+    "message": "Importera data"
   },
   "importSourceSelectTitle": {
     "message": "Välj din källa"
@@ -4823,42 +4823,42 @@
     "message": "Hjälpcenter"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "Ladda upp fil"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Klistra in som oformaterad text"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Oformaterad text"
   },
   "profile": {
-    "message": "Profile"
+    "message": "Profil"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "Importera manuellt i stället"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Importera direkt i stället"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "Snabbast"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Importera dina data"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Importera dina data på några minuter"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "Importera dina objekt direkt från",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "för att få med alla dina data.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "message": "Importera från $VENDOR$ eller kopiera och klistra in det exporterade innehållet.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4867,10 +4867,10 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Select the profile you wish to import passwords from."
+    "message": "Välj profilen som du vill importera lösenord från."
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "Logga in på $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4879,13 +4879,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "Dina inloggningsuppgifter krypteras under överföringen och lagras aldrig."
   },
   "importDataSecureByDesignTitle": {
-    "message": "Secure by design"
+    "message": "Säker från grunden"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "Krypterad överföring från början till slut. Bitwarden ser aldrig dina inloggningsuppgifter för $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4894,10 +4894,10 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Vi ber om dina inloggningsuppgifter"
   },
   "importDataLoginInfoBody": {
-    "message": "In the next step, log in to your $VENDOR$ account.",
+    "message": "I nästa steg loggar du in på ditt $VENDOR$ konto.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4906,13 +4906,13 @@
     }
   },
   "importDataEverythingTransfersTitle": {
-    "message": "Everything transfers"
+    "message": "Allt överförs"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "Inloggningar, kort, identiteter, säkra anteckningar och TOTP koder med mappstrukturen bevarad."
   },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "Accepteras: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -4921,7 +4921,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "Filtyp för $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5130,7 +5130,7 @@
     "message": "KeePass-huvudlösenord"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "Lösenord för $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5139,25 +5139,25 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "Lösenord krävs."
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "Fillösenord krävs"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "Ange ett giltigt fillösenord."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "Den uppladdade filen är lösenordsskyddad. Ange lösenordet för att fortsätta."
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "Välj profil"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Ange ett giltigt lösenord"
   },
   "importAccountMismatchError": {
-    "message": "This file can only be imported into the account it was exported from."
+    "message": "Den här filen kan bara importeras till kontot som den exporterades från."
   },
   "addKeyFile": {
     "message": "Lägg till nyckelfil"
@@ -5166,7 +5166,7 @@
     "message": "Uppladdning av nyckelfil"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "Nyckelfil"
   },
   "kdbxFileUpload": {
     "message": "Uppladdning av KDBX-fil"
@@ -5280,7 +5280,7 @@
     "message": "Sätt in YubiKey som associeras med ditt LastPass-konto i din dators USB-port, tryck sedan på knappen."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "Det gick inte att importera $COUNT$ objekt eller valv från 1Password",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5289,52 +5289,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "Ett fel inträffade. Kontrollera dina inloggningsuppgifter och försök igen."
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "Endast inloggning med lösenord stöds."
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "Endast inloggning med lösenord stöds. Försök igen eller använd en annan importmetod."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "Ange en giltig e-postadress eller använd en annan importmetod."
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "Ett fel inträffade. Försök igen eller använd en annan importmetod."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "E-postadress krävs."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Ange en giltig e-postadress."
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "Inloggningsadress krävs."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "Ange en giltig inloggningsadress."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Hemlig nyckel krävs."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Ange en giltig hemlig nyckel."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Lösenord krävs."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Ange en giltig verifieringskod."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Inloggningsadress"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "E-postadress för 1Password"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "Ange e-postadressen som du använder för att logga in på 1Password"
   },
   "secretKey": {
     "message": "Hemlig nyckel"
@@ -5666,7 +5666,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricUnlockOnRestartTurnedOff": {
-    "message": "Biometric unlock on app restart was turned off. Turn it on again in settings."
+    "message": "Biometrisk upplåsning vid omstart av appen stängdes av. Slå på den igen i inställningarna."
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometrisk upplåsning är inte tillgänglig eftersom upplåsning med PIN-kod eller lösenord krävs först."
@@ -5848,7 +5848,7 @@
     "message": "Inga passkeys hittades för detta program."
   },
   "passkeyNotAllowedForBitwardenVault": {
-    "message": "Passkeys for $DOMAIN$ can't be saved or used in Bitwarden.",
+    "message": "Lösenordsnycklar för $DOMAIN$ kan inte sparas eller användas i Bitwarden.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -5857,7 +5857,7 @@
     }
   },
   "passkeyNotAllowedForBitwardenVaultDesc": {
-    "message": "Storing the passkey for your Bitwarden account in your vault could lock you out of your account."
+    "message": "Om lösenordsnyckeln för ditt Bitwarden konto lagras i ditt valv kan du bli utelåst från kontot."
   },
   "closeThisWindow": {
     "message": "Stäng detta fönster"
@@ -6390,7 +6390,7 @@
     "message": "Intrångsmonitorering"
   },
   "andMoreFeatures": {
-    "message": "och mer!"
+    "message": "Och mer!"
   },
   "advancedOnlineSecurity": {
     "message": "Avancerad säkerhet online"
@@ -6521,7 +6521,7 @@
     "message": "Bevilja åtkomst"
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "Inga webbläsarprofiler hittades"
   },
   "upgrade": {
     "message": "Uppgradera"
@@ -6690,6 +6690,49 @@
   },
   "noSharedFoldersAddedDescription": {
     "message": "Lägg till en delad mapp för att säkert dela valvobjekt med andra medlemmar."
+  },
+  "pinned": {
+    "message": "Fästa",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Fäst i sidofältet",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Ta bort från sidofältet",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ har fästs i sidofältet",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ har tagits bort från sidofältet",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Hitta en delad mapp i detta valv och välj",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "i menyn Alternativ.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Fäst delade mappar i sidofältet om du vill filtrera dem här."
   },
   "sendPasswordHelperText": {
     "message": "Individer måste ange lösenordet för att visa denna Send",
@@ -7049,7 +7092,7 @@
     }
   },
   "confirmPasskeyRegistrationMfaMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "message": "skapa en ny lösenordsnyckel för $RPID$ åt $USERNAME$. $RPID$ begär denna kontroll för flerfaktorsautentisering",
     "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7063,7 +7106,7 @@
     }
   },
   "confirmPasskeyOverwriteMfaMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA",
+    "message": "skriva över en lösenordsnyckel för $RPID$ åt $USERNAME$. $RPID$ begär denna kontroll för flerfaktorsautentisering",
     "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7077,7 +7120,7 @@
     }
   },
   "confirmPasskeyAssertionMfaMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA",
+    "message": "logga in som $USERNAME$ med lösenordsnyckeln för $RPID$. $RPID$ begär denna kontroll för flerfaktorsautentisering",
     "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so the first sentence should omit capitalization and the final sentence should omit ending punctuation.",
     "placeholders": {
       "rpId": {
@@ -7091,7 +7134,7 @@
     }
   },
   "confirmPasskeyRegistrationMfaWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
+    "message": "Verifiera att det är du för att skapa en ny lösenordsnyckel för $RPID$ åt $USERNAME$. $RPID$ begär denna kontroll för flerfaktorsautentisering.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -7105,7 +7148,7 @@
     }
   },
   "confirmPasskeyOverwriteMfaWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$. $RPID$ is requesting this check for MFA.",
+    "message": "Verifiera att det är du för att skriva över en lösenordsnyckel för $RPID$ åt $USERNAME$. $RPID$ begär denna kontroll för flerfaktorsautentisering.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7119,7 +7162,7 @@
     }
   },
   "confirmPasskeyAssertionMfaWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey. $RPID$ is requesting this check for MFA.",
+    "message": "Verifiera att det är du för att logga in som $USERNAME$ med lösenordsnyckeln för $RPID$. $RPID$ begär denna kontroll för flerfaktorsautentisering.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -7278,22 +7321,28 @@
     "message": "Håll säkerheten för objekten i valvet hög genom att kontrollera rapporter om sårbarheter."
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "Nyheter"
   },
   "tourTheNewVaultDescription": {
     "message": "Med uppdaterad navigering och utformning är det enklare än någonsin att hitta det du behöver."
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "Alla dina valv på ett ställe"
   },
   "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+    "message": "Personliga valv, familjevalv och företagsvalv visas här nu."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Samlingar och mappar har nya namn"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "Samma funktioner, tydligare namn. Samlingar heter nu delade mappar. Mappar heter nu Mina mappar."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Kombinera filter"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Välj flera filter samtidigt för att begränsa resultatet till exakt det du vill ha. De fortsätter att användas även när du navigerar bort."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ av $TOTAL$",

@@ -85,6 +85,9 @@ export class VaultListTableComponent<C extends CipherViewLike> {
    */
   readonly sharedFolderName = input<string>();
 
+  /** The user's own folder the current vault scope names. */
+  readonly folderName = input<string>();
+
   /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
   readonly hasMultipleVaults = input(false);
 

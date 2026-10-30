@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "LastPass E-poçtu"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Paylaşılan qovluqları daxil et"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Girişlər, kartlar, kimliklər, güvənli notlar və TOTP-lər qovluq strukturunda qorunur."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Qəbul edildi: $FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Hesab geri qaytarılmasını idarə et"
   },
+  "manageAccessRules": {
+    "message": "Erişim qaydalarını idarə et"
+  },
+  "manageRotation": {
+    "message": "Manage rotation"
+  },
   "disableRequiredError": {
     "message": "Bu siyasətin sıradan çıxarıla bilməsi üçün $POLICYNAME$ siyasətini əllə sıradan çıxartmalısınız.",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Seyf elementlərini digər üzvlərlə təhlükəsiz şəkildə paylaşmaq üçün paylaşılan qovluq əlavə edin."
   },
+  "pinned": {
+    "message": "Sancıldı",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Yan çubuğa sanc",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Yan çubuqdan götür",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ yan çubuğa sancıldı",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ yan çubuqdan götürüldü",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Bu seyfdə paylaşılan bir qovluq tapın və",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "seçimini Seçənəklər menyusundan seçin.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Paylaşılan qovluqları yan çubuğa sancaraq onları burada filtrləyə bilərsiniz."
+  },
   "noMembersAdded": {
     "message": "Heç bir üzv əlavə edilmədi"
   },
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Sirr Meneceri plan qiyməti"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls plan price",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Parol Meneceri"
@@ -17546,6 +17650,63 @@
   "importingYourAccount": {
     "message": "Hesabınız daxilə köçürülür..."
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
   "passcode": {
     "message": "Kod"
   },
@@ -17802,6 +17963,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Erişim tələbləri"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ dəq",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 saat"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ saat",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "indi başlayır"
+  },
+  "pamInboxStartToday": {
+    "message": "bu gün"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "sabah"
+  },
+  "pamInboxStartInDays": {
+    "message": "$DAYS$ gün ərzində",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Erişim başladıla bilmədi."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Təsdiqlənmiş erişim pəncərəsi hələ başladılmayıb."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Təsdiqlənmiş erişim pəncərəsi artıq sona çatdı."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Bu tələb hələ təsdiqlənməyib."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Bu tələb artıq aktivləşdirilə bilməz."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Bu erişim tələbi artıq istifadə olunub və artıq aktiv deyil."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Bu elementə eyni anda yalnız 1 istifadəçinin aktiv erişimi ola bilər. Hazırkı erişim bitdikdən sonra yenidən sınayın."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Hazırkı şəbəkənizdən bu elementə erişimə icazə verilmir."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Hal-hazırda bu elementə erişimə icazə verilmir."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "İndi bu elementə erişimə icazə verilmir."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Bu elementə artıq aktiv erişiminiz var."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Bu element üçün artıq təsdiqlənmiş tələbiniz var."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Bu elementə artıq gözləyən tələbiniz var."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$ gün əvvəl",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$ saat əvvəl",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "İndicə"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$ dəq əvvəl",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Erişim qaydaları"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Sirr Meneceri üçün mütənasib ödəniş haqqı"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Privileged Controls prorated charge",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Xidmət hesabları üçün mütənasib ödəniş haqqı"

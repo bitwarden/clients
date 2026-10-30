@@ -1,0 +1,44 @@
+<ng-container [formGroup]="form">
+  @switch (stage().kind) {
+    @case ("sso") {
+      <div
+        class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-pt-4 tw-text-center"
+        role="status"
+        tabindex="-1"
+      >
+        <bit-spinner size="base" />
+        <p bitTypography="body1" class="tw-mb-0 tw-font-semibold" noMargin>
+          {{ "lastPassLoginWaitingForSso" | i18n }}
+        </p>
+        <p bitTypography="body1" class="tw-mb-0 tw-max-w-sm" noMargin>
+          {{ "lastPassLoginWaitingForSsoDesc" | i18n }}
+        </p>
+      </div>
+    }
+    @case ("password") {
+      <bit-form-field class="tw-max-w-sm">
+        <bit-label>{{ "masterPassword" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="password"
+          formControlName="lastPassPassword"
+          appInputVerbatim
+          id="importer-controls_input_lastpass-password"
+        />
+        <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+      </bit-form-field>
+    }
+    @case ("code") {
+      <bit-form-field class="tw-max-w-sm">
+        <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          formControlName="lastPassCode"
+          appInputVerbatim
+          id="importer-controls_input_lastpass-code"
+        />
+      </bit-form-field>
+    }
+  }
+</ng-container>
