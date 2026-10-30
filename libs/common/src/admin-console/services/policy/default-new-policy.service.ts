@@ -4,16 +4,15 @@ import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyData } from "../../models/data/policy.data";
-import { Policy } from "../../models/domain/policy";
 
 import { POLICIES_NEW } from "./policy-state";
 
 export class DefaultNewPolicyService implements InternalNewPolicyService {
   constructor(private stateProvider: StateProvider) {}
 
-  policies$(userId: UserId): Observable<Policy[]> {
+  policies$(userId: UserId): Observable<PolicyData[]> {
     return this.policyState(userId).state$.pipe(
-      map((policiesMap) => Object.values(policiesMap || {}).map((f) => new Policy(f))),
+      map((policiesMap) => Object.values(policiesMap || {})),
     );
   }
 
