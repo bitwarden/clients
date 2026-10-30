@@ -362,7 +362,7 @@ export class LoginCommand {
       // If we are in the SSO flow and we got a successful login response (we are past rejection scenarios
       // and should always have a userId here), validate the SSO account has a decryption path the CLI supports.
       // This must be done here b/c we have 2 places we try to login with SSO above and neither has a
-      // common handleSsoAuthnResult method to consoldiate this logic into (1. the normal SSO flow and
+      // common handleSsoAuthnResult method to consolidate this logic into (1. the normal SSO flow and
       // 2. the requiresSso automatic authentication flow)
       if (ssoCode != null && ssoCodeVerifier != null && response.userId) {
         await this.validateSsoUserHasCliSupportedDecryptionPath(response.userId);

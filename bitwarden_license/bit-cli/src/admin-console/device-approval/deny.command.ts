@@ -12,7 +12,7 @@ export class DenyCommand {
   constructor(
     private organizationService: OrganizationService,
     private organizationAuthRequestService: OrganizationAuthRequestService,
-    private accountServcie: AccountService,
+    private accountService: AccountService,
   ) {}
 
   async run(organizationId: string, id: string): Promise<Response> {
@@ -32,7 +32,7 @@ export class DenyCommand {
       return Response.badRequest("`" + id + "` is not a GUID.");
     }
 
-    const userId = await firstValueFrom(this.accountServcie.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
 
     if (!userId) {
       return Response.badRequest("No user found.");
