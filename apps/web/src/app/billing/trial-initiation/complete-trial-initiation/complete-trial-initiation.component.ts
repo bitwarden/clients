@@ -3,7 +3,7 @@ import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -121,13 +121,11 @@ export class CompleteTrialInitiationComponent {
       this.applyParams(this.params);
     });
 
-    combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
-      this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
-    ])
+    this.configService
+      .getFeatureFlag$(FeatureFlag.PamBillingSupport)
       .pipe(takeUntilDestroyed())
-      .subscribe(([pamBillingSupport, previewDrivenCart]) => {
-        this.privilegedControlsAvailable = pamBillingSupport && previewDrivenCart;
+      .subscribe((pamBillingSupport) => {
+        this.privilegedControlsAvailable = pamBillingSupport;
         this.includesPrivilegedControls = this.params
           ? this.shouldIncludePrivilegedControls(this.params)
           : false;
