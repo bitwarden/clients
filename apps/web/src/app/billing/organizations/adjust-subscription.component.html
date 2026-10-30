@@ -7,8 +7,8 @@
         <bit-hint>
           <strong>{{ "total" | i18n }}:</strong>
           {{ adjustSubscriptionForm.value.newSeatCount || 0 }} &times;
-          {{ seatPrice | currency: "$" }} = {{ seatTotalCost | currency: "$" }} /
-          {{ interval | i18n }}</bit-hint
+          {{ seatPrice() | currency: "$" }} = {{ seatTotalCost | currency: "$" }} /
+          {{ interval() | i18n }}</bit-hint
         >
       </bit-form-field>
     </div>
@@ -46,8 +46,8 @@
         <bit-hint>
           <strong>{{ "maxSeatCost" | i18n }}:</strong>
           {{ adjustSubscriptionForm.value.newMaxSeats || 0 }} &times;
-          {{ seatPrice | currency: "$" }} = {{ maxSeatTotal | currency: "$" }} /
-          {{ interval | i18n }}</bit-hint
+          {{ seatPrice() | currency: "$" }} = {{ maxSeatTotal | currency: "$" }} /
+          {{ interval() | i18n }}</bit-hint
         >
       </bit-form-field>
     </div>

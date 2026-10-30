@@ -31,12 +31,12 @@ import { UpdateLicenseComponent } from "./update-license.component";
     EnterPaymentMethodComponent,
     FileUploadComponent,
     HeaderModule,
+    SecretsManagerSubscribeComponent,
     SharedModule,
     Vfo1I18nPipe,
   ],
   declarations: [
     BillingHistoryComponent,
-    SecretsManagerSubscribeComponent,
     UpdateLicenseComponent,
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,

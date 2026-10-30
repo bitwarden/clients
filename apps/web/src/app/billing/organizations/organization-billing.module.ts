@@ -7,7 +7,7 @@ import { UserVerificationModule } from "../../auth/shared/components/user-verifi
 import { HeaderModule } from "../../layouts/header/header.module";
 import { BillingSharedModule } from "../shared";
 
-import { AdjustSubscription } from "./adjust-subscription.component";
+import { AdjustSubscriptionComponent } from "./adjust-subscription.component";
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
 import { ChangePlanComponent } from "./change-plan.component";
@@ -34,7 +34,7 @@ import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/c
     BannerModule,
     OrganizationScheduledPriceIncreaseWarningComponent,
     ChurnMitigationOfferDialogComponent,
-    AdjustSubscription,
+    AdjustSubscriptionComponent,
     SecretsManagerAdjustSubscriptionComponent,
     SecretsManagerSubscribeStandaloneComponent,
   ],
