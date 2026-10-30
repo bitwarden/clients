@@ -15,6 +15,7 @@ export enum FeatureFlag {
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
   GroupsComponentRefactor = "pm-43419-groups-table-v2",
+  MembersTableV2 = "pm-37463-members-table-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -53,7 +54,7 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM36631_PreviewDrivenCart = "pm-36631-preview-driven-cart",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
-  PM39883_PamBillingSupport = "pm-39883-pam-billing-support",
+  PamBillingSupport = "pm-39883-pam-billing-support",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -134,6 +135,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
   [FeatureFlag.GroupsComponentRefactor]: FALSE,
+  [FeatureFlag.MembersTableV2]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -198,7 +200,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
   [FeatureFlag.PM36631_PreviewDrivenCart]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
-  [FeatureFlag.PM39883_PamBillingSupport]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -222,6 +223,7 @@ export const DefaultFeatureFlagValue = {
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamBillingSupport]: FALSE,
   [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */

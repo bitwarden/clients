@@ -74,8 +74,8 @@ export const FixedWidthComparison: Story = {
           <span>bwi-eye (fixed width)</span>
         </div>
         <div class="tw-flex tw-items-center tw-gap-2">
-          <bit-icon name="bwi-collection" fixedWidth />
-          <span>bwi-collection (fixed width)</span>
+          <bit-icon name="bwi-shared-folder" fixedWidth />
+          <span>bwi-shared-folder (fixed width)</span>
         </div>
         <hr class="tw-my-2" />
         <div class="tw-flex tw-items-center tw-gap-2">
@@ -87,8 +87,8 @@ export const FixedWidthComparison: Story = {
           <span>bwi-eye (default)</span>
         </div>
         <div class="tw-flex tw-items-center tw-gap-2">
-          <bit-icon name="bwi-collection" />
-          <span>bwi-collection (default)</span>
+          <bit-icon name="bwi-shared-folder" />
+          <span>bwi-shared-folder (default)</span>
         </div>
       </div>
     `,

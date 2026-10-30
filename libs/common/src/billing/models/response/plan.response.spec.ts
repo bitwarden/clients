@@ -10,16 +10,16 @@ describe("PlanResponse", () => {
     expect(response.PrivilegedControls!.seatPrice).toBe(5);
   });
 
-  it("leaves PrivilegedControls undefined when absent", () => {
+  it("leaves PrivilegedControls null when absent", () => {
     const response = new PlanResponse({});
 
-    expect(response.PrivilegedControls).toBeUndefined();
+    expect(response.PrivilegedControls).toBeNull();
   });
 
-  it("leaves PrivilegedControls undefined when null", () => {
+  it("leaves PrivilegedControls null when null", () => {
     const response = new PlanResponse({ PrivilegedControls: null });
 
-    expect(response.PrivilegedControls).toBeUndefined();
+    expect(response.PrivilegedControls).toBeNull();
   });
 
   it("still parses SecretsManager alongside PrivilegedControls", () => {

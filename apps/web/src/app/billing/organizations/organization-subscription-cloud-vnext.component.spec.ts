@@ -897,7 +897,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   describe("privileged controls adjust gating", () => {
     const enablePamBillingSupport = () =>
       configService.getFeatureFlag$.mockImplementation(
-        (flag) => of(flag === FeatureFlag.PM39883_PamBillingSupport) as any,
+        (flag) => of(flag === FeatureFlag.PamBillingSupport) as any,
       );
 
     const renderAdjust = async (options?: {
@@ -931,9 +931,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
       await renderAdjust();
 
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.PM39883_PamBillingSupport,
-      );
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamBillingSupport);
       expect(component.showAdjustPrivilegedControls()).toBe(false);
       expect(adjustElement()).toBeNull();
     });

@@ -349,7 +349,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   });
 
   private readonly pamBillingSupportEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM39883_PamBillingSupport),
+    this.configService.getFeatureFlag$(FeatureFlag.PamBillingSupport),
     { initialValue: false },
   );
 
