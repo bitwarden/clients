@@ -10,7 +10,6 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -20,6 +19,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

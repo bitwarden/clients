@@ -489,6 +489,35 @@ export function sharedFolderNameForScope(
   return collection ? sharedFolderName(collection) : undefined;
 }
 
+export type CollectionMenuTarget = {
+  collection: CollectionView;
+  organization: Organization | undefined;
+};
+
+export function collectionMenuTargetForScope(
+  scope: VaultScope,
+  collections: readonly CollectionView[],
+  organizations: readonly Organization[],
+): CollectionMenuTarget | undefined {
+  if (scope.type !== VaultScopeType.Organization) {
+    return undefined;
+  }
+  const collectionId = scopedSharedFolderId(scope);
+  if (collectionId == null || !isGuid(collectionId)) {
+    return undefined;
+  }
+
+  const collection = collections.find((candidate) => candidate.id === collectionId);
+  if (collection == null || collection.isDefaultCollection) {
+    return undefined;
+  }
+
+  return {
+    collection,
+    organization: organizations.find((candidate) => candidate.id === scope.organizationId),
+  };
+}
+
 /**
  * Whether a cipher belongs in the scope — the single place every dimension of a scope is decided,
  * so no caller has to pair a vault filter with a state filter and risk getting one of them wrong.

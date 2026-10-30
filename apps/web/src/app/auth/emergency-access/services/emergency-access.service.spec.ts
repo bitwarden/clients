@@ -3,6 +3,7 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -16,6 +17,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -812,17 +814,32 @@ describe("EmergencyAccessService", () => {
     describe("getGrantorPolicies", () => {
       it("should map the SDK policies", async () => {
         const client = mockEmergencyAccessClient(mockUserId);
-        const sdkPolicy = { id: newGuid() } as unknown as SdkPolicy;
-        const policy = new Policy();
+        const policyId = newGuid();
+        const organizationId = newGuid();
+        const revisionDate = new Date("2026-01-15T12:00:00.000Z");
+        const sdkPolicy: SdkPolicy = {
+          id: asUuid(policyId),
+          organizationId: asUuid(organizationId),
+          type: PolicyType.MasterPassword,
+          data: JSON.stringify({ minLength: 12 }),
+          enabled: true,
+          revisionDate: revisionDate.toISOString(),
+        };
         client.get_grantor_policies.mockResolvedValue([sdkPolicy]);
-        const fromSdkPolicy = jest.spyOn(Policy, "fromSdkPolicy").mockReturnValue(policy);
 
         const result = await emergencyAccessService.getGrantorPolicies(emergencyAccessId);
 
         expect(client.get_grantor_policies).toHaveBeenCalledWith(emergencyAccessId);
-        expect(fromSdkPolicy).toHaveBeenCalledWith(sdkPolicy);
-        expect(result).toEqual([policy]);
-        fromSdkPolicy.mockRestore();
+        expect(result).toHaveLength(1);
+        expect(result[0]).toBeInstanceOf(Policy);
+        expect(result[0]).toMatchObject({
+          id: policyId,
+          organizationId,
+          type: PolicyType.MasterPassword,
+          data: { minLength: 12 },
+          enabled: true,
+          revisionDate,
+        });
       });
     });
 

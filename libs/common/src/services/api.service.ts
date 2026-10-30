@@ -5,9 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -46,6 +43,7 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/logout";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -283,8 +281,8 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/security-stamp", request, true, false);
   }
 
-  async getAccountRevisionDate(): Promise<number> {
-    const r = await this.send("GET", "/accounts/revision-date", null, true, true);
+  async getAccountRevisionDate(userId?: UserId): Promise<number> {
+    const r = await this.send("GET", "/accounts/revision-date", null, userId ?? true, true);
     return r as number;
   }
 
@@ -606,11 +604,11 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Sync APIs
 
-  async getSync(): Promise<SyncResponse> {
+  async getSync(userId?: UserId): Promise<SyncResponse> {
     const path = !this.platformUtilsService.supportsAutofill()
       ? "/sync?excludeDomains=true"
       : "/sync";
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new SyncResponse(r);
   }
 

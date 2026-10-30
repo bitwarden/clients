@@ -8,7 +8,6 @@ import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@s
 import { of } from "rxjs";
 
 import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
-import { LogoutService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -20,6 +19,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
