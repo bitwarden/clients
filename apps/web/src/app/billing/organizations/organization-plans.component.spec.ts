@@ -2440,6 +2440,30 @@ describe("OrganizationPlansComponent", () => {
         expect(component["previewCart"].hasValue()).toBe(false);
       }));
 
+      it("retries after a failure when an edit leaves the request unchanged", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
+          .mockRejectedValueOnce(new Error("503"))
+          .mockResolvedValueOnce(scenarioACart);
+
+        selectTeams();
+        component["formGroup"].patchValue({ name: "Acme", billingEmail: "a@example.com" });
+        enterValidAddress();
+        settlePreview();
+        expect(component["previewFailed"]()).toBe(true);
+        fixture.detectChanges();
+        const submit: HTMLButtonElement =
+          fixture.nativeElement.querySelector('button[type="submit"]');
+        expect(submit.getAttribute("aria-disabled")).toBe("true");
+
+        component["formGroup"].controls.additionalSeats.setValue(4);
+        settlePreview();
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(2);
+        expect(component["previewFailed"]()).toBe(false);
+        fixture.detectChanges();
+        expect(submit.getAttribute("aria-disabled")).toBeNull();
+      }));
+
       it("clears the failure state once a later preview succeeds", fakeAsync(() => {
         mockInvoicePreviewService.previewOrganizationCheckoutCart
           .mockRejectedValueOnce(new Error("route not found"))

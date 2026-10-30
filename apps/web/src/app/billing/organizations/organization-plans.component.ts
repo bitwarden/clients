@@ -562,6 +562,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.selfHosted = this.platformUtilsService.isSelfHost();
 
     effect(() => {
+      // Identical params never re-run the resource, so retry explicitly after a failed preview.
+      if (this.debouncedFormChange() && untracked(() => this.previewCart.status()) === "error") {
+        untracked(() => this.previewCart.reload());
+      }
+    });
+
+    effect(() => {
       const error = this.previewCart.error();
       if (!error) {
         return;
