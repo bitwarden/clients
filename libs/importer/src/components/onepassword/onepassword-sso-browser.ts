@@ -1,5 +1,13 @@
 import { Injectable } from "@angular/core";
 
+/** The user closed the sign-in with the identity provider, which is not the same as canceling. */
+export class OnePasswordSsoSignInClosedError extends Error {
+  constructor() {
+    super("The 1Password sign-in was closed.");
+    this.name = "OnePasswordSsoSignInClosedError";
+  }
+}
+
 /**
  * The browser step of a 1Password single sign-on import: where the user signs in with the identity
  * provider. 1Password hands the user back to the identity provider's redirect address, which only a
@@ -20,14 +28,9 @@ export abstract class OnePasswordSsoBrowser {
    *
    * @returns the full address the identity provider redirected to, which carries the authorization
    * code, or `undefined` if the user gave up.
+   * @throws {OnePasswordSsoSignInClosedError} if the user closes the sign-in.
    */
   abstract login(ssoLoginUrl: string, redirectTo: string): Promise<string | undefined>;
-
-  /**
-   * Brings the sign-in of a login that is still waiting to the front. Does nothing when there is
-   * none.
-   */
-  abstract show(): void;
 
   /** Gives up on a login that is still waiting. Does nothing when there is none. */
   abstract cancel(): void;
@@ -38,10 +41,6 @@ class UnsupportedOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
 
   login(): Promise<string | undefined> {
     return Promise.reject(new Error("1Password single sign-on is not supported in this client."));
-  }
-
-  show(): void {
-    return;
   }
 
   cancel(): void {

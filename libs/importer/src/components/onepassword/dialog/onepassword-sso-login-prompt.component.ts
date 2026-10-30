@@ -15,13 +15,11 @@ import {
 
 export interface OnePasswordSsoLoginPromptData {
   email: string;
-  /** Brings the sign-in to the front. */
-  openWindow: () => void;
 }
 
 /**
  * Waits while the user signs in with the identity provider of a 1Password account in a window of
- * its own, which it can bring back. Closes with `undefined`, whether the user cancels or the opener
+ * its own. Closes with `undefined`, whether the user cancels or the opener
  * closes it once the sign-in is over.
  */
 @Component({

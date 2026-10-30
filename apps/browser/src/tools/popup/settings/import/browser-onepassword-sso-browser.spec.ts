@@ -1,3 +1,5 @@
+import { OnePasswordSsoSignInClosedError } from "@bitwarden/importer-ui";
+
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 
 import { BrowserOnePasswordSsoBrowser, isSsoRedirect } from "./browser-onepassword-sso-browser";
@@ -28,6 +30,7 @@ describe("BrowserOnePasswordSsoBrowser", () => {
   const redirectTo = "onepassword://sso/oidc/redirect";
   const redirectedTo = "onepassword://sso/oidc/redirect?code=c0de&state=st4te";
   const tabId = 7;
+  const windowId = 9;
 
   let browser: BrowserOnePasswordSsoBrowser;
   let onRedirect: ((details: chrome.webRequest.OnBeforeRedirectDetails) => void) | undefined;
@@ -46,7 +49,10 @@ describe("BrowserOnePasswordSsoBrowser", () => {
 
   beforeEach(() => {
     jest.spyOn(BrowserApi, "canObserveRedirects").mockReturnValue(true);
-    jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue({ id: tabId } as chrome.tabs.Tab);
+    jest
+      .spyOn(BrowserApi, "createNewTab")
+      .mockResolvedValue({ id: tabId, windowId } as chrome.tabs.Tab);
+    jest.spyOn(BrowserApi, "focusWindow").mockResolvedValue();
     jest.spyOn(BrowserApi, "navigateTabToUrl").mockResolvedValue();
     jest.spyOn(BrowserApi, "closeTab").mockResolvedValue();
     jest
@@ -95,6 +101,12 @@ describe("BrowserOnePasswordSsoBrowser", () => {
     expect(BrowserApi.navigateTabToUrl).toHaveBeenCalledWith(tabId, new URL(loginUrl));
   });
 
+  it("raises the window of the tab", async () => {
+    await startLogin();
+
+    expect(BrowserApi.focusWindow).toHaveBeenCalledWith(windowId);
+  });
+
   it("resolves with the redirect, closes the tab and stops watching", async () => {
     const { login } = await startLogin();
 
@@ -117,13 +129,13 @@ describe("BrowserOnePasswordSsoBrowser", () => {
     await expect(login).resolves.toBe(redirectedTo);
   });
 
-  it("resolves with undefined when the user closes the tab", async () => {
+  it("fails when the user closes the tab", async () => {
     const { login } = await startLogin();
 
     onRemoved!(tabId + 1);
     onRemoved!(tabId);
 
-    await expect(login).resolves.toBeUndefined();
+    await expect(login).rejects.toBeInstanceOf(OnePasswordSsoSignInClosedError);
     expect(BrowserApi.closeTab).not.toHaveBeenCalled();
   });
 
@@ -134,33 +146,6 @@ describe("BrowserOnePasswordSsoBrowser", () => {
 
     await expect(login).resolves.toBeUndefined();
     expect(BrowserApi.closeTab).toHaveBeenCalledWith(tabId);
-  });
-
-  it("brings the tab and its window to the front when shown", async () => {
-    jest.spyOn(BrowserApi, "focusTab").mockResolvedValue();
-    jest
-      .spyOn(BrowserApi, "getTab")
-      .mockResolvedValue({ id: tabId, windowId: 3 } as chrome.tabs.Tab);
-    jest.spyOn(BrowserApi, "focusWindow").mockResolvedValue();
-    await startLogin();
-
-    browser.show();
-    await new Promise((resolve) => setTimeout(resolve));
-
-    expect(BrowserApi.focusTab).toHaveBeenCalledWith(tabId);
-    expect(BrowserApi.focusWindow).toHaveBeenCalledWith(3);
-  });
-
-  it("does nothing to show once the login is over", async () => {
-    jest.spyOn(BrowserApi, "focusTab").mockResolvedValue();
-    browser.show();
-
-    const { login } = await startLogin();
-    browser.cancel();
-    await login;
-    browser.show();
-
-    expect(BrowserApi.focusTab).not.toHaveBeenCalled();
   });
 
   it("closes a tab that opens after the login was canceled", async () => {

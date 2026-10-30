@@ -33,7 +33,7 @@ import {
   OnePasswordAccount,
   OnePasswordDirectImportService,
 } from "./onepassword-direct-import.service";
-import { OnePasswordSsoBrowser } from "./onepassword-sso-browser";
+import { OnePasswordSsoBrowser, OnePasswordSsoSignInClosedError } from "./onepassword-sso-browser";
 
 // `isImportError` is a WASM call; tell SDK errors apart by name instead.
 jest.mock("@bitwarden/sdk-internal", () => ({
@@ -407,15 +407,6 @@ describe("OnePasswordDirectImportService", () => {
         expect(loginPrompts[0].close).toHaveBeenCalled();
       });
 
-      it("brings the sign-in to the front from the prompt", async () => {
-        await signingIn();
-
-        loginPrompts[0].data.openWindow();
-
-        expect(ssoBrowser.show).toHaveBeenCalledTimes(1);
-        expect(ssoBrowser.cancel).not.toHaveBeenCalled();
-      });
-
       it("calls the sign-in off when the prompt is dismissed", async () => {
         const { login, redirect } = await signingIn();
 
@@ -424,6 +415,18 @@ describe("OnePasswordDirectImportService", () => {
         expect(ssoBrowser.cancel).toHaveBeenCalled();
         redirect(undefined);
         await expect(login).resolves.toBeUndefined();
+      });
+
+      it("reports a sign-in the user closed", async () => {
+        const closed = new OnePasswordSsoSignInClosedError();
+        importService.importOnePasswordSso.mockImplementationOnce(async (request) => {
+          await request.ui.performSsoLogin("https://idp.example.com/", "https://redirect/");
+          throw new Error("canceled");
+        });
+        ssoBrowser.login.mockRejectedValue(closed);
+
+        await expect(startSso()).rejects.toBe(closed);
+        expect(service.describeError(closed)).toEqual({ message: "onePasswordSsoSignInClosed" });
       });
 
       it("closes the prompt when the browser step fails", async () => {
@@ -550,10 +553,7 @@ describe("OnePasswordDirectImportService", () => {
         const result = startSso();
         await flush();
 
-        expect(enrollmentPrompts[0].data.codeRequested()).toBe(false);
-
         const code = sdk.enrollment().provideVerificationCode();
-        expect(enrollmentPrompts[0].data.codeRequested()).toBe(true);
         const submitted = enrollmentPrompts[0].data.submitCode("123456");
         await expect(code).resolves.toBe("123456");
 
@@ -566,6 +566,24 @@ describe("OnePasswordDirectImportService", () => {
         sdk.finish(summary);
         await expect(result).resolves.toBe(summary);
         await expect(submitted).resolves.toBeUndefined();
+        expect(enrollmentPrompts[0].close).toHaveBeenCalled();
+      });
+
+      it("fails like a wrong code when the code comes before 1Password asks for it", async () => {
+        const sdk = enrollingImport();
+        const result = startSso();
+        await flush();
+        const canceled = jest.fn();
+        void sdk.enrollment().cancelled().then(canceled);
+
+        void enrollmentPrompts[0].data.submitCode("123456");
+        await flush();
+        expect(canceled).toHaveBeenCalled();
+
+        sdk.finish(importError("OnePasswordCanceled"));
+        const failure: unknown = await result.catch((error: unknown) => error);
+
+        expect(service.describeError(failure)?.message).toBe("onePasswordImportError");
         expect(enrollmentPrompts[0].close).toHaveBeenCalled();
       });
 

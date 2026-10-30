@@ -9,7 +9,6 @@ Object.defineProperty(window, "IntersectionObserver", {
   })),
 });
 
-import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
@@ -23,7 +22,6 @@ import {
 
 describe("OnePasswordSsoEnrollmentPromptComponent", () => {
   let fixture: ComponentFixture<OnePasswordSsoEnrollmentPromptComponent>;
-  let codeRequested: ReturnType<typeof signal<boolean>>;
   let submitCode: jest.Mock<Promise<void>, [string]>;
 
   const element = () => fixture.nativeElement as HTMLElement;
@@ -33,8 +31,6 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
     element().querySelector<HTMLButtonElement>(
       "#onepassword-sso-enrollment-prompt_button_continue",
     );
-  const button = (name: string) =>
-    element().querySelector<HTMLButtonElement>(`#onepassword-sso-enrollment-prompt_button_${name}`);
   const message = () => element().querySelector("p")?.textContent?.trim();
 
   function enterCode(code: string) {
@@ -49,7 +45,6 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
   }
 
   beforeEach(async () => {
-    codeRequested = signal(false);
     submitCode = jest.fn().mockResolvedValue(undefined);
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key) => key);
@@ -61,7 +56,6 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
           provide: DIALOG_DATA,
           useValue: {
             email: "user@example.com",
-            codeRequested,
             submitCode,
           } satisfies OnePasswordSsoEnrollmentPromptData,
         },
@@ -74,35 +68,38 @@ describe("OnePasswordSsoEnrollmentPromptComponent", () => {
     fixture.detectChanges();
   });
 
-  it("keeps the code locked until 1Password asks for it", () => {
+  it("keeps Continue off while the field is blank", () => {
     expect(message()).toBe("onePasswordSsoVerifyInPendingSignIns");
-    expect(codeInput()!.disabled).toBe(true);
+    expect(codeInput()!.disabled).toBe(false);
     expect(continueButton()!.getAttribute("aria-disabled")).toBe("true");
-    expect(button("cancel")!.hasAttribute("aria-disabled")).toBe(false);
-    expect(button("close")!.hasAttribute("aria-disabled")).toBe(false);
 
-    codeRequested.set(true);
+    enterCode("123");
     fixture.detectChanges();
 
-    expect(codeInput()!.disabled).toBe(false);
     expect(continueButton()!.hasAttribute("aria-disabled")).toBe(false);
+
+    enterCode("");
+    fixture.detectChanges();
+
+    expect(continueButton()!.getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("shows no error for a blank field the user leaves", () => {
+    codeInput()!.dispatchEvent(new Event("blur"));
+    fixture.detectChanges();
+
+    expect(element().querySelector("bit-error")).toBeNull();
   });
 
   it("hands over the code without spaces", async () => {
-    codeRequested.set(true);
-    fixture.detectChanges();
-
     enterCode(" ABCD - 1234 ");
     await submit();
 
     expect(submitCode).toHaveBeenCalledWith("ABCD-1234");
-    expect(codeInput()!.disabled).toBe(true);
+    expect(codeInput()!.disabled).toBe(false);
   });
 
   it("refuses a code that is only spaces", async () => {
-    codeRequested.set(true);
-    fixture.detectChanges();
-
     enterCode("   ");
     await submit();
 

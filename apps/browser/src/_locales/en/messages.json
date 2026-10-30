@@ -5893,16 +5893,16 @@
     "message": "Log in with SSO"
   },
   "onePasswordSsoSwitchToSignInPage": {
-    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden. If this didn't happen automatically, click Open browser."
-  },
-  "openBrowser": {
-    "message": "Open browser"
+    "message": "Switch to the SSO sign-in page to finish importing into Bitwarden."
   },
   "onePasswordSsoEncryptionKeyTransfer": {
     "message": "Encryption key transfer"
   },
   "onePasswordSsoVerifyInPendingSignIns": {
     "message": "Log in to 1Password and navigate to Pending Sign-ins to verify this request."
+  },
+  "onePasswordSsoSignInClosed": {
+    "message": "The SSO sign-in page was closed before you finished signing in. Try again to continue importing."
   },
   "onePasswordSsoDeviceDenied": {
     "message": "This device was not approved on your other device. Try again or use a different import method."

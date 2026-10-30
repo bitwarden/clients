@@ -19,8 +19,7 @@ describe("OnePasswordSsoBrowser when a client provides no browser of its own", (
     ).rejects.toThrow("not supported");
   });
 
-  it("does nothing to show or cancel", () => {
-    expect(() => browser.show()).not.toThrow();
+  it("does nothing to cancel", () => {
     expect(() => browser.cancel()).not.toThrow();
   });
 });

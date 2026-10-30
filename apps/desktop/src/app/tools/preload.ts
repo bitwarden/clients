@@ -2,6 +2,8 @@ import { ipcRenderer } from "electron";
 
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 
+import type { OnePasswordSsoLoginOutcome } from "../../types/onepassword-sso-login-outcome";
+
 const chromiumImporter = {
   getMetadata: (): Promise<Record<string, chromium_importer.NativeImporterMetadata>> =>
     ipcRenderer.invoke("chromium_importer.getMetadata"),
@@ -21,11 +23,8 @@ const chromiumImporter = {
 };
 
 const onePasswordSso = {
-  // Resolves with the address the identity provider redirected to, or undefined if the user gave up
-  login: (ssoLoginUrl: string, redirectTo: string): Promise<string | undefined> =>
+  login: (ssoLoginUrl: string, redirectTo: string): Promise<OnePasswordSsoLoginOutcome> =>
     ipcRenderer.invoke("onePasswordSso.login", ssoLoginUrl, redirectTo),
-  // Brings the sign-in window to the front
-  show: (): Promise<void> => ipcRenderer.invoke("onePasswordSso.show"),
   cancel: (): Promise<void> => ipcRenderer.invoke("onePasswordSso.cancel"),
 };
 

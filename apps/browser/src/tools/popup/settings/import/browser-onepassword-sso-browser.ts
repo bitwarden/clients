@@ -1,4 +1,4 @@
-import { OnePasswordSsoBrowser } from "@bitwarden/importer-ui";
+import { OnePasswordSsoBrowser, OnePasswordSsoSignInClosedError } from "@bitwarden/importer-ui";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 
@@ -43,7 +43,6 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
   readonly supported = BrowserApi.canObserveRedirects();
 
   private settlePending: ((redirectedTo: string | undefined) => void) | undefined;
-  private pendingTabId: number | undefined;
 
   async login(ssoLoginUrl: string, redirectTo: string): Promise<string | undefined> {
     const loginUrl = parseUrl(ssoLoginUrl);
@@ -76,9 +75,14 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
       return undefined;
     }
 
-    return new Promise((resolve) => {
+    // Opening a tab does not raise its window, which may be behind the window of the import.
+    if (tab.windowId != null) {
+      BrowserApi.focusWindow(tab.windowId).catch((): void => undefined);
+    }
+
+    return new Promise((resolve, reject) => {
       let settled = false;
-      const settle = (redirectedTo: string | undefined, closeTab: boolean) => {
+      const settle = (finish: () => void, closeTab: boolean) => {
         if (settled) {
           return;
         }
@@ -88,14 +92,14 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
         BrowserApi.removeListener(chrome.tabs.onRemoved, onRemoved);
         if (this.settlePending === settleAndClose) {
           this.settlePending = undefined;
-          this.pendingTabId = undefined;
         }
         if (closeTab) {
           BrowserApi.closeTab(tabId).catch((): void => undefined);
         }
-        resolve(redirectedTo);
+        finish();
       };
-      const settleAndClose = (redirectedTo: string | undefined) => settle(redirectedTo, true);
+      const settleAndClose = (redirectedTo: string | undefined) =>
+        settle(() => resolve(redirectedTo), true);
       const capture = (address: string | undefined) => {
         if (address != null && isSsoRedirect(address, redirectUrl)) {
           settleAndClose(address);
@@ -111,12 +115,11 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
       };
       const onRemoved: RemovedListener = (removedTabId) => {
         if (removedTabId === tabId) {
-          settle(undefined, false);
+          settle(() => reject(new OnePasswordSsoSignInClosedError()), false);
         }
       };
 
       this.settlePending = settleAndClose;
-      this.pendingTabId = tabId;
       BrowserApi.addRedirectListener(onRedirect, {
         urls: ["<all_urls>"],
         tabId,
@@ -129,22 +132,7 @@ export class BrowserOnePasswordSsoBrowser extends OnePasswordSsoBrowser {
     });
   }
 
-  show(): void {
-    if (this.pendingTabId != null) {
-      this.focusTab(this.pendingTabId).catch((): void => undefined);
-    }
-  }
-
   cancel(): void {
     this.settlePending?.(undefined);
-  }
-
-  /** Brings the tab to the front of its window, and the window to the front of the others. */
-  private async focusTab(tabId: number): Promise<void> {
-    await BrowserApi.focusTab(tabId);
-    const tab = await BrowserApi.getTab(tabId);
-    if (tab?.windowId != null) {
-      await BrowserApi.focusWindow(tab.windowId);
-    }
   }
 }

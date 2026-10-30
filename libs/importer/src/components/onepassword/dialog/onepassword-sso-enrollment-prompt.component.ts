@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Signal, effect, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -19,8 +20,6 @@ import { requiredWithMessage } from "../onepassword-validators";
 
 export interface OnePasswordSsoEnrollmentPromptData {
   email: string;
-  /** Whether 1Password asks for the code, which it does once the other device approves this one. */
-  codeRequested: Signal<boolean>;
   /**
    * Hands the verification code to 1Password. The Continue button stays busy until the import is
    * over, and whoever opened the prompt closes it.
@@ -64,14 +63,9 @@ export class OnePasswordSsoEnrollmentPromptComponent {
     }),
   });
 
-  /** A code sent before the other device approves this one would wait with Cancel disabled. */
-  private readonly lockCodeUntilRequested = effect(() => {
-    if (this.data.codeRequested()) {
-      this.formGroup.enable();
-    } else {
-      this.formGroup.disable();
-    }
-  });
+  // appInputStripSpaces sets the value on every keystroke, ahead of the submit.
+  private readonly code = toSignal(this.formGroup.controls.code.valueChanges, { initialValue: "" });
+  protected readonly blank = computed(() => this.code() === "");
 
   protected readonly submit = async () => {
     this.formGroup.markAllAsTouched();
@@ -79,9 +73,7 @@ export class OnePasswordSsoEnrollmentPromptComponent {
       return;
     }
 
-    const { code } = this.formGroup.getRawValue();
-    this.formGroup.disable();
-    await this.data.submitCode(code);
+    await this.data.submitCode(this.formGroup.getRawValue().code);
   };
 
   protected cancel(): void {

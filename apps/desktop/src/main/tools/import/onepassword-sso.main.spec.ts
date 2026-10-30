@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { OnePasswordSsoLoginOutcome } from "../../../types/onepassword-sso-login-outcome";
 import { WindowMain } from "../../window.main";
 
 import { OnePasswordSsoMain, isSsoRedirect, withoutAppTokens } from "./onepassword-sso.main";
@@ -26,7 +27,6 @@ class FakeWebContents extends EventEmitter {
 class FakeWindow extends EventEmitter {
   readonly webContents = new FakeWebContents();
   destroyed = false;
-  minimized = false;
   /** Whether the page vetoes unloading, as an identity provider's page can. */
   pageVetoesUnload = false;
   loadURL = jest.fn().mockResolvedValue(undefined);
@@ -44,15 +44,8 @@ class FakeWindow extends EventEmitter {
     super();
   }
 
-  restore = jest.fn(() => (this.minimized = false));
-  focus = jest.fn();
-
   isDestroyed() {
     return this.destroyed;
-  }
-
-  isMinimized() {
-    return this.minimized;
   }
 
   /** Whether the page keeps the window open, which only a listener of the app can stop. */
@@ -87,10 +80,11 @@ describe("OnePasswordSsoMain", () => {
   let handlers: Map<string, (...args: any[]) => any>;
 
   const login = (url = ssoLoginUrl, redirect = redirectTo) =>
-    handlers.get("onePasswordSso.login")!({ sender: renderer }, url, redirect) as Promise<
-      string | undefined
-    >;
-  const show = () => handlers.get("onePasswordSso.show")!({});
+    handlers.get("onePasswordSso.login")!(
+      { sender: renderer },
+      url,
+      redirect,
+    ) as Promise<OnePasswordSsoLoginOutcome>;
   const cancel = () => handlers.get("onePasswordSso.cancel")!({});
   const loginWindow = () => windows[windows.length - 1];
   const partitionOf = (window: FakeWindow): string => window.options.webPreferences.partition;
@@ -152,37 +146,8 @@ describe("OnePasswordSsoMain", () => {
     );
   });
 
-  it("answers the login, show and cancel channels", () => {
-    expect([...handlers.keys()].sort()).toEqual([
-      "onePasswordSso.cancel",
-      "onePasswordSso.login",
-      "onePasswordSso.show",
-    ]);
-  });
-
-  describe("showing the window", () => {
-    it("brings the window of a login to the front, restoring it when minimized", () => {
-      void login();
-      loginWindow().minimized = true;
-
-      show();
-
-      expect(loginWindow().restore).toHaveBeenCalled();
-      expect(loginWindow().focus).toHaveBeenCalled();
-    });
-
-    it("does nothing once the login is over", async () => {
-      show();
-      const result = login();
-      // A window that outlives its login must not be brought back either.
-      loginWindow().destroy.mockImplementation(() => undefined);
-      cancel();
-      await result;
-
-      show();
-
-      expect(loginWindow().focus).not.toHaveBeenCalled();
-    });
+  it("answers the login and cancel channels", () => {
+    expect([...handlers.keys()].sort()).toEqual(["onePasswordSso.cancel", "onePasswordSso.login"]);
   });
 
   describe("opening the window", () => {
@@ -260,7 +225,7 @@ describe("OnePasswordSsoMain", () => {
       const first = login();
       const second = login();
 
-      await expect(first).resolves.toBeUndefined();
+      await expect(first).resolves.toEqual({ status: "canceled" });
       expect(windows[0].destroy).toHaveBeenCalled();
       expect(windows).toHaveLength(2);
       expect(await settled(second)).toBe(false);
@@ -276,7 +241,7 @@ describe("OnePasswordSsoMain", () => {
         const { prevented } = navigate(loginWindow(), event, redirectedTo);
 
         expect(prevented).toBe(true);
-        await expect(result).resolves.toBe(redirectedTo);
+        await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
         expect(loginWindow().destroy).toHaveBeenCalled();
         expect(loginSession.clearStorageData).toHaveBeenCalled();
         expect(loginSession.clearAuthCache).toHaveBeenCalled();
@@ -291,7 +256,7 @@ describe("OnePasswordSsoMain", () => {
 
         loginWindow().webContents.emit(event, {}, redirectedTo, true);
 
-        await expect(result).resolves.toBe(redirectedTo);
+        await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
         expect(loginWindow().destroy).toHaveBeenCalled();
       },
     );
@@ -302,7 +267,7 @@ describe("OnePasswordSsoMain", () => {
 
       navigate(loginWindow(), "will-redirect", address);
 
-      await expect(result).resolves.toBe(address);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo: address });
     });
 
     it("recognizes a redirect that carries the code in the query", async () => {
@@ -311,7 +276,7 @@ describe("OnePasswordSsoMain", () => {
 
       navigate(loginWindow(), "will-navigate", address);
 
-      await expect(result).resolves.toBe(address);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo: address });
     });
 
     it("stops a redirect to the 1Password app so that the system does not open it", async () => {
@@ -321,7 +286,7 @@ describe("OnePasswordSsoMain", () => {
       const { prevented } = navigate(loginWindow(), "will-redirect", address);
 
       expect(prevented).toBe(true);
-      await expect(result).resolves.toBe(address);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo: address });
       expect(loginWindow().destroy).toHaveBeenCalled();
     });
 
@@ -384,7 +349,7 @@ describe("OnePasswordSsoMain", () => {
       navigate(loginWindow(), "will-navigate", redirectedTo);
       navigate(loginWindow(), "will-frame-navigate", `${redirectTo}#code=other`);
 
-      await expect(result).resolves.toBe(redirectedTo);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
       expect(logService.info).toHaveBeenCalledTimes(1);
     });
 
@@ -404,22 +369,22 @@ describe("OnePasswordSsoMain", () => {
   });
 
   describe("ending without a redirect", () => {
-    it("resolves with nothing when the user closes the window", async () => {
+    it("reports that the user closed the window", async () => {
       const result = login();
 
       loginWindow().emit("closed");
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "closed" });
       expect(loginSession.clearStorageData).toHaveBeenCalled();
       expect(loginSession.clearAuthCache).toHaveBeenCalled();
     });
 
-    it("destroys the window and resolves with nothing when the renderer cancels", async () => {
+    it("destroys the window and reports the cancel when the renderer cancels", async () => {
       const result = login();
 
       await cancel();
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "canceled" });
       expect(loginWindow().destroy).toHaveBeenCalled();
     });
 
@@ -429,7 +394,7 @@ describe("OnePasswordSsoMain", () => {
 
       loginWindow().close();
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "closed" });
       expect(loginWindow().isDestroyed()).toBe(true);
       expect(loginSession.clearStorageData).toHaveBeenCalledTimes(1);
       expect(loginSession.clearAuthCache).toHaveBeenCalledTimes(1);
@@ -441,7 +406,7 @@ describe("OnePasswordSsoMain", () => {
 
       await cancel();
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "canceled" });
       expect(loginWindow().isDestroyed()).toBe(true);
       expect(loginWindow().destroy).toHaveBeenCalledTimes(1);
       expect(loginSession.clearStorageData).toHaveBeenCalledTimes(1);
@@ -453,7 +418,7 @@ describe("OnePasswordSsoMain", () => {
 
       navigate(loginWindow(), "will-redirect", redirectedTo);
 
-      await expect(result).resolves.toBe(redirectedTo);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
       expect(loginWindow().isDestroyed()).toBe(true);
     });
 
@@ -463,7 +428,7 @@ describe("OnePasswordSsoMain", () => {
 
       await cancel();
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "canceled" });
       expect(loginWindow().destroy).not.toHaveBeenCalled();
     });
 
@@ -473,7 +438,7 @@ describe("OnePasswordSsoMain", () => {
 
       await cancel();
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "canceled" });
       await flush();
       expect(logService.debug).toHaveBeenCalledWith("1Password SSO session could not be cleared");
     });
@@ -490,7 +455,10 @@ describe("OnePasswordSsoMain", () => {
       const second = login();
       navigate(loginWindow(), "will-redirect", `${redirectTo}#code=again`);
 
-      await expect(second).resolves.toBe(`${redirectTo}#code=again`);
+      await expect(second).resolves.toEqual({
+        status: "redirected",
+        redirectedTo: `${redirectTo}#code=again`,
+      });
       expect(windows).toHaveLength(2);
     });
 
@@ -499,7 +467,7 @@ describe("OnePasswordSsoMain", () => {
 
       renderer.emit("did-start-navigation", { isMainFrame: true, isSameDocument: false });
 
-      await expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toEqual({ status: "canceled" });
       expect(loginWindow().destroy).toHaveBeenCalled();
       expect(loginSession.clearStorageData).toHaveBeenCalled();
     });
@@ -523,7 +491,7 @@ describe("OnePasswordSsoMain", () => {
 
         renderer.emit(event);
 
-        await expect(result).resolves.toBeUndefined();
+        await expect(result).resolves.toEqual({ status: "canceled" });
         expect(loginWindow().destroy).toHaveBeenCalled();
       },
     );
@@ -552,7 +520,7 @@ describe("OnePasswordSsoMain", () => {
       expect(logService.debug).toHaveBeenCalledWith("1Password SSO login page stopped loading");
       expect(await settled(result)).toBe(false);
       navigate(loginWindow(), "will-redirect", redirectedTo);
-      await expect(result).resolves.toBe(redirectedTo);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
     });
   });
 
@@ -614,7 +582,7 @@ describe("OnePasswordSsoMain", () => {
       const { prevented } = navigate(popup, "will-redirect", redirectedTo);
 
       expect(prevented).toBe(true);
-      await expect(result).resolves.toBe(redirectedTo);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
       expect(loginWindow().destroy).toHaveBeenCalled();
     });
 
@@ -627,7 +595,7 @@ describe("OnePasswordSsoMain", () => {
       const response = loginWindow().webContents.openHandler!({ url: address });
 
       expect(response).toEqual({ action: "deny" });
-      await expect(result).resolves.toBe(address);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo: address });
       expect(loginWindow().destroy).toHaveBeenCalled();
       expect(logService.info).toHaveBeenCalledWith(
         "1Password SSO redirect captured on window-open",
@@ -642,7 +610,7 @@ describe("OnePasswordSsoMain", () => {
       const response = popup.webContents.openHandler!({ url: redirectedTo });
 
       expect(response).toEqual({ action: "deny" });
-      await expect(result).resolves.toBe(redirectedTo);
+      await expect(result).resolves.toEqual({ status: "redirected", redirectedTo });
     });
 
     it("keeps a popup on https", async () => {

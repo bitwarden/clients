@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy, inject, signal } from "@angular/core";
+import { Injectable, OnDestroy, inject } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,7 +24,7 @@ import {
   OnePasswordSsoLoginPromptComponent,
   OnePasswordTwoFactorPromptComponent,
 } from "./dialog";
-import { OnePasswordSsoBrowser } from "./onepassword-sso-browser";
+import { OnePasswordSsoBrowser, OnePasswordSsoSignInClosedError } from "./onepassword-sso-browser";
 
 /** The 1Password account to import, as entered in the import form. */
 export interface OnePasswordAccount {
@@ -170,11 +170,10 @@ export class OnePasswordDirectImportService implements OnDestroy {
    * cancels one of the steps.
    *
    * The sign-in at the identity provider is up to the {@link OnePasswordSsoBrowser}. A prompt waits
-   * for it until the sign-in is over, and can bring the sign-in to the front or call it off. Every
-   * import is a new device, which is approved from another device that is signed in to 1Password:
-   * the enrollment prompt takes the verification code the other device displays. Like the Secret
-   * Key and password prompt, it stays open until the import is over. Any other failure closes the
-   * prompt and is thrown.
+   * for it until the sign-in is over, and can call it off. Every import is a new device, which is
+   * approved from another device that is signed in to 1Password: the enrollment prompt takes the
+   * verification code the other device displays. Like the Secret Key and password prompt, it stays
+   * open until the import is over. Any other failure closes the prompt and is thrown.
    */
   async handleSsoImport(
     account: OnePasswordAccount,
@@ -201,7 +200,6 @@ export class OnePasswordDirectImportService implements OnDestroy {
               }
               const prompt = OnePasswordSsoLoginPromptComponent.open(this.dialogService, {
                 email: account.email,
-                openWindow: () => this.ssoBrowser.show(),
               });
               // Closing the prompt calls the sign-in off, which does nothing once it is over.
               prompt.closed.subscribe(() => this.ssoBrowser.cancel());
@@ -225,6 +223,9 @@ export class OnePasswordDirectImportService implements OnDestroy {
     } catch (error) {
       if (failedLogin != null) {
         throw failedLogin.error;
+      }
+      if (enrollment.failed) {
+        throw new Error("The verification code was sent before 1Password asked for it.");
       }
       if (onePasswordErrorDisplay(error) == null) {
         return undefined;
@@ -250,6 +251,9 @@ export class OnePasswordDirectImportService implements OnDestroy {
    * show.
    */
   describeError(error: unknown): OnePasswordErrorDescription | undefined {
+    if (error instanceof OnePasswordSsoSignInClosedError) {
+      return { message: this.i18nService.t("onePasswordSsoSignInClosed") };
+    }
     const display = onePasswordErrorDisplay(error);
     if (display == null) {
       return undefined;
@@ -272,7 +276,8 @@ const canceledEnrollment: OnePasswordSsoEnrollment = {
  * finishing. The user can call the enrollment off until the verification code is handed over.
  */
 class SsoEnrollmentPrompt implements OnePasswordSsoEnrollment {
-  private readonly codeRequested = signal(false);
+  private codeRequested = false;
+  private codeTooEarly = false;
   private dialog: DialogRef<undefined> | undefined;
 
   private answerWithCode: (code: string | undefined) => void = () => undefined;
@@ -293,9 +298,14 @@ class SsoEnrollmentPrompt implements OnePasswordSsoEnrollment {
   open(): this {
     this.dialog = OnePasswordSsoEnrollmentPromptComponent.open(this.dialogService, {
       email: this.email,
-      codeRequested: this.codeRequested,
       submitCode: (code) => {
-        this.answerWithCode(code);
+        // The other device shows the code once it approves this one, so an earlier one is wrong.
+        if (this.codeRequested) {
+          this.answerWithCode(code);
+        } else {
+          this.codeTooEarly = true;
+          this.cancel();
+        }
         return this.ended;
       },
     });
@@ -313,17 +323,22 @@ class SsoEnrollmentPrompt implements OnePasswordSsoEnrollment {
     void this.dialog?.close(undefined);
   }
 
+  /** Whether the enrollment stopped on a code sent too early, which the SDK takes for a cancel. */
+  get failed(): boolean {
+    return this.codeTooEarly;
+  }
+
   cancelled(): Promise<void> {
     return this.cancellation;
   }
 
-  /** The prompt shows no stages, only whether 1Password asks for the code. */
+  /** The prompt shows no stages. */
   updateStatus(): Promise<void> {
     return Promise.resolve();
   }
 
   provideVerificationCode(): Promise<string | undefined> {
-    this.codeRequested.set(true);
+    this.codeRequested = true;
     return this.code;
   }
 

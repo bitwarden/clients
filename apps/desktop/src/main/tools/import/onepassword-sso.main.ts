@@ -4,6 +4,7 @@ import { BrowserWindow, Session, WebContents, ipcMain, session } from "electron"
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { OnePasswordSsoLoginOutcome } from "../../../types/onepassword-sso-login-outcome";
 import { WindowMain } from "../../window.main";
 
 /** The identity provider's page gets its own session and no preload, so it cannot reach the app. */
@@ -48,7 +49,7 @@ export function isSsoRedirect(address: string, redirectTo: URL): boolean {
 }
 
 /** Ends the login, unless it ended already, and tells whether this call was the one to end it. */
-type Settle = (redirectedTo: string | undefined) => boolean;
+type Settle = (outcome: OnePasswordSsoLoginOutcome) => boolean;
 
 /** What tells a navigation that replaces the page from one within it. */
 interface DocumentNavigation {
@@ -82,7 +83,6 @@ export class OnePasswordSsoMain {
     ipcMain.handle("onePasswordSso.login", (event, ssoLoginUrl: unknown, redirectTo: unknown) =>
       this.login(event.sender, ssoLoginUrl, redirectTo),
     );
-    ipcMain.handle("onePasswordSso.show", () => this.show());
     ipcMain.handle("onePasswordSso.cancel", () => this.cancel());
   }
 
@@ -90,7 +90,7 @@ export class OnePasswordSsoMain {
     renderer: WebContents,
     ssoLoginUrl: unknown,
     redirectTo: unknown,
-  ): Promise<string | undefined> {
+  ): Promise<OnePasswordSsoLoginOutcome> {
     const loginUrl = parseUrl(ssoLoginUrl);
     const redirectUrl = parseUrl(redirectTo);
     if (loginUrl?.protocol !== "https:" || redirectUrl == null) {
@@ -105,7 +105,7 @@ export class OnePasswordSsoMain {
       const window = this.createWindow(webPreferences);
 
       let settled = false;
-      const settle: Settle = (redirectedTo) => {
+      const settle: Settle = (outcome) => {
         if (settled) {
           return false;
         }
@@ -114,7 +114,7 @@ export class OnePasswordSsoMain {
         if (this.pending?.window === window) {
           this.pending = undefined;
         }
-        resolve(redirectedTo);
+        resolve(outcome);
         // Unlike close(), destroy() cannot be vetoed by the page, and it takes the popups along.
         if (!window.isDestroyed()) {
           window.destroy();
@@ -123,9 +123,11 @@ export class OnePasswordSsoMain {
         return true;
       };
 
-      const stopWatchingRenderer = this.watchRenderer(renderer, () => settle(undefined));
+      const stopWatchingRenderer = this.watchRenderer(renderer, () =>
+        settle({ status: "canceled" }),
+      );
       this.pending = { window, settle };
-      window.on("closed", () => settle(undefined));
+      window.on("closed", () => settle({ status: "closed" }));
       this.watch(window, redirectUrl, settle, webPreferences);
 
       window.loadURL(loginUrl.href).catch(() => {
@@ -135,19 +137,8 @@ export class OnePasswordSsoMain {
     });
   }
 
-  private show(): void {
-    const window = this.pending?.window;
-    if (window == null || window.isDestroyed()) {
-      return;
-    }
-    if (window.isMinimized()) {
-      window.restore();
-    }
-    window.focus();
-  }
-
   private cancel(): void {
-    this.pending?.settle(undefined);
+    this.pending?.settle({ status: "canceled" });
   }
 
   /**
@@ -216,7 +207,7 @@ export class OnePasswordSsoMain {
         return false;
       }
       event?.preventDefault();
-      if (settle(url)) {
+      if (settle({ status: "redirected", redirectedTo: url })) {
         this.logService.info(`1Password SSO redirect captured on ${eventName}`);
       }
       return true;
