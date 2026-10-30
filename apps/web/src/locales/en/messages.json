@@ -7613,6 +7613,18 @@
   "limitPrivilegedControlsSubscriptionDesc": {
     "message": "Set a seat limit for your Privileged Controls subscription. Once this limit is reached, you will not be able to grant members Privileged Controls access."
   },
+  "removePrivilegedControls": {
+    "message": "Remove Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "removePrivilegedControlsConfirmation": {
+    "message": "Every user in your organization will lose access to Privileged Controls. Are you sure you want to continue?",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsRemoved": {
+    "message": "Privileged Controls removed",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "maximumSeatsCount": {
     "message": "Maximum $COUNT$ seats",
     "placeholders": {

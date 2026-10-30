@@ -193,4 +193,21 @@ describe("OrganizationBillingClient", () => {
       ).rejects.toBe(serverError);
     });
   });
+
+  describe("removePrivilegedControls", () => {
+    it("sends a DELETE to the privileged controls route", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      const result = await sut.removePrivilegedControls(orgId);
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-123/billing/subscription/privileged-controls",
+        null,
+        true,
+        false,
+      );
+      expect(result).toBeUndefined();
+    });
+  });
 });
