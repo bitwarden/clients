@@ -6,6 +6,7 @@ import {
   getSubmitButtonKeywordsSet,
   isNonLoginUsernameField,
   isAmbiguousFieldNonLogin,
+  isRecoveryCodeField,
   KeywordMatchMode,
 } from "../utils/qualification";
 
@@ -1169,7 +1170,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isTotpField = (field: AutofillField): boolean => {
-    if (fieldContainsKeyword(field, [...AutoFillConstants.RecoveryCodeFieldNames])) {
+    if (isRecoveryCodeField(field)) {
       return false;
     }
 

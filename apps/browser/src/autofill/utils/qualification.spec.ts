@@ -10,6 +10,7 @@ import {
   formContainsKeyword,
   isNonLoginUsernameField,
   isAmbiguousFieldNonLogin,
+  isRecoveryCodeField,
   KeywordMatchMode,
 } from "./qualification";
 
@@ -484,5 +485,61 @@ describe("isAmbiguousFieldNonLogin", () => {
     });
 
     expect(isAmbiguousFieldNonLogin(field, pageDetails)).toBe(false);
+  });
+});
+
+describe("isRecoveryCodeField", () => {
+  it("returns false for a field with no recovery or backup signal", () => {
+    const field = neutralField({ htmlID: "totp", htmlName: "totp", "label-left": "Code" });
+
+    expect(isRecoveryCodeField(field)).toBe(false);
+  });
+
+  it.each([
+    { htmlID: "backup-code", htmlName: "code" },
+    { htmlID: "code", htmlName: "recovery_code" },
+    { htmlID: "otp-backup", htmlName: "otp-backup" },
+  ])("returns true when the id or name names a recovery code ($htmlID, $htmlName)", (ids) => {
+    const field = neutralField({ ...ids, autoCompleteType: "one-time-code" });
+
+    expect(isRecoveryCodeField(field)).toBe(true);
+  });
+
+  it("returns true when only the label mentions a backup code and the id and name are not TOTP", () => {
+    const field = neutralField({
+      htmlID: "code",
+      htmlName: "code",
+      autoCompleteType: "one-time-code",
+      "label-left": "Backup code",
+    });
+
+    expect(isRecoveryCodeField(field)).toBe(true);
+  });
+
+  it.each([
+    { htmlID: "totp", htmlName: "code" },
+    { htmlID: "code", htmlName: "otp" },
+    { htmlID: "two-factor-code", htmlName: "code" },
+  ])(
+    "returns false when the id or name marks a TOTP and only the label or placeholder mentions a backup code ($htmlID, $htmlName)",
+    (ids) => {
+      const field = neutralField({
+        ...ids,
+        "label-left": "Authenticator or backup code",
+        placeholder: "Enter your authenticator or backup code",
+      });
+
+      expect(isRecoveryCodeField(field)).toBe(false);
+    },
+  );
+
+  it("does not treat a TOTP abbreviation that is only part of a token as a TOTP id", () => {
+    const field = neutralField({
+      htmlID: "shotput",
+      htmlName: "shotput",
+      "label-left": "Backup code",
+    });
+
+    expect(isRecoveryCodeField(field)).toBe(true);
   });
 });
