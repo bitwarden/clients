@@ -54,10 +54,13 @@ export abstract class TokenService {
 
   /**
    * Sets the access token in memory or disk based on the given vaultTimeoutAction and vaultTimeout
-   * and the user id read off the access token. The other storage location is always cleared to
-   * enforce the invariant that only one location holds the token at a time.
+   * and the user id read off the access token. The other storage locations are always cleared to
+   * enforce the invariant that only one durable location holds the token at a time.
    * Note: for platforms that support secure storage, the access token is encrypted with a key stored
-   * in secure storage and the encrypted value is written to disk.
+   * in secure storage and the encrypted value is written to disk. In that case a plaintext copy is
+   * also written to an ephemeral memory cache, which removes a secure storage read and a decrypt
+   * from each subsequent get. The disk copy stays authoritative; the cache is lost on process
+   * reload and on app quit.
    * @param accessToken The access token to set.
    * @param vaultTimeoutAction The action to take when the vault times out.
    * @param vaultTimeout The timeout for the vault.
@@ -71,7 +74,8 @@ export abstract class TokenService {
 
   // TODO: revisit having this public clear method approach once the state service is fully deprecated.
   /**
-   * Clears the access token for the given user id out of memory, disk, and secure storage if supported.
+   * Clears the access token for the given user id out of all three storage locations - memory, the
+   * ephemeral memory cache, and disk - and out of secure storage if supported.
    * @param userId The optional user id to clear the access token for; if not provided, the active user id is used.
    * @returns A promise that resolves when the access token has been cleared.
    *
@@ -82,7 +86,7 @@ export abstract class TokenService {
   abstract clearAccessToken(userId?: UserId): Promise<void>;
 
   /**
-   * Gets the access token
+   * Gets the access token, reading memory, then the ephemeral memory cache, then disk.
    * @param userId - The optional user id to get the access token for; if not provided, the active user is used.
    * @returns A promise that resolves with the access token or null.
    */
