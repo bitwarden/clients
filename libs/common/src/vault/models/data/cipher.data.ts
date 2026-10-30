@@ -45,6 +45,8 @@ export class CipherData {
   creationDate: string;
   deletedDate?: string;
   archivedDate?: string;
+  /** This user's health report exclusion flag. Not carried by the SDK cipher. */
+  excludedFromReports?: boolean;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: string;
   data?: string;
@@ -73,6 +75,7 @@ export class CipherData {
     this.creationDate = response.creationDate;
     this.deletedDate = response.deletedDate;
     this.archivedDate = response.archivedDate;
+    this.excludedFromReports = response.excludedFromReports;
     this.reprompt = response.reprompt;
     this.key = response.key;
     this.data = response.data;

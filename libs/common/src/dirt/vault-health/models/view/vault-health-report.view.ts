@@ -60,6 +60,17 @@ export class VaultHealthReportView implements View {
       categoryItems,
     });
   }
+
+  /** This report without the given logins, scored against the same `totalCount`. */
+  withoutExcluded(excludedIds: ReadonlySet<string>): VaultHealthReportView {
+    if (excludedIds.size === 0) {
+      return this;
+    }
+    const kept = Object.values(this.categoryItems)
+      .flat()
+      .filter((health) => !excludedIds.has(health.cipherId));
+    return VaultHealthReportView.fromCipherHealth(kept, this.totalCount);
+  }
 }
 
 /** Highest-risk-wins: Exposed > Weak > Reused. Only called for at-risk logins. */

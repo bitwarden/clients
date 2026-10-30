@@ -215,6 +215,11 @@ describe("Cipher DTO", () => {
       const cipher = new Cipher(cipherData);
       expect(cipher.toCipherData()).toEqual(cipherData);
     });
+
+    it("keeps excludedFromReports through toCipherData", () => {
+      const cipher = new Cipher({ ...cipherData, excludedFromReports: true });
+      expect(cipher.toCipherData().excludedFromReports).toBe(true);
+    });
   });
 
   describe("SecureNoteCipher", () => {
