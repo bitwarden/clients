@@ -2052,6 +2052,9 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
+          # Skip notarization to save our daily Apple notarization quota while the macOS beta
+          # isn't being distributed. Remove before shipping a macOS beta release.
+          APPLE_NOTARIZE: false
         run: npm run pack:mac:beta
 
       - name: Upload .zip artifact
