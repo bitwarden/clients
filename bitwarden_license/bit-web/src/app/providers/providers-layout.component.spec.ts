@@ -20,7 +20,7 @@ import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ProviderWarningsService } from "../../billing/providers/warnings/services";
+import { ProviderWarningsService } from "../billing/providers/warnings/services";
 
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 

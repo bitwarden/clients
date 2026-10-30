@@ -17,7 +17,7 @@ import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
 
-import { ProviderWarningsService } from "../../billing/providers/warnings/services";
+import { ProviderWarningsService } from "../billing/providers/warnings/services";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

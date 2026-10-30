@@ -28,7 +28,7 @@ type BulkRemoveDialogParams = {
 
 @Component({
   templateUrl:
-    "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove-dialog.component.html",
+    "../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove-dialog.component.html",
   selector: "provider-bulk-remove-dialog",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

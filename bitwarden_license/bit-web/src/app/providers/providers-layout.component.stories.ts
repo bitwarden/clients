@@ -27,7 +27,7 @@ import { GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { LockService } from "@bitwarden/unlock";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { ProviderWarningsService } from "../../billing/providers/warnings/services";
+import { ProviderWarningsService } from "../billing/providers/warnings/services";
 
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 
