@@ -27,4 +27,4 @@ expect(i18nService.t).toHaveBeenCalledWith("itemDeleted");
 
 Only add a `data-testid` when an element can't be queried by other sufficient means (role, accessible name, label or text). Don't add them proactively. Accessible queries find elements the way users and assistive technology do, so a test that passes also confirms the element is accessible; a test ID passes even when it isn't.
 
-When one is needed, use `<component_name>_<html_element>_<readable_name>` — underscores between components, dashes within.
+When one is needed, name it `<component>-<element>`, e.g. `login-email-input`, matching [writing-end-to-end-tests](../skills/writing-end-to-end-tests/SKILL.md).
