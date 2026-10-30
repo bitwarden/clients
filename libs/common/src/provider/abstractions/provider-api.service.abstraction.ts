@@ -42,3 +42,4 @@ export abstract class ProviderApiServiceAbstraction {
     request: CreateProviderOrganizationRequest,
   ): Promise<void>;
 }
+
