@@ -112,7 +112,6 @@ describe("AccessRequestDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AccessRequestDialogComponent, NoopAnimationsModule],
       providers: [
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
@@ -259,12 +258,12 @@ describe("AccessRequestDialogComponent", () => {
       return fixture.nativeElement.querySelector('[data-testid="request-detail-decision"]');
     }
 
-    it("credits the access rule for an automatic decision", () => {
+    it("credits the system when an access rule decided on its own", () => {
       detail.request$.next(request({ status: "approved", decisions: [automaticDecision()] }));
 
       create();
 
-      expect(decisionCard()!.textContent).toContain("pamResolverAccessRule");
+      expect(decisionCard()!.textContent).toContain("pamDecisionAutomatic");
     });
 
     it("credits a human approver by name, and names the decision as an approval", () => {
