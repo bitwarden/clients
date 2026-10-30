@@ -407,7 +407,7 @@ const buildProviders = (args: StoryArgs) => {
   const hasFilterApplied$ = new BehaviorSubject(filtersApplied);
 
   // Minimal stand-in for the real search service so the toolbar search folds the list live.
-  const applyFilter = (text: string) => {
+  const applyScopedFilter = (text: string) => {
     const term = (text ?? "").trim().toLowerCase();
     searchText.set(text ?? "");
     hasSearchText$.next(term.length > 0);
@@ -467,7 +467,7 @@ const buildProviders = (args: StoryArgs) => {
         showDeactivatedOrg$: of(false),
         // Mirrors the real service: whether the account has any items at all, ignoring search/filters.
         emptyVault$: of(allItems.length === 0),
-        applyFilter,
+        applyScopedFilter,
       },
     },
     {

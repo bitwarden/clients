@@ -1,5 +1,5 @@
-import { computed, Injectable, NgZone } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { computed, inject, Injectable, NgZone } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   debounceTime,
@@ -11,6 +11,7 @@ import {
   Observable,
   of,
   shareReplay,
+  skip,
   startWith,
   Subject,
   switchMap,
@@ -37,6 +38,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { waitUntil } from "../../util";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -51,8 +53,29 @@ import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filt
   providedIn: "root",
 })
 export class VaultPopupItemsService {
-  /** The search text for the active user's vault in view. */
-  readonly searchText = computed(() => this.vaultPopupListTableFiltersService.searchText());
+  /** The legacy (VFO1 off) search text. It lives in the popup view cache, never on disk. */
+  private cachedSearchText = inject(PopupViewCacheService).signal<string>({
+    key: "vault-search-text",
+    initialValue: "",
+    persistNavigation: true,
+  });
+
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
+
+  /**
+   * The search text in view. With VFO1 it is the active user's per-vault search text, otherwise
+   * the legacy view-cached text.
+   */
+  readonly searchText = computed(() =>
+    this.vfo1Enabled()
+      ? this.vaultPopupListTableFiltersService.searchText()
+      : this.cachedSearchText(),
+  );
 
   readonly searchText$ = toObservable(this.searchText);
 
@@ -365,10 +388,22 @@ export class VaultPopupItemsService {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
     private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
-  ) {}
+  ) {
+    // Switching the active account must always clear the legacy search text. This service is
+    // `providedIn: "root"` and lives through the switch, so manual clearing is necessary.
+    // The VFO1 search text is stored per user, so it needs no clearing.
+    this.activeUserId$
+      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
+      .subscribe(() => this.cachedSearchText.set(""));
+  }
 
-  /** Sets the search text for the vault in view. */
+  /** Sets the legacy search text, which is held in the popup view cache. */
   applyFilter(newSearchText: string) {
+    this.cachedSearchText.set(newSearchText);
+  }
+
+  /** Sets the search text for the vault in view, stored per user and vault (VFO1). */
+  applyScopedFilter(newSearchText: string) {
     void this.vaultPopupListTableFiltersService.setSearchText(newSearchText);
   }
 

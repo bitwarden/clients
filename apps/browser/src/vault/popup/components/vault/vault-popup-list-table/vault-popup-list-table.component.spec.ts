@@ -131,7 +131,7 @@ describe("VaultPopupListTableComponent", () => {
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     emptyVault$: emptyVault$.asObservable(),
     hasFilterApplied$: hasFilterApplied$.asObservable(),
-    applyFilter: jest.fn(),
+    applyScopedFilter: jest.fn(),
   };
 
   const vaultPopupLoadingService = {
@@ -1172,7 +1172,7 @@ describe("VaultPopupListTableComponent", () => {
       component.onSearchTextChanged();
       tick(SearchTextDebounceInterval);
 
-      expect(vaultPopupItemsService.applyFilter).toHaveBeenCalledWith("foo");
+      expect(vaultPopupItemsService.applyScopedFilter).toHaveBeenCalledWith("foo");
     }));
   });
 

@@ -324,7 +324,7 @@ export class VaultPopupListTableService {
       map(([text]) => text),
       tap((text) =>
         this.ngZone.runOutsideAngular(() =>
-          this.ngZone.run(() => this.vaultPopupItemsService.applyFilter(text)),
+          this.ngZone.run(() => this.vaultPopupItemsService.applyScopedFilter(text)),
         ),
       ),
     );
