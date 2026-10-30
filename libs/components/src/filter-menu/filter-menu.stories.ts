@@ -420,6 +420,17 @@ export const NestedIconTiles: Story = {
   },
 };
 
+/** Opens the menu and types `term` into its search. */
+const searchForPlay =
+  (term: string): Story["play"] =>
+  async (context) => {
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
+    // The popover renders into the CDK overlay, outside the story canvas.
+    const search = await findByLabelText(document.body, "Search");
+    await userEvent.type(search, term);
+  };
+
 /**
  * No option matches the search term. The in-menu search needs more than ten options.
  */
@@ -427,13 +438,13 @@ export const NoMatchingItems: Story = {
   render: () => ({
     template: `<filter-menu-empty-demo></filter-menu-empty-demo>`,
   }),
-  play: async (context) => {
-    const [trigger] = getAllByRole(context.canvasElement, "button");
-    await userEvent.click(trigger);
-    // The popover renders into the CDK overlay, outside the story canvas.
-    const search = await findByLabelText(document.body, "Search");
-    await userEvent.type(search, "zzz");
-  },
+  play: searchForPlay("zzz"),
+};
+
+/** A long search term with no spaces, clamped to two lines in the no-results message. */
+export const NoMatchingItemsLongSearchTerm: Story = {
+  ...NoMatchingItems,
+  play: searchForPlay("Quarterlyinfrastructurereviewfortheplatformengineeringteam"),
 };
 
 /**

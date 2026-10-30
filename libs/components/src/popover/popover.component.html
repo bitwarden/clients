@@ -5,6 +5,7 @@
       <div class="tw-absolute tw-top-3 tw-right-3">
         <button
           type="button"
+          data-testid="bit-popover-close"
           bitIconButton="bwi-close"
           [buttonType]="closeButtonType()"
           [label]="'close' | i18n"
@@ -14,10 +15,10 @@
       </div>
       <div class="tw-flex tw-flex-col tw-gap-6">
         <div class="tw-flex tw-flex-col tw-gap-3">
-          <h2 bitTypography="h4" [class]="titleClasses()">
+          <h2 bitTypography="h4" [class]="titleClasses()" data-testid="bit-popover-title">
             {{ title() }}
           </h2>
-          <div bitTypography="body2" class="tw-text-fg-body">
+          <div bitTypography="body2" class="tw-text-fg-body" data-testid="bit-popover-body">
             <ng-content></ng-content>
           </div>
         </div>

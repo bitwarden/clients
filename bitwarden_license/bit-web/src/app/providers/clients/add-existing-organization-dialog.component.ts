@@ -1,0 +1,115 @@
+import { CommonModule } from "@angular/common";
+import { Component, Inject, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  ProviderApiServiceAbstraction,
+  Provider,
+  AddableOrganizationResponse,
+} from "@bitwarden/common/provider";
+import {
+  AsyncActionsModule,
+  AvatarModule,
+  ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  TableModule,
+  ToastService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { WebProviderService } from "../services/web-provider.service";
+
+export type AddExistingOrganizationDialogParams = {
+  provider: Provider;
+};
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
+export enum AddExistingOrganizationDialogResultType {
+  Closed = "closed",
+  Submitted = "submitted",
+}
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  templateUrl: "./add-existing-organization-dialog.component.html",
+  imports: [
+    CommonModule,
+    I18nPipe,
+    DialogModule,
+    TableModule,
+    AvatarModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
+})
+export class AddExistingOrganizationDialogComponent implements OnInit {
+  protected loading: boolean = true;
+
+  addableOrganizations: AddableOrganizationResponse[] = [];
+  selectedOrganization?: AddableOrganizationResponse;
+
+  protected readonly ResultType = AddExistingOrganizationDialogResultType;
+
+  constructor(
+    @Inject(DIALOG_DATA) protected dialogParams: AddExistingOrganizationDialogParams,
+    private dialogRef: DialogRef<AddExistingOrganizationDialogResultType>,
+    private i18nService: I18nService,
+    private providerApiService: ProviderApiServiceAbstraction,
+    private toastService: ToastService,
+    private webProviderService: WebProviderService,
+    private accountService: AccountService,
+  ) {}
+
+  async ngOnInit() {
+    this.addableOrganizations = await this.providerApiService.getProviderAddableOrganizations(
+      this.dialogParams.provider.id,
+    );
+    this.loading = false;
+  }
+
+  addExistingOrganization = async (): Promise<void> => {
+    if (this.selectedOrganization) {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      await this.webProviderService.addOrganizationToProvider(
+        this.dialogParams.provider.id,
+        this.selectedOrganization.id,
+        userId,
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("addedExistingOrganization"),
+      });
+
+      await this.dialogRef.close(this.ResultType.Submitted);
+    }
+  };
+
+  selectOrganization(organizationId: string) {
+    this.selectedOrganization = this.addableOrganizations.find(
+      (organization) => organization.id === organizationId,
+    );
+  }
+
+  static open = (
+    dialogService: DialogService,
+    dialogConfig: DialogConfig<
+      AddExistingOrganizationDialogParams,
+      AddExistingOrganizationDialogResultType
+    >,
+  ) =>
+    dialogService.open<
+      AddExistingOrganizationDialogResultType,
+      AddExistingOrganizationDialogParams
+    >(AddExistingOrganizationDialogComponent, dialogConfig);
+}

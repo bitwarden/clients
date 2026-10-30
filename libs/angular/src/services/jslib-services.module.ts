@@ -40,7 +40,6 @@ import {
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
-  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
   LoginEmailServiceAbstraction,
@@ -51,8 +50,6 @@ import {
   LoginStrategySessionTimeoutService,
   DefaultLoginStrategySessionTimeoutService,
   LoginSuccessHandlerService,
-  LogoutReason,
-  LogoutService,
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -89,8 +86,6 @@ import {
   InternalPolicyService,
   PolicyService as PolicyServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { DefaultOrganizationDomainsService } from "@bitwarden/common/admin-console/services/organization-domain/default-organization-domains.service";
@@ -100,8 +95,6 @@ import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/comm
 import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import {
   AccountService,
@@ -131,6 +124,7 @@ import {
   DeepLinkRedirectService,
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
+import { DefaultLogoutService, LogoutReason, LogoutService } from "@bitwarden/common/auth/logout";
 import {
   NoopOrganizationInviteService,
   OrganizationInviteService,
@@ -307,6 +301,12 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderService as ProviderServiceAbstraction,
+} from "@bitwarden/common/provider";
+import { ProviderApiService } from "@bitwarden/common/provider/services/provider-api.service";
+import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import {
@@ -337,6 +337,7 @@ import {
   FolderService as FolderServiceAbstraction,
   InternalFolderService,
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -357,6 +358,7 @@ import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/defau
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -464,7 +466,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
-import { AccountDeletionService } from "../auth/account-deletion/account-deletion.service";
+import { AccountDeletionDialogService } from "../auth/account-deletion";
 import { DefaultDeviceManagementComponentService } from "../auth/device-management/default-device-management-component.service";
 import { DeviceManagementComponentServiceAbstraction } from "../auth/device-management/device-management-component.service.abstraction";
 import {
@@ -777,6 +779,11 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       CipherSdkService,
     ],
+  }),
+  safeProvider({
+    provide: RevealedCipherService,
+    useClass: NoopRevealedCipherService,
+    deps: [],
   }),
   safeProvider({
     provide: CipherRiskService,
@@ -2029,7 +2036,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
-    deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
+    deps: [
+      CollectionService,
+      OrganizationServiceAbstraction,
+      AccountServiceAbstraction,
+      RevealedCipherService,
+    ],
   }),
   safeProvider({
     provide: SendPasswordService,
@@ -2086,8 +2098,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: AccountDeletionService,
-    useClass: AccountDeletionService,
+    provide: AccountDeletionDialogService,
+    useClass: AccountDeletionDialogService,
     deps: [AccountServiceAbstraction, OrganizationServiceAbstraction, DialogService],
   }),
   safeProvider({

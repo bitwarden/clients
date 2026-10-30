@@ -33,12 +33,10 @@ import {
   AuthRequestService,
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
-  DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   DefaultLoginStrategyCacheService,
   DefaultLoginStrategySessionTimeoutService,
-  LogoutReason,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
 import {
@@ -51,12 +49,10 @@ import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -69,6 +65,7 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-server-notification-tags";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DefaultLogoutService, LogoutReason } from "@bitwarden/common/auth/logout";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
@@ -205,6 +202,8 @@ import { SystemNotificationsService } from "@bitwarden/common/platform/system-no
 import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/provider";
+import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
@@ -230,6 +229,7 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -249,6 +249,7 @@ import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { NoopRevealedCipherService } from "@bitwarden/common/vault/services/noop-revealed-cipher.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -347,6 +348,10 @@ import {
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
+import {
+  FillAssistEventReceiver,
+  NoopFillAssistEventReceiver,
+} from "../autofill/background/fill-assist-event-receiver";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
@@ -448,6 +453,7 @@ export default class MainBackground {
   hibpApiService: HibpApiService;
   environmentService: BrowserEnvironmentService;
   cipherSdkService: CipherSdkService;
+  revealedCipherService: RevealedCipherService;
   cipherService: CipherServiceAbstraction;
   folderService: InternalFolderServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
@@ -601,6 +607,7 @@ export default class MainBackground {
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
   private runtimeBackground: RuntimeBackground;
+  private fillAssistEventReceiver: FillAssistEventReceiver;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
 
@@ -981,6 +988,7 @@ export default class MainBackground {
       this.stateService,
       this.tokenService,
     );
+    this.revealedCipherService = new NoopRevealedCipherService();
 
     this.configApiService = new ConfigApiService(this.apiService);
 
@@ -1600,6 +1608,11 @@ export default class MainBackground {
       logoutService,
     );
 
+    // TODO: Update or remove this temporary note during fill assist M6. This receiver
+    // is an M3.5 placeholder. M6 will replace this with the real consumer. The emitter,
+    // message shape, and receiver interface stay stable across the swap.
+    this.fillAssistEventReceiver = new NoopFillAssistEventReceiver(this.logService);
+
     this.runtimeBackground = new RuntimeBackground(
       this,
       this.autofillService,
@@ -1618,6 +1631,7 @@ export default class MainBackground {
       this.defaultPasswordManagerPromptStateAccessor,
       this.autofillOrchestrator,
       this.#intraprocessMessageSender,
+      this.fillAssistEventReceiver,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.encryptService,
@@ -1785,6 +1799,7 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.revealedCipherService,
     );
 
     this.phishingDataService = new PhishingDataService(
