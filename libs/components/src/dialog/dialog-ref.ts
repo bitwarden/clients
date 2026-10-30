@@ -20,6 +20,9 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
 > {
   abstract readonly isDrawer?: boolean;
 
+  /** Whether this dialog is presented as a bottom sheet at every breakpoint. */
+  abstract readonly isBottomSheet?: boolean;
+
   // --- From CdkDialogRefBase ---
   abstract close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef>;
   abstract readonly closed: Observable<R | undefined>;
@@ -50,6 +53,12 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
   | "closeOnNavigation"
 > & {
   closePredicate?: (result?: R) => Promise<boolean>;
+
+  /**
+   * Present the dialog as a full-width bottom sheet at every breakpoint, rather than only on
+   * small screens.
+   */
+  bottomSheet?: boolean;
 };
 
 /**
@@ -67,6 +76,7 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
  */
 export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = true;
+  readonly isBottomSheet = false;
 
   private _closedSubject = new Subject<R | undefined>();
   private _isClosed = false;
@@ -176,6 +186,7 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   constructor(
     private readonly logService?: LogService | null,
     closePredicate?: (result?: R) => Promise<boolean>,
+    readonly isBottomSheet = false,
   ) {
     this.closePredicate = closePredicate;
   }

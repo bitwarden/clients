@@ -33,6 +33,9 @@ interface DrawerLevel {
       <button class="tw-mr-2" bitButton type="button" (click)="openDialogNonDismissable()">
         Open Non-Dismissable Dialog
       </button>
+      <button class="tw-mr-2" bitButton type="button" (click)="openBottomSheet()">
+        Open Bottom Sheet
+      </button>
       <button class="tw-mr-2" bitButton type="button" (click)="openDrawer()">Open Drawer</button>
       <button class="tw-mr-2" bitButton size="small" type="button" (click)="openSmallDrawer()">
         Open Small Drawer
@@ -63,6 +66,15 @@ class StoryDialogComponent {
         animal: "panda",
       },
       disableClose: true,
+    });
+  }
+
+  openBottomSheet() {
+    this.dialogService.open(StoryDialogContentComponent, {
+      data: {
+        animal: "panda",
+      },
+      bottomSheet: true,
     });
   }
 
@@ -338,8 +350,11 @@ export const NonDismissable: Story = {
   },
 };
 
-/** Drawers must be a descendant of `bit-layout`. */
-export const Drawer: Story = {
+/**
+ * `bottomSheet: true` pins the dialog to the bottom of the viewport at every breakpoint, rather
+ * than only on small screens.
+ */
+export const BottomSheet: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
 
@@ -348,7 +363,8 @@ export const Drawer: Story = {
   },
 };
 
-export const DrawerSmall: Story = {
+/** Drawers must be a descendant of `bit-layout`. */
+export const Drawer: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
 
@@ -357,11 +373,20 @@ export const DrawerSmall: Story = {
   },
 };
 
-export const DrawerLarge: Story = {
+export const DrawerSmall: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
 
     const button = getAllByRole(canvas, "button")[4];
+    await userEvent.click(button);
+  },
+};
+
+export const DrawerLarge: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[5];
     await userEvent.click(button);
   },
 };
@@ -371,7 +396,7 @@ export const DrawerStacked: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
 
-    await userEvent.click(getAllByRole(canvas, "button")[5]);
+    await userEvent.click(getAllByRole(canvas, "button")[6]);
 
     const level2Button = await findByRole(canvas, "button", { name: "Open Level 2" });
     await userEvent.click(level2Button);
