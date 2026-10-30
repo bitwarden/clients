@@ -922,6 +922,76 @@ describe("OverlayBackground", () => {
         });
       });
 
+      describe("updateInlineMenuPosition sub frame offsets", () => {
+        let rebuildSubFrameOffsetsNextSpy: jest.SpyInstance;
+        let startUpdateInlineMenuPositionNextSpy: jest.SpyInstance;
+        let startInlineMenuFadeInNextSpy: jest.SpyInstance;
+
+        beforeEach(async () => {
+          await initOverlayElementPorts();
+          // Port setup posts its own position update; only assert on calls made by the test.
+          jest.mocked(buttonPortSpy.postMessage).mockClear();
+          rebuildSubFrameOffsetsNextSpy = jest.spyOn(
+            overlayBackground["rebuildSubFrameOffsets$"],
+            "next",
+          );
+          startUpdateInlineMenuPositionNextSpy = jest.spyOn(
+            overlayBackground["startUpdateInlineMenuPosition$"],
+            "next",
+          );
+          startInlineMenuFadeInNextSpy = jest.spyOn(
+            overlayBackground["startInlineMenuFadeIn$"],
+            "next",
+          );
+        });
+
+        it("positions and fades in the inline menu for a top frame field when the tab only has offsets for other frames", async () => {
+          const topFrameSender = mock<chrome.runtime.MessageSender>({ tab, frameId: topFrameId });
+          overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+            tabId,
+            frameId: topFrameId,
+          });
+          subFrameOffsetsSpy[tabId] = new Map([
+            [
+              middleFrameId,
+              { left: 2, top: 2, url: "https://middle-frame.com", parentFrameIds: [topFrameId] },
+            ],
+          ]);
+
+          await overlayBackground["updateInlineMenuPosition"](
+            topFrameSender,
+            AutofillOverlayElement.Button,
+          );
+
+          expect(rebuildSubFrameOffsetsNextSpy).not.toHaveBeenCalled();
+          expect(startUpdateInlineMenuPositionNextSpy).not.toHaveBeenCalled();
+          expect(buttonPortSpy.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({ command: "updateAutofillInlineMenuPosition" }),
+          );
+          expect(startInlineMenuFadeInNextSpy).toHaveBeenCalled();
+        });
+
+        it("rebuilds the sub frame offsets and retries when the focused frame's offsets are awaiting a rebuild", async () => {
+          overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+            tabId,
+            frameId: middleFrameId,
+          });
+          subFrameOffsetsSpy[tabId].set(middleFrameId, null);
+
+          await overlayBackground["updateInlineMenuPosition"](
+            sender,
+            AutofillOverlayElement.Button,
+          );
+
+          expect(rebuildSubFrameOffsetsNextSpy).toHaveBeenCalledWith(sender);
+          expect(startUpdateInlineMenuPositionNextSpy).toHaveBeenCalledWith(sender);
+          expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(
+            expect.objectContaining({ command: "updateAutofillInlineMenuPosition" }),
+          );
+          expect(startInlineMenuFadeInNextSpy).not.toHaveBeenCalled();
+        });
+      });
+
       describe("triggerSubFrameFocusInRebuild", () => {
         it("triggers a rebuild of the sub frame and updates the inline menu position", async () => {
           const rebuildSubFrameOffsetsSpy = jest.spyOn(
