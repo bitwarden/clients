@@ -16,6 +16,7 @@ import { Message, IntraprocessMessageSender } from "@bitwarden/common/platform/m
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -415,6 +416,39 @@ describe("RuntimeBackground collection dispatch", () => {
         expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
       },
     );
+  });
+
+  describe("checkIfBWExtensionInstalled", () => {
+    beforeEach(() => {
+      const environmentService = mock<BrowserEnvironmentService>();
+      environmentService.availableRegions.mockReturnValue([
+        { urls: { webVault: "https://vault.bitwarden.com" } } as any,
+      ]);
+      environmentService.environment$ = of({
+        getWebVaultUrl: () => "https://vault.bitwarden.com",
+      } as any);
+
+      runtimeBackground = createRuntimeBackground({
+        main,
+        logService,
+        accountService,
+        autofillOrchestrator,
+        environmentService,
+      });
+    });
+
+    it.each([
+      ["vault sender origin", { origin: "https://vault.bitwarden.com" }, undefined, true],
+      ["non-vault sender origin", { origin: "https://example.com" }, undefined, false],
+      ["referrer fallback", {}, "vault.bitwarden.com", true],
+    ] as const)("%s", async (_name, messageSender, referrer, expected) => {
+      await expect(
+        runtimeBackground.processMessageWithSender(
+          { command: VaultMessages.checkBwInstalled, referrer },
+          messageSender as chrome.runtime.MessageSender,
+        ),
+      ).resolves.toBe(expected);
+    });
   });
 });
 
