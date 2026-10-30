@@ -65,6 +65,10 @@ export class InitService {
       const accounts = await firstValueFrom(this.accountService.accounts$);
       await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
 
+      // Shared unlock starts before auto unlock, so the peer's unlock hook reports the restored unlock.
+      await this.ipcService.init();
+      await this.sharedUnlockPeerService.start();
+
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {
         // If there is an active account, we must await the process of setting the user key in memory
@@ -86,8 +90,6 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      await this.ipcService.init();
-      await this.sharedUnlockPeerService.start();
       this.taskService.listenForTaskNotifications();
 
       // Opportunistic sweep of any sealed open-org-invite secrets whose TTL has expired
