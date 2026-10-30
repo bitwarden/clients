@@ -8,7 +8,7 @@ import { credentialsData_otpUrl } from "../spec-data/dashlane-csv/credentials-ot
 import { credentialsData } from "../spec-data/dashlane-csv/credentials.csv";
 import { identityData } from "../spec-data/dashlane-csv/id.csv";
 import { multiplePersonalInfoData } from "../spec-data/dashlane-csv/multiple-personal-info.csv";
-import { paymentsData } from "../spec-data/dashlane-csv/payments.csv";
+import { currentCCData, legacyCCData, paymentsData } from "../spec-data/dashlane-csv/payments.csv";
 import { personalInfoData } from "../spec-data/dashlane-csv/personal-info.csv";
 import { secureNoteData } from "../spec-data/dashlane-csv/securenotes.csv";
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
@@ -67,7 +67,7 @@ describe("Dashlane CSV Importer", () => {
     it("with new item types feature flag OFF", async () => {
       const result = await getImportResult(paymentsData);
 
-      expect(result.ciphers.length).toEqual(2);
+      expect(result.ciphers.length).toEqual(1);
 
       // Account
       const cipher = result.ciphers[0];
@@ -86,29 +86,13 @@ describe("Dashlane CSV Importer", () => {
         ["country", "US"],
         ["issuing_bank", "US-ALLY"],
       ]);
-
-      // CreditCard
-      const cipher2 = result.ciphers[1];
-      expect(cipher2.type).toEqual(CipherType.Card);
-      expect(cipher2.name).toEqual("John Doe");
-      expect(cipher2.card.brand).toEqual("Visa");
-      expect(cipher2.card.cardholderName).toEqual("John Doe");
-      expect(cipher2.card.number).toEqual("41111111111111111");
-      expect(cipher2.card.code).toEqual("123");
-      expect(cipher2.card.expMonth).toEqual("1");
-      expect(cipher2.card.expYear).toEqual("2023");
-
-      assertCustomFieldsStructure(cipher2.fields, [
-        ["type", "credit_card"],
-        ["country", "US"],
-      ]);
     });
 
     it("with new item types feature flag ON", async () => {
       configService.getFeatureFlag.mockResolvedValueOnce(true);
       const result = await getImportResult(paymentsData);
 
-      expect(result.ciphers.length).toEqual(2);
+      expect(result.ciphers.length).toEqual(1);
 
       // Account
       const cipher = result.ciphers[0];
@@ -122,20 +106,46 @@ describe("Dashlane CSV Importer", () => {
         ["country", "US"],
         ["issuing_bank", "US-ALLY"],
       ]);
+    });
 
-      // CreditCard
-      const cipher2 = result.ciphers[1];
-      expect(cipher2.type).toEqual(CipherType.Card);
-      expect(cipher2.name).toEqual("John Doe");
-      expect(cipher2.card.brand).toEqual("Visa");
-      expect(cipher2.card.cardholderName).toEqual("John Doe");
-      expect(cipher2.card.number).toEqual("41111111111111111");
-      expect(cipher2.card.code).toEqual("123");
-      expect(cipher2.card.expMonth).toEqual("1");
-      expect(cipher2.card.expYear).toEqual("2023");
+    it("parses the legacy credit_card export format for credit cards", async () => {
+      const result = await getImportResult(legacyCCData);
 
-      assertCustomFieldsStructure(cipher2.fields, [
+      expect(result.ciphers.length).toEqual(1);
+
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Card);
+      expect(cipher.name).toEqual("John Doe");
+      expect(cipher.card.brand).toEqual("Visa");
+      expect(cipher.card.cardholderName).toEqual("John Doe");
+      expect(cipher.card.number).toEqual("41111111111111111");
+      expect(cipher.card.code).toEqual("123");
+      expect(cipher.card.expMonth).toEqual("1");
+      expect(cipher.card.expYear).toEqual("2023");
+
+      assertCustomFieldsStructure(cipher.fields, [
         ["type", "credit_card"],
+        ["country", "US"],
+      ]);
+    });
+
+    it("parses the current payment_card export format for credit cards", async () => {
+      const result = await getImportResult(currentCCData);
+
+      expect(result.ciphers.length).toEqual(1);
+
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Card);
+      expect(cipher.name).toEqual("Test Credit Card");
+      expect(cipher.card.brand).toEqual("Visa");
+      expect(cipher.card.cardholderName).toEqual("John Doe");
+      expect(cipher.card.number).toEqual("41111111111111111");
+      expect(cipher.card.code).toEqual("123");
+      expect(cipher.card.expMonth).toEqual("1");
+      expect(cipher.card.expYear).toEqual("2023");
+
+      assertCustomFieldsStructure(cipher.fields, [
+        ["type", "payment_card"],
         ["country", "US"],
       ]);
     });
