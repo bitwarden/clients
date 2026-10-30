@@ -1,6 +1,6 @@
 import { enableEphemeralPin } from "../../../src/browser/account-security";
 import { addAccount, lockAll, switchAccount } from "../../../src/browser/account-switcher";
-import { expect, popupUrl, reopenPopup, test } from "../../../src/browser/fixtures";
+import { expect, test } from "../../../src/browser/fixtures";
 import { account, secondAccount } from "../../../src/credentials";
 import { LockScreen } from "../../../src/lock-screen";
 import { LoginPage } from "../../../src/login";
@@ -31,12 +31,9 @@ test("keeps an inactive account's ephemeral PIN when locking all accounts", asyn
 
   // Then the PIN account still unlocks with its PIN
   await switchAccount(lockedPopup, pinUser.email);
-  // A popup open across the switch can miss the "locked" message that routes it to the
-  // lock screen, so reopen it, as a user clicking the toolbar icon again would.
-  const pinPopup = await reopenPopup(context, await popupUrl(context), lockedPopup);
-  const lockScreen = new LockScreen(pinPopup);
+  const lockScreen = new LockScreen(lockedPopup);
   await lockScreen.waitUntilShown();
   await expect(lockScreen.pinInput).toBeVisible();
   await lockScreen.unlockWithPin(PIN);
-  await new LoginPage(pinPopup).waitForVault(VAULT_URL);
+  await new LoginPage(lockedPopup).waitForVault(VAULT_URL);
 });
