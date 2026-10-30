@@ -1,5 +1,11 @@
 import { PortalModule } from "@angular/cdk/portal";
-import { ChangeDetectionStrategy, Component, importProvidersFrom, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  importProvidersFrom,
+  inject,
+  signal,
+} from "@angular/core";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
@@ -42,6 +48,8 @@ type FolderFixture = {
   name: string;
   permissions: SharedFolderPermission;
   items: number;
+
+  gated?: boolean;
 };
 
 const folders: FolderFixture[] = [
@@ -102,7 +110,10 @@ function toCollection(fixture: FolderFixture): CollectionView {
     organizationId,
     name: fixture.name,
   });
-  Object.assign(view, FLAGS[fixture.permissions], { assigned: true });
+  Object.assign(view, FLAGS[fixture.permissions], {
+    assigned: true,
+    hasEnabledAccessRule: fixture.gated ?? false,
+  });
   return view;
 }
 
@@ -153,18 +164,26 @@ const withVault: Decorator = (storyFn, context) => {
     } as Organization,
   ];
 
-  // Held in memory, so Pin to sidebar and Unpin from sidebar toggle in the story.
+  // Held in memory, so Pin to sidebar and Unpin from sidebar toggle in the story. Mirrored into a
+  // signal alongside the subject: the real service exposes `activePinnedIds` as a signal, and the
+  // table and the row menu both read it directly rather than subscribing to `pinnedIds$`.
   const pinned$ = new BehaviorSubject<CollectionId[]>(args.pinnedIds as CollectionId[]);
+  const activePinnedIds = signal<CollectionId[]>(pinned$.value);
   const pinnedSharedFolders = {
     pinnedIds$: () => pinned$,
+    activePinnedIds,
     pin: (_userId: UserId, id: CollectionId) => {
       action("pin")(id);
-      pinned$.next([...pinned$.value, id]);
+      const next = [...pinned$.value, id];
+      pinned$.next(next);
+      activePinnedIds.set(next);
       return Promise.resolve();
     },
     unpin: (_userId: UserId, id: CollectionId) => {
       action("unpin")(id);
-      pinned$.next(pinned$.value.filter((pinnedId) => pinnedId !== id));
+      const next = pinned$.value.filter((pinnedId) => pinnedId !== id);
+      pinned$.next(next);
+      activePinnedIds.set(next);
       return Promise.resolve();
     },
   };
@@ -174,7 +193,10 @@ const withVault: Decorator = (storyFn, context) => {
       { provide: PinnedSharedFoldersService, useValue: pinnedSharedFolders },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
       { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
-      { provide: CipherService, useValue: { cipherListViews$: () => of(ciphers) } },
+      {
+        provide: CipherService,
+        useValue: { cipherListViewsIncludingRestricted$: () => of(ciphers) },
+      },
       { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
     ],
   })(storyFn, context);
@@ -307,6 +329,7 @@ export default {
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
+              controlledAccess: "Controlled access",
               viewItems: "View items",
               viewItemsHidePass: "View items, hidden passwords",
               editItems: "Edit items",
@@ -320,8 +343,7 @@ export default {
               selectAllRows: "Select all rows",
               selectRow: "Select row",
               // Row actions
-              edit: "Edit",
-              access: "Access",
+              editInfo: "Edit info",
               delete: "Delete",
               pinToSidebar: "Pin to sidebar",
               unpinFromSidebar: "Unpin from sidebar",
@@ -365,6 +387,28 @@ type Story = StoryObj<StoryProps>;
  */
 export const Default: Story = {
   args: { folders: [...folders, ...nestedFolders] },
+};
+
+export const PrivilegedControls: Story = {
+  args: {
+    folders: [
+      ...folders.map((folder) => ({
+        ...folder,
+        gated: folder.name === "Engineering" || folder.name === "Operations",
+      })),
+      {
+        id: "col-7",
+        name: "Engineering platform and developer experience shared credentials",
+        permissions: SharedFolderPermission.View,
+        items: 5,
+        gated: true,
+      },
+    ],
+  },
+};
+
+export const AllFoldersGated: Story = {
+  args: { folders: folders.map((folder) => ({ ...folder, gated: true })) },
 };
 
 /**

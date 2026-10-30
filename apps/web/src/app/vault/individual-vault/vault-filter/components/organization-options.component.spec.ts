@@ -14,6 +14,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,7 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { OrganizationFilter } from "@bitwarden/vault";
@@ -53,12 +54,14 @@ const buildOrg = (overrides: Partial<Organization> = {}) =>
     ...overrides,
   });
 
-const resetPasswordPolicy = (overrides: Partial<Policy> = {}) =>
-  Object.assign(new Policy(), {
+const resetPasswordPolicy = (overrides: Partial<PolicyData> = {}) =>
+  new Policy({
+    id: "policy-id" as PolicyId,
     organizationId: orgId,
     type: PolicyType.ResetPassword,
-    enabled: true,
     data: { autoEnrollEnabled: false },
+    enabled: true,
+    revisionDate: new Date().toISOString(),
     ...overrides,
   });
 

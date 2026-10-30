@@ -1,5 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { DragDropModule, CdkDragEnd, CdkDragMove } from "@angular/cdk/drag-drop";
+import { CdkScrollable } from "@angular/cdk/scrolling";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -19,12 +20,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 import { SIDERAIL_WIDTH_REM } from "../shared";
+import { hasScrolledFrom } from "../utils/has-scrolled-from";
 
 import { NavDividerComponent } from "./nav-divider.component";
 import { resizeHandlePercent } from "./side-nav-resize";
 import { media, SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
+export type SideNavHeaderBorder = "always" | "scrolled";
 
 /**
  * Side navigation component that provides a collapsible navigation menu.
@@ -34,6 +37,7 @@ export type SideNavVariant = "primary" | "secondary";
   templateUrl: "side-nav.component.html",
   imports: [
     CdkTrapFocus,
+    CdkScrollable,
     NavDividerComponent,
     BitIconButtonComponent,
     I18nPipe,
@@ -49,6 +53,7 @@ export type SideNavVariant = "primary" | "secondary";
     class: "tw-block tw-h-full tw-col-start-1 tw-row-start-1",
     "[class]":
       "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50 tw-max-w-[90%]' : ''",
+    "(document:keydown.escape)": "handleEscape($event)",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,6 +66,16 @@ export class SideNavComponent {
    * @default "primary"
    */
   readonly variant = input<SideNavVariant>("primary");
+
+  /**
+   * When to show the line under the vfo1 header's switchers: always, or once rows scroll beneath it.
+   *
+   * @default "scrolled"
+   */
+  readonly headerBorder = input<SideNavHeaderBorder>("scrolled");
+
+  private readonly scrollable = viewChild(CdkScrollable);
+  protected readonly scrolled = hasScrolledFrom(this.scrollable);
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
@@ -100,15 +115,18 @@ export class SideNavComponent {
       !this.reducedMotion(),
   );
 
-  protected readonly handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      this.sideNavService.open.set(false);
-      this.toggleButton()?.nativeElement.focus();
-      return false;
+  // Overlay focus can sit outside the nav (e.g. on <main> after a drag), so Escape is handled at
+  // the document. Skip ones a menu or popover already handled.
+  protected handleEscape(event: Event) {
+    const focusInNav = event.composedPath().includes(this.elementRef.nativeElement);
+    if (event.defaultPrevented || !(this.sideNavService.isOverlay() || focusInNav)) {
+      return;
     }
 
-    return true;
-  };
+    event.preventDefault();
+    this.sideNavService.open.set(false);
+    this.toggleButton()?.nativeElement.focus();
+  }
 
   protected onDragMoved(event: CdkDragMove) {
     const rectX = this.elementRef.nativeElement.getBoundingClientRect().x;

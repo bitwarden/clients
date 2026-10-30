@@ -33,8 +33,13 @@ export class PamOrgNavSlotComponent {
   protected readonly showAccessRules = computed(
     () => this.pamEnabled() && this.organization().canManageAccessRules,
   );
+  protected readonly showAuditLog = computed(
+    () => this.pamEnabled() && this.organization().usePam && this.organization().canAccessEventLogs,
+  );
   protected readonly showRotation = computed(
     () => this.pamEnabled() && this.rotationEnabled() && this.organization().canManageRotation,
   );
-  protected readonly showPam = computed(() => this.showAccessRules() || this.showRotation());
+  protected readonly showPam = computed(
+    () => this.showAccessRules() || this.showAuditLog() || this.showRotation(),
+  );
 }

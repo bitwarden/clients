@@ -38,6 +38,7 @@ import {
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
+import { VaultRowAccessActionsService } from "./vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -159,6 +160,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     @Optional() @Inject(VAULT_ROW_LEASE_BADGE) protected leaseBadge: VaultRowLeaseBadge | null,
+    @Optional() protected accessActions: VaultRowAccessActionsService | null,
   ) {}
 
   /**
@@ -225,6 +227,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.getLaunchUri(this.cipher);
   }
 
+  /** A gated row withholds every other action, so the menu surfaces launch on its own. */
+  protected get showLaunchInMenu() {
+    return this.isPartial && this.canLaunch;
+  }
+
   protected get subtitle() {
     return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
@@ -237,9 +244,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
-  /** Gated ("partial") rows are read-only: not selectable, no modify actions. */
+  /**
+   * True for a PAM-gated ("partial") cipher, whose sensitive fields the server suppressed. The
+   * row is read-only: not selectable and offering no modify action.
+   */
   protected get isPartial() {
-    return CipherViewLikeUtils.isPartial(this.cipher);
+    return CipherViewLikeUtils.isRestricted(this.cipher);
   }
 
   protected get showAssignToCollections() {
