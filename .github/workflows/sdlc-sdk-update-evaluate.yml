@@ -71,7 +71,7 @@ jobs:
       - name: Generate GH App token
         id: app-token
         if: steps.gate.outputs.skip == 'false'
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
           private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
@@ -104,7 +104,7 @@ jobs:
 
       - name: Set up Node
         if: steps.gate.outputs.skip == 'false'
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
