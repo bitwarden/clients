@@ -11,7 +11,7 @@ import { Account } from "../../auth/abstractions/account.service";
 import { EXTENSION_DISK, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { LegacyEncryptorProvider } from "../cryptography/legacy-encryptor-provider";
-import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
+import { SubjectKeyEncryptor } from "../cryptography/subject-key-encryptor.abstraction";
 import { disabledSemanticLoggerProvider } from "../log";
 import { UserStateSubjectDependencyProvider } from "../state/user-state-subject-dependency-provider";
 
@@ -35,8 +35,9 @@ const SomeAccount$ = new BehaviorSubject<Account>(SomeAccount);
 
 type TestType = { foo: string };
 
-const SomeEncryptor: UserEncryptor = {
+const SomeEncryptor: SubjectKeyEncryptor = {
   userId: SomeUser,
+  subjectId: "extension/profile",
 
   encrypt(secret) {
     const tmp: any = secret;
@@ -57,8 +58,11 @@ const SomeStateProvider = new FakeStateProvider(SomeAccountService);
 
 const SomeProvider = {
   encryptor: {
-    userEncryptor$: () => {
+    subjectEncryptor$: () => {
       return new BehaviorSubject({ encryptor: SomeEncryptor, userId: SomeUser }).asObservable();
+    },
+    userEncryptor$() {
+      throw new Error("`userEncryptor$` should never be invoked.");
     },
     organizationEncryptor$() {
       throw new Error("`organizationEncryptor$` should never be invoked.");

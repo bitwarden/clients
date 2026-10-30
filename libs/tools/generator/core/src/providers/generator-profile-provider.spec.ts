@@ -7,7 +7,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
-import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
+import { SubjectKeyEncryptor } from "@bitwarden/common/tools/cryptography/subject-key-encryptor.abstraction";
 import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
@@ -70,7 +70,7 @@ const somePolicy = new Policy({
 });
 
 const stateProvider = new FakeStateProvider(accountService);
-const encryptor = mock<UserEncryptor>();
+const encryptor = mock<SubjectKeyEncryptor>();
 const encryptorProvider = mock<LegacyEncryptorProvider>();
 
 const dependencyProvider: UserStateSubjectDependencyProvider = {
@@ -168,7 +168,7 @@ describe("GeneratorProfileProvider", () => {
   beforeEach(async () => {
     policyService.policiesByType$.mockImplementation(() => new BehaviorSubject([]).asObservable());
     const encryptor$ = new BehaviorSubject({ userId: SomeUser, encryptor });
-    encryptorProvider.userEncryptor$.mockReturnValue(encryptor$);
+    encryptorProvider.subjectEncryptor$.mockReturnValue(encryptor$);
     jest.clearAllMocks();
   });
 
