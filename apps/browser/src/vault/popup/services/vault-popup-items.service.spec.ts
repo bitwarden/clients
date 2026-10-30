@@ -1,4 +1,4 @@
-import { signal, WritableSignal } from "@angular/core";
+import { computed, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of, take, timeout } from "rxjs";
@@ -13,11 +13,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import {
-  FakeAccountService,
-  mockAccountServiceWith,
-  ObservableTracker,
-} from "@bitwarden/common/spec";
+import { mockAccountServiceWith, ObservableTracker } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -34,7 +30,6 @@ import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-l
 
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
@@ -54,10 +49,6 @@ describe("VaultPopupItemsService", () => {
   let mockOrg: Organization;
   let mockCollections: CollectionView[];
   let activeUserLastSync$: BehaviorSubject<Date | null>;
-  let viewCacheService: {
-    signal: jest.Mock;
-    mockSignal: WritableSignal<Record<string, string>>;
-  };
 
   let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
   let localDataSubject: BehaviorSubject<Record<CipherId, LocalData>>;
@@ -71,10 +62,11 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
-  /** The vault in view, which keys the search text. */
-  const activeScopeKey = signal("allItems");
+  /** Stands in for the filters service's per-vault search text store. */
+  const searchTextByScope = signal<Record<string, string>>({});
   const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>({
-    scopeKey: activeScopeKey,
+    searchText: computed(() => searchTextByScope()["allItems"] ?? ""),
+    setSearchText: jest.fn(async (text: string) => searchTextByScope.set({ allItems: text })),
   });
   const configServiceMock = mock<ConfigService>();
   let filters$: BehaviorSubject<PopupListFilter>;
@@ -154,7 +146,7 @@ describe("VaultPopupItemsService", () => {
     vaultPopupListFiltersServiceMock.filters$ = filters$;
     vaultPopupListFiltersServiceMock.filterFunction$ = of((ciphers) => ciphers);
     vaultPopupListTableFiltersServiceMock.hasFilterApplied$ = of(false);
-    activeScopeKey.set("allItems");
+    searchTextByScope.set({});
 
     mockCollections = [
       { id: "col1", name: "Collection 1" } as CollectionView,
@@ -166,12 +158,6 @@ describe("VaultPopupItemsService", () => {
 
     activeUserLastSync$ = new BehaviorSubject<Date | null>(new Date());
     syncServiceMock.activeUserLastSync$.mockReturnValue(activeUserLastSync$);
-
-    const testSearchSignal = createMockSignal<Record<string, string>>({});
-    viewCacheService = {
-      mockSignal: testSearchSignal,
-      signal: jest.fn((options) => testSearchSignal),
-    };
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -194,7 +180,6 @@ describe("VaultPopupItemsService", () => {
           provide: InlineMenuFieldQualificationService,
           useValue: inlineMenuFieldQualificationServiceMock,
         },
-        { provide: PopupViewCacheService, useValue: viewCacheService },
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
@@ -577,68 +562,13 @@ describe("VaultPopupItemsService", () => {
   it("should update searchText$ when applyFilter is called", (done) => {
     service.searchText$.subscribe((val) => {
       expect(val).toEqual("test search");
-      expect(viewCacheService.mockSignal()).toEqual({ allItems: "test search" });
+      expect(vaultPopupListTableFiltersServiceMock.setSearchText).toHaveBeenCalledWith(
+        "test search",
+      );
       done();
     });
 
     service.applyFilter("test search");
-  });
-
-  describe("per-vault search text", () => {
-    it("starts a vault with no search text of its own empty", async () => {
-      service.applyFilter("github");
-
-      activeScopeKey.set("myVault");
-
-      expect(await firstValueFrom(service.searchText$)).toBe("");
-    });
-
-    it("restores a vault's own search text when switching back", async () => {
-      service.applyFilter("github");
-      activeScopeKey.set("myVault");
-      service.applyFilter("bank");
-
-      activeScopeKey.set("allItems");
-
-      expect(await firstValueFrom(service.searchText$)).toBe("github");
-      expect(viewCacheService.mockSignal()).toEqual({ allItems: "github", myVault: "bank" });
-    });
-  });
-
-  describe("clearSearchText on account switch", () => {
-    it("should clear search text when the active account changes", () => {
-      service.applyFilter("some search text");
-      expect(viewCacheService.mockSignal()).toEqual({ allItems: "some search text" });
-
-      const accountService = testBed.inject(AccountService) as FakeAccountService;
-      const newUserId = Utils.newGuid() as UserId;
-      accountService.activeAccountSubject.next({
-        id: newUserId,
-        name: "New User",
-        email: "new@example.com",
-        emailVerified: true,
-        creationDate: new Date(),
-      });
-
-      expect(viewCacheService.mockSignal()).toEqual({});
-    });
-
-    it("should not clear search text when the same account re-emits", () => {
-      service.applyFilter("some search text");
-      expect(viewCacheService.mockSignal()).toEqual({ allItems: "some search text" });
-
-      const accountService = testBed.inject(AccountService) as FakeAccountService;
-      // Re-emit the same userId — distinctUntilChanged should swallow it
-      accountService.activeAccountSubject.next({
-        id: "UserId" as UserId,
-        name: "name",
-        email: "email",
-        emailVerified: true,
-        creationDate: new Date(),
-      });
-
-      expect(viewCacheService.mockSignal()).toEqual({ allItems: "some search text" });
-    });
   });
 });
 
@@ -693,10 +623,4 @@ function cipherFactory(count: number): Record<CipherId, CipherView> {
     }
   }
   return Object.fromEntries(ciphers.map((c) => [c.id, c]));
-}
-
-function createMockSignal<T>(initialValue: T): WritableSignal<T> {
-  const s = signal(initialValue);
-  s.set = (value: T) => s.update(() => value);
-  return s;
 }

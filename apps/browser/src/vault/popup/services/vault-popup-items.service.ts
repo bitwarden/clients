@@ -1,5 +1,5 @@
-import { computed, inject, Injectable, NgZone } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { computed, Injectable, NgZone } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
   debounceTime,
@@ -11,7 +11,6 @@ import {
   Observable,
   of,
   shareReplay,
-  skip,
   startWith,
   Subject,
   switchMap,
@@ -38,7 +37,6 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
-import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { waitUntil } from "../../util";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -53,19 +51,8 @@ import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filt
   providedIn: "root",
 })
 export class VaultPopupItemsService {
-  /** Each vault scope's search text, keyed like its chip filters. */
-  private readonly searchTextByScope = inject(PopupViewCacheService).signal<Record<string, string>>(
-    {
-      key: "vault-search-text-by-scope",
-      initialValue: {},
-      persistNavigation: true,
-    },
-  );
-
-  /** The search text for the vault in view. */
-  readonly searchText = computed(
-    () => this.searchTextByScope()[this.vaultPopupListTableFiltersService.scopeKey()] ?? "",
-  );
+  /** The search text for the active user's vault in view. */
+  readonly searchText = computed(() => this.vaultPopupListTableFiltersService.searchText());
 
   readonly searchText$ = toObservable(this.searchText);
 
@@ -378,26 +365,11 @@ export class VaultPopupItemsService {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
     private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
-  ) {
-    // VFO1 intentionally persists search text across navigating.
-    // But switching the active account must always clear the search text.
-    // This service is `providedIn: "root"` and lives through the switch, manual clearing is necessary.
-    this.activeUserId$
-      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
-      .subscribe(() => this.clearSearchText());
-  }
-
-  /** Clears every vault's persisted search text. Called when the active account changes. */
-  private clearSearchText(): void {
-    this.searchTextByScope.set({});
-  }
+  ) {}
 
   /** Sets the search text for the vault in view. */
   applyFilter(newSearchText: string) {
-    this.searchTextByScope.update((searchTextByScope) => ({
-      ...searchTextByScope,
-      [this.vaultPopupListTableFiltersService.scopeKey()]: newSearchText,
-    }));
+    void this.vaultPopupListTableFiltersService.setSearchText(newSearchText);
   }
 
   /**
