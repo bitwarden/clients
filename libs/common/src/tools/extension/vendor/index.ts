@@ -7,6 +7,7 @@ import { Fastmail, FastmailExtensions } from "./fastmail";
 import { ForwardEmail, ForwardEmailExtensions } from "./forwardemail";
 import { Mozilla, MozillaExtensions } from "./mozilla";
 import { SimpleLogin, SimpleLoginExtensions } from "./simplelogin";
+import { Skudo, SkudoExtensions } from "./skudo";
 
 export const Vendors = deepFreeze([
   AddyIo,
@@ -16,6 +17,7 @@ export const Vendors = deepFreeze([
   ForwardEmail,
   Mozilla,
   SimpleLogin,
+  Skudo,
 ]);
 
 export const VendorExtensions = deepFreeze(
@@ -26,5 +28,6 @@ export const VendorExtensions = deepFreeze(
     ForwardEmailExtensions,
     MozillaExtensions,
     SimpleLoginExtensions,
+    SkudoExtensions,
   ].flat(),
 );
