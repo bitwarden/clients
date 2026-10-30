@@ -8707,5 +8707,8 @@
   },
   "httpAuthenticationTurnedOffNotice": {
     "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
+  },
+  "vaultItem": {
+    "message": "Vault item"
   }
 }

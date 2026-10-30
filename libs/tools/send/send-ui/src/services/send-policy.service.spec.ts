@@ -191,6 +191,7 @@ describe("SendPolicyService", () => {
         expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([
           SendType.Text,
           SendType.File,
+          SendType.Item,
         ]);
       });
 
@@ -202,6 +203,7 @@ describe("SendPolicyService", () => {
         expect(await firstValueFrom(setup(true).allowedSendTypes$)).toEqual([
           SendType.Text,
           SendType.File,
+          SendType.Item,
         ]);
       });
     });
@@ -211,6 +213,7 @@ describe("SendPolicyService", () => {
         expect(await firstValueFrom(setup(false).allowedSendTypes$)).toEqual([
           SendType.Text,
           SendType.File,
+          SendType.Item,
         ]);
       });
     });

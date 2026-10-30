@@ -143,7 +143,7 @@ export class SendPolicyService {
     switchMap(([sendControlsEnabled, userId]) => {
       // If the feature flag is off then all Send Types are allowed
       if (!sendControlsEnabled) {
-        return of([SendType.Text, SendType.File]);
+        return of([SendType.Text, SendType.File, SendType.Item]);
       }
       return this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
         map((policies) => {
@@ -151,7 +151,9 @@ export class SendPolicyService {
             (p) => p.data.allowedSendTypes ?? [],
           );
           const restrictedTypes = [...new Set(allowedSendTypes)];
-          return restrictedTypes.length === 0 ? [SendType.Text, SendType.File] : restrictedTypes;
+          return restrictedTypes.length === 0
+            ? [SendType.Text, SendType.File, SendType.Item]
+            : restrictedTypes;
         }),
       );
     }),
