@@ -2645,6 +2645,9 @@
   "noItemsMatchSelectedFilters": {
     "message": "No items match selected filters"
   },
+  "noItemsMatchTheSelectedFilters": {
+    "message": "No items match the selected filters"
+  },
   "noItemsMatchSearchTerm": {
     "message": "No items match \"$SEARCH_TERM$\"",
     "placeholders": {
@@ -6678,6 +6681,14 @@
   },
   "revocationReasonDeclinedItemTransfer": {
     "message": "Declined item transfer to organization"
+  },
+  "revocationReasonByAdmin": {
+    "message": "By admin",
+    "description": "Status filter option for revoked members whose access an admin revoked."
+  },
+  "revocationReasonNotRecorded": {
+    "message": "No reason recorded",
+    "description": "Status filter option for revoked members with no revocation reason on record."
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
