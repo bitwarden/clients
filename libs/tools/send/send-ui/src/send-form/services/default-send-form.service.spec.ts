@@ -11,6 +11,7 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -23,21 +24,30 @@ describe("DefaultSendFormService", () => {
   let service: DefaultSendFormService;
   let sendApiService: MockProxy<SendApiService>;
   let sendDecryptionService: MockProxy<SendDecryptionService>;
+  let dialogService: MockProxy<DialogService>;
+  let toastService: MockProxy<ToastService>;
+  let sendService: MockProxy<SendService>;
+  let i18nService: MockProxy<I18nService>;
 
   beforeEach(async () => {
     sendApiService = mock<SendApiService>();
     sendDecryptionService = mock<SendDecryptionService>();
+    dialogService = mock<DialogService>();
+    toastService = mock<ToastService>();
+    sendService = mock<SendService>();
+    i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((key: string) => key);
 
     await TestBed.configureTestingModule({
       providers: [
         DefaultSendFormService,
         { provide: FormBuilder, useValue: new FormBuilder() },
-        { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: dialogService },
+        { provide: ToastService, useValue: toastService },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-id" }) } },
         { provide: SendApiService, useValue: sendApiService },
-        { provide: SendService, useValue: mock<SendService>() },
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: SendService, useValue: sendService },
+        { provide: I18nService, useValue: i18nService },
         {
           provide: SendPolicyService,
           useValue: { whoCanAccess$: of(WhoCanAccessType.Any), disableHideEmail$: of(false) },
@@ -85,6 +95,70 @@ describe("DefaultSendFormService", () => {
 
       const signal = sendApiService.saveView.mock.calls[0][3];
       expect(signal?.aborted).toBe(false);
+    });
+  });
+
+  describe("removeSendAuth", () => {
+    async function editSendWithAuthType(authType: AuthType | null) {
+      const originalSendView = new SendView();
+      originalSendView.id = "send-id";
+      // Legacy Sends can have a null authType even though the field isn't typed as nullable.
+      originalSendView.authType = authType as AuthType;
+      sendDecryptionService.decryptSend.mockResolvedValue(originalSendView);
+      sendService.get$.mockReturnValue(of(new Send()));
+
+      await service.initializeSendForm({
+        mode: "edit",
+        sendType: SendType.Text,
+        areSendsAllowed: true,
+        originalSend: new Send(),
+      } as SendFormConfig);
+    }
+
+    it.each([
+      [
+        "password",
+        AuthType.Password,
+        "removePassword",
+        "removeSendPasswordConfirmation",
+        "removedPassword",
+      ],
+      [
+        "email verification",
+        AuthType.Email,
+        "removeEmailVerification",
+        "removeSendEmailVerificationConfirmation",
+        "removedEmailVerification",
+      ],
+      ["unknown", null, "removeAuth", "removeAuthConfirmation", "removedAuth"],
+    ])(
+      "uses %s-specific dialog and toast text",
+      async (_, authType, title, content, removedMessage) => {
+        await editSendWithAuthType(authType);
+        dialogService.openSimpleDialog.mockResolvedValue(true);
+
+        const result = await service.removeSendAuth();
+
+        expect(result).toBe(true);
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ title: { key: title }, content: { key: content } }),
+        );
+        expect(sendApiService.removeAuth).toHaveBeenCalledWith("send-id");
+        expect(toastService.showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ variant: "success", message: removedMessage }),
+        );
+      },
+    );
+
+    it("does not remove authentication when the user cancels", async () => {
+      await editSendWithAuthType(AuthType.Email);
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      const result = await service.removeSendAuth();
+
+      expect(result).toBe(false);
+      expect(sendApiService.removeAuth).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
     });
   });
 

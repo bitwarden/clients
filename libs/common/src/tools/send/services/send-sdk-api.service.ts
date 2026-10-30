@@ -48,7 +48,7 @@ import { InternalSendService } from "./send.service.abstraction";
 export const MAX_SDK_FILE_SEND_SIZE_BYTES = 500 * 1024 * 1024;
 
 /**
- * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
+ * SDK-backed implementation of `SendApiService`. Save/removeAuth mutate via the SDK
  * then refetch via legacy to keep `InternalSendService` populated with `EncString`-shaped
  * data. Methods returning wire-encrypted shapes have no SDK equivalent and are routed to
  * legacy by `SendApiServiceSelector`; the throw-stubs here guard direct callers.
@@ -174,7 +174,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
   // Removes all auth (password or email OTP) from the send. Matches the legacy SendApiService
   // path exactly.
-  async removePassword(id: string): Promise<any> {
+  async removeAuth(id: string): Promise<any> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -232,10 +232,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * produce. `SendApiServiceSelector` routes calls to `SendApiService`; this stub catches
    * direct callers that bypass the selector.
    */
-  putSendRemovePassword(_id: string): Promise<SendResponse> {
-    return Promise.reject(
-      new Error("SendSdkApiService.putSendRemovePassword: use SendApiService."),
-    );
+  putSendRemoveAuth(_id: string): Promise<SendResponse> {
+    return Promise.reject(new Error("SendSdkApiService.putSendRemoveAuth: use SendApiService."));
   }
 
   async deleteSend(id: string): Promise<any> {

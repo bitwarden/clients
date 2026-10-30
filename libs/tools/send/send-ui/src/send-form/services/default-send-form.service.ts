@@ -18,6 +18,7 @@ import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
+import { removeSendAuthI18nKeys } from "../../send-auth/remove-send-auth-i18n";
 import { SendPolicyService } from "../../services/send-policy.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -212,14 +213,16 @@ export class DefaultSendFormService implements SendFormService {
     return true;
   }
 
-  async removeSendPassword(): Promise<boolean> {
-    const originalSendViewId = this.originalSendView()?.id;
+  async removeSendAuth(): Promise<boolean> {
+    const originalSendView = this.originalSendView();
+    const originalSendViewId = originalSendView?.id;
     if (!originalSendViewId) {
       return false;
     }
+    const i18nKeys = removeSendAuthI18nKeys(originalSendView.authType);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
+      title: { key: i18nKeys.label },
+      content: { key: i18nKeys.confirmation },
       type: "warning",
     });
 
@@ -227,12 +230,12 @@ export class DefaultSendFormService implements SendFormService {
       return false;
     }
 
-    await this.sendApiService.removePassword(originalSendViewId);
+    await this.sendApiService.removeAuth(originalSendViewId);
 
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("removedPassword"),
+      message: this.i18nService.t(i18nKeys.removed),
     });
 
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
