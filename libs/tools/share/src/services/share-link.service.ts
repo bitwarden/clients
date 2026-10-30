@@ -29,6 +29,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -68,6 +69,7 @@ export class ShareLinkService {
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private organizationService = inject(OrganizationService);
+  private revealedCipherService = inject(RevealedCipherService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   /** Observable of all active share links. */
@@ -212,8 +214,12 @@ export class ShareLinkService {
         getUserId,
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      ),
     ]).pipe(
-      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections]) => {
+      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections, revealed]) => {
         // Sharing feature must be enabled and, as a premium feature, accessible
         if (!ffEnabled || !hasPremium) {
           return false;
@@ -224,7 +230,11 @@ export class ShareLinkService {
           c.archivedDate ||
           c.deletedDate ||
           CipherViewLikeUtils.getType(c) === CipherType.SshKey ||
-          !RestrictedCipherPolicy.allows(c, RestrictedCipherAction.Share)
+          !RestrictedCipherPolicy.allows(
+            c,
+            RestrictedCipherAction.Share,
+            c.id == null ? undefined : revealed.get(c.id as CipherId),
+          )
         ) {
           return false;
         }
