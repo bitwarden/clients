@@ -23,7 +23,7 @@ export type ButtonSize = "default" | "small" | "large";
     AriaDisableDirective,
     {
       directive: BaseButtonDirective,
-      inputs: ["loading", "disabled", "buttonType", "block"],
+      inputs: ["loading", "disabled", "buttonType", "block", "instantSpinner"],
     },
   ],
 })

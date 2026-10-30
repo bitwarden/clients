@@ -1,6 +1,11 @@
 import { Component, DebugElement } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { BUTTON_SPINNER_DELAY_MS } from "../shared/base-button.directive";
+import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { ButtonModule } from "./index";
 
@@ -14,6 +19,7 @@ describe("Button", () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [TestAppComponent],
+      providers: [{ provide: I18nService, useValue: new I18nMockService({ loading: "Loading" }) }],
     });
 
     await TestBed.compileComponents();
@@ -54,6 +60,34 @@ describe("Button", () => {
 
     expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
   });
+
+  describe("spinner", () => {
+    const spinnerIn = (selector: string) =>
+      fixture.debugElement.query(By.css(`${selector} bit-spinner`)) != null;
+
+    it("shows after the debounce delay", fakeAsync(() => {
+      testAppComponent.loading = true;
+      fixture.detectChanges();
+      tick(0);
+      fixture.detectChanges();
+
+      expect(spinnerIn("button#default")).toBe(false);
+
+      tick(BUTTON_SPINNER_DELAY_MS);
+      fixture.detectChanges();
+
+      expect(spinnerIn("button#default")).toBe(true);
+    }));
+
+    it("shows at once with instantSpinner", fakeAsync(() => {
+      testAppComponent.loading = true;
+      fixture.detectChanges();
+      tick(0);
+      fixture.detectChanges();
+
+      expect(spinnerIn("button#instant")).toBe(true);
+    }));
+  });
 });
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -62,6 +96,7 @@ describe("Button", () => {
   selector: "test-app",
   template: `
     <button
+      id="default"
       type="button"
       bitButton
       [buttonType]="buttonType"
@@ -83,6 +118,7 @@ describe("Button", () => {
     </a>
 
     <button id="disabled" type="button" bitButton disabled>Button</button>
+    <button id="instant" type="button" bitButton instantSpinner [loading]="loading">Instant</button>
   `,
   imports: [ButtonModule],
 })
