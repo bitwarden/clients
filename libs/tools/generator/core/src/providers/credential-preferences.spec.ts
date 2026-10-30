@@ -2,7 +2,9 @@
 import { TextEncoder, TextDecoder } from "util";
 Object.assign(global, { TextDecoder, TextEncoder });
 
-import { AlgorithmsByType, Type } from "../metadata";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
+
+import { AlgorithmsByType, ForwarderExtensionId, Type } from "../metadata";
 import { CredentialPreference } from "../types";
 
 import { PREFERENCES } from "./credential-preferences";
@@ -78,6 +80,36 @@ describe("PREFERENCES", () => {
           algorithm: AlgorithmsByType[Type.username][0],
         },
       });
+    });
+
+    it("migrates the selected forwarder to the forwarder preference", () => {
+      const input: any = structuredClone(SomeCredentialPreferences);
+      const forwarder = { forwarder: Vendor.duckduckgo } as ForwarderExtensionId;
+      input.email.algorithm = forwarder;
+
+      const result = PREFERENCES.deserializer(input);
+
+      expect(result.email.forwarder).toEqual(forwarder);
+    });
+
+    it("preserves the forwarder preference for other email algorithms", () => {
+      const input: any = structuredClone(SomeCredentialPreferences);
+      const forwarder = { forwarder: Vendor.duckduckgo } as ForwarderExtensionId;
+      input.email.forwarder = forwarder;
+
+      const result = PREFERENCES.deserializer(input);
+
+      expect(result.email.forwarder).toEqual(forwarder);
+    });
+
+    it("updates the forwarder preference from the selected forwarder", () => {
+      const input: any = structuredClone(SomeCredentialPreferences);
+      input.email.forwarder = { forwarder: Vendor.duckduckgo };
+      input.email.algorithm = { forwarder: Vendor.simplelogin };
+
+      const result = PREFERENCES.deserializer(input);
+
+      expect(result.email.forwarder).toEqual(input.email.algorithm);
     });
 
     it("converts string fields to Dates", () => {
