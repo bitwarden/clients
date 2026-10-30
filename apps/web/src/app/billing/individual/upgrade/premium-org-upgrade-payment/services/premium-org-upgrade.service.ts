@@ -52,14 +52,6 @@ export type PaymentFormValues = {
   };
 };
 
-export interface InvoicePreview {
-  tax: number;
-  total: number;
-  credit: number;
-  newPlanProratedMonths: number;
-  newPlanProratedAmount?: number;
-}
-
 @Injectable({ providedIn: "root" })
 export class PremiumOrgUpgradeService {
   constructor(

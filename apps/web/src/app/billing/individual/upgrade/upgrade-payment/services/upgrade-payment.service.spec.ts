@@ -11,7 +11,6 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -33,7 +32,6 @@ describe("UpgradePaymentService", () => {
   const mockOrganizationService = mock<OrganizationService>();
   const mockAccountService = mock<AccountService>();
   const mockSubscriberBillingClient = mock<SubscriberBillingClient>();
-  const mockConfigService = mock<ConfigService>();
 
   mockSyncService.fullSync.mockResolvedValue(true);
 
@@ -107,7 +105,6 @@ describe("UpgradePaymentService", () => {
         { provide: SyncService, useValue: mockSyncService },
         { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -156,7 +153,6 @@ describe("UpgradePaymentService", () => {
         mockOrganizationService,
         mockAccountService,
         mockSubscriberBillingClient,
-        mockConfigService,
       );
 
       // Act & Assert
@@ -207,7 +203,6 @@ describe("UpgradePaymentService", () => {
         mockOrganizationService,
         mockAccountService,
         mockSubscriberBillingClient,
-        mockConfigService,
       );
 
       // Act & Assert
@@ -240,7 +235,6 @@ describe("UpgradePaymentService", () => {
         mockOrganizationService,
         mockAccountService,
         mockSubscriberBillingClient,
-        mockConfigService,
       );
 
       // Act & Assert
@@ -274,7 +268,6 @@ describe("UpgradePaymentService", () => {
         mockOrganizationService,
         mockAccountService,
         mockSubscriberBillingClient,
-        mockConfigService,
       );
 
       // Act & Assert
@@ -298,7 +291,6 @@ describe("UpgradePaymentService", () => {
         mockOrganizationService,
         mockAccountService,
         mockSubscriberBillingClient,
-        mockConfigService,
       );
       // Act & Assert
       service?.accountCredit$.subscribe({
@@ -352,7 +344,6 @@ describe("UpgradePaymentService", () => {
         mockOrganizationService,
         mockAccountService,
         mockSubscriberBillingClient,
-        mockConfigService,
       );
 
       // Act & Assert

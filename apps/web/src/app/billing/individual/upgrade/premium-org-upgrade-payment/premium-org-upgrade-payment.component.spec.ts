@@ -571,9 +571,8 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       tick(1500);
       fixture.detectChanges();
 
-      const estimatedInvoice = component["estimatedInvoice"]();
-      expect(estimatedInvoice.tax).toBe(0);
-      expect(estimatedInvoice.total).toBe(0);
+      expect(component["previewCart"]()).toBeNull();
+      expect(component["cart"]().estimatedTax).toBe(0);
     }));
   });
 

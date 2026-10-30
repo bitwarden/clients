@@ -273,14 +273,16 @@ describe("UpgradePaymentComponent", () => {
     }));
   });
 
-  describe("estimatedTax$ — reactive recalculation", () => {
-    it("recalculates tax when billing address changes", fakeAsync(() => {
-      const refreshSpy = jest.spyOn(component as any, "refreshPreviewCart$").mockReturnValue(of(5));
+  describe("previewRefresh$ — reactive refresh", () => {
+    it("refreshes the preview when billing address changes", fakeAsync(() => {
+      const refreshSpy = jest
+        .spyOn(component as any, "refreshPreviewCart$")
+        .mockReturnValue(of(undefined));
 
       fixture.detectChanges();
 
       // Subscribe within fakeAsync so debounceTime uses fake timers
-      const sub = (component as any).estimatedTax$.subscribe();
+      const sub = (component as any).previewRefresh$.subscribe();
 
       // startWith + shareReplay replay both emit synchronously; debounce fires after 1000ms
       tick(1001);
@@ -294,12 +296,14 @@ describe("UpgradePaymentComponent", () => {
       sub.unsubscribe();
     }));
 
-    it("recalculates tax when eligible discounts emit", fakeAsync(() => {
-      const refreshSpy = jest.spyOn(component as any, "refreshPreviewCart$").mockReturnValue(of(5));
+    it("refreshes the preview when eligible discounts emit", fakeAsync(() => {
+      const refreshSpy = jest
+        .spyOn(component as any, "refreshPreviewCart$")
+        .mockReturnValue(of(undefined));
 
       fixture.detectChanges();
 
-      const sub = (component as any).estimatedTax$.subscribe();
+      const sub = (component as any).previewRefresh$.subscribe();
 
       tick(1001);
       expect(refreshSpy).toHaveBeenCalledTimes(1);
@@ -313,16 +317,18 @@ describe("UpgradePaymentComponent", () => {
     }));
 
     it("debounces rapid changes from billing address and discounts together", fakeAsync(() => {
-      const refreshSpy = jest.spyOn(component as any, "refreshPreviewCart$").mockReturnValue(of(5));
+      const refreshSpy = jest
+        .spyOn(component as any, "refreshPreviewCart$")
+        .mockReturnValue(of(undefined));
 
       fixture.detectChanges();
 
-      const sub = (component as any).estimatedTax$.subscribe();
+      const sub = (component as any).previewRefresh$.subscribe();
 
       tick(1001);
       refreshSpy.mockClear();
 
-      // Both sources emit within the debounce window — only one recalculation should fire
+      // Both sources emit within the debounce window — only one refresh should fire
       component.formGroup.controls.billingAddress.patchValue({ country: "CA" });
       discountSubject$.next([mockDiscount]);
       tick(1001);
