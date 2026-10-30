@@ -768,13 +768,13 @@ describe("DefaultOrganizationInviteService", () => {
     // Callers pass their current page URL so the deep-link guard can replay
     // it after re-auth on the MP-policy detour. Value is opaque to the SUT.
     const acceptOrgUrl = "/join/orgId/link-code?key=xyz";
-    // Deep-mock chain returned by userClient.invite_link.mockDeep(); holds
+    // Deep-mock chain returned by userClient.invite_link.mockDeep().user.mockDeep(); holds
     // .accept_and_optionally_confirm which our implementation calls.
     let inviteLinkClient: any;
 
     beforeEach(() => {
       const userClient = sdkService.simulate.userLogin(activeUserId);
-      inviteLinkClient = userClient.invite_link.mockDeep();
+      inviteLinkClient = userClient.invite_link.mockDeep().user.mockDeep();
       inviteLinkClient.accept_and_optionally_confirm.mockResolvedValue(undefined);
       // Default: no MP-policy detour, no AR auto-enroll, VFO1 off. Individual tests
       // override.
