@@ -11,7 +11,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import {
+  FakeAccountService,
+  FakeStateProvider,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -22,17 +26,20 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { StateProvider } from "@bitwarden/state";
 import { ALL_ITEMS_SCOPE, VaultScopeType } from "@bitwarden/vault";
 
 import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 
 const USER_ID = "userId" as UserId;
+const OTHER_USER_ID = "otherUserId" as UserId;
 
 const restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
 const featureFlag$ = new BehaviorSubject<boolean>(false);
 const cipherListViews$ = new BehaviorSubject<{ type: CipherType }[]>([]);
 const folderViews$ = new BehaviorSubject<FolderView[]>([]);
 let accountService: FakeAccountService;
+let stateProvider: FakeStateProvider;
 
 function setUpService(): VaultPopupListTableFiltersService {
   restricted$.next([]);
@@ -40,6 +47,7 @@ function setUpService(): VaultPopupListTableFiltersService {
   cipherListViews$.next([]);
   folderViews$.next([]);
   accountService = mockAccountServiceWith(USER_ID);
+  stateProvider = new FakeStateProvider(accountService);
 
   TestBed.configureTestingModule({
     providers: [
@@ -47,6 +55,10 @@ function setUpService(): VaultPopupListTableFiltersService {
       {
         provide: AccountService,
         useValue: accountService,
+      },
+      {
+        provide: StateProvider,
+        useValue: stateProvider,
       },
       {
         provide: CipherService,
@@ -186,13 +198,19 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
 
   let service: VaultPopupListTableFiltersService;
 
+  /** Saves land in state asynchronously, so let them settle before reading back. */
+  const save = async (values: Parameters<VaultPopupListTableFiltersService["saveFilters"]>[0]) => {
+    service.saveFilters(values);
+    await new Promise((resolve) => setTimeout(resolve));
+  };
+
   beforeEach(() => {
     service = setUpService();
   });
 
-  it("starts each vault with an empty selection", () => {
+  it("starts each vault with an empty selection", async () => {
     service.setScope(orgA);
-    service.saveFilters({ cipherType: CipherType.Card, folder: ["folder-1"] });
+    await save({ cipherType: CipherType.Card, folder: ["folder-1"] });
 
     service.setScope(orgB);
 
@@ -200,11 +218,11 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
     expect(service.hasFilterApplied()).toBe(false);
   });
 
-  it("restores a vault's own selection, including its type, on switching back", () => {
+  it("restores a vault's own selection, including its type, on switching back", async () => {
     service.setScope(orgA);
-    service.saveFilters({ cipherType: CipherType.Card, folder: ["folder-1"] });
+    await save({ cipherType: CipherType.Card, folder: ["folder-1"] });
     service.setScope(orgB);
-    service.saveFilters({ cipherType: CipherType.Login });
+    await save({ cipherType: CipherType.Login });
 
     service.setScope(orgA);
 
@@ -217,13 +235,13 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
     expect(service.hasFilterApplied()).toBe(true);
   });
 
-  it("keys All items, My vault, and an organization apart", () => {
+  it("keys All items, My vault, and an organization apart", async () => {
     service.setScope(ALL_ITEMS_SCOPE);
-    service.saveFilters({ cipherType: CipherType.Login });
+    await save({ cipherType: CipherType.Login });
     service.setScope(myVault);
-    service.saveFilters({ cipherType: CipherType.Card });
+    await save({ cipherType: CipherType.Card });
     service.setScope(orgA);
-    service.saveFilters({ cipherType: CipherType.Identity });
+    await save({ cipherType: CipherType.Identity });
 
     service.setScope(ALL_ITEMS_SCOPE);
     expect(service.cachedFilters().cipherType).toBe(CipherType.Login);
@@ -233,9 +251,9 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
     expect(service.cachedFilters().cipherType).toBe(CipherType.Identity);
   });
 
-  it("keys a null scope as All items", () => {
+  it("keys a null scope as All items", async () => {
     service.setScope(ALL_ITEMS_SCOPE);
-    service.saveFilters({ cipherType: CipherType.Login });
+    await save({ cipherType: CipherType.Login });
     service.setScope(orgA);
 
     service.setScope(null);
@@ -246,9 +264,9 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
   it("restores the vault in view's selection, dropping folders that no longer exist", async () => {
     folderViews$.next([{ id: "folder-1" } as FolderView]);
     service.setScope(orgA);
-    service.saveFilters({ cipherType: CipherType.Card, folder: ["folder-1", "deleted-folder"] });
+    await save({ cipherType: CipherType.Card, folder: ["folder-1", "deleted-folder"] });
     service.setScope(orgB);
-    service.saveFilters({ cipherType: CipherType.Login });
+    await save({ cipherType: CipherType.Login });
 
     service.setScope(orgA);
     const restored = await firstValueFrom(service.restoreFilters$());
@@ -256,16 +274,89 @@ describe("VaultPopupListTableFiltersService — per-vault filters", () => {
     expect(restored).toEqual({ cipherType: CipherType.Card, folder: ["folder-1"] });
   });
 
-  it("clears every vault's selection when the active account changes", async () => {
+  it("restores each user's own selections when the active account changes", async () => {
     service.setScope(orgA);
-    service.saveFilters({ cipherType: CipherType.Card });
+    await save({ cipherType: CipherType.Card });
+
+    await accountService.switchAccount(OTHER_USER_ID);
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(service.cachedFilters()).toEqual({});
+    await save({ cipherType: CipherType.Login });
+
+    await accountService.switchAccount(USER_ID);
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(service.cachedFilters().cipherType).toBe(CipherType.Card);
+    await accountService.switchAccount(OTHER_USER_ID);
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(service.cachedFilters().cipherType).toBe(CipherType.Login);
+  });
+
+  it("doesn't read user state when no account is active", async () => {
+    const getUser = jest.spyOn(stateProvider, "getUser");
+
+    accountService.activeAccountSubject.next(null);
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(getUser).not.toHaveBeenCalledWith(undefined, expect.anything());
+    expect(getUser).not.toHaveBeenCalledWith(null, expect.anything());
+    expect(service.cachedFilters()).toEqual({});
+  });
+
+  const settle = () => new Promise((resolve) => setTimeout(resolve));
+
+  it("starts a vault with no search text of its own", async () => {
+    service.setScope(orgA);
+    await service.setSearchText("github");
+
+    service.setScope(orgB);
+
+    expect(service.searchText()).toBe("");
+  });
+
+  it("restores a vault's own search text when switching back", async () => {
+    service.setScope(orgA);
+    await service.setSearchText("github");
     service.setScope(myVault);
-    service.saveFilters({ cipherType: CipherType.Login });
+    await service.setSearchText("bank");
 
-    await accountService.switchAccount("otherUserId" as UserId);
-
-    expect(service.cachedFilters()).toEqual({});
     service.setScope(orgA);
-    expect(service.cachedFilters()).toEqual({});
+
+    expect(service.searchText()).toBe("github");
+  });
+
+  it("shows a search as typed before it has been stored", async () => {
+    const stored = service.setSearchText("git");
+
+    expect(service.searchText()).toBe("git");
+    await stored;
+    expect(service.searchText()).toBe("git");
+  });
+
+  it("restores each user's own search text and selected vault when the active account changes", async () => {
+    await service.setSearchText("github");
+    await service.setCachedVaultScopeId(ORG_A);
+
+    await accountService.switchAccount(OTHER_USER_ID);
+    await settle();
+    expect(service.searchText()).toBe("");
+    expect(service.cachedVaultScopeId()).toBeNull();
+    await service.setSearchText("bank");
+    await service.setCachedVaultScopeId(ORG_B);
+
+    await accountService.switchAccount(USER_ID);
+    await settle();
+    expect(service.searchText()).toBe("github");
+    expect(service.cachedVaultScopeId()).toBe(ORG_A);
+    expect(await service.storedVaultScopeId()).toBe(ORG_A);
+  });
+
+  it("stores All items as a selected vault of null", async () => {
+    await service.setCachedVaultScopeId(ORG_A);
+
+    await service.setCachedVaultScopeId(null);
+    await settle();
+
+    expect(service.cachedVaultScopeId()).toBeNull();
+    expect(await service.storedVaultScopeId()).toBeNull();
   });
 });

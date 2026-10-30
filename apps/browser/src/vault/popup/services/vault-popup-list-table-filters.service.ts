@@ -1,14 +1,14 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
-  distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   Observable,
   of,
   shareReplay,
-  skip,
+  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -43,6 +43,7 @@ import {
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
+import { StateProvider, UserKeyDefinition, VAULT_TABLE_FILTERS_DISK } from "@bitwarden/state";
 import {
   ALL_ITEMS_SCOPE,
   idString,
@@ -62,6 +63,40 @@ interface CachedTableFilterState {
 }
 
 /**
+ * Each vault's chip selection for a user, keyed by {@link scopeKey}. Stored per user so that
+ * switching accounts brings back that user's filters, which the popup view cache can't do — the
+ * background clears it on every account switch. Cleared only on logout.
+ */
+const VAULT_TABLE_FILTERS = UserKeyDefinition.record<CachedTableFilterState>(
+  VAULT_TABLE_FILTERS_DISK,
+  "tableFiltersByScope",
+  {
+    deserializer: (v) => v,
+    clearOn: ["logout"],
+  },
+);
+
+/** The `:vaultId` route segment of the vault a user last selected, or `null` for All items. */
+const VAULT_SELECTED_SCOPE = new UserKeyDefinition<string | null>(
+  VAULT_TABLE_FILTERS_DISK,
+  "selectedScopeId",
+  {
+    deserializer: (v) => v,
+    clearOn: ["logout"],
+  },
+);
+
+/** Each vault's search text for a user, keyed by {@link scopeKey}. */
+const VAULT_SEARCH_TEXT = UserKeyDefinition.record<string>(
+  VAULT_TABLE_FILTERS_DISK,
+  "searchTextByScope",
+  {
+    deserializer: (v) => v,
+    clearOn: ["logout"],
+  },
+);
+
+/**
  * Filter service for the vault popup list table (`VaultPopupListTableComponent`).
  */
 @Injectable({
@@ -79,21 +114,65 @@ export class VaultPopupListTableFiltersService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly configService = inject(ConfigService);
   private readonly avatarService = inject(AvatarService);
+  private readonly stateProvider = inject(StateProvider);
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
-    filter((userId): userId is UserId => userId !== null),
+    filter((userId): userId is UserId => userId != null),
   );
 
-  /** Each vault scope's chip selection, keyed by {@link scopeKey}. */
-  private readonly filtersByScope = this.viewCacheService.signal<
-    Record<string, CachedTableFilterState>
-  >({
-    key: "vault-table-filters-by-scope",
-    initialValue: {},
-    deserializer: (v) => v,
-    persistNavigation: true,
+  private readonly activeUserId = toSignal(this.activeUserId$);
+
+  /**
+   * The active user's stored `key`. Starts over as `null` for each user until their stored state
+   * arrives, so a switch never shows the previous user's values.
+   */
+  private userState$<T>(key: UserKeyDefinition<T>): Observable<T | null> {
+    return this.activeUserId$.pipe(
+      switchMap((userId) => this.stateProvider.getUser(userId, key).state$.pipe(startWith(null))),
+    );
+  }
+
+  private readonly userFilters = toSignal(
+    this.userState$(VAULT_TABLE_FILTERS).pipe(map((filtersByScope) => filtersByScope ?? {})),
+    { initialValue: {} as Record<string, CachedTableFilterState> },
+  );
+
+  private readonly userSearchText = toSignal(
+    this.userState$(VAULT_SEARCH_TEXT).pipe(map((searchText) => searchText ?? {})),
+    { initialValue: {} as Record<string, string> },
+  );
+
+  /** A search the user just typed, shown until it lands in state so the input never rewinds. */
+  private readonly pendingSearchText = signal<{ key: string; text: string } | null>(null);
+
+  /** The search text for the active user's vault in view. */
+  readonly searchText = computed(() => {
+    const key = this.activeScopeKey();
+    const pending = this.pendingSearchText();
+    return pending?.key === key ? pending.text : (this.userSearchText()[key] ?? "");
   });
+
+  /** Sets the search text for the active user's vault in view. */
+  async setSearchText(text: string): Promise<void> {
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
+    const key = this.activeScopeKey();
+    const pending = { key, text };
+    this.pendingSearchText.set(pending);
+    try {
+      await this.stateProvider
+        .getUser(userId, VAULT_SEARCH_TEXT)
+        .update((searchText) => ({ ...searchText, [key]: text }));
+    } finally {
+      if (this.pendingSearchText() === pending) {
+        this.pendingSearchText.set(null);
+      }
+    }
+  }
 
   /** The {@link scopeKey} of the vault in view, which every read and write below targets. */
   private readonly activeScopeKey = signal(scopeKey(ALL_ITEMS_SCOPE));
@@ -101,8 +180,8 @@ export class VaultPopupListTableFiltersService {
   /** The {@link scopeKey} of the vault in view, for other per-vault state such as search text. */
   readonly scopeKey = this.activeScopeKey.asReadonly();
 
-  /** The chip selection for the vault in view. */
-  readonly cachedFilters = computed(() => this.filtersByScope()[this.activeScopeKey()] ?? {});
+  /** The chip selection for the active user's vault in view. */
+  readonly cachedFilters = computed(() => this.userFilters()[this.activeScopeKey()] ?? {});
 
   /**
    * Whether the toolbar's filter dialog is open. Root-scoped because the view cache seeds from its
@@ -114,17 +193,27 @@ export class VaultPopupListTableFiltersService {
     persistNavigation: true,
   });
 
-  private readonly _cachedVaultScopeId = this.viewCacheService.signal<string | null>({
-    key: "vault-scope-id",
+  /** The active user's selected vault, as its `:vaultId` route segment; `null` is All items. */
+  readonly cachedVaultScopeId = toSignal(this.userState$(VAULT_SELECTED_SCOPE), {
     initialValue: null,
-    deserializer: (v: string | null) => v,
-    persistNavigation: true,
   });
 
-  readonly cachedVaultScopeId = this._cachedVaultScopeId.asReadonly();
+  /** Stores the active user's selected vault. Await it before a navigation that reads it back. */
+  async setCachedVaultScopeId(id: string | null): Promise<void> {
+    const userId = this.activeUserId();
+    if (userId != null) {
+      await this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).update(() => id);
+    }
+  }
 
-  setCachedVaultScopeId(id: string | null): void {
-    this._cachedVaultScopeId.set(id);
+  /** The active user's selected vault, once their stored state has loaded. */
+  storedVaultScopeId(): Promise<string | null> {
+    return firstValueFrom(
+      this.activeUserId$.pipe(
+        switchMap((userId) => this.stateProvider.getUser(userId, VAULT_SELECTED_SCOPE).state$),
+        map((id) => id ?? null),
+      ),
+    );
   }
 
   /** Whether any chip filter is currently selected. */
@@ -177,26 +266,12 @@ export class VaultPopupListTableFiltersService {
     }),
   );
 
-  constructor() {
-    // Unlike navigating within the vault (which VFO1 intentionally persists filters across, see `clearVaultStateGuard`),
-    // switching the active account must always clear filters, this service is `providedIn: "root"` and survives the switch, so nothing else resets it.
-    this.activeUserId$
-      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
-      .subscribe(() => this.clearFilters());
-  }
-
   /**
    * Points the cached selection at the vault in view. Call before the table restores, so it seeds
    * from this vault's entry rather than the previous one's. A `null` scope keys as All items.
    */
   setScope(scope: VaultScope | null): void {
     this.activeScopeKey.set(scopeKey(scope ?? ALL_ITEMS_SCOPE));
-  }
-
-  /** Clears every vault's persisted filter state. Called when the active account changes. */
-  private clearFilters(): void {
-    this.filtersByScope.set({});
-    this._cachedVaultScopeId.set(null);
   }
 
   private fullCipherListViews$ = this.activeUserId$.pipe(
@@ -214,7 +289,7 @@ export class VaultPopupListTableFiltersService {
   );
 
   /**
-   * Persists the current chip selection to the view cache, under the vault in view.
+   * Persists the current chip selection to the active user's state, under the vault in view.
    * Call this whenever the table's `filterValues` signal emits a new value.
    */
   saveFilters(values: {
@@ -223,9 +298,16 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }): void {
-    this.filtersByScope.update((filtersByScope) => ({
+    const userId = this.activeUserId();
+    if (userId == null) {
+      return;
+    }
+
+    // Both resolved now rather than in the update, which lands after a later switch could move them.
+    const key = this.activeScopeKey();
+    void this.stateProvider.getUser(userId, VAULT_TABLE_FILTERS).update((filtersByScope) => ({
       ...filtersByScope,
-      [this.activeScopeKey()]: {
+      [key]: {
         organizationIds: values.organization ?? [],
         collectionIds: values.collection ?? [],
         folderIds: values.folder ?? [],
@@ -248,14 +330,18 @@ export class VaultPopupListTableFiltersService {
     collection?: string[];
     folder?: string[];
   }> {
-    const state = this.cachedFilters();
     return combineLatest([
       this.organizations$,
       this.collections$,
       this.activeUserId$.pipe(switchMap((userId) => this.folderService.folderViews$(userId))),
+      // Not `userState$`, which starts empty: the first emission here is the stored state.
+      this.activeUserId$.pipe(
+        switchMap((userId) => this.stateProvider.getUser(userId, VAULT_TABLE_FILTERS).state$),
+      ),
     ]).pipe(
       take(1),
-      map(([orgOptions, collectionOptions, folderViews]) => {
+      map(([orgOptions, collectionOptions, folderViews, filtersByScope]) => {
+        const state = filtersByScope?.[this.activeScopeKey()] ?? {};
         const result: {
           cipherType?: CipherType | null;
           organization?: string[];
