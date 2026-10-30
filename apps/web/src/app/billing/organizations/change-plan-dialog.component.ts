@@ -12,7 +12,6 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
@@ -34,9 +33,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -59,7 +56,6 @@ import {
   OrganizationSubscriptionPlan,
   OrganizationPlanChangePreviewRequest,
   SubscriberBillingClient,
-  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
@@ -162,8 +158,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.formGroup?.controls?.productTier?.setValue(product);
   }
 
-  protected estimatedTax: number = 0;
-  protected estimatedTotal?: number;
   private _productTier = ProductTierType.Free;
   private _familyPlan: PlanType;
 
@@ -231,7 +225,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   dialogHeaderName: string;
   currentPlanName: string;
   showPayment: boolean = false;
-  totalOpened: boolean = false;
   currentPlan: PlanResponse;
   isCardStateDisabled = false;
   focusedIndex: number | null = null;
@@ -243,14 +236,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   billingAddress: BillingAddress | null;
 
   private destroy$ = new Subject<void>();
-
-  /**
-   * Signal indicating whether the plan change preview cart feature is enabled.
-   */
-  protected readonly previewCartEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
-    { initialValue: false },
-  );
 
   /**
    * Signal holding the current plan change request.
@@ -269,10 +254,22 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   );
 
   protected planChangeCart = resource({
-    params: () => (this.previewCartEnabled() ? this.planChangeRequest() : undefined),
+    params: () => {
+      const request = this.planChangeRequest();
+      return request == null ? undefined : { request, restart: this.isSubscriptionCanceled };
+    },
     loader: async ({ params }) => {
       try {
-        return await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params);
+        // A canceled subscription restarts on its current tier and cadence, which the server
+        // resolves itself, so only the billing address is sent.
+        return params.restart
+          ? await this.invoicePreviewService.previewRestartCart(this.organizationId, {
+              billingAddress: params.request.billingAddress,
+            })
+          : await this.invoicePreviewService.previewPlanChangeCart(
+              this.organizationId,
+              params.request,
+            );
       } catch (error) {
         this.billingNotificationService.showError(
           this.i18nService.t(invoicePreviewErrorMessageKey(error)),
@@ -287,14 +284,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return invoicePreviewErrorMessageKey(this.planChangeCart.error());
   }
 
-  protected get showPreviewCart(): boolean {
-    return this.previewCartEnabled() && !this.isSubscriptionCanceled;
-  }
-
-  // With the preview cart on, block submission until the cost preview has loaded so a plan change
-  // can't be committed without its cost shown.
+  // Block submission until the cost preview has loaded so a plan change can't be committed
+  // without its cost shown.
   protected get isSubmitDisabled(): boolean {
-    return this.showPreviewCart && !this.planChangeCart.hasValue();
+    return !this.planChangeCart.hasValue();
   }
 
   protected get trialLengthDays(): number {
@@ -350,11 +343,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
     private vfo1TerminologyService: Vfo1TerminologyService,
     private invoicePreviewService: InvoicePreviewService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -444,7 +435,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
-      await this.refreshCostSummary();
+      this.refreshCostSummary();
     }
 
     combineLatest([
@@ -454,7 +445,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     ])
       .pipe(
         debounceTime(1000),
-        switchMap(async () => await this.refreshCostSummary()),
+        map(() => this.refreshCostSummary()),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -622,17 +613,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
-    // Clear the previous plan's server total so the summary falls back to the client
-    // estimate for the newly selected plan until the refresh resolves.
-    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
-    try {
-      await this.refreshCostSummary();
-    } catch {
-      this.estimatedTax = 0;
-      this.estimatedTotal = undefined;
-    }
+    this.refreshCostSummary();
   }
 
   ngOnDestroy() {
@@ -835,17 +818,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return this.selectedPlan.PasswordManager.baseSeats;
     }
     return this.sub?.seats;
-  }
-
-  get total() {
-    if (!this.organization || !this.selectedPlan) {
-      return 0;
-    }
-
-    if (this.organization.useSecretsManager) {
-      return this.passwordManagerSubtotal + this.secretsManagerSubtotal() + this.estimatedTax;
-    }
-    return this.passwordManagerSubtotal + this.estimatedTax;
   }
 
   get teamsStarterPlanIsAvailable() {
@@ -1087,10 +1059,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.showPayment = true;
   }
 
-  toggleTotalOpened() {
-    this.totalOpened = !this.totalOpened;
-  }
-
   resolvePlanName(productTier: ProductTierType) {
     switch (productTier) {
       case ProductTierType.Enterprise:
@@ -1143,19 +1111,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  /**
-   * Refreshes the estimated sales tax and total for the current plan change.
-   */
-  // Routes cost-summary refreshes to the preview-driven cart or the legacy tax summary by flag.
-  private async refreshCostSummary(): Promise<void> {
-    if (this.showPreviewCart) {
-      this.refreshPlanChangePreview();
-    } else {
-      await this.refreshSalesTax();
-    }
-  }
-
-  private refreshPlanChangePreview(): void {
+  private refreshCostSummary(): void {
     this.planChangeRequest.set(this.buildPlanChangePreviewRequest());
   }
 
@@ -1186,26 +1142,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         taxId: billingAddress.taxId,
       },
     };
-  }
-
-  private async refreshSalesTax(): Promise<void> {
-    if (this.billingFormGroup.controls.billingAddress.invalid && !this.billingAddress) {
-      return;
-    }
-
-    const billingAddress = this.billingFormGroup.controls.billingAddress.valid
-      ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
-      : this.billingAddress;
-
-    const taxAmounts =
-      await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
-        this.organizationId,
-        this.getPlanFromLegacyEnum(this.selectedPlan.type),
-        billingAddress,
-      );
-
-    this.estimatedTax = taxAmounts.tax;
-    this.estimatedTotal = taxAmounts.total;
   }
 
   /**
