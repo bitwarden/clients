@@ -147,7 +147,10 @@ import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platfor
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherFileUploadService } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -260,6 +263,7 @@ import {
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { BrowserAutofillNudgeService } from "../../vault/popup/services/browser-autofill-nudge.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
+import { ForegroundCipherService } from "../../vault/services/foreground-cipher.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
@@ -281,6 +285,28 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: CipherService,
+    useClass: ForegroundCipherService,
+    deps: [
+      MessageListener,
+      KeyService,
+      LegacyCompatKeyService,
+      DomainSettingsService,
+      ApiService,
+      I18nServiceAbstraction,
+      AutofillSettingsServiceAbstraction,
+      EncryptService,
+      CipherFileUploadService,
+      ConfigService,
+      StateProvider,
+      AccountServiceAbstraction,
+      LogService,
+      CipherEncryptionService,
+      MessagingServiceAbstraction,
+      CipherSdkService,
+    ],
+  }),
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
