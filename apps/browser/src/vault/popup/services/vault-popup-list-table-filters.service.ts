@@ -43,7 +43,12 @@ import {
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { getNestedFolderTree } from "@bitwarden/common/vault/utils/folder-utils";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
-import { StateProvider, UserKeyDefinition, VAULT_TABLE_FILTERS_DISK } from "@bitwarden/state";
+import {
+  StateProvider,
+  UserKeyDefinition,
+  VAULT_TABLE_FILTERS_DISK,
+  VAULT_TABLE_FILTERS_MEMORY,
+} from "@bitwarden/state";
 import {
   ALL_ITEMS_SCOPE,
   idString,
@@ -86,9 +91,12 @@ const VAULT_SELECTED_SCOPE = new UserKeyDefinition<string | null>(
   },
 );
 
-/** Each vault's search text for a user, keyed by {@link scopeKey}. */
+/**
+ * Each vault's search text for a user, keyed by {@link scopeKey}. Search terms can name sites and
+ * accounts.
+ */
 const VAULT_SEARCH_TEXT = UserKeyDefinition.record<string>(
-  VAULT_TABLE_FILTERS_DISK,
+  VAULT_TABLE_FILTERS_MEMORY,
   "searchTextByScope",
   {
     deserializer: (v) => v,
