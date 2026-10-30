@@ -3,11 +3,13 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { of } from "rxjs";
 import { action } from "storybook/actions";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderUserType,
+  Provider,
+  AddableOrganizationResponse,
+} from "@bitwarden/common/provider";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
