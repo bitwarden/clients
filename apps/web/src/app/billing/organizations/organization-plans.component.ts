@@ -1,29 +1,21 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   OnDestroy,
   OnInit,
   output,
-  signal,
+  resource,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import {
-  catchError,
-  defer,
-  firstValueFrom,
-  from,
-  merge,
-  Observable,
-  of,
-  Subject,
-  takeUntil,
-} from "rxjs";
-import { debounceTime, filter, map, switchMap, tap } from "rxjs/operators";
+import { catchError, firstValueFrom, merge, of, Subject, takeUntil } from "rxjs";
+import { debounceTime, filter, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -84,6 +76,17 @@ interface OnTrialBillingSuccessArgs {
   orgId: string;
   subLabelText: string;
 }
+
+type PreviewParams =
+  | {
+      kind: "premiumUpgrade";
+      request: Parameters<InvoicePreviewService["previewPremiumOrgUpgradeCart"]>[0];
+      planName: string;
+    }
+  | {
+      kind: "checkout";
+      request: Parameters<InvoicePreviewService["previewOrganizationCheckoutCart"]>[0];
+    };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -297,15 +300,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   protected passwordManagerPlans: PlanResponse[] = [];
   protected secretsManagerPlans: PlanResponse[] = [];
 
-  private readonly previewCart = signal<Cart | null>(null);
-
-  protected readonly previewFailed = signal(false);
-  protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
-
   // Cart for CartSummary component. The server preview wins; until one returns (or when none is
   // requested, e.g. invalid address, Free, Teams Starter) the cart is priced from form state with
   // no tax.
-  protected readonly cart = computed<Cart>(() => this.previewCart() ?? this.formStateCart());
+  protected readonly cart = computed<Cart>(() =>
+    this.previewCart.hasValue() ? this.previewCart.value() : this.formStateCart(),
+  );
 
   private formStateCart(): Cart {
     const formValues = this.formValues();
@@ -444,6 +444,86 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
+  // Emits once the form has been idle for a second. Each emission is a new object, so every one
+  // restarts the preview.
+  private readonly debouncedFormChange = toSignal(
+    merge(
+      this.formGroup.valueChanges,
+      this.billingFormGroup.valueChanges,
+      this.secretsManagerForm.valueChanges,
+      this.eligibleDiscounts$,
+    ).pipe(debounceTime(1000)),
+  );
+
+  // Undefined (no preview) for Free, Teams Starter, and an invalid billing address. Form state is
+  // read untracked so only the debounced change, not each keystroke, restarts the preview.
+  private readonly previewParams = computed<PreviewParams | undefined>(() => {
+    if (!this.debouncedFormChange()) {
+      return undefined;
+    }
+    return untracked(() => {
+      const selectedPlan = this.selectedPlan();
+      if (
+        !selectedPlan ||
+        selectedPlan.type === PlanType.Free ||
+        selectedPlan.productTier === ProductTierType.TeamsStarter ||
+        this.billingFormGroup.controls.billingAddress.invalid
+      ) {
+        return undefined;
+      }
+
+      const billingAddress = getBillingAddressFromForm(
+        this.billingFormGroup.controls.billingAddress,
+      );
+      if (this.canUpgradeFromPremium()) {
+        return {
+          kind: "premiumUpgrade",
+          request: {
+            targetProductTierType: selectedPlan.productTier,
+            billingAddress: {
+              country: billingAddress.country,
+              postalCode: billingAddress.postalCode,
+            },
+          },
+          planName: selectedPlan.name,
+        };
+      }
+
+      const purchase = this.buildOrganizationPurchase(
+        this.formGroup.value.additionalStorage ?? 0,
+        this.acceptingSponsorship(),
+      );
+      const couponIds = this.eligibleCouponIds();
+      return {
+        kind: "checkout",
+        request: {
+          purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
+          billingAddress,
+        },
+      };
+    });
+  });
+
+  private readonly previewCart = resource({
+    params: this.previewParams,
+    loader: async ({ params }) => {
+      const cart =
+        params.kind === "premiumUpgrade"
+          ? await this.invoicePreviewService.previewPremiumOrgUpgradeCart(
+              params.request,
+              params.planName,
+            )
+          : await this.invoicePreviewService.previewOrganizationCheckoutCart(params.request);
+      return this.withSponsorshipDiscount(cart);
+    },
+  });
+
+  protected readonly previewFailed = computed(() => this.previewCart.status() === "error");
+
+  protected readonly previewErrorMessageKey = computed(() =>
+    invoicePreviewErrorMessageKey(this.previewCart.error()),
+  );
+
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -463,6 +543,20 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private subscriptionDiscountService: SubscriptionDiscountService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
+
+    effect(() => {
+      const error = this.previewCart.error();
+      if (!error) {
+        return;
+      }
+      untracked(() => {
+        this.logService.error("Invoice preview failed:", error);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t(this.previewErrorMessageKey()),
+        });
+      });
+    });
   }
 
   async ngOnInit() {
@@ -492,19 +586,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
 
     this.loading = false;
-
-    merge(
-      this.formGroup.valueChanges,
-      this.billingFormGroup.valueChanges,
-      this.secretsManagerForm.valueChanges,
-      this.eligibleDiscounts$,
-    )
-      .pipe(
-        debounceTime(1000),
-        switchMap(() => this.refreshPreviewCart()),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
 
     if (this.enableSecretsManagerByDefault() && this.selectedSecretsManagerPlan()) {
       this.secretsManagerSubscription.patchValue({
@@ -764,73 +845,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
             }
           : undefined,
     };
-  }
-
-  private refreshPreviewCart(): Observable<void> {
-    const selectedPlan = this.selectedPlan();
-    if (
-      !selectedPlan ||
-      selectedPlan.type === PlanType.Free ||
-      selectedPlan.productTier === ProductTierType.TeamsStarter
-    ) {
-      this.previewCart.set(null);
-      this.previewFailed.set(false);
-      return of(undefined);
-    }
-
-    if (this.billingFormGroup.controls.billingAddress.invalid) {
-      return of(undefined);
-    }
-
-    return defer(() => {
-      const billingAddress = getBillingAddressFromForm(
-        this.billingFormGroup.controls.billingAddress,
-      );
-      if (this.canUpgradeFromPremium()) {
-        return from(
-          this.invoicePreviewService.previewPremiumOrgUpgradeCart(
-            {
-              targetProductTierType: selectedPlan.productTier,
-              billingAddress: {
-                country: billingAddress.country,
-                postalCode: billingAddress.postalCode,
-              },
-            },
-            selectedPlan.name,
-          ),
-        );
-      }
-
-      const purchase = this.buildOrganizationPurchase(
-        this.formGroup.value.additionalStorage ?? 0,
-        this.acceptingSponsorship(),
-      );
-      const couponIds = this.eligibleCouponIds();
-      return from(
-        this.invoicePreviewService.previewOrganizationCheckoutCart({
-          purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
-          billingAddress,
-        }),
-      );
-    }).pipe(
-      tap((cart) => {
-        this.previewCart.set(this.withSponsorshipDiscount(cart));
-        this.previewFailed.set(false);
-      }),
-      map((): void => undefined),
-      catchError((error: unknown) => {
-        this.logService.error("Invoice preview failed:", error);
-        const key = invoicePreviewErrorMessageKey(error);
-        this.previewErrorMessageKey.set(key);
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t(key),
-        });
-        this.previewCart.set(null);
-        this.previewFailed.set(true);
-        return of(undefined);
-      }),
-    );
   }
 
   private withSponsorshipDiscount(cart: Cart): Cart {

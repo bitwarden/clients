@@ -1887,6 +1887,15 @@ describe("OrganizationPlansComponent", () => {
         postalCode: "12345",
       });
 
+    // The resource loads from an effect, so flush effects after the debounce and again once the
+    // loader settles.
+    const settlePreview = () => {
+      tick(1500);
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+    };
+
     const selectTeams = () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
       component.changedProduct();
@@ -1912,7 +1921,7 @@ describe("OrganizationPlansComponent", () => {
         component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
         component.changedProduct();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith(
           {
@@ -1935,7 +1944,7 @@ describe("OrganizationPlansComponent", () => {
         component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
         component.changedProduct();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(component["cart"]()).toBe(premiumUpgradeCart);
         expect(component["cart"]().credit).toEqual({
@@ -1956,7 +1965,7 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(component["cart"]()).toBe(scenarioACart);
         expect(component["cart"]().total).toBe(31.6);
@@ -1970,7 +1979,7 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         const cart = component["cart"]();
         expect(cart).toBe(scenarioECart);
@@ -1991,7 +2000,7 @@ describe("OrganizationPlansComponent", () => {
         component.changedProduct();
         component["formGroup"].controls.additionalStorage.setValue(2);
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
         const [{ purchase }] =
@@ -2007,7 +2016,7 @@ describe("OrganizationPlansComponent", () => {
         component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
         component.changedProduct();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         const cart = component["cart"]();
         expect(cart.passwordManager.seats).toEqual({
@@ -2040,7 +2049,7 @@ describe("OrganizationPlansComponent", () => {
         component.changedProduct();
         component["formGroup"].controls.additionalStorage.setValue(2);
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         const cart = component["cart"]();
         expect(cart.passwordManager.additionalStorage).toEqual({
@@ -2073,7 +2082,7 @@ describe("OrganizationPlansComponent", () => {
           additionalServiceAccounts: 3,
         });
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(lastPurchase().secretsManager).toEqual({
           seats: 4,
@@ -2085,7 +2094,7 @@ describe("OrganizationPlansComponent", () => {
       it("omits Secrets Manager when it is not enabled", fakeAsync(() => {
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(lastPurchase().secretsManager).toBeUndefined();
       }));
@@ -2100,7 +2109,7 @@ describe("OrganizationPlansComponent", () => {
         component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
         component.changedProduct();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(lastPurchase().tier).toBe("families");
         expect(lastPurchase().secretsManager).toBeUndefined();
@@ -2110,7 +2119,7 @@ describe("OrganizationPlansComponent", () => {
         component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
         component.changedProduct();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(lastPurchase().passwordManager.seats).toBe(1);
       }));
@@ -2122,9 +2131,50 @@ describe("OrganizationPlansComponent", () => {
         tick(1000);
 
         mockDiscountSubject.next([eligibleDiscount]);
-        tick(1500);
+        settlePreview();
 
         expect(lastPurchase().coupons).toEqual([eligibleDiscount.stripeCouponId]);
+      }));
+    });
+
+    describe("resource-driven preview", () => {
+      beforeEach(async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+      });
+
+      it("previews once per debounced form change", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+
+        selectTeams();
+        enterValidAddress();
+        tick(500);
+        component["formGroup"].controls.additionalSeats.setValue(6);
+        tick(500);
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
+
+        settlePreview();
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+        expect(component["cart"]()).toBe(scenarioACart);
+      }));
+
+      it("sets previewFailed from the resource error status and shows the error toast once", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
+          new Error("route not found"),
+        );
+
+        selectTeams();
+        enterValidAddress();
+        settlePreview();
+        settlePreview();
+
+        expect(component["previewFailed"]()).toBe(true);
+        expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "invoicePreviewErrorMessage",
+        });
       }));
     });
 
@@ -2161,12 +2211,12 @@ describe("OrganizationPlansComponent", () => {
         component.changedProduct();
         component["formGroup"].controls.plan.setValue(PlanType.TeamsStarter);
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(component["selectedPlan"]()?.productTier).toBe(ProductTierType.TeamsStarter);
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
         expect(mockInvoicePreviewService.previewPremiumOrgUpgradeCart).not.toHaveBeenCalled();
-        expect(component["previewCart"]()).toBeNull();
+        expect(component["previewCart"].hasValue()).toBe(false);
         expect(component["previewFailed"]()).toBe(false);
         expect(mockLogService.error).not.toHaveBeenCalled();
         expect(component["cart"]().passwordManager.seats).toEqual({
@@ -2186,7 +2236,7 @@ describe("OrganizationPlansComponent", () => {
           country: "",
           postalCode: "",
         });
-        tick(1500);
+        settlePreview();
 
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
         expect(component["previewFailed"]()).toBe(false);
@@ -2198,21 +2248,22 @@ describe("OrganizationPlansComponent", () => {
         expect(component["cart"]().estimatedTax).toBe(0);
       }));
 
-      it("keeps the last good server cart while the billing address is being edited", fakeAsync(async () => {
+      it("falls back to the form-state cart while the billing address is invalid", fakeAsync(async () => {
         mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
         fixture.detectChanges();
         await fixture.whenStable();
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
         expect(component["cart"]()).toBe(scenarioACart);
 
         component["billingFormGroup"].controls.billingAddress.patchValue({ postalCode: "" });
-        tick(1500);
+        settlePreview();
 
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
-        expect(component["cart"]()).toBe(scenarioACart);
+        expect(component["cart"]()).not.toBe(scenarioACart);
+        expect(component["cart"]().estimatedTax).toBe(0);
         expect(component["previewFailed"]()).toBe(false);
       }));
 
@@ -2224,7 +2275,7 @@ describe("OrganizationPlansComponent", () => {
         component["formGroup"].controls.plan.setValue(PlanType.Free);
         component.changedProduct();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
         expect(component["previewFailed"]()).toBe(false);
@@ -2256,10 +2307,10 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(component["previewFailed"]()).toBe(true);
-        expect(component["previewCart"]()).toBeNull();
+        expect(component["previewCart"].hasValue()).toBe(false);
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
           message: "invoicePreviewErrorMessage",
@@ -2277,7 +2328,7 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
@@ -2301,7 +2352,7 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         expect(mockToastService.showToast).toHaveBeenCalledWith({
           variant: "error",
@@ -2317,31 +2368,31 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
         expect(component["previewErrorMessageKey"]()).toBe("billingPreviewInvalidAddressError");
 
         component["formGroup"].controls.additionalSeats.setValue(5);
-        tick(1500);
+        settlePreview();
 
         expect(component["previewErrorMessageKey"]()).toBe("invoicePreviewErrorMessage");
       }));
 
-      it("keeps the failure state while the billing address is being edited", fakeAsync(() => {
+      it("clears the failure state while the billing address is invalid", fakeAsync(() => {
         mockInvoicePreviewService.previewOrganizationCheckoutCart.mockRejectedValue(
           new Error("route not found"),
         );
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
         expect(component["previewFailed"]()).toBe(true);
 
         component["billingFormGroup"].controls.billingAddress.patchValue({ postalCode: "" });
-        tick(1500);
+        settlePreview();
 
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
-        expect(component["previewFailed"]()).toBe(true);
-        expect(component["previewCart"]()).toBeNull();
+        expect(component["previewFailed"]()).toBe(false);
+        expect(component["previewCart"].hasValue()).toBe(false);
       }));
 
       it("clears the failure state once a later preview succeeds", fakeAsync(() => {
@@ -2351,14 +2402,14 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
         expect(component["previewFailed"]()).toBe(true);
 
         component["formGroup"].controls.additionalSeats.setValue(5);
-        tick(1500);
+        settlePreview();
 
         expect(component["previewFailed"]()).toBe(false);
-        expect(component["previewCart"]()).toBe(scenarioACart);
+        expect(component["previewCart"].value()).toBe(scenarioACart);
 
         fixture.detectChanges();
         const host: HTMLElement = fixture.nativeElement;
@@ -2374,16 +2425,16 @@ describe("OrganizationPlansComponent", () => {
 
         selectTeams();
         enterValidAddress();
-        tick(1500);
+        settlePreview();
 
         component["formGroup"].controls.additionalSeats.setValue(5);
-        tick(1500);
-        expect(component["previewCart"]()).toBe(scenarioACart);
+        settlePreview();
+        expect(component["previewCart"].value()).toBe(scenarioACart);
 
         resolveFirst(scenarioECart);
         tick();
 
-        expect(component["previewCart"]()).toBe(scenarioACart);
+        expect(component["previewCart"].value()).toBe(scenarioACart);
       }));
 
       describe("submit availability", () => {
@@ -2405,7 +2456,7 @@ describe("OrganizationPlansComponent", () => {
           );
 
           completeTheForm();
-          tick(1500);
+          settlePreview();
           fixture.detectChanges();
 
           expect(submitButton()?.getAttribute("aria-disabled")).toBe("true");
@@ -2417,9 +2468,9 @@ describe("OrganizationPlansComponent", () => {
             .mockResolvedValue(scenarioACart);
 
           completeTheForm();
-          tick(1500);
+          settlePreview();
           component["formGroup"].controls.additionalSeats.setValue(5);
-          tick(1500);
+          settlePreview();
           fixture.detectChanges();
 
           expect(submitButton()?.hasAttribute("aria-disabled")).toBe(false);
@@ -2433,7 +2484,7 @@ describe("OrganizationPlansComponent", () => {
 
           completeTheForm();
           setupMockPaymentMethodComponent(component, "mock_token", "card");
-          tick(1500);
+          settlePreview();
           await component.submit();
 
           expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
