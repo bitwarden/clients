@@ -325,20 +325,21 @@ export class ApprovalsTabComponent {
     );
   }
 
-  /**
-   * An approval not yet started is withdrawn, which needs no lease; a running one has its lease
-   * ended.
-   */
-  protected async revoke(row: ApproverRow): Promise<void> {
-    if (row.kind === "pending" || this.isActing(row)) {
+  /** Withdraws an approval the requester has not started yet, which needs no lease. */
+  protected async withdrawApproval(row: ApproverRow): Promise<void> {
+    if (row.kind !== "ready" || this.isActing(row)) {
       return;
     }
-    if (row.kind === "ready") {
-      await this.approverActions.withdrawApproval(
-        row.cipherName,
-        () => this.inbox.cancelApproval(row.requestId),
-        rowBusy(this.acting, row.id),
-      );
+    await this.approverActions.withdrawApproval(
+      row.cipherName,
+      () => this.inbox.cancelApproval(row.requestId),
+      rowBusy(this.acting, row.id),
+    );
+  }
+
+  /** Ends a running lease. */
+  protected async revoke(row: ApproverRow): Promise<void> {
+    if (row.kind !== "active" || this.isActing(row)) {
       return;
     }
     const leaseId: AccessLeaseId = row.lease.leaseId;

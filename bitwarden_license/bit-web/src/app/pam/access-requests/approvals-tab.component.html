@@ -204,6 +204,19 @@
               (click)="decide(row, 'deny')"
               [attr.data-testid]="'approvals-deny-' + row.id"
             ></button>
+          } @else if (row.kind === "ready") {
+            <button
+              type="button"
+              bitIconButton="bwi-undo"
+              buttonType="danger"
+              size="small"
+              [label]="'pamInboxWithdrawApproval' | i18n"
+              [id]="'pam-approvals_button_withdraw-' + row.id"
+              [disabled]="isActing(row)"
+              [loading]="isActing(row)"
+              (click)="withdrawApproval(row)"
+              [attr.data-testid]="'approvals-withdraw-' + row.id"
+            ></button>
           } @else {
             <button
               type="button"
