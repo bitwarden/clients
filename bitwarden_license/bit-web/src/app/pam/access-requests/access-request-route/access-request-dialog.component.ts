@@ -12,6 +12,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -120,6 +121,7 @@ export type AccessRequestDialogParams = {
     DialogModule,
     FormFieldModule,
     ReactiveFormsModule,
+    RouterModule,
     StatusLockupComponent,
     SvgComponent,
     TypographyModule,
@@ -270,7 +272,7 @@ export class AccessRequestDialogComponent implements OnInit {
       byLabelKey: request.status === "denied" ? "pamDecisionDeniedBy" : "pamDecisionApprovedBy",
       who:
         decision.decider === "automatic"
-          ? this.i18nService.t("pamResolverAccessRule")
+          ? this.i18nService.t("pamDecisionAutomatic")
           : (named ?? this.i18nService.t("pamResolverUnknown")),
       // Only worth a row of its own when it isn't already standing in as the name.
       email: approver?.email && approver.email !== approver.name ? approver.email : null,
@@ -338,9 +340,12 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   });
 
-  /** Only while the request is still undecided. */
+  /**
+   * Only while the request is still undecided. Once approved it offers Start instead — the
+   * requester withdraws an approval they no longer want from the My requests table.
+   */
   protected readonly canCancel = computed(
-    () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
+    () => this.isRequester() && this.request()?.status === "pending",
   );
 
   /**
@@ -349,8 +354,18 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly canResubmit = computed(() => {
     const status = this.request()?.status;
-    const resubmittableStatus = status === "denied" || status === "expired";
-    return this.offersActions && this.isRequester() && resubmittableStatus;
+    return this.isRequester() && (status === "denied" || status === "expired");
+  });
+
+  /** The item this request was for, as the vault's own deep link opens it. */
+  protected readonly resubmitLink = computed(() => {
+    const request = this.request();
+    return request == null ? null : ["/vault"];
+  });
+
+  protected readonly resubmitParams = computed(() => {
+    const request = this.request();
+    return request == null ? null : { itemId: cipherId(request), action: "view" };
   });
 
   /** The item this request was for, as the vault's own deep link opens it. */

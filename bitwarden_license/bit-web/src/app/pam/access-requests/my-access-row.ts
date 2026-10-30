@@ -186,7 +186,7 @@ export function historyDisplayStatus(
     }
     // `expired`, plus the SDK's `unknown` default: a lease that simply ran its course, which the
     // shared pill already words as "Session ended". Distinct from a request that expired
-    // undecided, that one never issued a lease and reads as blocked.
+    // undecided — that one never issued a lease and reads as blocked.
     return { badgeState: { kind: "expired" }, statusBadge: null };
   }
   if (request.status === "pending") {
