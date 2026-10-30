@@ -187,8 +187,8 @@ jobs:
               }
             }
 
-  # On a failed nightly (or manual) run: one Slack message linking each failed suite's job,
-  # whose log lists the failing tests.
+  # On a failed nightly (or manual) run: triggers a Slack workflow with LINK set to each failed
+  # suite's job, whose log lists the failing tests. Falls back to the run if no job failed.
   notify:
     name: Notify Slack
     needs: test
@@ -198,14 +198,16 @@ jobs:
       actions: read
       id-token: write
     steps:
-      - name: List failed suites
+      - name: Build Slack payload
         id: failed
         env:
           GH_TOKEN: ${{ github.token }}
+          _RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          SUITES=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" --paginate \
-            --jq '[.jobs[] | select(.conclusion == "failure") | "<\(.html_url)|\(.name)>"] | join(", ")')
-          echo "suites=$SUITES" >> "$GITHUB_OUTPUT"
+          LINKS=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" --paginate \
+            --jq '.jobs[] | select(.conclusion == "failure") | .html_url')
+          PAYLOAD=$(jq -cn --arg links "${LINKS:-$_RUN_URL}" '{LINK: $links}')
+          echo "payload=$PAYLOAD" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -228,16 +230,5 @@ jobs:
         uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         with:
           webhook: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-SLACK-WEBHOOK }}
-          webhook-type: incoming-webhook
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "E2E (usdev) failed: ${{ steps.failed.outputs.suites }}"
-                  }
-                }
-              ]
-            }
+          webhook-type: webhook-trigger
+          payload: ${{ steps.failed.outputs.payload }}
