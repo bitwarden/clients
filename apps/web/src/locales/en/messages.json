@@ -19760,8 +19760,14 @@
   "pamRotationTabManagedCredentials": {
     "message": "Managed credentials"
   },
+  "pamRotationTabTargetSystems": {
+    "message": "Target systems"
+  },
   "pamManagedCredentialsLoaded": {
     "message": "Managed credentials loaded"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "Target systems loaded"
   },
   "pamRotationPageLoaded": {
     "message": "Page loaded"
@@ -19774,6 +19780,9 @@
   },
   "pamTargetSystemCreateTitle": {
     "message": "Add target system"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Edit target system"
   },
   "pamRotationScheduleLabel": {
     "message": "Rotation schedule"
@@ -19909,14 +19918,77 @@
   "pamRotationScheduleIntervalCountWholeNumber": {
     "message": "Enter a whole number."
   },
+  "pamTargetSystemNew": {
+    "message": "New target system"
+  },
+  "pamTargetSystemSearch": {
+    "message": "Search target systems"
+  },
+  "pamTargetSystemMethodColumn": {
+    "message": "Method"
+  },
   "pamTargetSystemTypeColumn": {
     "message": "Type"
+  },
+  "pamTargetSystemSessionTerminationColumn": {
+    "message": "Session termination"
+  },
+  "pamTargetSystemSessionTerminationYes": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Not supported"
   },
   "pamNoTargetSystemsYetTitle": {
     "message": "No target systems yet"
   },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Add the system whose credentials Bitwarden should rotate."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "You rotate the credential yourself; Bitwarden tracks the schedule and logs each rotation."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
+  },
+  "pamTargetSystemNoFilterResults": {
+    "message": "No target systems match your filters."
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "Edit target system"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Activate"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Finish setting up this target system before activating or deactivating it."
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Delete target system"
+  },
   "pamTargetSystemAssignConnectors": {
     "message": "Assign access connectors"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Assign access connector"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "All active access connectors are already assigned to this target system."
   },
   "pamTargetSystemAssignConnectorManual": {
     "message": "Access connectors can only be assigned to target systems set to automatic rotation."
@@ -19927,11 +19999,59 @@
   "pamTargetSystemAssignConnectorNone": {
     "message": "There are no active access connectors to assign. Register one on the Access connectors tab, or activate an existing one."
   },
+  "pamTargetSystemAssignGoToConnectors": {
+    "message": "Go to Access connectors"
+  },
+  "pamTargetSystemDeactivateTitle": {
+    "message": "Deactivate target system?"
+  },
+  "pamTargetSystemDeactivateContent": {
+    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Target system deactivated."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Target system activated."
+  },
+  "pamTargetSystemDeleteTitle": {
+    "message": "Delete target system?"
+  },
+  "pamTargetSystemDeleteContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteContentDeactivateInstead": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Target system deleted."
+  },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automatic"
   },
   "pamTargetSystemMethodManual": {
     "message": "Manual"
+  },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
   },
   "pamTargetSystemTypeEntra": {
     "message": "Entra"
@@ -19953,11 +20073,134 @@
       }
     }
   },
+  "pamTargetSystemStatusActive": {
+    "message": "Active"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "Inactive"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "General information"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "System ID"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Copy system ID"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Enter a name"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Rotation method"
+  },
+  "pamTargetSystemTypeHeading": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeLabel": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+  },
+  "pamTargetSystemPolicyManualHint": {
+    "message": "These are the rules to follow when you rotate this credential by hand."
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Password policy"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Minimum length"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Maximum length"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "Minimum length must be less than or equal to maximum length."
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Include at least one character type."
+  },
   "pamTargetSystemPolicyBelowStrengthFloor": {
     "message": "This policy is too weak. Increase the length or include more character types."
   },
+  "pamTargetSystemPolicyUppercase": {
+    "message": "Include uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercase": {
+    "message": "Include lowercase letters"
+  },
+  "pamTargetSystemPolicyDigits": {
+    "message": "Include digits"
+  },
+  "pamTargetSystemPolicySymbols": {
+    "message": "Include symbols"
+  },
+  "pamTargetSystemSupportsSessionTermination": {
+    "message": "Supports session termination"
+  },
+  "pamTargetSystemSupportsSessionTerminationHintConnector": {
+    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNativeHint": {
+    "message": "Native integrations always terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamTargetSystemSessionTerminationUnknownTooltip": {
+    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
+  },
+  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
+    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Target system created."
+  },
+  "pamTargetSystemSaved": {
+    "message": "Target system saved."
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "The target system was created, but setup could not finish. Save again to finish securing it."
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Finish setting up rotation"
+  },
+  "pamTargetSystemSetupGuidanceAutomaticConnector": {
+    "message": "Assign an access connector in the Assigned access connectors section below."
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Add a managed credential on the Managed credentials tab."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "This target system was created but never finished securing its settings. Save to finish, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "This target system's settings could not be verified. Save to re-secure it, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "This target system's settings could not be verified."
+  },
   "pamTargetSystemImmutableFieldMismatch": {
     "message": "This target system's technology could not be confirmed to match. Reload the page and try again."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Target system not found."
   },
   "pamAccessConnectorConnection": {
     "message": "Connection"
@@ -19994,6 +20237,9 @@
   },
   "pamAccessConnectorAssignmentsEmpty": {
     "message": "No target systems assigned."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Access connector assigned."
   },
   "pamAccessConnectorUnassign": {
     "message": "Remove $NAME$",
@@ -20277,6 +20523,12 @@
   "pamRotationJobStatusUnknown": {
     "message": "Unknown"
   },
+  "pamRotationAssignmentPendingAssign": {
+    "message": "Pending assignment"
+  },
+  "pamRotationAssignmentPendingUnassign": {
+    "message": "Pending removal"
+  },
   "pamRotationAttemptStatusExecuting": {
     "message": "Executing"
   },
@@ -20521,5 +20773,14 @@
   },
   "pamTargetSystemConnectorAssignmentsLoadError": {
     "message": "The access connectors for this target system could not be loaded."
+  },
+  "pamTargetSystemDeleteAssignedConnectorsContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
   }
 }
