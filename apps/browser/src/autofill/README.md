@@ -22,7 +22,7 @@ production builds pay no cost.
 - **How to**
   - [Measure Content Script Performance](./content/performance.md)
 - **Design**
-  - [The Monitoring Lifecycle](./lifecycle.design.md)
+  - [The Monitoring Lifecycle](./lifecycle/design.md)
   - [Fill Orchestration](./orchestrator.design.md)
   - [Fill Mechanics](./autofill.design.md)
   - [Content Script Performance](./content/performance.design.md)

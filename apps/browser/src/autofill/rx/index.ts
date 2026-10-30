@@ -1,7 +1,7 @@
 export { assertSynchronousScope, assertSynchronous } from "./sync-scope-flag";
-export { accountEvents$, AccountEvent, AccountEventKind } from "./account-events";
 export { latestByKey } from "./latest-by-key";
 export { usingDisposable } from "./using-disposable";
+export { waitFor } from "./wait-for";
 export { retryWithBackoff, RetryReport, RetryWithBackoffOptions } from "./retry-with-backoff";
 export {
   tabActivated$,

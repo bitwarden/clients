@@ -11,7 +11,7 @@
 ## Autofill and the monitoring lifecycle
 
 Autofill and the monitoring lifecycle are separate concerns. The
-[monitoring lifecycle](./lifecycle.design.md) decides _when a frame is worth engaging_ — it
+[monitoring lifecycle](./lifecycle/design.md) decides _when a frame is worth engaging_ — it
 reconciles the page, account, extension, and tab lifecycles and, when a page transition resolves,
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
 Autofill decides _whether and how to fill_. The [orchestrator](./orchestrator.design.md) coordinates
@@ -20,7 +20,7 @@ targeted, how autofill operations are sequenced, and secures the autofill workfl
 
 One rule spans every fill: autofill fills only the **hot** tab — the active tab of the _focused_
 window (see the
-[tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never a background or unfocused one.
+[tab lifecycle](./lifecycle/design.md#the-tab-lifecycle)) — and never a background or unfocused one.
 The lifecycle carries this for page loads, surfacing an opportunity only when the tab is hot and
 buffering it otherwise; a user-initiated fill acts on the active tab the user just used, which is
 hot by construction. Either way a fill lands where the user is looking, never on a background
@@ -42,7 +42,7 @@ opportunity, autofill applies its policy before it commits a fill:
   opportunity from one account never fills for another, even when it resolves after a switch. A
   page-load fill raises no unlock prompt: an opportunity that resolves while the active account is
   locked is refused. A lock or switch after the opportunity resolves
-  [retires](./lifecycle.design.md#retiring-an-opportunity) it.
+  [retires](./lifecycle/design.md#retiring-an-opportunity) it.
 - **A cipher must match the frame's page.** Autofill reads the frame to learn its fields and selects
   the cipher saved for its URL; with no match there is nothing to fill and the opportunity is
   discarded.
@@ -55,7 +55,7 @@ Once policy permits, the fill is carried out by the [orchestrator](./orchestrato
 A page-load fill targets **the frame that produced the transition**, resolved live, by identity, at the
 moment of the fill. It must not use a snapshot carried from when the transition was reported.
 This distinction is a security boundary. A transition can be buffered (see the
-[tab lifecycle](./lifecycle.design.md#buffering-transitions)). Between report and fill, the frame may
+[tab lifecycle](./lifecycle/design.md#buffering-transitions)). Between report and fill, the frame may
 have navigated. Filling from the transition's stale snapshot would put a cipher chosen for the _old_
 page into whatever page now occupies that frame — a credential handed to the wrong origin.
 Targeting the frame by its live identity and validating that it still holds the document that
