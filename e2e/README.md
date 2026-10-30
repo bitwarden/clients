@@ -58,10 +58,10 @@ three are set. CI uses them.
 
 ## CI
 
-`.github/workflows/test-e2e-usdev.yml` runs the web, browser and shared suites against
-usdev nightly, and on a PR when it is labeled `force-e2e`. The web suite drives the
-deployed usdev vault, so a PR's web changes are not under test; browser and shared
-build the extension from the PR.
+`.github/workflows/test-e2e-usdev.yml` runs every suite against usdev nightly, and on
+a PR when it is labeled `ci:km-e2e-tests`. The web suite drives the deployed usdev
+vault, so a PR's web changes are not under test; the others build their client from
+the PR.
 
 ## Headless
 
