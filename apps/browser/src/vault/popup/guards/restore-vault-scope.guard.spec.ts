@@ -41,8 +41,8 @@ describe("restoreVaultScopeGuard", () => {
   });
   let stored: string | null;
   const listFiltersService = {
-    storedVaultScopeId: jest.fn(async () => stored),
-    setCachedVaultScopeId: jest.fn(async () => undefined),
+    storedVaultScopeId: jest.fn(async (): Promise<string | null> => stored),
+    setCachedVaultScopeId: jest.fn(async (): Promise<void> => undefined),
   };
 
   const run = () =>
