@@ -13,7 +13,7 @@
           'tw-size-6': !coloredIcon(),
         }"
         [ngStyle]="iconStyle()"
-        (load)="onImageLoad()"
+        (load)="onImageLoad($event)"
         (error)="onImageError()"
       />
     }
