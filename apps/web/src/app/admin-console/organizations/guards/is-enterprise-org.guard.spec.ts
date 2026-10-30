@@ -21,7 +21,7 @@ import { isEnterpriseOrgGuard } from "./is-enterprise-org.guard";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the home screen!</h1>",
-  standalone: false,
+  standalone: true,
 })
 export class HomescreenComponent {}
 
@@ -29,7 +29,7 @@ export class HomescreenComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This component can only be accessed by a enterprise organization!</h1>",
-  standalone: false,
+  standalone: true,
 })
 export class IsEnterpriseOrganizationComponent {}
 
@@ -37,7 +37,7 @@ export class IsEnterpriseOrganizationComponent {}
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "<h1>This is the organization upgrade screen!</h1>",
-  standalone: false,
+  standalone: true,
 })
 export class OrganizationUpgradeScreenComponent {}
 
@@ -65,6 +65,11 @@ describe("Is Enterprise Org Guard", () => {
     accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
+      imports: [
+        HomescreenComponent,
+        IsEnterpriseOrganizationComponent,
+        OrganizationUpgradeScreenComponent,
+      ],
       providers: [
         { provide: OrganizationService, useValue: organizationService },
         { provide: DialogService, useValue: dialogService },

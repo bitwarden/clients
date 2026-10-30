@@ -1,13 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { Observable, firstValueFrom, switchMap } from "rxjs";
+import { Observable, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
 
 import { FamiliesPolicyService } from "../../../billing/services/families-policy.service";
@@ -41,9 +42,16 @@ export class MoreFromBitwardenPageComponent {
     private organizationService: OrganizationService,
     private familiesPolicyService: FamiliesPolicyService,
     private accountService: AccountService,
+    private govModeService: GovModeService,
   ) {
     this.familySponsorshipAvailable$ = getUserId(this.accountService.activeAccount$).pipe(
-      switchMap((userId) => this.organizationService.familySponsorshipAvailable$(userId)),
+      switchMap((userId) =>
+        combineLatest([
+          this.organizationService.familySponsorshipAvailable$(userId),
+          this.govModeService.isGovMode$(userId),
+        ]),
+      ),
+      map(([familySponsorshipAvailable, isGovMode]) => familySponsorshipAvailable && !isGovMode),
     );
     this.hasSingleEnterpriseOrg$ = this.familiesPolicyService.hasSingleEnterpriseOrg$();
     this.isFreeFamilyPolicyEnabled$ = this.familiesPolicyService.isFreeFamilyPolicyEnabled$();

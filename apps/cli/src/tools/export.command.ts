@@ -84,9 +84,7 @@ export class ExportCommand {
       const eventType = options.organizationid
         ? EventType.Organization_ClientExportedVault
         : EventType.User_ClientExportedVault;
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.eventCollectionService.collect(eventType, null, true, options.organizationid);
+      await this.eventCollectionService.collect(eventType, null, true, options.organizationid);
     } catch (e) {
       return Response.error(e);
     }

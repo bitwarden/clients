@@ -837,28 +837,26 @@ export class EventService {
         humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
         break;
       case EventType.ServiceAccount_UserAdded:
-        // The granted member's id lives in OrganizationUserId, not UserId: EventLegacyFieldResolver
-        // on the server reclaims it there (from UserId on pre-fix rows) for exactly this reason.
         msg = this.i18nService.t(
           "addedUserToServiceAccountWithId",
-          this.formatOrgUserId(ev, options),
+          this.formatUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "addedUserToServiceAccountWithId",
-          this.formatOrgUserId(ev, options),
+          this.formatUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         break;
       case EventType.ServiceAccount_UserRemoved:
         msg = this.i18nService.t(
           "removedUserToServiceAccountWithId",
-          this.formatOrgUserId(ev, options),
+          this.formatUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "removedUserToServiceAccountWithId",
-          this.formatOrgUserId(ev, options),
+          this.formatUserId(ev, options),
           this.formatServiceAccountId(ev, options),
         );
         break;
@@ -1023,6 +1021,145 @@ export class EventService {
           "accessedFileSendV3",
           this.formatSendIdText(ev, options),
           this.getShortId(ev.userId),
+        );
+        break;
+
+      // PAM access-audit events reported organization-wide. The trailing request or lease id
+      // correlates the row with PAM's own audit view.
+      case EventType.Pam_AccessRequest_Submitted:
+        msg = this.i18nService.t(
+          "pamEventRequestedAccess",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRequestedAccess",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessRequest_Approved:
+        msg = this.i18nService.t(
+          "pamEventApprovedAccessRequest",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventApprovedAccessRequest",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessRequest_Denied:
+        msg = this.i18nService.t(
+          "pamEventDeniedAccessRequest",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventDeniedAccessRequest",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Activated:
+        msg = this.i18nService.t(
+          "pamEventActivatedAccess",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventActivatedAccess",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Revoked:
+        msg = this.i18nService.t(
+          "pamEventRevokedAccess",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRevokedAccess",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      case EventType.Pam_AccessRequest_Cancelled:
+        msg = this.i18nService.t(
+          "pamEventCancelledAccessRequest",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventCancelledAccessRequest",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Extended:
+        msg = this.i18nService.t(
+          "pamEventExtendedAccess",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventExtendedAccess",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Expired:
+        msg = this.i18nService.t(
+          "pamEventExpiredAccess",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventExpiredAccess",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      // A refused activation mints no lease, so the request is the only subject it can name.
+      case EventType.Pam_AccessLease_ActivationRejected:
+        msg = this.i18nService.t(
+          "pamEventRejectedAccessLeaseActivation",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRejectedAccessLeaseActivation",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      // Rule events name no subject: a rule spans collections and has no id column on the event.
+      case EventType.Pam_AccessRule_Created:
+        msg = humanReadableMsg = this.i18nService.t("pamEventCreatedAccessRule");
+        break;
+      case EventType.Pam_AccessRule_Updated:
+        msg = humanReadableMsg = this.i18nService.t("pamEventUpdatedAccessRule");
+        break;
+      case EventType.Pam_AccessRule_Deleted:
+        msg = humanReadableMsg = this.i18nService.t("pamEventDeletedAccessRule");
+        break;
+      case EventType.Pam_Rotation_Succeeded:
+        msg = this.i18nService.t("pamEventRotatedCredential", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRotatedCredential",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Pam_Rotation_Failed:
+        msg = this.i18nService.t(
+          "pamEventFailedCredentialRotation",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventFailedCredentialRotation",
+          this.getShortId(ev.cipherId),
         );
         break;
 
@@ -1460,14 +1597,8 @@ export class EventService {
     return a.outerHTML;
   }
 
-  // options is optional because most callers render OrganizationUser_* events, which are never
-  // rendered with links disabled. ServiceAccount_UserAdded/Removed pass it through so SM's
-  // disableLink (no Secrets Manager access) is still honored for those two event types.
-  private formatOrgUserId(ev: EventResponse, options?: EventOptions) {
+  private formatOrgUserId(ev: EventResponse) {
     const shortId = this.getShortId(ev.organizationUserId);
-    if (options?.disableLink) {
-      return shortId;
-    }
     const a = this.makeAnchor(shortId);
     a.setAttribute(
       "href",
@@ -1558,6 +1689,16 @@ export class EventService {
     return a.outerHTML;
   }
 
+  formatUserId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.userId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
+    return a.outerHTML;
+  }
+
   formatProjectId(ev: EventResponse, options: EventOptions): string {
     const shortId = this.getShortId(ev.projectId);
     if (options.disableLink) {
@@ -1614,6 +1755,16 @@ export class EventService {
     a.title = this.i18nService.t("viewMemberEvents", shortId);
     a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
     return a.outerHTML;
+  }
+
+  // PAM subject ids are plain code, not links, since the request-detail page needs a different
+  // permission than AccessEventLogs.
+  private formatAccessRequestId(ev: EventResponse) {
+    return "<code>" + this.escapeHtml(this.getShortId(ev.accessRequestId)) + "</code>";
+  }
+
+  private formatAccessLeaseId(ev: EventResponse) {
+    return "<code>" + this.escapeHtml(this.getShortId(ev.accessLeaseId)) + "</code>";
   }
 
   private getShortId(id: string) {

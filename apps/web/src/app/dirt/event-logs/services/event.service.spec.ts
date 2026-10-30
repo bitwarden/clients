@@ -454,7 +454,7 @@ describe("EventService shortcode escaping", () => {
   });
 });
 
-describe("EventService ServiceAccount people events", () => {
+describe("EventService PAM events", () => {
   let sut: EventService;
 
   const i18n = mock<I18nService>();
@@ -473,52 +473,82 @@ describe("EventService ServiceAccount people events", () => {
     sut = new EventService(i18n, policyService, accountService, configService);
   });
 
-  const grantedMemberId = "org-user-1234-5678";
-  // Distinct from grantedMemberId so a regression to reading ev.userId (the pre-fix column) is
-  // caught by asserting on this value's absence, not just the presence of the correct one.
-  const actingUserId = "acting-user-0000-1111";
+  const organizationId = "org-1111-2222";
+  const cipherId = "1a2b3c4d-1111-2222-3333-444455556666";
+  const accessRequestId = "4a1b2c3d-1111-2222-3333-444455556666";
+  const accessLeaseId = "9f8e7d6c-1111-2222-3333-444455556666";
 
-  const cases: [EventType, string][] = [
-    [EventType.ServiceAccount_UserAdded, "addedUserToServiceAccountWithId"],
-    [EventType.ServiceAccount_UserRemoved, "removedUserToServiceAccountWithId"],
-  ];
+  function pamEvent(type: EventType): EventResponse {
+    return { type, cipherId, accessRequestId, accessLeaseId, organizationId } as EventResponse;
+  }
 
-  it.each(cases)(
-    "renders %s using OrganizationUserId, never legacy UserId",
-    async (type, i18nKey) => {
-      // The server (EventLegacyFieldResolver) reclaims the granted member's id into
-      // OrganizationUserId for both new and pre-fix rows, and nulls UserId once reclaimed. Setting
-      // UserId here to a different id catches any client-side regression back to formatUserId.
-      const info = await sut.getEventInfo({
-        type,
-        organizationUserId: grantedMemberId,
-        userId: actingUserId,
-        organizationId: "org",
-        grantedServiceAccountId: "sa-1",
-      } as EventResponse);
+  it.each([
+    [EventType.Pam_AccessRequest_Submitted, "pamEventRequestedAccess", accessRequestId],
+    [EventType.Pam_AccessRequest_Approved, "pamEventApprovedAccessRequest", accessRequestId],
+    [EventType.Pam_AccessRequest_Denied, "pamEventDeniedAccessRequest", accessRequestId],
+    [EventType.Pam_AccessRequest_Cancelled, "pamEventCancelledAccessRequest", accessRequestId],
+    [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccess", accessLeaseId],
+    [
+      EventType.Pam_AccessLease_ActivationRejected,
+      "pamEventRejectedAccessLeaseActivation",
+      accessRequestId,
+    ],
+    [EventType.Pam_AccessLease_Extended, "pamEventExtendedAccess", accessLeaseId],
+    [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccess", accessLeaseId],
+    [EventType.Pam_AccessLease_Expired, "pamEventExpiredAccess", accessLeaseId],
+  ])("renders %s with its own message and the subject id", async (type, key, subjectId) => {
+    const info = await sut.getEventInfo(pamEvent(type as EventType));
 
-      expect(info.message).toContain(i18nKey);
-      expect(info.message).toContain(grantedMemberId.substring(0, 8));
-      expect(info.message).not.toContain(actingUserId.substring(0, 8));
-      expect(info.message).toContain(`viewEvents=${grantedMemberId}`);
-    },
-  );
+    expect(info.message).toContain(key);
+    expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
+  });
 
-  it.each(cases)("renders %s as plain text when links are disabled", async (type) => {
-    const options = new EventOptions();
-    options.disableLink = true;
+  // A rotation has no request or lease, so the message names only the item.
+  it.each([
+    [EventType.Pam_Rotation_Succeeded, "pamEventRotatedCredential"],
+    [EventType.Pam_Rotation_Failed, "pamEventFailedCredentialRotation"],
+  ])("renders %s naming only the item", async (type, key) => {
+    const info = await sut.getEventInfo(pamEvent(type as EventType));
 
-    const info = await sut.getEventInfo(
-      {
-        type,
-        organizationUserId: grantedMemberId,
-        organizationId: "org",
-        grantedServiceAccountId: "sa-1",
-      } as EventResponse,
-      options,
+    expect(info.message).toContain(`<code>${cipherId.substring(0, 8)}</code>`);
+    expect(info.humanReadableMessage).toBe(`${key}${cipherId.substring(0, 8)}`);
+  });
+
+  // A rule spans collections and has no id column on the event, so the message names no subject.
+  it.each([
+    [EventType.Pam_AccessRule_Created, "pamEventCreatedAccessRule"],
+    [EventType.Pam_AccessRule_Updated, "pamEventUpdatedAccessRule"],
+    [EventType.Pam_AccessRule_Deleted, "pamEventDeletedAccessRule"],
+  ])("renders %s with no subject id", async (type, key) => {
+    const info = await sut.getEventInfo(pamEvent(type as EventType));
+
+    expect(info.message).toBe(key);
+    expect(info.humanReadableMessage).toBe(key);
+  });
+
+  it("names the item and links it into the vault", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
+
+    expect(info.message).toContain(cipherId.substring(0, 8));
+    expect(info.message).toContain(`viewEvents=${cipherId}`);
+  });
+
+  // The request-detail page needs a different permission than AccessEventLogs, so no link.
+  it("renders the subject id as plain code, never a link", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessLease_Revoked));
+
+    expect(info.message).toContain(`<code>${accessLeaseId.substring(0, 8)}</code>`);
+    expect(info.message).not.toContain(
+      `href="#/organizations/${organizationId}/vault?search=${accessLeaseId}`,
     );
+  });
 
-    expect(info.message).not.toContain("<a ");
-    expect(info.message).toContain(grantedMemberId.substring(0, 8));
+  it("keeps the human-readable (export) message plain text", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
+
+    expect(info.humanReadableMessage).not.toContain("<code>");
+    expect(info.humanReadableMessage).not.toContain("href");
+    expect(info.humanReadableMessage).toContain(cipherId.substring(0, 8));
+    expect(info.humanReadableMessage).toContain(accessRequestId.substring(0, 8));
   });
 });

@@ -48,7 +48,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { TabsModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
@@ -79,6 +79,16 @@ import { SettingsDialogComponent } from "./settings-dialog.component";
 class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
+
+const makePolicy = (enabled: boolean) =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.RemoveUnlockWithPin,
+    data: null,
+    enabled,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("SettingsDialogComponent", () => {
   let component: SettingsDialogComponent;
@@ -248,9 +258,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
@@ -259,9 +267,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     const account = await firstValueFrom(accountService.activeAccount$);
@@ -288,9 +294,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = false;
+    const policy = makePolicy(false);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
@@ -305,9 +309,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
     policyService.policiesByType$.mockReturnValue(of([policy]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
@@ -323,9 +325,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy();
-    policy.type = PolicyType.RemoveUnlockWithPin;
-    policy.enabled = true;
+    const policy = makePolicy(true);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     // Re-trigger pinEnabled by re-emitting the active account so toSignal()
@@ -359,9 +359,7 @@ describe("SettingsDialogComponent", () => {
       test.each([true, false])(
         `correct message display for require MP/PIN on app restart when pin is set, windows desktop, and policy is %s`,
         async (policyEnabled) => {
-          const policy = new Policy();
-          policy.type = PolicyType.RemoveUnlockWithPin;
-          policy.enabled = policyEnabled;
+          const policy = makePolicy(policyEnabled);
           policyService.policiesByType$.mockReturnValue(of([policy]));
           platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
           pinServiceAbstraction.isPinSet.mockResolvedValue(true);
@@ -1091,6 +1089,49 @@ describe("SettingsDialogComponent", () => {
           );
         });
       });
+
+      // The status check fails while the key is deleted, which unchecks the box (PM-45438).
+      it.each([
+        { platform: "windows", isWindows: true, isLinux: false },
+        { platform: "linux", isWindows: false, isLinux: true },
+      ])(
+        "checks the biometrics status only after the key is deleted and stored again on $platform",
+        async ({ isWindows, isLinux }) => {
+          (component as any).isWindows = isWindows;
+          (component as any).isLinux = isLinux;
+          (component as any).userHasMasterPassword.set(true);
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          let resolveDelete!: () => void;
+          desktopBiometricsService.deleteBiometricUnlockKeyForUser.mockReturnValue(
+            new Promise((resolve) => (resolveDelete = resolve)),
+          );
+
+          const update = (component as any).updateBiometricHandler(true);
+          await new Promise((resolve) => setTimeout(resolve));
+
+          expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+            mockUserId,
+          );
+          expect(desktopBiometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+
+          resolveDelete();
+          await update;
+
+          const [lastStoreOrder] =
+            desktopBiometricsService.setBiometricProtectedUnlockKeyForUser.mock.invocationCallOrder.slice(
+              -1,
+            );
+          const [statusCheckOrder] =
+            desktopBiometricsService.getBiometricsStatusForUser.mock.invocationCallOrder;
+          expect(statusCheckOrder).toBeGreaterThan(lastStoreOrder);
+          expect((component as any).form.controls.biometric.value).toBe(true);
+        },
+      );
 
       it.each([
         BiometricsStatus.UnlockNeeded,

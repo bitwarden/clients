@@ -32,6 +32,7 @@ describe("cart preview translation keys", () => {
     "pm-storage",
     "sm-seat",
     "sm-service-account",
+    "pam-seat",
   ];
 
   const lineItemKeys = Object.values(InvoicePreviewFlowContext).flatMap((flowContext) =>
@@ -45,10 +46,12 @@ describe("cart preview translation keys", () => {
   );
 
   const prorationChargeKeys = allReferences.flatMap((reference) => [
-    getProrationChargeTranslationKey(reference, "pm-seat"),
-    getProrationChargeTranslationKey(reference, "sm-seat"),
-    getProrationChargeTranslationKey(undefined, "pm-seat"),
-    getProrationChargeTranslationKey(undefined, "sm-seat"),
+    getProrationChargeTranslationKey(reference, "pm-seat", logService),
+    getProrationChargeTranslationKey(reference, "sm-seat", logService),
+    getProrationChargeTranslationKey(reference, "pam-seat", logService),
+    getProrationChargeTranslationKey(undefined, "pm-seat", logService),
+    getProrationChargeTranslationKey(undefined, "sm-seat", logService),
+    getProrationChargeTranslationKey(undefined, "pam-seat", logService),
   ]);
 
   const creditKeys = Object.values(InvoicePreviewFlowContext).map((flowContext) =>
@@ -90,6 +93,8 @@ describe("cart preview translation keys", () => {
         "serviceAccountsProratedCharge",
         "memberLower",
         "planProratedMembershipInMonths",
+        "privilegedControlsPlanPrice",
+        "privilegedControlsProratedCharge",
       ].sort(),
     );
   });

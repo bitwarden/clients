@@ -463,6 +463,11 @@
       matchPackageNames: ["bytes", "tokio", "tokio-util"],
     },
     {
+      // We need to group all serde-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "serde",
+      matchPackageNames: ["serde", "serde_json", "serde_with"],
+    },
+    {
       // We group all webpack build-related minor and patch updates together to reduce PR noise.
       // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
       matchPackageNames: [
@@ -593,6 +598,7 @@
         "semver",
         "serde",
         "serde_json",
+        "serde_with",
         "simplelog",
         "style-loader",
         "sysinfo",

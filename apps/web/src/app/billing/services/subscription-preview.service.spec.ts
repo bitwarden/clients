@@ -99,6 +99,35 @@ describe("SubscriptionPreviewService", () => {
 
       expect(mockClient.getOrganizationSubscriptionPreview).toHaveBeenCalledWith("org-id-123");
     });
+
+    it("should carry a privileged controls section through to the cart", async () => {
+      const base = responseJson("enterprise");
+      mockClient.getOrganizationSubscriptionPreview.mockResolvedValue(
+        new SubscriptionPreviewResponse({
+          ...base,
+          InvoicePreview: {
+            ...base.InvoicePreview,
+            PrivilegedControls: { Seats: { Reference: "pam-seat", Quantity: 4, Cost: 20 } },
+          },
+        }),
+      );
+
+      const result = await sut.getOrganizationSubscriptionPreview("org-id-123");
+
+      expect(result.cart.privilegedControls).toEqual({
+        seats: { translationKey: "membersLower", quantity: 4, cost: 20 },
+      });
+    });
+
+    it("should emit no privileged controls group when the preview carries none", async () => {
+      mockClient.getOrganizationSubscriptionPreview.mockResolvedValue(
+        new SubscriptionPreviewResponse(responseJson("enterprise")),
+      );
+
+      const result = await sut.getOrganizationSubscriptionPreview("org-id-123");
+
+      expect(result.cart.privilegedControls).toBeUndefined();
+    });
   });
 
   describe("error propagation", () => {

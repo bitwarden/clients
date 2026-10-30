@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   Injector,
@@ -77,7 +78,17 @@ import {
   pickerFormatsFor,
 } from "../import-source-select/picker-vendor-data";
 
+import {
+  keeperEmailFormatValidator,
+  keeperEmailRequiredValidator,
+} from "./direct/keeper/keeper-email-validators";
+import { KeeperInlineAuthUi } from "./direct/keeper/keeper-inline-auth-ui";
 import { KeeperDirectImportRunner } from "./direct/keeper-direct-import-runner";
+import {
+  lastPassEmailFormatValidator,
+  lastPassEmailRequiredValidator,
+} from "./direct/lastpass/lastpass-email-validators";
+import { LastPassInlineAuthUi } from "./direct/lastpass/lastpass-inline-auth-ui";
 import { LastPassDirectImportRunner } from "./direct/lastpass-direct-import-runner";
 import { ImportControlsChromiumComponent } from "./import-controls-chromium.component";
 import { DirectStep, ImportControlsDirectComponent } from "./import-controls-direct.component";
@@ -125,8 +136,14 @@ const requiredTrimmedValidator: ValidatorFn = (control: AbstractControl<string>)
     SegmentedCardComponent,
     SpinnerComponent,
   ],
-  // Scoped to the component: they inject ImportUpgradeServiceAbstraction, which the host components provide.
-  providers: [KeeperDirectImportRunner, LastPassDirectImportRunner],
+  // Scoped to the component: the runners inject ImportUpgradeServiceAbstraction, which the host
+  // components provide, and the login UIs hold per-import state.
+  providers: [
+    KeeperDirectImportRunner,
+    LastPassDirectImportRunner,
+    KeeperInlineAuthUi,
+    LastPassInlineAuthUi,
+  ],
 })
 export class ImportControlsComponent {
   private readonly formBuilder = inject(FormBuilder);
@@ -144,6 +161,9 @@ export class ImportControlsComponent {
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
   private readonly importMetadataService = inject(ImportUpgradeMetadataServiceAbstraction);
   private readonly themingService = inject(AbstractThemingService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly keeperUi = inject(KeeperInlineAuthUi);
+  private readonly lastPassUi = inject(LastPassInlineAuthUi);
 
   /** The vendor chosen in step 1. */
   readonly importType = input.required<UpgradeImportType>();
@@ -322,6 +342,20 @@ export class ImportControlsComponent {
 
   protected readonly directStep = signal<DirectStep>("intro");
 
+  /** The running Keeper login and import, started by submit() without awaiting it. */
+  private readonly keeperLogin = signal<Promise<void>>(Promise.resolve());
+
+  /** The running LastPass login and import, started by submit() without awaiting it. */
+  private readonly lastPassLogin = signal<Promise<void>>(Promise.resolve());
+
+  /** A direct importer is writing the vault, so there is nothing left to cancel. */
+  protected readonly directImporting = computed(
+    () => this.keeperUi.importing() || this.lastPassUi.importing(),
+  );
+
+  /** Continue shows its spinner while a direct-import request is in flight. */
+  protected readonly directBusy = computed(() => this.keeperUi.busy() || this.lastPassUi.busy());
+
   // No initialValue: Continue stays blocked until this resolves. "error" (null account or failed
   // lookup) fails closed without blaming the org policy.
   private readonly personalOwnershipPolicyApplies = toSignal(
@@ -352,7 +386,9 @@ export class ImportControlsComponent {
       this.capabilitiesPending() ||
       this.profilesPending() ||
       this.personalOwnershipPolicyPending() ||
-      this.filePasswordCheckPending(),
+      this.filePasswordCheckPending() ||
+      this.keeperUi.waiting() ||
+      this.lastPassUi.waiting(),
   );
 
   protected readonly isKeeper = computed(() => this.importType() === "keeper");
@@ -411,9 +447,25 @@ export class ImportControlsComponent {
   };
 
   protected readonly formGroup = this.formBuilder.group({
-    keeperEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
+    // Custom validators first so their messages win; Validators.required kept so the asterisk renders.
+    keeperEmail: [
+      { value: "", disabled: true },
+      [
+        keeperEmailRequiredValidator(this.i18nService),
+        Validators.required,
+        keeperEmailFormatValidator(this.i18nService),
+      ],
+    ],
     keeperRegion: this.formBuilder.nonNullable.control<KeeperRegion>(KeeperRegion.Us),
-    lastPassEmail: [{ value: "", disabled: true }, [Validators.required, Validators.email]],
+    // Custom validators first so their messages win; Validators.required kept so the asterisk renders.
+    lastPassEmail: [
+      { value: "", disabled: true },
+      [
+        lastPassEmailRequiredValidator(this.i18nService),
+        Validators.required,
+        lastPassEmailFormatValidator(this.i18nService),
+      ],
+    ],
     includeSharedFolders: [false],
     // Custom validator first so its message wins.
     kdbxPassword: [
@@ -625,11 +677,31 @@ export class ImportControlsComponent {
     () => this.isFilePasswordProtected() && this.filePasswordRequested(),
   );
 
+  /** False on any page reached from step 2's first one, where Back starts step 2 over instead of
+   *  leaving it. */
+  private readonly atStepStart = computed(
+    () =>
+      this.primaryModeOverride() === undefined &&
+      this.directStep() === "intro" &&
+      !this.keeperUi.loginActive() &&
+      !this.lastPassUi.loginActive() &&
+      !this.needsFilePassword(),
+  );
+
   /** An always-prompt vendor's selection per method, so file, paste, file restores it even though
    *  paste can't offer every format (kdbx). */
   private readonly formatChoiceByMethod = new Map<"file" | "paste", ImportType | null>();
 
   constructor() {
+    this.keeperUi.registerStartOver(() => this.startOver());
+    this.lastPassUi.registerStartOver(() => this.startOver());
+    this.destroyRef.onDestroy(() => {
+      this.keeperUi.registerStartOver(undefined);
+      this.keeperUi.leave();
+      this.lastPassUi.registerStartOver(undefined);
+      this.lastPassUi.leave();
+    });
+
     let previousMethod = this.formGroup.controls.method.value;
     this.formGroup.controls.method.valueChanges.pipe(takeUntilDestroyed()).subscribe((method) => {
       this.formatChoiceByMethod.set(previousMethod, this.formGroup.controls.formatChoice.value);
@@ -772,24 +844,7 @@ export class ImportControlsComponent {
         return;
       }
 
-      this.primaryModeOverride.set(undefined);
-      this.directStep.set("intro");
-      this.showKeyFile.set(false);
-      this.formGroup.reset({
-        keeperEmail: "",
-        keeperRegion: KeeperRegion.Us,
-        lastPassEmail: "",
-        includeSharedFolders: false,
-        profile: "",
-        method: "file",
-        file: null,
-        fileContents: "",
-        kdbxPassword: "",
-        keyFile: null,
-        filePassword: "",
-        formatChoice: null,
-      });
-      this.formatChoiceByMethod.clear();
+      this.startOver();
     });
 
     // Declared last so it seeds after the importType() reset effect.
@@ -814,20 +869,67 @@ export class ImportControlsComponent {
     });
   }
   protected onBack(): void {
-    if (this.needsFilePassword()) {
-      // Back from the password card returns to upload; clearing the file also drops the card.
-      this.formGroup.controls.file.reset(null);
+    if (this.directImporting()) {
       return;
     }
-    this.back.emit();
+    if (this.atStepStart()) {
+      this.back.emit();
+      return;
+    }
+    this.afterLeaveConfirmed(() => this.startOver());
   }
 
   protected toggleToManual(): void {
-    this.primaryModeOverride.set("manual");
+    if (this.directImporting()) {
+      return;
+    }
+    this.afterLeaveConfirmed(() => {
+      this.keeperUi.leave();
+      this.lastPassUi.leave();
+      this.primaryModeOverride.set("manual");
+      this.directStep.set("intro");
+      // touched survives disable/enable; clear it to avoid a stale error.
+      this.formGroup.controls.file.markAsUntouched();
+      this.formGroup.controls.fileContents.markAsUntouched();
+    });
+  }
+
+  /** Runs `action` at once, or once the user confirms cancelling a request sent to their device. */
+  private afterLeaveConfirmed(action: () => void): void {
+    if (!this.keeperUi.leaveNeedsConfirm()) {
+      action();
+      return;
+    }
+    void this.keeperUi.confirmLeave().then((confirmed) => {
+      // The approval can land while the dialog is open; once importing there is nothing to cancel.
+      if (confirmed && !this.directImporting()) {
+        action();
+      }
+    });
+  }
+
+  /** Step 2 as first shown: the default mode's first page, with nothing filled in or chosen. */
+  private startOver(): void {
+    this.keeperUi.leave();
+    this.lastPassUi.leave();
+    this.primaryModeOverride.set(undefined);
     this.directStep.set("intro");
-    // touched survives disable/enable; clear it to avoid a stale error.
-    this.formGroup.controls.file.markAsUntouched();
-    this.formGroup.controls.fileContents.markAsUntouched();
+    this.showKeyFile.set(false);
+    this.formGroup.reset({
+      keeperEmail: "",
+      keeperRegion: KeeperRegion.Us,
+      lastPassEmail: "",
+      includeSharedFolders: false,
+      profile: "",
+      method: "file",
+      file: null,
+      fileContents: "",
+      kdbxPassword: "",
+      keyFile: null,
+      filePassword: "",
+      formatChoice: null,
+    });
+    this.formatChoiceByMethod.clear();
   }
 
   protected toggleToAlternate(): void {
@@ -1162,6 +1264,14 @@ export class ImportControlsComponent {
       this.continueFromIntro();
       return;
     }
+    if (this.keeperUi.loginActive()) {
+      this.keeperUi.answer();
+      return;
+    }
+    if (this.lastPassUi.loginActive()) {
+      this.lastPassUi.answer();
+      return;
+    }
 
     // Clears a stale login-failure error while still re-running the real validators.
     this.formGroup.controls.keeperEmail.updateValueAndValidity();
@@ -1175,6 +1285,41 @@ export class ImportControlsComponent {
       this.filePasswordRequested.set(true);
       return;
     }
+    if (this.primaryMode() === "direct" && this.isKeeper()) {
+      // Not awaited: the login is interactive, so holding bitSubmit's pending state would keep
+      // Continue spinning and disable Back for its whole duration.
+      this.keeperLogin.set(this.runKeeperLogin());
+      return;
+    }
+    if (this.primaryMode() === "direct" && this.isLastPass()) {
+      // Not awaited, for the same reason as Keeper's.
+      this.lastPassLogin.set(this.runLastPassLogin());
+      return;
+    }
     await this.onContinue();
   };
+
+  /** Keeps the card busy from Continue until the import ends, however it ends. */
+  private async runKeeperLogin(): Promise<void> {
+    const session = this.keeperUi.begin();
+    try {
+      await this.onContinue();
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      this.keeperUi.end(session);
+    }
+  }
+
+  /** Keeps the card busy from Continue until the import ends, however it ends. */
+  private async runLastPassLogin(): Promise<void> {
+    const session = this.lastPassUi.begin();
+    try {
+      await this.onContinue();
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      this.lastPassUi.end(session);
+    }
+  }
 }

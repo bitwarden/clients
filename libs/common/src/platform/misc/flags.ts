@@ -14,6 +14,8 @@ export type SharedDevFlags = {
   showRiskInsightsDebug: boolean;
   fillAssistDevTools: boolean;
   useBitwardenAutofillAttributes: boolean;
+  /** Shows the cipher-level HTTP authentication controls */
+  httpAuthenticationCipherControls: boolean;
   testPhishingUrls: string[];
   /** Nested settings object standing in for a device-management profile the host cannot supply. */
   managedSettingsDevSource?: Record<string, unknown>;
