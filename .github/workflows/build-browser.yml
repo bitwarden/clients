@@ -267,6 +267,10 @@ jobs:
             npm_command_suffix: "firefox"
             archive_name: "dist-firefox.zip"
             artifact_name: "dist-firefox"
+          - name: "firefox-beta"
+            npm_command_suffix: "beta:firefox"
+            archive_name: "dist-firefox.zip"
+            artifact_name: "dist-firefox-beta"
           - name: "firefox-mv3"
             npm_command_suffix: "firefox:mv3"
             archive_name: "dist-firefox.zip"
@@ -373,8 +377,8 @@ jobs:
               exit 1
           fi
 
-      # The chrome-beta npm script stamps BETA_NUMBER into the built manifest via
-      # update-manifest-beta.sh.
+      # Beta npm scripts (chrome-beta, firefox-beta) stamp BETA_NUMBER into the
+      # built manifest via update-manifest-beta.sh.
       - name: Build extension
         env:
           BETA_NUMBER: ${{ needs.setup.outputs.beta_number }}
