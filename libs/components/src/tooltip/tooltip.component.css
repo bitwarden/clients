@@ -1,5 +1,6 @@
 :root {
-  --tooltip-shadow: rgb(0 0 0 / 0.1);
+  /* Note: RGB equivalent of color-gray-800 */
+  --tooltip-shadow: rgba(29, 41, 61, 0.1);
 }
 
 .cdk-overlay-pane:has(.bit-tooltip[data-visible="false"]) {
