@@ -106,18 +106,11 @@ Prefer native `[class.x]` / `[style.x]` over `ngClass` / `ngStyle`. For many cla
 <div [class.active]="isActive()" [style.width.px]="width()"></div>
 ```
 
-### Test IDs for Inputs and Buttons
+### Test IDs
 
-Every input field and button needs a descriptive `data-testid` for QA automation:
+Only add a `data-testid` when an element can't be queried by other sufficient means (role, accessible name, label or text). Don't add them proactively.
 
-`<component_name>_<html_element>_<readable_name>` — underscores between components, dashes within.
-
-```html
-<input data-testid="register-form_input_email" />
-<button data-testid="register_button_submit">Submit</button>
-```
-
-Component-library components may emit auto-generated IDs (`<component-selector>-<n>`, e.g. `bit-input-0`) but must allow overrides. Selectors use dashes, not camelCase.
+When one is needed, use `<component_name>_<html_element>_<readable_name>` — underscores between components, dashes within.
 
 ### Reactive Forms
 
