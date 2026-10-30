@@ -62,6 +62,16 @@ describe("matchesStatus", () => {
     ).toBe(true);
   });
 
+  it("lists the revocation reasons in display order, with No reason recorded last", () => {
+    expect(REVOCATION_REASON_OPTIONS).toEqual([
+      { value: "revoked-1", labelKey: "revocationReasonByAdmin" },
+      { value: "revoked-3", labelKey: "revocationReasonDeclinedItemTransfer" },
+      { value: "revoked-4", labelKey: "revocationReasonSingleOrganizationNonCompliance" },
+      { value: "revoked-2", labelKey: "revocationReasonTwoFactorNonCompliance" },
+      { value: "revoked-0", labelKey: "revocationReasonNotRecorded" },
+    ]);
+  });
+
   it("offers a reason option for every revocation reason", () => {
     expect(REVOCATION_REASON_OPTIONS.map((option) => option.value).sort()).toEqual(
       Object.values(RevocationReasonType)

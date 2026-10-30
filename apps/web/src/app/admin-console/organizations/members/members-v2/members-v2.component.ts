@@ -173,6 +173,12 @@ export class MembersV2Component {
   protected readonly isProcessing = this.memberActionsService.isProcessing;
   protected readonly table = defineTable<OrganizationUserView, "options">(this.members);
 
+  /**
+   * Whether an empty table means the search or filters hide every member, rather than the
+   * organization having none (e.g. one a provider just created).
+   */
+  protected readonly noMatches = computed(() => this.members().length > 0);
+
   protected readonly showUserManagementControls = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
@@ -288,7 +294,10 @@ export class MembersV2Component {
     this.billingMetadata$.pipe(take(1), takeUntilDestroyed()).subscribe();
   }
 
-  /** Members arrive sorted by name, so the default view needs no sort, and no sort in the URL. */
+  /**
+   * Orders members by name before they reach the table, so the page opens alphabetized without
+   * an active column sort. This keeps the sort out of the URL until the user picks one.
+   */
   async load(organization: Organization) {
     const members = await this.memberService.loadUsers(organization);
     this.members.set([...members].sort(this.sortByName));

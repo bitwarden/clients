@@ -465,7 +465,9 @@ export const Loading: Story = {
 };
 
 /**
- * An organization with no members. Search, Export and Invite member stay in the toolbar.
+ * An organization with no members, as a provider-created one starts out. The table shows
+ * "No members have been invited to your organization" without Clear all, and Search, Export
+ * and Invite member stay in the toolbar.
  */
 export const Empty: Story = {
   render: makeRender([]),

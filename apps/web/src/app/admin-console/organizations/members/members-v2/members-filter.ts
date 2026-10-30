@@ -14,14 +14,35 @@ export type MemberFilters = Partial<Record<MembershipKey, string[]>> & {
   status?: StatusOption[];
 };
 
+/**
+ * The label and display position of each revocation reason in the Status filter. Keyed by
+ * {@link RevocationReasonType}, so a new reason doesn't compile until it has an entry here.
+ */
+const REVOCATION_REASONS = {
+  [RevocationReasonType.Manual]: { labelKey: "revocationReasonByAdmin", order: 0 },
+  [RevocationReasonType.OrganizationDataOwnershipPolicyNonCompliance]: {
+    labelKey: "revocationReasonDeclinedItemTransfer",
+    order: 1,
+  },
+  [RevocationReasonType.SingleOrgPolicyNonCompliance]: {
+    labelKey: "revocationReasonSingleOrganizationNonCompliance",
+    order: 2,
+  },
+  [RevocationReasonType.TwoFactorPolicyNonCompliance]: {
+    labelKey: "revocationReasonTwoFactorNonCompliance",
+    order: 3,
+  },
+  [RevocationReasonType.Unknown]: { labelKey: "revocationReasonNotRecorded", order: 4 },
+} as const satisfies Record<RevocationReasonType, { labelKey: string; order: number }>;
+
 /** The reasons nested under Revoked in the Status filter, in display order. */
-export const REVOCATION_REASON_OPTIONS = [
-  { value: "revoked-1", labelKey: "revocationReasonByAdmin" },
-  { value: "revoked-3", labelKey: "revocationReasonDeclinedItemTransfer" },
-  { value: "revoked-4", labelKey: "revocationReasonSingleOrganizationNonCompliance" },
-  { value: "revoked-2", labelKey: "revocationReasonTwoFactorNonCompliance" },
-  { value: "revoked-0", labelKey: "revocationReasonNotRecorded" },
-] as const satisfies readonly { value: StatusOption; labelKey: string }[];
+export const REVOCATION_REASON_OPTIONS: readonly { value: StatusOption; labelKey: string }[] =
+  Object.values(RevocationReasonType)
+    .sort((a, b) => REVOCATION_REASONS[a].order - REVOCATION_REASONS[b].order)
+    .map((reason) => ({
+      value: `revoked-${reason}`,
+      labelKey: REVOCATION_REASONS[reason].labelKey,
+    }));
 
 /**
  * Whether a member matches the Status filter. With nothing checked, every member but the revoked

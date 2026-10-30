@@ -15,32 +15,33 @@
   <bit-table-toolbar [rangeLabel]="rangeLabel">
     <bit-search class="tw-flex-1" [placeholder]="'searchMembers' | i18n"></bit-search>
 
-    <!-- Hidden rather than removed: projection only matches static top-level nodes, so an `@if`
-         would keep the buttons out of the toolbar's `end` slot. -->
-    <button
-      id="members-v2_button_export"
-      slot="end"
-      type="button"
-      bitButton
-      buttonType="secondary"
-      [class.tw-hidden]="!canManage"
-      (click)="exportMembers()"
-    >
-      {{ "exportVerb" | i18n }}
-    </button>
-    <button
-      id="members-v2_button_invite"
-      slot="end"
-      type="button"
-      bitButton
-      buttonType="primary"
-      startIcon="bwi-plus"
-      [class.tw-hidden]="!canManage"
-      [disabled]="!firstLoaded() || !organization"
-      (click)="organization && invite(organization)"
-    >
-      {{ "inviteMember" | i18n }}
-    </button>
+    <!-- One element per `@if`: a block with multiple roots isn't matched by the `end` slot. -->
+    @if (canManage) {
+      <button
+        id="members-v2_button_export"
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        (click)="exportMembers()"
+      >
+        {{ "exportVerb" | i18n }}
+      </button>
+    }
+    @if (canManage) {
+      <button
+        id="members-v2_button_invite"
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-plus"
+        [disabled]="!firstLoaded() || !organization"
+        (click)="organization && invite(organization)"
+      >
+        {{ "inviteMember" | i18n }}
+      </button>
+    }
 
     <bit-filter-menu key="status" [placeholderText]="'status' | i18n" multiple searchable>
       @if (hasStagedMembers()) {
@@ -89,14 +90,13 @@
     }
   </bit-table-toolbar>
 
-  <!-- With members loaded, an empty table means the search or filters hide them all. -->
-  @let noMatches = members().length > 0;
+  <!-- No matches: filters hide every member, with Clear all. Otherwise: the org has no members. -->
   <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="noMatches ? noMatchesIcon : emptyIcon"></bit-svg>
+    <bit-svg slot="graphic" [content]="noMatches() ? noMatchesIcon : emptyIcon"></bit-svg>
     <span slot="title">{{
-      (noMatches ? "noItemsMatchTheSelectedFilters" : "noMembersInvitedToOrg") | i18n
+      (noMatches() ? "noItemsMatchTheSelectedFilters" : "noMembersInvitedToOrg") | i18n
     }}</span>
-    @if (noMatches) {
+    @if (noMatches()) {
       <button
         id="members-v2_button_clear-all-filters"
         slot="button"

@@ -462,6 +462,20 @@ describe("MembersV2Component", () => {
     });
   });
 
+  describe("noMatches", () => {
+    it("is false when the organization has no members, so the empty state reads as none invited", async () => {
+      await setup({ canManageUsers: true }, []);
+
+      expect(component.noMatches()).toBe(false);
+    });
+
+    it("is true when the organization has members, so an empty table means filters hide them", async () => {
+      await setup({ canManageUsers: true }, [member()]);
+
+      expect(component.noMatches()).toBe(true);
+    });
+  });
+
   describe("rangeLabel", () => {
     beforeEach(async () => {
       await setup({}, []);
