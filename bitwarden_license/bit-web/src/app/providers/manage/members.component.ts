@@ -17,15 +17,15 @@ import { first, map } from "rxjs/operators";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-bulk.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderUserBulkRequest } from "@bitwarden/common/provider/models/request/provider-user-bulk.request";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import {
   AvatarModule,

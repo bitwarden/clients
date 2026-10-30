@@ -8,12 +8,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import {
   OrganizationApiKeyType,
   OrganizationUserType,
-  ProviderType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { ProviderType } from "@bitwarden/common/provider/enums";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { SubscriptionPreview } from "@bitwarden/subscription";
 

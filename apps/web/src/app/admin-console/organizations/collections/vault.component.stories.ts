@@ -11,7 +11,6 @@ import { CollectionAdminService, CollectionService } from "@bitwarden/admin-cons
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
@@ -34,6 +33,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";

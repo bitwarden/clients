@@ -1,6 +1,7 @@
-import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ProviderType } from "@bitwarden/common/provider/enums";
 
 import {
   OrgSubscriptionAccess,

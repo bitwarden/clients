@@ -4,10 +4,10 @@ import { ActivatedRoute, Params, Router, RouterLink } from "@angular/router";
 
 import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ProviderUserAcceptRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-accept.request";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderUserAcceptRequest } from "@bitwarden/common/provider/models/request/provider-user-accept.request";
 import { ButtonModule, SvgModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";

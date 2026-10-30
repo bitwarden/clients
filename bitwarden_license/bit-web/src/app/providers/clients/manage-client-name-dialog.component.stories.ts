@@ -2,7 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 

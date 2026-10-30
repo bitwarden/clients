@@ -34,13 +34,10 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
-import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -63,6 +60,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderOrganizationCreateRequest } from "@bitwarden/common/provider/models/request/provider-organization-create.request";
+import { ProviderResponse } from "@bitwarden/common/provider/models/response/provider.response";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";

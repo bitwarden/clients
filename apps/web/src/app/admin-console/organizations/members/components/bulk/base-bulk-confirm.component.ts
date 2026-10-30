@@ -4,11 +4,11 @@ import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
 } from "@bitwarden/admin-console/common";
-import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk.response";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {

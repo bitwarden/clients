@@ -3,7 +3,6 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
-import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
@@ -19,6 +18,7 @@ import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/ser
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { ProfileProviderOrganizationResponse } from "@bitwarden/common/provider/models/response/profile-provider-organization.response";
 import {
   makeEncString,
   makeStaticByteArray,

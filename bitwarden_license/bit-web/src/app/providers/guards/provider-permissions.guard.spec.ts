@@ -3,12 +3,12 @@ import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/ro
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { ProviderData } from "@bitwarden/common/admin-console/models/data/provider.data";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderUserType } from "@bitwarden/common/provider/enums";
+import { ProviderData } from "@bitwarden/common/provider/models/data/provider.data";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";

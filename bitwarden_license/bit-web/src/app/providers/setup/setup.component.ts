@@ -5,12 +5,12 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { first, takeUntil } from "rxjs/operators";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderSetupRequest } from "@bitwarden/common/provider/models/request/provider-setup.request";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {

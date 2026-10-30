@@ -19,10 +19,8 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -31,6 +29,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderType } from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
 import { BitwardenIcon } from "@bitwarden/components";
 
 export type ProductSwitcherItem = {

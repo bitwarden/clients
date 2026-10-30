@@ -2,10 +2,10 @@ import { inject, Injectable, signal } from "@angular/core";
 import { firstValueFrom, switchMap, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
+import { ProviderUserConfirmRequest } from "@bitwarden/common/provider/models/request/provider-user-confirm.request";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports

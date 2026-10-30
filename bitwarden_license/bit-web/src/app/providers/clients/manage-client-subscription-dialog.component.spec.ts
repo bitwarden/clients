@@ -1,14 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { ProviderData } from "@bitwarden/common/admin-console/models/data/provider.data";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { UpdateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/update-provider-organization.request";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderUserType } from "@bitwarden/common/provider/enums";
+import { ProviderData } from "@bitwarden/common/provider/models/data/provider.data";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { UpdateProviderOrganizationRequest } from "@bitwarden/common/provider/models/request/update-provider-organization.request";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
 import { DialogRef } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 

@@ -2,12 +2,12 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderUserType } from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";

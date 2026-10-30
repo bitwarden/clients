@@ -14,9 +14,9 @@ import {
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { RequirePaymentMethodDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components";

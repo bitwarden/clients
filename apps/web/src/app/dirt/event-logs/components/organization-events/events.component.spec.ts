@@ -6,7 +6,6 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType, EventView } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -14,6 +13,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EventExportService } from "../../../../tools/event-export";

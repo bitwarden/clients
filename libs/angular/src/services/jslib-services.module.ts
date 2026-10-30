@@ -86,8 +86,6 @@ import {
   InternalPolicyService,
   PolicyService as PolicyServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { DefaultOrganizationDomainsService } from "@bitwarden/common/admin-console/services/organization-domain/default-organization-domains.service";
@@ -97,8 +95,6 @@ import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/comm
 import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import {
   AccountService,
@@ -305,6 +301,10 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderApiService } from "@bitwarden/common/provider/services/provider-api.service";
+import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import {

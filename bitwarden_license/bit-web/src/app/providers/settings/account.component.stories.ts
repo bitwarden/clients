@@ -5,12 +5,12 @@ import { of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderResponse } from "@bitwarden/common/provider/models/response/provider.response";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AvatarComponent,

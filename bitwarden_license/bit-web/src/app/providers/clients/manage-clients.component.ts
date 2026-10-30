@@ -13,16 +13,16 @@ import {
 } from "rxjs";
 import { debounceTime, first } from "rxjs/operators";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderType, ProviderUserType } from "@bitwarden/common/provider/enums";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
 import {
   AvatarModule,
   DialogService,

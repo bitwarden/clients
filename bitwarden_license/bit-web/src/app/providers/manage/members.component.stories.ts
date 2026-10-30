@@ -14,15 +14,15 @@ import { action } from "storybook/actions";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BerryComponent,

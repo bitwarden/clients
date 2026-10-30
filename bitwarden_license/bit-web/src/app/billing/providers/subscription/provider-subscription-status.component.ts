@@ -3,9 +3,9 @@
 import { DatePipe } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
-import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ProviderType } from "@bitwarden/common/provider/enums";
 
 type ComponentData = {
   status?: {

@@ -7,8 +7,6 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventResponse } from "@bitwarden/common/dirt/event-logs";
@@ -18,6 +16,8 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
 import { ToastService } from "@bitwarden/components";
 import { EventService, BaseEventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";

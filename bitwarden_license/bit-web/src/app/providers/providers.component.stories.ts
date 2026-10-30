@@ -3,16 +3,16 @@ import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
 import {
   ProviderType,
   ProviderUserStatusType,
   ProviderUserType,
-} from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+} from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 

@@ -10,11 +10,11 @@ import {
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk.response";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,

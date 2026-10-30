@@ -16,8 +16,6 @@ import {
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
-import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
-import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,6 +27,8 @@ import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/ser
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { ProfileProviderOrganizationResponse } from "@bitwarden/common/provider/models/response/profile-provider-organization.response";
+import { ProfileProviderResponse } from "@bitwarden/common/provider/models/response/profile-provider.response";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   OrgKey,

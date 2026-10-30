@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import {
-  OrganizationUserStatusType,
-  ProviderUserStatusType,
-} from "@bitwarden/common/admin-console/enums";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ProviderUserStatusType } from "@bitwarden/common/provider/enums";
+import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
 import {
   AvatarModule,
   ButtonModule,

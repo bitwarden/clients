@@ -4,17 +4,17 @@ import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@s
 import { of } from "rxjs";
 import { action } from "storybook/actions";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderUserType } from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   DialogService,

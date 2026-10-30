@@ -4,11 +4,11 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { of } from "rxjs";
 import { action } from "storybook/actions";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderResponse } from "@bitwarden/common/provider/models/response/provider.response";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports

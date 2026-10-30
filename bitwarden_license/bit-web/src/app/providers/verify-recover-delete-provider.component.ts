@@ -3,9 +3,9 @@ import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { ProviderVerifyRecoverDeleteRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-verify-recover-delete.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderVerifyRecoverDeleteRequest } from "@bitwarden/common/provider/models/request/provider-verify-recover-delete.request";
 import {
   AsyncActionsModule,
   ButtonModule,

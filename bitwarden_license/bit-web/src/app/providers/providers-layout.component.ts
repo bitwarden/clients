@@ -6,11 +6,11 @@ import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderType } from "@bitwarden/common/admin-console/enums";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderType } from "@bitwarden/common/provider/enums";
+import { Provider } from "@bitwarden/common/provider/models/domain/provider";
 import { IconComponent, SvgModule } from "@bitwarden/components";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";

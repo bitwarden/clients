@@ -4,12 +4,10 @@ import { Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, Subject, map } from "rxjs";
 
-import {
-  OrganizationUserStatusType,
-  ProviderUserStatusType,
-} from "@bitwarden/common/admin-console/enums";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { ProviderUserStatusType } from "@bitwarden/common/provider/enums";
+import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
 import { FilterFn, TableDataSource } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../organizations/core/views/organization-user.view";
