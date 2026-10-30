@@ -434,11 +434,22 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-revoke-req-1"]')).toBeNull();
     });
 
-    it.each([
-      ["ready", ready],
-      ["active", active],
-    ])("offers only revoke on a %s row", (_kind, build) => {
-      inbox.approverRows$.next([build()]);
+    it("offers only withdraw approval on an approved request not yet started", () => {
+      inbox.approverRows$.next([ready()]);
+
+      create();
+
+      const withdraw = query('[data-testid="approvals-withdraw-req-1"]');
+      expect(withdraw?.getAttribute("aria-label")).toBe("pamInboxWithdrawApproval");
+      expect(withdraw?.querySelector(".bwi-undo")).not.toBeNull();
+      expect(withdraw?.className).toContain("tw-bg-bg-danger");
+      expect(query('[data-testid="approvals-revoke-req-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-approve-req-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
+    });
+
+    it("offers only revoke on a running lease", () => {
+      inbox.approverRows$.next([active()]);
 
       create();
 
@@ -448,6 +459,7 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-revoke-req-1"]')?.className).toContain(
         "tw-bg-bg-danger",
       );
+      expect(query('[data-testid="approvals-withdraw-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-approve-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
     });
@@ -519,7 +531,7 @@ describe("ApprovalsTabComponent", () => {
       inbox.approverRows$.next([ready()]);
       create();
 
-      query('[data-testid="approvals-revoke-req-1"]')?.click();
+      query('[data-testid="approvals-withdraw-req-1"]')?.click();
       await settle();
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
