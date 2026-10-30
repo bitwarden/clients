@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -109,6 +110,7 @@ describe("AccessRequestDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AccessRequestDialogComponent, NoopAnimationsModule],
       providers: [
+        provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: { close: jest.fn() } },
         { provide: ToastService, useValue: toastService },
@@ -237,12 +239,12 @@ describe("AccessRequestDialogComponent", () => {
       return fixture.nativeElement.querySelector('[data-testid="request-detail-decision"]');
     }
 
-    it("credits the access rule for an automatic decision", () => {
+    it("credits the system when an access rule decided on its own", () => {
       detail.request$.next(request({ status: "approved", decisions: [automaticDecision()] }));
 
       create();
 
-      expect(decisionCard()!.textContent).toContain("pamResolverAccessRule");
+      expect(decisionCard()!.textContent).toContain("pamDecisionAutomatic");
     });
 
     it("credits a human approver by name, and names the decision as an approval", () => {
@@ -497,19 +499,53 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canStart"]()).toBe(false);
     });
 
-    it("offers Cancel for a pending request, and for an approved one not yet lapsed", () => {
+    it("offers Cancel only while the request is still undecided", () => {
       detail.request$.next(request({ status: "pending", leaseNotAfter: PAST }));
       create();
       expect(component["canCancel"]()).toBe(true);
 
+      // Once approved the dialog offers Start instead; the table still withdraws it.
       detail.request$.next(request({ status: "approved" }));
-      expect(component["canCancel"]()).toBe(true);
-
-      detail.request$.next(request({ status: "approved", leaseNotAfter: PAST }));
       expect(component["canCancel"]()).toBe(false);
 
       detail.request$.next(request({ status: "denied" }));
       expect(component["canCancel"]()).toBe(false);
+    });
+
+    it("offers Submit new request once the request was refused or timed out", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+      create();
+      expect(component["canResubmit"]()).toBe(true);
+
+      detail.request$.next(request({ status: "expired", resolvedAt: PAST }));
+      expect(component["canResubmit"]()).toBe(true);
+
+      detail.request$.next(request({ status: "pending" }));
+      expect(component["canResubmit"]()).toBe(false);
+
+      detail.request$.next(request({ status: "approved" }));
+      expect(component["canResubmit"]()).toBe(false);
+    });
+
+    it("points Submit new request at the item, where a fresh request is raised", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      create();
+
+      const link = fixture.nativeElement.querySelector(
+        '[data-testid="request-detail-resubmit"]',
+      ) as HTMLAnchorElement;
+      expect(link.getAttribute("href")).toContain("/vault");
+      expect(link.getAttribute("href")).toContain("itemId=cipher-1");
+    });
+
+    it("never offers an approver the requester's resubmit", () => {
+      detail.viewer$.next("approver");
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      create();
+
+      expect(component["canResubmit"]()).toBe(false);
     });
 
     it("offers End only while the produced lease is live", () => {
@@ -529,15 +565,26 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canEndLease"]()).toBe(false);
     });
 
-    it("renders the offered actions in the dialog footer", () => {
+    it("leaves an approved request with Start beside Close, and nothing else", () => {
       detail.request$.next(request({ status: "approved" }));
 
       create();
 
       const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
       expect(footer.querySelector("#access-request-dialog_button_start")).not.toBeNull();
-      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).not.toBeNull();
       expect(footer.querySelector("#access-request-dialog_button_close")).not.toBeNull();
+      // Withdrawing an approval is the table's job, so the dialog does not double as one.
+      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).toBeNull();
+    });
+
+    it("leaves a pending request with Cancel beside Close", () => {
+      detail.request$.next(request({ status: "pending" }));
+
+      create();
+
+      const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).not.toBeNull();
+      expect(footer.querySelector("#access-request-dialog_button_start")).toBeNull();
     });
   });
 
