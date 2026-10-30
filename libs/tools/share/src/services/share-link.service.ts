@@ -29,12 +29,17 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { PolicyType } from "@bitwarden/sdk-internal";
 
 /**
@@ -64,6 +69,7 @@ export class ShareLinkService {
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private organizationService = inject(OrganizationService);
+  private revealedCipherService = inject(RevealedCipherService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   /** Observable of all active share links. */
@@ -208,20 +214,27 @@ export class ShareLinkService {
         getUserId,
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      ),
     ]).pipe(
-      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections]) => {
+      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections, revealed]) => {
         // Sharing feature must be enabled and, as a premium feature, accessible
         if (!ffEnabled || !hasPremium) {
           return false;
         }
-        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or gated
-        // ("partial") by PAM
+        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or restricted
         if (
           !c ||
           c.archivedDate ||
           c.deletedDate ||
           CipherViewLikeUtils.getType(c) === CipherType.SshKey ||
-          CipherViewLikeUtils.isPartial(c)
+          !RestrictedCipherPolicy.allows(
+            c,
+            RestrictedCipherAction.Share,
+            c.id == null ? undefined : revealed.get(c.id as CipherId),
+          )
         ) {
           return false;
         }
