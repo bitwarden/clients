@@ -474,9 +474,9 @@ describe("EventService ServiceAccount people events", () => {
   });
 
   const grantedMemberId = "org-user-1234-5678";
-  // Distinct from grantedMemberId so a regression to reading ev.userId (the pre-fix column) is
-  // caught by asserting on this value's absence, not just the presence of the correct one.
-  const actingUserId = "acting-user-0000-1111";
+  // Distinct from grantedMemberId so a wrong column read shows up as this value's presence in
+  // the message, not just the correct value's absence.
+  const otherId = "other-id-0000-1111";
 
   const cases: [EventType, string][] = [
     [EventType.ServiceAccount_UserAdded, "addedUserToServiceAccountWithId"],
@@ -484,23 +484,57 @@ describe("EventService ServiceAccount people events", () => {
   ];
 
   it.each(cases)(
-    "renders %s using OrganizationUserId, never legacy UserId",
+    "renders %s from OrganizationUserId on rows written since the server fix",
     async (type, i18nKey) => {
-      // The server (EventLegacyFieldResolver) reclaims the granted member's id into
-      // OrganizationUserId for both new and pre-fix rows, and nulls UserId once reclaimed. Setting
-      // UserId here to a different id catches any client-side regression back to formatUserId.
+      // Rows written since the fix set OrganizationUserId and leave UserId empty.
       const info = await sut.getEventInfo({
         type,
         organizationUserId: grantedMemberId,
-        userId: actingUserId,
+        actingUserId: otherId,
         organizationId: "org",
         grantedServiceAccountId: "sa-1",
       } as EventResponse);
 
       expect(info.message).toContain(i18nKey);
       expect(info.message).toContain(grantedMemberId.substring(0, 8));
-      expect(info.message).not.toContain(actingUserId.substring(0, 8));
+      expect(info.message).not.toContain(otherId.substring(0, 8));
       expect(info.message).toContain(`viewEvents=${grantedMemberId}`);
+    },
+  );
+
+  it.each(cases)(
+    "renders %s from UserId on rows written before the server fix",
+    async (type, i18nKey) => {
+      // Older rows stored the granted member's org-user id in UserId and left OrganizationUserId
+      // empty. The server does not back-fill these, so the client must fall back to UserId.
+      const info = await sut.getEventInfo({
+        type,
+        userId: grantedMemberId,
+        actingUserId: otherId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse);
+
+      expect(info.message).toContain(i18nKey);
+      expect(info.message).toContain(grantedMemberId.substring(0, 8));
+      expect(info.message).not.toContain("undefined");
+      expect(info.message).toContain(`viewEvents=${grantedMemberId}`);
+    },
+  );
+
+  it.each(cases)(
+    "prefers OrganizationUserId over UserId for %s when both are set",
+    async (type) => {
+      const info = await sut.getEventInfo({
+        type,
+        organizationUserId: grantedMemberId,
+        userId: otherId,
+        organizationId: "org",
+        grantedServiceAccountId: "sa-1",
+      } as EventResponse);
+
+      expect(info.message).toContain(grantedMemberId.substring(0, 8));
+      expect(info.message).not.toContain(otherId.substring(0, 8));
     },
   );
 
@@ -520,5 +554,18 @@ describe("EventService ServiceAccount people events", () => {
 
     expect(info.message).not.toContain("<a ");
     expect(info.message).toContain(grantedMemberId.substring(0, 8));
+  });
+
+  it.each(cases)("keeps the human readable %s message free of markup", async (type) => {
+    const info = await sut.getEventInfo({
+      type,
+      userId: grantedMemberId,
+      organizationId: "org",
+      grantedServiceAccountId: "sa-1",
+    } as EventResponse);
+
+    expect(info.humanReadableMessage).not.toContain("<");
+    expect(info.humanReadableMessage).toContain(grantedMemberId.substring(0, 8));
+    expect(info.humanReadableMessage).toContain("sa-1".substring(0, 8));
   });
 });
