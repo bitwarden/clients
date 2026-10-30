@@ -106,12 +106,6 @@ Prefer native `[class.x]` / `[style.x]` over `ngClass` / `ngStyle`. For many cla
 <div [class.active]="isActive()" [style.width.px]="width()"></div>
 ```
 
-### Test IDs
-
-Only add a `data-testid` when an element can't be queried by other sufficient means (role, accessible name, label or text). Don't add them proactively.
-
-When one is needed, use `<component_name>_<html_element>_<readable_name>` — underscores between components, dashes within.
-
 ### Reactive Forms
 
 Use Reactive forms — not Template-Driven. The Bitwarden Component Library is built around Reactive forms.
