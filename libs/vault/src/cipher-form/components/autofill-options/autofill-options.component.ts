@@ -3,7 +3,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { AsyncPipe } from "@angular/common";
-import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
+import { Component, inject, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { filter, map, of, Subject, switchMap, take } from "rxjs";
@@ -33,6 +33,7 @@ import {
 
 import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
+import { CipherFormHTTPAuthenticationService } from "../../services/cipher-form-http-authentication.service";
 
 import { UriOptionComponent } from "./uri-option.component";
 
@@ -117,6 +118,8 @@ export class AutofillOptionsComponent implements OnInit {
 
   protected readonly desktopAppUriPrefix = DESKTOP_APP_URI_PREFIX;
 
+  private httpAuthenticationService = inject(CipherFormHTTPAuthenticationService);
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
@@ -130,6 +133,7 @@ export class AutofillOptionsComponent implements OnInit {
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      this.publishUriMatchStrategies();
       this.cipherFormContainer.patchCipher((cipher) => {
         cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
@@ -174,9 +178,32 @@ export class AutofillOptionsComponent implements OnInit {
       this.initNewCipher();
     }
 
+    // URIs from an existing cipher are added without emitting value changes
+    this.publishUriMatchStrategies();
+
     if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
+  }
+
+  /** Shares the current URI match strategies with the HTTP authentication setting */
+  private publishUriMatchStrategies() {
+    this.httpAuthenticationService.updateUriMatchStrategies(
+      this.uriControls.map((control) => control.value?.matchDetection ?? null),
+    );
+  }
+
+  /**
+   * Adds a new URI input requested by the user. New URIs use the default match strategy, so the
+   * user is asked to confirm when that would turn HTTP authentication off.
+   * @param uriFieldValue The initial value for the new URI input.
+   */
+  async addUriFromUser(uriFieldValue: UriField) {
+    if (!(await this.httpAuthenticationService.confirmDefaultMatchStrategy())) {
+      return;
+    }
+
+    this.addUri(uriFieldValue, true);
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {

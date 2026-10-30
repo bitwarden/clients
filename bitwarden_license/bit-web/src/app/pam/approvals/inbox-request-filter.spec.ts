@@ -1,0 +1,19 @@
+import { isActionableInboxRequest } from "./inbox-request-filter";
+
+const NOW = new Date("2026-08-17T12:00:00.000Z");
+
+describe("isActionableInboxRequest", () => {
+  it("keeps a request whose window is still open", () => {
+    expect(isActionableInboxRequest({ leaseNotAfter: "2026-08-17T13:00:00.000Z" }, NOW)).toBe(true);
+  });
+
+  it("drops a request whose window has fully elapsed", () => {
+    expect(isActionableInboxRequest({ leaseNotAfter: "2026-08-17T11:00:00.000Z" }, NOW)).toBe(
+      false,
+    );
+  });
+
+  it("drops a request whose window closes exactly now", () => {
+    expect(isActionableInboxRequest({ leaseNotAfter: NOW.toISOString() }, NOW)).toBe(false);
+  });
+});

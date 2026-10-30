@@ -456,7 +456,7 @@ describe("Cipher Service", () => {
       partial.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
@@ -519,7 +519,7 @@ describe("Cipher Service", () => {
 
       const decryptedView = new CipherView(encryptionContext.cipher);
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([decryptedView]);
 
       const sendSpy = jest.spyOn(messageSender, "send");
@@ -607,7 +607,7 @@ describe("Cipher Service", () => {
       partial.id = "partial" as CipherId;
       partial.partial = true;
 
-      (cipherService as any).cipherViewsWithPartials$ = jest
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest
         .fn()
         .mockReturnValue(of([normal, partial]));
     });
@@ -619,7 +619,7 @@ describe("Cipher Service", () => {
     });
 
     it("cipherViews$ passes a null (decryption-in-progress) emission through unchanged", async () => {
-      (cipherService as any).cipherViewsWithPartials$ = jest.fn().mockReturnValue(of(null));
+      (cipherService as any).cipherViewsIncludingRestricted$ = jest.fn().mockReturnValue(of(null));
 
       const result = await firstValueFrom(cipherService.cipherViews$(mockUserId));
 
@@ -646,8 +646,10 @@ describe("Cipher Service", () => {
         expect(result).toEqual([normalListView]);
       });
 
-      it("cipherListViewsWithPartials$ retains partial ciphers", async () => {
-        const result = await firstValueFrom(cipherService.cipherListViewsWithPartials$(mockUserId));
+      it("cipherListViewsIncludingRestricted$ retains partial ciphers", async () => {
+        const result = await firstValueFrom(
+          cipherService.cipherListViewsIncludingRestricted$(mockUserId),
+        );
 
         expect(result).toEqual([normalListView, partialListView]);
       });
@@ -655,7 +657,7 @@ describe("Cipher Service", () => {
 
     it("getAllDecrypted excludes partial ciphers (all imperative consumers: export, reports, autofill, CLI...)", async () => {
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normal, partial]);
 
       const result = await cipherService.getAllDecrypted(mockUserId);
@@ -675,7 +677,7 @@ describe("Cipher Service", () => {
       partialCard.partial = true;
 
       jest
-        .spyOn(cipherService as any, "getAllDecryptedIncludingPartials")
+        .spyOn(cipherService as any, "getAllDecryptedIncludingRestricted")
         .mockResolvedValue([normalCard, partialCard]);
 
       const result = await (cipherService as any).getAllDecryptedCiphersOfType(
