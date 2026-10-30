@@ -1,4 +1,4 @@
-<form [bitSubmit]="submit" [formGroup]="setPinForm" bit-dialog>
+<form [bitSubmit]="submit" [formGroup]="setPinForm" bit-dialog data-testid="set-pin-dialog">
   <div class="tw-font-medium" bitDialogTitle>
     {{ "unlockWithPin" | i18n }}
   </div>
@@ -8,7 +8,13 @@
     </p>
     <bit-form-field>
       <bit-label>{{ "pin" | i18n }}</bit-label>
-      <input class="tw-font-mono" bitInput type="password" formControlName="pin" />
+      <input
+        class="tw-font-mono"
+        bitInput
+        type="password"
+        formControlName="pin"
+        data-testid="set-pin-input"
+      />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
     <label class="tw-flex tw-items-start tw-gap-2" *ngIf="showMasterPasswordOnClientRestartOption">
@@ -17,12 +23,19 @@
         type="checkbox"
         bitCheckbox
         formControlName="requireMasterPasswordOnClientRestart"
+        data-testid="set-pin-require-master-password-checkbox"
       />
       <span>{{ "lockWithMasterPassOnRestart1" | i18n }}</span>
     </label>
   </div>
   <ng-container bitDialogFooter>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      data-testid="set-pin-submit-button"
+    >
       <span>{{ "ok" | i18n }}</span>
     </button>
     <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>

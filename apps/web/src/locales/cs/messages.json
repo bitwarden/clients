@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "E-mail LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Zahrnout sdílené složky"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Přihlašovací údaje, karty, identity, bezpečné poznámky a TOTP s jejich strukturou složek."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Přijato: $FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Spravovat obnovení účtu"
   },
+  "manageAccessRules": {
+    "message": "Spravovat přístupová pravidla"
+  },
+  "manageRotation": {
+    "message": "Spravovat rotaci"
+  },
   "disableRequiredError": {
     "message": "Před vypnutím této zásady musíte ručně změnit zásadu $POLICYNAME$.",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Přidejte sdílenou složku pro bezpečné sdílení položek trezoru s ostatními uživateli."
   },
+  "pinned": {
+    "message": "Připnuto",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Připnout do postranního panelu",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Odepnout z postranního panelu",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ připnuto do postranního panelu",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ odepnuto z postranního panelu",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Najděte sdílenou složku v tomto trezoru a vyberte",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "z menu Volby.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Připněte sdílené složky do postranního panelu pro jejich filtrování zde."
+  },
   "noMembersAdded": {
     "message": "Nebyli přidáni žádní členové"
   },
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Cena předplatného Správce tajných klíčů"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Cena plánu Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Správce hesel"
@@ -17546,6 +17650,63 @@
   "importingYourAccount": {
     "message": "Importování Vašeho účtu…"
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
   "passcode": {
     "message": "Přístupový kód"
   },
@@ -17802,6 +17963,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Žádosti o přístup"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min.",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 hodina"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hodin",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "začíná nyní"
+  },
+  "pamInboxStartToday": {
+    "message": "dnes"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "zítra"
+  },
+  "pamInboxStartInDays": {
+    "message": "za $DAYS$ dnů",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Přístup nelze spustit."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Schválené přístupové okno ještě nezačalo."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Schválené přístupové okno již bylo ukončeno."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Tento požadavek zatím nebyl schválen."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Tento požadavek již nelze aktivovat."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Přístup k tomuto požadavku již byl použit a není aktivní."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "K této položce může mít aktivní přístup jen 1 uživatel. Zkuste to znovu, jakmile aktuální přístup skončí."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Přístup k této položce není povolen z Vaší aktuální sítě."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Přístup k této položce není v tuto chvíli povolen."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Přístup k této položce není aktuálně povolen."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Je vyžadována licence Privileged Controls. Požádejte svého správce, aby aktivoval licenci.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Již máte aktivní přístup k této položce."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Již máte schválený požadavek pro tuto položku."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Již máte čekající požadavek pro tuto položku."
+  },
+  "pamInboxElapsedDays": {
+    "message": "Před $DAYS$ dny",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "Před $HOURS$ hodinami",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Právě teď"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "Před $MINUTES$ minutami",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Pravidla přístupu"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Poměrný poplatek za správce tajných kódů"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Poměrná částka Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Poměrný poplatek za servisní účty"
