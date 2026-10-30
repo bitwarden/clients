@@ -289,6 +289,36 @@ describe("AccessConnectorsTabComponent", () => {
 
       expectedErrorToast();
     });
+
+    it("shows the server's reason when the SDK refuses the delete", async () => {
+      (accessConnectorsService.delete as jest.Mock).mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 400 Bad Request: {"object":"error",' +
+              '"message":"This access connector still has assigned target systems."}',
+          ),
+          { name: "RotationError", variant: "Api" },
+        ),
+      );
+
+      await actions().confirmDelete(makeAccessConnectorRow());
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "This access connector still has assigned target systems.",
+      });
+    });
+
+    it("falls back to the generic message for an error with no server reason", async () => {
+      (accessConnectorsService.delete as jest.Mock).mockRejectedValue(new Error("boom"));
+
+      await actions().confirmDelete(makeAccessConnectorRow());
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "unexpectedError",
+      });
+    });
   });
 
   describe("in-flight row guard", () => {

@@ -54,6 +54,7 @@ import {
 import { assignableTargetSystems } from "../assignable";
 import { filterOptions } from "../filter-options";
 import { AccessConnectorId, TargetSystemId, TargetSystemView } from "../rotation";
+import { rotationErrorMessage } from "../rotation-error";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RowBusyTracker } from "../row-busy-tracker";
@@ -406,9 +407,9 @@ export class AccessConnectorsTabComponent {
 
   private showError(e: unknown): void {
     const message =
-      e instanceof ErrorResponse
-        ? (e.message ?? this.i18nService.t("unexpectedError"))
-        : this.i18nService.t("unexpectedError");
+      rotationErrorMessage(e) ??
+      (e instanceof ErrorResponse ? e.message : undefined) ??
+      this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
 }

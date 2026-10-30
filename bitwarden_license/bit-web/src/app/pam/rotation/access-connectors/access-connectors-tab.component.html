@@ -208,7 +208,12 @@
           id="access-connectors-tab_button_menu-{{ r.id }}"
         ></button>
         <bit-menu #rowMenu>
-          <button type="button" bitMenuItem (click)="openDetail(r)">
+          <button
+            type="button"
+            bitMenuItem
+            (click)="openDetail(r)"
+            id="access-connectors-tab_button_view-{{ r.id }}"
+          >
             <bit-icon name="bwi-eye" class="tw-text-muted"></bit-icon>
             {{ "pamAccessConnectorViewDetails" | i18n }}
           </button>
@@ -247,24 +252,43 @@
               bitMenuItem
               [disabled]="isRowBusy(r.id)"
               (click)="unassign(r, assignmentId, r.assignmentNames[i])"
+              id="access-connectors-tab_button_unassign-{{ r.id }}-{{ assignmentId }}"
             >
               <bit-icon name="bwi-close" class="tw-text-muted"></bit-icon>
               {{ "pamAccessConnectorUnassign" | i18n: r.assignmentNames[i] }}
             </button>
           }
           @if (r.enabled) {
-            <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="disable(r)">
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.id)"
+              (click)="disable(r)"
+              id="access-connectors-tab_button_deactivate-{{ r.id }}"
+            >
               <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
               {{ "pamAccessConnectorDeactivate" | i18n }}
             </button>
           } @else {
-            <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="enable(r)">
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.id)"
+              (click)="enable(r)"
+              id="access-connectors-tab_button_activate-{{ r.id }}"
+            >
               <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
               {{ "pamAccessConnectorActivate" | i18n }}
             </button>
           }
           <bit-menu-divider />
-          <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="confirmDelete(r)">
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="isRowBusy(r.id)"
+            (click)="confirmDelete(r)"
+            id="access-connectors-tab_button_delete-{{ r.id }}"
+          >
             <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
             <span class="tw-text-danger">{{
               "pamAccessConnectorDeleteAccessConnector" | i18n

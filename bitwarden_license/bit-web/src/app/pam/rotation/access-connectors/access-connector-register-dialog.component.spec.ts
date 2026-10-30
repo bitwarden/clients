@@ -169,6 +169,25 @@ describe("AccessConnectorRegisterDialogComponent", () => {
     );
   });
 
+  it("shows the server's reason when the SDK refuses the registration", async () => {
+    rotationSdk.registerConnector.mockRejectedValue(
+      Object.assign(
+        new Error(
+          'error in response: status code 400 Bad Request: {"object":"error",' +
+            '"message":"An access connector with this name already exists."}',
+        ),
+        { name: "RotationError", variant: "Api" },
+      ),
+    );
+    (component as any).form.controls.name.setValue("Duplicate access connector");
+    await (component as any).submit();
+
+    expect(toastService.showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "An access connector with this name already exists.",
+    });
+  });
+
   it("closes with undefined on cancel", () => {
     (component as any).cancel();
     expect(dialogRef.close).toHaveBeenCalledWith(undefined);

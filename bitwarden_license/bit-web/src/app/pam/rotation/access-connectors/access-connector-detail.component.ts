@@ -58,6 +58,7 @@ import {
   TargetSystemView,
   TargetSystemId,
 } from "../rotation";
+import { rotationErrorMessage } from "../rotation-error";
 import { ROTATION_TABS, rotationLink } from "../rotation-links";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
@@ -144,7 +145,7 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
    */
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     active: false,
-    assignedTargetSystemIds: [[] as TargetSystemId[]],
+    assignedTargetSystemIds: this.formBuilder.nonNullable.control<TargetSystemId[]>([]),
   });
 
   private readonly staged = toSignal(
@@ -539,9 +540,9 @@ export class AccessConnectorDetailComponent implements HasUnsavedChangesDialog {
 
   private showError(e: unknown): void {
     const message =
-      e instanceof ErrorResponse
-        ? (e.message ?? this.i18nService.t("unexpectedError"))
-        : this.i18nService.t("unexpectedError");
+      rotationErrorMessage(e) ??
+      (e instanceof ErrorResponse ? e.message : undefined) ??
+      this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
 }

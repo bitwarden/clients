@@ -17,6 +17,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { rotationErrorMessage } from "../rotation-error";
 import { RotationSdkService } from "../rotation-sdk.service";
 
 import { AccessConnectorTokenDialogComponent } from "./access-connector-token-dialog.component";
@@ -76,9 +77,9 @@ export class AccessConnectorRegisterDialogComponent {
       });
     } catch (e) {
       const message =
-        e instanceof ErrorResponse
-          ? (e.message ?? this.i18nService.t("unexpectedError"))
-          : this.i18nService.t("unexpectedError");
+        rotationErrorMessage(e) ??
+        (e instanceof ErrorResponse ? e.message : undefined) ??
+        this.i18nService.t("unexpectedError");
       this.toastService.showToast({ variant: "error", message });
     }
   };

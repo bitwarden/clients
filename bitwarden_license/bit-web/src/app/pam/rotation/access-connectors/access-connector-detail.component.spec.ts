@@ -585,6 +585,27 @@ describe("AccessConnectorDetailComponent", () => {
       );
     });
 
+    it("shows the server's reason when the SDK refuses a write", async () => {
+      const comp = await mount();
+      rotationSdk.assignTarget.mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 400 Bad Request: {"object":"error",' +
+              '"message":"The target system no longer exists."}',
+          ),
+          { name: "RotationError", variant: "Api" },
+        ),
+      );
+      await comp.assignTargets([pick(makeOtherSystem())]);
+
+      await comp.submit();
+
+      expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "The target system no longer exists.",
+      });
+    });
+
     it("keeps the writes that did land, so a retry only carries the rest", async () => {
       const comp = await mount(makeAccessConnector({ assignedTargetSystemIds: [] }));
       rotationSdk.assignTarget
