@@ -1,9 +1,11 @@
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { UpdateProviderOrganizationRequest } from "@bitwarden/common/admin-console/models/request/update-provider-organization.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  ProviderApiServiceAbstraction,
+  UpdateProviderOrganizationRequest,
+} from "@bitwarden/common/provider";
 import {
   AsyncActionsModule,
   ButtonModule,

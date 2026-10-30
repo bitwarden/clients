@@ -1,4 +1,4 @@
-import { ProfileOrganizationResponse } from "./profile-organization.response";
+import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
 
 export class ProfileProviderOrganizationResponse extends ProfileOrganizationResponse {
   constructor(response: any) {
