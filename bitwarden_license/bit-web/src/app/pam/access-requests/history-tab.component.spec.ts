@@ -421,6 +421,18 @@ describe("HistoryTabComponent", () => {
       expect(text(cell("resolver", "running"))).toBe("system");
     });
 
+    it("updates a row in place on a clock tick, so keyboard focus stays on it", () => {
+      myRows$.next([historyRow({ id: "denied", resolvedAt: ago(5) })]);
+      create();
+      const before = cell("resolved", "denied");
+      expect(text(before)).toContain("pamInboxElapsedMinutes 5");
+
+      tick(2 * 60_000);
+
+      expect(cell("resolved", "denied")).toBe(before);
+      expect(text(before)).toContain("pamInboxElapsedMinutes 7");
+    });
+
     it("puts a newly ended request at the top", () => {
       myRows$.next([historyRow({ id: "older", resolvedAt: ago(60) })]);
       create();
