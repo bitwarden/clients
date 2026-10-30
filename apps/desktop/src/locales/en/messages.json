@@ -6730,8 +6730,8 @@
    "howToManageMyVault": {
     "message": "How do I manage my vault?"
   },
-  "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+  "transferYourItemsToOrganizationTitle": {
+    "message": "Transfer your items to $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6739,17 +6739,14 @@
       }
     }
   },
- "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+  "transferItemsToOrganizationRequiredDescription": {
+    "message": "$ORGANIZATION$ now requires all member items to be owned by the organization. Your personal items will move to a folder called My items that only you can see.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
-  },
-  "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
   },
   "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
