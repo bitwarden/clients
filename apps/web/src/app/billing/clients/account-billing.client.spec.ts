@@ -1,6 +1,7 @@
 import { mock, mockReset } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 import { AccountBillingClient } from "./account-billing.client";
 
@@ -67,6 +68,41 @@ describe("AccountBillingClient", () => {
 
       const sentBody = mockApiService.send.mock.calls[0][2] as Record<string, unknown>;
       expect(sentBody).not.toHaveProperty("coupons");
+    });
+  });
+
+  describe("upgradePremiumToOrganization", () => {
+    const request = {
+      organizationName: "Org",
+      organizationKey: "org-key",
+      collectionName: null,
+      publicKey: "public-key",
+      encryptedPrivateKey: "private-key",
+      planTier: ProductTierType.Teams,
+      cadence: "annually" as const,
+      billingAddress: { country: "US", postalCode: "12345", taxId: null },
+    };
+
+    it("sends prorationDate when supplied", async () => {
+      mockApiService.send.mockResolvedValue("org-id");
+
+      await sut.upgradePremiumToOrganization({ ...request, prorationDate: "2026-10-27T15:04:05Z" });
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/account/billing/vnext/upgrade",
+        expect.objectContaining({ prorationDate: "2026-10-27T15:04:05Z" }),
+        true,
+        true,
+      );
+    });
+
+    it("omits prorationDate when not supplied", async () => {
+      mockApiService.send.mockResolvedValue("org-id");
+
+      await sut.upgradePremiumToOrganization(request);
+
+      expect(mockApiService.send.mock.calls[0][2]).not.toHaveProperty("prorationDate");
     });
   });
 

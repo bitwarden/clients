@@ -99,9 +99,12 @@ describe("PremiumOrgUpgradeService", () => {
     } as any;
     invoicePreviewService = {
       previewPremiumOrgUpgradeCart: jest.fn().mockResolvedValue({
-        passwordManager: {
-          seats: { translationKey: "teamsMembership", cost: 26.67, quantity: 1 },
+        cart: {
+          passwordManager: {
+            seats: { translationKey: "teamsMembership", cost: 26.67, quantity: 1 },
+          },
         },
+        prorationDate: "2026-10-27T15:04:05Z",
       }),
     } as any;
 
@@ -151,6 +154,20 @@ describe("PremiumOrgUpgradeService", () => {
       );
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
       expect(result).toBe("new-org-id");
+    });
+
+    it("forwards the proration date to the upgrade request", async () => {
+      await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        mockPlanDetails.tier,
+        mockBillingAddress,
+        "2026-10-27T15:04:05Z",
+      );
+
+      expect(accountBillingClient.upgradePremiumToOrganization).toHaveBeenCalledWith(
+        expect.objectContaining({ prorationDate: "2026-10-27T15:04:05Z" }),
+      );
     });
 
     it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
@@ -434,7 +451,7 @@ describe("PremiumOrgUpgradeService", () => {
 
   describe("previewInvoiceCart", () => {
     it("should map the tier, pass only country and postal code, and hand over the plan name", async () => {
-      const cart = await service.previewInvoiceCart(mockPlanDetails, mockBillingAddress);
+      const { cart } = await service.previewInvoiceCart(mockPlanDetails, mockBillingAddress);
 
       expect(invoicePreviewService.previewPremiumOrgUpgradeCart).toHaveBeenCalledWith(
         {
@@ -447,6 +464,12 @@ describe("PremiumOrgUpgradeService", () => {
         "Teams",
       );
       expect(cart.passwordManager.seats.translationKey).toBe("teamsMembership");
+    });
+
+    it("should return the proration date from the preview", async () => {
+      const quoted = await service.previewInvoiceCart(mockPlanDetails, mockBillingAddress);
+
+      expect(quoted.prorationDate).toBe("2026-10-27T15:04:05Z");
     });
 
     it("should reject an invalid target tier before calling the facade", async () => {

@@ -27,6 +27,7 @@ export type UpgradePremiumToOrganizationRequest = {
   planTier: ProductTierType;
   cadence: SubscriptionCadence;
   billingAddress: Pick<BillingAddress, "country" | "postalCode" | "taxId">;
+  prorationDate?: string;
 };
 
 @Injectable({ providedIn: "root" })
@@ -112,6 +113,7 @@ export class AccountBillingClient {
         targetProductTierType: request.planTier,
         cadence: request.cadence as string,
         billingAddress: request.billingAddress,
+        ...(request.prorationDate ? { prorationDate: request.prorationDate } : {}),
       },
       true,
       true,

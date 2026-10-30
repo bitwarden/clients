@@ -26,6 +26,12 @@ describe("InvoicePreviewService", () => {
     billingAddress: { country: "US", postalCode: "12345" },
   };
 
+  const planChangeRequest: OrganizationPlanChangePreviewRequest = {
+    tier: "enterprise",
+    cadence: "annually",
+    billingAddress: { country: "US", postalCode: "12345", taxId: null },
+  };
+
   // The real adapter is used throughout, so each method's baked flow context is observable
   // through the translation keys it produces.
   const preview = (planTier: InvoicePreview["planTier"]): InvoicePreview => ({
@@ -127,9 +133,23 @@ describe("InvoicePreviewService", () => {
     it("should bake the premium-org-upgrade flow context", async () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(preview("enterprise") as never);
 
-      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+      const { cart } = await sut.previewPremiumOrgUpgradeCart(
+        premiumOrgUpgradeRequest,
+        "Enterprise",
+      );
 
       expect(cart.passwordManager.seats.translationKey).toBe("enterpriseMembership");
+    });
+
+    it("returns the preview's proration date next to the cart", async () => {
+      mockClient.previewPremiumOrgUpgrade.mockResolvedValue({
+        ...preview("enterprise"),
+        prorationDate: "2026-10-27T15:04:05Z",
+      } as never);
+
+      const result = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+
+      expect(result.prorationDate).toBe("2026-10-27T15:04:05Z");
     });
 
     it("should emit the premium subscription credit row for prorated upgrades", async () => {
@@ -140,7 +160,10 @@ describe("InvoicePreviewService", () => {
         },
       } as never);
 
-      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+      const { cart } = await sut.previewPremiumOrgUpgradeCart(
+        premiumOrgUpgradeRequest,
+        "Enterprise",
+      );
 
       expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 20 });
     });
@@ -154,7 +177,10 @@ describe("InvoicePreviewService", () => {
       };
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(response as never);
 
-      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+      const { cart } = await sut.previewPremiumOrgUpgradeCart(
+        premiumOrgUpgradeRequest,
+        "Enterprise",
+      );
 
       // The server sends no seats line for this upgrade; the seat row is the prorated charge.
       expect(cart.passwordManager.seats).toEqual({
@@ -169,7 +195,10 @@ describe("InvoicePreviewService", () => {
     it("should keep the plain membership label when the preview carries no prorations", async () => {
       mockClient.previewPremiumOrgUpgrade.mockResolvedValue(preview("enterprise") as never);
 
-      const cart = await sut.previewPremiumOrgUpgradeCart(premiumOrgUpgradeRequest, "Enterprise");
+      const { cart } = await sut.previewPremiumOrgUpgradeCart(
+        premiumOrgUpgradeRequest,
+        "Enterprise",
+      );
 
       expect(cart.passwordManager.seats.translationKey).toBe("enterpriseMembership");
       expect(cart.passwordManager.seats.translationParams).toBeUndefined();
@@ -186,7 +215,7 @@ describe("InvoicePreviewService", () => {
         },
       } as never);
 
-      const cart = await sut.previewPlanChangeCart("org-id-123", {
+      const { cart } = await sut.previewPlanChangeCart("org-id-123", {
         tier: "teams",
         cadence: "annually",
         billingAddress: { country: "US", postalCode: "12345", taxId: null },
@@ -195,6 +224,18 @@ describe("InvoicePreviewService", () => {
       expect(cart.credit).toEqual({ translationKey: "appliedProrationCredits", value: 12.5 });
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(mockLogService.error).not.toHaveBeenCalled();
+    });
+
+    it("returns the preview's proration date next to the cart", async () => {
+      mockClient.previewOrganizationPlanChange.mockResolvedValue({
+        ...preview("enterprise"),
+        prorationDate: "2026-10-27T15:04:05Z",
+      } as never);
+
+      const result = await sut.previewPlanChangeCart("org-id", planChangeRequest);
+
+      expect(result.prorationDate).toBe("2026-10-27T15:04:05Z");
+      expect(result.cart.passwordManager.seats).toBeDefined();
     });
 
     it("should pass the organization id through to the client", async () => {

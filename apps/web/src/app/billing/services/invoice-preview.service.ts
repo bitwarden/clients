@@ -12,6 +12,9 @@ import {
   PremiumPurchasePreviewRequest,
 } from "../clients/invoice-preview.client";
 
+/** A render-ready cart plus the server's proration date, to be sent back when the user confirms. */
+export type QuotedCart = { cart: Cart; prorationDate: string | undefined };
+
 /**
  * Fetches server-calculated invoice previews and adapts them into render-ready {@link Cart}s
  * that bind directly to `<billing-cart-summary>`.
@@ -52,15 +55,18 @@ export class InvoicePreviewService {
   previewPremiumOrgUpgradeCart = async (
     request: PremiumOrgUpgradePreviewRequest,
     planName: string,
-  ): Promise<Cart> => {
+  ): Promise<QuotedCart> => {
     const preview = await this.invoicePreviewClient.previewPremiumOrgUpgrade(request);
 
-    return adaptInvoicePreviewToCart(
-      preview,
-      InvoicePreviewFlowContext.PremiumOrgUpgrade,
-      this.logService,
-      { planName },
-    );
+    return {
+      cart: adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        this.logService,
+        { planName },
+      ),
+      prorationDate: preview.prorationDate,
+    };
   };
 
   /**
@@ -81,17 +87,20 @@ export class InvoicePreviewService {
   previewPlanChangeCart = async (
     organizationId: string,
     request: OrganizationPlanChangePreviewRequest,
-  ): Promise<Cart> => {
+  ): Promise<QuotedCart> => {
     const preview = await this.invoicePreviewClient.previewOrganizationPlanChange(
       organizationId,
       request,
     );
 
-    return adaptInvoicePreviewToCart(
-      preview,
-      InvoicePreviewFlowContext.OrganizationPlanChange,
-      this.logService,
-    );
+    return {
+      cart: adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationPlanChange,
+        this.logService,
+      ),
+      prorationDate: preview.prorationDate,
+    };
   };
 
   previewRestartCart = async (

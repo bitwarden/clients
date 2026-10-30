@@ -17,4 +17,5 @@ export class OrganizationUpgradeRequest {
   useSecretsManager: boolean;
   additionalSmSeats: number;
   additionalServiceAccounts: number;
+  prorationDate?: string;
 }

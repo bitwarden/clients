@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
+  computed,
   EventEmitter,
   Inject,
   Input,
@@ -38,6 +39,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -78,6 +80,7 @@ import { BillingNotificationService } from "../services/billing-notification.ser
 import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
 import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
+import { isInvoicePreviewExpiredError } from "../shared/invoice-preview-expired-error";
 
 type ChangePlanDialogParams = {
   organizationId: string;
@@ -282,6 +285,20 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     },
   });
 
+  // The proration date of a quote the server rejected as expired. Keyed to the date so any newly
+  // resolved preview clears the expired state on its own: the server stamps each preview with the
+  // current second, so a freshly resolved preview carries a different date.
+  private readonly expiredProrationDate = signal<string | undefined>(undefined);
+
+  private submittedProrationDate: string | undefined;
+
+  protected readonly isPreviewExpired = computed(
+    () =>
+      this.planChangeCart.hasValue() &&
+      this.expiredProrationDate() != null &&
+      this.expiredProrationDate() === this.planChangeCart.value()?.prorationDate,
+  );
+
   // Message shown in the error callout, from the resource's returned error object.
   protected get previewErrorMessageKey(): string {
     return invoicePreviewErrorMessageKey(this.planChangeCart.error());
@@ -291,10 +308,21 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return this.previewCartEnabled() && !this.isSubscriptionCanceled;
   }
 
-  // With the preview cart on, block submission until the cost preview has loaded so a plan change
-  // can't be committed without its cost shown.
+  // With the preview cart on, block submission until a current cost preview has loaded so a plan
+  // change can't be committed without its cost shown or against an expired quote.
   protected get isSubmitDisabled(): boolean {
-    return this.showPreviewCart && !this.planChangeCart.hasValue();
+    return (
+      this.showPreviewCart &&
+      (!this.planChangeCart.hasValue() ||
+        this.planChangeCart.isLoading() ||
+        this.isPreviewExpired())
+    );
+  }
+
+  // reload() rather than refreshPlanChangePreview(): the request is unchanged, so the signal's
+  // equality check would drop it.
+  protected refreshExpiredPreview(): void {
+    this.planChangeCart.reload();
   }
 
   protected get trialLengthDays(): number {
@@ -355,6 +383,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private vfo1TerminologyService: Vfo1TerminologyService,
     private invoicePreviewService: InvoicePreviewService,
     private configService: ConfigService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -907,6 +936,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.formGroup.invalid || (this.billingFormGroup.invalid && !this.paymentMethod)) {
       return;
     }
+    if (this.isSubmitDisabled) {
+      return;
+    }
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
@@ -946,7 +978,25 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     };
 
     this.formPromise = doSubmit();
-    const organizationId = await this.formPromise;
+    let organizationId: string;
+    try {
+      organizationId = await this.formPromise;
+    } catch (error) {
+      // Only mark the current preview expired if it is still the one the rejected upgrade used.
+      const submittedDate = this.submittedProrationDate;
+      if (
+        this.showPreviewCart &&
+        isInvoicePreviewExpiredError(error) &&
+        submittedDate != null &&
+        this.planChangeCart.hasValue() &&
+        this.planChangeCart.value().prorationDate === submittedDate
+      ) {
+        this.logService.error("Invoice preview expired:", error);
+        this.expiredProrationDate.set(submittedDate);
+        return;
+      }
+      throw error;
+    }
     this.onSuccess.emit({ organizationId: organizationId });
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId });
@@ -981,6 +1031,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       request.billingAddressCountry = this.billingFormGroup.controls.billingAddress.value.country;
       request.billingAddressPostalCode =
         this.billingFormGroup.controls.billingAddress.value.postalCode;
+    }
+
+    if (this.showPreviewCart) {
+      request.prorationDate = this.planChangeCart.value()?.prorationDate;
+      this.submittedProrationDate = request.prorationDate;
     }
 
     // Secrets Manager

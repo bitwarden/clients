@@ -245,6 +245,27 @@ describe("InvoicePreviewResponse", () => {
 
       expect(response.nextPaymentAttempt).toBeUndefined();
     });
+
+    it("keeps ProrationDate as the server's string", () => {
+      const response = new InvoicePreviewResponse({
+        ...minimal(),
+        ProrationDate: "2026-10-27T15:04:05Z",
+      });
+
+      expect(response.prorationDate).toBe("2026-10-27T15:04:05Z");
+    });
+
+    it("omits prorationDate when the server omits it", () => {
+      const response = new InvoicePreviewResponse({ ...minimal(), ProrationDate: null });
+
+      expect(response.prorationDate).toBeUndefined();
+    });
+
+    it("omits a malformed prorationDate", () => {
+      const response = new InvoicePreviewResponse({ ...minimal(), ProrationDate: "not-a-date" });
+
+      expect(response.prorationDate).toBeUndefined();
+    });
   });
 
   describe("validation", () => {

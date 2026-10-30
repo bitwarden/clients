@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, EMPTY } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -14,6 +14,7 @@ import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -74,6 +75,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
         { provide: ConfigService, useValue: configService },
         { provide: InvoicePreviewService, useValue: invoicePreviewService },
+        { provide: LogService, useValue: mock<LogService>() },
       ],
     });
 
@@ -396,7 +398,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("enables submit once the preview has loaded", () => {
       previewCartFlag$.next(true);
-      (component as any).planChangeCart = { hasValue: () => true };
+      (component as any).planChangeCart = { hasValue: () => true, isLoading: () => false };
 
       expect((component as any).isSubmitDisabled).toBe(false);
     });
@@ -513,6 +515,265 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       TestBed.tick();
 
       expect((component as any).previewErrorMessageKey).toBe("invoicePreviewErrorMessage");
+    });
+
+    describe("expired preview (PM-44621)", () => {
+      const firstDate = "2026-10-27T15:04:05Z";
+      const refreshedDate = "2026-10-27T15:40:00Z";
+      const cart = {} as any;
+      let organizationApiService: jest.Mocked<OrganizationApiServiceAbstraction>;
+      let toastService: jest.Mocked<ToastService>;
+
+      const expiredError = () =>
+        new ErrorResponse(
+          {
+            Message: "The model state is invalid.",
+            ValidationErrors: { InvoicePreviewExpired: ["The invoice preview has expired."] },
+          },
+          400,
+        );
+
+      const settle = async () => {
+        TestBed.tick();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        TestBed.tick();
+      };
+
+      const prepareUpgrade = () => {
+        selectEnterpriseAnnual();
+        component.selectedPlan = {
+          type: PlanType.EnterpriseAnnually,
+          productTier: ProductTierType.Enterprise,
+          PasswordManager: { baseStorageGb: 1, hasPremiumAccessOption: false },
+        } as any;
+        component.organization = {
+          useSecretsManager: false,
+          hasPublicAndPrivateKeys: true,
+          productTierType: ProductTierType.Teams,
+        } as any;
+        component.paymentMethod = {} as any;
+      };
+
+      const loadPreview = async (prorationDate: string | undefined) => {
+        invoicePreviewService.previewPlanChangeCart.mockResolvedValueOnce({ cart, prorationDate });
+        (component as any).refreshPlanChangePreview();
+        await settle();
+      };
+
+      const sentRequest = (call = 0): OrganizationUpgradeRequest =>
+        organizationApiService.upgrade.mock.calls[call][1];
+
+      const expireQuote = async () => {
+        organizationApiService.upgrade.mockRejectedValueOnce(expiredError());
+        await component.submit();
+      };
+
+      beforeEach(() => {
+        organizationApiService = TestBed.inject(
+          OrganizationApiServiceAbstraction,
+        ) as jest.Mocked<OrganizationApiServiceAbstraction>;
+        toastService = TestBed.inject(ToastService) as jest.Mocked<ToastService>;
+        prepareUpgrade();
+      });
+
+      it("sends the preview's proration date on upgrade", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+
+        await (component as any).updateOrganization();
+
+        expect(organizationApiService.upgrade).toHaveBeenCalledWith(
+          "organization-id",
+          expect.objectContaining({ prorationDate: firstDate }),
+        );
+      });
+
+      it("sends no proration date when the preview cart is off", async () => {
+        await (component as any).updateOrganization();
+
+        expect(sentRequest()).not.toHaveProperty("prorationDate");
+      });
+
+      it("shows the out-of-date callout and disables submit when the quote has expired", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+
+        const onSuccess = jest.spyOn(component.onSuccess, "emit");
+
+        await expect(expireQuote()).resolves.toBeUndefined();
+
+        expect((component as any).isPreviewExpired()).toBe(true);
+        expect((component as any).isSubmitDisabled).toBe(true);
+        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(TestBed.inject(DialogRef).close).not.toHaveBeenCalled();
+        expect(onSuccess).not.toHaveBeenCalled();
+      });
+
+      it("renders the out-of-date callout after an expired quote", async () => {
+        // jsdom does not implement IntersectionObserver, which bit-dialog uses internally.
+        global.IntersectionObserver = class {
+          disconnect() {}
+          observe() {}
+          takeRecords(): IntersectionObserverEntry[] {
+            return [];
+          }
+          unobserve() {}
+        } as unknown as typeof IntersectionObserver;
+        Object.assign(TestBed.inject(Router), { url: "/", events: EMPTY });
+        const ngOnInit = jest
+          .spyOn(ChangePlanDialogComponent.prototype, "ngOnInit")
+          .mockResolvedValue();
+        const fixture = TestBed.createComponent(ChangePlanDialogComponent);
+        component = fixture.componentInstance;
+        prepareUpgrade();
+        component.productTier = ProductTierType.Enterprise;
+        previewCartFlag$.next(true);
+        invoicePreviewService.previewPlanChangeCart.mockResolvedValueOnce({
+          cart: { passwordManager: {}, cadence: "annually", estimatedTax: 0 } as any,
+          prorationDate: firstDate,
+        });
+        (component as any).refreshPlanChangePreview();
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        await expireQuote();
+        fixture.detectChanges();
+
+        expect(
+          fixture.nativeElement.querySelector("[data-testid='invoice-preview-expired']"),
+        ).not.toBeNull();
+        ngOnInit.mockRestore();
+      });
+
+      it("rethrows the expired error when the preview reloaded with a different date mid-submit", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        let rejectUpgrade: (error: unknown) => void;
+        organizationApiService.upgrade.mockReturnValueOnce(
+          new Promise((_, reject) => (rejectUpgrade = reject)),
+        );
+        const submitting = component.submit();
+        await settle();
+        expect(organizationApiService.upgrade).toHaveBeenCalled();
+
+        invoicePreviewService.previewPlanChangeCart.mockResolvedValueOnce({
+          cart,
+          prorationDate: refreshedDate,
+        });
+        (component as any).planChangeCart.reload();
+        await settle();
+
+        const error = expiredError();
+        rejectUpgrade(error);
+
+        await expect(submitting).rejects.toBe(error);
+        expect((component as any).isPreviewExpired()).toBe(false);
+      });
+
+      it("rethrows the expired error when the preview errored mid-submit", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        let rejectUpgrade: (error: unknown) => void;
+        organizationApiService.upgrade.mockReturnValueOnce(
+          new Promise((_, reject) => (rejectUpgrade = reject)),
+        );
+        const submitting = component.submit();
+        await settle();
+        expect(organizationApiService.upgrade).toHaveBeenCalled();
+
+        invoicePreviewService.previewPlanChangeCart.mockRejectedValueOnce(
+          new Error("preview failed"),
+        );
+        (component as any).planChangeCart.reload();
+        await settle();
+        expect((component as any).planChangeCart.error()).toBeTruthy();
+
+        const error = expiredError();
+        rejectUpgrade(error);
+
+        await expect(submitting).rejects.toBe(error);
+      });
+
+      it("rethrows other submit errors unchanged", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        const error = new ErrorResponse({ Message: "Internal error" }, 500);
+        organizationApiService.upgrade.mockRejectedValueOnce(error);
+
+        await expect(component.submit()).rejects.toBe(error);
+        expect((component as any).isPreviewExpired()).toBe(false);
+      });
+
+      it("Refresh re-fetches the preview, clears the callout, and sends the new date", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+        invoicePreviewService.previewPlanChangeCart.mockResolvedValueOnce({
+          cart,
+          prorationDate: refreshedDate,
+        });
+
+        (component as any).refreshExpiredPreview();
+        await settle();
+
+        expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
+        expect((component as any).isPreviewExpired()).toBe(false);
+        expect((component as any).isSubmitDisabled).toBe(false);
+
+        await (component as any).updateOrganization();
+        expect(sentRequest(1).prorationDate).toBe(refreshedDate);
+      });
+
+      it("keeps submit disabled while the refreshed preview is loading", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+        invoicePreviewService.previewPlanChangeCart.mockReturnValueOnce(new Promise(() => {}));
+
+        (component as any).refreshExpiredPreview();
+        TestBed.tick();
+
+        expect((component as any).isSubmitDisabled).toBe(true);
+      });
+
+      it("does not submit again once the quote has expired", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+
+        await component.submit();
+
+        expect(organizationApiService.upgrade).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not submit, or throw, when the preview is in an error state", async () => {
+        previewCartFlag$.next(true);
+        invoicePreviewService.previewPlanChangeCart.mockRejectedValueOnce(
+          new Error("preview failed"),
+        );
+        (component as any).refreshPlanChangePreview();
+        await settle();
+        expect((component as any).planChangeCart.error()).toBeTruthy();
+
+        await expect(component.submit()).resolves.toBeUndefined();
+
+        expect(organizationApiService.upgrade).not.toHaveBeenCalled();
+      });
+
+      it("a failed refresh shows the preview-error callout", async () => {
+        previewCartFlag$.next(true);
+        await loadPreview(firstDate);
+        await expireQuote();
+        invoicePreviewService.previewPlanChangeCart.mockRejectedValueOnce(
+          new Error("preview failed"),
+        );
+
+        (component as any).refreshExpiredPreview();
+        await settle();
+
+        expect((component as any).planChangeCart.error()).toBeTruthy();
+        expect((component as any).isSubmitDisabled).toBe(true);
+      });
     });
   });
 
