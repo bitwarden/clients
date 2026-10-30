@@ -20,6 +20,7 @@ export class TrayMain {
   private tray: Tray;
   private icon: string | Electron.NativeImage;
   private pressedIcon: Electron.NativeImage;
+  // Cached so the close handler can decide synchronously whether to call preventDefault().
   private runInBackground = false;
 
   constructor(
@@ -91,8 +92,6 @@ export class TrayMain {
       await this.biometricService.setShouldAutopromptNow(true);
     });
 
-    // Must stay synchronous: preventDefault() after an await is ignored when the close is
-    // triggered from JS, e.g. the "close" menu role (Ctrl+W).
     win.on("close", (e: Event) => {
       if (this.windowMain.isQuitting) {
         return;
@@ -101,7 +100,7 @@ export class TrayMain {
       if (this.runInBackground) {
         // Keep running in the background: closing the window hides it to the tray.
         e.preventDefault();
-        this.hideToTray();
+        this.hideToTray(win);
       } else {
         // Not running in the background: closing the window quits the application.
         // Setting isQuitting ensures macOS also quits via the window-all-closed handler.
@@ -123,10 +122,10 @@ export class TrayMain {
     }
   }
 
-  hideToTray() {
+  hideToTray(win: BrowserWindow | null = this.windowMain.win) {
     this.showTray();
-    if (this.windowMain.win != null) {
-      this.windowMain.win.hide();
+    if (win != null) {
+      win.hide();
     }
     if (this.isDarwin()) {
       this.hideDock();

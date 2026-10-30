@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Přidejte sdílenou složku pro bezpečné sdílení položek trezoru s ostatními uživateli."
   },
+  "pinned": {
+    "message": "Připnuto",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Připnout do postranního panelu",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Odepnout z postranního panelu",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ připnuto do postranního panelu",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ odepnuto z postranního panelu",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Najděte sdílenou složku v tomto trezoru a vyberte",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "z menu Volby.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Připněte sdílené složky do postranního panelu pro jejich filtrování zde."
+  },
   "sendPasswordHelperText": {
     "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7294,6 +7337,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Stejné funkce, jasnější jména. Sbírky se nyní nazývají sdílené složky. Složky jsou nyní Moje složky."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Kombinovat filtry"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Vyberte několik filtrů najednou, pro zúžení přesně na výsledky, které chcete. Zůstanou aktivní i po opuštění."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ z $TOTAL$",

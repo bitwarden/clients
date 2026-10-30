@@ -14,6 +14,8 @@ export enum FeatureFlag {
   CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  GroupsComponentRefactor = "pm-43419-groups-table-v2",
+  MembersTableV2 = "pm-37463-members-table-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -52,6 +54,7 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM36631_PreviewDrivenCart = "pm-36631-preview-driven-cart",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
+  PamBillingSupport = "pm-39883-pam-billing-support",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -86,6 +89,7 @@ export enum FeatureFlag {
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  HealthReportExclusions = "pm-39196-health-report-exclusions",
   AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
@@ -130,6 +134,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
+  [FeatureFlag.MembersTableV2]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -163,6 +169,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.HealthReportExclusions]: FALSE,
   [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
@@ -216,6 +223,7 @@ export const DefaultFeatureFlagValue = {
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamBillingSupport]: FALSE,
   [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */

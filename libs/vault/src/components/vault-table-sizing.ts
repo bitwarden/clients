@@ -1,6 +1,7 @@
 /**
- * Sizing shared by the vault's virtualized `bit-table-v2` tables — `vault-items-table` and
- * `vault-shared-folders` — so the two keep the same row height, floor, and bulk-bar clearance.
+ * Sizing shared by the vault's virtualized `bit-table-v2` tables — `vault-items-table`,
+ * `vault-shared-folders`, and `vault-my-folders` — so they keep the same row height, floor, and
+ * bulk-bar clearance.
  */
 
 /**

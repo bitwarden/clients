@@ -3,9 +3,9 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import mock, { MockProxy } from "jest-mock-extended/lib/Mock";
 import { firstValueFrom } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-provider.response";

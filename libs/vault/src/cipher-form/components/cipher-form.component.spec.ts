@@ -9,6 +9,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { RestrictedCipherWriteError } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -118,6 +119,33 @@ describe("CipherFormComponent", () => {
       });
       expect(mockAddEditFormService.saveCipher).not.toHaveBeenCalled();
       expect(cipherSavedSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows the generic message and stays in the form when a restricted change is refused", async () => {
+      mockAccountService.activeAccount$ = of({ id: "user-id" }) as Observable<Account | null>;
+      mockCipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      mockAddEditFormService.saveCipher = jest
+        .fn()
+        .mockRejectedValue(new RestrictedCipherWriteError());
+      const showToast = jest.spyOn(TestBed.inject(ToastService), "showToast");
+      const cipherSavedSpy = jest.fn();
+      component.cipherSaved.subscribe(cipherSavedSpy);
+
+      await component.submit();
+
+      expect(showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "restrictedItemChangeRefused",
+      });
+      expect(cipherSavedSpy).not.toHaveBeenCalled();
+    });
+
+    it("rethrows other save errors", async () => {
+      mockAccountService.activeAccount$ = of({ id: "user-id" }) as Observable<Account | null>;
+      mockCipherArchiveService.userCanArchive$.mockReturnValue(of(true));
+      mockAddEditFormService.saveCipher = jest.fn().mockRejectedValue(new Error("server error"));
+
+      await expect(component.submit()).rejects.toThrow("server error");
     });
   });
 

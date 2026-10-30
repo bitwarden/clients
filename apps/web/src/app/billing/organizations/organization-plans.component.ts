@@ -97,6 +97,7 @@ import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgr
 import { InvoicePreviewService } from "../services/invoice-preview.service";
 import { SubscriptionDiscountService } from "../services/subscription-discount.service";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
+import { invoicePreviewErrorMessageKey } from "../shared/invoice-preview-error-message-key";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -379,6 +380,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   private readonly previewCart = signal<Cart | null>(null);
 
   protected readonly previewFailed = signal(false);
+  protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
 
   private readonly usePreviewDrivenCart = (previewDrivenCart: boolean) =>
     previewDrivenCart && this.createOrganization() && !this.hasProvider();
@@ -1051,9 +1053,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       map((): void => undefined),
       catchError((error: unknown) => {
         this.logService.error("Invoice preview failed:", error);
+        const key = invoicePreviewErrorMessageKey(error);
+        this.previewErrorMessageKey.set(key);
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("invoicePreviewErrorMessage"),
+          message: this.i18nService.t(key),
         });
         this.previewCart.set(null);
         this.previewFailed.set(true);
