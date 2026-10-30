@@ -154,44 +154,49 @@ export default {
 
 type Story = StoryObj<GroupsV2Component>;
 
-function makeRender(groups: GroupDetailsView[], loading = false): Story["render"] {
-  return () => ({
-    moduleMetadata: {
-      providers: [
-        {
-          provide: InternalGroupApiService,
-          useValue: loading
-            ? { getAllDetails: () => new Promise(() => {}) } // never resolves — stays in the loading state
-            : makeGroupService(groups),
-        },
-        // DialogService is intentionally left unmocked (unlike groups.component.stories.ts) so
-        // the delete-confirmation stories can drive and render the actual dialog via `play`.
-      ],
-    },
-    template: `<div bitScrollLayoutHost class="tw-h-screen tw-overflow-auto"><router-outlet></router-outlet></div>`,
+const render: Story["render"] = () => ({
+  template: `<div bitScrollLayoutHost class="tw-h-screen tw-overflow-auto"><router-outlet></router-outlet></div>`,
+});
+
+function withGroups(groups: GroupDetailsView[], loading = false): Decorator {
+  return moduleMetadata({
+    providers: [
+      {
+        provide: InternalGroupApiService,
+        useValue: loading
+          ? { getAllDetails: () => new Promise(() => {}) } // never resolves — stays in the loading state
+          : makeGroupService(groups),
+      },
+      // DialogService is intentionally left unmocked (unlike groups.component.stories.ts) so
+      // the delete-confirmation stories can drive and render the actual dialog via `play`.
+    ],
   });
 }
 
 /** The groups list with a couple of groups, each with different collection access. */
 export const Default: Story = {
-  render: makeRender(mockGroups),
+  render,
+  decorators: [withGroups(mockGroups)],
 };
 
 /** The table while the initial groups/collections fetch is still in flight. */
 export const Loading: Story = {
-  render: makeRender(mockGroups, true),
+  render,
+  decorators: [withGroups(mockGroups, true)],
 };
 
 /** No groups have been created yet — the custom "No groups yet" empty state, not the table's
  * generic "Nothing to show" fallback. */
 export const Empty: Story = {
-  render: makeRender([]),
+  render,
+  decorators: [withGroups([])],
 };
 
 /** Opening a row's options menu — shows the real "Edit info", "Members", "Collections", and
  * "Delete" menu items reachable from a row's "Options" trigger. */
 export const RowOptionsMenu: Story = {
-  render: makeRender(mockGroups),
+  render,
+  decorators: [withGroups(mockGroups)],
   play: async ({ canvasElement }) => {
     const optionsButton = getAllByRole(canvasElement, "button", { name: "Options" })[0];
     await userEvent.click(optionsButton);
@@ -205,7 +210,8 @@ export const RowOptionsMenu: Story = {
 
 /** Clicking a group's name opens the real edit dialog on its "Info" tab. */
 export const RowClickOpensEditDialog: Story = {
-  render: makeRender(mockGroups),
+  render,
+  decorators: [withGroups(mockGroups)],
   play: async ({ canvasElement }) => {
     const nameLink = await getByRole(canvasElement, "button", { name: "Engineering Team" });
     await userEvent.click(nameLink);
@@ -217,7 +223,8 @@ export const RowClickOpensEditDialog: Story = {
 /** Deleting a single group from its row options menu — shows the real "Delete group"
  * confirmation dialog, opened via its actual trigger path (row menu → Delete). */
 export const DeleteConfirmationSingle: Story = {
-  render: makeRender(mockGroups),
+  render,
+  decorators: [withGroups(mockGroups)],
   play: async ({ canvasElement }) => {
     const optionsButton = getAllByRole(canvasElement, "button", { name: "Options" })[0];
     await userEvent.click(optionsButton);
@@ -231,7 +238,8 @@ export const DeleteConfirmationSingle: Story = {
  * "Delete N groups" confirmation dialog, opened via its actual trigger path (select rows →
  * bulk-actions bar → Delete). */
 export const DeleteConfirmationBulk: Story = {
-  render: makeRender(mockGroups),
+  render,
+  decorators: [withGroups(mockGroups)],
   play: async ({ canvasElement }) => {
     const selectRow = getAllByRole(canvasElement, "checkbox", { name: "Select row" });
     for (const checkbox of selectRow) {
