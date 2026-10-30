@@ -175,9 +175,6 @@
               <bit-option [value]="m.format" [label]="m.translate ? (m.label | i18n) : m.label" />
             }
           </bit-select>
-          @if (selectedMethodHint; as hint) {
-            <bit-hint>{{ hint | i18n }}</bit-hint>
-          }
         </bit-form-field>
       }
       @if (isOnePasswordDirectFormat) {

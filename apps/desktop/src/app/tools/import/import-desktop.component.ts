@@ -14,11 +14,13 @@ import { ImportMetadataServiceAbstraction } from "@bitwarden/importer-core";
 import {
   ImportComponent,
   ImporterProviders,
+  OnePasswordSsoBrowser,
   SYSTEM_SERVICE_PROVIDER,
 } from "@bitwarden/importer-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
 import { DesktopImportMetadataService } from "./desktop-import-metadata.service";
+import { DesktopOnePasswordSsoBrowser } from "./desktop-onepassword-sso-browser";
 
 interface ImportDesktopDialogData {
   /** Pre-selects an organization in the import form */
@@ -45,6 +47,11 @@ interface ImportDesktopDialogData {
       provide: ImportMetadataServiceAbstraction,
       useClass: DesktopImportMetadataService,
       deps: [SYSTEM_SERVICE_PROVIDER],
+    }),
+    safeProvider({
+      provide: OnePasswordSsoBrowser,
+      useClass: DesktopOnePasswordSsoBrowser,
+      deps: [],
     }),
   ],
 })
