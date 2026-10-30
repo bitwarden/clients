@@ -11,6 +11,7 @@ import * as koaJson from "koa-json";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { limitPerformanceMeasurements } from "@bitwarden/logging";
 
 import { Response } from "../models/response";
 import { OssServeConfigurator } from "../oss-serve-configurator";
@@ -94,6 +95,7 @@ export class ServeCommand {
   ) {}
 
   async run(options: OptionValues): Promise<Response> {
+    limitPerformanceMeasurements();
     const protectOrigin = !options.disableOriginProtection;
     const port = Number(options.port) || 8087;
     const hostname = options.hostname || "localhost";

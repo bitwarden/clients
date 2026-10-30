@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "Courriel LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Inclure les dossiers partagés"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Les identifiants, les cartes, les identités, les notes sécurisées et les TOTPs avec leur structure de dossier préservée."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Accepté : $FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Gérer la récupération de compte"
   },
+  "manageAccessRules": {
+    "message": "Gérer les règles d'accès"
+  },
+  "manageRotation": {
+    "message": "Gérer la rotation"
+  },
   "disableRequiredError": {
     "message": "Afin de désactiver cette politique, vous devez préalablement manuellement désactiver la politique \"$POLICYNAME$\".",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Ajouter un dossier partagé pour partager de façon sécuritaire les éléments du coffre avec d'autres membres."
   },
+  "pinned": {
+    "message": "Épinglé",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Épingler à la barre latérale",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Détacher de la barre latérale",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ a été épinglé sur la barre latérale",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ a été retiré de la barre latérale",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Trouvez un dossier partagé dans ce coffre et sélectionnez",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "dans le menu Options.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Épingler les dossiers partagés dans la barre latérale pour les filtrer ici."
+  },
   "noMembersAdded": {
     "message": "Pas de membres ajoutés"
   },
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Prix du plan du Secrets Manager"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Prix de l'abonnement à Contrôles Privilégiés",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Password Manager"
@@ -17546,6 +17650,63 @@
   "importingYourAccount": {
     "message": "Importation de votre compte..."
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
   "passcode": {
     "message": "Code d'accès"
   },
@@ -17802,6 +17963,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Demandes d'accès"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 heure"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ heures",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "à partir de maintenant"
+  },
+  "pamInboxStartToday": {
+    "message": "aujourd'hui"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "demain"
+  },
+  "pamInboxStartInDays": {
+    "message": "dans $DAYS$ jours",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Impossible de démarrer l'accès."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "La fenêtre d'approbation d'accès n'a pas encore commencé."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "La fenêtre d'approbation d'accès est déjà terminée."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Cette demande n'a pas encore été approuvée."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Cette demande ne peut plus être activée."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Cette demande d'accès a déjà été utilisée et n'est plus active."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Un seul utilisateur à la fois peut avoir un accès actif à cet élément. Réessayez une fois l'accès actuel terminé."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "L'accès à cet élément n'est pas autorisé depuis votre réseau actuel."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "L'accès à cet élément n'est pas autorisé pour le moment."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "L'accès à cet élément n'est pas autorisé immédiatement."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Une licence de Contrôles Privilégiés est requise. Demandez à votre administrateur d'activer votre licence.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Vous avez déjà un accès actif à cet élément."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Vous avez déjà une demande approuvée pour cet élément."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Vous avez déjà une demande en attente pour cet élément."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$j avant",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h avant",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "À l’instant"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m avant",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Règles d'accès"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Charge du Secrets Manager au prorata"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Charge au prorata pour Contrôles Privilégiés",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Charge des comptes de service au prorata"

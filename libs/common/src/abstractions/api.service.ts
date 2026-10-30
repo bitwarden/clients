@@ -10,30 +10,12 @@ import {
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
-import { ProviderAddOrganizationRequest } from "../admin-console/models/request/provider/provider-add-organization.request";
-import { ProviderOrganizationCreateRequest } from "../admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderUserAcceptRequest } from "../admin-console/models/request/provider/provider-user-accept.request";
-import { ProviderUserBulkConfirmRequest } from "../admin-console/models/request/provider/provider-user-bulk-confirm.request";
-import { ProviderUserBulkRequest } from "../admin-console/models/request/provider/provider-user-bulk.request";
-import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
-import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
-import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
-import {
-  ProviderOrganizationOrganizationDetailsResponse,
-  ProviderOrganizationResponse,
-} from "../admin-console/models/response/provider/provider-organization.response";
-import { ProviderUserBulkPublicKeyResponse } from "../admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "../admin-console/models/response/provider/provider-user-bulk.response";
-import {
-  ProviderUserResponse,
-  ProviderUserUserDetailsResponse,
-} from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -71,12 +53,25 @@ import { UserKeyResponse } from "../models/response/user-key.response";
 import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
+import { ProviderAddOrganizationRequest } from "../provider/models/request/provider-add-organization.request";
+import { ProviderOrganizationCreateRequest } from "../provider/models/request/provider-organization-create.request";
+import { ProviderUserAcceptRequest } from "../provider/models/request/provider-user-accept.request";
+import { ProviderUserBulkConfirmRequest } from "../provider/models/request/provider-user-bulk-confirm.request";
+import { ProviderUserBulkRequest } from "../provider/models/request/provider-user-bulk.request";
+import { ProviderUserConfirmRequest } from "../provider/models/request/provider-user-confirm.request";
+import { ProviderUserInviteRequest } from "../provider/models/request/provider-user-invite.request";
+import { ProviderUserUpdateRequest } from "../provider/models/request/provider-user-update.request";
+import {
+  ProviderOrganizationOrganizationDetailsResponse,
+  ProviderOrganizationResponse,
+} from "../provider/models/response/provider-organization.response";
+import { ProviderUserBulkPublicKeyResponse } from "../provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "../provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserResponse,
+  ProviderUserUserDetailsResponse,
+} from "../provider/models/response/provider-user.response";
 import { UserId } from "../types/guid";
-import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
-import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
 
@@ -136,7 +131,7 @@ export abstract class ApiService {
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
   abstract postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any>;
   abstract postSecurityStamp(request: SecretVerificationRequest): Promise<any>;
-  abstract getAccountRevisionDate(): Promise<number>;
+  abstract getAccountRevisionDate(userId?: UserId): Promise<number>;
   abstract postPasswordHint(request: PasswordHintRequest): Promise<any>;
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
   abstract postAccountLicense(data: FormData): Promise<any>;
@@ -169,36 +164,11 @@ export abstract class ApiService {
     attachmentId: string,
     emergencyAccessId?: string,
   ): Promise<AttachmentResponse>;
-  abstract getCiphersOrganization(
-    organizationId: string,
-    includeMemberItems?: boolean,
-  ): Promise<ListResponse<CipherResponse>>;
-  abstract postCipher(request: CipherRequest): Promise<CipherResponse>;
-  abstract postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse>;
-  abstract postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse>;
-  abstract putCipher(id: string, request: CipherRequest): Promise<CipherResponse>;
-  abstract putPartialCipher(id: string, request: CipherPartialRequest): Promise<CipherResponse>;
-  abstract putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse>;
   abstract deleteCipher(id: string): Promise<any>;
-  abstract deleteCipherAdmin(id: string): Promise<any>;
-  abstract deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
   abstract postPurgeCiphers(
     request: SecretVerificationRequest,
     organizationId?: string,
   ): Promise<any>;
-  abstract putDeleteCipher(id: string): Promise<any>;
-  abstract putDeleteCipherAdmin(id: string): Promise<any>;
-  abstract putDeleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any>;
-  abstract putRestoreCipher(id: string): Promise<CipherResponse>;
-  abstract putRestoreCipherAdmin(id: string): Promise<CipherResponse>;
-  abstract putRestoreManyCiphers(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>>;
-  abstract putRestoreManyCiphersAdmin(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>>;
 
   abstract postShareCipherAttachment(
     id: string,
@@ -248,7 +218,7 @@ export abstract class ApiService {
     organizationUserId: string,
   ): Promise<any>;
 
-  abstract getSync(): Promise<SyncResponse>;
+  abstract getSync(userId?: UserId): Promise<SyncResponse>;
 
   abstract getSettingsDomains(): Promise<DomainsResponse>;
   abstract putSettingsDomains(request: UpdateDomainsRequest): Promise<DomainsResponse>;
