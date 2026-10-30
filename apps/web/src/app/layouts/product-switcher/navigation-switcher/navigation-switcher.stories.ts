@@ -183,8 +183,8 @@ const translations: Record<string, string> = {
   skipLink: "Skip link",
   upgradeYourPlan: "Upgrade your plan",
   upgradeNow: "Upgrade now",
-  getAdvancedOnlineSecurityWithBitwardenPremium:
-    "Get advanced online security with Bitwarden premium.",
+  getAdvancedOnlineSecurityWithBitwardenPremiumCapitalized:
+    "Get advanced online security with Bitwarden Premium.",
   loggedInAs: "Logged in as",
   accountSettings: "Account settings",
   getHelp: "Get help",
