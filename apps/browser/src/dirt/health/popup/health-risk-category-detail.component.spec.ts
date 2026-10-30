@@ -15,6 +15,7 @@ import {
   VaultHealthReportView,
 } from "@bitwarden/common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/services";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -39,6 +40,7 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 import { HealthDeleteAtRiskItemDialogComponent } from "./components/health-delete-at-risk-item-dialog/health-delete-at-risk-item-dialog.component";
+import { HealthExcludeAtRiskItemDialogComponent } from "./components/health-exclude-at-risk-item-dialog/health-exclude-at-risk-item-dialog.component";
 import { HealthScanErrorComponent } from "./components/health-scan-error/health-scan-error.component";
 import { HealthScanningComponent } from "./components/health-scanning/health-scanning.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";
@@ -158,6 +160,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let status$: BehaviorSubject<VaultHealthReportStatus | null>;
   let cipherViews$: BehaviorSubject<CipherView[]>;
   let compactEnabled$: BehaviorSubject<boolean>;
+  let exclusionsEnabled$: BehaviorSubject<boolean>;
   let logService: MockProxy<LogService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let cipherService: MockProxy<CipherService>;
@@ -386,6 +389,10 @@ describe("HealthRiskCategoryDetailComponent", () => {
     compactModeService = mock<CompactModeService>();
     compactModeService.enabled$ = compactEnabled$;
 
+    exclusionsEnabled$ = new BehaviorSubject<boolean>(true);
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(exclusionsEnabled$);
+
     await TestBed.configureTestingModule({
       imports: [HealthRiskCategoryDetailComponent],
       providers: [
@@ -404,6 +411,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: LogService, useValue: logService },
         { provide: CompactModeService, useValue: compactModeService },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(HealthRiskCategoryDetailComponent, {
@@ -888,7 +896,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
 
     // The risk flags on the passed view are placeholders today, so only the item's identity and
-    // the category are asserted — the hierarchy they drive is covered in the dialog's own spec.
+    // the category are asserted — the hierarchy they drive is covered in the additional risks spec.
     it("passes the clicked item and the current category to the dialog", async () => {
       params$.next({ category: RiskCategory.Exposed });
       setReport(RiskCategory.Exposed, [
@@ -904,6 +912,64 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
       expect(dialogService.open).toHaveBeenCalledWith(
         HealthDeleteAtRiskItemDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            currentCategory: RiskCategory.Exposed,
+            item: expect.objectContaining({ cipherId: "cipher-2" }),
+          }),
+        }),
+      );
+    });
+
+    it("renders the exclude from list entry when exclusions are enabled", async () => {
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+
+      openMenu(0);
+
+      expect(menuItem("excludeFromList")).toBeDefined();
+    });
+
+    it("hides the exclude from list entry when exclusions are disabled", async () => {
+      exclusionsEnabled$.next(false);
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+
+      openMenu(0);
+
+      expect(menuItem("excludeFromList")).toBeUndefined();
+      expect(menuItem("deleteItem")).toBeDefined();
+    });
+
+    it("opens the exclude dialog when the menu entry is clicked", async () => {
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+      openMenu(0);
+
+      menuItem("excludeFromList")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(dialogService.open).toHaveBeenCalledWith(
+        HealthExcludeAtRiskItemDialogComponent,
+        expect.anything(),
+      );
+    });
+
+    it("passes the clicked item and the current category to the exclude dialog", async () => {
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1" }),
+        buildLogin({ id: "cipher-2" }),
+        buildLogin({ id: "cipher-3" }),
+      ]);
+      await initComponent();
+      openMenu(1);
+
+      menuItem("excludeFromList")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        HealthExcludeAtRiskItemDialogComponent,
         expect.objectContaining({
           data: expect.objectContaining({
             currentCategory: RiskCategory.Exposed,

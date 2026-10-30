@@ -3,10 +3,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import {
-  LogoutService,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
