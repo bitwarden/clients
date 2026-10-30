@@ -1,10 +1,10 @@
 import { clickMenuItem, MenuItem } from "../../src/desktop/app-menu";
-import { BiometricRequestType, test } from "../../src/desktop/biometrics";
+import { BiometricRequestType, Biometrics, test } from "../../src/desktop/biometrics";
 import { expect } from "../../src/desktop/fixtures";
+import { lockAll, LockOutcome } from "../../src/desktop/lock";
 import { LoginPage } from "../../src/login";
 
 const VAULT_URL = /#\/vault/;
-const LOCK_URL = /#\/lock/;
 
 test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({
   app,
@@ -23,15 +23,16 @@ test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({
   await biometrics.waitUntilEnrolled();
   await window.keyboard.press("Escape");
 
-  // Locking turns auto-prompt off, so unlock waits for the button.
-  await clickMenuItem(app, MenuItem.LockAll);
-  await window.waitForURL(LOCK_URL);
+  // Locking turns auto-prompt off, so unlock waits for the button. The lock reloads the
+  // renderer, so drive the fake biometrics from the reloaded one.
+  const lockedWindow = await lockAll(app, window, LockOutcome.Reload);
+  const lockedBiometrics = new Biometrics(lockedWindow);
 
-  const unlock = window.getByTestId("lock-biometric-unlock-button");
+  const unlock = lockedWindow.getByTestId("lock-biometric-unlock-button");
   await expect(unlock).toBeEnabled();
   await unlock.click();
-  await biometrics.approveNext(BiometricRequestType.Unlock);
+  await lockedBiometrics.approveNext(BiometricRequestType.Unlock);
 
-  await window.waitForURL(VAULT_URL);
+  await lockedWindow.waitForURL(VAULT_URL);
   await expect(unlock).toBeHidden();
 });
