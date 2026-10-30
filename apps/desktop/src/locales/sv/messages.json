@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Mappar i $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ mappar",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ mapp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ nästlade delade mappar",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 nästlad delad mapp",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ underordnade mappar",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 underordnad mapp",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Min mapp"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Redigera"
   },
+  "editInfo": {
+    "message": "Redigera info"
+  },
+  "editAccess": {
+    "message": "Redigera åtkomst"
+  },
   "authenticatorKeyTotp": {
     "message": "Autentiseringsnyckel (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "Objekt skickat till papperskorgen"
+  },
+  "deleteItemError": {
+    "message": "Det gick inte att ta bort objektet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Det här objektet är begränsat. Ändringen sparades inte."
+  },
+  "controlledAccess": {
+    "message": "Kontrollerad åtkomst"
   },
   "overwritePasswordConfirmation": {
     "message": "Är du säker på att du vill skriva över det nuvarande lösenordet?"
@@ -4911,6 +4968,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Inloggningar, kort, identiteter, säkra anteckningar och TOTP koder med mappstrukturen bevarad."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Snabbt och säkert"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Processen är krypterad från början till slut. Ingen exportfil behövs."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Allt du behöver är dina inloggningsuppgifter"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "I nästa steg anger du dina inloggningsuppgifter för $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Detta överförs"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Dina inloggningar, andra objekt och mappar överförs. Passkeys och bilagor kan utelämnas."
+  },
   "importAcceptedFormats": {
     "message": "Accepteras: $FORMATS$",
     "placeholders": {
@@ -5192,6 +5273,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 skadad bilaga hoppades över vid exporten. Alla andra valvdata och bilagor exporterades."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 objekt togs inte med i den här exporten. Det skyddas av en regel för privilegierad åtkomst, så dess inloggningsuppgifter är inte tillgängliga på den här enheten."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ objekt togs inte med i den här exporten. De skyddas av regler för privilegierad åtkomst, så deras inloggningsuppgifter är inte tillgängliga på den här enheten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ skadade bilagor hoppades över vid exporten. Alla andra valvdata och bilagor exporterades.",
     "placeholders": {
@@ -5231,8 +5324,92 @@
   "lastPassEmail": {
     "message": "LastPass E-post"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "E-postadress krävs."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Ange en giltig e-postadress."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Lösenord krävs."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Ange ett giltigt lösenord."
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Ange en giltig verifieringskod."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Ange ditt LastPass-huvudlösenord."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Ange verifieringskoden nedan."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Väntar på SSO-autentisering"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "När du har loggat in fortsätter vi importen automatiskt."
+  },
   "importingYourAccount": {
     "message": "Importerar ditt konto..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "E-postadress krävs."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Ange en giltig e-postadress."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Metoden för tvåfaktorsautentisering stöds inte. Byt metod eller importera manuellt."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Metod för enhetsgodkännande"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Ange en giltig verifieringskod."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Verifieringskoden har skickats igen"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push-notis har skickats till den godkända enheten."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Godkänn enheten genom att välja en metod nedan."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Kontrollera din e-post och ange verifieringskoden nedan."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Ange koden från din autentiseringsapp."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Ange koden som skickats i ett sms."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Ange ditt Keeper-huvudlösenord."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA har skickats"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Godkänn Keeper DNA-notisen på din enhet."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Din begäran om godkännande avbryts. Vill du fortsätta?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Vi har skickat en begäran om administratörsgodkännande till din administratör."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Lösenord krävs."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Ange ett giltigt lösenord."
   },
   "lastPassMFARequired": {
     "message": "LastPass flerfaktorsautentisering krävs"
@@ -6625,6 +6802,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Inga objekt i $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Lägg till objekt i den här mappen. Du kommer snabbt åt dem via valvfilter.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Inga objekt i Mina objekt"
   },
@@ -7265,6 +7456,15 @@
   "unknownCipher": {
     "message": "Okänt objekt, du kan behöva begära behörighet för att komma åt detta objekt."
   },
+  "viewSharedItem": {
+    "message": "Visa delat objekt"
+  },
+  "copyShareLink": {
+    "message": "Kopiera delningslänk"
+  },
+  "unableToDetermineItemId": {
+    "message": "Det gick inte att fastställa objekt-ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden har fått ett nytt utseende",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7329,8 +7529,8 @@
   "coachmarkVaultListTitle": {
     "message": "Alla dina valv på ett ställe"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personliga valv, familjevalv och företagsvalv visas här nu."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Se snabbt personliga objekt eller objekt i ett valv som du delar med andra."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Samlingar och mappar har nya namn"
@@ -7356,5 +7556,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofyll för webbläsarens inloggningsfrågor",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Svara på grundläggande HTTP-autentiseringsfrågor från webbplatser som matchar det här inloggningsobjektet."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Öppna hjälpartikeln om automatisk ifyllning av webbläsarens inloggningsfrågor"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Webbplatser kan utlösa dessa frågor utan din vetskap, vilket kan exponera dina inloggningsuppgifter.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Om du vill använda den här inställningen väljer du ett annat matchningsalternativ än ”Standard” för varje webbplats i det här inloggningsobjektet."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Vill du aktivera automatisk ifyllning för webbläsarens inloggningsfrågor?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Återfrågan om huvudlösenord stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Vill du aktivera återfrågan om huvudlösenord?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Vill du använda standardmatchning?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Webbplatser som använder standardmatchning kan inte användas med webbläsarens inloggningsfrågor. Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Återfrågan om huvudlösenord är aktiverad för det här objektet, så automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av. Spara objektet om du vill behålla ändringen."
   }
 }
