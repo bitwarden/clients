@@ -3,6 +3,7 @@
   bit-dialog
   dialogSize="large"
   [title]="'settingsTitle' | i18n: currentUserEmail()"
+  data-testid="settings-dialog"
 >
   <ng-container bitDialogContent>
     <bit-tab-group>
@@ -17,7 +18,12 @@
 
         @if (pinEnabled() || form.value.pin) {
           <bit-form-control class="tw-mt-4">
-            <input type="checkbox" bitCheckbox formControlName="pin" />
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="pin"
+              data-testid="settings-pin-checkbox"
+            />
             <bit-label>{{ "unlockWithPin" | i18n }}</bit-label>
           </bit-form-control>
         }

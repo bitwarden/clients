@@ -24,7 +24,7 @@ export const VFO1_SWITCH_PRODUCTS_STEP: CoachmarkStep = {
 export const VFO1_VAULT_LIST_STEP: CoachmarkStep = {
   id: "vaultList",
   titleKey: "coachmarkVaultListTitle",
-  descriptionKey: "coachmarkVaultListDescription",
+  descriptionKey: "coachmarkVaultListDescriptionV2",
   position: "right-start",
   requiresOrganization: true,
   route: "/vault",

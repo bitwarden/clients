@@ -18,6 +18,16 @@ import { SelectModule } from "../../select";
 
 import { BitTableV2Component } from "./table-v2.component";
 
+/** The rows a table is showing, passed to a `bit-table-toolbar`'s `rangeLabel`. */
+export type TableRowRange = {
+  /** 1-based index of the first row shown (0 when there are no rows). */
+  start: number;
+  /** 1-based index of the last row shown (0 when there are no rows). */
+  end: number;
+  /** Total row count across all pages. */
+  total: number;
+};
+
 /** Default page sizes offered in the size select. */
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -81,6 +91,13 @@ export class BitTablePaginatorComponent {
   readonly rangeEnd = computed(() =>
     Math.min((this.currentPage() + 1) * this.pageSize(), this.total()),
   );
+
+  /** The rows on the current page — read by the table for a toolbar's range label. */
+  readonly range = computed<TableRowRange>(() => ({
+    start: this.rangeStart(),
+    end: this.rangeEnd(),
+    total: this.total(),
+  }));
 
   /** Whether a previous page exists. */
   readonly hasPrevious = computed(() => this.currentPage() > 0);

@@ -145,7 +145,8 @@ where
         return Ok(String::new());
     }
 
-    let mut buffer: Vec<u16> = vec![0; expected_title_length + 1]; // add extra space for the null character
+    let mut buffer: Vec<u16> = vec![0; expected_title_length + 1]; // add extra space for the null
+                                                                   // character
 
     let actual_window_title_length = window_handle.get_window_text_w(&mut buffer)?;
 
