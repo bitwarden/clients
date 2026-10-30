@@ -49,9 +49,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-// POC-PERF: TEMPORARY SPEED TEST IMPORT (`SdkService` only). Remove before release.
-import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-// POC-PERF: END
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -107,7 +105,7 @@ import { BulkEditCollectionAccessWebDialogAdapter } from "./bulk-collections-dia
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { ACRoutedVaultFilterModel, toACFilter } from "./models/ac-routed-vault-filter.model";
 // POC-PERF: TEMPORARY SPEED TEST IMPORT. Remove before release.
-import { runOrgCipherLoadBenchmark } from "./poc-org-cipher-load-benchmark";
+import { PocOrgCipherBenchmarkHook } from "./poc-org-cipher-load-benchmark";
 // POC-PERF: END
 import { DefaultVaultCollectionService } from "./services/default-vault-collection.service";
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
@@ -146,6 +144,9 @@ const SearchTextDebounceInterval = 200;
     VaultCipherActionsService,
     VaultCipherListService,
     VaultBatchBarService,
+    // POC-PERF: TEMPORARY SPEED TEST PROVIDER. Remove before release.
+    PocOrgCipherBenchmarkHook,
+    // POC-PERF: END
     safeProvider({
       provide: VaultFilterService,
       useClass: OrganizationVaultFilterService,
@@ -193,7 +194,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   // POC-PERF: TEMPORARY SPEED TEST DEPENDENCY. Remove before release.
-  private readonly sdkService = inject(SdkService);
+  private readonly benchmarkHook = inject(PocOrgCipherBenchmarkHook);
   // POC-PERF: END
 
   protected readonly Unassigned = Unassigned;
@@ -403,23 +404,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // POC-PERF: TEMPORARY SPEED TEST HOOK. Remove before release.
-    (window as any).bwPocOrgCipherBenchmark = async (iterations?: number) => {
-      const organization = await firstValueFrom(this.organization$);
-      if (!organization.canEditAllCiphers) {
-        throw new Error(
-          "The benchmark uses the all-ciphers endpoint, which needs canEditAllCiphers",
-        );
-      }
-      const userId = await firstValueFrom(this.userId$);
-      return await runOrgCipherLoadBenchmark(
-        this.sdkService,
-        userId,
-        organization.id,
-        false,
-        iterations,
-      );
-    };
-    this.logService.info("[POC-PERF] Benchmark ready: run `await bwPocOrgCipherBenchmark()`");
+    this.benchmarkHook.register(this.organization$, this.userId$);
     // POC-PERF: END
 
     const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
@@ -601,9 +586,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // POC-PERF: TEMPORARY SPEED TEST HOOK. Remove before release.
-    delete (window as any).bwPocOrgCipherBenchmark;
-    // POC-PERF: END
     this.destroy$.next();
     this.destroy$.complete();
   }

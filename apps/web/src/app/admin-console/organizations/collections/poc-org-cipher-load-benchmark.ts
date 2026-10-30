@@ -1,7 +1,7 @@
 // ============================================================================================
 // POC-PERF: TEMPORARY SPEED TEST. DO NOT SHIP TO PRODUCTION.
-// Remove this entire file, plus every block marked "POC-PERF" in vault.component.ts, before
-// this change is released.
+// Remove this entire file, plus every block marked "POC-PERF" in vault.component.ts (and its
+// spec and stories), before this change is released.
 //
 // Compares the old Admin Console cipher load path (the SDK decrypts every cipher to an unused
 // list view, then the client decrypts each cipher again, one SDK call at a time) against the
@@ -15,8 +15,11 @@
 // ============================================================================================
 /* eslint-disable no-console */
 
-import { firstValueFrom } from "rxjs";
+import { inject, Injectable, OnDestroy } from "@angular/core";
+import { firstValueFrom, Observable } from "rxjs";
 
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -180,5 +183,38 @@ export async function runOrgCipherLoadBenchmark(
   console.table(results);
 
   return results;
+}
+/**
+ * Exposes the benchmark on `window` as `bwPocOrgCipherBenchmark` for as long as the providing
+ * component is alive. Provide it at the component level so the hook is removed on destroy.
+ */
+@Injectable()
+export class PocOrgCipherBenchmarkHook implements OnDestroy {
+  private readonly sdkService = inject(SdkService);
+  private readonly logService = inject(LogService);
+
+  register(organization$: Observable<Organization>, userId$: Observable<UserId>) {
+    (window as any).bwPocOrgCipherBenchmark = async (iterations?: number) => {
+      const organization = await firstValueFrom(organization$);
+      if (!organization.canEditAllCiphers) {
+        throw new Error(
+          "The benchmark uses the all-ciphers endpoint, which needs canEditAllCiphers",
+        );
+      }
+      const userId = await firstValueFrom(userId$);
+      return await runOrgCipherLoadBenchmark(
+        this.sdkService,
+        userId,
+        organization.id,
+        false,
+        iterations,
+      );
+    };
+    this.logService.info("[POC-PERF] Benchmark ready: run `await bwPocOrgCipherBenchmark()`");
+  }
+
+  ngOnDestroy() {
+    delete (window as any).bwPocOrgCipherBenchmark;
+  }
 }
 // POC-PERF: END OF TEMPORARY SPEED TEST FILE
