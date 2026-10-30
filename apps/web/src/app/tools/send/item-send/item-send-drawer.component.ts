@@ -189,12 +189,12 @@ export class ItemSendDrawerComponent {
           return [];
         }
         return sends
-          .filter(
-            (s) =>
-              s.type === SendType.Item &&
-              s.data?.data?.id === cipherId &&
-              (s.id === current.id || (!s.expired && !s.maxAccessCountReached)),
-          )
+          .filter((s) => {
+            const isSameItem = s.type === SendType.Item && s.data?.data?.id === cipherId;
+            const isCurrentOrActive =
+              s.id === current.id || (!s.expired && !s.maxAccessCountReached);
+            return isSameItem && isCurrentOrActive;
+          })
           .sort((a, b) => new Date(a.deletionDate).getTime() - new Date(b.deletionDate).getTime());
       }),
     ),
