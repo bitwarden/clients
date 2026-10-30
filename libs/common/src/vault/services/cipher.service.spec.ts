@@ -1550,14 +1550,19 @@ describe("Cipher Service", () => {
       const mockCipherView2 = new CipherView();
       mockCipherView2.name = "Test Cipher 2";
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted").mockResolvedValue({
-        successes: [mockCipherView1, mockCipherView2],
-        failures: [],
-      });
+      const sdkServiceSpy = jest
+        .spyOn(cipherSdkService, "legacyDecryptFullViewList")
+        .mockResolvedValue({
+          successes: [mockCipherView1, mockCipherView2],
+          failures: [],
+        });
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
-      expect(sdkServiceSpy).toHaveBeenCalledWith(mockUserId);
+      // The encrypted ciphers in state are what the SDK decrypts.
+      const [decrypted] = sdkServiceSpy.mock.calls[0];
+      const inState = Object.keys(await firstValueFrom(cipherService.ciphers$(mockUserId)));
+      expect(decrypted.map((cipher) => cipher.id)).toEqual(inState);
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(CipherView);
       expect(result[1]).toBeInstanceOf(CipherView);
@@ -1572,7 +1577,7 @@ describe("Cipher Service", () => {
         .getFake(mockUserId, DECRYPTED_CIPHERS)
         .nextState({ [cachedView.id]: cachedView });
 
-      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "legacyDecryptFullViewList");
 
       const result = await cipherService.getAllDecrypted(mockUserId);
 
@@ -1769,7 +1774,10 @@ describe("Cipher Service", () => {
       const sdkView = new CipherView();
       sdkView.id = cipherId;
       sdkView.localData = undefined;
-      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+      cipherSdkService.legacyDecryptFullViewList.mockResolvedValue({
+        successes: [sdkView],
+        failures: [],
+      });
 
       const [result] = await cipherService.getAllDecrypted(userId);
 
@@ -1784,7 +1792,10 @@ describe("Cipher Service", () => {
 
       const sdkView = new CipherView();
       sdkView.id = cipherId;
-      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
+      cipherSdkService.legacyDecryptFullViewList.mockResolvedValue({
+        successes: [sdkView],
+        failures: [],
+      });
 
       const result = await cipherService.getAllDecrypted(userId);
 
