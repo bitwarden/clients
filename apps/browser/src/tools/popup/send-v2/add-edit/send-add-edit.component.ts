@@ -364,4 +364,8 @@ export class SendAddEditComponent {
     await this.setSendDisabledConfig();
     this.editSend();
   }
+
+  protected async onGoToItem(cipherId: string) {
+    await this.router.navigate(["/view-cipher"], { queryParams: { cipherId } });
+  }
 }

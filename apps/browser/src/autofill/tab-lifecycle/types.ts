@@ -1,3 +1,5 @@
+import type { UserId } from "@bitwarden/common/types/guid";
+
 import type { TabEdgeCause, TabState } from "./enums";
 
 /**
@@ -41,3 +43,18 @@ export interface MachineContext {
 
 /** What a page-transition buffer does with a transition: surface a fill, drop it, or keep waiting. */
 export type BufferAction = "resolve" | "drop" | "keep";
+
+/**
+ * A page transition as the page lifecycle reports it. None of it comes from the page: a reporting
+ * frame contributes the *fact of* a transition and nothing else.
+ */
+export type TransitionReport = Readonly<{
+  /** The account active when the transition was reported, from the background's account state. */
+  userId: UserId | undefined;
+  /** The reporting tab, from `chrome.runtime.MessageSender`. */
+  tabId: number | undefined;
+  /** The reporting frame, from `chrome.runtime.MessageSender`. `undefined` for the top frame. */
+  frameId: number | undefined;
+  /** The reporting document's UUID, from `chrome.runtime.MessageSender`. */
+  documentId: string | undefined;
+}>;

@@ -1,6 +1,8 @@
 import { Injectable, inject } from "@angular/core";
-import { Observable, map } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { Observable, map, of, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   StateProvider,
   UserKeyDefinition,
@@ -46,6 +48,7 @@ export const PINNED_EMPTY_STATE_DISMISSED_KEY = new UserKeyDefinition<boolean>(
 @Injectable({ providedIn: "root" })
 export class PinnedSharedFoldersService {
   private readonly stateProvider = inject(StateProvider);
+  private readonly accountService = inject(AccountService);
 
   /** The pinned folder ids, in pin order. */
   pinnedIds$(userId: UserId): Observable<CollectionId[]> {
@@ -53,6 +56,17 @@ export class PinnedSharedFoldersService {
       .getUser(userId, PINNED_SHARED_FOLDERS_KEY)
       .state$.pipe(map((ids) => ids ?? []));
   }
+
+  // Falls back to `[]` rather than `getUserId` erroring on no active account: this is a
+  // `providedIn: "root"` singleton, so a thrown error here would kill its subscription permanently.
+  readonly activePinnedIds = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account == null ? of([] as CollectionId[]) : this.pinnedIds$(account.id),
+      ),
+    ),
+    { initialValue: [] as CollectionId[] },
+  );
 
   /** Whether the Pinned section's empty state has been dismissed. */
   emptyStateDismissed$(userId: UserId): Observable<boolean> {

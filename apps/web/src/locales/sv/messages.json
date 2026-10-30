@@ -3249,7 +3249,7 @@
     "message": "Orolig att ditt konto är inloggat på en annan enhet? Fortsätt nedan för att avauktorisera alla datorer eller enheter som du har använt tidigare. Detta rekommenderas om du har använt en offentlig dator eller av misstag sparat ditt lösenord på en enhet som inte är din. Detta steg kommer också att rensa alla tidigare ihågkomna sessioner med tvåstegsverifiering."
   },
   "deauthorizeSessionsWarning": {
-    "message": "Om du fortsätter kommer du loggas ut från sin nuvarande session vilket kräver att du loggar in igen. Du kommer även behöva verifiera med tvåstegsverifiering om det är aktiverat. Aktiva sessioner på andra enheter kan fortsätta vara aktiva i upp till en timme."
+    "message": "Om du fortsätter loggas du ut från den aktuella sessionen och måste logga in igen. Du uppmanas också att använda tvåstegsverifiering igen om den är inställd. Aktiva sessioner på andra enheter kan förbli aktiva i upp till en timme."
   },
   "newDeviceLoginProtection": {
     "message": "Ny enhetsinloggning"
@@ -3395,7 +3395,7 @@
     "message": "Datan är inte korrekt formaterad. Vänligen kontrollera din importerade fil och försök igen."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Den här filen använder krypteringsinställningar som inte stöds och kan inte importeras."
   },
   "importNothingError": {
     "message": "Ingenting importerades."
@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "LastPass-e-postadress"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Ta med delade mappar"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Inloggningar, kort, identiteter, säkra anteckningar och TOTP-koder med bevarad mappstruktur."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Godkända format: $FORMATS$",
@@ -6273,7 +6324,7 @@
     }
   },
   "httpAuthReleasedItemId": {
-    "message": "Answered an HTTP authentication request with item $ID$.",
+    "message": "Besvarade en HTTP-autentiseringsbegäran med objektet $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Hantera kontoåterställning"
   },
+  "manageAccessRules": {
+    "message": "Hantera åtkomstregler"
+  },
+  "manageRotation": {
+    "message": "Hantera rotation"
+  },
   "disableRequiredError": {
     "message": "Du måste manuellt stänga av policyn $POLICYNAME$ innan den här policyn kan stängas av.",
     "placeholders": {
@@ -9617,7 +9674,7 @@
     "message": "Är du säker på att du vill ta bort följande användare? Processen kan ta några sekunder att slutföra och kan inte pausas eller avbrytas."
   },
   "removeOrgUsersConfirmation": {
-    "message": "När medlemmar tas bort har de inte längre tillgång till organisationsdata och åtgärden är oåterkallelig. För att lägga till medlemmen i organisationen igen måste denne bjudas in och onboardas på nytt. Processen kan ta några sekunder att slutföra och kan inte avbrytas eller avbrytas."
+    "message": "När medlemmar tas bort har de inte längre åtkomst till organisationsdata och åtgärden kan inte ångras. Om medlemmen ska läggas till i organisationen igen måste personen bjudas in och registreras på nytt. Processen kan ta några sekunder att slutföra och kan inte avbrytas eller annulleras."
   },
   "revokeUsersWarning": {
     "message": "När medlemmar återkallas har de inte längre tillgång till organisationsdata. För att snabbt återställa medlemmens åtkomst går du till fliken Revoked. Processen kan ta några sekunder att slutföra och kan inte avbrytas eller annulleras."
@@ -9807,7 +9864,7 @@
     "description": "This is used as a table header to describe which client application created an event log."
   },
   "providerAdmin": {
-    "message": "Leverantör admin"
+    "message": "Leverantörsadministratör"
   },
   "providerAdminDesc": {
     "message": "Den användare som har högst åtkomst och som kan hantera alla aspekter av din Provider samt få åtkomst till och hantera kundorganisationer."
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Lägg till en delad mapp för att säkert dela objekt i valvet med andra medlemmar."
   },
+  "pinned": {
+    "message": "Fästa",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Fäst i sidofältet",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Ta bort från sidofältet",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ har fästs i sidofältet",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ har tagits bort från sidofältet",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Hitta en delad mapp i detta valv och välj",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "i menyn Alternativ.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Fäst delade mappar i sidofältet om du vill filtrera dem här."
+  },
   "noMembersAdded": {
     "message": "Inga medlemmar tillagda"
   },
@@ -13058,7 +13158,7 @@
     "message": "Godkända enheter"
   },
   "deviceApprovalsDesc": {
-    "message": "Godkänn inloggningsbegäran nedan så att den begärande medlemmen kan slutföra inloggningen. Ogodkända förfrågningar upphör att gälla efter 1 vecka. Verifiera medlemmens information innan du godkänner."
+    "message": "Godkänn inloggningsbegäran nedan så att den begärande medlemmen kan slutföra inloggningen. Begäranden som inte har godkänts upphör att gälla efter en vecka. Verifiera medlemmens information innan du godkänner."
   },
   "deviceInfo": {
     "message": "Information om enheten"
@@ -13178,7 +13278,7 @@
     "message": "Ditt konto har skapats!"
   },
   "adminApprovalRequested": {
-    "message": "Admin godkännande begärs"
+    "message": "Administratörsgodkännande begärs"
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "Din begäran har skickats till din administratör."
@@ -13335,6 +13435,10 @@
   "secretsManagerPlanPrice": {
     "message": "Pris för Secrets Manager-planen"
   },
+  "privilegedControlsPlanPrice": {
+    "message": "Pris för planen Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "passwordManager": {
     "message": "Lösenordshanterare"
   },
@@ -13400,7 +13504,7 @@
     "message": "Hoppa till innehåll"
   },
   "managePermissionRequired": {
-    "message": "Minst en medlem eller grupp måste ha behörigheten can manage."
+    "message": "Minst en medlem eller grupp måste ha behörigheten ”Kan hantera”."
   },
   "typePasskey": {
     "message": "Nyckel"
@@ -13837,7 +13941,7 @@
     "message": "Läs release-blogg"
   },
   "adminConsole": {
-    "message": "Adminkonsol"
+    "message": "Administratörskonsol"
   },
   "providerPortal": {
     "message": "Portal för leverantörer"
@@ -17194,28 +17298,28 @@
     "message": "Håll säkerheten för objekten i valvet hög genom att kontrollera rapporter om sårbarheter."
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "Nyheter"
   },
   "tourTheNewVaultDescription": {
     "message": "Med uppdaterad navigering och design är det enklare än någonsin att hitta det du behöver."
   },
   "coachmarkSwitchProductsTitle": {
-    "message": "Switch between products"
+    "message": "Växla mellan produkter"
   },
   "coachmarkSwitchProductsDescription": {
-    "message": "Click to see other Bitwarden products you have access to, or discover new products and plans."
+    "message": "Klicka för att se andra Bitwarden-produkter som du har åtkomst till eller upptäcka nya produkter och planer."
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "Alla dina valv på ett ställe"
   },
   "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+    "message": "Personliga valv, familjevalv och företagsvalv visas här nu."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Samlingar och mappar har nya namn"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "Samma funktioner, tydligare namn. Samlingar kallas nu delade mappar. Mappar kallas nu Mina mappar."
   },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Övervaka säkerhetsaktivitet"
@@ -17248,10 +17352,10 @@
     "message": "Uppdatera rapporter och insikter regelbundet för att hitta nya risker och se de senaste värdena när organisationen växer."
   },
   "coachmarkFiltersTitle": {
-    "message": "Mix and match filters"
+    "message": "Kombinera filter"
   },
   "coachmarkFiltersDescription": {
-    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+    "message": "Välj flera filter samtidigt för att begränsa till precis de resultat du vill ha. De fortsätter att gälla även när du navigerar bort."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ av $TOTAL$",
@@ -17280,7 +17384,7 @@
     }
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "Det gick inte att importera $COUNT$ 1Password-objekt eller valv",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17289,52 +17393,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "Ett fel har inträffat. Kontrollera dina inloggningsuppgifter och försök igen."
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "Endast inloggning med lösenord stöds."
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "Endast inloggning med lösenord stöds. Försök igen eller använd en annan importmetod."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "Ange en giltig e-postadress eller använd en annan importmetod."
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "Ett fel har inträffat. Försök igen eller använd en annan importmetod."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "E-postadress krävs."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Ange en giltig e-postadress."
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "Inloggningsadress krävs."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "Ange en giltig inloggningsadress."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Hemlig nyckel krävs."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Ange en giltig hemlig nyckel."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Lösenord krävs."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Ange en giltig verifieringskod."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Inloggningsadress"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "E-postadress för 1Password"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "Ange e-postadressen du använder för att logga in på 1Password"
   },
   "secretKey": {
     "message": "Hemlig nyckel"
@@ -17545,6 +17649,63 @@
   },
   "importingYourAccount": {
     "message": "Importerar ditt konto…"
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "passcode": {
     "message": "Åtkomstkod"
@@ -17803,29 +17964,141 @@
   "pamAccessRequestsTitle": {
     "message": "Åtkomstbegäranden"
   },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 timme"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ timmar",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "från och med nu"
+  },
+  "pamInboxStartToday": {
+    "message": "i dag"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "i morgon"
+  },
+  "pamInboxStartInDays": {
+    "message": "om $DAYS$ dagar",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Det gick inte att starta åtkomsten."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Det godkända åtkomstfönstret har inte börjat ännu."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Det godkända åtkomstfönstret har redan tagit slut."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Den här begäran har inte godkänts ännu."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Den här begäran kan inte längre aktiveras."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Åtkomsten för den här begäran har redan använts och är inte längre aktiv."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Endast 1 användare kan ha aktiv åtkomst till detta objekt åt gången. Försök igen när den aktuella åtkomsten har upphört."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Åtkomst till detta objekt tillåts inte från ditt nuvarande nätverk."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Åtkomst till detta objekt tillåts inte just nu."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Åtkomst till detta objekt tillåts inte just nu."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "En Privileged Controls-licens krävs. Be administratören att aktivera din licens.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Du har redan aktiv åtkomst till detta objekt."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Du har redan en godkänd begäran för detta objekt."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Du har redan en väntande begäran för detta objekt."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d sedan",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$ h sedan",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Just nu"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$ min sedan",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "pamAccessRules": {
     "message": "Åtkomstregler"
   },
   "pamAccessRuleActive": {
-    "message": "Active"
+    "message": "Aktiv"
   },
   "pamAccessRuleInactive": {
-    "message": "Inactive"
+    "message": "Inaktiv"
   },
   "pamAccessRuleActiveHint": {
-    "message": "When inactive, the rule does not restrict access."
+    "message": "När regeln är inaktiv begränsar den inte åtkomsten."
   },
   "pamAccessRuleActivate": {
-    "message": "Activate rule"
+    "message": "Aktivera regel"
   },
   "pamAccessRuleDeactivate": {
-    "message": "Deactivate rule"
+    "message": "Inaktivera regel"
   },
   "pamAccessRuleActivateSuccess": {
-    "message": "Access rule activated."
+    "message": "Åtkomstregeln har aktiverats."
   },
   "pamAccessRuleDeactivateSuccess": {
-    "message": "Access rule deactivated."
+    "message": "Åtkomstregeln har inaktiverats."
   },
   "pamAccessRuleEnabled": {
     "message": "Aktiverad"
@@ -17852,7 +18125,7 @@
     "message": "Ange regler för att styra vem som kan begära åtkomst till känsliga inloggningsuppgifter, på vilka villkor och hur länge."
   },
   "pamAccessRuleCreate": {
-    "message": "Create access rule"
+    "message": "Skapa åtkomstregel"
   },
   "pamAccessRuleNew": {
     "message": "Ny regel"
@@ -17888,10 +18161,10 @@
     "message": "Den här åtkomstregeln gäller för alla valda samlingar."
   },
   "pamAccessRuleEventLogNotice": {
-    "message": "All requests and decisions are logged."
+    "message": "Alla begäranden och beslut loggas."
   },
   "pamAccessRuleViewAuditLog": {
-    "message": "View audit log"
+    "message": "Visa granskningslogg"
   },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Det gick inte att läsa in samlingarna. Uppdatera sidan och försök igen."
@@ -17903,16 +18176,16 @@
     "message": "Beskrivning"
   },
   "pamAccessRuleDefaultDurationLabel": {
-    "message": "Default duration"
+    "message": "Standardlängd"
   },
   "pamAccessRuleMaxDurationLabel": {
-    "message": "Maximum duration"
+    "message": "Längsta tid"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Ingen begränsning"
   },
   "pamAccessRuleMaxDurationLimitHint": {
-    "message": "Access is limited to this length, whatever duration is requested."
+    "message": "Åtkomsten begränsas till denna längd, oavsett vilken längd som begärs."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minuter"
@@ -17933,10 +18206,10 @@
     "message": "8 timmar"
   },
   "pamAccessRuleDuration1d": {
-    "message": "1 day"
+    "message": "1 dag"
   },
   "pamAccessRuleDuration2d": {
-    "message": "2 days"
+    "message": "2 dagar"
   },
   "pamAccessRuleDuration24h": {
     "message": "24 timmar"
@@ -17945,19 +18218,19 @@
     "message": "7 dagar"
   },
   "pamAccessRuleDuration30d": {
-    "message": "30 days"
+    "message": "30 dagar"
   },
   "pamAccessRuleSingleActiveUser": {
-    "message": "Only 1 user can have active access at a time"
+    "message": "Endast 1 användare kan ha aktiv åtkomst åt gången"
   },
   "pamAccessRuleSingleActiveAccessHint": {
-    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
+    "message": "Andra med godkännande kan försöka starta åtkomst när den aktuella åtkomsten upphör eller återkallas."
   },
   "pamAccessRuleAllowAccessExtensions": {
-    "message": "Allow access extensions"
+    "message": "Tillåt förlängning av åtkomst"
   },
   "pamAccessRuleAllowAccessExtensionsHint": {
-    "message": "Members can extend their active access once without a new approval, up to the maximum length below."
+    "message": "Medlemmar kan förlänga sin aktiva åtkomst en gång utan nytt godkännande, upp till längsta tiden nedan."
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Endast en användare kan ha en aktiv åtkomstperiod åt gången"
@@ -17990,7 +18263,7 @@
     "message": "Samlingsansvariga"
   },
   "pamAccessRuleDuplicateName": {
-    "message": "$NAME$ (copy)",
+    "message": "$NAME$ (kopia)",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -17999,7 +18272,7 @@
     }
   },
   "pamAccessRuleDuplicateNameNumbered": {
-    "message": "$NAME$ (copy $NUMBER$)",
+    "message": "$NAME$ (kopia $NUMBER$)",
     "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
     "placeholders": {
       "name": {
@@ -18013,7 +18286,7 @@
     }
   },
   "pamAccessRuleCopyCreated": {
-    "message": "Copy created. Choose the collections it applies to."
+    "message": "Kopian har skapats. Välj vilka samlingar den gäller för."
   },
   "pamAccessRuleCreated": {
     "message": "Åtkomstregeln skapades."
@@ -18022,7 +18295,7 @@
     "message": "Åtkomstregeln uppdaterades."
   },
   "pamAccessRuleDeleted": {
-    "message": "Access rule deleted."
+    "message": "Åtkomstregeln har tagits bort."
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Ta bort åtkomstregel?"
@@ -18037,25 +18310,25 @@
     }
   },
   "pamAccessRuleDeactivateConfirmTitle": {
-    "message": "Deactivate access rule"
+    "message": "Inaktivera åtkomstregel"
   },
   "pamAccessRuleDeactivateConfirmContent": {
-    "message": "This rule will stop applying to new access requests."
+    "message": "Den här regeln kommer inte längre att gälla för nya åtkomstbegäranden."
   },
   "pamAccessRuleSaveErrorGeneric": {
-    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+    "message": "Något gick fel. Regeln sparades inte, men dina uppgifter finns kvar här."
   },
   "pamAccessRuleNameRequired": {
-    "message": "Enter a name."
+    "message": "Ange ett namn."
   },
   "pamAccessRuleErrorNameTaken": {
-    "message": "Another rule already uses this name. Enter a different name."
+    "message": "En annan regel använder redan detta namn. Ange ett annat namn."
   },
   "pamAccessRuleErrorCollectionsGoverned": {
-    "message": "Another access rule already covers one of these collections. Select different collections."
+    "message": "En annan åtkomstregel omfattar redan en av dessa samlingar. Välj andra samlingar."
   },
   "pamAccessRuleErrorCollectionsGovernedNamed": {
-    "message": "Another access rule already covers $COLLECTIONS$. Select different collections.",
+    "message": "En annan åtkomstregel omfattar redan $COLLECTIONS$. Välj andra samlingar.",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -18064,16 +18337,16 @@
     }
   },
   "pamAccessRuleErrorCollectionsMissing": {
-    "message": "One of the collections you selected no longer exists. Select a different collection."
+    "message": "En av samlingarna du valde finns inte längre. Välj en annan samling."
   },
   "pamAccessRuleErrorCollectionsForeign": {
-    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+    "message": "En av samlingarna du valde ingår inte i denna organisation. Välj en annan samling."
   },
   "pamAccessRuleErrorExtensionLengthRequired": {
-    "message": "Choose a maximum extension length, or turn off extensions."
+    "message": "Välj längsta förlängningstid eller stäng av förlängningar."
   },
   "pamAccessRuleErrorMissing": {
-    "message": "This rule no longer exists. It may have been deleted by another admin."
+    "message": "Den här regeln finns inte längre. Den kan ha tagits bort av en annan administratör."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Inga åtkomstregler ännu"
@@ -18094,7 +18367,7 @@
     "message": "Vid behov"
   },
   "pamTemplateJustInTimeShortSummary": {
-    "message": "Auto-approved"
+    "message": "Godkänns automatiskt"
   },
   "pamTemplateJustInTimeSummary": {
     "message": "Godkänns automatiskt • Upphör efter 1 timme • Loggas för granskning"
@@ -18106,7 +18379,7 @@
     "message": "Godkännande krävs"
   },
   "pamTemplateApprovalRequiredShortSummary": {
-    "message": "Human approval • 1 approver required"
+    "message": "Mänskligt godkännande • 1 godkännare krävs"
   },
   "pamTemplateApprovalRequiredSummary": {
     "message": "Manuellt godkännande • 1 godkännare krävs • Loggas för granskning"
@@ -18118,7 +18391,7 @@
     "message": "Begränsad till IP-adresser"
   },
   "pamTemplateIpRestrictedShortSummary": {
-    "message": "Auto-approved • IP Allowlist"
+    "message": "Godkänns automatiskt • tillåtelselista för IP-adresser"
   },
   "pamTemplateIpRestrictedSummary": {
     "message": "Godkänns automatiskt • IP-tillåtelselista • Loggas för granskning"
@@ -18133,10 +18406,10 @@
     "message": "Inte tilldelad"
   },
   "pamAccessRuleCollectionCountSingular": {
-    "message": "1 collection"
+    "message": "1 samling"
   },
   "pamAccessRuleCollectionCount": {
-    "message": "$COUNT$ collections",
+    "message": "$COUNT$ samlingar",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -18151,10 +18424,10 @@
     "message": "Gäller för"
   },
   "pamAccessRuleApprovalMethodColumn": {
-    "message": "Approval method"
+    "message": "Godkännandemetod"
   },
   "pamAccessRuleDurationColumn": {
-    "message": "Maximum duration"
+    "message": "Längsta tid"
   },
   "pamAccessRuleConditionsColumn": {
     "message": "Villkor"
@@ -18178,10 +18451,10 @@
     "message": "Inga åtkomstregler matchar filtren."
   },
   "pamAccessRuleBulkActivate": {
-    "message": "Activate"
+    "message": "Aktivera"
   },
   "pamAccessRuleBulkDeactivate": {
-    "message": "Deactivate"
+    "message": "Inaktivera"
   },
   "pamAccessRuleBulkEnable": {
     "message": "Aktivera"
@@ -18208,10 +18481,10 @@
     }
   },
   "pamAccessRuleBulkDeactivateConfirmTitle": {
-    "message": "Deactivate access rules"
+    "message": "Inaktivera åtkomstregler"
   },
   "pamAccessRuleBulkDeactivateConfirmContent": {
-    "message": "$COUNT$ rules will stop applying to new access requests.",
+    "message": "$COUNT$ regler kommer inte längre att gälla för nya åtkomstbegäranden.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Proportionell avgift för Secrets Manager"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Proportionell avgift för Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Proportionell avgift för tjänstekonton"

@@ -7,7 +7,7 @@ export { BitHeaderRowComponent } from "./bit-header-row.component";
 export { BitRowComponent } from "./bit-row.component";
 export { BitRowGroupComponent } from "./bit-row-group.component";
 export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
-export { BitTablePaginatorComponent } from "./bit-table-paginator.component";
+export { BitTablePaginatorComponent, type TableRowRange } from "./bit-table-paginator.component";
 export { type ColumnRef, type ColumnName, type ColumnRefs } from "./column";
 export { type SortState, cycleSort } from "./sort-model";
 export { TableDef, defineTable } from "./table-def";

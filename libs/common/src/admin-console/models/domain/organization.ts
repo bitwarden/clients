@@ -4,8 +4,9 @@ import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
+import { ProviderType } from "../../../provider/enums";
 import { OrganizationId } from "../../../types/guid";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 

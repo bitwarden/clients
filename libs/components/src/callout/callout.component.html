@@ -8,7 +8,7 @@
   [attr.aria-label]="!title ? accessibleLandmarkName() : null"
 >
   <ng-template #contentTpl>
-    <div bitTypography="body2" class="tw-pr-4">
+    <div bitTypography="body2" class="tw-pr-4" data-testid="bit-callout-message">
       <ng-content />
     </div>
   </ng-template>
@@ -31,6 +31,7 @@
       @if (isDismissible()) {
         <button
           type="button"
+          data-testid="bit-callout-close"
           bitIconButton="bwi-close"
           buttonType="subtleGhost"
           size="small"
