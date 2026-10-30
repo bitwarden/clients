@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  TrackByFunction,
   computed,
   effect,
   inject,
@@ -288,9 +287,6 @@ export class HistoryTabComponent {
 
   protected readonly rowMatchesFilter = (row: HistoryTableRow, values: HistoryFilterValues) =>
     this.matchesFilter(row, toHistoryFilter(values));
-
-  /** The clock rebuilds every row each minute; tracking by id keeps the row and its focus. */
-  protected readonly trackById: TrackByFunction<HistoryTableRow> = (_index, row) => row.id;
 
   /** By the label the column shows, not the status's internal value. */
   protected readonly sortByStatus: SortFn = (a: HistoryTableRow, b: HistoryTableRow) =>

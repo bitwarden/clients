@@ -38,10 +38,9 @@ async function selectFilterOptions(
   filter: string,
   options: string[],
 ): Promise<void> {
-  // Scoped to the toolbar, since the sortable Status column header is also a button named Status.
-  const [trigger] = (
-    await within(canvasElement).findAllByRole("button", { name: new RegExp(`^${filter}`) })
-  ).filter((button) => button.closest("bit-table-toolbar") != null);
+  const trigger = canvasElement.querySelector<HTMLButtonElement>(
+    `bit-filter-menu button[title^="${filter}"]`,
+  )!;
   await userEvent.click(trigger);
   // Scoped to the popover, since the chip also stamps each option into a hidden slot that an
   // unscoped query would match.
