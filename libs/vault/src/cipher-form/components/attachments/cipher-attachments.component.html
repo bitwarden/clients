@@ -38,7 +38,7 @@
                   </button>
                 }
               </bit-item-action>
-              @if (cipher().edit) {
+              @if (cipher().edit && canDeleteAttachments()) {
                 <bit-item-action>
                   <app-delete-attachment
                     [admin]="admin() && organization()?.canEditAllCiphers"
@@ -59,7 +59,7 @@
             </bit-item-content>
 
             <ng-container slot="end">
-              @if (cipher().edit) {
+              @if (cipher().edit && canDeleteAttachments()) {
                 <bit-item-action>
                   <app-delete-attachment
                     [admin]="admin() && organization()?.canEditAllCiphers"

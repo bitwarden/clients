@@ -10,6 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
 import {
@@ -41,6 +42,7 @@ describe("AttachmentsV2Component", () => {
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: CipherAuthorizationService, useValue: mock<CipherAuthorizationService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
