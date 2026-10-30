@@ -53,7 +53,6 @@ import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { CartSummaryComponent } from "@bitwarden/pricing";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
-  OrganizationSubscriptionPlan,
   OrganizationPlanChangePreviewRequest,
   OrganizationRestartPreviewRequest,
   SubscriberBillingClient,
@@ -69,7 +68,10 @@ import {
   getCardBrandIcon,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import {
+  BitwardenSubscriber,
+  OrganizationSubscriptionPlan,
+} from "@bitwarden/web-vault/app/billing/types";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { InvoicePreviewService } from "../services/invoice-preview.service";
