@@ -1007,6 +1007,19 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(adjustElement()).toBeNull();
     });
 
+    it("hides the adjust block for a provider-managed organization", async () => {
+      await renderAdjust({
+        organization: buildOrganization({
+          canEditSubscription: true,
+          usePam: true,
+          hasProvider: true,
+        }),
+      });
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
+    });
+
     it("does not render the adjust block for a user who cannot edit the subscription", async () => {
       await renderAdjust({
         organization: buildOrganization({ canEditSubscription: false, usePam: true }),
@@ -1039,6 +1052,25 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
       expect(subscriptionReload).toHaveBeenCalled();
       expect(previewReload).toHaveBeenCalled();
+    });
+
+    it("removes the adjust block once the refreshed organization no longer uses Privileged Controls", async () => {
+      await renderAdjust();
+      expect(adjustElement()).not.toBeNull();
+
+      dataService.organization$.mockReturnValue(
+        of(buildOrganization({ canEditSubscription: true, usePam: false })),
+      );
+      const child = fixture.debugElement.query(
+        (el) => el.componentInstance instanceof MockPrivilegedControlsAdjustSubscriptionComponent,
+      ).componentInstance as MockPrivilegedControlsAdjustSubscriptionComponent;
+
+      child.adjusted.emit();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.showAdjustPrivilegedControls()).toBe(false);
+      expect(adjustElement()).toBeNull();
     });
   });
 

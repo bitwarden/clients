@@ -6,7 +6,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrganizationBillingClient } from "../clients";
 
@@ -21,6 +22,8 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
   let organizationBillingClient: jest.Mocked<OrganizationBillingClient>;
   let toastService: jest.Mocked<ToastService>;
   let validationService: jest.Mocked<ValidationService>;
+  let dialogService: jest.Mocked<DialogService>;
+  let syncService: jest.Mocked<SyncService>;
   let adjustedSpy: jest.Mock;
 
   const organizationId = "org-123" as OrganizationId;
@@ -65,6 +68,9 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
     organizationBillingClient.updatePrivilegedControlsSubscription.mockResolvedValue();
     toastService = mock<ToastService>();
     validationService = mock<ValidationService>();
+    dialogService = mock<DialogService>();
+    syncService = mock<SyncService>();
+    syncService.fullSync.mockResolvedValue(true);
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string, ...args: unknown[]) => {
@@ -79,6 +85,8 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
         { provide: ValidationService, useValue: validationService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: SyncService, useValue: syncService },
         { provide: LogService, useValue: mock<LogService>() },
       ],
     }).compileComponents();
@@ -442,6 +450,91 @@ describe("PrivilegedControlsAdjustSubscriptionComponent", () => {
       await submitForm();
 
       expect(organizationBillingClient.updatePrivilegedControlsSubscription).not.toHaveBeenCalled();
+      expect(adjustedSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("remove", () => {
+    const removeButton = (): HTMLButtonElement =>
+      fixture.nativeElement.querySelector("#privileged-controls-adjust_button_remove");
+
+    const clickRemove = async () => {
+      removeButton().click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      organizationBillingClient.removePrivilegedControls.mockResolvedValue();
+    });
+
+    it("renders the remove button enabled while the form is unchanged", async () => {
+      await render();
+
+      expect(removeButton()).not.toBeNull();
+      expect(removeButton().type).toBe("button");
+      expect(removeButton().textContent).toContain("removePrivilegedControls");
+      expect(removeButton().getAttribute("aria-disabled")).not.toBe("true");
+      expect(removeButton().disabled).toBe(false);
+    });
+
+    it("asks for confirmation with a warning dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      await render();
+
+      await clickRemove();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "removePrivilegedControls" },
+        content: { key: "removePrivilegedControlsConfirmation" },
+        acceptButtonText: { key: "remove" },
+        type: "warning",
+      });
+    });
+
+    it("does nothing when the confirmation is cancelled", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      await render();
+
+      await clickRemove();
+
+      expect(organizationBillingClient.removePrivilegedControls).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+      expect(adjustedSpy).not.toHaveBeenCalled();
+    });
+
+    it("removes Privileged Controls, shows a success toast, syncs and emits adjusted once when confirmed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      await render();
+
+      await clickRemove();
+
+      expect(organizationBillingClient.removePrivilegedControls).toHaveBeenCalledWith(
+        organizationId,
+      );
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "privilegedControlsRemoved",
+      });
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      expect(adjustedSpy).toHaveBeenCalledTimes(1);
+      expect(syncService.fullSync.mock.invocationCallOrder[0]).toBeLessThan(
+        adjustedSpy.mock.invocationCallOrder[0],
+      );
+    });
+
+    it("surfaces server errors through bitAction without a success toast or emit", async () => {
+      const error = new ErrorResponse({ Message: "Subscription is in an invalid state." }, 409);
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      organizationBillingClient.removePrivilegedControls.mockRejectedValue(error);
+      await render();
+
+      await clickRemove();
+
+      expect(validationService.showError).toHaveBeenCalledWith(error);
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(syncService.fullSync).not.toHaveBeenCalled();
       expect(adjustedSpy).not.toHaveBeenCalled();
     });
   });
