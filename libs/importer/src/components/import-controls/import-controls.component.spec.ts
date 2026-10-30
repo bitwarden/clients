@@ -438,7 +438,7 @@ describe("ImportControlsComponent", () => {
       const callout = root.querySelector("bit-callout");
       expect(callout).toBeTruthy();
       expect(callout?.textContent?.trim().endsWith(".")).toBe(false);
-      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-sm");
+      expect(root.querySelector("bit-form-field")?.classList).toContain("tw-max-w-md");
       expect(root.querySelector("bit-select")?.textContent).toContain("selectProfile");
       expect(
         byId("importer-controls_button_import-manually-instead").nativeElement.getAttribute(
@@ -1805,6 +1805,15 @@ describe("ImportControlsComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("(required)");
     });
 
+    it("lets the pasted contents textarea span the full width", async () => {
+      await setup("dashlane", ClientType.Web);
+      component().formGroup.controls.method.setValue("paste");
+      fixture.detectChanges();
+
+      const textarea: HTMLElement = byId("importer-controls_textarea_file-contents").nativeElement;
+      expect(textarea.closest("bit-form-field")!.classList).not.toContain("tw-max-w-md");
+    });
+
     it("also treats whitespace-only paste content as required-but-missing, not just a truly empty string", async () => {
       await setup("dashlane", ClientType.Web);
 
@@ -2151,6 +2160,20 @@ describe("ImportControlsComponent", () => {
         password.compareDocumentPosition(upload) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     });
+
+    it("caps the format dropdown and KeePass master password at the bounded-input width (tw-max-w-md), but not the file upload", async () => {
+      await setup("keepass", ClientType.Web);
+      component().formGroup.controls.formatChoice.setValue("keepasskdbx");
+      fixture.detectChanges();
+
+      const fieldOf = (id: string) =>
+        (byId(id).nativeElement as HTMLElement).closest("bit-form-field")!.classList;
+
+      expect(fieldOf("importer-controls_select_format-choice")).toContain("tw-max-w-md");
+      expect(fieldOf("importer-controls_input_kdbx-password")).toContain("tw-max-w-md");
+      const upload: HTMLElement = byId("importer-controls_input_file").nativeElement;
+      expect(upload.querySelector("bit-form-field")!.classList).not.toContain("tw-max-w-md");
+    });
   });
 
   describe("Bitwarden file password", () => {
@@ -2383,6 +2406,19 @@ describe("ImportControlsComponent", () => {
       expect(byId("importer-controls_input_file-password")).toBeTruthy();
       expect(byId("importer-controls_input_file")).toBeFalsy();
       expect(importService.getImporter).not.toHaveBeenCalled();
+    });
+
+    it("caps the file password field at the bounded-input width (tw-max-w-md)", async () => {
+      await setup("bitwarden", ClientType.Web);
+      component().formGroup.controls.file.setValue(new File([passwordProtected], "export.json"));
+      fixture.detectChanges();
+      await flushFileRead();
+      fixture.detectChanges();
+      await component().submit();
+      fixture.detectChanges();
+
+      const input: HTMLElement = byId("importer-controls_input_file-password").nativeElement;
+      expect(input.closest("bit-form-field")!.classList).toContain("tw-max-w-md");
     });
 
     it("swaps the subtitle on the password card and shows no hint under the field", async () => {
