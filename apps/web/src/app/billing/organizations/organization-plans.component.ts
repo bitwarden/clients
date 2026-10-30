@@ -443,8 +443,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     billingAddress: EnterBillingAddressComponent.getFormGroup(),
   });
 
-  // Emits once the form has been idle for a second. Each emission is a new object, so every one
-  // restarts the preview.
+  // Emits once the form has been idle for a second. Each emission is a new object, but the `equal`
+  // comparator on `previewParams` suppresses a restart when the request is unchanged. The one
+  // exception is a failed preview, which the effect in the constructor reloads on every emission.
   private readonly debouncedFormChange = toSignal(
     merge(
       this.formGroup.valueChanges,

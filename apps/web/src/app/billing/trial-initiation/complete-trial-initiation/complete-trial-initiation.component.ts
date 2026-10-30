@@ -70,7 +70,7 @@ export class CompleteTrialInitiationComponent {
   /** True, registering a password is in progress */
   submitting = false;
 
-  /** True when both the PAM-billing and preview-cart flags are on. */
+  /** True when the PAM-billing support flag is on. */
   private privilegedControlsAvailable = false;
 
   /** True when the trial includes Privileged Controls — requested by the link and enabled by flag */
