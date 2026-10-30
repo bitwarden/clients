@@ -3,7 +3,14 @@
     <div class="tw-col-span-8">
       <bit-form-field>
         <bit-label>{{ "subscriptionSeats" | i18n }}</bit-label>
-        <input bitInput formControlName="newSeatCount" type="number" min="0" step="1" />
+        <input
+          bitInput
+          id="seatCount"
+          formControlName="newSeatCount"
+          type="number"
+          min="0"
+          step="1"
+        />
         <bit-hint>
           <strong>{{ "total" | i18n }}:</strong>
           {{ adjustSubscriptionForm.value.newSeatCount || 0 }} &times;
@@ -17,6 +24,7 @@
     <bit-form-control>
       <input
         bitCheckbox
+        id="limitSeats"
         formControlName="limitSubscription"
         type="checkbox"
         (change)="limitSubscriptionChanged()"
@@ -34,6 +42,7 @@
         <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
         <input
           bitInput
+          id="seatLimitNumber"
           formControlName="newMaxSeats"
           type="number"
           [min]="
@@ -52,7 +61,13 @@
       </bit-form-field>
     </div>
   </div>
-  <button bitButton buttonType="primary" bitFormButton type="submit">
+  <button
+    bitButton
+    buttonType="primary"
+    bitFormButton
+    type="submit"
+    id="adjust-subscription_button_save"
+  >
     {{ "save" | i18n }}
   </button>
 </form>
