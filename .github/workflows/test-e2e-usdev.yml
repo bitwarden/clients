@@ -1,5 +1,6 @@
 # Runs the e2e Playwright suites (e2e/) against the usdev environment.
-# Nightly, and on demand by labeling a PR "ci:km-e2e-tests". Fork PRs get no secrets, so they are skipped.
+# Nightly, on demand by labeling a PR "ci:km-e2e-tests", and via test-e2e-usdev-changes.yml on PRs
+# that change e2e/. Fork PRs get no secrets, so they are skipped.
 # The web suite drives the deployed usdev vault; browser, shared and desktop build from the checkout.
 
 name: Test E2E (usdev)
@@ -10,10 +11,13 @@ on:
   pull_request:
     types: [labeled]
   workflow_dispatch:
+  workflow_call:
 
 # The suites share one usdev account and mutate it (e.g. passkeys), so runs never overlap.
+# Only runs that test join the shared group: a pending run in it is replaced by the next one, so
+# other labels must not enter it. A call holds the group in its caller (test-e2e-usdev-changes.yml).
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ (github.event_name != 'pull_request' || github.event.label.name == 'ci:km-e2e-tests') && 'km-e2e-usdev' || format('km-e2e-usdev-{0}', github.run_id) }}
   cancel-in-progress: false
 
 defaults:
@@ -25,10 +29,11 @@ permissions: {}
 jobs:
   test:
     name: ${{ matrix.suite.name }}
+    # Called runs arrive as unlabeled pull_request events from the caller.
     if: >-
       github.event_name != 'pull_request'
-      || (github.event.label.name == 'ci:km-e2e-tests'
-        && github.event.pull_request.head.repo.full_name == github.repository)
+      || (github.event.pull_request.head.repo.full_name == github.repository
+        && (github.event.action != 'labeled' || github.event.label.name == 'ci:km-e2e-tests'))
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -128,7 +133,7 @@ jobs:
             e2e/playwright-report/
           if-no-files-found: ignore
 
-  # On a ci:km-e2e-tests PR run: one PR comment with each suite's result, updated in place on reruns.
+  # On a PR run: one PR comment with each suite's result, updated in place on reruns.
   # Removes the label afterwards, since only adding it fires `labeled`; re-adding it reruns.
   report:
     name: Report
@@ -149,13 +154,14 @@ jobs:
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
 
-            // Matrix jobs are named after their suite; this job is the only other one.
+            // Matrix jobs are named after their suite; this job is the only other one. Called runs
+            // prefix job names with the caller's job, e.g. "E2E / web".
             const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
               owner, repo, run_id: context.runId, filter: 'latest',
             });
             const rows = jobs
-              .filter((job) => job.name !== 'Report')
-              .map((job) => `| ${job.name} | ${ICONS[job.conclusion] ?? '❔'} ${job.conclusion ?? 'unknown'} |`);
+              .filter((job) => !job.name.endsWith('Report'))
+              .map((job) => `| ${job.name.split(' / ').pop()} | ${ICONS[job.conclusion] ?? '❔'} ${job.conclusion ?? 'unknown'} |`);
 
             const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
             const body = [
