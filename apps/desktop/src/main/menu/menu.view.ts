@@ -95,10 +95,11 @@ export class ViewMenu implements IMenubarMenu {
       id: "zoomIn",
       label: this.localize("zoomIn"),
       click: async () => {
-        const currentZoom = this._windowMain.win.webContents.zoomFactor;
-        const newZoom = currentZoom + 0.1;
-        this._windowMain.win.webContents.zoomFactor = newZoom;
-        await this._windowMain.saveZoomFactor(newZoom);
+        await this._windowMain.withWindow(async (win) => {
+          const newZoom = win.webContents.zoomFactor + 0.1;
+          win.webContents.zoomFactor = newZoom;
+          await this._windowMain.saveZoomFactor(newZoom);
+        });
       },
       accelerator: "CmdOrCtrl+=",
     };
@@ -109,10 +110,11 @@ export class ViewMenu implements IMenubarMenu {
       id: "zoomOut",
       label: this.localize("zoomOut"),
       click: async () => {
-        const currentZoom = this._windowMain.win.webContents.zoomFactor;
-        const newZoom = Math.max(0.2, currentZoom - 0.1);
-        this._windowMain.win.webContents.zoomFactor = newZoom;
-        await this._windowMain.saveZoomFactor(newZoom);
+        await this._windowMain.withWindow(async (win) => {
+          const newZoom = Math.max(0.2, win.webContents.zoomFactor - 0.1);
+          win.webContents.zoomFactor = newZoom;
+          await this._windowMain.saveZoomFactor(newZoom);
+        });
       },
       accelerator: "CmdOrCtrl+-",
     };
@@ -123,9 +125,11 @@ export class ViewMenu implements IMenubarMenu {
       id: "resetZoom",
       label: this.localize("resetZoom"),
       click: async () => {
-        const newZoom = 1.0;
-        this._windowMain.win.webContents.zoomFactor = newZoom;
-        await this._windowMain.saveZoomFactor(newZoom);
+        await this._windowMain.withWindow(async (win) => {
+          const newZoom = 1.0;
+          win.webContents.zoomFactor = newZoom;
+          await this._windowMain.saveZoomFactor(newZoom);
+        });
       },
       accelerator: "CmdOrCtrl+0",
     };
