@@ -1246,7 +1246,8 @@ describe("DefaultSyncService", () => {
       expect(cipherService.upsert).toHaveBeenCalledWith(new CipherData(remote));
     });
 
-    // A client with no local copy can't tell a lease-widened read from a share; the server has to.
+    // With no local copy, the client can't tell a shared cipher from one a lease made readable.
+    // Only the server can.
     it("upserts an edited cipher with no local copy when a collection matches", async () => {
       collectionService.encryptedCollections$.mockReturnValue(
         of([{ id: collectionId }] as unknown as Collection[]),
