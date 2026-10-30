@@ -374,7 +374,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     // keys. `paramMap` replays synchronously, so this lands before the table restores its chips.
     this.activatedRoute.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const vaultId = params.get("vaultId");
-      this.vaultPopupListTableFiltersService.setCachedVaultScopeId(vaultId);
+      if (vaultId != null) {
+        // Only a scoped route records the selection: the unscoped one is also where the vault is
+        // opened from elsewhere, and choosing All items is recorded by the vault switcher.
+        void this.vaultPopupListTableFiltersService.setCachedVaultScopeId(vaultId);
+      }
       this.vaultPopupListTableFiltersService.setScope(parseVaultScope(vaultId));
     });
 

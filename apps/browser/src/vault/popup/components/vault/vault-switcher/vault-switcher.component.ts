@@ -29,6 +29,7 @@ import {
   vaultScopeCommands,
 } from "@bitwarden/vault";
 
+import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 
 /** A menu entry: one of the account's vaults, or the unscoped "All items" entry. */
@@ -61,6 +62,7 @@ export class VaultSwitcherComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly basePath = inject(VAULT_BASE_ROUTE);
   private readonly i18nService = inject(I18nService);
+  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly scrollPositionService = inject(VaultPopupScrollPositionService);
 
   /** The scope the page resolved from the route. */
@@ -114,7 +116,7 @@ export class VaultSwitcherComponent {
     return this.entries().find((entry) => entry.id === id) ?? null;
   });
 
-  protected select(id: string | null): void {
+  protected async select(id: string | null): Promise<void> {
     // The entry in view is clickable too, and the route would reload rather than no-op.
     if (id === this.selectedId()) {
       return;
@@ -122,6 +124,10 @@ export class VaultSwitcherComponent {
 
     // The offset names nothing in a different list, and the rebuilt page would restore it.
     this.scrollPositionService.stop(true);
+
+    // Recorded before navigating: the unscoped route restores the last selection, so choosing All
+    // items has to land first or it would be sent back to the vault just left.
+    await this.listFiltersService.setCachedVaultScopeId(id);
 
     void this.router.navigate(this.commandsFor(id), {
       // The scoped vault is the same page narrowed, not a step to return from.
