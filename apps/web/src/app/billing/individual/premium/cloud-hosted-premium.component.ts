@@ -33,7 +33,7 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { AccountBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { SubscriptionPreviewService } from "@bitwarden/web-vault/app/billing/services/subscription-preview.service";
 
 import { BitwardenSubscriber, mapAccountToSubscriber } from "../../types";
 import {
@@ -86,7 +86,7 @@ export class CloudHostedPremiumComponent {
   private destroyRef = inject(DestroyRef);
 
   constructor(
-    private accountBillingClient: AccountBillingClient,
+    private subscriptionPreviewService: SubscriptionPreviewService,
     private accountService: AccountService,
     private apiService: ApiService,
     private dialogService: DialogService,
@@ -115,8 +115,7 @@ export class CloudHostedPremiumComponent {
     this.hasSubscription$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
-          ? from(this.accountBillingClient.getSubscription()).pipe(
-              map((subscription) => !!subscription),
+          ? from(this.subscriptionPreviewService.hasAccountSubscription()).pipe(
               catchError(() => of(false)),
             )
           : of(false),
