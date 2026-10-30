@@ -51,6 +51,7 @@ jobs:
             command: xvfb-run -a npm run test:e2e:browser
           - name: shared
             command: xvfb-run -a npm run test:e2e:shared
+            native: true
           # Electron has no headless mode. The suite builds the Rust native module first.
           - name: desktop
             command: xvfb-run -a npm run test:e2e:desktop
