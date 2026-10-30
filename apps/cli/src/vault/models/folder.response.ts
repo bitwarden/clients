@@ -6,9 +6,9 @@ import { BaseResponse } from "../../models/response/base.response";
 export class FolderResponse extends FolderWithIdExport implements BaseResponse {
   object: string;
 
-  constructor(o: FolderView) {
+  constructor(o: FolderView, useSharedFoldersTerm = false) {
     super();
-    this.object = "folder";
+    this.object = useSharedFoldersTerm ? "my-folder" : "folder";
     this.build(o);
   }
 }

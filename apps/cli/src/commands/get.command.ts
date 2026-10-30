@@ -104,10 +104,13 @@ export class GetCommand extends DownloadCommand {
       case "attachment":
         return await this.getAttachment(id, normalizedOptions);
       case "folder":
+      case "my-folder":
         return await this.getFolder(id);
       case "collection":
+      case "shared-folder":
         return await this.getCollection(id);
       case "org-collection":
+      case "org-shared-folder":
         return await this.getOrganizationCollection(id, normalizedOptions);
       case "organization":
         return await this.getOrganization(id);
@@ -448,7 +451,10 @@ export class GetCommand extends DownloadCommand {
     if (decFolder == null) {
       return Response.notFound();
     }
-    const res = new FolderResponse(decFolder);
+    const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+      FeatureFlag.VFO1Foundation,
+    );
+    const res = new FolderResponse(decFolder, useSharedFoldersTerm);
     return Response.success(res);
   }
 
@@ -484,7 +490,10 @@ export class GetCommand extends DownloadCommand {
     if (decCollection == null) {
       return Response.notFound();
     }
-    const res = new CollectionResponse(decCollection);
+    const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+      FeatureFlag.VFO1Foundation,
+    );
+    const res = new CollectionResponse(decCollection, useSharedFoldersTerm);
     return Response.success(res);
   }
 
@@ -528,7 +537,15 @@ export class GetCommand extends DownloadCommand {
           : response.users.map(
               (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
             );
-      const res = new OrganizationCollectionResponse(decCollection, groups, users);
+      const useSharedFoldersTerm = await this.configService.getFeatureFlag(
+        FeatureFlag.VFO1Foundation,
+      );
+      const res = new OrganizationCollectionResponse(
+        decCollection,
+        groups,
+        users,
+        useSharedFoldersTerm,
+      );
       return Response.success(res);
     } catch (e) {
       return Response.error(e);
@@ -620,15 +637,19 @@ export class GetCommand extends DownloadCommand {
         break;
       }
       case "folder":
+      case "my-folder":
         template = FolderExport.template();
         break;
       case "collection":
+      case "shared-folder":
         template = CollectionExport.template();
         break;
       case "item-collections":
+      case "item-shared-folders":
         template = ["collection-id1", "collection-id2"];
         break;
       case "org-collection":
+      case "org-shared-folder":
         template = OrganizationCollectionRequest.template();
         break;
       case "send.file":

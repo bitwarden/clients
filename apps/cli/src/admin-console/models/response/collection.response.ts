@@ -6,9 +6,9 @@ import { BaseResponse } from "../../../models/response/base.response";
 export class CollectionResponse extends CollectionWithIdExport implements BaseResponse {
   object: string;
 
-  constructor(o: CollectionView) {
+  constructor(o: CollectionView, useSharedFoldersTerm = false) {
     super();
-    this.object = "collection";
+    this.object = useSharedFoldersTerm ? "shared-folder" : "collection";
     this.build(o);
   }
 }
