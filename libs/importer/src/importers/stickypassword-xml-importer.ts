@@ -21,7 +21,12 @@ export class StickyPasswordXmlImporter extends BaseImporter implements Importer 
         return;
       }
 
-      const usernameText = loginNode.getAttribute("Name");
+      // When a login has a description, Sticky Password stores it in "Name"
+      // and moves the actual username to "RealLogin"
+      const nameText = loginNode.getAttribute("Name");
+      const realLoginText = loginNode.getAttribute("RealLogin");
+      const hasDescription = !this.isNullOrWhitespace(realLoginText);
+      const usernameText = hasDescription ? realLoginText : nameText;
       const passwordText = loginNode.getAttribute("Password");
       let titleText: string = null;
       let linkText: string = null;
@@ -46,6 +51,10 @@ export class StickyPasswordXmlImporter extends BaseImporter implements Importer 
             notesText = notesText.split("/n").join("\n");
           }
         }
+      }
+
+      if (hasDescription && !this.isNullOrWhitespace(nameText) && nameText !== realLoginText) {
+        notesText = this.isNullOrWhitespace(notesText) ? nameText : notesText + "\n" + nameText;
       }
 
       if (!this.isNullOrWhitespace(groupId)) {
