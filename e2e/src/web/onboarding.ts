@@ -3,10 +3,12 @@ import { expect, Page } from "@playwright/test";
 /** Post-login route offering the browser extension, shown until it is dismissed once. */
 export const SETUP_EXTENSION_URL = /#\/setup-extension/;
 
-/** Onboarding modals that pop up over the vault after login, each dismissed with "Skip". */
+/** Onboarding modals that pop up over the vault after login, and the button dismissing each. */
 const ONBOARDING_DIALOGS = [
-  "You're in! Welcome to Bitwarden",
-  "Get the extension for easy vault access",
+  { heading: "You're in! Welcome to Bitwarden", dismiss: "Skip" },
+  { heading: "Get the extension for easy vault access", dismiss: "Skip" },
+  // Introduces the redesigned vault to existing accounts (libs/vault new-experience-dialog).
+  { heading: "Bitwarden has a new look", dismiss: "Close" },
 ];
 const ADD_IT_LATER_BUTTON = "Add it later";
 const SKIP_TO_WEB_APP_LINK = "Skip to web app";
@@ -35,11 +37,11 @@ export async function skipExtensionSetup(page: Page) {
  * login and on navigation, so a handler beats a one-off check.
  */
 export async function skipOnboardingDialogs(page: Page) {
-  for (const heading of ONBOARDING_DIALOGS) {
+  for (const { heading, dismiss } of ONBOARDING_DIALOGS) {
     const dialog = page.getByRole("dialog").filter({ hasText: heading });
 
     await page.addLocatorHandler(dialog, async () => {
-      await dialog.getByRole("button", { name: "Skip" }).click();
+      await dialog.getByRole("button", { name: dismiss }).click();
     });
   }
 }
