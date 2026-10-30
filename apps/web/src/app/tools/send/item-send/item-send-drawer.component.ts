@@ -191,8 +191,9 @@ export class ItemSendDrawerComponent {
         return sends
           .filter((s) => {
             const isSameItem = s.type === SendType.Item && s.data?.data?.id === cipherId;
-            const isCurrentOrActive =
-              s.id === current.id || (!s.expired && !s.maxAccessCountReached);
+            const isCurrent = s.id === current.id;
+            const isActive = !s.expired && !s.maxAccessCountReached;
+            const isCurrentOrActive = isCurrent || isActive;
             return isSameItem && isCurrentOrActive;
           })
           .sort((a, b) => new Date(a.deletionDate).getTime() - new Date(b.deletionDate).getTime());
