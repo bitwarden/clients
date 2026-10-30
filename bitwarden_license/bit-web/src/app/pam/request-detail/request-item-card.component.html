@@ -1,0 +1,41 @@
+<bit-card data-testid="request-item-card">
+  <div class="tw-flex tw-items-start tw-gap-2">
+    <div class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center">
+      @if (cipher(); as itemCipher) {
+        <app-vault-icon [cipher]="itemCipher" [coloredIcon]="true" />
+      } @else {
+        <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
+      }
+    </div>
+
+    <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
+      <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
+        <h2
+          bitTypography="h3"
+          class="tw-m-0 tw-min-w-0 tw-break-words"
+          data-testid="request-item-card-name"
+        >
+          {{ itemName() }}
+        </h2>
+        <ng-content select="[slot=badge]"></ng-content>
+      </div>
+
+      @if (organizationName() || collectionName()) {
+        <div class="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-2 tw-text-muted">
+          @if (organizationName(); as organization) {
+            <span class="tw-inline-flex tw-items-center tw-gap-1.5" bitTypography="body2">
+              <bit-icon name="bwi-business" [ariaLabel]="'organization' | i18n"></bit-icon>
+              {{ organization }}
+            </span>
+          }
+          @if (collectionName(); as collection) {
+            <span class="tw-inline-flex tw-items-center tw-gap-1.5" bitTypography="body2">
+              <bit-icon name="bwi-collection-shared" [ariaLabel]="'collection' | i18n"></bit-icon>
+              {{ collection }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</bit-card>

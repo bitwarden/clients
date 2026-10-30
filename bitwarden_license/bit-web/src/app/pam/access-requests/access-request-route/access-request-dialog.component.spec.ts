@@ -781,4 +781,158 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canWithdrawApproval"]()).toBe(false);
     });
   });
+
+  describe("opened from the History tab", () => {
+    function openFrom(origin: AccessRequestDialogParams["origin"]): void {
+      TestBed.overrideProvider(DIALOG_DATA, {
+        useValue: {
+          detail: detail as unknown as AccessRequestDetailService,
+          origin,
+        } satisfies AccessRequestDialogParams,
+      });
+      create();
+    }
+
+    function history(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[data-testid="request-detail-history"]');
+    }
+
+    function footerButtons(): string[] {
+      return Array.from(
+        fixture.nativeElement.querySelectorAll("[bitDialogFooter] button, button[id]"),
+      ).map((b) => (b as HTMLElement).id);
+    }
+
+    it.each([
+      ["denied", { status: "denied" }, "pamStatusDenied"],
+      ["canceled", { status: "canceled" }, "pamStatusCanceled"],
+      ["expired", { status: "expired" }, "pamStatusExpired"],
+      [
+        "revoked",
+        { status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "revoked" },
+        "pamStatusRevoked",
+      ],
+      [
+        "session ended",
+        { status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "expired" },
+        "pamStatusSessionEnded",
+      ],
+      ["lapsed grant", { status: "approved", leaseNotAfter: PAST }, "pamStatusExpired"],
+    ])("shows a %s request in the read-only history layout", (_, overrides, label) => {
+      detail.request$.next(request({ resolvedAt: PAST, ...overrides }));
+
+      openFrom("history");
+
+      expect(history()).not.toBeNull();
+      expect(history()!.textContent).toContain(label);
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="request-detail-summary"]'),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector('[data-testid="request-detail-decision-log"]'),
+      ).toBeNull();
+    });
+
+    it("offers only Close, at the start of the footer", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      openFrom("history");
+
+      expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+      const close = fixture.nativeElement.querySelector(
+        "#access-request-dialog_button_close",
+      ) as HTMLElement;
+      expect(close.classList).not.toContain("tw-ms-auto");
+    });
+
+    it("hides an approver's actions even on a collection they manage", () => {
+      detail.viewer$.next("approver");
+      detail.managed$.next(true);
+      detail.request$.next(
+        request({
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+          resolvedAt: PAST,
+        }),
+      );
+
+      openFrom("history");
+
+      expect(footerButtons()).toEqual(["access-request-dialog_button_close"]);
+    });
+
+    it("names the resolved item, collection and requester", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      openFrom("history");
+
+      expect(history()!.textContent).toContain("Prod database");
+      expect(history()!.textContent).toContain("Production");
+      expect(history()!.textContent).toContain("Meridian Group");
+      expect(history()!.textContent).toContain("Grace");
+    });
+
+    it.each([
+      [
+        "a live lease",
+        { status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" },
+        "access-request-dialog_button_revoke",
+      ],
+      [
+        "an approval still to start",
+        { status: "approved", leaseNotAfter: FUTURE },
+        "access-request-dialog_button_withdraw-approval",
+      ],
+    ])("keeps the full view and its actions for %s, which History also lists", (_, o, id) => {
+      detail.viewer$.next("approver");
+      detail.managed$.next(true);
+      detail.request$.next(
+        request({ resolvedAt: PAST, decisions: [humanDecision({ id: "a" })], ...o }),
+      );
+
+      openFrom("history");
+
+      expect(history()).toBeNull();
+      expect(footerButtons()).toContain(id);
+    });
+
+    it("switches to the history layout once a grant's window closes while open", () => {
+      const closesAt = Date.now() + 60_000;
+      detail.request$.next(
+        request({ status: "approved", leaseNotAfter: new Date(closesAt).toISOString() }),
+      );
+      openFrom("history");
+      expect(history()).toBeNull();
+
+      component["nowMs"].set(closesAt + 1000);
+      fixture.detectChanges();
+
+      expect(history()).not.toBeNull();
+    });
+
+    it.each([undefined, "my-requests", "approvals"] as const)(
+      "keeps the full view for a closed request opened from %s",
+      (origin) => {
+        detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+        openFrom(origin);
+
+        expect(history()).toBeNull();
+        expect(
+          fixture.nativeElement.querySelector('[data-testid="request-detail-summary"]'),
+        ).not.toBeNull();
+      },
+    );
+
+    it("still shows the not-found state", () => {
+      detail.request$.next(null);
+      detail.notFound$.next(true);
+
+      openFrom("history");
+
+      expect(history()).toBeNull();
+      expect(text()).toContain("pamAccessRequestNotFound");
+    });
+  });
 });

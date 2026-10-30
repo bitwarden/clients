@@ -28,6 +28,7 @@ import { AccessRequestDetailService, AccessRequestViewer } from "./access-reques
 import {
   AccessRequestDialogComponent,
   AccessRequestDialogParams,
+  AccessRequestOrigin,
 } from "./access-request-dialog.component";
 
 const names = storyNames();
@@ -44,6 +45,7 @@ function detail(
     viewer?: AccessRequestViewer;
     approvalRow?: (request: AccessRequestView) => ApprovalRow;
     managed?: boolean;
+    origin?: AccessRequestOrigin;
   } = {},
 ) {
   const request = options.request?.() ?? null;
@@ -67,6 +69,7 @@ function detail(
       withdrawApproval: () => Promise.resolve(),
       revokeLease: () => Promise.resolve(),
     } as unknown as AccessRequestDetailService,
+    origin: options.origin,
   };
 
   return moduleMetadata({
@@ -266,6 +269,109 @@ export const ApproverActiveLease: Story = {
         }),
       viewer: "approver",
       managed: true,
+    }),
+  ],
+};
+
+/** A lease that ran its course, opened from History: read-only, Close only. */
+export const HistorySessionEnded: Story = {
+  decorators: [
+    detail({
+      origin: "history",
+      request: () =>
+        accessRequest({
+          status: "approved",
+          submittedAt: fromNow(-5 * HOUR),
+          resolvedAt: fromNow(-MINUTE),
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "expired",
+          leaseNotBefore: fromNow(-5 * HOUR),
+          leaseNotAfter: fromNow(-HOUR),
+          decisions: [decision()],
+        }),
+    }),
+  ],
+};
+
+/** A denial opened from History, with the approver's comment. */
+export const HistoryDenied: Story = {
+  decorators: [
+    detail({
+      origin: "history",
+      request: () =>
+        accessRequest({
+          status: "denied",
+          submittedAt: fromNow(-2 * HOUR),
+          resolvedAt: fromNow(-HOUR),
+          leaseNotBefore: fromNow(-2 * HOUR),
+          leaseNotAfter: fromNow(2 * HOUR),
+          decisions: [
+            decision({
+              verdict: "deny",
+              comment: "Not needed. Pulled from the dashboard runbook instead.",
+            }),
+          ],
+        }),
+    }),
+  ],
+};
+
+/** A lease an approver cut short: who approved it, and the withdraw reason. */
+export const HistoryRevoked: Story = {
+  decorators: [
+    detail({
+      origin: "history",
+      request: () =>
+        accessRequest({
+          status: "approved",
+          submittedAt: fromNow(-8 * HOUR),
+          resolvedAt: fromNow(-3 * HOUR),
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+          leaseNotBefore: fromNow(-8 * HOUR),
+          leaseNotAfter: fromNow(-3 * HOUR),
+          decisions: [
+            decision(),
+            decision({
+              verdict: "deny",
+              comment: "Approval withdrawn after the lease started. Scope changed mid-session.",
+            }),
+          ],
+        }),
+    }),
+  ],
+};
+
+/** Withdrawn by the requester before anyone decided: no decider, only when it closed. */
+export const HistoryCanceled: Story = {
+  decorators: [
+    detail({
+      origin: "history",
+      request: () =>
+        accessRequest({
+          status: "canceled",
+          submittedAt: fromNow(-DAY - HOUR),
+          resolvedAt: fromNow(-DAY),
+          leaseNotBefore: fromNow(-DAY - HOUR),
+          leaseNotAfter: fromNow(-DAY + 3 * HOUR),
+        }),
+    }),
+  ],
+};
+
+/** Timed out of its approval window with no decision. */
+export const HistoryExpired: Story = {
+  decorators: [
+    detail({
+      origin: "history",
+      request: () =>
+        accessRequest({
+          status: "expired",
+          submittedAt: fromNow(-2 * DAY - 4 * HOUR),
+          resolvedAt: fromNow(-2 * DAY),
+          leaseNotBefore: fromNow(-2 * DAY - 4 * HOUR),
+          leaseNotAfter: fromNow(-2 * DAY),
+        }),
     }),
   ],
 };

@@ -18745,6 +18745,9 @@
   "pamStatusRevoked": {
     "message": "Revoked"
   },
+  "pamStatusSessionEnded": {
+    "message": "Session ended"
+  },
   "pamStatusUnknown": {
     "message": "Unknown"
   },
@@ -19060,6 +19063,18 @@
   },
   "pamAccessRequestDecisionLogTitle": {
     "message": "Decision log"
+  },
+  "pamAccessRequestDecisionTitle": {
+    "message": "Decision"
+  },
+  "pamApprovedBy": {
+    "message": "Approved by"
+  },
+  "pamDeniedBy": {
+    "message": "Denied by"
+  },
+  "pamDecisionComment": {
+    "message": "Decision comment"
   },
   "pamAccessRequestNotFound": {
     "message": "Access request not available"

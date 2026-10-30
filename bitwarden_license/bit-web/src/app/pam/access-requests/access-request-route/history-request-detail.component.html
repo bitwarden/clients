@@ -1,0 +1,67 @@
+@let b = badge();
+
+<pam-request-item-card
+  [cipher]="cipher()"
+  [itemName]="itemName()"
+  [organizationName]="organizationName()"
+  [collectionName]="collectionName()"
+>
+  <span
+    slot="badge"
+    bitBadge
+    [variant]="b.variant"
+    [startIcon]="b.icon"
+    data-testid="history-request-detail-status"
+  >
+    {{ b.labelKey | i18n }}
+  </span>
+</pam-request-item-card>
+
+<pam-detail-section [title]="'details' | i18n" data-testid="history-request-detail-details">
+  <div pam-detail-field [label]="'pamInboxRequester' | i18n">{{ requesterName() }}</div>
+  <div pam-detail-field [label]="'pamAccessRequestedLabel' | i18n">
+    <span data-testid="history-request-detail-window"
+      >{{ duration().key | i18n: duration().value ?? undefined }}, {{ windowRange() }}</span
+    >
+  </div>
+  @if (reason(); as r) {
+    <div pam-detail-field [label]="'pamInboxRequestReasonLabel' | i18n">
+      <span data-testid="history-request-detail-reason">{{ r }}</span>
+    </div>
+  }
+  <div pam-detail-field [label]="'pamColumnSubmitted' | i18n">
+    <span data-testid="history-request-detail-submitted">{{ submitted() }}</span>
+  </div>
+</pam-detail-section>
+
+@if (showDecision()) {
+  <pam-detail-section
+    [title]="'pamAccessRequestDecisionTitle' | i18n"
+    data-testid="history-request-detail-decision"
+  >
+    @if (decision(); as d) {
+      <div pam-detail-field [label]="d.verdictLabelKey | i18n">
+        <span data-testid="history-request-detail-decider">{{
+          d.deciderLabelKey ? (d.deciderLabelKey | i18n) : d.deciderName
+        }}</span>
+      </div>
+      @if (d.email) {
+        <div pam-detail-field [label]="'email' | i18n">
+          <span data-testid="history-request-detail-email">{{ d.email }}</span>
+        </div>
+      }
+      @if (d.comment) {
+        <div pam-detail-field [label]="'pamDecisionComment' | i18n">
+          <span data-testid="history-request-detail-comment">{{ d.comment }}</span>
+        </div>
+      }
+    }
+    @if (resolvedAt(); as resolved) {
+      <div pam-detail-field [label]="'pamColumnResolved' | i18n">
+        <span data-testid="history-request-detail-resolved" [title]="resolvedExact()">{{
+          resolved | relativeTime
+        }}</span>
+      </div>
+    }
+  </pam-detail-section>
+}

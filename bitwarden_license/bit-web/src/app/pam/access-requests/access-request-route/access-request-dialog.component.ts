@@ -38,6 +38,7 @@ import {
   activateAccessErrorMessageKey,
   durationLabel,
   exactWindow,
+  historyOutcome,
   humanApprover,
   reasonText,
   relativeStart,
@@ -54,6 +55,7 @@ import { emptyResolvedNames, organizationNameFor } from "../access-name-resolver
 import { historyDisplayStatus, lapsedGrantBadge } from "../my-access-row";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
+import { HistoryRequestDetailComponent } from "./history-request-detail.component";
 
 const DECISION_LABEL_KEYS = {
   approved: "pamStatusApproved",
@@ -62,12 +64,17 @@ const DECISION_LABEL_KEYS = {
   revoked: "pamAuditKindAccessRevoked",
 } as const;
 
+/** The tabs that link to a request row, and so the surfaces the dialog can be opened over. */
+export type AccessRequestOrigin = "approvals" | "history" | "my-requests";
+
 export type AccessRequestDialogParams = {
   /**
    * Handed in rather than injected, since `DialogService` builds the dialog's injector from the
    * root one, out of reach of route-scoped providers.
    */
   detail: AccessRequestDetailService;
+  /** The tab the row was opened from; absent on a cold load or from outside the tabs. */
+  origin?: AccessRequestOrigin;
 };
 
 /**
@@ -93,13 +100,15 @@ export type AccessRequestDialogParams = {
     RemainingTimePipe,
     RequestSummaryComponent,
     SummaryFieldComponent,
+    HistoryRequestDetailComponent,
   ],
   providers: [ApproverActionsService],
 })
 export class AccessRequestDialogComponent implements OnInit {
   protected readonly noResultsSvg = NoResults;
 
-  private readonly detail = inject<AccessRequestDialogParams>(DIALOG_DATA).detail;
+  private readonly params = inject<AccessRequestDialogParams>(DIALOG_DATA);
+  private readonly detail = this.params.detail;
   private readonly dialogService = inject(DialogService);
   private readonly approverActions = inject(ApproverActionsService);
   private readonly toastService = inject(ToastService);
@@ -163,6 +172,17 @@ export class AccessRequestDialogComponent implements OnInit {
     return isUnstartedApproval(request) && Date.parse(request.leaseNotAfter) <= this.nowMs()
       ? { badgeState: null, statusBadge: lapsedGrantBadge }
       : historyDisplayStatus(request);
+  });
+
+  /**
+   * The closed outcome a row opened from History is shown as, read-only. Null keeps the full view
+   * and its actions, as for a live lease or an approval still to start, which History also lists.
+   */
+  protected readonly historyOutcome = computed(() => {
+    const request = this.request();
+    return request == null || this.params.origin !== "history"
+      ? null
+      : historyOutcome(request, this.nowMs());
   });
 
   protected readonly duration = computed(() => {

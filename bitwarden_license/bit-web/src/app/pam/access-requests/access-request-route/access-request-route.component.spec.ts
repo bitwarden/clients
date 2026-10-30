@@ -117,6 +117,27 @@ describe("AccessRequestRouteComponent", () => {
   });
 
   it.each([
+    ["/pam/history", "history"],
+    ["/pam/approvals", "approvals"],
+    ["/pam/my-requests", "my-requests"],
+  ])("tells the dialog which tab it was opened from (%s)", (path, origin) => {
+    create(cameFrom(path));
+
+    expect(dialogService.open).toHaveBeenCalledWith(AccessRequestDialogComponent, {
+      data: { detail, origin },
+      closeOnNavigation: false,
+    });
+  });
+
+  it("names no origin when the viewer fallback picks the tab, as on a cold load", () => {
+    viewer$.next("approver");
+    create(null);
+
+    const [, config] = dialogService.open.mock.calls[0];
+    expect((config?.data as { origin?: string }).origin).toBeUndefined();
+  });
+
+  it.each([
     ["/pam/approvals", "pam-approvals-tab"],
     ["/pam/history", "pam-history-tab"],
     ["/pam/my-requests", "pam-my-requests-tab"],

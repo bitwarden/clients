@@ -16,10 +16,10 @@ import { HistoryTabComponent } from "../history-tab.component";
 import { MyRequestsTabComponent } from "../my-requests-tab.component";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
-import { AccessRequestDialogComponent } from "./access-request-dialog.component";
-
-/** The tabs that link to a request row, and so the surfaces the dialog can be opened over. */
-type OriginTab = "approvals" | "history" | "my-requests";
+import {
+  AccessRequestDialogComponent,
+  AccessRequestOrigin as OriginTab,
+} from "./access-request-dialog.component";
 
 /**
  * Hosts the `/pam/requests/:id` dialog over the shell. Closing replaces the URL with the origin
@@ -67,8 +67,10 @@ export class AccessRequestRouteComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Only a real origin: the viewer fallback is not where the caller came from.
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
       detail: this.detail,
+      origin: this.navigatedFrom,
     });
 
     // Leaving the route also closes the dialog, and that close must not navigate a second time.

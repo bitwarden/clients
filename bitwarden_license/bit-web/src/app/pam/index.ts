@@ -83,6 +83,18 @@ export type { AccessAuditEventResponse } from "./access-audit/responses/access-a
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
+  HISTORY_OUTCOME_BADGES,
+  historyDateTime,
+  historyDecisionSummary,
+  historyOutcome,
+  historyWindowRange,
+} from "./helpers/history-detail";
+export type {
+  HistoryDecisionSummary,
+  HistoryOutcome,
+  HistoryOutcomeBadge,
+} from "./helpers/history-detail";
+export {
   ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
