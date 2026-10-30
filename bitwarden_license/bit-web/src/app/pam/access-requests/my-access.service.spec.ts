@@ -1,7 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import type {
   AccessLeaseId,
   AccessLeaseView,
@@ -70,9 +71,15 @@ describe("MyAccessService", () => {
   let nameResolver: MockProxy<AccessNameResolverService>;
   let accessRefresh: MockProxy<AccessRefreshService>;
   let push$: Subject<void>;
+  let activeAccount$: BehaviorSubject<Account | null>;
 
   beforeEach(() => {
     push$ = new Subject<void>();
+    activeAccount$ = new BehaviorSubject<Account | null>({
+      id: "user-1",
+      name: "Ada",
+      email: "ada@example.com",
+    } as Account);
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
@@ -90,6 +97,7 @@ describe("MyAccessService", () => {
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: AccessRefreshService, useValue: accessRefresh },
+        { provide: AccountService, useValue: { activeAccount$ } },
       ],
     });
 
@@ -113,6 +121,31 @@ describe("MyAccessService", () => {
       ]);
       expect(await firstValueFrom(service.loading$)).toBe(false);
       expect(await firstValueFrom(service.loadError$)).toBeNull();
+    });
+
+    // The server omits the requester from the caller's own read.
+    it("names the caller as the requester of their own requests", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { status: "denied" }),
+        request("req-2", { status: "denied", requesterName: "Server name" }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.historyRows$);
+      expect(rows.map((r) => [r.id, r.requester, r.requesterEmail])).toEqual([
+        ["req-1", "Ada", "ada@example.com"],
+        ["req-2", "Server name", null],
+      ]);
+    });
+
+    it("leaves the requester unnamed when no account is active", async () => {
+      activeAccount$.next(null);
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "denied" })]);
+
+      await service.load();
+
+      expect((await firstValueFrom(service.historyRows$))[0].requester).toBe("");
     });
 
     it("records the error and clears loading when a fetch fails", async () => {

@@ -36,9 +36,9 @@ import {
 } from "../access-requests/access-name-resolver.service";
 import {
   MyAccessRequestRow,
+  buildMyAccessRequestRows,
   extensionsByLeaseId,
   resolvedOrSubmittedMs,
-  toRequestRow,
 } from "../access-requests/my-access-row";
 
 import { ApprovalRow, sortApprovalRows, toApprovalRow } from "./approval-row";
@@ -103,15 +103,18 @@ export class ApproverInboxService {
     map((rows) => rows.filter((row) => row.canDecide).length),
   );
 
-  /** The decided requests on managed collections, newest first. */
+  /**
+   * The decided requests on managed collections, newest first. An applied extension folds into its
+   * original row, as on the caller's own requests; alone it reads as an unused grant.
+   */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this._history$,
     this._names$,
   ]).pipe(
     map(([requests, names]) =>
-      requests
-        .map((request) => toRequestRow(request, names))
-        .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a)),
+      buildMyAccessRequestRows(requests, names).sort(
+        (a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a),
+      ),
     ),
   );
 
