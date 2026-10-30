@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -35,15 +35,16 @@ import {
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { CollectionId } from "@bitwarden/common/types/guid";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
-  BadgeGroupComponent,
-  type BadgeGroupItem,
   BitCellComponent,
   BitCellDefDirective,
   BitColumnComponent,
@@ -53,15 +54,20 @@ import {
   BitTableV2Component,
   BulkActionComponent,
   BulkActionsBarComponent,
+  ChipGroupComponent,
+  type ChipGroupItem,
   defineTable,
   DialogService,
   FilterMenuModule,
+  type FilterOptionNode,
   IconModule,
   MenuModule,
   SearchModule,
   type SelectionConfig,
+  type SortFn,
   StatusLockupComponent,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
@@ -80,7 +86,7 @@ import {
 type GroupRow = {
   details: GroupDetailsView;
 
-  collectionBadges: BadgeGroupItem[];
+  collectionChips: ChipGroupItem[];
 };
 
 type GroupFilters = {
@@ -98,7 +104,7 @@ type GroupFilters = {
     SearchModule,
     MenuModule,
     FilterMenuModule,
-    BadgeGroupComponent,
+    ChipGroupComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitCellDefDirective,
@@ -109,6 +115,7 @@ type GroupFilters = {
     BulkActionsBarComponent,
     BulkActionComponent,
     StatusLockupComponent,
+    TooltipDirective,
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
@@ -118,6 +125,7 @@ export class GroupsV2Component {
   private readonly apiService = inject(ApiService);
   private readonly groupService = inject(GroupService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
   private readonly dialogService = inject(DialogService);
   private readonly collectionService = inject(CollectionService);
@@ -128,7 +136,8 @@ export class GroupsV2Component {
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
 
-  private readonly tableRef = viewChild<BitTableV2Component<GroupRow>>(BitTableV2Component);
+  private readonly tableRef =
+    viewChild.required<BitTableV2Component<GroupRow>>(BitTableV2Component);
 
   private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
 
@@ -137,6 +146,8 @@ export class GroupsV2Component {
   protected readonly ModalTabType = GroupAddEditTabType;
 
   protected readonly selection: SelectionConfig<GroupRow> = { multiple: true };
+
+  protected readonly selectedGroups = signal<readonly GroupRow[]>([]);
 
   protected readonly initialFilters: Partial<GroupFilters> = {
     search: this.route.snapshot.queryParams.search ?? "",
@@ -176,15 +187,15 @@ export class GroupsV2Component {
       const sharedFolderIcon = this.vfo1Terminology.iconClass("bwi-collection-shared");
       return groups.map<GroupRow>((g) => ({
         details: g,
-        collectionBadges: g.collections
-          .map((c) => collectionMap[c.id]?.name)
-          .filter((name): name is string => name != null)
-          .sort(this.i18nService.collator?.compare)
-          .map((label): BadgeGroupItem => ({
-            label,
-            variant: "primary",
-            startIcon: sharedFolderIcon,
-          })),
+        collectionChips: g.collections
+          .flatMap((c) => {
+            const collection = collectionMap[c.id];
+            return collection
+              ? [{ id: collection.id, label: collection.name, startIcon: sharedFolderIcon }]
+              : [];
+          })
+          .sort((a, b) => this.i18nService.collator?.compare(a.label, b.label) ?? 0)
+          .map((chip): ChipGroupItem => ({ ...chip, variant: "subtle" })),
       }));
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -198,21 +209,22 @@ export class GroupsV2Component {
     const hasCollection = (row: GroupRow, collectionId: string) =>
       row.details.collections.some((c) => c.id === collectionId);
 
-    return Object.values(collectionMap)
-      .sort((a, b) => this.i18nService.collator?.compare(a.name, b.name) ?? 0)
-      .map((collection) => ({
-        value: collection.id,
-        label: collection.name,
-        count: rows.filter((row) => hasCollection(row, collection.id)).length,
-      }));
+    const toFilterOption = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
+      value: node.node.id as CollectionId,
+      label: node.node.name,
+      count: rows.filter((row) => hasCollection(row, node.node.id)).length,
+      options: node.children.map(toFilterOption),
+    });
+
+    return getNestedCollectionTree(Object.values(collectionMap))
+      .map(toFilterOption)
+      .sort((a, b) => this.i18nService.collator?.compare(a.label, b.label) ?? 0);
   });
 
   private readonly fetchedRows = toSignal(this.rowsData$);
   protected readonly loading = computed(() => this.fetchedRows() == null);
 
   protected readonly rows = signal<GroupRow[]>([]);
-
-  protected readonly selectedGroups = signal<GroupRow[]>([]);
 
   protected readonly table = defineTable<GroupRow, "actions">(this.rows);
 
@@ -225,7 +237,7 @@ export class GroupsV2Component {
 
     effect(() => {
       const currentRows = new Set(this.rows());
-      const model = this.tableRef()?.selectionModel();
+      const model = this.tableRef().selectionModel();
       const stale = model?.selected().filter((row) => !currentRows.has(row)) ?? [];
       if (stale.length > 0) {
         model?.deselect(...stale);
@@ -252,6 +264,35 @@ export class GroupsV2Component {
     return matchesSearch && matchesCollections;
   };
 
+  protected readonly sortByName: SortFn = (a: GroupRow, b: GroupRow) =>
+    this.i18nService.collator?.compare(a.details.name, b.details.name) ??
+    a.details.name.localeCompare(b.details.name);
+
+  protected readonly sortByCollections: SortFn = (a: GroupRow, b: GroupRow) => {
+    const first = a.collectionChips.at(0)?.label;
+    const second = b.collectionChips.at(0)?.label;
+    if (!first && !second) {
+      return 0;
+    }
+    if (!first) {
+      return 1;
+    }
+    if (!second) {
+      return -1;
+    }
+    return this.i18nService.collator?.compare(first, second) ?? first.localeCompare(second);
+  };
+
+  protected async goToCollection(chip: ChipGroupItem) {
+    const organizationId = await firstValueFrom(this.organizationId$);
+    if (organizationId == null) {
+      return;
+    }
+    await this.router.navigate(["/organizations", organizationId, "vault"], {
+      queryParams: this.vfo1Terminology.collectionQueryParams(chip.id),
+    });
+  }
+
   async edit(group: GroupRow, startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info) {
     const organizationId = await firstValueFrom(this.organizationId$);
     if (organizationId == null) {
@@ -269,10 +310,6 @@ export class GroupsV2Component {
 
     if (result == GroupAddEditDialogResultType.Saved) {
       this.refreshGroups$.next();
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("groupEdited"),
-      });
     } else if (result == GroupAddEditDialogResultType.Deleted) {
       this.removeGroup(group);
     }
@@ -328,7 +365,9 @@ export class GroupsV2Component {
       );
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t(bulk ? "groupsDeleted" : "groupDeleted"),
+        message: bulk
+          ? this.i18nService.t("groupsDeleted", groups.length.toString())
+          : this.i18nService.t("groupDeleted"),
       });
       groups.forEach((g) => this.removeGroup(g));
     } catch (e) {

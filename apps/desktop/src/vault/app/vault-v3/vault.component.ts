@@ -129,6 +129,9 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  CollectionMenuTarget,
+  collectionMenuTargetForScope,
+  CollectionOptionsMenuComponent,
   FilterFunction,
   folderNameForScope,
   hasMultipleVaults,
@@ -163,6 +166,7 @@ import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
+import { vaultListCiphers$ } from "./vault-list-ciphers";
 import { VaultListTableComponent } from "./vault-list-table/vault-list-table.component";
 import { VaultListComponent } from "./vault-list.component";
 
@@ -203,6 +207,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     AutofocusDirective,
     CardGridComponent,
     VaultBreadcrumbsComponent,
+    CollectionOptionsMenuComponent,
     MyFolderBreadcrumbsComponent,
     MyFolderMenuComponent,
     IconTileComponent,
@@ -469,6 +474,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
 
+  protected get collectionMenu(): CollectionMenuTarget | undefined {
+    if (!this.vfo1Foundation()) {
+      return undefined;
+    }
+    return collectionMenuTargetForScope(
+      this.vaultScope(),
+      this.scopedCollections,
+      this.allOrganizations,
+    );
+  }
+
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,
     this.vaultScope$,
@@ -600,21 +616,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.activeUserId = activeUserId;
 
-    // Clear cipher selection on page load/reload to prevent flash of content
     const currentParams = await firstValueFrom(this.route.queryParams);
 
     const incomingAddType = toCipherType(currentParams.addType);
     if (currentParams.action === "add" && incomingAddType) {
       await this.addCipher(incomingAddType).catch(() => {});
-    }
-
-    // Clear cipher selection on page load/reload to prevent flash of content
-    if (currentParams.itemId || currentParams.cipherId) {
-      await this.router.navigate([], {
-        queryParams: { itemId: null, cipherId: null, action: null },
-        queryParamsHandling: "merge",
-        replaceUrl: true,
-      });
     }
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -744,9 +750,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
-    const _ciphers = this.cipherService
-      .cipherListViews$(activeUserId)
-      .pipe(filter((c) => c !== null));
+    const _ciphers = vaultListCiphers$(this.cipherService, activeUserId, this.vfo1Foundation$).pipe(
+      filter((c) => c !== null),
+    );
 
     /**
      * This observable filters the ciphers based on the active user ID and the restricted item types.
@@ -909,7 +915,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         darkImgSrc: NEW_EXPERIENCE_DARK_IMG,
       },
     );
-    if (newExperienceResult !== null) {
+
+    if ((currentParams.itemId || currentParams.cipherId) && newExperienceResult == null) {
+      const id = currentParams.itemId ?? currentParams.cipherId;
+      const userId = await firstValueFrom(this.userId$);
+      const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, id));
+      if (cipher) {
+        await this.viewCipher(cipher);
+      }
+    }
+    if (newExperienceResult != null) {
       this.sideNavService.open.set(true);
     }
   }
