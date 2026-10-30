@@ -19087,6 +19087,14 @@
     "message": "End session",
     "description": "Ends a running access session as the approver, on the access request dialog. The tables call the same action 'Revoke'."
   },
+  "pamDecisionAutomatic": {
+    "message": "System (automatic)",
+    "description": "Stands in for the approver when an access rule decided a request on its own. Distinct from the audit drawer's 'Access rule' label, which names the field rather than the decider."
+  },
+  "pamSubmitNewRequest": {
+    "message": "Submit new request",
+    "description": "Takes a requester back to the item to raise a fresh request, after theirs was denied or expired."
+  },
   "pamWithdrawReasonLabel": {
     "message": "Reason",
     "description": "Label for the note an approver must give when withdrawing an approval."

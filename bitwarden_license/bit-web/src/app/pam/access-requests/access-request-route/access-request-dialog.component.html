@@ -176,6 +176,18 @@
           {{ "pamStartSessionButton" | i18n }}
         </button>
       }
+      @if (canResubmit()) {
+        <a
+          bitButton
+          buttonType="primary"
+          id="access-request-dialog_link_submit-new-request"
+          data-testid="request-detail-resubmit"
+          [routerLink]="resubmitLink()"
+          [queryParams]="resubmitParams()"
+        >
+          {{ "pamSubmitNewRequest" | i18n }}
+        </a>
+      }
       @if (canCancel()) {
         <button
           type="button"

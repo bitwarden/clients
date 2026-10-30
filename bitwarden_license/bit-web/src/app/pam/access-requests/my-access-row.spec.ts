@@ -135,7 +135,7 @@ describe("historyDisplayStatus", () => {
     });
     expect(historyDisplayStatus(r)).toEqual({
       badgeState: null,
-      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "danger" },
     });
   });
 
@@ -149,19 +149,19 @@ describe("historyDisplayStatus", () => {
     });
     expect(historyDisplayStatus(r)).toEqual({
       badgeState: null,
-      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "danger" },
     });
   });
 
-  it("defaults an activated request's lapsed/expired lease to Expired", () => {
+  it("reads a lease that ran its course as a session that ended, not a blocked request", () => {
     const r = request("req-1", {
       status: "approved",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "expired",
     });
     expect(historyDisplayStatus(r)).toEqual({
-      badgeState: null,
-      statusBadge: { labelKey: "pamStatusExpired", variant: "warning" },
+      badgeState: { kind: "expired" },
+      statusBadge: null,
     });
   });
 
