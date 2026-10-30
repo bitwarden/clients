@@ -1,6 +1,6 @@
 # Runs the e2e Playwright suites (e2e/) against the usdev environment.
 # Nightly, and on demand by labeling a PR "force-e2e". Fork PRs get no secrets, so they are skipped.
-# The web suite drives the deployed usdev vault; browser and shared build the extension from the checkout.
+# The web suite drives the deployed usdev vault; browser, shared and desktop build from the checkout.
 
 name: Test E2E (usdev)
 
@@ -46,11 +46,30 @@ jobs:
             command: xvfb-run -a npm run test:e2e:browser
           - name: shared
             command: xvfb-run -a npm run test:e2e:shared
+          # Electron has no headless mode. The suite builds the Rust native module first.
+          - name: desktop
+            command: xvfb-run -a npm run test:e2e:desktop
+            native: true
     steps:
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      # rustup on the runner installs the toolchain pinned in desktop_native/rust-toolchain.toml.
+      - name: Cache Rust dependencies
+        if: ${{ matrix.suite.native }}
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
+      - name: Install native build dependencies
+        if: ${{ matrix.suite.native }}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev
 
       - name: Get Node Version
         id: retrieve-node-version
