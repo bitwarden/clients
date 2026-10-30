@@ -283,7 +283,26 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("previews the restart cart for a canceled subscription", () => {
       selectEnterpriseAnnual();
-      (component as any).isSubscriptionCanceled = true;
+      component.sub = { subscription: { status: "canceled" } } as any;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledWith("organization-id", {
+        billingAddress: {
+          country: "US",
+          postalCode: "12345",
+          taxId: { code: "us_ein", value: "12-3456789" },
+        },
+      });
+      expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    });
+
+    it("previews the restart cart for a cancelled org downgraded to the Free tier", () => {
+      selectEnterpriseAnnual();
+      component.sub = { subscription: { cancelled: true, status: "active" } } as any;
+      component.organization = { productTierType: ProductTierType.Free } as any;
       invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
 
       (component as any).refreshCostSummary();
@@ -303,7 +322,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       component.organizationId = "organization-id";
       component.selectedPlan = { type: PlanType.TeamsStarter } as any;
       component.billingAddress = address;
-      (component as any).isSubscriptionCanceled = true;
+      component.sub = { subscription: { status: "canceled" } } as any;
       invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
 
       (component as any).refreshCostSummary();
@@ -318,7 +337,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
     it("does not refetch the restart cart when a rebuilt address is identical", () => {
       selectEnterpriseAnnual();
-      (component as any).isSubscriptionCanceled = true;
+      component.sub = { subscription: { status: "canceled" } } as any;
       invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
 
       (component as any).refreshCostSummary();

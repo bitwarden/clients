@@ -784,12 +784,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string;
-      const sub = this.sub?.subscription;
-      const isCanceled = sub?.status === "canceled";
-      const isCancelledDowngradedToFreeOrg =
-        sub?.cancelled && this.organization.productTierType === ProductTierType.Free;
-
-      if (isCanceled || isCancelledDowngradedToFreeOrg) {
+      if (this.willRestart) {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
@@ -1013,8 +1008,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return index;
   }
 
+  /** Whether submitting restarts the subscription rather than changing its plan. */
+  private get willRestart(): boolean {
+    const sub = this.sub?.subscription;
+    return (
+      sub?.status === "canceled" ||
+      (!!sub?.cancelled && this.organization.productTierType === ProductTierType.Free)
+    );
+  }
+
   private refreshCostSummary(): void {
-    const request = this.isSubscriptionCanceled
+    const request = this.willRestart
       ? this.buildRestartPreviewRequest()
       : this.buildPlanChangePreviewRequest();
     this.planChangeRequest.set(request);
