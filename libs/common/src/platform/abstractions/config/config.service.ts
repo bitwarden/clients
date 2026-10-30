@@ -5,7 +5,11 @@ import { SemVer } from "semver";
 
 import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
 
-import { FeatureFlag, FeatureFlagValueType } from "../../../enums/feature-flag.enum";
+import {
+  AllowedFeatureFlagTypes,
+  FeatureFlag,
+  FeatureFlagValueType,
+} from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ServerSettings } from "../../models/domain/server-settings";
 import { Region } from "../environment.service";
@@ -62,4 +66,23 @@ export abstract class ConfigService {
    * Triggers a check that the config for the currently active user is up-to-date. If it is not, it will be fetched from the server and stored.
    */
   abstract ensureConfigFetched(): Promise<void>;
+
+  // Feature flag state will be refactored out into a separate service entirely.
+
+  /**
+   * The local feature flag overrides. Flags absent from the record are not overridden.
+   * Developer tooling only: overrides are resolved ahead of the server config.
+   */
+  abstract featureFlagOverrides$: Observable<Partial<
+    Record<FeatureFlag, AllowedFeatureFlagTypes>
+  > | null>;
+
+  /** Overrides a feature flag locally. Developer tooling only. */
+  abstract setFeatureFlagOverride(flag: FeatureFlag, value: AllowedFeatureFlagTypes): Promise<void>;
+
+  /** Removes the override for a flag, restoring the server/default value. */
+  abstract clearFeatureFlagOverride(flag: FeatureFlag): Promise<void>;
+
+  /** Removes every feature flag override. */
+  abstract clearAllFeatureFlagOverrides(): Promise<void>;
 }

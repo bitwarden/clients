@@ -67,6 +67,12 @@ export const GLOBAL_FEATURE_FLAG_OVERRIDES = KeyDefinition.record<
   deserializer: (data) => data,
 });
 
+/**
+ * `KeyDefinition.record` types the value as a total record, but only overridden flags are actually
+ * present — hence the casts where overrides are written.
+ */
+type StoredFeatureFlagOverrides = Record<FeatureFlag, AllowedFeatureFlagTypes>;
+
 /** The SDK only takes boolean flags. Nullable so an absent config passes straight through. */
 export function toSdkFeatureFlags(config: ServerConfig | null): Map<string, boolean> {
   return new Map(
@@ -92,9 +98,7 @@ export class DefaultConfigService implements ConfigService {
 
   cloudRegion$: Observable<Region>;
 
-  private featureFlagOverrides$: Observable<Partial<
-    Record<FeatureFlag, AllowedFeatureFlagTypes>
-  > | null>;
+  featureFlagOverrides$: Observable<Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>> | null>;
 
   constructor(
     private configApiService: ConfigApiServiceAbstraction,
@@ -215,6 +219,31 @@ export class DefaultConfigService implements ConfigService {
       return overrides[key] as FeatureFlagValueType<Flag>;
     }
     return getFeatureFlagValue(serverConfig, key);
+  }
+
+  async setFeatureFlagOverride(flag: FeatureFlag, value: AllowedFeatureFlagTypes) {
+    await this.stateProvider
+      .getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES)
+      .update((overrides) => ({ ...overrides, [flag]: value }) as StoredFeatureFlagOverrides);
+  }
+
+  async clearFeatureFlagOverride(flag: FeatureFlag) {
+    await this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).update((overrides) => {
+      if (overrides == null || !(flag in overrides)) {
+        return overrides;
+      }
+
+      // Delete rather than set to null so the stored record does not accumulate dead keys.
+      const remaining = { ...overrides } as Partial<StoredFeatureFlagOverrides>;
+      delete remaining[flag];
+      return remaining as StoredFeatureFlagOverrides;
+    });
+  }
+
+  async clearAllFeatureFlagOverrides() {
+    await this.stateProvider
+      .getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES)
+      .update(() => ({}) as StoredFeatureFlagOverrides);
   }
 
   checkServerMeetsVersionRequirement$(minimumRequiredServerVersion: SemVer) {
