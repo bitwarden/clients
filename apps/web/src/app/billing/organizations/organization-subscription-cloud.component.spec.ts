@@ -19,8 +19,16 @@ import { SubscriptionCardActions, SubscriptionPreview } from "@bitwarden/subscri
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBillingClient } from "../clients";
+import {
+  OffboardingSurveyComponent,
+  OffboardingSurveyDialogResultType,
+} from "../shared/offboarding-survey.component";
 
 import { AdjustSubscription } from "./adjust-subscription.component";
+import {
+  ChurnMitigationOfferDialogComponent,
+  ChurnMitigationOfferDialogResultType,
+} from "./churn-mitigation-offer-dialog.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
 import * as restartSubscriptionDialog from "./restart-subscription-dialog.component";
@@ -135,6 +143,7 @@ describe("OrganizationSubscriptionCloudComponent", () => {
       smServiceAccountsGrace: 0,
       customerDiscount: null,
       plan: {
+        type: PlanType.TeamsAnnually,
         nameLocalizationKey: "teams",
         name: "Teams",
         isAnnual: true,
@@ -464,6 +473,155 @@ describe("OrganizationSubscriptionCloudComponent", () => {
       expect(text).not.toContain("removeStorage");
       expect(text).not.toContain("cancelSubscription");
       expect(text).toContain("additionalOptions");
+    });
+  });
+
+  describe("cancelSubscription", () => {
+    const churnOffer = {
+      couponId: "CHURN25",
+      percentOff: 25,
+      duration: "repeating",
+      durationInMonths: 12,
+      name: "Loyalty Discount",
+    } as any;
+
+    let dialogService: jest.Mocked<DialogService>;
+    let billingClient: jest.Mocked<OrganizationBillingClient>;
+    let reload: jest.SpyInstance;
+
+    const dialogRef = (result: unknown) => ({ closed: of(result) }) as any;
+    const openedDialogs = () => dialogService.open.mock.calls.map(([dialog]) => dialog);
+
+    const createLoaded = async (subscription?: OrganizationSubscriptionResponse | null) => {
+      createComponent({ subscription, detectChanges: true });
+      await fixture.whenStable();
+      fixture.detectChanges();
+      reload = jest.spyOn(component.organizationSubscriptionResource, "reload");
+    };
+
+    beforeEach(() => {
+      dialogService = TestBed.inject(DialogService) as jest.Mocked<DialogService>;
+      billingClient = TestBed.inject(
+        OrganizationBillingClient,
+      ) as jest.Mocked<OrganizationBillingClient>;
+    });
+
+    describe("when the organization is offered a churn mitigation offer", () => {
+      beforeEach(async () => {
+        billingClient.getChurnOffer.mockResolvedValue(churnOffer);
+        await createLoaded();
+      });
+
+      it("opens only the churn offer dialog, with the plan details, and nothing else when it is closed", async () => {
+        dialogService.open.mockReturnValue(dialogRef(ChurnMitigationOfferDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(billingClient.getChurnOffer).toHaveBeenCalledWith("org-123");
+        expect(openedDialogs()).toEqual([ChurnMitigationOfferDialogComponent]);
+        expect(dialogService.open.mock.calls[0][1]).toEqual({
+          data: expect.objectContaining({
+            organizationId: "org-123",
+            offer: churnOffer,
+            planName: "Teams",
+            isAnnual: true,
+          }),
+        });
+        expect(reload).not.toHaveBeenCalled();
+      });
+
+      it("refreshes without opening the survey when the offer is accepted", async () => {
+        dialogService.open.mockReturnValue(
+          dialogRef(ChurnMitigationOfferDialogResultType.Accepted),
+        );
+
+        await component.cancelSubscription();
+
+        expect(openedDialogs()).toEqual([ChurnMitigationOfferDialogComponent]);
+        expect(reload).toHaveBeenCalled();
+      });
+
+      it("opens the offboarding survey after the offer is declined", async () => {
+        dialogService.open
+          .mockReturnValueOnce(dialogRef(ChurnMitigationOfferDialogResultType.Declined))
+          .mockReturnValueOnce(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(openedDialogs()).toEqual([
+          ChurnMitigationOfferDialogComponent,
+          OffboardingSurveyComponent,
+        ]);
+      });
+
+      it("refreshes when the survey is submitted after declining the offer", async () => {
+        dialogService.open
+          .mockReturnValueOnce(dialogRef(ChurnMitigationOfferDialogResultType.Declined))
+          .mockReturnValueOnce(dialogRef(OffboardingSurveyDialogResultType.Submitted));
+
+        await component.cancelSubscription();
+
+        expect(reload).toHaveBeenCalled();
+      });
+
+      it("does not refresh when the survey is closed after declining the offer", async () => {
+        dialogService.open
+          .mockReturnValueOnce(dialogRef(ChurnMitigationOfferDialogResultType.Declined))
+          .mockReturnValueOnce(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(reload).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when the organization is not offered a churn mitigation offer", () => {
+      beforeEach(async () => {
+        billingClient.getChurnOffer.mockResolvedValue(null);
+        await createLoaded();
+      });
+
+      it("opens the offboarding survey directly with the plan details", async () => {
+        dialogService.open.mockReturnValue(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(billingClient.getChurnOffer).toHaveBeenCalledWith("org-123");
+        expect(openedDialogs()).toEqual([OffboardingSurveyComponent]);
+        expect(dialogService.open.mock.calls[0][1]).toEqual({
+          data: {
+            type: "Organization",
+            id: "org-123",
+            plan: PlanType.TeamsAnnually,
+            productTier: ProductTierType.Teams,
+          },
+        });
+      });
+
+      it("refreshes when the survey is submitted", async () => {
+        dialogService.open.mockReturnValue(dialogRef(OffboardingSurveyDialogResultType.Submitted));
+
+        await component.cancelSubscription();
+
+        expect(reload).toHaveBeenCalled();
+      });
+
+      it("does not refresh when the survey is closed", async () => {
+        dialogService.open.mockReturnValue(dialogRef(OffboardingSurveyDialogResultType.Closed));
+
+        await component.cancelSubscription();
+
+        expect(reload).not.toHaveBeenCalled();
+      });
+    });
+
+    it("does nothing when the subscription has not loaded", async () => {
+      await createLoaded(null);
+
+      await component.cancelSubscription();
+
+      expect(billingClient.getChurnOffer).not.toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 
