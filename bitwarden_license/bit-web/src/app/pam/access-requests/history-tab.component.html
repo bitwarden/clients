@@ -56,7 +56,12 @@
     <span slot="description">{{ "pamHistoryEmptyDescription" | i18n }}</span>
   </bit-status-lockup>
 } @else {
-  <bit-table-v2 [tableDef]="table" [filter]="rowMatchesFilter" data-testid="history-table">
+  <bit-table-v2
+    [tableDef]="table"
+    [filter]="rowMatchesFilter"
+    [trackBy]="trackById"
+    data-testid="history-table"
+  >
     <bit-table-toolbar>
       <bit-search
         id="pam-history-tab_input_search"
