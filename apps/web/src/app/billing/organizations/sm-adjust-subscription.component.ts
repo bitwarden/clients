@@ -16,7 +16,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationSmSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-sm-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -91,7 +90,6 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
   private readonly i18nService = inject(I18nService);
-  private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
   private readonly internalOrganizationService = inject(InternalOrganizationServiceAbstraction);
   private readonly accountService = inject(AccountService);

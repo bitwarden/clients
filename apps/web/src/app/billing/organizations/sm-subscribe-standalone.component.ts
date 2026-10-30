@@ -15,7 +15,6 @@ import { SecretsManagerSubscribeRequest } from "@bitwarden/common/billing/models
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AsyncActionsModule, ToastService } from "@bitwarden/components";
 
 import {
@@ -32,7 +31,6 @@ import {
 export class SecretsManagerSubscribeStandaloneComponent {
   private readonly apiService = inject(ApiService);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly i18nService = inject(I18nService);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
   private readonly organizationService = inject(InternalOrganizationServiceAbstraction);
