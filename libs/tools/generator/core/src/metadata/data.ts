@@ -11,6 +11,9 @@ export const Algorithm = Object.freeze({
   /** A username composed of words from the EFF word list */
   username: "username",
 
+  /** A username matching the current user's login email */
+  loginEmail: "loginEmail",
+
   /** An email username composed of random characters */
   catchall: "catchall",
 
@@ -44,5 +47,9 @@ export const AlgorithmsByType = deepFreeze({
   [Type.username]: [Algorithm.username] as const,
 
   /** Algorithms that produce email addresses */
-  [Type.email]: [Algorithm.catchall, Algorithm.plusAddress] as const,
+  [Type.email]: [
+    Algorithm.loginEmail,
+    Algorithm.plusAddress,
+    Algorithm.catchall,
+  ] as const,
 } as const);
