@@ -109,11 +109,14 @@ export class EventUploadService implements EventUploadServiceAbstraction {
    *  @param userId the user to grab and clear events for
    */
   private async takeEvents(userId: UserId): Promise<EventData[]> {
-    let taken = null;
-    await this.stateProvider.getUser(userId, EVENT_COLLECTION).update((current) => {
-      taken = current ?? [];
-      return [];
-    });
+    let taken: EventData[] = [];
+    await this.stateProvider.getUser(userId, EVENT_COLLECTION).update(
+      (current) => {
+        taken = current;
+        return [];
+      },
+      { shouldUpdate: (current) => current != null && current.length > 0 },
+    );
 
     return taken;
   }
