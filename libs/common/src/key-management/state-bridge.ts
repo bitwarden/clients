@@ -28,6 +28,7 @@ import {
   ACCOUNT_CRYPTOGRAPHIC_STATE,
   KDF_CONFIG,
   MASTER_PASSWORD_UNLOCK_DATA,
+  PIN_LENGTH,
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
   USER_KEY,
@@ -214,6 +215,18 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_encrypted_pin(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ENCRYPTED_PIN);
+  }
+
+  async set_pin_length(pinLength: number): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, PIN_LENGTH, pinLength);
+  }
+
+  async get_pin_length(): Promise<number | null> {
+    return await readAtomic(this.stateProvider, this.userId, PIN_LENGTH);
+  }
+
+  async clear_pin_length(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, PIN_LENGTH);
   }
 
   async set_kdf_config(kdfConfig: Kdf): Promise<void> {
