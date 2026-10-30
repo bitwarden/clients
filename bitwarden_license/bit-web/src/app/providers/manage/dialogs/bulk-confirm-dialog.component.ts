@@ -10,11 +10,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ProviderUserStatusType } from "@bitwarden/common/provider/enums";
-import { ProviderUserBulkConfirmRequest } from "@bitwarden/common/provider/models/request/provider-user-bulk-confirm.request";
-import { ProviderUserBulkRequest } from "@bitwarden/common/provider/models/request/provider-user-bulk.request";
-import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserStatusType,
+  ProviderUserBulkConfirmRequest,
+  ProviderUserBulkRequest,
+  ProviderUserBulkPublicKeyResponse,
+  ProviderUserBulkResponse,
+} from "@bitwarden/common/provider";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import {

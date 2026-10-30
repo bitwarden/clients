@@ -19,10 +19,13 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { ProviderType, ProviderUserType } from "@bitwarden/common/provider/enums";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderService,
+  ProviderType,
+  ProviderUserType,
+  ProviderOrganizationOrganizationDetailsResponse,
+} from "@bitwarden/common/provider";
 import {
   AvatarModule,
   DialogService,

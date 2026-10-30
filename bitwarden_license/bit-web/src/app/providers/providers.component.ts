@@ -7,8 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderService, Provider } from "@bitwarden/common/provider";
 import { AvatarComponent, ContainerComponent, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";

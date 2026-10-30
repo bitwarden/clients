@@ -14,13 +14,13 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
 import {
+  ProviderService,
   ProviderType,
   ProviderUserStatusType,
   ProviderUserType,
-} from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+  Provider,
+} from "@bitwarden/common/provider";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, StorybookGlobalStateProvider } from "@bitwarden/components";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/state";

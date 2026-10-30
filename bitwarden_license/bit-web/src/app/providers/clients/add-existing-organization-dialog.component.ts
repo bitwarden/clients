@@ -5,9 +5,11 @@ import { firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { AddableOrganizationResponse } from "@bitwarden/common/provider/models/response/addable-organization.response";
+import {
+  ProviderApiServiceAbstraction,
+  Provider,
+  AddableOrganizationResponse,
+} from "@bitwarden/common/provider";
 import {
   AsyncActionsModule,
   AvatarModule,

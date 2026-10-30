@@ -60,9 +60,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderOrganizationCreateRequest } from "@bitwarden/common/provider/models/request/provider-organization-create.request";
-import { ProviderResponse } from "@bitwarden/common/provider/models/response/provider.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderOrganizationCreateRequest,
+  ProviderResponse,
+} from "@bitwarden/common/provider";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";

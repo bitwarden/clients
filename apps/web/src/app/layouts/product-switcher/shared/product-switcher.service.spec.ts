@@ -15,8 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderService, Provider } from "@bitwarden/common/provider";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 

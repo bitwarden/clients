@@ -16,8 +16,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderApiServiceAbstraction, ProviderService } from "@bitwarden/common/provider";
 import { ToastService } from "@bitwarden/components";
 import { EventService, BaseEventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";

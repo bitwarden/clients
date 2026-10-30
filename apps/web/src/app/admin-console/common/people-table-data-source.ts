@@ -6,8 +6,10 @@ import { Observable, Subject, map } from "rxjs";
 
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { ProviderUserStatusType } from "@bitwarden/common/provider/enums";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
+import {
+  ProviderUserStatusType,
+  ProviderUserUserDetailsResponse,
+} from "@bitwarden/common/provider";
 import { FilterFn, TableDataSource } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../organizations/core/views/organization-user.view";

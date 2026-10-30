@@ -5,9 +5,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderUserType } from "@bitwarden/common/provider/enums";
-import { ProviderUserInviteRequest } from "@bitwarden/common/provider/models/request/provider-user-invite.request";
-import { ProviderUserUpdateRequest } from "@bitwarden/common/provider/models/request/provider-user-update.request";
+import {
+  ProviderUserType,
+  ProviderUserInviteRequest,
+  ProviderUserUpdateRequest,
+} from "@bitwarden/common/provider";
 import {
   A11yTitleDirective,
   AsyncActionsModule,

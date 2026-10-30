@@ -22,10 +22,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { ProviderUserBulkRequest } from "@bitwarden/common/provider/models/request/provider-user-bulk.request";
+import {
+  ProviderService,
+  ProviderUserStatusType,
+  ProviderUserType,
+  Provider,
+  ProviderUserBulkRequest,
+} from "@bitwarden/common/provider";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import {
   AvatarModule,

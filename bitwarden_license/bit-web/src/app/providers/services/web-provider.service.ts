@@ -8,8 +8,10 @@ import { PlanType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { CreateProviderOrganizationRequest } from "@bitwarden/common/provider/models/request/create-provider-organization.request";
+import {
+  ProviderApiServiceAbstraction,
+  CreateProviderOrganizationRequest,
+} from "@bitwarden/common/provider";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";

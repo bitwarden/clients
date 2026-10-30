@@ -30,7 +30,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderService } from "@bitwarden/common/provider";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {

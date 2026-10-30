@@ -29,7 +29,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
+import { ProviderService } from "@bitwarden/common/provider";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   DialogService,

@@ -19,10 +19,13 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { ProviderUserStatusType, ProviderUserType } from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
+import {
+  ProviderService,
+  ProviderUserStatusType,
+  ProviderUserType,
+  Provider,
+  ProviderUserUserDetailsResponse,
+} from "@bitwarden/common/provider";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BerryComponent,

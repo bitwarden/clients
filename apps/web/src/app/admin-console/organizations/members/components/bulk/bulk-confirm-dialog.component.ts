@@ -13,8 +13,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserBulkPublicKeyResponse,
+  ProviderUserBulkResponse,
+} from "@bitwarden/common/provider";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,

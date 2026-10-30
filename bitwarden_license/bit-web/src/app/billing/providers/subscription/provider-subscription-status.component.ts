@@ -5,7 +5,7 @@ import { Component, Input } from "@angular/core";
 
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderType } from "@bitwarden/common/provider/enums";
+import { ProviderType } from "@bitwarden/common/provider";
 
 type ComponentData = {
   status?: {

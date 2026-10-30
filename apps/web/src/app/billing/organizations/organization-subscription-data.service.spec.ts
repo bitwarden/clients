@@ -13,7 +13,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { ProviderType } from "@bitwarden/common/provider/enums";
+import { ProviderType } from "@bitwarden/common/provider";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { SubscriptionPreview } from "@bitwarden/subscription";
 

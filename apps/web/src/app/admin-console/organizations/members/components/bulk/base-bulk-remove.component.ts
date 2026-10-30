@@ -3,7 +3,7 @@ import { Directive, inject, signal } from "@angular/core";
 import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderUserBulkResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk.response";
+import { ProviderUserBulkResponse } from "@bitwarden/common/provider";
 
 @Directive()
 export abstract class BaseBulkRemoveComponent {

@@ -2,7 +2,7 @@ import { map } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { Provider } from "@bitwarden/common/provider";
 
 export type BitwardenSubscriber =
   | { type: "account"; data: Account }

@@ -3,8 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/cor
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ProviderUserBulkRequest } from "@bitwarden/common/provider/models/request/provider-user-bulk.request";
-import { ProviderUserBulkResponse } from "@bitwarden/common/provider/models/response/provider-user-bulk.response";
+import { ProviderUserBulkRequest, ProviderUserBulkResponse } from "@bitwarden/common/provider";
 import {
   AsyncActionsModule,
   AvatarModule,

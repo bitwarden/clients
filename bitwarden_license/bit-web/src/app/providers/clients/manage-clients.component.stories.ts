@@ -10,11 +10,13 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { ProviderUserType } from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderService,
+  ProviderUserType,
+  Provider,
+  ProviderOrganizationOrganizationDetailsResponse,
+} from "@bitwarden/common/provider";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   DialogService,

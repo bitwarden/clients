@@ -13,8 +13,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderService, Provider } from "@bitwarden/common/provider";
 import { UserId } from "@bitwarden/common/types/guid";
 import { IconButtonModule, LinkModule, MenuModule } from "@bitwarden/components";
 // FIXME: remove `src` and fix import

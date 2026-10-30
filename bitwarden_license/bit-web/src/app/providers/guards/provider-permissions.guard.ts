@@ -10,8 +10,7 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderService, Provider } from "@bitwarden/common/provider";
 import { ToastService } from "@bitwarden/components";
 
 /**

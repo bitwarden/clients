@@ -21,9 +21,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderUpdateRequest } from "@bitwarden/common/provider/models/request/provider-update.request";
-import { ProviderResponse } from "@bitwarden/common/provider/models/response/provider.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderUpdateRequest,
+  ProviderResponse,
+} from "@bitwarden/common/provider";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,

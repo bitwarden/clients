@@ -4,8 +4,10 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ProviderUserStatusType } from "@bitwarden/common/provider/enums";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
+import {
+  ProviderUserStatusType,
+  ProviderUserUserDetailsResponse,
+} from "@bitwarden/common/provider";
 import {
   AvatarModule,
   ButtonModule,

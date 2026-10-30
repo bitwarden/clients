@@ -141,7 +141,7 @@ import { StorageServiceProvider } from "@bitwarden/common/platform/services/stor
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider";
 import { ProviderApiService } from "@bitwarden/common/provider/services/provider-api.service";
 import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";

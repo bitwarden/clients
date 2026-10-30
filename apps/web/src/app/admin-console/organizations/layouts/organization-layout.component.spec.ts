@@ -10,9 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ProviderService } from "@bitwarden/common/provider/abstractions/provider.service";
-import { ProviderStatusType } from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
+import { ProviderService, ProviderStatusType, Provider } from "@bitwarden/common/provider";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 

@@ -4,10 +4,12 @@ import { of } from "rxjs";
 import { action } from "storybook/actions";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderUserType } from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { AddableOrganizationResponse } from "@bitwarden/common/provider/models/response/addable-organization.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderUserType,
+  Provider,
+  AddableOrganizationResponse,
+} from "@bitwarden/common/provider";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 

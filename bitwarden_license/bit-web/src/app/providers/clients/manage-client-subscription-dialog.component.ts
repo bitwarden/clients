@@ -13,11 +13,13 @@ import {
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderUserType } from "@bitwarden/common/provider/enums";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { UpdateProviderOrganizationRequest } from "@bitwarden/common/provider/models/request/update-provider-organization.request";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderUserType,
+  Provider,
+  UpdateProviderOrganizationRequest,
+  ProviderOrganizationOrganizationDetailsResponse,
+} from "@bitwarden/common/provider";
 import {
   AsyncActionsModule,
   ButtonModule,

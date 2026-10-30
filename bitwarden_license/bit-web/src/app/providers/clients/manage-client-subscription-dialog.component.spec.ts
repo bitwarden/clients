@@ -3,12 +3,14 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderUserType } from "@bitwarden/common/provider/enums";
-import { ProviderData } from "@bitwarden/common/provider/models/data/provider.data";
-import { Provider } from "@bitwarden/common/provider/models/domain/provider";
-import { UpdateProviderOrganizationRequest } from "@bitwarden/common/provider/models/request/update-provider-organization.request";
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/provider/models/response/provider-organization.response";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderUserType,
+  ProviderData,
+  Provider,
+  UpdateProviderOrganizationRequest,
+  ProviderOrganizationOrganizationDetailsResponse,
+} from "@bitwarden/common/provider";
 import { DialogRef } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 

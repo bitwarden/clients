@@ -18,7 +18,7 @@ import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/ser
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { ProfileProviderOrganizationResponse } from "@bitwarden/common/provider/models/response/profile-provider-organization.response";
+import { ProfileProviderOrganizationResponse } from "@bitwarden/common/provider";
 import {
   makeEncString,
   makeStaticByteArray,

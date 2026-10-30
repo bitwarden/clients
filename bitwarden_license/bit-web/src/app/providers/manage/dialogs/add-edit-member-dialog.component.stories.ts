@@ -7,8 +7,7 @@ import { action } from "storybook/actions";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ProviderUserType } from "@bitwarden/common/provider/enums";
-import { ProviderUserUserDetailsResponse } from "@bitwarden/common/provider/models/response/provider-user.response";
+import { ProviderUserType, ProviderUserUserDetailsResponse } from "@bitwarden/common/provider";
 import {
   AsyncActionsModule,
   ButtonModule,

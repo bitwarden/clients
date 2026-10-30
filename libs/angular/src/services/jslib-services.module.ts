@@ -301,8 +301,10 @@ import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider-api.service.abstraction";
-import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/provider/abstractions/provider.service";
+import {
+  ProviderApiServiceAbstraction,
+  ProviderService as ProviderServiceAbstraction,
+} from "@bitwarden/common/provider";
 import { ProviderApiService } from "@bitwarden/common/provider/services/provider-api.service";
 import { ProviderService } from "@bitwarden/common/provider/services/provider.service";
 import { ApiService } from "@bitwarden/common/services/api.service";

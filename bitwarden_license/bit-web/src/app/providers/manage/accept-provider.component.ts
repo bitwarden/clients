@@ -7,7 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ProviderUserAcceptRequest } from "@bitwarden/common/provider/models/request/provider-user-accept.request";
+import { ProviderUserAcceptRequest } from "@bitwarden/common/provider";
 import { ButtonModule, SvgModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
