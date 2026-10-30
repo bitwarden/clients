@@ -89,14 +89,12 @@ export abstract class CipherReportComponent implements OnDestroy {
     if (filterId === 0) {
       orgName = this.i18nService.t("all");
     } else if (filterId === 1) {
-      orgName = this.i18nService.t("me");
+      orgName = this.i18nService.t("myVault");
     } else {
-      this.organizations.filter((org: Organization) => {
-        if (org.id === filterId) {
-          orgName = org.name;
-          return org;
-        }
-      });
+      orgName = this.i18nService.t(
+        "orgNameVault",
+        this.organizations.find((org) => org.id === filterId)?.name ?? "",
+      );
     }
     return orgName;
   }
