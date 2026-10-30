@@ -120,6 +120,11 @@ export class CipherViewComponent {
    * Optional input for explicitly disabling the item history section of cipher details
    */
   readonly hideItemHistory = input<boolean>(false);
+  /**
+   * Optional input for hiding the expired card callout (used where the viewer cannot act on it,
+   * such as a card shared with them through a Send)
+   */
+  readonly hideExpiredCardWarning = input<boolean>(false);
 
   constructor(
     private organizationService: OrganizationService,
@@ -233,7 +238,7 @@ export class CipherViewComponent {
 
   readonly cardIsExpired = computed(() => {
     const cipher = this.cipher();
-    if (cipher == null) {
+    if (cipher == null || this.hideExpiredCardWarning()) {
       return false;
     }
     return isCardExpired(cipher.card);
