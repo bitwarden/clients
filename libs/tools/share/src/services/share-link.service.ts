@@ -24,7 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -57,7 +57,8 @@ export class ShareLinkService {
   private sendService = inject(SendService);
   private environmentService = inject(EnvironmentService);
   private accountService = inject(AccountService);
-  private sendSdkApiService = inject(SendSdkApiService);
+  // Concrete class: `mutateSend`/`refreshAfterMutation` aren't on the abstraction.
+  private sendApiService = inject(SendApiService);
   private i18nService = inject(I18nService);
   private configService = inject(ConfigService);
   private collectionService = inject(CollectionService);
@@ -115,12 +116,8 @@ export class ShareLinkService {
     };
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const createdSdkSendView = await this.sendSdkApiService.mutateSend(
-      sendView,
-      userId,
-      null as any,
-    );
-    await this.sendSdkApiService.refreshAfterMutation(createdSdkSendView.id as any);
+    const createdSdkSendView = await this.sendApiService.mutateSend(sendView, userId, null as any);
+    await this.sendApiService.refreshAfterMutation(createdSdkSendView.id as any);
     const env = await firstValueFrom(this.environmentService.environment$);
     if (!createdSdkSendView.key) {
       return;
@@ -182,7 +179,7 @@ export class ShareLinkService {
   async deleteLink(sendId: string): Promise<void> {
     const link = (await firstValueFrom(this.links$)).find((l) => l.sendId === sendId);
     if (link) {
-      await this.sendSdkApiService.delete(link.sendId);
+      await this.sendApiService.delete(link.sendId);
     }
   }
 
