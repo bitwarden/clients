@@ -20,6 +20,8 @@ import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
 
+import { UriRegexMatcher } from "./uri-regex-matcher";
+
 /**
  * Type union of {@link CipherView} and {@link CipherListView}.
  */
@@ -281,6 +283,7 @@ export class CipherViewLikeUtils {
     cipher: CipherViewLike,
     targetUri: string,
     equivalentDomains: Set<string>,
+    regexMatcher: UriRegexMatcher,
     defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain,
     overrideNeverMatchStrategy?: true,
   ): boolean => {
@@ -292,6 +295,7 @@ export class CipherViewLikeUtils {
       return cipher.login.matchesUri(
         targetUri,
         equivalentDomains,
+        regexMatcher,
         defaultUriMatch,
         overrideNeverMatchStrategy,
       );
@@ -312,8 +316,25 @@ export class CipherViewLikeUtils {
       });
 
     return loginUriViews.some((uriView) =>
-      uriView.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
+      uriView.matchesUri(
+        targetUri,
+        equivalentDomains,
+        regexMatcher,
+        defaultUriMatch,
+        overrideNeverMatchStrategy,
+      ),
     );
+  };
+
+  /** @returns The `RegularExpression` URI patterns on the cipher, given the default match strategy. */
+  static getRegexUriPatterns = (
+    cipher: CipherViewLike,
+    defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain,
+  ): string[] => {
+    const uris = this.getLogin(cipher)?.uris ?? [];
+    return uris
+      .filter((u) => !!u.uri && (u.match ?? defaultUriMatch) === UriMatchStrategy.RegularExpression)
+      .map((u) => u.uri!);
   };
 
   /** @returns true when the `copyField` is populated on the given cipher. */

@@ -1012,6 +1012,7 @@ export class ServiceContainer {
       this.cipherEncryptionService,
       this.messagingService,
       this.cipherSdkService,
+      this.sdkService,
     );
 
     this.cipherArchiveService = new DefaultCipherArchiveService(
