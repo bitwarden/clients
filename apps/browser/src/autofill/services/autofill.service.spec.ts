@@ -785,6 +785,9 @@ describe("AutofillService", () => {
       autofillOptions.cipher.login.password = "password";
 
       jest.spyOn(autofillService, "getDefaultUriMatchStrategy").mockResolvedValue(0);
+      (chrome.tabs.sendMessage as jest.Mock).mockImplementation(
+        (_tabId, _message, _options, callback) => callback?.(),
+      );
     });
 
     describe("given a set of autofill options that are incomplete", () => {
@@ -1019,6 +1022,32 @@ describe("AutofillService", () => {
         EventType.Cipher_ClientAutofilled,
         autofillOptions.cipher.id,
       );
+    });
+
+    it("waits for each frame to finish filling before filling the next frame", async () => {
+      autofillOptions.pageDetails.push({ ...autofillOptions.pageDetails[0], frameId: 2 });
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      const callOrder: string[] = [];
+      (chrome.tabs.sendMessage as jest.Mock).mockImplementation(
+        (_tabId, _message, { frameId }, callback) => {
+          callOrder.push(`fill frame ${frameId}`);
+          setTimeout(() => {
+            callOrder.push(`frame ${frameId} filled`);
+            callback();
+          });
+        },
+      );
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      expect(callOrder).toEqual([
+        "fill frame 1",
+        "frame 1 filled",
+        "fill frame 2",
+        "frame 2 filled",
+      ]);
     });
 
     it("blocks autofill on an untrusted iframe", async () => {
