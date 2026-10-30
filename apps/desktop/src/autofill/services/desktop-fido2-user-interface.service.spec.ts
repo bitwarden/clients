@@ -607,6 +607,61 @@ describe("DesktopFido2UserInterfaceSession", () => {
     });
   });
 
+  describe("informRpIdNotAllowed", () => {
+    it("shows the not-allowed UI for the operation and waits for the user to dismiss it", async () => {
+      const result = session.informRpIdNotAllowed("registration");
+      const settled = jest.fn();
+      result.catch(settled);
+      await tick();
+
+      expect(session.rpIdNotAllowedOperation).toBe("registration");
+      expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(true, false, {
+        x: 0,
+        y: 0,
+      });
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-rp-id-not-allowed",
+        { "disable-redirect": null },
+      ]);
+      expect(settled).not.toHaveBeenCalled();
+
+      session.notifyConfirmCreateCredential(false);
+      await expect(result).rejects.toMatchObject({ name: "NotAllowedError" });
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(router.navigate).toHaveBeenLastCalledWith(["/"]);
+    });
+
+    it("still rejects as not allowed, and logs a timeout, when the user doesn't dismiss the message in time", async () => {
+      const result = session.informRpIdNotAllowed("assertion");
+      await tick();
+
+      deadlineController.abort(timeoutReason());
+
+      await expect(result).rejects.toMatchObject({ name: "NotAllowedError" });
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+      expect(logService.warning).toHaveBeenCalledWith(
+        "Timeout: User did not dismiss the message within the allowed time",
+      );
+    });
+
+    it("reports the cancellation, and hides the UI, when the request is aborted", async () => {
+      const result = session.informRpIdNotAllowed("assertion");
+      await tick();
+
+      abortController.abort("Operation cancelled");
+
+      await expect(result).rejects.toBe("Operation cancelled");
+      expect(desktopSettingsService.setModalMode).toHaveBeenLastCalledWith(false);
+    });
+
+    it("does not show the UI when already aborted on entry", async () => {
+      abortController.abort("Operation cancelled");
+
+      await expect(session.informRpIdNotAllowed("assertion")).rejects.toBe("Operation cancelled");
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
   describe("informCredentialNotFound", () => {
     it("shows the credential not found UI and waits for the user to dismiss it", async () => {
       const result = session.informCredentialNotFound();

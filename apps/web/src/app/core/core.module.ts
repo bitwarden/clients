@@ -43,7 +43,6 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
-  LogoutService,
 } from "@bitwarden/auth/common";
 import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -62,6 +61,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultOrganizationInviteService,
   OrganizationInviteService,
@@ -167,6 +167,11 @@ import {
   SshImportPromptService,
   VAULT_NAV_ORGANIZATION_OPTIONS,
   VaultNavService,
+  VFO1_FILTERS_STEP,
+  VFO1_SHARED_FOLDERS_STEP,
+  VFO1_SWITCH_PRODUCTS_STEP,
+  VFO1_VAULT_LIST_STEP,
+  VFO1_WALKTHROUGH_STEPS,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { OrganizationOptionsComponent } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/components/organization-options.component";
@@ -629,6 +634,15 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SHARE_ITEM_ENTRY_POINT,
     useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: VFO1_WALKTHROUGH_STEPS,
+    useValue: [
+      VFO1_SWITCH_PRODUCTS_STEP,
+      VFO1_VAULT_LIST_STEP,
+      VFO1_SHARED_FOLDERS_STEP,
+      VFO1_FILTERS_STEP,
+    ],
   }),
   safeProvider({
     provide: SHARE_PASSWORD_REPROMPT,

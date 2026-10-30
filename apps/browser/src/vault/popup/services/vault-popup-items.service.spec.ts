@@ -446,6 +446,57 @@ describe("VaultPopupItemsService", () => {
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
     });
+
+    it("should exclude deleted ciphers from organizations the user no longer belongs to", async () => {
+      const personalCipher = new CipherView();
+      personalCipher.deletedDate = new Date();
+      const memberOrgCipher = new CipherView();
+      memberOrgCipher.deletedDate = new Date();
+      memberOrgCipher.organizationId = "org1";
+      const revokedOrgCipher = new CipherView();
+      revokedOrgCipher.deletedDate = new Date();
+      revokedOrgCipher.organizationId = "revokedOrg";
+
+      cipherServiceMock.cipherListViews$.mockReturnValue(
+        of([personalCipher, memberOrgCipher, revokedOrgCipher]),
+      );
+      ciphersSubject.next({});
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+      expect(deletedCiphers.map((c) => c.organizationId)).toEqual([undefined, "org1"]);
+    });
+  });
+
+  describe("organization access", () => {
+    it("should exclude ciphers from organizations the user no longer belongs to", async () => {
+      const cipherList = Object.values(allCiphers);
+      cipherList[0].organizationId = "org1";
+      cipherList[1].organizationId = "revokedOrg";
+
+      const activeCiphers = await firstValueFrom(service.activeCiphers$);
+
+      expect(activeCiphers.map((c) => c.id)).not.toContain(cipherList[1].id);
+      expect(activeCiphers.find((c) => c.id === cipherList[0].id)?.organization).toEqual(mockOrg);
+      expect(activeCiphers.length).toBe(cipherList.length - 1);
+    });
+
+    it("should drop an organization's ciphers as soon as the organization is removed", async () => {
+      const organizations$ = new BehaviorSubject<Organization[]>([mockOrg]);
+      organizationServiceMock.organizations$.mockReturnValue(organizations$);
+      const cipherList = Object.values(allCiphers);
+      cipherList[0].organizationId = "org1";
+
+      const tracker = new ObservableTracker(service.activeCiphers$, false);
+      const [initial] = await tracker.pauseUntilReceived(1);
+      expect(initial.map((c) => c.id)).toContain(cipherList[0].id);
+
+      // A sync replaces organizations before ciphers, so the cipher list has not changed yet.
+      organizations$.next([]);
+
+      const updated = (await tracker.pauseUntilReceived(2))[1];
+      expect(updated.map((c) => c.id)).not.toContain(cipherList[0].id);
+      expect(updated.every((c) => !c.organizationId || c.organization != null)).toBe(true);
+    });
   });
 
   describe("showDeactivatedOrg$", () => {

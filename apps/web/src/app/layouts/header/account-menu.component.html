@@ -4,6 +4,7 @@
       <button
         type="button"
         [bitMenuTriggerFor]="accountMenu"
+        data-testid="account-menu-button"
         menuPosition="above-start"
         class="tw-py-3"
       >
@@ -21,6 +22,7 @@
       <button
         type="button"
         [bitMenuTriggerFor]="accountMenu"
+        data-testid="account-menu-button"
         menuPosition="above-start"
         class="tw-py-3"
       >
@@ -69,13 +71,23 @@
       <bit-menu-divider></bit-menu-divider>
 
       @if (canLock$ | async) {
-        <button bitMenuItem type="button" (click)="lock()">
+        <button
+          bitMenuItem
+          type="button"
+          (click)="lock()"
+          data-testid="account-menu-lock-now-button"
+        >
           <bit-icon name="bwi-lock" class="bwi-fw" aria-hidden="true"></bit-icon>
           {{ "lockNow" | i18n }}
         </button>
       }
 
-      <button bitMenuItem type="button" (click)="logout()">
+      <button
+        bitMenuItem
+        type="button"
+        (click)="logout()"
+        data-testid="account-menu-log-out-button"
+      >
         <bit-icon name="bwi-sign-out" class="bwi-fw" aria-hidden="true"></bit-icon>
         {{ "logOut" | i18n }}
       </button>

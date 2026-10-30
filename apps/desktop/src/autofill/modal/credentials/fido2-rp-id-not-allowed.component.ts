@@ -1,0 +1,60 @@
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
+import { Router } from "@angular/router";
+
+import { AccountWarning } from "@bitwarden/assets/svg";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  ButtonModule,
+  SectionComponent,
+  StatusLockupComponent,
+  SvgComponent,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
+import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
+
+import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
+
+@Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    I18nPipe,
+    StatusLockupComponent,
+    SvgComponent,
+    ButtonModule,
+    SectionComponent,
+    Fido2ModalHeaderComponent,
+  ],
+  templateUrl: "fido2-rp-id-not-allowed.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class Fido2RpIdNotAllowedComponent implements OnDestroy {
+  private readonly desktopSettingsService = inject(DesktopSettingsService);
+  private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
+  private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
+
+  protected readonly session = this.fido2UserInterfaceService.getCurrentSession();
+  protected readonly pageTitleKey =
+    this.session?.rpIdNotAllowedOperation === "registration" ? "savePasskey" : "passkeyLogin2";
+  protected readonly Icons = { AccountWarning };
+
+  async ngOnDestroy(): Promise<void> {
+    await this.closeModal();
+  }
+
+  async closeModal(): Promise<void> {
+    if (this.session) {
+      // Let the session clean up the modal.
+      this.session.notifyConfirmCreateCredential(false);
+    } else {
+      // There is no session to hand this off to, so reset the window here.
+      await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
+      await this.router.navigate(["/"]);
+    }
+  }
+}

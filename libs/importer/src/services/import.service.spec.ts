@@ -300,6 +300,16 @@ describe("ImportService", () => {
       expect(importResult.folderRelationships[1]).toEqual([0, 1]);
     });
 
+    it("passing importTarget assigns it to ciphers whose folderId has no folder relationship", async () => {
+      // Bitwarden JSON exports keep the source vault's folder id on each item
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: "source-folder-id" }));
+
+      await importService["setImportTarget"](importResult, undefined, mockImportTargetFolder);
+
+      expect(importResult.ciphers[0].folderId).toBe(mockImportTargetFolder.id);
+      expect(importResult.folderRelationships).toEqual([[0, 0]]);
+    });
+
     it("If importTarget is of type DefaultUserCollection sets it as new root for all ciphers as nesting is not supported", async () => {
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
@@ -597,6 +607,43 @@ describe("ImportService", () => {
 
       await expect(
         importService.importWithSdk("keepasskdbx", file, credentials, null, null, false),
+      ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("onePasswordSignInMethods", () => {
+    const signInAddress = { subdomain: "my", domain: "Global" } as const;
+    let onePasswordSignInMethods: jest.Mock;
+
+    beforeEach(() => {
+      onePasswordSignInMethods = jest.fn().mockResolvedValue({ password: false, sso: true });
+      const sdkValue = {
+        importers: jest.fn().mockReturnValue({
+          onepassword_sign_in_methods: onePasswordSignInMethods,
+        }),
+      };
+      const sdkClient = {
+        take: jest.fn().mockReturnValue({ value: sdkValue, [Symbol.dispose]: jest.fn() }),
+      };
+      sdkService.userClient$.mockReturnValue(of(sdkClient) as any);
+      accountService.activeAccount$ = of({ id: Utils.newGuid() as UserId } as any);
+    });
+
+    it("asks the SDK how the account signs in", async () => {
+      const result = await importService.onePasswordSignInMethods(
+        "user@example.com",
+        signInAddress,
+      );
+
+      expect(result).toEqual({ password: false, sso: true });
+      expect(onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", signInAddress);
+    });
+
+    it("throws when the SDK client is unavailable", async () => {
+      sdkService.userClient$.mockReturnValue(of(null) as any);
+
+      await expect(
+        importService.onePasswordSignInMethods("user@example.com", signInAddress),
       ).rejects.toThrow("SDK not available");
     });
   });

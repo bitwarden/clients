@@ -1,0 +1,27 @@
+<bit-form-field class="tw-max-w-sm">
+  <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+  <input
+    bitInput
+    type="text"
+    formControlName="keeperCode"
+    appInputVerbatim
+    id="importer-controls_input_keeper-code"
+  />
+  @if (canResend()) {
+    <!-- The field swaps its hint for an error while the code is invalid, so the link returns
+         as soon as the user types. -->
+    <bit-hint>
+      <button
+        type="button"
+        bitLink
+        linkType="primary"
+        class="tw-text-xs"
+        (mousedown)="$event.preventDefault()"
+        (click)="resend.emit()"
+        id="importer-controls_button_keeper-resend-code"
+      >
+        {{ "resendCode" | i18n }}
+      </button>
+    </bit-hint>
+  }
+</bit-form-field>

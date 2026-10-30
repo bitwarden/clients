@@ -7,12 +7,10 @@ import {
   ItemModule,
   StatusLockupComponent,
   TypographyModule,
-  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ACCESS_RULE_TEMPLATES, AccessRuleTemplateKey } from "../access-rule-templates";
-import { NoAccessRulesIcon } from "../no-access-rules.icon";
 
 /** Shown when an organization has no rules; the parent opens the create page for either output. */
 @Component({
@@ -26,7 +24,6 @@ import { NoAccessRulesIcon } from "../no-access-rules.icon";
     IconTileComponent,
     ItemModule,
     StatusLockupComponent,
-    SvgComponent,
     I18nPipe,
   ],
   host: {
@@ -38,5 +35,4 @@ export class AccessRulesEmptyStateComponent {
   readonly useTemplate = output<AccessRuleTemplateKey>();
 
   protected readonly templates = ACCESS_RULE_TEMPLATES;
-  protected readonly noItemsIcon = NoAccessRulesIcon;
 }

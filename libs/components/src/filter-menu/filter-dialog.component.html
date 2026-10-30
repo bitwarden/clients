@@ -54,7 +54,10 @@
               }
             </span>
             @if (filter.optionsTemplate()) {
-              <bit-icon name="bwi-angle-right" class="tw-flex-none tw-text-muted"></bit-icon>
+              <bit-icon
+                name="bwi-angle-right"
+                class="tw-flex-none tw-text-fg-body-subtle"
+              ></bit-icon>
             }
           </button>
         }
@@ -65,7 +68,7 @@
   <ng-container bitDialogFooter>
     @if (activeFilter()) {
       @if (activeSelectedCount()) {
-        <span class="tw-text-sm tw-text-muted">{{
+        <span class="tw-text-sm tw-text-fg-body-subtle">{{
           "filtersSelected" | i18n: activeSelectedCount()
         }}</span>
         <button
@@ -81,7 +84,7 @@
       }
     } @else {
       @if (selectedCount()) {
-        <span class="tw-text-sm tw-text-muted">{{
+        <span class="tw-text-sm tw-text-fg-body-subtle">{{
           "filtersSelected" | i18n: selectedCount()
         }}</span>
         <button

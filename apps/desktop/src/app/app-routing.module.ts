@@ -52,6 +52,8 @@ import {
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
 import {
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   organizationVaultGuard,
@@ -68,6 +70,7 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2CredentialNotFoundComponent } from "../autofill/modal/credentials/fido2-credential-not-found.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
+import { Fido2RpIdNotAllowedComponent } from "../autofill/modal/credentials/fido2-rp-id-not-allowed.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
 import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
@@ -152,6 +155,10 @@ export const routes: Routes = [
   {
     path: "fido2-credential-not-found",
     component: Fido2CredentialNotFoundComponent,
+  },
+  {
+    path: "fido2-rp-id-not-allowed",
+    component: Fido2RpIdNotAllowedComponent,
   },
   {
     path: "",
@@ -542,6 +549,17 @@ export const routes: Routes = [
         component: MyFoldersComponent,
         canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
         data: { pageTitle: { key: "myFolders" } } satisfies RouteDataProperties,
+      },
+      // One of the user's folders.
+      {
+        path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+        component: VaultComponent,
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          vaultScopeGuard,
+          vaultFilterRestoreGuard,
+        ],
+        data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
       },
       {
         path: "send",

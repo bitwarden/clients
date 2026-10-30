@@ -5,9 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -19,33 +16,16 @@ import { CollectionBulkDeleteRequest } from "../admin-console/models/request/col
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
-import { ProviderAddOrganizationRequest } from "../admin-console/models/request/provider/provider-add-organization.request";
-import { ProviderOrganizationCreateRequest } from "../admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderUserAcceptRequest } from "../admin-console/models/request/provider/provider-user-accept.request";
-import { ProviderUserBulkConfirmRequest } from "../admin-console/models/request/provider/provider-user-bulk-confirm.request";
-import { ProviderUserBulkRequest } from "../admin-console/models/request/provider/provider-user-bulk.request";
-import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
-import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
-import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
-import {
-  ProviderOrganizationOrganizationDetailsResponse,
-  ProviderOrganizationResponse,
-} from "../admin-console/models/response/provider/provider-organization.response";
-import { ProviderUserBulkPublicKeyResponse } from "../admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "../admin-console/models/response/provider/provider-user-bulk.response";
-import {
-  ProviderUserResponse,
-  ProviderUserUserDetailsResponse,
-} from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/logout";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -97,17 +77,27 @@ import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-midd
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
+import { ProviderAddOrganizationRequest } from "../provider/models/request/provider-add-organization.request";
+import { ProviderOrganizationCreateRequest } from "../provider/models/request/provider-organization-create.request";
+import { ProviderUserAcceptRequest } from "../provider/models/request/provider-user-accept.request";
+import { ProviderUserBulkConfirmRequest } from "../provider/models/request/provider-user-bulk-confirm.request";
+import { ProviderUserBulkRequest } from "../provider/models/request/provider-user-bulk.request";
+import { ProviderUserConfirmRequest } from "../provider/models/request/provider-user-confirm.request";
+import { ProviderUserInviteRequest } from "../provider/models/request/provider-user-invite.request";
+import { ProviderUserUpdateRequest } from "../provider/models/request/provider-user-update.request";
+import {
+  ProviderOrganizationOrganizationDetailsResponse,
+  ProviderOrganizationResponse,
+} from "../provider/models/response/provider-organization.response";
+import { ProviderUserBulkPublicKeyResponse } from "../provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "../provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserResponse,
+  ProviderUserUserDetailsResponse,
+} from "../provider/models/response/provider-user.response";
 import { UserId } from "../types/guid";
-import { AttachmentRequest } from "../vault/models/request/attachment.request";
-import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
-import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
-import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
-import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
-import { CipherRequest } from "../vault/models/request/cipher.request";
-import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
 
@@ -291,8 +281,8 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/security-stamp", request, true, false);
   }
 
-  async getAccountRevisionDate(): Promise<number> {
-    const r = await this.send("GET", "/accounts/revision-date", null, true, true);
+  async getAccountRevisionDate(userId?: UserId): Promise<number> {
+    const r = await this.send("GET", "/accounts/revision-date", null, userId ?? true, true);
     return r as number;
   }
 
@@ -374,62 +364,8 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async getCiphersOrganization(
-    organizationId: string,
-    includeMemberItems?: boolean,
-  ): Promise<ListResponse<CipherResponse>> {
-    let url = "/ciphers/organization-details?organizationId=" + organizationId;
-    if (includeMemberItems) {
-      url += `&includeMemberItems=${includeMemberItems}`;
-    }
-    const r = await this.send("GET", url, null, true, true);
-    return new ListResponse(r, CipherResponse);
-  }
-
-  async postCipher(request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async postCipherCreate(request: CipherCreateRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/create", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async postCipherAdmin(request: CipherCreateRequest): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/admin", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putCipher(id: string, request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id, request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putPartialCipher(id: string, request: CipherPartialRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/partial", request, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putCipherAdmin(id: string, request: CipherRequest): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/admin", request, true, true);
-    return new CipherResponse(r);
-  }
-
   deleteCipher(id: string): Promise<any> {
     return this.send("DELETE", "/ciphers/" + id, null, true, false);
-  }
-
-  deleteCipherAdmin(id: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/admin", null, true, false);
-  }
-
-  deleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("DELETE", "/ciphers", request, true, false);
-  }
-
-  deleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("DELETE", "/ciphers/admin", request, true, false);
   }
 
   postPurgeCiphers(
@@ -441,46 +377,6 @@ export class ApiService implements ApiServiceAbstraction {
       path += "?organizationId=" + organizationId;
     }
     return this.send("POST", path, request, true, false);
-  }
-
-  putDeleteCipher(id: string): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/delete", null, true, false);
-  }
-
-  putDeleteCipherAdmin(id: string): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/delete-admin", null, true, false);
-  }
-
-  putDeleteManyCiphers(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/delete", request, true, false);
-  }
-
-  putDeleteManyCiphersAdmin(request: CipherBulkDeleteRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/delete-admin", request, true, false);
-  }
-
-  async putRestoreCipher(id: string): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/restore", null, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putRestoreCipherAdmin(id: string): Promise<CipherResponse> {
-    const r = await this.send("PUT", "/ciphers/" + id + "/restore-admin", null, true, true);
-    return new CipherResponse(r);
-  }
-
-  async putRestoreManyCiphers(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/restore", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
-  }
-
-  async putRestoreManyCiphersAdmin(
-    request: CipherBulkRestoreRequest,
-  ): Promise<ListResponse<CipherResponse>> {
-    const r = await this.send("PUT", "/ciphers/restore-admin", request, true, true);
-    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   // Attachments APIs
@@ -499,51 +395,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentResponse(r);
   }
 
-  async getAttachmentDataAdmin(
-    cipherId: string,
-    attachmentId: string,
-  ): Promise<AttachmentResponse> {
-    const path = "/ciphers/" + cipherId + "/attachment/" + attachmentId + "/admin";
-    const r = await this.send("GET", path, null, true, true);
-    return new AttachmentResponse(r);
-  }
-
-  async postCipherAttachment(
-    id: string,
-    request: AttachmentRequest,
-  ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
-    return new AttachmentUploadDataResponse(r);
-  }
-
-  async deleteCipherAttachment(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse> {
-    const r = await this.send(
-      "DELETE",
-      "/ciphers/" + id + "/attachment/" + attachmentId,
-      null,
-      true,
-      true,
-    );
-    return new DeleteAttachmentResponse(r);
-  }
-
-  async deleteCipherAttachmentAdmin(
-    id: string,
-    attachmentId: string,
-  ): Promise<DeleteAttachmentResponse> {
-    const r = await this.send(
-      "DELETE",
-      "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
-      null,
-      true,
-      true,
-    );
-    return new DeleteAttachmentResponse(r);
-  }
-
   postShareCipherAttachment(
     id: string,
     attachmentId: string,
@@ -559,20 +410,6 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  async renewAttachmentUploadUrl(
-    id: string,
-    attachmentId: string,
-  ): Promise<AttachmentUploadDataResponse> {
-    const r = await this.send(
-      "GET",
-      "/ciphers/" + id + "/attachment/" + attachmentId + "/renew",
-      null,
-      true,
-      true,
-    );
-    return new AttachmentUploadDataResponse(r);
-  }
-
   async postAttachmentFile(
     id: string,
     attachmentId: string,
@@ -583,13 +420,20 @@ export class ApiService implements ApiServiceAbstraction {
       const userId = await this.getActiveUser();
       const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
       const apiUrl = environment.getApiUrl();
+      if (!apiUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
+        throw new InsecureUrlNotAllowedError();
+      }
       const headers = await this.buildRequestHeaders();
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
         method: "POST",
         body: data,
         headers,
       });
-      return this.nativeXMLHttpRequest(request, options.onProgress);
+      const response = await this.nativeXMLHttpRequest(request, options.onProgress);
+      if (response.status !== HttpStatusCode.Ok && response.status !== HttpStatusCode.Created) {
+        throw await this.handleApiRequestError(response, true);
+      }
+      return response;
     }
 
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
@@ -760,11 +604,11 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Sync APIs
 
-  async getSync(): Promise<SyncResponse> {
+  async getSync(userId?: UserId): Promise<SyncResponse> {
     const path = !this.platformUtilsService.supportsAutofill()
       ? "/sync?excludeDomains=true"
       : "/sync";
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, userId ?? true, true);
     return new SyncResponse(r);
   }
 
@@ -1312,7 +1156,21 @@ export class ApiService implements ApiServiceAbstraction {
           onProgress(Math.round((e.loaded / e.total) * 100));
         }
       };
-      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onload = () => {
+        const headers = new Headers();
+        xhr
+          .getAllResponseHeaders()
+          .trim()
+          .split(/[\r\n]+/)
+          .filter(Boolean)
+          .forEach((line) => {
+            const separatorIndex = line.indexOf(":");
+            const name = line.slice(0, separatorIndex).trim();
+            const value = line.slice(separatorIndex + 1).trim();
+            headers.append(name, value);
+          });
+        resolve(new Response(xhr.response, { status: xhr.status, headers }));
+      };
       xhr.onerror = () => reject(new Error("Network error during upload"));
       void request
         .arrayBuffer()

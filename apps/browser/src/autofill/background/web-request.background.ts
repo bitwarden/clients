@@ -13,10 +13,14 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { isEligibleForHTTPAuthentication } from "@bitwarden/common/autofill/utils/http-authentication-eligibility";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 const webRequestUrlFilter: chrome.webRequest.RequestFilter = {
   urls: ["http://*/*", "https://*/*"],
@@ -216,6 +220,8 @@ export default class WebRequestBackground {
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private eventCollectionService: EventCollectionService,
+    private logService: LogService,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
     this.isSafari = platformUtilsService.isSafari();
@@ -340,8 +346,9 @@ export default class WebRequestBackground {
   };
 
   /**
-   * Resolves to the credentials of the single vault login matching the request
-   * host, or to an empty response that leaves the challenge to the browser.
+   * Resolves to the credentials of the single vault login that matches the request
+   * URL and is eligible for HTTP authentication, or to an empty response that leaves
+   * the challenge to the browser.
    */
   private async getAuthChallengeResponse(
     details: chrome.webRequest.OnAuthRequiredDetails,
@@ -377,6 +384,9 @@ export default class WebRequestBackground {
     }
 
     try {
+      // The Host strategy is only applied to URIs using "Default", and logins with any such URI are
+      // removed by the eligibility filter below, so each remaining URI matched by its own strategy.
+      // Host is still passed so that a "Default" URI is never matched more loosely.
       const ciphers = await this.cipherService.getAllDecryptedForUrl(
         details.url,
         activeUserId,
@@ -384,14 +394,22 @@ export default class WebRequestBackground {
         UriMatchStrategy.Host,
       );
 
-      if (ciphers == null || ciphers.length !== 1) {
+      const eligibleCiphers = (ciphers ?? []).filter(isEligibleForHTTPAuthentication);
+
+      if (eligibleCiphers.length !== 1) {
         return {};
       }
 
-      const username = ciphers[0].login?.username;
-      const password = ciphers[0].login?.password;
+      const cipher = eligibleCiphers[0];
+      const username = cipher.login?.username;
+      const password = cipher.login?.password;
 
       if (username == null || password == null) {
+        return {};
+      }
+
+      // The release is recorded before the credential leaves the extension.
+      if (!(await this.recordCredentialRelease(cipher))) {
         return {};
       }
 
@@ -401,8 +419,33 @@ export default class WebRequestBackground {
           password,
         },
       };
-    } catch {
+    } catch (error) {
+      this.logService.error(error);
       return {};
+    }
+  }
+
+  /**
+   * Records the release of a cipher's credential to the event log and resolves to
+   * whether the release may proceed.
+   */
+  private async recordCredentialRelease(cipher: CipherView): Promise<boolean> {
+    // Event logs are organization audit records, so personal vault ciphers are never
+    // recorded and always proceed. An organization cipher whose release cannot be
+    // recorded does not proceed.
+    if (cipher.organizationId == null) {
+      return true;
+    }
+
+    try {
+      await this.eventCollectionService.collect(EventType.Cipher_ClientHttpAuthReleased, cipher.id);
+      return true;
+    } catch (error) {
+      this.logService.error(
+        "Declined an HTTP auth challenge because the credential release could not be recorded.",
+        error,
+      );
+      return false;
     }
   }
 

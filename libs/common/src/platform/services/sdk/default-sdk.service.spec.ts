@@ -7,7 +7,7 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Measurement } from "@bitwarden/logging";
-import { PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -29,7 +29,7 @@ import { LogService } from "../../abstractions/log.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { asUuid } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
@@ -145,7 +145,7 @@ describe("DefaultSdkService", () => {
         upgradeTokenStateService.v2UpgradeToken$.calledWith(userId).mockReturnValue(of(null));
       });
 
-      describe("given no client override has been set for the user", () => {
+      describe("given the SDK client factory creates a client", () => {
         let mockClient!: MockProxy<PasswordManagerClient>;
 
         beforeEach(() => {
@@ -264,85 +264,33 @@ describe("DefaultSdkService", () => {
           expect(mockClient.free).toHaveBeenCalledTimes(1);
         });
       });
+    });
+  });
 
-      describe("given overrides are used", () => {
-        it("does not create a new client and emits the override client when a client override has already been set ", async () => {
-          const mockClient = mock<PasswordManagerClient>();
-          service.setClient(userId, mockClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
+  describe("push methods", () => {
+    const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
 
-          expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
-          expect(userClientTracker.emissions[0].take().value).toBe(mockClient);
-        });
+    it("resolves unlock with null without creating a client", async () => {
+      await expect(
+        service.unlock(userId, {
+          userId: asUuid(userId),
+          method: { clientManagedState: {} },
+          accountCryptographicState: mock<WrappedAccountCryptographicState>(),
+        }),
+      ).resolves.toBeNull();
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
+    });
 
-        it("emits the internal client then switches to override when an override is set", async () => {
-          const mockInternalClient = createMockClient();
-          const mockOverrideClient = createMockClient();
-          sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+    it("resolves lock, setFlags and setOrgKeys without creating a client", async () => {
+      await expect(service.lock(userId)).resolves.toBeUndefined();
+      await expect(service.setFlags(userId, new Map([["flag", true]]))).resolves.toBeUndefined();
+      await expect(service.setOrgKeys(userId, {})).resolves.toBeUndefined();
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
+    });
 
-          await userClientTracker.pauseUntilReceived(1, 200);
-          expect(userClientTracker.emissions[0].take().value).toBe(mockInternalClient);
-
-          service.setClient(userId, mockOverrideClient);
-
-          await userClientTracker.pauseUntilReceived(2, 200);
-          expect(userClientTracker.emissions[1].take().value).toBe(mockOverrideClient);
-        });
-
-        it("throws error when the client has explicitly been set as undefined", async () => {
-          service.setClient(userId, undefined);
-
-          const result = () => firstValueFrom(service.userClient$(userId));
-
-          await expect(result).rejects.toThrow(UserNotLoggedInError);
-        });
-
-        it("completes the subscription when the override is set to undefined after having been defined", async () => {
-          const mockOverrideClient = createMockClient();
-          service.setClient(userId, mockOverrideClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
-
-          service.setClient(userId, undefined);
-
-          await userClientTracker.expectCompletion();
-        });
-
-        it("destroys the internal client when an override is set", async () => {
-          jest.useFakeTimers();
-          const mockInternalClient = createMockClient();
-          const mockOverrideClient = createMockClient();
-          sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-
-          const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
-          // Drain the microtask queue so the async client initialization completes and emits.
-          await jest.advanceTimersByTimeAsync(0);
-          await firstEmission;
-
-          service.setClient(userId, mockOverrideClient);
-          await userClientTracker.pauseUntilReceived(2, 200);
-
-          expect(mockInternalClient.free).not.toHaveBeenCalled();
-          await jest.advanceTimersByTimeAsync(1000);
-          expect(mockInternalClient.free).toHaveBeenCalled();
-          jest.useRealTimers();
-        });
-
-        it("destroys the override client when explicitly setting the client to undefined", async () => {
-          const mockOverrideClient = createMockClient();
-          service.setClient(userId, mockOverrideClient);
-          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
-
-          service.setClient(userId, undefined);
-          await userClientTracker.expectCompletion();
-
-          expect(mockOverrideClient.free).toHaveBeenCalled();
-        });
-      });
+    it("returns from logout without creating a client", () => {
+      expect(() => service.logout(userId)).not.toThrow();
+      expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
     });
   });
 });
