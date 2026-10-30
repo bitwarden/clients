@@ -105,11 +105,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly enterPaymentMethodComponent = viewChild(EnterPaymentMethodComponent);
 
   // Inputs
-  readonly showFree = input(true);
-  readonly showCancel = input(false);
   readonly acceptingSponsorship = input<boolean>(false);
   readonly planSponsorshipType = input<PlanSponsorshipType | null>(null);
-  readonly preSelectedProductTier = input<ProductTierType | null>(null);
   readonly enableSecretsManagerByDefault = input<boolean>(false);
 
   /**
@@ -200,7 +197,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const result = this.passwordManagerPlans.filter((plan) => {
       const isNotCustomPlan = plan.type !== PlanType.Custom;
       const isBusinessCompatible = !businessOwnedIsChecked || plan.canBeUsedByBusiness;
-      const isPlanAllowed = plan.productTier !== ProductTierType.Free || this.showFree();
       const isAnnualOrOtherEligibleCase =
         plan.isAnnual ||
         plan.productTier === ProductTierType.Free ||
@@ -212,7 +208,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       return (
         isNotCustomPlan &&
         isBusinessCompatible &&
-        isPlanAllowed &&
         isAnnualOrOtherEligibleCase &&
         isCorrectFamilyPlanVariant &&
         isPlanEnabled
@@ -275,7 +270,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   // Outputs
   readonly onSuccess = output<OnSuccessArgs>();
-  readonly onCanceled = output<void>();
   readonly onTrialBillingSuccess = output<OnTrialBillingSuccessArgs>();
 
   // State properties
@@ -308,18 +302,113 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   protected readonly previewFailed = signal(false);
   protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
 
-  // Cart for CartSummary component. Priced only by the server preview; stays at the empty
-  // placeholder until a preview has returned.
-  protected readonly cart = computed<Cart>(
-    () =>
-      this.previewCart() ?? {
+  // Cart for CartSummary component. The server preview wins; until one returns (or when none is
+  // requested, e.g. invalid address, Free, Teams Starter) the cart is priced from form state with
+  // no tax.
+  protected readonly cart = computed<Cart>(() => this.previewCart() ?? this.formStateCart());
+
+  private formStateCart(): Cart {
+    const formValues = this.formValues();
+    const plan = this.selectedPlan();
+
+    if (!plan) {
+      return {
         passwordManager: {
           seats: { translationKey: "passwordManager", cost: 0, quantity: 1, hideBreakdown: true },
         },
         cadence: "annually",
         estimatedTax: 0,
+      };
+    }
+
+    const cadence = plan.isAnnual ? "annually" : "monthly";
+    const hasAdditionalSeats =
+      plan.PasswordManager.hasAdditionalSeatsOption && formValues.additionalSeats;
+    const pmBaseCost = hasAdditionalSeats
+      ? plan.PasswordManager.seatPrice
+      : plan.PasswordManager.basePrice;
+    const totalSeats = hasAdditionalSeats ? (formValues.additionalSeats ?? 0) : 1;
+
+    if (this.canUpgradeFromPremium()) {
+      return {
+        passwordManager: {
+          seats: {
+            translationKey: "passwordManagerPlanPrice",
+            cost: pmBaseCost,
+            quantity: totalSeats,
+            hideBreakdown: true,
+          },
+        },
+        cadence,
+        estimatedTax: 0,
+      };
+    }
+
+    let adjustedPmBaseCost = pmBaseCost;
+    if (plan.PasswordManager.hasPremiumAccessOption && formValues.premiumAccessAddon) {
+      adjustedPmBaseCost += plan.PasswordManager.premiumAccessOptionPrice;
+    }
+    const cart: Cart = {
+      passwordManager: {
+        seats: {
+          translationKey: "passwordManagerPlanPrice",
+          cost: adjustedPmBaseCost,
+          quantity: totalSeats,
+        },
       },
-  );
+      cadence,
+      estimatedTax: 0,
+    };
+
+    if (this.acceptingSponsorship() && this.familiesSponsorshipDiscount > 0) {
+      cart.discounts = [{ type: DiscountTypes.AmountOff, value: this.familiesSponsorshipDiscount }];
+    } else {
+      cart.discounts = this.cartDiscounts();
+    }
+
+    if (
+      plan.PasswordManager.hasAdditionalStorageOption &&
+      (formValues.additionalStorage ?? 0) > 0
+    ) {
+      cart.passwordManager.additionalStorage = {
+        translationKey: "additionalStorageGb",
+        cost: plan.PasswordManager.additionalStoragePricePerGb,
+        quantity: formValues.additionalStorage ?? 0,
+      };
+    }
+
+    if (this.planOffersSecretsManager() && formValues.secretsManager?.enabled) {
+      const smPlan = this.selectedSecretsManagerPlan()!;
+      let totalSmSeats = smPlan.SecretsManager.baseSeats;
+      if (
+        smPlan.SecretsManager.hasAdditionalSeatsOption &&
+        (formValues.secretsManager?.userSeats ?? 0) > 0
+      ) {
+        totalSmSeats += formValues.secretsManager?.userSeats ?? 0;
+      }
+
+      cart.secretsManager = {
+        seats: {
+          translationKey: "secretsManagerPlanPrice",
+          cost: smPlan.SecretsManager.seatPrice,
+          quantity: totalSmSeats,
+        },
+      };
+
+      if (
+        smPlan.SecretsManager.hasAdditionalServiceAccountOption &&
+        (formValues.secretsManager?.additionalServiceAccounts ?? 0) > 0
+      ) {
+        cart.secretsManager.additionalServiceAccounts = {
+          translationKey: "additionalServiceAccounts",
+          cost: smPlan.SecretsManager.additionalPricePerServiceAccount,
+          quantity: formValues.secretsManager?.additionalServiceAccounts ?? 0,
+        };
+      }
+    }
+
+    return cart;
+  }
 
   // Private properties
   private readonly logService = inject(LogService);
@@ -537,10 +626,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.formGroup.controls.plan.setValue(PlanType.TeamsAnnually);
     }
     this.changedProduct();
-  }
-
-  protected cancel(): void {
-    this.onCanceled.emit();
   }
 
   submit = async () => {
@@ -895,14 +980,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Sets the initial plan selection based on whether the user is upgrading from premium
-   * or using standard initialization logic.
+   * Sets the initial plan and product tier from the initialPlan and initialProductTier inputs.
    */
   private setInitialPlanSelection(): void {
-    // Set initial values from inputs, allowing preSelectedProductTier to take precedence
+    // Set initial values from inputs
     const initialPlan = this.initialPlan();
     const initialProductTier = this.initialProductTier();
-    const preSelectedProductTier = this.preSelectedProductTier();
 
     // Set plan
     if (initialPlan !== PlanType.Free) {
@@ -911,14 +994,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     // Set product tier
     if (initialProductTier !== ProductTierType.Free) {
       this.formGroup.controls.productTier.setValue(initialProductTier);
-    }
-
-    // Allow preSelectedProductTier to override if it's higher
-    if (
-      preSelectedProductTier != null &&
-      (this.formGroup.controls.productTier.value ?? 0) < preSelectedProductTier
-    ) {
-      this.formGroup.controls.productTier.setValue(preSelectedProductTier);
     }
   }
 

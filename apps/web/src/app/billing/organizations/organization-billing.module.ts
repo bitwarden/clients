@@ -14,7 +14,6 @@ import { ChurnMitigationOfferDialogComponent } from "./churn-mitigation-offer-di
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { OrgBillingHistoryViewComponent } from "./organization-billing-history-view.component";
 import { OrganizationBillingRoutingModule } from "./organization-billing-routing.module";
-import { OrganizationPlansComponent } from "./organization-plans.component";
 import { OrganizationSubscriptionCloudComponent } from "./organization-subscription-cloud.component";
 import { OrganizationSubscriptionSelfhostComponent } from "./organization-subscription-selfhost.component";
 import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
@@ -28,7 +27,6 @@ import { OrganizationScheduledPriceIncreaseWarningComponent } from "./warnings/c
     OrganizationBillingRoutingModule,
     UserVerificationModule,
     BillingSharedModule,
-    OrganizationPlansComponent,
     HeaderModule,
     BannerModule,
     OrganizationScheduledPriceIncreaseWarningComponent,

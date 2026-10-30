@@ -485,11 +485,6 @@
       >
         {{ "submit" | i18n }}
       </button>
-      @if (showCancel()) {
-        <button type="button" buttonType="secondary" bitButton bitFormButton (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      }
       <bit-error-summary [formGroup]="formGroup"></bit-error-summary>
     </bit-section>
   </form>

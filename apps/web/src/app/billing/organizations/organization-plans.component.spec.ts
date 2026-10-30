@@ -603,8 +603,6 @@ describe("OrganizationPlansComponent", () => {
 
     it("should initialize with default values", () => {
       expect(component["loading"]).toBe(true);
-      expect(component.showFree()).toBe(true);
-      expect(component.showCancel()).toBe(false);
       expect(component.initialProductTier()).toBe(ProductTierType.Free);
     });
   });
@@ -662,26 +660,6 @@ describe("OrganizationPlansComponent", () => {
         // Free plan is default, shouldn't be explicitly set
         expect(component["formGroup"].controls.plan.value).toBe(PlanType.Free);
         expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Free);
-      });
-
-      it("should allow preSelectedProductTier to override initialProductTier if higher", async () => {
-        fixture.componentRef.setInput("initialProductTier", ProductTierType.Teams);
-        fixture.componentRef.setInput("preSelectedProductTier", ProductTierType.Enterprise);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
-      });
-
-      it("should use initialProductTier when preSelectedProductTier is lower", async () => {
-        fixture.componentRef.setInput("initialProductTier", ProductTierType.Enterprise);
-        fixture.componentRef.setInput("preSelectedProductTier", ProductTierType.Teams);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Enterprise);
       });
     });
   });
@@ -1015,15 +993,9 @@ describe("OrganizationPlansComponent", () => {
       await fixture.whenStable();
     });
 
-    it("should restrict available plans based on business ownership and upgrade context", async () => {
-      // Upgrade flow (showFree = false) should exclude Free plan
-      fixture.componentRef.setInput("showFree", false);
+    it("should restrict available plans based on business ownership", async () => {
+      // Free plan is offered by default
       let products = component.selectableProducts();
-      expect(products.find((p) => p.type === PlanType.Free)).toBeUndefined();
-
-      // Create flow (showFree = true) should include Free plan
-      fixture.componentRef.setInput("showFree", true);
-      products = component.selectableProducts();
       expect(products.find((p) => p.type === PlanType.Free)).toBeDefined();
 
       // Business organizations should only see business-compatible plans
@@ -1533,14 +1505,6 @@ describe("OrganizationPlansComponent", () => {
 
       // Should switch to a business-compatible plan
       expect(component["formGroup"].controls.productTier.value).toBe(ProductTierType.Teams);
-    });
-
-    it("should emit onCanceled when cancel is called", () => {
-      const cancelSpy = jest.spyOn(component.onCanceled, "emit");
-
-      component["cancel"]();
-
-      expect(cancelSpy).toHaveBeenCalled();
     });
 
     it("should update form value when additional seats changes", () => {
@@ -2205,6 +2169,12 @@ describe("OrganizationPlansComponent", () => {
         expect(component["previewCart"]()).toBeNull();
         expect(component["previewFailed"]()).toBe(false);
         expect(mockLogService.error).not.toHaveBeenCalled();
+        expect(component["cart"]().passwordManager.seats).toEqual({
+          translationKey: "passwordManagerPlanPrice",
+          cost: 20,
+          quantity: 1,
+        });
+        expect(component["cart"]().estimatedTax).toBe(0);
       }));
 
       it("does not preview with an invalid billing address", fakeAsync(async () => {
@@ -2220,6 +2190,12 @@ describe("OrganizationPlansComponent", () => {
 
         expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).not.toHaveBeenCalled();
         expect(component["previewFailed"]()).toBe(false);
+        expect(component["cart"]().passwordManager.seats).toEqual({
+          translationKey: "passwordManagerPlanPrice",
+          cost: 48,
+          quantity: 4,
+        });
+        expect(component["cart"]().estimatedTax).toBe(0);
       }));
 
       it("keeps the last good server cart while the billing address is being edited", fakeAsync(async () => {
