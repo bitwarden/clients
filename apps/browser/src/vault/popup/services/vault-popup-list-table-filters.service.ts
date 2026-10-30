@@ -151,14 +151,20 @@ export class VaultPopupListTableFiltersService {
     { initialValue: {} as Record<string, string> },
   );
 
-  /** A search the user just typed, shown until it lands in state so the input never rewinds. */
-  private readonly pendingSearchText = signal<{ key: string; text: string } | null>(null);
+  /**
+   * The search the user last typed in this popup.
+   */
+  private readonly typedSearchText = signal<{ userId: UserId; key: string; text: string } | null>(
+    null,
+  );
 
   /** The search text for the active user's vault in view. */
   readonly searchText = computed(() => {
     const key = this.activeScopeKey();
-    const pending = this.pendingSearchText();
-    return pending?.key === key ? pending.text : (this.userSearchText()[key] ?? "");
+    const typed = this.typedSearchText();
+    return typed?.userId === this.activeUserId() && typed?.key === key
+      ? typed.text
+      : (this.userSearchText()[key] ?? "");
   });
 
   /** Sets the search text for the active user's vault in view. */
@@ -169,16 +175,18 @@ export class VaultPopupListTableFiltersService {
     }
 
     const key = this.activeScopeKey();
-    const pending = { key, text };
-    this.pendingSearchText.set(pending);
+    const typed = { userId, key, text };
+    this.typedSearchText.set(typed);
     try {
       await this.stateProvider
         .getUser(userId, VAULT_SEARCH_TEXT)
         .update((searchText) => ({ ...searchText, [key]: text }));
-    } finally {
-      if (this.pendingSearchText() === pending) {
-        this.pendingSearchText.set(null);
+    } catch (error) {
+      // The text never reached storage, so fall back to what is stored.
+      if (this.typedSearchText() === typed) {
+        this.typedSearchText.set(null);
       }
+      throw error;
     }
   }
 
