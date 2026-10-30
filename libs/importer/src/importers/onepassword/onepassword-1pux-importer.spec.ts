@@ -22,6 +22,7 @@ import { EmailAccountData } from "../spec-data/onepassword-1pux/email-account";
 import { EmailFieldData } from "../spec-data/onepassword-1pux/email-field";
 import { EmailFieldOnIdentityData } from "../spec-data/onepassword-1pux/email-field-on-identity";
 import { EmailFieldOnIdentityPrefilledData } from "../spec-data/onepassword-1pux/email-field-on-identity_prefilled";
+import { FastmailAliasSectionData } from "../spec-data/onepassword-1pux/fastmail-alias-section";
 import { IdentityData } from "../spec-data/onepassword-1pux/identity-data";
 import { LoginData } from "../spec-data/onepassword-1pux/login-data";
 import { MedicalRecordData } from "../spec-data/onepassword-1pux/medical-record";
@@ -915,6 +916,247 @@ describe("1Password 1Pux Importer", () => {
     // Reported by UID, not the (sensitive) item title.
     expect(result.errors[0].id).toEqual("broken-login-uuid");
     expect(result.errors[0].reason).toEqual(ImportRecordErrorReason.Error);
+  });
+
+  it("should import Fastmail alias objects from section fields", async () => {
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(FastmailAliasSectionData));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers).toHaveLength(1);
+    expect(result.ciphers[0].type).toEqual(CipherType.Login);
+    expect(result.ciphers[0].login.username).toEqual("alias@fastmail.com");
+    expect(result.ciphers[0].fields).not.toContainEqual(expect.objectContaining({ name: "Email" }));
+    expect(result.ciphers[0].fields).toContainEqual(
+      expect.objectContaining({ name: "Recovery alias", value: "recovery@fastmail.com" }),
+    );
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ value: "[object Object]" }),
+    );
+  });
+
+  it("should use a username field in a later section over an earlier Fastmail Email alias", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "fastmail-alias-first-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Fastmail Login" },
+                  details: {
+                    loginFields: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                    sections: [
+                      {
+                        title: "Alias",
+                        fields: [
+                          {
+                            title: "Email",
+                            id: "email",
+                            value: {
+                              email: { email_address: "alias@fastmail.com", provider: null },
+                            },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "emailAddress",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        title: "Login",
+                        fields: [
+                          {
+                            title: "username",
+                            id: "username",
+                            value: { string: "real-user" },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "default",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                    ] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers[0].login.username).toEqual("real-user");
+    expect(result.ciphers[0].fields).toContainEqual(
+      expect.objectContaining({ name: "Email", value: "alias@fastmail.com" }),
+    );
+  });
+
+  it("should keep a Fastmail Email alias as a custom field when a username comes first", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "fastmail-username-precedence-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Fastmail Login" },
+                  details: {
+                    loginFields: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                    sections: [
+                      {
+                        title: "Login",
+                        fields: [
+                          {
+                            title: "username",
+                            id: "username",
+                            value: { string: "real-user" },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "default",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                          {
+                            title: "Email",
+                            id: "email",
+                            value: {
+                              email: { email_address: "alias@fastmail.com", provider: null },
+                            },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "emailAddress",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                    ] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers[0].login.username).toEqual("real-user");
+    expect(result.ciphers[0].fields).toContainEqual(
+      expect.objectContaining({ name: "Email", value: "alias@fastmail.com" }),
+    );
+  });
+
+  it("should ignore null and unrepresentable structured login field values", async () => {
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "structured-value-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Structured Login" },
+                  details: {
+                    loginFields: [
+                      {
+                        designation: "username",
+                        value: { unknownShape: { nested: true } },
+                        name: "username",
+                        fieldType: "T",
+                      },
+                      {
+                        designation: "password",
+                        value: null as string | null,
+                        name: "password",
+                        fieldType: "P",
+                      },
+                    ],
+                    passwordHistory: [] as unknown[],
+                    sections: [
+                      {
+                        title: "Other",
+                        fields: [
+                          {
+                            title: "unknown",
+                            id: "unknown",
+                            value: { string: { unknownShape: { nested: true } } },
+                            guarded: false,
+                            multiline: false,
+                            dontGenerate: false,
+                            inputTraits: {
+                              keyboard: "text",
+                              correction: "default",
+                              capitalization: "default",
+                            },
+                          },
+                        ],
+                      },
+                    ] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter(configService);
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    expect(result.errors.length).toBe(0);
+    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].type).not.toEqual(CipherType.Login);
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ name: "username" }),
+    );
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ name: "password" }),
+    );
+    expect(result.ciphers[0].fields).not.toContainEqual(
+      expect.objectContaining({ value: "[object Object]" }),
+    );
   });
 
   it("does not misattribute a skipped SSH key's folder to another item", async () => {

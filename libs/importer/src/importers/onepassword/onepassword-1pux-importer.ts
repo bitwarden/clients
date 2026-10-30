@@ -230,6 +230,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     }
 
     item.details.loginFields.forEach((loginField) => {
+      if (loginField.value == null || typeof loginField.value !== "string") {
+        return;
+      }
+
       if (loginField.designation === "username" && loginField.value !== "") {
         cipher.type = CipherType.Login;
         cipher.login.username = loginField.value;
@@ -280,6 +284,10 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       return;
     }
 
+    const usernameFieldPresent = sections.some(
+      (section) => section.fields != null && this.hasUsernameField(section.fields),
+    );
+
     sections.forEach((section: SectionsEntity) => {
       if (section.fields == null) {
         return;
@@ -291,7 +299,18 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         cipher,
         section.title,
         useNewDedicatedTypes,
+        usernameFieldPresent,
       );
+    });
+  }
+
+  private hasUsernameField(fields: FieldsEntity[]): boolean {
+    return fields.some((field) => {
+      if (field.title !== "username") {
+        return false;
+      }
+      const value = this.extractValue(field.value, Object.keys(field.value)[0]);
+      return typeof value === "string" && value !== "";
     });
   }
 
@@ -301,6 +320,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     cipher: CipherView,
     sectionTitle: string,
     useNewDedicatedTypes: boolean,
+    usernameFieldPresent: boolean,
   ) {
     fields.forEach((field: FieldsEntity) => {
       const valueKey = Object.keys(field.value)[0];
@@ -318,7 +338,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       const fieldValue = this.extractValue(field.value, valueKey);
 
       if (cipher.type === CipherType.Login) {
-        if (this.fillLogin(field, fieldValue, cipher)) {
+        if (this.fillLogin(field, fieldValue, cipher, usernameFieldPresent)) {
           return;
         }
 
@@ -436,10 +456,14 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       }
 
       if (valueKey === "email") {
-        // fieldValue is an object casted into a string, so access the plain value instead
         const { email_address, provider } = field.value.email;
         this.processKvp(cipher, fieldName, email_address, FieldType.Text);
-        this.processKvp(cipher, "provider", provider, FieldType.Text);
+        if (typeof provider === "string") {
+          this.processKvp(cipher, "provider", provider, FieldType.Text);
+        }
+      }
+
+      if (typeof fieldValue !== "string") {
         return;
       }
 
@@ -488,8 +512,27 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return (value as any)[valueKey];
   }
 
-  private fillLogin(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
+  private fillLogin(
+    field: FieldsEntity,
+    fieldValue: string,
+    cipher: CipherView,
+    usernameFieldPresent: boolean,
+  ): boolean {
     const fieldName = this.getFieldName(field.title);
+
+    if (
+      !usernameFieldPresent &&
+      this.isNullOrWhitespace(cipher.login.username) &&
+      fieldName === "Email" &&
+      typeof field.value.email?.email_address === "string"
+    ) {
+      cipher.login.username = field.value.email.email_address;
+      return true;
+    }
+
+    if (typeof fieldValue !== "string") {
+      return false;
+    }
 
     if (this.isNullOrWhitespace(cipher.login.username) && fieldName === "username") {
       cipher.login.username = fieldValue;
@@ -640,7 +683,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
       if (valueKey === "email") {
         const { email_address, provider } = field.value.email;
         cipher.identity.email = this.getValueOrDefault(email_address);
-        this.processKvp(cipher, "provider", provider, FieldType.Text);
+        this.processKvp(cipher, "provider", provider as string, FieldType.Text);
         return true;
       }
 
