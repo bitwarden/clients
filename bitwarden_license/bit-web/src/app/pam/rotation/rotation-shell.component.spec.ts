@@ -108,10 +108,8 @@ describe("RotationShellComponent (real router)", () => {
   class StubComponent {}
 
   const stubEveryComponentButTheShell = (config: Routes): Routes =>
-    config.map((route) => ({
+    config.map(({ providers: _providers, canDeactivate: _canDeactivate, ...route }) => ({
       ...route,
-      providers: undefined,
-      canDeactivate: undefined,
       ...(route.component && route.component !== RotationShellComponent
         ? { component: StubComponent }
         : {}),
