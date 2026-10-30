@@ -342,6 +342,9 @@ describe("GroupsV2Component", () => {
       const group = makeGroup({ id: "group-1" });
       const row = { details: group, collectionChips: [] };
 
+      component["rows"].set([row]);
+      expect(component["rows"]()).toContain(row);
+
       mockDialogService.open.mockReturnValue({
         closed: of(GroupAddEditDialogResultType.Deleted),
       } as any);
