@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-import { account } from "./credentials";
+import { Account, account } from "./credentials";
 import { SETUP_EXTENSION_URL, skipExtensionSetup, skipOnboardingDialogs } from "./web/onboarding";
 
 // Desktop and browser share a button-triggered selector that offers self-hosted. Web's
@@ -29,9 +29,7 @@ export async function logInToWebVault(page: Page) {
 export class LoginPage {
   constructor(private page: Page) {}
 
-  async logIn() {
-    const targetAccount = account();
-
+  async logIn(targetAccount: Account = account()) {
     // Wait for the page before probing for the selector, which renders alongside it.
     const email = this.page.getByTestId("login-email-input");
     await expect(email).toBeVisible();

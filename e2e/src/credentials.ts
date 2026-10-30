@@ -10,6 +10,11 @@ const CREDENTIALS_FILE = resolve(DEBUG_DIR, "credentials.txt");
  */
 const DEFAULT_ACCOUNT = "local-web";
 
+/**
+ * Section of the account that multi-account tests sign in beside the default one.
+ */
+const DEFAULT_SECOND_ACCOUNT = "local-web-2";
+
 export type Account = {
   email: string;
   password: string;
@@ -57,8 +62,15 @@ function parse(contents: string): Map<string, Record<string, string>> {
 
 /** Reads the account named by `E2E_ACCOUNT`, falling back to the default. */
 export function account(): Account {
-  const name = process.env.E2E_ACCOUNT ?? DEFAULT_ACCOUNT;
+  return readAccount(process.env.E2E_ACCOUNT ?? DEFAULT_ACCOUNT);
+}
 
+/** Reads the account named by `E2E_SECOND_ACCOUNT`, for tests that need two accounts. */
+export function secondAccount(): Account {
+  return readAccount(process.env.E2E_SECOND_ACCOUNT ?? DEFAULT_SECOND_ACCOUNT);
+}
+
+function readAccount(name: string): Account {
   let contents: string;
   try {
     contents = readFileSync(CREDENTIALS_FILE, "utf8");
