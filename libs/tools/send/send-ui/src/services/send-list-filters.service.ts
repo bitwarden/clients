@@ -69,6 +69,11 @@ export class SendListFiltersService {
       label: this.i18nService.t("sendTypeText"),
       icon: "bwi-file-text",
     },
+    {
+      value: SendType.Item,
+      label: this.i18nService.t("vaultItem"),
+      icon: "bwi-lock",
+    },
   ];
 
   /** Resets `filterForm` to the original state */

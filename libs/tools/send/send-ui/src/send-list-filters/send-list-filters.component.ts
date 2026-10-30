@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy } from "@angular/core";
+import { Component, computed, OnDestroy } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 
@@ -19,10 +19,15 @@ import { SendPolicyService } from "../services/send-policy.service";
 })
 export class SendListFiltersComponent implements OnDestroy {
   protected filterForm = this.sendListFiltersService.filterForm;
-  protected sendTypes = this.sendListFiltersService.sendTypes;
   readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
-    initialValue: [SendType.Text, SendType.File],
+    initialValue: [SendType.Text, SendType.File, SendType.Item],
   });
+  /** The send type chips, limited to the types the policy allows. */
+  protected readonly sendTypes = computed(() =>
+    this.sendListFiltersService.sendTypes.filter(
+      (option) => option.value != null && this.allowedSendTypes().includes(option.value),
+    ),
+  );
 
   constructor(
     private sendListFiltersService: SendListFiltersService,
