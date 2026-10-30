@@ -126,7 +126,7 @@ fn remove_stale_socket(path: &PathBuf) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use rand::{distr::Alphanumeric, Rng};
+    use rand::{distr::Alphanumeric, RngExt};
 
     use super::*;
 

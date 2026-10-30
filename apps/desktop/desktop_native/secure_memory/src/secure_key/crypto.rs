@@ -1,7 +1,7 @@
 use std::ptr::NonNull;
 
 use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit, Nonce};
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 
 pub(super) const KEY_SIZE: usize = 32;
 pub(super) const NONCE_SIZE: usize = 12;
