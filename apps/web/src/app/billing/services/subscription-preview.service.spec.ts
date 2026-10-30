@@ -148,6 +148,17 @@ describe("SubscriptionPreviewService", () => {
       await expect(sut.hasAccountSubscription()).resolves.toBe(true);
     });
 
+    it("does not build the cart, so an adapter failure cannot read as no subscription", async () => {
+      const response = mock<SubscriptionPreviewResponse>();
+      response.toDomain.mockImplementation(() => {
+        throw new Error("adapter failure");
+      });
+      mockClient.getAccountSubscriptionPreview.mockResolvedValue(response);
+
+      await expect(sut.hasAccountSubscription()).resolves.toBe(true);
+      expect(response.toDomain).not.toHaveBeenCalled();
+    });
+
     it("treats a 404 as no subscription", async () => {
       mockClient.getAccountSubscriptionPreview.mockRejectedValue(new ErrorResponse(null, 404));
 

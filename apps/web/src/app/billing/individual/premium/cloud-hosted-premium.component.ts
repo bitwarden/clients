@@ -23,6 +23,7 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import {
   BadgeModule,
@@ -95,6 +96,7 @@ export class CloudHostedPremiumComponent {
     private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private logService: LogService,
   ) {
     this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -116,7 +118,10 @@ export class CloudHostedPremiumComponent {
       switchMap((account) =>
         account
           ? from(this.subscriptionPreviewService.hasAccountSubscription()).pipe(
-              catchError(() => of(false)),
+              catchError((error: unknown) => {
+                this.logService.error("Failed to fetch subscription", error);
+                return of(false);
+              }),
             )
           : of(false),
       ),

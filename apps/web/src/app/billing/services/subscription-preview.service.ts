@@ -30,7 +30,7 @@ export class SubscriptionPreviewService {
 
   hasAccountSubscription = async (): Promise<boolean> => {
     try {
-      await this.getAccountSubscriptionPreview();
+      await this.subscriptionPreviewClient.getAccountSubscriptionPreview();
       return true;
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
