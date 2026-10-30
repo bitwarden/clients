@@ -476,9 +476,11 @@ describe("ConfigService", () => {
     });
 
     it("returns the override value when one is present", async () => {
-      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+      overrideState.stateSubject.next({ [FeatureFlag.ContentScriptIpcChannelFramework]: true });
 
-      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+      const result = await firstValueFrom(
+        sut.getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework),
+      );
 
       expect(result).toBe(true);
     });
@@ -497,12 +499,14 @@ describe("ConfigService", () => {
       overrideState.stateSubject.next({});
       const serverConfig = new ServerConfig(
         new ServerConfigData({
-          featureStates: { [FeatureFlag.FedRampGovRegion]: true },
+          featureStates: { [FeatureFlag.ContentScriptIpcChannelFramework]: true },
         }),
       );
       globalState.stateSubject.next({ [activeApiUrl]: serverConfig });
 
-      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+      const result = await firstValueFrom(
+        sut.getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework),
+      );
 
       expect(result).toBe(true);
     });
@@ -510,7 +514,9 @@ describe("ConfigService", () => {
     it("falls through to the default value when neither override nor server set the flag", async () => {
       overrideState.stateSubject.next({});
 
-      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+      const result = await firstValueFrom(
+        sut.getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework),
+      );
 
       expect(result).toBe(false);
     });
@@ -518,17 +524,19 @@ describe("ConfigService", () => {
     it("falls through to the default value when overrides state is null", async () => {
       overrideState.stateSubject.next(null);
 
-      const result = await firstValueFrom(sut.getFeatureFlag$(FeatureFlag.FedRampGovRegion));
+      const result = await firstValueFrom(
+        sut.getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework),
+      );
 
       expect(result).toBe(false);
     });
 
     it("userCachedFeatureFlag$ honors the override", async () => {
-      overrideState.stateSubject.next({ [FeatureFlag.FedRampGovRegion]: true });
+      overrideState.stateSubject.next({ [FeatureFlag.ContentScriptIpcChannelFramework]: true });
       userState.nextState(null);
 
       const result = await firstValueFrom(
-        sut.userCachedFeatureFlag$(FeatureFlag.FedRampGovRegion, userId),
+        sut.userCachedFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework, userId),
       );
 
       expect(result).toBe(true);
@@ -536,7 +544,9 @@ describe("ConfigService", () => {
 
     function configWithFlag(value: boolean) {
       const config = new ServerConfig(
-        new ServerConfigData({ featureStates: { [FeatureFlag.FedRampGovRegion]: value } }),
+        new ServerConfigData({
+          featureStates: { [FeatureFlag.ContentScriptIpcChannelFramework]: value },
+        }),
       );
       config.utcDate = new Date();
       return config;
@@ -549,7 +559,7 @@ describe("ConfigService", () => {
 
       const emitted: boolean[] = [];
       const subscription = sut
-        .getFeatureFlag$(FeatureFlag.FedRampGovRegion)
+        .getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework)
         .subscribe((value) => emitted.push(value));
       await new Promise(process.nextTick);
 
@@ -566,7 +576,7 @@ describe("ConfigService", () => {
 
       const emitted: boolean[] = [];
       const subscription = sut
-        .getFeatureFlag$(FeatureFlag.FedRampGovRegion)
+        .getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework)
         .subscribe((value) => emitted.push(value));
       await new Promise(process.nextTick);
 

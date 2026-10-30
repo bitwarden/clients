@@ -1,9 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { Subject, firstValueFrom, of, toArray } from "rxjs";
-import { take } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
 
-import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { ConfigService } from "../abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -22,58 +19,19 @@ describe("DefaultAvailableRegionsService", () => {
   ];
 
   let environmentService: MockProxy<EnvironmentService>;
-  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     environmentService = mock<EnvironmentService>();
-    configService = mock<ConfigService>();
     environmentService.availableRegions.mockReturnValue(allRegions);
   });
 
   describe("availableRegions$", () => {
-    it("includes Gov when the FedRampGovRegion flag emits true", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(true));
-      const sut = new DefaultAvailableRegionsService(environmentService, configService);
-
-      const regions = await firstValueFrom(sut.availableRegions$.pipe(take(2), toArray()));
-      const lastEmission = regions[regions.length - 1];
-
-      expect(lastEmission.map((r) => r.key)).toEqual([Region.US, Region.EU, Region.Gov]);
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.FedRampGovRegion);
-    });
-
-    it("excludes Gov when the FedRampGovRegion flag emits false", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-      const sut = new DefaultAvailableRegionsService(environmentService, configService);
+    it("emits every region the environment service reports, including Gov", async () => {
+      const sut = new DefaultAvailableRegionsService(environmentService);
 
       const regions = await firstValueFrom(sut.availableRegions$);
 
-      expect(regions.map((r) => r.key)).toEqual([Region.US, Region.EU]);
+      expect(regions.map((r) => r.key)).toEqual([Region.US, Region.EU, Region.Gov]);
     });
-
-    it("excludes Gov on the initial synchronous emission (startWith(false) seed) before the flag emits", async () => {
-      // Never-emitting upstream: the only emission consumers see is the startWith(false) seed.
-      configService.getFeatureFlag$.mockReturnValue(new Subject<boolean>().asObservable());
-      const sut = new DefaultAvailableRegionsService(environmentService, configService);
-
-      const regions = await firstValueFrom(sut.availableRegions$);
-
-      expect(regions.map((r) => r.key)).toEqual([Region.US, Region.EU]);
-    });
-
-    it.each([true, false])(
-      "always includes US and EU regardless of flag state (flag=%s)",
-      async (flagValue) => {
-        configService.getFeatureFlag$.mockReturnValue(of(flagValue));
-        const sut = new DefaultAvailableRegionsService(environmentService, configService);
-
-        const emissions = await firstValueFrom(sut.availableRegions$.pipe(take(2), toArray()));
-        const finalEmission = emissions[emissions.length - 1];
-
-        expect(finalEmission.map((r) => r.key)).toEqual(
-          expect.arrayContaining([Region.US, Region.EU]),
-        );
-      },
-    );
   });
 });
