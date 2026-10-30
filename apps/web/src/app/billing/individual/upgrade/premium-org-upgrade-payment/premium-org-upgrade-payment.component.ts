@@ -19,7 +19,6 @@ import {
   combineLatest,
   startWith,
   debounceTime,
-  distinctUntilChanged,
   switchMap,
   Observable,
   from,
@@ -37,8 +36,6 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -154,38 +151,20 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   private readonly premiumOrgUpgradeService = inject(PremiumOrgUpgradeService);
   private readonly subscriberBillingClient = inject(SubscriberBillingClient);
   private readonly accountService = inject(AccountService);
-  private readonly configService = inject(ConfigService);
 
-  // Deduped: getFeatureFlag$ re-emits on every server-config refresh, and only a real flip should refetch.
-  private readonly previewDrivenCart$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
-    .pipe(distinctUntilChanged());
-
-  /** Server cart on the flag-on path; null when the flag is off, the address is incomplete, or the preview failed. */
+  /** Server cart; null when the address is incomplete or the preview failed. */
   private readonly previewCart = signal<Cart | null>(null);
 
-  /** Flag-on preview failed; the summary is replaced by an error callout rather than the local estimate. */
+  /** Preview failed; the summary is replaced by an error callout rather than the local estimate. */
   protected readonly previewFailed = signal(false);
   protected readonly previewErrorMessageKey = signal<string>("invoicePreviewErrorMessage");
 
   // Use defer to lazily create the observable when subscribed to
   protected readonly estimatedInvoice$ = defer(() =>
-    combineLatest([
-      this.formGroup.controls.billingAddress.valueChanges.pipe(
-        startWith(this.formGroup.controls.billingAddress.value),
-      ),
-      this.previewDrivenCart$,
-    ]).pipe(
+    this.formGroup.controls.billingAddress.valueChanges.pipe(
+      startWith(this.formGroup.controls.billingAddress.value),
       debounceTime(1000),
-      switchMap(([, previewDrivenCart]) => {
-        if (!previewDrivenCart) {
-          // A runtime flip to off must drop the server cart, or the kill switch leaves it pinned.
-          this.previewCart.set(null);
-          this.previewFailed.set(false);
-          return this.refreshInvoicePreview$();
-        }
-        return this.refreshPreviewCart$();
-      }),
+      switchMap(() => this.refreshPreviewCart$()),
     ),
   );
 
@@ -196,7 +175,7 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   constructor() {}
   // Cart Summary data
   protected readonly cart = computed<Cart>(() => {
-    // Flag on and a preview has resolved: render the server's cart verbatim.
+    // A preview has resolved: render the server's cart verbatim.
     const previewCart = this.previewCart();
     if (previewCart) {
       return previewCart;
@@ -531,8 +510,8 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
   }
 
   /**
-   * Flag-on counterpart of {@link refreshInvoicePreview$}: stores the server cart in
-   * {@link previewCart} and emits an empty legacy preview so both branches share one stream.
+   * Stores the server cart in {@link previewCart} and emits an empty invoice preview, which
+   * keeps the local fallback cart at zero tax and credit.
    */
   private refreshPreviewCart$(): Observable<InvoicePreview> {
     const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
@@ -565,33 +544,6 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
         });
         this.previewCart.set(null);
         this.previewFailed.set(true);
-        return of(this.getEmptyInvoicePreview());
-      }),
-    );
-  }
-
-  /**
-   * Refreshes the invoice preview based on the current form state.
-   */
-  private refreshInvoicePreview$(): Observable<InvoicePreview> {
-    if (!this.isFormValid()) {
-      return of(this.getEmptyInvoicePreview());
-    }
-
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-    if (!billingAddress.country || !billingAddress.postalCode) {
-      return of(this.getEmptyInvoicePreview());
-    }
-
-    return from(
-      this.premiumOrgUpgradeService.previewProratedInvoice(this.selectedPlan()!, billingAddress),
-    ).pipe(
-      catchError((error: unknown) => {
-        this.logService.error("Invoice preview failed:", error);
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("invoicePreviewErrorMessage"),
-        });
         return of(this.getEmptyInvoicePreview());
       }),
     );

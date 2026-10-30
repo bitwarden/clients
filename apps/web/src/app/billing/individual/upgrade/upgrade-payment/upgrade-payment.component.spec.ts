@@ -16,7 +16,6 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,11 +24,7 @@ import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { Cart, DiscountTypes } from "@bitwarden/pricing";
 
-import {
-  AccountBillingClient,
-  PreviewInvoiceClient,
-  SubscriberBillingClient,
-} from "../../../clients";
+import { AccountBillingClient, SubscriberBillingClient } from "../../../clients";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -57,7 +52,6 @@ describe("UpgradePaymentComponent", () => {
   let component: UpgradePaymentComponent;
   let fixture: ComponentFixture<UpgradePaymentComponent>;
   let discountSubject$: BehaviorSubject<SubscriptionDiscount[]>;
-  let previewDrivenCartFlag$: BehaviorSubject<boolean>;
 
   const mockSubscriptionPricingService = mock<SubscriptionPricingServiceAbstraction>();
   const mockToastService = mock<ToastService>();
@@ -125,9 +119,7 @@ describe("UpgradePaymentComponent", () => {
     mockReset(mockInvoicePreviewService);
 
     discountSubject$ = new BehaviorSubject<SubscriptionDiscount[]>([]);
-    previewDrivenCartFlag$ = new BehaviorSubject<boolean>(false);
-    mockConfigService.getFeatureFlag$.mockImplementation(((flag: FeatureFlag) =>
-      flag === FeatureFlag.PM36631_PreviewDrivenCart ? previewDrivenCartFlag$ : of(false)) as any);
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
       of([mockPremiumTier, mockFamiliesTier]),
     );
@@ -177,10 +169,10 @@ describe("UpgradePaymentComponent", () => {
         },
         { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ConfigService, useValue: mockConfigService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: AccountBillingClient, useValue: mock<AccountBillingClient>() },
-        { provide: PreviewInvoiceClient, useValue: mock<PreviewInvoiceClient>() },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: AccountService, useValue: mockAccountService },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
@@ -189,7 +181,6 @@ describe("UpgradePaymentComponent", () => {
           useValue: mock<OrganizationBillingServiceAbstraction>(),
         },
         { provide: SyncService, useValue: { fullSync: jest.fn().mockResolvedValue(true) } },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: InvoicePreviewService, useValue: mockInvoicePreviewService },
       ],
     })
@@ -284,7 +275,7 @@ describe("UpgradePaymentComponent", () => {
 
   describe("estimatedTax$ — reactive recalculation", () => {
     it("recalculates tax when billing address changes", fakeAsync(() => {
-      const refreshSpy = jest.spyOn(component as any, "refreshSalesTax$").mockReturnValue(of(5));
+      const refreshSpy = jest.spyOn(component as any, "refreshPreviewCart$").mockReturnValue(of(5));
 
       fixture.detectChanges();
 
@@ -304,7 +295,7 @@ describe("UpgradePaymentComponent", () => {
     }));
 
     it("recalculates tax when eligible discounts emit", fakeAsync(() => {
-      const refreshSpy = jest.spyOn(component as any, "refreshSalesTax$").mockReturnValue(of(5));
+      const refreshSpy = jest.spyOn(component as any, "refreshPreviewCart$").mockReturnValue(of(5));
 
       fixture.detectChanges();
 
@@ -322,7 +313,7 @@ describe("UpgradePaymentComponent", () => {
     }));
 
     it("debounces rapid changes from billing address and discounts together", fakeAsync(() => {
-      const refreshSpy = jest.spyOn(component as any, "refreshSalesTax$").mockReturnValue(of(5));
+      const refreshSpy = jest.spyOn(component as any, "refreshPreviewCart$").mockReturnValue(of(5));
 
       fixture.detectChanges();
 
@@ -370,7 +361,7 @@ describe("UpgradePaymentComponent", () => {
     }));
   });
 
-  describe("preview-driven cart (PM36631_PreviewDrivenCart)", () => {
+  describe("preview-driven cart", () => {
     const billingAddress = {
       country: "US",
       postalCode: "12345",
@@ -429,13 +420,11 @@ describe("UpgradePaymentComponent", () => {
     };
 
     beforeEach(() => {
-      previewDrivenCartFlag$.next(true);
-      mockUpgradePaymentService.calculateEstimatedTax.mockResolvedValue(3);
       mockInvoicePreviewService.previewPremiumPurchaseCart.mockResolvedValue(premiumCart);
       mockInvoicePreviewService.previewFamiliesPurchaseCart.mockResolvedValue(familiesCart);
     });
 
-    it("previews Premium through the purchase preview service without the legacy tax call", fakeAsync(() => {
+    it("previews Premium through the purchase preview service", fakeAsync(() => {
       createFixture();
       tick(1001);
 
@@ -445,7 +434,6 @@ describe("UpgradePaymentComponent", () => {
         billingAddress: { country: "US", postalCode: "12345" },
       });
       expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).not.toHaveBeenCalled();
-      expect(mockUpgradePaymentService.calculateEstimatedTax).not.toHaveBeenCalled();
     }));
 
     it("previews Families with the organization purchase request before an organization name is entered", fakeAsync(() => {
@@ -463,7 +451,6 @@ describe("UpgradePaymentComponent", () => {
       });
       expect(component["cart"]()).toBe(familiesCart);
       expect(mockInvoicePreviewService.previewPremiumPurchaseCart).not.toHaveBeenCalled();
-      expect(mockUpgradePaymentService.calculateEstimatedTax).not.toHaveBeenCalled();
     }));
 
     it("forwards eligible coupon ids once the debounce elapses", fakeAsync(() => {
@@ -557,7 +544,7 @@ describe("UpgradePaymentComponent", () => {
     }));
 
     it.each([
-      ["404 flag off or route not deployed", new ErrorResponse({ Message: "Not Found" }, 404)],
+      ["404 route not deployed", new ErrorResponse({ Message: "Not Found" }, 404)],
       ["404 missing Premium plan", new ErrorResponse({ Message: "Plan not found" }, 404)],
       [
         "409 catalog fault",
@@ -756,36 +743,6 @@ describe("UpgradePaymentComponent", () => {
       expect(mockInvoicePreviewService.previewPremiumPurchaseCart).toHaveBeenCalledTimes(1);
       expect(component["previewCart"]()).toBeNull();
       expect(component["previewFailed"]()).toBe(false);
-    }));
-
-    it("falls back to the legacy tax call when the flag turns off at runtime", fakeAsync(() => {
-      createFixture();
-      tick(1001);
-      expect(component["previewCart"]()).toBe(premiumCart);
-
-      previewDrivenCartFlag$.next(false);
-      tick(1001);
-
-      expect(component["previewCart"]()).toBeNull();
-      expect(component["previewFailed"]()).toBe(false);
-      expect(mockUpgradePaymentService.calculateEstimatedTax).toHaveBeenCalledTimes(1);
-    }));
-
-    it("never calls the preview service with the flag off and keeps the legacy tax call", fakeAsync(() => {
-      previewDrivenCartFlag$.next(false);
-
-      createFixture();
-      tick(1001);
-
-      expect(mockInvoicePreviewService.previewPremiumPurchaseCart).not.toHaveBeenCalled();
-      expect(mockInvoicePreviewService.previewFamiliesPurchaseCart).not.toHaveBeenCalled();
-      expect(mockUpgradePaymentService.calculateEstimatedTax).toHaveBeenCalledTimes(1);
-      expect(mockUpgradePaymentService.calculateEstimatedTax).toHaveBeenCalledWith(
-        { tier: PersonalSubscriptionPricingTierIds.Premium, details: mockPremiumTier },
-        billingAddress,
-        [],
-      );
-      expect(component["cart"]().estimatedTax).toBe(3);
     }));
   });
 });

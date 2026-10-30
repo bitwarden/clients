@@ -17,8 +17,6 @@ import {
   combineLatest,
   debounceTime,
   defer,
-  distinctUntilChanged,
-  from,
   map,
   merge,
   Observable,
@@ -38,8 +36,6 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
@@ -146,12 +142,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     this.isFamiliesPlan() ? DiscountTierType.Families : DiscountTierType.Premium,
   );
 
-  private readonly configService = inject(ConfigService);
   private readonly invoicePreviewService = inject(InvoicePreviewService);
-
-  private readonly previewDrivenCart$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart)
-    .pipe(distinctUntilChanged());
 
   private readonly previewCart = signal<Cart | null>(null);
 
@@ -181,24 +172,14 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
 
   // Use defer to lazily create the observable when subscribed to
   protected estimatedTax$ = defer(() =>
-    combineLatest([
-      merge(
-        this.formGroup.controls.billingAddress.valueChanges.pipe(
-          startWith(this.formGroup.controls.billingAddress.value),
-        ),
-        this.eligibleDiscounts$,
+    merge(
+      this.formGroup.controls.billingAddress.valueChanges.pipe(
+        startWith(this.formGroup.controls.billingAddress.value),
       ),
-      this.previewDrivenCart$,
-    ]).pipe(
+      this.eligibleDiscounts$,
+    ).pipe(
       debounceTime(1000),
-      switchMap(([, previewDrivenCart]) => {
-        if (!previewDrivenCart) {
-          this.previewCart.set(null);
-          this.previewFailed.set(false);
-          return this.refreshSalesTax$();
-        }
-        return this.refreshPreviewCart$();
-      }),
+      switchMap(() => this.refreshPreviewCart$()),
     ),
   );
 
@@ -503,34 +484,6 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
         this.previewCart.set(null);
         this.previewFailed.set(true);
         return of(this.INITIAL_TAX_VALUE);
-      }),
-    );
-  }
-
-  // Create an observable for tax calculation
-  private refreshSalesTax$(): Observable<number> {
-    if (this.formGroup.invalid || !this.selectedPlan()) {
-      return of(this.INITIAL_TAX_VALUE);
-    }
-
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-    if (!billingAddress.country || !billingAddress.postalCode) {
-      return of(this.INITIAL_TAX_VALUE);
-    }
-    return from(
-      this.upgradePaymentService.calculateEstimatedTax(
-        this.selectedPlan()!,
-        billingAddress,
-        this.eligibleCouponIds(),
-      ),
-    ).pipe(
-      catchError((error: unknown) => {
-        this.logService.error("Tax calculation failed:", error);
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("taxCalculationError"),
-        });
-        return of(this.INITIAL_TAX_VALUE); // Return default value on error
       }),
     );
   }

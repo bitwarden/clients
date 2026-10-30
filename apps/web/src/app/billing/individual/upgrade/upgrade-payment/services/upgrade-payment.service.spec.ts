@@ -15,14 +15,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { LogService } from "@bitwarden/logging";
 
-import {
-  AccountBillingClient,
-  SubscriberBillingClient,
-  TaxAmounts,
-  PreviewInvoiceClient,
-} from "../../../../clients";
+import { AccountBillingClient, SubscriberBillingClient } from "../../../../clients";
 import {
   BillingAddress,
   NonTokenizablePaymentMethods,
@@ -35,8 +29,6 @@ import { UpgradePaymentService, PlanDetails } from "./upgrade-payment.service";
 describe("UpgradePaymentService", () => {
   const mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
   const mockAccountBillingClient = mock<AccountBillingClient>();
-  const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
-  const mockLogService = mock<LogService>();
   const mockSyncService = mock<SyncService>();
   const mockOrganizationService = mock<OrganizationService>();
   const mockAccountService = mock<AccountService>();
@@ -70,25 +62,6 @@ describe("UpgradePaymentService", () => {
     taxId: null,
   };
 
-  const mockPremiumPlanDetails: PlanDetails = {
-    tier: PersonalSubscriptionPricingTierIds.Premium,
-    details: {
-      id: PersonalSubscriptionPricingTierIds.Premium,
-      name: "Premium",
-      description: "Premium plan",
-      availableCadences: ["annually"],
-      passwordManager: {
-        type: "standalone",
-        annualPrice: 10,
-        annualPricePerAdditionalStorageGB: 4,
-        features: [
-          { key: "feature1", value: "Feature 1" },
-          { key: "feature2", value: "Feature 2" },
-        ],
-      },
-    },
-  };
-
   const mockFamiliesPlanDetails: PlanDetails = {
     tier: PersonalSubscriptionPricingTierIds.Families,
     details: {
@@ -112,8 +85,6 @@ describe("UpgradePaymentService", () => {
   beforeEach(() => {
     mockReset(mockOrganizationBillingService);
     mockReset(mockAccountBillingClient);
-    mockReset(mockPreviewInvoiceClient);
-    mockReset(mockLogService);
     mockReset(mockOrganizationService);
     mockReset(mockAccountService);
     mockReset(mockSubscriberBillingClient);
@@ -133,8 +104,6 @@ describe("UpgradePaymentService", () => {
           useValue: mockOrganizationBillingService,
         },
         { provide: AccountBillingClient, useValue: mockAccountBillingClient },
-        { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
-        { provide: LogService, useValue: mockLogService },
         { provide: SyncService, useValue: mockSyncService },
         { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: AccountService, useValue: mockAccountService },
@@ -183,8 +152,6 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockPreviewInvoiceClient,
-        mockLogService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
@@ -236,8 +203,6 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockPreviewInvoiceClient,
-        mockLogService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
@@ -271,8 +236,6 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockPreviewInvoiceClient,
-        mockLogService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
@@ -307,8 +270,6 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockPreviewInvoiceClient,
-        mockLogService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
@@ -333,8 +294,6 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockPreviewInvoiceClient,
-        mockLogService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
@@ -389,8 +348,6 @@ describe("UpgradePaymentService", () => {
       const service = new UpgradePaymentService(
         mockOrganizationBillingService,
         mockAccountBillingClient,
-        mockPreviewInvoiceClient,
-        mockLogService,
         mockSyncService,
         mockOrganizationService,
         mockAccountService,
@@ -403,157 +360,6 @@ describe("UpgradePaymentService", () => {
         expect(result).toBe("/organizations/org-2/billing/subscription");
         done();
       });
-    });
-  });
-
-  describe("calculateEstimatedTax", () => {
-    it("should calculate tax for premium plan", async () => {
-      // Arrange
-      const mockResponse = mock<TaxAmounts>();
-      mockResponse.tax = 2.5;
-
-      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
-        mockResponse,
-      );
-
-      // Act
-      const result = await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress);
-
-      // Assert
-      expect(result).toEqual(2.5);
-      expect(
-        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
-      ).toHaveBeenCalledWith(0, mockBillingAddress, undefined);
-    });
-
-    it("should calculate tax for families plan", async () => {
-      // Arrange
-      const mockResponse = mock<TaxAmounts>();
-      mockResponse.tax = 5.0;
-
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockResponse,
-      );
-
-      // Act
-      const result = await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress);
-
-      // Assert
-      expect(result).toEqual(5.0);
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(
-        {
-          cadence: "annually",
-          tier: "families",
-          passwordManager: {
-            additionalStorage: 0,
-            seats: 1,
-            sponsored: false,
-          },
-        },
-        mockBillingAddress,
-        undefined,
-      );
-    });
-
-    it("should pass coupons to premium preview when provided", async () => {
-      // Arrange
-      const mockResponse = mock<TaxAmounts>();
-      mockResponse.tax = 2.0;
-      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
-        mockResponse,
-      );
-
-      // Act
-      await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress, ["coupon-abc"]);
-
-      // Assert
-      expect(
-        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
-      ).toHaveBeenCalledWith(0, mockBillingAddress, ["coupon-abc"]);
-    });
-
-    it("should omit coupons from premium preview when undefined", async () => {
-      // Arrange
-      const mockResponse = mock<TaxAmounts>();
-      mockResponse.tax = 2.5;
-      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockResolvedValue(
-        mockResponse,
-      );
-
-      // Act
-      await sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress, undefined);
-
-      // Assert
-      expect(
-        mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase,
-      ).toHaveBeenCalledWith(0, mockBillingAddress, undefined);
-    });
-
-    it("should pass coupons to families preview when provided", async () => {
-      // Arrange
-      const mockResponse = mock<TaxAmounts>();
-      mockResponse.tax = 4.0;
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockResponse,
-      );
-
-      // Act
-      await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress, ["coupon-xyz"]);
-
-      // Assert
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(expect.objectContaining({ tier: "families" }), mockBillingAddress, [
-        "coupon-xyz",
-      ]);
-    });
-
-    it("should omit coupons from families preview when undefined", async () => {
-      // Arrange
-      const mockResponse = mock<TaxAmounts>();
-      mockResponse.tax = 5.0;
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue(
-        mockResponse,
-      );
-
-      // Act
-      await sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress, undefined);
-
-      // Assert
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({ tier: "families" }),
-        mockBillingAddress,
-        undefined,
-      );
-    });
-
-    it("should throw and log error if personal tax calculation fails", async () => {
-      // Arrange
-      const error = new Error("Tax service error");
-      mockPreviewInvoiceClient.previewTaxForPremiumSubscriptionPurchase.mockRejectedValue(error);
-
-      // Act & Assert
-      await expect(
-        sut.calculateEstimatedTax(mockPremiumPlanDetails, mockBillingAddress),
-      ).rejects.toThrow();
-      expect(mockLogService.error).toHaveBeenCalledWith("Tax calculation failed:", error);
-    });
-
-    it("should throw and log error if organization tax calculation fails", async () => {
-      // Arrange
-      const error = new Error("Tax service error");
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockRejectedValue(
-        error,
-      );
-      // Act & Assert
-      await expect(
-        sut.calculateEstimatedTax(mockFamiliesPlanDetails, mockBillingAddress),
-      ).rejects.toThrow();
-      expect(mockLogService.error).toHaveBeenCalledWith("Tax calculation failed:", error);
     });
   });
 
