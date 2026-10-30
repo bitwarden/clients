@@ -129,16 +129,7 @@ export class TrialBillingStepComponent implements OnInit {
   /** Submit is allowed unless a rendered preview cart is still loading, erroring, or empty. */
   protected canSubmit(): boolean {
     const cart = this.previewCart();
-    if (cart == null) {
-      return true;
-    }
-    try {
-      return cart.canSubmit();
-    } catch {
-      // The submit button binds before the cart's required inputs are set on the pass that
-      // creates it. The cart is still loading then, so submit stays disabled.
-      return false;
-    }
+    return cart == null || cart.canSubmit();
   }
 
   submit = async (): Promise<void> => {

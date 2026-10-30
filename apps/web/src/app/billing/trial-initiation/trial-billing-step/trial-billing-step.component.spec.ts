@@ -281,6 +281,23 @@ describe("TrialBillingStepComponent", () => {
       expect(fixture.nativeElement.textContent).not.toContain("$40.00");
     }));
 
+    it("does not throw on the first render and keeps submit disabled until the preview has a value", fakeAsync(() => {
+      mockTrialBillingStepService.previewPurchase.mockResolvedValue(mockCart);
+
+      fixture.componentRef.setInput("trial", mockDirectPurchase);
+      expect(() => fixture.detectChanges()).not.toThrow();
+      const submit = () => fixture.nativeElement.querySelector("button[type='submit']");
+      expect(submit().getAttribute("aria-disabled")).toBe("true");
+
+      flushMicrotasks();
+      fixture.detectChanges();
+      flushMicrotasks();
+      fixture.detectChanges();
+
+      expect(component["canSubmit"]()).toBe(true);
+      expect(submit().getAttribute("aria-disabled")).not.toBe("true");
+    }));
+
     it("disables submit while the preview cart is erroring", fakeAsync(() => {
       mockTrialBillingStepService.previewPurchase.mockRejectedValue(new Error("preview failed"));
 
