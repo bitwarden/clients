@@ -2178,6 +2178,51 @@ describe("OrganizationPlansComponent", () => {
       }));
     });
 
+    describe("while the next preview loads", () => {
+      beforeEach(async () => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+      });
+
+      it("keeps the last server cart on screen until the next one resolves", fakeAsync(() => {
+        let resolveSecond!: (cart: Cart) => void;
+        mockInvoicePreviewService.previewOrganizationCheckoutCart
+          .mockResolvedValueOnce(scenarioACart)
+          .mockImplementationOnce(() => new Promise<Cart>((resolve) => (resolveSecond = resolve)));
+
+        selectTeams();
+        enterValidAddress();
+        settlePreview();
+        expect(component["cart"]()).toBe(scenarioACart);
+
+        component["formGroup"].controls.additionalSeats.setValue(5);
+        settlePreview();
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(2);
+        expect(component["cart"]()).toBe(scenarioACart);
+        expect(component["cart"]().estimatedTax).toBe(2.0);
+        expect(component["cart"]().discounts).toEqual(scenarioACart.discounts);
+
+        resolveSecond(scenarioECart);
+        tick();
+        fixture.detectChanges();
+
+        expect(component["cart"]()).toBe(scenarioECart);
+      }));
+
+      it("does not preview again when the request is unchanged", fakeAsync(() => {
+        mockInvoicePreviewService.previewOrganizationCheckoutCart.mockResolvedValue(scenarioACart);
+
+        selectTeams();
+        enterValidAddress();
+        settlePreview();
+        component["formGroup"].controls.additionalSeats.setValue(4);
+        settlePreview();
+
+        expect(mockInvoicePreviewService.previewOrganizationCheckoutCart).toHaveBeenCalledTimes(1);
+      }));
+    });
+
     describe("guards", () => {
       it("never previews a Teams Starter plan", fakeAsync(async () => {
         mockApiService.getPlans.mockResolvedValue({

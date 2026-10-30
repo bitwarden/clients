@@ -4,6 +4,7 @@ import {
   effect,
   inject,
   input,
+  linkedSignal,
   OnDestroy,
   OnInit,
   output,
@@ -303,9 +304,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   // Cart for CartSummary component. The server preview wins; until one returns (or when none is
   // requested, e.g. invalid address, Free, Teams Starter) the cart is priced from form state with
   // no tax.
-  protected readonly cart = computed<Cart>(() =>
-    this.previewCart.hasValue() ? this.previewCart.value() : this.formStateCart(),
-  );
+  protected readonly cart = computed<Cart>(() => this.displayedPreview() ?? this.formStateCart());
 
   private formStateCart(): Cart {
     const formValues = this.formValues();
@@ -457,52 +456,55 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   // Undefined (no preview) for Free, Teams Starter, and an invalid billing address. Form state is
   // read untracked so only the debounced change, not each keystroke, restarts the preview.
-  private readonly previewParams = computed<PreviewParams | undefined>(() => {
-    if (!this.debouncedFormChange()) {
-      return undefined;
-    }
-    return untracked(() => {
-      const selectedPlan = this.selectedPlan();
-      if (
-        !selectedPlan ||
-        selectedPlan.type === PlanType.Free ||
-        selectedPlan.productTier === ProductTierType.TeamsStarter ||
-        this.billingFormGroup.controls.billingAddress.invalid
-      ) {
+  private readonly previewParams = computed<PreviewParams | undefined>(
+    () => {
+      if (!this.debouncedFormChange()) {
         return undefined;
       }
+      return untracked(() => {
+        const selectedPlan = this.selectedPlan();
+        if (
+          !selectedPlan ||
+          selectedPlan.type === PlanType.Free ||
+          selectedPlan.productTier === ProductTierType.TeamsStarter ||
+          this.billingFormGroup.controls.billingAddress.invalid
+        ) {
+          return undefined;
+        }
 
-      const billingAddress = getBillingAddressFromForm(
-        this.billingFormGroup.controls.billingAddress,
-      );
-      if (this.canUpgradeFromPremium()) {
-        return {
-          kind: "premiumUpgrade",
-          request: {
-            targetProductTierType: selectedPlan.productTier,
-            billingAddress: {
-              country: billingAddress.country,
-              postalCode: billingAddress.postalCode,
+        const billingAddress = getBillingAddressFromForm(
+          this.billingFormGroup.controls.billingAddress,
+        );
+        if (this.canUpgradeFromPremium()) {
+          return {
+            kind: "premiumUpgrade",
+            request: {
+              targetProductTierType: selectedPlan.productTier,
+              billingAddress: {
+                country: billingAddress.country,
+                postalCode: billingAddress.postalCode,
+              },
             },
-          },
-          planName: selectedPlan.name,
-        };
-      }
+            planName: selectedPlan.name,
+          };
+        }
 
-      const purchase = this.buildOrganizationPurchase(
-        this.formGroup.value.additionalStorage ?? 0,
-        this.acceptingSponsorship(),
-      );
-      const couponIds = this.eligibleCouponIds();
-      return {
-        kind: "checkout",
-        request: {
-          purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
-          billingAddress,
-        },
-      };
-    });
-  });
+        const purchase = this.buildOrganizationPurchase(
+          this.formGroup.value.additionalStorage ?? 0,
+          this.acceptingSponsorship(),
+        );
+        const couponIds = this.eligibleCouponIds();
+        return {
+          kind: "checkout",
+          request: {
+            purchase: couponIds.length ? { ...purchase, coupons: couponIds } : purchase,
+            billingAddress,
+          },
+        };
+      });
+    },
+    { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+  );
 
   private readonly previewCart = resource({
     params: this.previewParams,
@@ -516,6 +518,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           : await this.invoicePreviewService.previewOrganizationCheckoutCart(params.request);
       return this.withSponsorshipDiscount(cart);
     },
+  });
+
+  // resource() clears its value when params change. Keep the last server cart on screen while the
+  // next one loads; idle (no preview requested) and error drop it.
+  private readonly displayedPreview = linkedSignal<
+    { status: string; cart: Cart | undefined },
+    Cart | undefined
+  >({
+    source: () => ({
+      status: this.previewCart.status(),
+      cart: this.previewCart.hasValue() ? this.previewCart.value() : undefined,
+    }),
+    computation: (source, previous) =>
+      source.cart ??
+      (source.status === "loading" || source.status === "reloading" ? previous?.value : undefined),
   });
 
   protected readonly previewFailed = computed(() => this.previewCart.status() === "error");
