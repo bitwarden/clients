@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { provideRouter, Routes, RouterOutlet, withHashLocation } from "@angular/router";
+import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 import { getAllByRole, getByRole, userEvent } from "storybook/test";
 
@@ -89,11 +89,20 @@ const mockOrganizationService = {
 const mockToastService = { showToast: () => {} };
 const mockLogService = { error: () => {} };
 
-const mockActivatedRoute = {
-  params: of({ organizationId: ORG_ID }),
-  queryParams: of({}),
-  data: of({}),
-};
+const routes: Routes = [
+  {
+    path: "organizations/:organizationId/groups",
+    component: GroupsV2Component,
+  },
+];
+
+/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
+const atUrl =
+  (url: string): Decorator =>
+  (storyFn, context) => {
+    window.location.hash = url;
+    return storyFn(context);
+  };
 
 function makeGroupService(groups: GroupDetailsView[]) {
   return {
@@ -117,9 +126,9 @@ export default {
         Vfo1IconPipe,
         Vfo1I18nPipe,
         GroupsV2Component,
+        RouterOutlet,
       ],
       providers: [
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ApiService, useValue: mockApiService },
         { provide: CollectionService, useValue: mockCollectionService },
         { provide: KeyService, useValue: mockKeyService },
@@ -136,8 +145,10 @@ export default {
         // overridden at the application root rather than in the story's moduleMetadata child
         // injector, which Vfo1TerminologyService can't see. Defaulted off; stories don't need it on.
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        provideRouter(routes, withHashLocation()),
       ],
     }),
+    atUrl(`/organizations/${ORG_ID}/groups`),
   ],
 } as Meta;
 
@@ -157,7 +168,7 @@ function makeRender(groups: GroupDetailsView[], loading = false): Story["render"
         // the delete-confirmation stories can drive and render the actual dialog via `play`.
       ],
     },
-    template: `<div bitScrollLayoutHost class="tw-h-screen tw-overflow-auto"><app-groups-v2></app-groups-v2></div>`,
+    template: `<div bitScrollLayoutHost class="tw-h-screen tw-overflow-auto"><router-outlet></router-outlet></div>`,
   });
 }
 
