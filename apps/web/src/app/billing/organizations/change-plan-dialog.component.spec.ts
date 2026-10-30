@@ -299,6 +299,36 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
     });
 
+    it("previews the restart cart for a canceled org on a plan with no plan-change mapping", async () => {
+      component.organizationId = "organization-id";
+      component.selectedPlan = { type: PlanType.TeamsStarter } as any;
+      component.billingAddress = address;
+      (component as any).isSubscriptionCanceled = true;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+      expect((component as any).planChangeCart.hasValue()).toBe(true);
+      expect((component as any).isSubmitDisabled).toBe(false);
+    });
+
+    it("does not refetch the restart cart when a rebuilt address is identical", () => {
+      selectEnterpriseAnnual();
+      (component as any).isSubscriptionCanceled = true;
+      invoicePreviewService.previewRestartCart.mockResolvedValue({} as any);
+
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+      (component as any).refreshCostSummary();
+      TestBed.tick();
+
+      expect(invoicePreviewService.previewRestartCart).toHaveBeenCalledTimes(1);
+    });
+
     it("disables submit until the preview has loaded", () => {
       (component as any).planChangeCart = { hasValue: () => false };
 
@@ -479,8 +509,6 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       setupDiscount(false);
 
       expect(component.isSecretsManagerTrial()).toBe(true);
-      // Trial seat line shows "Free for 1 year"; passwordManagerSeatTotal is zeroed.
-      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(0);
     });
 
     it("does not report an SM trial for a deferred price-migration (schedule) discount", () => {
@@ -488,8 +516,6 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
 
       // Guard short-circuits even though appliesTo matches a subscription product.
       expect(component.isSecretsManagerTrial()).toBe(false);
-      // Non-trial seat line renders the real seat total (10 seats × $4), not "Free for 1 year".
-      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(40);
       // Template selects the non-trial summary layout, not the trial one.
       expect(component.organization.useSecretsManager && !component.isSecretsManagerTrial()).toBe(
         true,

@@ -55,6 +55,7 @@ import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationPlanChangePreviewRequest,
+  OrganizationRestartPreviewRequest,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
@@ -196,7 +197,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   formPromise: Promise<string>;
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
-  discount = 0;
 
   formGroup = this.formBuilder.group({
     name: [""],
@@ -230,7 +230,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   focusedIndex: number | null = null;
   plans: ListResponse<PlanResponse>;
   isSubscriptionCanceled: boolean = false;
-  secretsManagerTotal: number;
 
   paymentMethod: MaskedPaymentMethod | null;
   billingAddress: BillingAddress | null;
@@ -238,38 +237,32 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   /**
-   * Signal holding the current plan change request.
+   * Signal holding the current preview request: a plan change, or for a canceled subscription a
+   * restart, which carries only the billing address.
    */
-  private readonly planChangeRequest = signal<OrganizationPlanChangePreviewRequest | undefined>(
-    undefined,
-    {
-      equal: (a, b) =>
-        a?.tier === b?.tier &&
-        a?.cadence === b?.cadence &&
-        a?.billingAddress.country === b?.billingAddress.country &&
-        a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
-        a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
-        a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value,
-    },
-  );
+  private readonly planChangeRequest = signal<
+    OrganizationPlanChangePreviewRequest | OrganizationRestartPreviewRequest | undefined
+  >(undefined, {
+    equal: (a, b) =>
+      (a != null && "tier" in a ? a.tier : undefined) ===
+        (b != null && "tier" in b ? b.tier : undefined) &&
+      (a != null && "cadence" in a ? a.cadence : undefined) ===
+        (b != null && "cadence" in b ? b.cadence : undefined) &&
+      a?.billingAddress.country === b?.billingAddress.country &&
+      a?.billingAddress.postalCode === b?.billingAddress.postalCode &&
+      a?.billingAddress.taxId?.code === b?.billingAddress.taxId?.code &&
+      a?.billingAddress.taxId?.value === b?.billingAddress.taxId?.value,
+  });
 
   protected planChangeCart = resource({
-    params: () => {
-      const request = this.planChangeRequest();
-      return request == null ? undefined : { request, restart: this.isSubscriptionCanceled };
-    },
+    params: () => this.planChangeRequest(),
     loader: async ({ params }) => {
       try {
         // A canceled subscription restarts on its current tier and cadence, which the server
-        // resolves itself, so only the billing address is sent.
-        return params.restart
-          ? await this.invoicePreviewService.previewRestartCart(this.organizationId, {
-              billingAddress: params.request.billingAddress,
-            })
-          : await this.invoicePreviewService.previewPlanChangeCart(
-              this.organizationId,
-              params.request,
-            );
+        // resolves itself, so its request carries only the billing address.
+        return "tier" in params
+          ? await this.invoicePreviewService.previewPlanChangeCart(this.organizationId, params)
+          : await this.invoicePreviewService.previewRestartCart(this.organizationId, params);
       } catch (error) {
         this.billingNotificationService.showError(
           this.i18nService.t(invoicePreviewErrorMessageKey(error)),
@@ -664,7 +657,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     if (this.acceptingSponsorship) {
       const familyPlan = this.passwordManagerPlans.find((plan) => plan.type === this._familyPlan);
-      this.discount = familyPlan.PasswordManager.basePrice;
       return [familyPlan];
     }
 
@@ -726,98 +718,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
     return result;
-  }
-
-  get storageGb() {
-    return Math.max(
-      0,
-      (this.sub?.maxStorageGb ?? 0) - this.selectedPlan.PasswordManager.baseStorageGb,
-    );
-  }
-
-  passwordManagerSeatTotal(plan: PlanResponse): number {
-    if (!plan.PasswordManager.hasAdditionalSeatsOption || this.isSecretsManagerTrial()) {
-      return 0;
-    }
-
-    return plan.PasswordManager.seatPrice * Math.abs(this.sub?.seats || 0);
-  }
-
-  secretsManagerSeatTotal(plan: PlanResponse, seats: number): number {
-    if (!plan.SecretsManager.hasAdditionalSeatsOption) {
-      return 0;
-    }
-
-    return plan.SecretsManager.seatPrice * Math.abs(seats || 0);
-  }
-
-  additionalStorageTotal(plan: PlanResponse): number {
-    if (!plan.PasswordManager.hasAdditionalStorageOption) {
-      return 0;
-    }
-
-    return plan.PasswordManager.additionalStoragePricePerGb * this.storageGb;
-  }
-
-  additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
-    return selectedPlan.PasswordManager.additionalStoragePricePerGb;
-  }
-
-  additionalServiceAccountTotal(plan: PlanResponse): number {
-    if (
-      !plan.SecretsManager.hasAdditionalServiceAccountOption ||
-      this.additionalServiceAccount == 0
-    ) {
-      return 0;
-    }
-
-    return plan.SecretsManager.additionalPricePerServiceAccount * this.additionalServiceAccount;
-  }
-
-  get passwordManagerSubtotal() {
-    if (!this.selectedPlan || !this.selectedPlan.PasswordManager) {
-      return 0;
-    }
-
-    let subTotal = this.selectedPlan.PasswordManager.basePrice;
-    if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
-      subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
-    }
-    if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
-      subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
-    }
-    if (this.selectedPlan.PasswordManager.hasAdditionalStorageOption) {
-      subTotal += this.additionalStorageTotal(this.selectedPlan);
-    }
-    return subTotal - this.discount;
-  }
-
-  secretsManagerSubtotal() {
-    const plan = this.selectedPlan;
-    if (!plan || !plan.SecretsManager) {
-      return this.secretsManagerTotal || 0;
-    }
-
-    if (this.secretsManagerTotal) {
-      return this.secretsManagerTotal;
-    }
-
-    this.secretsManagerTotal =
-      plan.SecretsManager.basePrice +
-      this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan);
-    return this.secretsManagerTotal;
-  }
-
-  get passwordManagerSeats() {
-    if (!this.selectedPlan) {
-      return 0;
-    }
-
-    if (this.selectedPlan.productTier === ProductTierType.Families) {
-      return this.selectedPlan.PasswordManager.baseSeats;
-    }
-    return this.sub?.seats;
   }
 
   get teamsStarterPlanIsAvailable() {
@@ -1112,7 +1012,32 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private refreshCostSummary(): void {
-    this.planChangeRequest.set(this.buildPlanChangePreviewRequest());
+    const request = this.isSubscriptionCanceled
+      ? this.buildRestartPreviewRequest()
+      : this.buildPlanChangePreviewRequest();
+    this.planChangeRequest.set(request);
+  }
+
+  private buildRestartPreviewRequest(): OrganizationRestartPreviewRequest | undefined {
+    const billingAddress = this.getPreviewBillingAddress();
+    return billingAddress == null ? undefined : { billingAddress };
+  }
+
+  private getPreviewBillingAddress():
+    OrganizationRestartPreviewRequest["billingAddress"] | undefined {
+    const billingAddress = this.billingFormGroup.controls.billingAddress.valid
+      ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
+      : this.billingAddress;
+
+    if (billingAddress == null) {
+      return undefined;
+    }
+
+    return {
+      country: billingAddress.country,
+      postalCode: billingAddress.postalCode,
+      taxId: billingAddress.taxId,
+    };
   }
 
   /**
@@ -1120,10 +1045,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
    * @returns The request object for previewing an organization plan change, or undefined if no valid billing address is available.
    */
   private buildPlanChangePreviewRequest(): OrganizationPlanChangePreviewRequest | undefined {
-    const billingAddress = this.billingFormGroup.controls.billingAddress.valid
-      ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
-      : this.billingAddress;
-
+    const billingAddress = this.getPreviewBillingAddress();
     if (billingAddress == null) {
       return undefined;
     }
@@ -1133,15 +1055,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return undefined;
     }
 
-    return {
-      tier: plan.tier,
-      cadence: plan.cadence,
-      billingAddress: {
-        country: billingAddress.country,
-        postalCode: billingAddress.postalCode,
-        taxId: billingAddress.taxId,
-      },
-    };
+    return { tier: plan.tier, cadence: plan.cadence, billingAddress };
   }
 
   /**
