@@ -1,0 +1,56 @@
+<div class="tw-min-h-screen tw-bg-bg-secondary tw-p-6">
+  <bit-svg [content]="logo" [ariaLabel]="'appLogoLabel' | i18n" class="tw-block tw-w-32" />
+
+  @if (confirmation; as state) {
+    <div
+      class="tw-mx-auto tw-mt-20 tw-w-full tw-max-w-md tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-8"
+    >
+      <importer-confirmation-summary [summary]="state.summary" [fileName]="state.fileName">
+        <div class="tw-flex tw-justify-center">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            id="import-confirmation_button_view-items"
+            (click)="viewImportedItems()"
+          >
+            {{ "viewImportedItems" | i18n }}
+          </button>
+        </div>
+      </importer-confirmation-summary>
+
+      @switch (fallback()) {
+        @case ("button") {
+          <div class="tw-mt-6 tw-flex tw-flex-col tw-items-center tw-gap-4 tw-text-center">
+            <p
+              bitTypography="body1"
+              class="tw-mb-0 tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300 tw-p-4 tw-text-fg-body"
+            >
+              {{ "openingExtensionError" | i18n }}
+            </p>
+            <button
+              type="button"
+              bitButton
+              buttonType="secondary"
+              [loading]="opening()"
+              id="import-confirmation_button_open-extension"
+              (click)="onOpenExtension()"
+            >
+              {{ "openExtension" | i18n }}
+            </button>
+          </div>
+        }
+        @case ("toolbar") {
+          <p
+            bitTypography="body1"
+            class="tw-mb-0 tw-mt-6 tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300 tw-p-4 tw-text-center tw-text-fg-body"
+          >
+            {{ "openingExtensionToolbarErrorPart1" | i18n }}
+            <bit-svg [content]="toolbarIcon" class="!tw-inline-block tw-align-middle" />
+            {{ "openingExtensionToolbarErrorPart2" | i18n }}
+          </p>
+        }
+      }
+    </div>
+  }
+</div>

@@ -1,6 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { Route, Router } from "@angular/router";
 
+import { IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
+
 import { importUpgradeRedirectGuard } from "../tools/popup/guards/import-upgrade-redirect.guard";
 import { importUpgradeRequiredGuard } from "../tools/popup/guards/import-upgrade-required.guard";
 
@@ -30,7 +32,11 @@ describe("browser import routes", () => {
     expect(newRoutes).toHaveLength(1);
     expect(newRoutes[0].canActivate).toContain(importUpgradeRequiredGuard);
     expect(newRoutes[0].data?.["importShell"]).toBe(true);
-    expect((newRoutes[0].children ?? []).map((child) => child.path)).toEqual(["", ":importType"]);
+    expect((newRoutes[0].children ?? []).map((child) => child.path)).toEqual([
+      "",
+      ":importType",
+      IMPORT_DESTINATION_ROUTE_PATH,
+    ]);
   });
 
   it("keeps the legacy import route behind importUpgradeRedirectGuard", () => {
