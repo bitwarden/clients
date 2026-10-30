@@ -6,6 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
@@ -36,7 +37,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
     );
 
     return combineLatest([
-      this.cipherService.cipherViews$(userId),
+      this.cipherService.cipherListViews$(userId),
       this.getNudgeStatus$(nudgeType, userId),
       profileDate$,
       of(Date.now() - THIRTY_DAYS_MS),
@@ -44,7 +45,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
       switchMap(async ([ciphers, nudgeStatus, profileDate, profileCutoff]) => {
         const profileOlderThanCutoff = profileDate.getTime() < profileCutoff;
         const filteredCiphers = ciphers?.filter((cipher) => {
-          return cipher.deletedDate == null;
+          return !CipherViewLikeUtils.isDeleted(cipher);
         });
 
         if (

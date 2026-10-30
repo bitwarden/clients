@@ -190,8 +190,9 @@ export default class RuntimeBackground {
         if (activeUserId == null) {
           return AUTOFILL_DENIED;
         }
-        const ciphers = await this.main.cipherService.getAllDecrypted(activeUserId);
-        const cipher = ciphers.find((candidate) => candidate.id === msg.cipherId);
+        const [cipher] = await this.main.cipherService.getAllDecryptedForIds(activeUserId, [
+          msg.cipherId,
+        ]);
         if (cipher == null) {
           return AUTOFILL_DENIED;
         }
