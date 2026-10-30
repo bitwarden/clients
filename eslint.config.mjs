@@ -715,6 +715,7 @@ export default tseslint.config(
       "apps/web/src/app/admin-console/**/*.ts",
       "bitwarden_license/bit-cli/src/admin-console/**/*.ts",
       "bitwarden_license/bit-web/src/app/admin-console/**/*.ts",
+      "bitwarden_license/bit-web/src/app/providers/**/*.ts",
       "libs/admin-console/src/**/*.ts",
     ],
     rules: {
