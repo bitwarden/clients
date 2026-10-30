@@ -1218,8 +1218,8 @@ describe("DefaultSyncService", () => {
     });
 
     it.each([
-      ["partial", "partial", true, true],
-      ["full", "partial", false, true],
+      ["restricted", "restricted", true, true],
+      ["full", "restricted", false, true],
       ["full", "full", false, false],
     ])(
       "upserts when the local copy is %s and the response is %s",
