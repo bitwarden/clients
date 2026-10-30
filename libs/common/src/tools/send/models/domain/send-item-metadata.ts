@@ -6,14 +6,14 @@ import { SendItemMetadataData } from "../data/send-item-metadata.data";
 
 /** Partially encrypted metadata of an Item Send. */
 export class SendItemMetadata extends Domain {
-  /** Id of the vault item being sent. */
+  /** The id of the vault item being sent. */
   itemId: string;
   /** The name of the folder the vault item being sent belongs to */
   folderName?: EncString;
-  /** The name of the collections the vault item being sent belongs to */
+  /** The names of the collections the vault item being sent belongs to */
   collectionNames?: EncString[];
   /** The name of the organization the vault item being sent belongs to */
-  organizationName?: EncString;
+  organizationName?: string;
   /** The date the vault item being sent was created */
   creationDate?: string;
   /** The date the vault item being sent was last edited */
@@ -30,8 +30,18 @@ export class SendItemMetadata extends Domain {
     if (data.folderName) {
       this.folderName = new EncString(data.folderName);
     }
-    if (data.organizationName) {
-      this.organizationName = new EncString(data.organizationName);
-    }
+    this.organizationName = data.organizationName;
+  }
+
+  /** Serializes this domain `SendItemMetadata` to its `SendItemMetadataData` (string-shaped) form. */
+  toSendData(): SendItemMetadataData {
+    return {
+      itemId: this.itemId,
+      folderName: this.folderName?.toJSON(),
+      collectionNames: this.collectionNames?.map((cn) => cn.toJSON()),
+      organizationName: this.organizationName,
+      creationDate: this.creationDate,
+      revisionDate: this.revisionDate,
+    };
   }
 }

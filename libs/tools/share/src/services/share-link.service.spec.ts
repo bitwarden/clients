@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -67,6 +68,7 @@ describe("ShareLinkService", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: SendSdkApiService, useValue: mock<SendSdkApiService>() },
         { provide: SendService, useValue: mock<SendService>() },
+        { provide: FolderService, useValue: mock<FolderService>() },
       ],
     });
 

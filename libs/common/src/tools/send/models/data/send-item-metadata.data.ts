@@ -1,19 +1,19 @@
 import { SendItemMetadataApi } from "../api/send-item-metadata.api";
 
-/** Unencrypted metadata of an Item Send. */
+/** Metadata of an Item Send. */
 export class SendItemMetadataData {
-  /** Id of the vault item being sent. */
+  /** The unencrypted id of the vault item being sent. */
   itemId: string;
-  /** The name of the folder the vault item being sent belongs to */
+  /** The encrypted name of the folder the vault item being sent belongs to */
   folderName?: string;
-  /** The name of the collections the vault item being sent belongs to */
+  /** The encrypted names of the collections the vault item being sent belongs to */
   collectionNames?: string[];
-  /** The name of the organization the vault item being sent belongs to */
+  /** The unencrypted name of the organization the vault item being sent belongs to */
   organizationName?: string;
-  /** The date the vault item being sent was created */
-  creationDate: string;
-  /** The date the vault item being sent was last edited */
-  revisionDate: string;
+  /** The unencrypted date the vault item being sent was created */
+  creationDate?: string;
+  /** The unencrypted date the vault item being sent was last edited */
+  revisionDate?: string;
 
   constructor(data: SendItemMetadataApi) {
     this.itemId = data.itemId;

@@ -55,7 +55,7 @@ export class SendItem extends Domain {
         itemId: asUuid(this.metadata.itemId),
         folderName: this.metadata.folderName?.toSdk(),
         collectionNames: this.metadata.collectionNames?.map((cn) => cn.toSdk()),
-        organizationName: this.metadata.organizationName?.toSdk(),
+        organizationName: this.metadata.organizationName,
         creationDate: this.metadata.creationDate,
         revisionDate: this.metadata.revisionDate,
       },
@@ -67,14 +67,14 @@ export class SendItem extends Domain {
     return Object.assign(new SendItem(), {
       encryptionVersion: obj.encryptionVersion,
       data: obj.data,
-      metadata: {
+      metadata: new SendItemMetadata({
         itemId: uuidAsString(obj.metadata.itemId),
         creationDate: obj.metadata.creationDate,
         revisionDate: obj.metadata.revisionDate,
         folderName: obj.metadata.folderName,
         collectionNames: obj.metadata.collectionNames,
         organizationName: obj.metadata.organizationName,
-      },
+      }),
     });
   }
 
@@ -83,7 +83,7 @@ export class SendItem extends Domain {
     return Object.assign(new SendItemData(), {
       encryptionVersion: this.encryptionVersion,
       data: this.data,
-      metadata: this.metadata,
+      metadata: this.metadata?.toSendData(),
     });
   }
 }
