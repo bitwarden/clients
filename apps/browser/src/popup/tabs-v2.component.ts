@@ -70,9 +70,10 @@ export class TabsV2Component {
     this.sendEnabled$.pipe(startWith(true)),
     this.healthNavButton$.pipe(startWith(undefined)),
     toObservable(this.listFiltersService.cachedVaultScopeId).pipe(startWith(null)),
+    toObservable(this.listFiltersService.cachedVaultScopeCollection).pipe(startWith(null)),
   ]).pipe(
-    map(([showBerry, sendEnabled, healthNavButton, scopeId]) => {
-      const scope = parseVaultScope(scopeId) ?? ALL_ITEMS_SCOPE;
+    map(([showBerry, sendEnabled, healthNavButton, scopeId, collectionSegment]) => {
+      const scope = parseVaultScope(scopeId, collectionSegment) ?? ALL_ITEMS_SCOPE;
       const vaultPage = vaultScopeCommands(scope, this.vaultBasePath).join("/");
       const buttons: BottomNavigationButton[] = [
         {

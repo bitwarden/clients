@@ -3,7 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
-import { CoachmarkService, VaultNavService } from "@bitwarden/vault";
+import { CoachmarkService, offersVaultChoice, VaultNavService } from "@bitwarden/vault";
 
 import { extensionVaultTour } from "../tours/extension-vault-tour";
 import { collectionOptionsInScope, folderOptionsInScope } from "../utils/filter-options";
@@ -62,7 +62,7 @@ export class VaultPopupTourService {
     // Narrowed like the list table's chips, since the popup can be scoped to a single vault.
     const scope = this.listTableService.vaultScope();
     const sharedFoldersRow: SharedFoldersRow | null =
-      collectionOptionsInScope(collections, scope).length > 0
+      collectionOptionsInScope(collections, scope, nav).length > 0
         ? "collection"
         : folderOptionsInScope(folders, ciphers, scope).length > 0
           ? "folder"
@@ -71,7 +71,7 @@ export class VaultPopupTourService {
 
     const tour = extensionVaultTour(
       this.stateProvider,
-      nav.vaults.length > 1,
+      offersVaultChoice(nav),
       sharedFoldersRow != null,
     );
     await this.coachmarkService.startTour(tour);

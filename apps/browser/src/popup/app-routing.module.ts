@@ -51,7 +51,7 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultScopeGuard } from "@bitwarden/vault";
+import { MY_ITEMS_ROUTE, MY_ITEMS_ROUTE_DATA, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AuthExtensionRoute } from "../auth/popup/constants/auth-extension-route.constant";
@@ -816,6 +816,14 @@ const routes: Routes = [
         canActivate: [authGuard, vaultScopeGuard],
         canDeactivate: [clearVaultStateGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        // An organization's "My items" collection, named by a static segment — see `MY_ITEMS_ROUTE`.
+        path: `vault/:vaultId/${MY_ITEMS_ROUTE}`,
+        component: VaultComponent,
+        canActivate: [authGuard, vaultScopeGuard],
+        canDeactivate: [clearVaultStateGuard],
+        data: { ...MY_ITEMS_ROUTE_DATA, elevation: 0 } satisfies RouteDataProperties,
       },
       {
         path: "generator",

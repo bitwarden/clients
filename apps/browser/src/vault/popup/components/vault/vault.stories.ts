@@ -727,8 +727,9 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         snapshot: { queryParams: {}, paramMap: new Map() },
         queryParams: of({}),
-        // `vaultScope` combines this in a field initializer, so it must be a stream.
+        // `vaultScope` combines these in a field initializer, so they must be streams.
         paramMap: of(convertToParamMap({})),
+        data: of({}),
       },
     },
     {

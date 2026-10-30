@@ -5,9 +5,11 @@ import { ChipFilterOption } from "@bitwarden/components";
 import {
   cipherInScope,
   collectionInScope,
+  defaultUserCollectionIds,
   idString,
   type VaultScope,
   VaultScopeType,
+  type VaultsNavViewModel,
 } from "@bitwarden/vault";
 
 /**
@@ -19,13 +21,18 @@ export function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOpt
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
 }
 
-/** The collection options a vault lists. */
+/** The collection options a vault lists, less "My items", which the vault switcher offers instead. */
 export function collectionOptionsInScope(
   collectionTree: ChipFilterOption<CollectionView>[],
   scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
 ): ChipFilterOption<CollectionView>[] {
+  const myItemsIds = defaultUserCollectionIds(nav);
   return flattenOptions(collectionTree).filter(
-    (option) => option.value != null && collectionInScope(option.value, scope),
+    (option) =>
+      option.value != null &&
+      !myItemsIds.has(option.value.id) &&
+      collectionInScope(option.value, scope),
   );
 }
 

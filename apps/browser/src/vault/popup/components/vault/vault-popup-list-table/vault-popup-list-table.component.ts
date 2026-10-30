@@ -341,7 +341,7 @@ export class VaultPopupListTableComponent {
    * hands back every organization's.
    */
   protected readonly collectionOptions = computed(() =>
-    collectionOptionsInScope(this.collectionTree(), this.listTableService.vaultScope()),
+    collectionOptionsInScope(this.collectionTree(), this.listTableService.vaultScope(), this.nav()),
   );
   /** Every active cipher, before the search narrows it — the folder chip's options come from here. */
   private readonly activeCiphers = toSignal(this.vaultPopupItemsService.activeCiphers$, {

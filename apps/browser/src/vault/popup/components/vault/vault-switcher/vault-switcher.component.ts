@@ -21,8 +21,12 @@ import {
   ALL_ITEMS_SCOPE,
   CoachmarkComponent,
   CoachmarkService,
+  MY_ITEMS_ROUTE,
   MY_VAULT_ROUTE,
   navIconTile,
+  offersVaultChoice,
+  organizationVaultPage,
+  OrganizationVaultPage,
   VAULT_BASE_ROUTE,
   VaultNavItemType,
   VaultNavItemViewModel,
@@ -35,10 +39,14 @@ import {
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 
-/** A menu entry: one of the account's vaults, or the unscoped "All items" entry. */
+/** A menu entry: All items, one of the account's vaults, or an organization's "My items". */
 interface VaultSwitcherEntry {
+  /** Matches {@link VaultSwitcherComponent.selectedId}; `null` for All items. */
   id: string | null;
+  scope: VaultScope;
   label: string;
+  /** The owning organization's name, telling one "My items" from another. */
+  subtitle?: string;
   tile: IconTileOptions;
 }
 
@@ -82,25 +90,23 @@ export class VaultSwitcherComponent {
   );
 
   /**
-   * The vaults to switch between, led by All items. Empty for a lone vault.
+   * The vaults to switch between, led by All items, each organization followed by its "My items".
+   * Empty when there is nothing to switch between — see `offersVaultChoice`.
    */
   protected readonly entries = computed((): VaultSwitcherEntry[] => {
     const nav = this.nav();
-    if (nav == null || nav.vaults.length < 2) {
+    if (nav == null || !offersVaultChoice(nav)) {
       return [];
     }
 
     return [
       {
         id: null,
+        scope: ALL_ITEMS_SCOPE,
         label: this.i18nService.t("allItems"),
         tile: { icon: "bwi-list", variant: "brand", emphasis: "bold" },
       },
-      ...nav.vaults.map((vault) => ({
-        id: this.segmentFor(vault),
-        label: vault.label,
-        tile: navIconTile(vault),
-      })),
+      ...nav.vaults.flatMap((vault) => this.entriesFor(vault)),
     ];
   });
 
@@ -109,13 +115,7 @@ export class VaultSwitcherComponent {
   /** The selected entry's id, or `null` for All items. */
   protected readonly selectedId = computed((): string | null => {
     const scope = this.scope();
-    if (scope == null || scope.type === VaultScopeType.AllItems) {
-      return null;
-    }
-    if (scope.type === VaultScopeType.MyVault) {
-      return MY_VAULT_ROUTE;
-    }
-    return scope.type === VaultScopeType.Organization ? scope.organizationId : null;
+    return scope == null ? null : this.idFor(scope);
   });
 
   /** The trigger's entry — the selected vault, or All items. */
@@ -124,43 +124,66 @@ export class VaultSwitcherComponent {
     return this.entries().find((entry) => entry.id === id) ?? null;
   });
 
-  protected select(id: string | null): void {
+  protected select(entry: VaultSwitcherEntry): void {
     // The entry in view is clickable too, and the route would reload rather than no-op.
-    if (id === this.selectedId()) {
+    if (entry.id === this.selectedId()) {
       return;
     }
 
     // Cleared from the user's action, not the scope publish — that also fires on popup open.
-    if (id != null) {
+    if (entry.id != null) {
       this.listFiltersService.clearVaultScopedFilters();
     }
 
     // The offset names nothing in a different list, and the rebuilt page would restore it.
     this.scrollPositionService.stop(true);
 
-    void this.router.navigate(this.commandsFor(id), {
+    void this.router.navigate(vaultScopeCommands(entry.scope, this.basePath), {
       // The scoped vault is the same page narrowed, not a step to return from.
       replaceUrl: true,
     });
   }
 
-  /** The `:vaultId` segment naming a nav entry's vault. */
-  private segmentFor(vault: VaultNavItemViewModel): string {
-    return vault.type === VaultNavItemType.Personal ? MY_VAULT_ROUTE : vault.id;
-  }
+  /** A vault's entry, followed by its "My items" when the organization has one. */
+  private entriesFor(vault: VaultNavItemViewModel): VaultSwitcherEntry[] {
+    const tile = navIconTile(vault);
 
-  /** The route commands for an entry, on the path this client mounts the vault at. */
-  private commandsFor(id: string | null): string[] {
-    return vaultScopeCommands(this.scopeFor(id), this.basePath);
-  }
-
-  /** The scope a menu entry names: All items, the personal vault, or an organization's. */
-  private scopeFor(id: string | null): VaultScope {
-    if (id == null) {
-      return ALL_ITEMS_SCOPE;
+    if (vault.type === VaultNavItemType.Personal) {
+      const scope: VaultScope = { type: VaultScopeType.MyVault };
+      return [{ id: this.idFor(scope), scope, label: vault.label, tile }];
     }
-    return id === MY_VAULT_ROUTE
-      ? { type: VaultScopeType.MyVault }
-      : { type: VaultScopeType.Organization, organizationId: id as OrganizationId };
+
+    const organizationId = vault.id as OrganizationId;
+    const scope: VaultScope = { type: VaultScopeType.Organization, organizationId };
+    const entries: VaultSwitcherEntry[] = [
+      { id: this.idFor(scope), scope, label: vault.label, tile },
+    ];
+
+    if (vault.defaultUserCollectionId != null) {
+      const myItems: VaultScope = { ...scope, collectionId: MY_ITEMS_ROUTE };
+      entries.push({
+        id: this.idFor(myItems),
+        scope: myItems,
+        label: this.i18nService.t("myItemsV2"),
+        subtitle: vault.label,
+        tile,
+      });
+    }
+
+    return entries;
+  }
+
+  /** The entry id naming a scope; Trash, Archive, and folders fall back to All items. */
+  private idFor(scope: VaultScope): string | null {
+    switch (scope.type) {
+      case VaultScopeType.MyVault:
+        return MY_VAULT_ROUTE;
+      case VaultScopeType.Organization:
+        return organizationVaultPage(scope, this.nav()) === OrganizationVaultPage.MyItems
+          ? `${scope.organizationId}/${MY_ITEMS_ROUTE}`
+          : scope.organizationId;
+      default:
+        return null;
+    }
   }
 }
