@@ -12,21 +12,27 @@ import { sharedFolderRows } from "./shared-folder-rows";
 const organizationId = "org-1" as OrganizationId;
 const otherOrganizationId = "org-2" as OrganizationId;
 
-type CollectionFlags = Partial<Pick<CollectionView, "readOnly" | "hidePasswords" | "manage">>;
+type CollectionFlags = Partial<
+  Pick<CollectionView, "readOnly" | "hidePasswords" | "manage" | "hasEnabledAccessRule">
+>;
 
 const buildCollection = (
   id: string,
   flags: CollectionFlags = {},
   collectionOrganizationId: OrganizationId = organizationId,
+  name: string = id,
 ): CollectionView =>
   Object.assign(
     new CollectionView({
       id: id as CollectionId,
       organizationId: collectionOrganizationId,
-      name: id,
+      name,
     }),
     flags,
   );
+
+const buildNestedCollection = (id: string, name: string): CollectionView =>
+  buildCollection(id, {}, organizationId, name);
 
 const buildDefaultCollection = (id: string): CollectionView =>
   Object.assign(buildCollection(id), { type: CollectionTypes.DefaultUserCollection });
@@ -60,6 +66,48 @@ describe("sharedFolderRows", () => {
     });
 
     expect(rows.map((row) => row.id)).toEqual(["mine"]);
+  });
+
+  it("lists only top-level folders, counting the folders directly inside each", () => {
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [
+        buildNestedCollection("eng", "Engineering"),
+        buildNestedCollection("backend", "Engineering/Backend"),
+        buildNestedCollection("api", "Engineering/Backend/API"),
+        buildNestedCollection("frontend", "Engineering/Frontend"),
+        buildNestedCollection("finance", "Finance"),
+      ],
+      ciphers: [],
+    });
+
+    expect(
+      rows.map(({ id, name, nestedSharedFolders }) => ({ id, name, nestedSharedFolders })),
+    ).toEqual([
+      { id: "eng", name: "Engineering", nestedSharedFolders: 2 },
+      { id: "finance", name: "Finance", nestedSharedFolders: 0 },
+    ]);
+  });
+
+  it("lists a folder whose parent is missing at the top level, under its own name", () => {
+    const orphan = buildNestedCollection("deepest", "Top level/Next/Deeper/Deepest");
+
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [orphan],
+      ciphers: [],
+    });
+
+    expect(rows).toEqual([
+      expect.objectContaining({
+        id: "deepest",
+        name: "Deepest",
+        nestedSharedFolders: 0,
+        collection: orphan,
+      }),
+    ]);
   });
 
   it("carries the collection each row was built from", () => {
@@ -179,6 +227,31 @@ describe("sharedFolderRows", () => {
     expect(row.items).toBe(2);
   });
 
+  it("counts the items of every folder nested beneath a row, each item once", () => {
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [
+        buildNestedCollection("eng", "Engineering"),
+        buildNestedCollection("backend", "Engineering/Backend"),
+        buildNestedCollection("api", "Engineering/Backend/API"),
+        buildNestedCollection("finance", "Finance"),
+      ],
+      ciphers: [
+        buildCipher("in-eng", ["eng"]),
+        buildCipher("in-backend", ["backend"]),
+        buildCipher("in-api", ["api"]),
+        buildCipher("in-eng-and-api", ["eng", "api"]),
+        buildCipher("in-api-and-finance", ["api", "finance"]),
+      ],
+    });
+
+    expect(rows.map((row) => [row.id, row.items])).toEqual([
+      ["eng", 5],
+      ["finance", 1],
+    ]);
+  });
+
   it("counts each folder's own items when a cipher belongs to several", () => {
     const rows = sharedFolderRows({
       organizationId,
@@ -196,5 +269,48 @@ describe("sharedFolderRows", () => {
       ["second", 2],
       ["empty", 0],
     ]);
+  });
+  describe("privileged controls", () => {
+    const governed = (id: string) => buildCollection(id, { hasEnabledAccessRule: true });
+
+    const gatedIds = (collections: CollectionView[], ciphers: CipherView[] = []) =>
+      sharedFolderRows({ organizationId, organization: undefined, collections, ciphers })
+        .filter((row) => row.hasEnabledAccessRule)
+        .map((row) => row.id);
+
+    it("marks a folder an enabled access rule governs", () => {
+      expect(gatedIds([governed("gated"), buildCollection("open")])).toEqual(["gated"]);
+    });
+
+    it("leaves an ungoverned folder unmarked", () => {
+      expect(gatedIds([buildCollection("open")])).toEqual([]);
+    });
+
+    it("marks a governed folder holding no items", () => {
+      expect(gatedIds([governed("gated")])).toEqual(["gated"]);
+    });
+
+    it("marks a governed folder whose items all arrive whole", () => {
+      expect(gatedIds([governed("gated")], [buildCipher("readable", ["gated"])])).toEqual([
+        "gated",
+      ]);
+    });
+
+    it("ignores a governed folder belonging to another organization", () => {
+      expect(
+        gatedIds([buildCollection("gated", { hasEnabledAccessRule: true }, otherOrganizationId)]),
+      ).toEqual([]);
+    });
+
+    it("counts a governed folder's items like any other folder's", () => {
+      const [row] = sharedFolderRows({
+        organizationId,
+        organization: undefined,
+        collections: [governed("gated")],
+        ciphers: [buildCipher("one", ["gated"]), buildCipher("two", ["gated"])],
+      });
+
+      expect(row).toEqual(expect.objectContaining({ items: 2, hasEnabledAccessRule: true }));
+    });
   });
 });

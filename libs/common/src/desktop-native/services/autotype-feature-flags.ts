@@ -17,10 +17,10 @@ function autotypeFeatureFlags$(configService: ConfigService): Observable<[boolea
  * Emits the AutotypeFeatureFlagState enum based on the resolution of all possible Autotype
  * feature flag values. Both flags on resolves to `Off`.
  *
- * Consumers that only care "is any Autotype implementation available" (e.g. the org
- * default-enable policy) should compare `state !== AutotypeFeatureFlagState.Off`. Consumers
- * coupled to one specific implementation's service (e.g. an MVP-only settings control) should
- * compare against that exact member instead.
+ * Consumers that only care "is any Autotype implementation available" should compare
+ * `state !== AutotypeFeatureFlagState.Off`. Consumers coupled to one specific implementation
+ * (e.g. an MVP-only settings control, or the MVP-only org default-enable policy) should compare
+ * against that exact member instead.
  */
 export function autotypeFeatureFlagState$(
   configService: ConfigService,

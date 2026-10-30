@@ -55,14 +55,6 @@ const bitwardenObjects = [
       "Indicates actions or elements that are related to organizations, Teams plan, Enterprise plan.",
   },
   {
-    id: "bwi-collection",
-    usage: "Indicates a collection.",
-  },
-  {
-    id: "bwi-collection-shared",
-    usage: "Indicates a collection.",
-  },
-  {
     id: "bwi-credit-card",
     usage: "Indicates a credit card item type.",
   },
@@ -455,6 +447,10 @@ const miscObjects = [
   {
     id: "bwi-puzzle",
     usage: "Indicates the browser extension client.",
+  },
+  {
+    id: "bwi-rocket",
+    usage: "Indicates a tour, launch, or new feature.",
   },
   {
     id: "bwi-shield",

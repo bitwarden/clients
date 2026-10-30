@@ -1,0 +1,78 @@
+<form [formGroup]="formGroup" [bitSubmit]="confirm" bit-dialog background="alt" dialogSize="large">
+  <span bitDialogTitle>{{
+    (approve() ? "pamDecideApproveTitle" : "pamDecideDenyTitle") | i18n
+  }}</span>
+
+  <div bitDialogContent>
+    <pam-request-summary
+      data-testid="decide-dialog-summary"
+      [cipher]="cipher"
+      [itemName]="row.cipherName"
+      [organizationName]="row.organizationName"
+      [collectionName]="row.collectionName"
+      [requesterName]="row.requester"
+      [requesterEmail]="row.requesterEmail"
+      [duration]="row.duration"
+      [relativeStart]="row.relativeStart"
+      [exactWindow]="row.exactWindow"
+      [reason]="row.reason"
+    />
+
+    <h2 bitTypography="h6" class="tw-mb-2">{{ "pamDecideAdditionalInformation" | i18n }}</h2>
+
+    <bit-card>
+      <bit-form-field disableMargin>
+        <bit-label>{{
+          (approve() ? "pamInboxCommentLabel" : "pamDecideDenyReasonLabel") | i18n
+        }}</bit-label>
+        <textarea
+          #commentField
+          bitInput
+          rows="3"
+          formControlName="comment"
+          id="pam-decide-dialog_textarea_comment"
+          [placeholder]="
+            (approve() ? 'pamInboxCommentPlaceholder' : 'pamDecideDenyReasonPlaceholder') | i18n
+          "
+        ></textarea>
+        <bit-hint>{{
+          (approve() ? "pamDecideCommentAuditHint" : "pamDecideDenyReasonRequired") | i18n
+        }}</bit-hint>
+      </bit-form-field>
+    </bit-card>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      [buttonType]="approve() ? 'primary' : 'danger'"
+      [disabled]="confirmDisabled()"
+      id="pam-decide-dialog_button_confirm"
+    >
+      {{ (approve() ? "pamInboxConfirmApproveButton" : "pamInboxConfirmDenyButton") | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      bitDialogClose
+      id="pam-decide-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+    @if (approve()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="dangerGhost"
+        class="tw-ms-auto"
+        id="pam-decide-dialog_button_switch-to-deny"
+        (click)="switchToDeny()"
+      >
+        {{ "pamInboxConfirmDenyButton" | i18n }}
+      </button>
+    }
+  </ng-container>
+</form>

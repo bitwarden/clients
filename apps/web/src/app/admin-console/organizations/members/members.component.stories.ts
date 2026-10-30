@@ -13,7 +13,6 @@ import {
 import { EMPTY, of } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -22,6 +21,7 @@ import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enum
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
@@ -95,7 +95,6 @@ function mockUser(overrides: Partial<OrganizationUserView> = {}): OrganizationUs
     canRestore: false,
     canRevoke: true,
     canRemove: true,
-    canManageMember: true,
     ...overrides,
   } as unknown as OrganizationUserView;
 }
@@ -220,7 +219,6 @@ const mockMemberDialogManagerService = {
   openBulkRestoreRevokeDialog: () => Promise.resolve(undefined),
   openBulkEnableSecretsManagerDialog: () => Promise.resolve(undefined),
   openBulkActivatePrivilegedControlsDialog: () => Promise.resolve(undefined),
-  openBulkStatusDialog: () => Promise.resolve(undefined),
   openEventsDialog: () => {},
   openRemoveUserConfirmationDialog: () => Promise.resolve(false),
   openRevokeUserConfirmationDialog: () => Promise.resolve(false),

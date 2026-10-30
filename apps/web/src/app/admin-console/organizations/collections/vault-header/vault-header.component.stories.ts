@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom, signal } from "@angular/core";
 import { provideRouter, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -12,6 +11,7 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -24,7 +24,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogService } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
 import { LockService } from "@bitwarden/unlock";
-import { RoutedVaultFilterModel } from "@bitwarden/vault";
+import { CoachmarkService, RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 
@@ -160,6 +160,22 @@ const render: StoryObj<StoryArgs>["render"] = (args) => ({
   `,
 });
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+};
+
 export default {
   title: "Admin Console/Organizations/Collections/Vault Header",
   component: VaultHeaderComponent,
@@ -178,6 +194,7 @@ export default {
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: RestrictedItemTypesService, useValue: mockRestrictedItemTypesService },
+        { provide: CoachmarkService, useValue: mockCoachmarkService },
       ],
     }),
     applicationConfig({

@@ -22,7 +22,7 @@
     (keydown)="onToolbarKeydown($event)"
   >
     <span class="tw-flex tw-gap-1.5 tw-px-2 tw-text-sm" [class]="elementWithDividerClasses">
-      <span class="tw-font-semibold tw-text-fg-contrast">
+      <span class="tw-font-semibold tw-text-fg-contrast" data-testid="bit-bulk-actions-count">
         {{ effectiveCount() }}
       </span>
       <span class="tw-text-fg-contrast-strong">
@@ -66,6 +66,7 @@
 
       <button
         #additionalActionsTrigger
+        data-testid="bit-bulk-actions-menu"
         bitBulkActionButton
         bitOverflowTrigger
         [alwaysShow]="hasAdditionalActions()"

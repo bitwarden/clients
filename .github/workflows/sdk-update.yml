@@ -41,6 +41,11 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       id-token: write
+    # Overlapping runs rebuild the same branch, so the last one to push would win
+    # even if it carries an older SDK.
+    concurrency:
+      group: sdk-update-${{ inputs.base-branch || github.event.client_payload.base_branch }}
+      cancel-in-progress: false
     env:
       _RUN_MODE: ${{ inputs.run-mode || github.event.client_payload.run_mode }}
       _SDK_VERSION: ${{ inputs.sdk-version || github.event.client_payload.sdk_version }}
@@ -223,6 +228,46 @@ jobs:
           fi
 
           echo "✅ No stop-updates label found. Proceeding."
+
+      - name: Prevent moving to an older SDK
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
+          _BRANCH_EXISTS: ${{ steps.check-branch.outputs.branch_exists }}
+          _BASE_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
+        run: |
+          # npm version numbers count publishes, not commits, so compare the source
+          # commits the packages were built from.
+          NEW_REF=$(npm view "@bitwarden/sdk-internal@$_SDK_VERSION" gitHead)
+
+          COMPARE_TO=("$_BASE_BRANCH:$_BASE_SDK_VERSION")
+          if [ "$_BRANCH_EXISTS" = "true" ]; then
+            git fetch origin "$_BRANCH_NAME"
+            BRANCH_SDK_VERSION=$(git show "origin/$_BRANCH_NAME:package.json" | jq -r '.dependencies."@bitwarden/sdk-internal" // empty')
+            COMPARE_TO+=("$_BRANCH_NAME:$BRANCH_SDK_VERSION")
+          fi
+
+          for ENTRY in "${COMPARE_TO[@]}"; do
+            REF_NAME=${ENTRY%%:*}
+            VERSION=${ENTRY#*:}
+            OLD_REF=$(npm view "@bitwarden/sdk-internal@$VERSION" gitHead 2>/dev/null || echo "")
+
+            if [ -z "$NEW_REF" ] || [ -z "$OLD_REF" ]; then
+              echo "::error::Could not resolve source commits from npm to compare $_SDK_VERSION with $VERSION on $REF_NAME"
+              exit 1
+            fi
+
+            STATUS=$(gh api "repos/bitwarden/sdk-internal/compare/$OLD_REF...$NEW_REF" --jq '.status')
+            echo "$_SDK_VERSION ($NEW_REF) is $STATUS compared to $VERSION ($OLD_REF) on $REF_NAME"
+
+            if [ "$STATUS" != "ahead" ] && [ "$STATUS" != "identical" ]; then
+              echo "::error::SDK $_SDK_VERSION is built from older code than $VERSION on $REF_NAME ($STATUS). Refusing to move backwards."
+              echo "## ⛔ $_SDK_VERSION is older than $VERSION on $REF_NAME" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+          done
+
+          echo "✅ SDK $_SDK_VERSION is not older than what's on $_BASE_BRANCH or the update branch."
 
       - name: Configure git identity
         run: |

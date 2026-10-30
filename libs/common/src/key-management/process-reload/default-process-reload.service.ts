@@ -89,6 +89,8 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
       return;
     }
 
+    // TODO: PM-44635 - Use AccountSwitcherService.nextSwitchableAccount$ from
+    // ../../auth/account-switcher, which never picks a logged-out account.
     const nextUser = await firstValueFrom(
       this.accountService.nextUpAccount$.pipe(getOptionalUserId),
     );

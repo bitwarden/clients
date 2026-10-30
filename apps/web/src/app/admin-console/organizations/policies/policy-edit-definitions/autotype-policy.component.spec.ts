@@ -42,12 +42,12 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       expect(result).toBe(true);
     });
 
-    it("displays when the resolved feature flag state is Ga", async () => {
+    it("does not display when the resolved feature flag state is Ga", async () => {
       jest.mocked(autotypeFeatureFlagState$).mockReturnValue(of(AutotypeFeatureFlagState.Ga));
 
       const result = await firstValueFrom(policy.display$(org, configService));
 
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
     it("does not display when the resolved feature flag state is Off", async () => {

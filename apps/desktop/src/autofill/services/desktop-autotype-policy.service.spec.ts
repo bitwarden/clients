@@ -92,7 +92,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       expect(autotypeFeatureFlagState$).toHaveBeenCalledWith(configService);
     });
 
-    it("should emit null when the resolved feature flag state is neither Mvp nor Ga", async () => {
+    it("should emit null when the resolved feature flag state is Off even if the policy applies", async () => {
       // autotypeFeatureFlagState$ defaults to Off when both the MVP and GA flags are on,
       // so the policy should not apply (be null)
       mockPolicyAppliesSubject.next(true);
@@ -101,6 +101,17 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
 
       expect(result).toBeNull();
+    });
+
+    it("should emit null when the resolved feature flag state is Ga even if the policy applies", async () => {
+      // The policy is scoped to the Autotype MVP only
+      mockPolicyAppliesSubject.next(true);
+      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
+
+      const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
+
+      expect(result).toBeNull();
+      expect(policyService.policyAppliesToUser$).not.toHaveBeenCalled();
     });
 
     it("does not emit until an account appears", async () => {
@@ -127,15 +138,6 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     });
 
     it("should emit true when autotype policy is enabled", async () => {
-      mockPolicyAppliesSubject.next(true);
-      const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
-      expect(policyStatus).toBe(true);
-    });
-
-    it("should emit true when autotype policy is enabled and the resolved state is Ga", async () => {
-      // The policy gates on `!== Off`, so it applies under any available Autotype
-      // implementation, not just Mvp (which the other tests cover by default).
-      featureFlagSubject.next(AutotypeFeatureFlagState.Ga);
       mockPolicyAppliesSubject.next(true);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policyStatus).toBe(true);

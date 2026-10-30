@@ -14,6 +14,8 @@ export class CollectionData {
   manage: boolean = false;
   hidePasswords: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
+  /** True when an enabled PAM access rule gates the collection's items. Derived by the server. */
+  hasEnabledAccessRule: boolean = false;
 
   constructor(response: CollectionDetailsResponse) {
     this.id = response.id;
@@ -25,6 +27,7 @@ export class CollectionData {
     this.hidePasswords = response.hidePasswords;
     this.type = response.type;
     this.defaultUserCollectionEmail = response.defaultUserCollectionEmail;
+    this.hasEnabledAccessRule = response.hasEnabledAccessRule;
   }
 
   static fromJSON(obj: Jsonify<CollectionData | null>): CollectionData | null {

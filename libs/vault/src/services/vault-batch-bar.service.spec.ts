@@ -406,6 +406,18 @@ describe("VaultBatchBarService", () => {
       expect(service.selectedCiphers()[0]).toBe(cipherItem.cipher);
     });
 
+    it("selectedCiphers excludes restricted ciphers so no bulk action can modify them", () => {
+      const normalItem = makeCipherItem();
+      const restrictedItem = makeCipherItem({
+        id: "restricted" as unknown as CipherId,
+        partial: true,
+      });
+
+      service.selection.select(normalItem, restrictedItem);
+
+      expect(service.selectedCiphers()).toEqual([normalItem.cipher]);
+    });
+
     it("selectedCollections returns only items with a collection", () => {
       const cipherItem = makeCipherItem();
       const collectionItem = makeCollectionItem();
@@ -1083,6 +1095,20 @@ describe("VaultBatchBarService", () => {
       expect(mockBulkDeleteDialogOpen).toHaveBeenCalled();
       expect(mockToastService.showToast).not.toHaveBeenCalledWith(
         expect.objectContaining({ message: "missingPermissions" }),
+      );
+    });
+
+    it("excludes restricted ciphers from the delete", async () => {
+      service.selection.select(
+        makeCipherItem({ id: "normal" as unknown as CipherId }),
+        makeCipherItem({ id: "restricted" as unknown as CipherId, partial: true }),
+      );
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ cipherIds: ["normal"] }),
       );
     });
 

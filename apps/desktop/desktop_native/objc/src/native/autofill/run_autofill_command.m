@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "commands/sync.h"
+#import "commands/settings.h"
 #import "commands/status.h"
 #import "commands/user_verification.h"
 #import "../interop.h"
@@ -17,6 +18,11 @@ void runAutofillCommand(void* context, NSDictionary *input) {
   }
   else if ([command isEqual:@"userVerification"]) {
     return userVerification(context, params);
+  }
+  else if ([command isEqual:@"requestEnable"]) {
+    return requestEnable(context, params);
+  } else if ([command isEqual:@"openSettings"]) {
+    return openSettings(context, params);
   }
 
   _return(context, _error([NSString stringWithFormat:@"Unknown command: %@", command]));

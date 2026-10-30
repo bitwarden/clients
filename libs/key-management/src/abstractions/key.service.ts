@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
+import { SdkUnlockRequest } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
   UserKey,
@@ -13,6 +14,7 @@ import {
 } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+import { UnsignedSharedKey } from "@bitwarden/sdk-internal";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {
@@ -34,6 +36,16 @@ export type CipherDecryptionKeys = {
    */
   orgKeys: Record<OrganizationId, OrgKey> | null;
 };
+
+/**
+ * The data needed to unlock a user's SDK client and give it the user's organization keys.
+ * Both parts derive from the same in-memory user key, so they are built together.
+ */
+export interface SdkUnlockData {
+  request: SdkUnlockRequest;
+  /** The organization keys, each encapsulated to the user's public key. */
+  orgKeys: Record<OrganizationId, UnsignedSharedKey>;
+}
 
 export abstract class KeyService {
   /**
@@ -206,4 +218,14 @@ export abstract class KeyService {
    * @param userId The user id for the key
    */
   abstract validateUserKey(key: UserKey, userId: UserId): Promise<boolean>;
+
+  /**
+   * Builds the data needed to unlock the user's SDK client from the given user key. The private
+   * key is decrypted with that key, so the user key does not have to be in state yet.
+   * @param userId The user to build the data for
+   * @param userKey The user's decrypted user key
+   * @returns The unlock data, or `null` when the account's cryptographic state is not available
+   * @throws When the private key cannot be decrypted with the given user key
+   */
+  abstract buildSdkUnlockData(userId: UserId, userKey: UserKey): Promise<SdkUnlockData | null>;
 }

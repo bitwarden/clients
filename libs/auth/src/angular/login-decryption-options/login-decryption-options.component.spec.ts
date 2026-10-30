@@ -12,7 +12,7 @@ import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,6 +20,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -662,6 +663,38 @@ describe("LoginDecryptionOptionsComponent", () => {
       // expectation would also pass if nothing ever subscribed to the auth status.
       expect(authService.authStatusFor$).toHaveBeenCalledWith(mockUserId);
       expect(deviceTrustService.trustDevice).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("logout paths", () => {
+    it("logs out with missingEmailError when ngOnInit finds no email on the active account", async () => {
+      accountService.activeAccount$ = new BehaviorSubject({
+        id: mockUserId,
+        email: "",
+        name: "Test User",
+        emailVerified: false,
+        creationDate: new Date(),
+      });
+
+      await component.ngOnInit();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "missingEmailError");
+    });
+
+    it("logs out with userInitiated when the user confirms the logout dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await component.logOut();
+
+      expect(logoutService.logout).toHaveBeenCalledWith(mockUserId, "userInitiated");
+    });
+
+    it("does not log out when the user cancels the logout dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      await component.logOut();
+
+      expect(logoutService.logout).not.toHaveBeenCalled();
     });
   });
 });

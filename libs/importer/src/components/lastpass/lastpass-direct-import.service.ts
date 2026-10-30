@@ -22,6 +22,8 @@ import { FederatedUserContext } from "../../importers/lastpass/access/models";
 
 import { LastPassPasswordPromptComponent } from "./dialog/lastpass-password-prompt.component";
 import { LastPassDirectImportUIService } from "./lastpass-direct-import-ui.service";
+import { LastPassLoginSession } from "./lastpass-login-session";
+import { lastPassErrorMessage } from "./lastpass-validation-error";
 
 @Injectable({
   providedIn: "root",
@@ -76,19 +78,28 @@ export class LastPassDirectImportService {
    * Import a LastPass account by email
    * @param email
    * @param includeSharedFolders
+   * @param session The inline login card. Without it, prompts open as dialogs.
    * @returns The CSV export data of the account
    */
-  async handleImport(email: string, includeSharedFolders: boolean): Promise<string> {
+  async handleImport(
+    email: string,
+    includeSharedFolders: boolean,
+    session?: LastPassLoginSession,
+  ): Promise<string> {
     await this.verifyLastPassAccountExists(email);
 
     if (this.isAccountFederated) {
-      const oidc = await this.handleFederatedLogin(email);
+      const oidc = await this.handleFederatedLogin(email, session);
       const csvData = await this.handleFederatedImport(
         oidc.oidcCode,
         oidc.oidcState,
         includeSharedFolders,
+        session,
       );
       return csvData;
+    }
+    if (session != null) {
+      return this.handleInlineStandardImport(email, includeSharedFolders, session);
     }
     const password = await LastPassPasswordPromptComponent.open(this.dialogService);
     const csvData = await this.handleStandardImport(email, password, includeSharedFolders);
@@ -104,9 +115,12 @@ export class LastPassDirectImportService {
     await this.vault.setUserTypeContext(email);
   }
 
-  private async handleFederatedLogin(email: string) {
+  private async handleFederatedLogin(email: string, session?: LastPassLoginSession) {
     const ssoCallbackPromise = firstValueFrom(this.ssoImportCallback$);
-    const request = await this.createOidcSigninRequest(email);
+    const request = await this.createOidcSigninRequest(email, session);
+    if (session != null) {
+      return this.waitForInlineSso(request.url, ssoCallbackPromise, session, this.oidcFlow);
+    }
     this.platformUtilsService.launchUri(request.url);
 
     const cancelDialogRef = this.dialogService.openSimpleDialogRef({
@@ -129,7 +143,41 @@ export class LastPassDirectImportService {
     });
   }
 
-  private async createOidcSigninRequest(email: string): Promise<{ url: string }> {
+  private async waitForInlineSso(
+    url: string,
+    ssoCallbackPromise: Promise<{ oidcCode: string; oidcState: string }>,
+    session: LastPassLoginSession,
+    flow: typeof this.oidcFlow,
+  ) {
+    await session.prepareSso();
+    // The user can leave while the sign-in request is still being built.
+    if (session.userLeft) {
+      this.clearOidcFlow(flow);
+      throw new Error("SSO auth cancelled");
+    }
+    this.platformUtilsService.launchUri(url);
+
+    try {
+      const oidc = await Promise.race([session.waitForSsoCancel(), ssoCallbackPromise]);
+      session.completeSso();
+      return oidc;
+    } catch (error) {
+      this.clearOidcFlow(flow);
+      throw error;
+    }
+  }
+
+  /** Only this login's flow: a newer login may have replaced it. */
+  private clearOidcFlow(flow: typeof this.oidcFlow) {
+    if (this.oidcFlow === flow) {
+      this.oidcFlow = undefined;
+    }
+  }
+
+  private async createOidcSigninRequest(
+    email: string,
+    session?: LastPassLoginSession,
+  ): Promise<{ url: string }> {
     try {
       const issuer = new URL(this.vault.userType.openIDConnectAuthorityBase);
       const as = await oauth
@@ -146,6 +194,10 @@ export class LastPassDirectImportService {
       const nonce = oauth.generateRandomNonce();
       const redirectUri = await this.getOidcRedirectUrl();
 
+      // A login the user left must not publish a flow over the one that replaced it.
+      if (session?.userLeft) {
+        throw new Error("SSO auth cancelled");
+      }
       this.oidcFlow = {
         as,
         client,
@@ -169,7 +221,9 @@ export class LastPassDirectImportService {
 
       return { url: authorizeUrl.toString() };
     } catch (err) {
-      this.logService.error("Unable to generate OIDC sign in request");
+      if (!session?.userLeft) {
+        this.logService.error("Unable to generate OIDC sign in request");
+      }
       throw err;
     }
   }
@@ -244,6 +298,48 @@ export class LastPassDirectImportService {
     return webUrl + "/sso-connector.html?lp=1";
   }
 
+  /** A rejected password or code is shown on its own field and asked for again; any other failure
+   *  ends the import. A wrong code ends LastPass's login, so retrying it logs in again. */
+  private async handleInlineStandardImport(
+    email: string,
+    includeSharedFolders: boolean,
+    session: LastPassLoginSession,
+  ): Promise<string> {
+    const clientInfo = await this.createClientInfo(email, LastpassLoginType.MasterPassword);
+
+    let password: string | undefined;
+    let passwordRejected = false;
+    for (;;) {
+      password ??= await session.promptForPassword({ previousPasswordRejected: passwordRejected });
+      try {
+        await this.vault.open(email, password, clientInfo, session, {
+          parseSecureNotesToAccount: false,
+        });
+        break;
+      } catch (err) {
+        if (session.userLeft) {
+          throw err;
+        }
+        const message = lastPassErrorMessage(err);
+        if (message === "Invalid password") {
+          password = undefined;
+          passwordRejected = true;
+        } else if (
+          (message === "Second factor code is incorrect" ||
+            message === "Out of band authentication failed") &&
+          session.rejectSubmittedCode()
+        ) {
+          // Logs in again with the same password; the next code prompt shows the rejection.
+        } else {
+          this.logService.error("Unable to open LastPass vault");
+          throw err;
+        }
+      }
+    }
+
+    return this.vault.accountsToExportedCsvString(!includeSharedFolders);
+  }
+
   private async handleStandardImport(
     email: string,
     password: string,
@@ -267,6 +363,7 @@ export class LastPassDirectImportService {
     oidcCode: string,
     oidcState: string,
     includeSharedFolders: boolean,
+    session?: LastPassLoginSession,
   ): Promise<string> {
     const federatedUser = new FederatedUserContext();
     try {
@@ -288,7 +385,7 @@ export class LastPassDirectImportService {
       await this.vault.openFederated(
         federatedUser,
         clientInfo,
-        this.lastPassDirectImportUIService,
+        session ?? this.lastPassDirectImportUIService,
         {
           parseSecureNotesToAccount: false,
         },

@@ -1,3 +1,7 @@
+import {
+  AutofillOpenSettingsCommand,
+  AutofillRequestEnableCommand,
+} from "./autofill-settings.command";
 import { AutofillStatusCommand } from "./autofill-status.command";
 import { AutofillSyncCommand } from "./autofill-sync.command";
 import { AutofillUserVerificationCommand } from "./autofill-user-verification.command";
@@ -22,4 +26,8 @@ export type IpcCommandInvoker<C extends AutofillCommandDefinition> = (
 
 /** A list of all available commands */
 export type AutofillCommand =
-  AutofillSyncCommand | AutofillStatusCommand | AutofillUserVerificationCommand;
+  | AutofillSyncCommand
+  | AutofillStatusCommand
+  | AutofillUserVerificationCommand
+  | AutofillRequestEnableCommand
+  | AutofillOpenSettingsCommand;

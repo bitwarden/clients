@@ -21,6 +21,7 @@ const organizationId = "org-1" as OrganizationId;
 const myItemsCollectionId = "col-my-items" as CollectionId;
 const engineeringId = "col-engineering" as CollectionId;
 const backendId = "col-backend" as CollectionId;
+const apiId = "col-api" as CollectionId;
 
 const buildCollection = (id: CollectionId, name: string) =>
   new CollectionView({ id, organizationId, name });
@@ -120,5 +121,19 @@ describe("VaultBreadcrumbsComponent", () => {
         queryParamsHandling: "preserve",
       },
     ]);
+  });
+
+  it("labels crumbs by their own names when an ancestor's parent is missing", () => {
+    collections$.next([
+      buildCollection(backendId, "Engineering/Backend"),
+      buildCollection(apiId, "Engineering/Backend/API"),
+    ]);
+    scopeTo({ type: VaultScopeType.Organization, organizationId, collectionId: apiId });
+
+    expect(
+      component()
+        .trailCrumbs()
+        .map((crumb: { label: string }) => crumb.label),
+    ).toEqual(["sharedFolders", "Backend", "API"]);
   });
 });

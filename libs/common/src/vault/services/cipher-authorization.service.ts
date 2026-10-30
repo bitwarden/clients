@@ -6,10 +6,14 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "../../auth/abstractions/account.service";
-import { getUserId } from "../../auth/services/account.service";
+import { getOptionalUserId, getUserId } from "../../auth/services/account.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { getByIds } from "../../platform/misc";
+import { CipherId } from "../../types/guid";
+import { RevealedCipherService } from "../abstractions/revealed-cipher.service";
+import { CipherView } from "../models/view/cipher.view";
 import { CipherLike } from "../types/cipher-like";
+import { RestrictedCipherAction, RestrictedCipherPolicy } from "../utils/restricted-cipher-policy";
 
 /**
  * Service for managing user cipher authorization.
@@ -76,7 +80,20 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private revealedCipherService: RevealedCipherService,
   ) {}
+
+  /** The active user's live revealed view of `cipher`, if any. */
+  private revealed$ = (cipher: CipherLike): Observable<CipherView | undefined> =>
+    this.accountService.activeAccount$.pipe(
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null || cipher.id == null
+          ? of(new Map<CipherId, CipherView>())
+          : this.revealedCipherService.revealed$(userId),
+      ),
+      map((revealed) => revealed.get(cipher.id as CipherId)),
+    );
 
   private organization$ = (cipher: CipherLike) =>
     this.accountService.activeAccount$.pipe(
@@ -90,6 +107,19 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canDeleteCipher$}
    */
   canDeleteCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    return this.revealed$(cipher).pipe(
+      switchMap((revealed) =>
+        RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Delete, revealed)
+          ? this.deletePermitted$(cipher, isAdminConsoleAction)
+          : of(false),
+      ),
+    );
+  }
+
+  private deletePermitted$(
+    cipher: CipherLike,
+    isAdminConsoleAction?: boolean,
+  ): Observable<boolean> {
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -113,6 +143,19 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canRestoreCipher$}
    */
   canRestoreCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    return this.revealed$(cipher).pipe(
+      switchMap((revealed) =>
+        RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Restore, revealed)
+          ? this.restorePermitted$(cipher, isAdminConsoleAction)
+          : of(false),
+      ),
+    );
+  }
+
+  private restorePermitted$(
+    cipher: CipherLike,
+    isAdminConsoleAction?: boolean,
+  ): Observable<boolean> {
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -136,6 +179,16 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canEditCipher$}
    */
   canEditCipher$(cipher: CipherLike, isAdminConsoleAction: boolean = false): Observable<boolean> {
+    return this.revealed$(cipher).pipe(
+      switchMap((revealed) =>
+        RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Edit, revealed)
+          ? this.editPermitted$(cipher, isAdminConsoleAction)
+          : of(false),
+      ),
+    );
+  }
+
+  private editPermitted$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
     return this.organization$(cipher).pipe(
       map((organization) => {
         if (isAdminConsoleAction) {
@@ -158,6 +211,16 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
    * {@link CipherAuthorizationService.canCloneCipher$}
    */
   canCloneCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    return this.revealed$(cipher).pipe(
+      switchMap((revealed) =>
+        RestrictedCipherPolicy.allows(cipher, RestrictedCipherAction.Clone, revealed)
+          ? this.clonePermitted$(cipher, isAdminConsoleAction)
+          : of(false),
+      ),
+    );
+  }
+
+  private clonePermitted$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
     if (cipher.organizationId == null) {
       return of(true);
     }

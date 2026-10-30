@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { IdentityData } from "../data/identity.data";
-import { IdentityView } from "../view/identity.view";
 
 export class Identity extends Domain {
   title?: EncString;
@@ -53,38 +52,6 @@ export class Identity extends Domain {
     this.username = conditionalEncString(obj.username);
     this.passportNumber = conditionalEncString(obj.passportNumber);
     this.licenseNumber = conditionalEncString(obj.licenseNumber);
-  }
-
-  decrypt(
-    encKey: SymmetricCryptoKey,
-    context: string = "No Cipher Context",
-  ): Promise<IdentityView> {
-    return this.decryptObj<Identity, IdentityView>(
-      this,
-      new IdentityView(),
-      [
-        "title",
-        "firstName",
-        "middleName",
-        "lastName",
-        "address1",
-        "address2",
-        "address3",
-        "city",
-        "state",
-        "postalCode",
-        "country",
-        "company",
-        "email",
-        "phone",
-        "ssn",
-        "username",
-        "passportNumber",
-        "licenseNumber",
-      ],
-      encKey,
-      "DomainType: Identity; " + context,
-    );
   }
 
   toIdentityData(): IdentityData {

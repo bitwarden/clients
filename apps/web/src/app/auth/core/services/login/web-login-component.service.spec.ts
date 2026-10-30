@@ -4,6 +4,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
@@ -17,6 +18,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { PolicyId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
@@ -31,6 +33,16 @@ import { WebLoginComponentService } from "./web-login-component.service";
 jest.mock("../../../../../utils/flags", () => ({
   flagEnabled: jest.fn(),
 }));
+
+const makePolicy = () =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.ResetPassword,
+    data: null,
+    enabled: true,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("WebLoginComponentService", () => {
   let service: WebLoginComponentService;
@@ -118,7 +130,7 @@ describe("WebLoginComponentService", () => {
     ])(
       "returns policies successfully with autoEnrollEnabled=%s and resetPasswordPolicyEnabled=%s",
       async (autoEnrollEnabled, resetPasswordPolicyEnabled) => {
-        const policies: Policy[] = [new Policy()];
+        const policies: Policy[] = [makePolicy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
@@ -190,7 +202,7 @@ describe("WebLoginComponentService", () => {
       });
 
       it("returns PasswordPolicies", async () => {
-        const policies: Policy[] = [new Policy()];
+        const policies: Policy[] = [makePolicy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 

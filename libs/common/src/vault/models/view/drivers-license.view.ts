@@ -51,7 +51,24 @@ export class DriversLicenseView extends ItemView implements SdkDriversLicenseVie
     return view;
   }
 
+  /**
+   * Converts the DriversLicenseView to an SDK DriversLicenseView.
+   * Empty strings are converted to undefined to prevent the SDK from encrypting
+   * them as non-null values, which would incorrectly populate copyableFields.
+   */
   toSdkDriversLicenseView(): SdkDriversLicenseView {
-    return this;
+    return {
+      firstName: this.firstName || undefined,
+      middleName: this.middleName || undefined,
+      lastName: this.lastName || undefined,
+      dateOfBirth: this.dateOfBirth || undefined,
+      licenseNumber: this.licenseNumber || undefined,
+      issuingCountry: this.issuingCountry || undefined,
+      issuingState: this.issuingState || undefined,
+      issueDate: this.issueDate || undefined,
+      expirationDate: this.expirationDate || undefined,
+      issuingAuthority: this.issuingAuthority || undefined,
+      licenseClass: this.licenseClass || undefined,
+    };
   }
 }

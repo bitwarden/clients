@@ -127,6 +127,11 @@ class DomElementVisibilityService implements DomElementVisibilityServiceInterfac
   /**
    * Checks if the target element is outside the viewport bounds. This is done by checking if the
    * element is too small or is overflowing the viewport bounds.
+   *
+   * `scrollWidth` and `scrollHeight` are integers while `getBoundingClientRect` can be
+   * fractional. Round the rect edges to whole pixels before comparing so a fractional overrun
+   * does not count as off-screen.
+   *
    * @param {HTMLElement} targetElement
    * @param {DOMRectReadOnly | null} targetElementBoundingClientRect
    * @returns {boolean}
@@ -146,12 +151,12 @@ class DomElementVisibilityService implements DomElementVisibilityServiceInterfac
 
     const isElementSizeInsufficient =
       elementBoundingClientRect.width < 10 || elementBoundingClientRect.height < 10;
-    const isElementOverflowingLeftViewport = elementLeftOffset < 0;
+    const isElementOverflowingLeftViewport = Math.ceil(elementLeftOffset) < 0;
     const isElementOverflowingRightViewport =
-      elementLeftOffset + elementBoundingClientRect.width > documentElementWidth;
-    const isElementOverflowingTopViewport = elementTopOffset < 0;
+      Math.floor(elementLeftOffset + elementBoundingClientRect.width) > documentElementWidth;
+    const isElementOverflowingTopViewport = Math.ceil(elementTopOffset) < 0;
     const isElementOverflowingBottomViewport =
-      elementTopOffset + elementBoundingClientRect.height > documentElementHeight;
+      Math.floor(elementTopOffset + elementBoundingClientRect.height) > documentElementHeight;
 
     return (
       isElementSizeInsufficient ||

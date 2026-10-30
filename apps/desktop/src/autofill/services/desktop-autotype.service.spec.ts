@@ -13,9 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { GlobalStateProvider, KeyDefinition } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { LogService } from "@bitwarden/logging";
 
-import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 import { DesktopAutotypeService } from "./desktop-autotype.service";
 
 type FakeGlobalState<T> = {
@@ -33,8 +31,6 @@ describe("DesktopAutotypeService", () => {
   let mockGlobalStateProvider: jest.Mocked<GlobalStateProvider>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockBillingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let mockDesktopAutotypePolicy: jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
-  let mockLogService: MockProxy<LogService>;
 
   let mockAutotypeEnabledState: FakeGlobalState<boolean>;
   let mockAutotypeKeyboardShortcutState: FakeGlobalState<string[]>;
@@ -44,7 +40,6 @@ describe("DesktopAutotypeService", () => {
   let activeAccountSubject: BehaviorSubject<Account | null>;
   let activeAccountStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let hasPremiumSubject: BehaviorSubject<boolean>;
-  let autotypeDefaultPolicySubject: BehaviorSubject<boolean | null>;
 
   // The Autotype feature flags must be mocked independently of one another: the service
   // resolves its gate through `autotypeFeatureFlagState$`, which reads both the MVP and the
@@ -76,7 +71,6 @@ describe("DesktopAutotypeService", () => {
       AuthenticationStatus.Unlocked,
     );
     hasPremiumSubject = new BehaviorSubject<boolean>(true);
-    autotypeDefaultPolicySubject = new BehaviorSubject<boolean | null>(null);
 
     mockAutotypeEnabledState = {
       state$: autotypeEnabledSubject.asObservable(),
@@ -130,12 +124,6 @@ describe("DesktopAutotypeService", () => {
       hasPremiumSubject.asObservable(),
     );
 
-    mockDesktopAutotypePolicy = {
-      autotypeDefaultSetting$: autotypeDefaultPolicySubject.asObservable(),
-    } as unknown as jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
-
-    mockLogService = mock<LogService>();
-
     TestBed.configureTestingModule({
       providers: [
         DesktopAutotypeService,
@@ -149,8 +137,6 @@ describe("DesktopAutotypeService", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
-        { provide: DesktopAutotypeDefaultSettingPolicy, useValue: mockDesktopAutotypePolicy },
-        { provide: LogService, useValue: mockLogService },
       ],
     });
 
@@ -212,27 +198,14 @@ describe("DesktopAutotypeService", () => {
   });
 
   describe("init", () => {
-    it("should not apply the organization default policy on non-Windows platforms", async () => {
-      mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+    it("should not change the user's enabled setting on init", async () => {
       autotypeEnabledSubject.next(null);
-      autotypeDefaultPolicySubject.next(true);
 
       await service.init();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockAutotypeEnabledState.update).not.toHaveBeenCalled();
       expect(autotypeEnabledSubject.value).toBeNull();
-    });
-
-    it("should enable autotype when policy is true and user setting is null", async () => {
-      autotypeEnabledSubject.next(null);
-      autotypeDefaultPolicySubject.next(true);
-
-      await service.init();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      expect(mockAutotypeEnabledState.update).toHaveBeenCalled();
-      expect(autotypeEnabledSubject.value).toBe(true);
     });
   });
 

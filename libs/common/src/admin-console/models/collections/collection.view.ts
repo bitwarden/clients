@@ -29,6 +29,8 @@ export class CollectionView implements View, ITreeNodeObject {
   defaultUserCollectionEmail: string | undefined;
   /** True when this collection's data could not be decrypted; fields dependent on decryption are empty. */
   decryptionFailure: boolean = false;
+  /** True when an enabled PAM access rule gates the collection's items. Derived by the server. */
+  hasEnabledAccessRule: boolean = false;
 
   private _name: string;
 
@@ -147,6 +149,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.manage = collection.manage;
     view.type = collection.type;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
     return view;
   }
 
@@ -170,6 +173,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.type = collection.type;
     view.assigned = collection.assigned;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
     return view;
   }
 
@@ -203,6 +207,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.assigned = true;
     view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
     view.type = sdkView.type;
+    view.hasEnabledAccessRule = sdkView.hasEnabledAccessRule ?? false;
 
     return view;
   }
@@ -225,6 +230,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.manage = collection.manage;
     view.type = collection.type;
     view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.hasEnabledAccessRule = collection.hasEnabledAccessRule;
     view.assigned = true;
     view.decryptionFailure = true;
 
@@ -247,6 +253,7 @@ export class CollectionView implements View, ITreeNodeObject {
       readOnly: this.readOnly,
       manage: this.manage,
       type: this.type,
+      hasEnabledAccessRule: this.hasEnabledAccessRule,
     };
   }
 

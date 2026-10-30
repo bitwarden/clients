@@ -2,11 +2,7 @@ import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 
 import { formatRelativeTime } from "..";
 
-/**
- * Renders an ISO date string as a localized relative phrase, e.g. "5 min. ago"
- * or "in 2 hr.". Falls back to the empty string for a missing or unparseable
- * value.
- */
+/** A localized relative phrase, e.g. "5 min. ago" or "in 2 hr.". */
 @Pipe({
   name: "relativeTime",
 })

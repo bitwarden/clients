@@ -114,6 +114,27 @@ class SecretsManagerInvoicePreviewResponse extends BaseResponse {
   }
 }
 
+class PrivilegedControlsInvoicePreviewResponse extends BaseResponse {
+  seats?: InvoicePreviewItem;
+  prorations?: PurchasableProration[];
+
+  constructor(response: any) {
+    super(response);
+
+    const seats = this.getResponseProperty("Seats");
+    if (seats) {
+      this.seats = new InvoicePreviewItemResponse(seats);
+    }
+
+    const prorations = this.getResponseProperty("Prorations");
+    if (prorations) {
+      this.prorations = prorations.map(
+        (proration: any) => new PurchasableProrationResponse(proration),
+      );
+    }
+  }
+}
+
 export class InvoicePreviewResponse extends BaseResponse implements InvoicePreview {
   passwordManager: {
     seats?: InvoicePreviewItem;
@@ -123,6 +144,10 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
   secretsManager?: {
     seats?: InvoicePreviewItem;
     additionalServiceAccounts?: InvoicePreviewItem;
+    prorations?: PurchasableProration[];
+  };
+  privilegedControls?: {
+    seats?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };
   cadence: SubscriptionCadence;
@@ -144,6 +169,11 @@ export class InvoicePreviewResponse extends BaseResponse implements InvoicePrevi
     const secretsManager = this.getResponseProperty("SecretsManager");
     if (secretsManager) {
       this.secretsManager = new SecretsManagerInvoicePreviewResponse(secretsManager);
+    }
+
+    const privilegedControls = this.getResponseProperty("PrivilegedControls");
+    if (privilegedControls) {
+      this.privilegedControls = new PrivilegedControlsInvoicePreviewResponse(privilegedControls);
     }
 
     const cadence = this.getResponseProperty("Cadence");

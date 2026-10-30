@@ -5,6 +5,8 @@ import {
   output,
   TemplateRef,
   viewChild,
+  ViewContainerRef,
+  inject,
 } from "@angular/core";
 
 import { PopoverBaseComponent } from "./popover-base.component";
@@ -23,6 +25,9 @@ export class PopoverPanelComponent {
   /** Reference to the popover content template */
   readonly templateRef = viewChild.required(TemplateRef);
 
+  /** Where `PopoverService` renders the content by default. */
+  readonly viewContainerRef = inject(ViewContainerRef);
+
   /** Emitted when the popover closes */
   readonly closed = output();
 
@@ -30,4 +35,7 @@ export class PopoverPanelComponent {
    * Screen-reader-accessible name for the popover dialog.
    */
   readonly accessibleName = input.required<string>();
+
+  /** Content padding: `default` is 24px, `compact` is 16px. */
+  readonly padding = input<"default" | "compact">("default");
 }

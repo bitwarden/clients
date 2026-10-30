@@ -14,6 +14,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { VAULT_ITEM_FILTER, VaultItemFilter } from "../tokens/vault-item-filter.token";
+
 import { vaultFilterLegacyRedirectGuard } from "./vault-filter-legacy-redirect.guard";
 
 jest.mock("@angular/router", () => ({
@@ -206,6 +208,75 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       });
     });
 
+    describe("folder route", () => {
+      const FOLDER_ID = "11111111-1111-4111-8111-111111111111";
+
+      it("redirects a guid ?folderId → /folders/:folderId", async () => {
+        expect(await runGuard(makeRoute({ folderId: FOLDER_ID }))).toBe(mockScopeUrlTree);
+
+        expect(router.createUrlTree).toHaveBeenCalledWith(
+          ["/folders", FOLDER_ID],
+          expect.any(Object),
+        );
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
+
+      it("strips ?folderId and leaves no vault.folder chip on the folder route", async () => {
+        await runGuard(makeRoute({ folderId: FOLDER_ID }));
+
+        const [, options] = router.createUrlTree.mock.calls[0];
+        expect(options?.queryParams).toEqual({});
+      });
+
+      it("carries non-filter params like cipherId onto the folder route", async () => {
+        await runGuard(makeRoute({ folderId: FOLDER_ID, cipherId: "cipher-1", action: "view" }));
+
+        const [commands, options] = router.createUrlTree.mock.calls[0];
+        expect(commands).toEqual(["/folders", FOLDER_ID]);
+        expect(options?.queryParams).toEqual({ cipherId: "cipher-1", action: "view" });
+      });
+
+      const COMBINED_CASES: [string, Record<string, string>][] = [
+        ["?type", { type: "login" }],
+        ["?type=all", { type: "all" }],
+        ["?search", { search: "amazon" }],
+        ["?vaultId", { vaultId: "org-123" }],
+        ["?sharedFolderId", { sharedFolderId: "col-123" }],
+        ["a vault.* param", { "vault.type": "1" }],
+      ];
+
+      COMBINED_CASES.forEach(([label, others]) => {
+        it(`keeps the vault.folder chip when combined with ${label}`, async () => {
+          await runGuard(makeRoute({ folderId: FOLDER_ID, ...others }));
+
+          expect(router.createUrlTree).not.toHaveBeenCalled();
+          const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+          expect(queryParams).toEqual(expect.objectContaining({ "vault.folder": FOLDER_ID }));
+        });
+      });
+
+      it("keeps a scope route's vault.folder chip rather than using the folder route", async () => {
+        await runGuard(makeRoute({ folderId: FOLDER_ID, type: "trash" }));
+
+        const [commands, options] = router.createUrlTree.mock.calls[0];
+        expect(commands).toEqual(["/vault", "trash"]);
+        expect(options?.queryParams).toEqual({ "vault.folder": FOLDER_ID });
+      });
+
+      it("keeps the vault.folder chip for a ?folderId that is not a guid", async () => {
+        await runGuard(makeRoute({ folderId: "folder-abc" }));
+
+        expect(router.createUrlTree).not.toHaveBeenCalled();
+      });
+
+      it("does not redirect when VFO1Foundation is disabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+
+        expect(await runGuard(makeRoute({ folderId: FOLDER_ID }))).toBe(true);
+        expect(router.createUrlTree).not.toHaveBeenCalled();
+      });
+    });
+
     describe("folder mapping", () => {
       it("maps ?folderId → ?vault.folder", async () => {
         await runGuard(makeRoute({ folderId: "folder-abc" }));
@@ -295,6 +366,57 @@ describe("vaultFilterLegacyRedirectGuard", () => {
 
         const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
         expect(queryParams).toEqual(expect.objectContaining({ "vault.search": "hello world" }));
+      });
+    });
+
+    describe("contributed filter mapping (VAULT_ITEM_FILTER)", () => {
+      function provideItemFilter(key: string): void {
+        TestBed.overrideProvider(VAULT_ITEM_FILTER, {
+          useValue: mock<VaultItemFilter>({ key }),
+        });
+      }
+
+      it("maps ?controlledAccess → ?vault.controlledAccess when the filter's key is controlledAccess", async () => {
+        provideItemFilter("controlledAccess");
+
+        await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(
+          expect.objectContaining({ "vault.controlledAccess": "privileged" }),
+        );
+      });
+
+      it("strips the legacy key from the redirect URL", async () => {
+        provideItemFilter("controlledAccess");
+
+        await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(Object.keys(queryParams ?? {})).toEqual(["vault.controlledAccess"]);
+      });
+
+      it("does not map ?controlledAccess without a provider", async () => {
+        const result = await runGuard(makeRoute({ controlledAccess: "privileged" }));
+
+        expect(result).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
+
+      it("leaves ?controlledAccess in place when another legacy param redirects without a provider", async () => {
+        await runGuard(makeRoute({ type: "login", controlledAccess: "privileged" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual({ controlledAccess: "privileged", "vault.type": "1" });
+      });
+
+      it("does not map a provider key that is a built-in key", async () => {
+        provideItemFilter("folder");
+
+        const result = await runGuard(makeRoute({ folder: "x" }));
+
+        expect(result).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
       });
     });
 

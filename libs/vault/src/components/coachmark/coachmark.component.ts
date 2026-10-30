@@ -1,0 +1,47 @@
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject, input, viewChild } from "@angular/core";
+
+import {
+  ButtonModule,
+  LinkModule,
+  PopoverComponent,
+  PopoverModule,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { CoachmarkStepId } from "./coachmark-step";
+import { CoachmarkService } from "./coachmark.service";
+
+/**
+ * Self-contained coachmark tour step.
+ * Wraps a `<bit-popover>` internally — use `coachmark.popover()` with `[bitPopoverAnchorFor]`.
+ *
+ * @example
+ * ```html
+ * <div [bitPopoverAnchorFor]="myCoachmark.popover()" [popoverOpen]="isOpen()">
+ *   Highlighted element
+ * </div>
+ * <vault-coachmark #myCoachmark stepId="importData" />
+ * ```
+ */
+@Component({
+  selector: "vault-coachmark",
+  standalone: true,
+  imports: [CommonModule, ButtonModule, I18nPipe, LinkModule, PopoverModule, TypographyModule],
+  templateUrl: "coachmark.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  exportAs: "coachmark",
+  // The popover is portaled into a CDK overlay, so the host renders nothing inline. Hiding it keeps
+  // the empty element from counting as a flex/grid item and adding a stray gap at every call site.
+  host: { class: "tw-hidden" },
+})
+export class CoachmarkComponent {
+  /** Which coachmark step this instance represents */
+  readonly stepId = input.required<CoachmarkStepId>();
+
+  /** Exposed so parent templates can bind `[bitPopoverAnchorFor]="ref.popover()"` */
+  readonly popover = viewChild.required(PopoverComponent);
+
+  protected readonly service = inject(CoachmarkService);
+}
