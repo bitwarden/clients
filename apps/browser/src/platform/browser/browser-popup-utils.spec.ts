@@ -5,6 +5,7 @@ import BrowserPopupUtils, {
   POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOptions,
 } from "./browser-popup-utils";
+import { POPOUT_PLACEMENT_STORAGE_KEY } from "./popout-placement";
 
 describe("BrowserPopupUtils", () => {
   afterEach(() => {
@@ -382,6 +383,144 @@ describe("BrowserPopupUtils", () => {
         left: 85,
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+    });
+
+    describe("on Firefox for Windows", () => {
+      const url = "popup/index.html";
+      const isFirefox = BrowserApi.isFirefox;
+      const secondaryScreenSender = {
+        id: 3,
+        left: 2109,
+        top: 76,
+        width: 1294,
+        height: 741,
+        focused: true,
+        alwaysOnTop: false,
+        incognito: false,
+      };
+      const learnedMemory = {
+        creationScale: 1.25,
+        screens: [
+          { left: 0, top: 0, width: 1536, height: 816, scale: 1.25 },
+          { left: 1920, top: 0, width: 1920, height: 1152, scale: 1 },
+        ],
+      };
+      const storedPlacement = (memory?: unknown) =>
+        (chrome.storage.local.get as jest.Mock).mockImplementation((key: string, callback) => {
+          if (key !== POPOUT_PLACEMENT_STORAGE_KEY) {
+            return Promise.resolve({});
+          }
+          // Callback-only, as Firefox's `chrome` namespace is in MV2.
+          callback(memory ? { [POPOUT_PLACEMENT_STORAGE_KEY]: memory } : {});
+        });
+
+      beforeEach(() => {
+        BrowserApi.isFirefox = true;
+        jest
+          .spyOn(BrowserApi, "getWindow")
+          .mockReset()
+          .mockResolvedValueOnce(secondaryScreenSender);
+        jest
+          .spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen")
+          .mockResolvedValueOnce(false);
+      });
+
+      afterEach(() => {
+        BrowserApi.isFirefox = isFirefox;
+        (chrome.storage.local.get as jest.Mock).mockReset();
+        jest.restoreAllMocks();
+      });
+
+      it("compensates for the creation scale using the remembered screens", async () => {
+        storedPlacement(learnedMemory);
+
+        await BrowserPopupUtils.openPopout(url);
+
+        expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            left: 2326,
+            top: 133,
+            url: `chrome-extension://id/${url}?uilocation=popout&popoutRequestedLeft=2326&popoutRequestedTop=133`,
+          }),
+        );
+      });
+
+      it("tells the popout what was requested so it can learn, even without memory", async () => {
+        storedPlacement(undefined);
+
+        await BrowserPopupUtils.openPopout(url);
+
+        expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            left: 2908,
+            top: 166,
+            url: `chrome-extension://id/${url}?uilocation=popout&popoutRequestedLeft=2908&popoutRequestedTop=166`,
+          }),
+        );
+      });
+
+      it("re-focuses an open popout at the intended position, as `windows.update` doesn't apply the creation scale", async () => {
+        storedPlacement(learnedMemory);
+        const isOpen = jest
+          .spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen")
+          .mockReset()
+          .mockResolvedValueOnce(true);
+
+        await BrowserPopupUtils.openPopout(url, { singleActionKey: "123" });
+
+        expect(isOpen).toHaveBeenCalledWith(
+          "123",
+          expect.objectContaining({ left: 2908, top: 166 }),
+          undefined,
+        );
+        expect(BrowserApi.createWindow).not.toHaveBeenCalled();
+      });
+
+      it("respects a position supplied by the caller", async () => {
+        storedPlacement(learnedMemory);
+
+        await BrowserPopupUtils.openPopout(url, { windowOptions: { left: 10, top: 20 } });
+
+        expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            left: 10,
+            top: 20,
+            url: `chrome-extension://id/${url}?uilocation=popout`,
+          }),
+        );
+      });
+
+      it("is not applied on other operating systems", async () => {
+        storedPlacement(learnedMemory);
+        jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+          os: "mac",
+        } as chrome.runtime.PlatformInfo);
+
+        await BrowserPopupUtils.openPopout(url);
+
+        expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            left: 2908,
+            top: 166,
+            url: `chrome-extension://id/${url}?uilocation=popout`,
+          }),
+        );
+      });
+
+      it("is not applied on other browsers", async () => {
+        storedPlacement(learnedMemory);
+        BrowserApi.isFirefox = false;
+
+        await BrowserPopupUtils.openPopout(url);
+
+        expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            left: 2908,
+            top: 166,
+            url: `chrome-extension://id/${url}?uilocation=popout`,
+          }),
+        );
       });
     });
   });

@@ -1,6 +1,7 @@
 import { enableProdMode, provideZoneChangeDetection } from "@angular/core";
 import { platformBrowser } from "@angular/platform-browser";
 
+import { ensurePopoutPlacement } from "../platform/browser/popout-placement";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
@@ -14,6 +15,8 @@ PopupSizeService.initBodyWidthFromLocalStorage();
 if (BrowserPlatformUtilsService.shouldApplySafariHeightFix(window)) {
   document.documentElement.classList.add("safari_height_fix");
 }
+
+void ensurePopoutPlacement(window);
 
 if (process.env.ENV === "production") {
   enableProdMode();
