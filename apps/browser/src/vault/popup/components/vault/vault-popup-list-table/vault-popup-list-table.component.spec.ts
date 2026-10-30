@@ -6,7 +6,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -792,6 +792,25 @@ describe("VaultPopupListTableComponent", () => {
         expect(folder!.value()).toEqual(["folder-1"]);
 
         late.destroy();
+      });
+
+      /** The table reports its empty selection on mount, which would overwrite the cached one. */
+      it("doesn't save the mount-time selection before the cache has resolved", async () => {
+        const pending = new Subject<object>();
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(pending);
+        vaultPopupListTableFiltersService.saveFilters.mockClear();
+
+        const early = TestBed.createComponent(VaultPopupListTableComponent);
+        early.detectChanges();
+        await early.whenStable();
+        folders$.next([{ value: { id: "folder-1", name: "Work" }, label: "Work" } as any]);
+        early.detectChanges();
+        await early.whenStable();
+
+        expect(vaultPopupListTableFiltersService.saveFilters).not.toHaveBeenCalled();
+
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(of({}));
+        early.destroy();
       });
 
       it("keeps every organization's shared folders when unscoped", () => {

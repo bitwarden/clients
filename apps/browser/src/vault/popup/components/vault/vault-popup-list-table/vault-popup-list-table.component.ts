@@ -588,9 +588,15 @@ export class VaultPopupListTableComponent {
         return;
       }
 
-      // Persist cache and update service state whenever chip selections change.
+      // Persist cache and update service state whenever chip selections change. Held until the
+      // cache has resolved: the table reports its empty selection on mount, and saving that first
+      // would overwrite the vault's entry before it was read back.
       toObservable(table.filterValues, { injector: this.injector })
-        .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          skip(1),
+          filter(() => this.filtersToRestore() !== undefined),
+          takeUntilDestroyed(this.destroyRef),
+        )
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
         });
