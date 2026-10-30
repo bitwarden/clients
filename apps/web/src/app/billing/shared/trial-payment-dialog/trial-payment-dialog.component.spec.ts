@@ -42,11 +42,7 @@ class Vfo1I18nStubPipe implements PipeTransform {
 
 const ORG_ID = "org-1" as OrganizationId;
 
-const cart = {
-  passwordManager: {},
-  cadence: "monthly",
-  estimatedTax: 4,
-} as unknown as Cart;
+const cart = { passwordManager: {} } as unknown as Cart;
 
 const planCard = (isAnnual: boolean, productTier: ProductTierType): PlanCard => ({
   title: "plan",
@@ -66,7 +62,15 @@ describe("TrialPaymentDialogComponent", () => {
 
   const setup = (
     tier: ProductTierType,
-    { isAnnual = false, withAddress = true } = {},
+    {
+      isAnnual = false,
+      withAddress = true,
+      taxId = null,
+    }: {
+      isAnnual?: boolean;
+      withAddress?: boolean;
+      taxId?: { code: string; value: string } | null;
+    } = {},
   ): TrialPaymentDialogComponent => {
     const currentPlan = {
       type: PlanType.TeamsMonthly,
@@ -87,7 +91,7 @@ describe("TrialPaymentDialogComponent", () => {
       [planCard(false, tier), planCard(true, tier)].map((card) => ({ ...card, discount: 0 })),
     );
     subscriberBillingClient.getBillingAddress.mockResolvedValue(
-      withAddress ? ({ country: "US", postalCode: "90210", taxId: null } as any) : null,
+      withAddress ? ({ country: "US", postalCode: "90210", taxId } as any) : null,
     );
 
     const organizationService = mock<OrganizationService>();
@@ -160,16 +164,32 @@ describe("TrialPaymentDialogComponent", () => {
     });
   }));
 
-  it("requests an annual Families preview", fakeAsync(() => {
-    setup(ProductTierType.Families, { isAnnual: true });
+  describe("Families", () => {
+    it("requests an annual preview even when the current plan is monthly", fakeAsync(() => {
+      setup(ProductTierType.Families, { isAnnual: false });
 
-    settle();
+      settle();
 
-    expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledWith(
-      ORG_ID,
-      expect.objectContaining({ tier: "families", cadence: "annually" }),
-    );
-  }));
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledWith(
+        ORG_ID,
+        expect.objectContaining({ tier: "families", cadence: "annually" }),
+      );
+    }));
+
+    it("keeps requesting annual when the monthly card is selected", fakeAsync(() => {
+      const component = setup(ProductTierType.Families, { isAnnual: false });
+      settle();
+
+      void component.setSelected(planCard(false, ProductTierType.Families));
+      settle();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenLastCalledWith(
+        ORG_ID,
+        expect.objectContaining({ tier: "families", cadence: "annually" }),
+      );
+    }));
+  });
 
   it("re-requests when the cadence card changes", fakeAsync(() => {
     const component = setup(ProductTierType.Teams);
@@ -200,7 +220,17 @@ describe("TrialPaymentDialogComponent", () => {
     expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
   }));
 
-  it("disables Subscribe while the preview is loading or failed", fakeAsync(() => {
+  it("disables Subscribe while the preview is loading", fakeAsync(() => {
+    invoicePreviewService.previewPlanChangeCart.mockReturnValue(new Promise(() => {}));
+    setup(ProductTierType.Teams);
+
+    settle();
+
+    expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
+    expect(subscribeButton().disabled).toBe(true);
+  }));
+
+  it("disables Subscribe and shows the error when the preview fails", fakeAsync(() => {
     invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("boom"));
     setup(ProductTierType.Teams);
 
@@ -210,6 +240,50 @@ describe("TrialPaymentDialogComponent", () => {
     expect(fixture.nativeElement.querySelector("bit-callout[type='danger']")).not.toBeNull();
     expect(billingNotificationService.showError).toHaveBeenCalledWith("invoicePreviewErrorMessage");
   }));
+
+  it("disables Subscribe when no preview is requested because the address is missing", fakeAsync(() => {
+    setup(ProductTierType.Teams, { withAddress: false });
+
+    settle();
+
+    expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    expect(subscribeButton().disabled).toBe(true);
+  }));
+
+  describe("after a successful preview", () => {
+    it.each([
+      ["country", { country: "CA" }],
+      ["postal code", { postalCode: "10001" }],
+      ["tax ID", { taxId: "98-7654321" }],
+    ])(
+      "requests another preview when the %s changes",
+      fakeAsync((_, change) => {
+        const component = setup(ProductTierType.Teams, {
+          taxId: { code: "us_ein", value: "12-3456789" },
+        });
+        settle();
+        expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
+
+        component.formGroup.controls.billingAddress.patchValue(change);
+        settle();
+
+        expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(2);
+      }),
+    );
+
+    it("does not request another preview when an identical address is re-emitted", fakeAsync(() => {
+      const component = setup(ProductTierType.Teams);
+      settle();
+
+      component.formGroup.controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "90210",
+      });
+      settle();
+
+      expect(invoicePreviewService.previewPlanChangeCart).toHaveBeenCalledTimes(1);
+    }));
+  });
 
   it("renders billing-cart-summary with the previewed cart", fakeAsync(() => {
     setup(ProductTierType.Teams);
