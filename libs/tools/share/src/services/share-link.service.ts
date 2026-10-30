@@ -29,6 +29,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -69,6 +70,7 @@ export class ShareLinkService {
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private organizationService = inject(OrganizationService);
+  private folderService = inject(FolderService);
   private revealedCipherService = inject(RevealedCipherService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
@@ -116,11 +118,44 @@ export class ShareLinkService {
       throw new Error(this.i18nService.t("linkSaveFailed"));
     }
 
+    // Fetch cipher metadata
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let folderName: string | undefined = undefined;
+    if (sharedCipherView.folderId) {
+      const folder = await firstValueFrom(
+        this.folderService.getDecrypted$(sharedCipherView.folderId, userId),
+      );
+      folderName = folder?.name;
+    }
+    let collectionNames: string[] | undefined = undefined;
+    if (sharedCipherView.collectionIds.length > 0) {
+      const collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(userId),
+      );
+      collectionNames = sharedCipherView.collectionIds.flatMap((id) => {
+        const collectionWithId = collections.find((c) => c.id === id);
+        return collectionWithId ? [collectionWithId.name] : [];
+      });
+    }
+    let organizationName: string | undefined = undefined;
+    if (sharedCipherView.organizationId) {
+      const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
+      const orgWithId = organizations.find((o) => o.id === sharedCipherView.organizationId);
+      organizationName = orgWithId?.name;
+    }
+
     sendView.data = {
       data: sharedCipherView,
+      metadata: {
+        itemId: sharedCipherView.id,
+        creationDate: sharedCipherView.creationDate.toISOString(),
+        revisionDate: sharedCipherView.revisionDate.toISOString(),
+        folderName,
+        collectionNames,
+        organizationName,
+      },
     };
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const createdSdkSendView = await this.sendSdkApiService.mutateSend(
       sendView,
       userId,
