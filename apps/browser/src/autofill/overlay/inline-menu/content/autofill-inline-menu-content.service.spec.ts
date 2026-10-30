@@ -1055,32 +1055,6 @@ describe("AutofillInlineMenuContentService", () => {
     });
   });
 
-  describe("getOwnedTagNames", () => {
-    it("returns an empty array when no elements are created", () => {
-      expect(autofillInlineMenuContentService.getOwnedTagNames()).toEqual([]);
-    });
-
-    it("returns the button element tag name", () => {
-      const buttonElement = document.createElement("div");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-
-      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
-
-      expect(tagNames).toContain("DIV");
-    });
-
-    it("returns both button and list element tag names", () => {
-      const buttonElement = document.createElement("div");
-      const listElement = document.createElement("span");
-      autofillInlineMenuContentService["buttonElement"] = buttonElement;
-      autofillInlineMenuContentService["listElement"] = listElement;
-
-      const tagNames = autofillInlineMenuContentService.getOwnedTagNames();
-
-      expect(tagNames).toEqual(["DIV", "SPAN"]);
-    });
-  });
-
   describe("getUnownedTopLayerItems", () => {
     beforeEach(() => {
       document.body.innerHTML = "";

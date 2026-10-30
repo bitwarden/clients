@@ -1964,28 +1964,6 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("getOwnedInlineMenuTagNames", () => {
-    it("returns tag names from the inline menu content service", () => {
-      inlineMenuContentService.getOwnedTagNames.mockReturnValue(["div", "span"]);
-
-      const result = autofillOverlayContentService.getOwnedInlineMenuTagNames();
-
-      expect(result).toEqual(["div", "span"]);
-    });
-
-    it("returns an empty array if inline menu content service is not available", () => {
-      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
-        domQueryService,
-        domElementVisibilityService,
-        inlineMenuFieldQualificationService,
-      );
-
-      const result = serviceWithoutInlineMenu.getOwnedInlineMenuTagNames();
-
-      expect(result).toEqual([]);
-    });
-  });
-
   describe("isElementInlineMenu", () => {
     it("delegates to the inline menu content service", () => {
       const element = document.createElement("div");
