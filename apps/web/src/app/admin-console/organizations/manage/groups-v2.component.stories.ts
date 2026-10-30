@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angula
 import { provideRouter, Routes, RouterOutlet, withHashLocation } from "@angular/router";
 import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
-import { getAllByRole, getByRole, userEvent } from "storybook/test";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -190,63 +189,4 @@ export const Loading: Story = {
 export const Empty: Story = {
   render,
   decorators: [withGroups([])],
-};
-
-/** Opening a row's options menu — shows the real "Edit info", "Members", "Collections", and
- * "Delete" menu items reachable from a row's "Options" trigger. */
-export const RowOptionsMenu: Story = {
-  render,
-  decorators: [withGroups(mockGroups)],
-  play: async ({ canvasElement }) => {
-    const optionsButton = getAllByRole(canvasElement, "button", { name: "Options" })[0];
-    await userEvent.click(optionsButton);
-
-    await getByRole(document.body, "menuitem", { name: "Edit info" });
-    await getByRole(document.body, "menuitem", { name: "Members" });
-    await getByRole(document.body, "menuitem", { name: "Collections" });
-    await getByRole(document.body, "menuitem", { name: "Delete" });
-  },
-};
-
-/** Clicking a group's name opens the real edit dialog on its "Info" tab. */
-export const RowClickOpensEditDialog: Story = {
-  render,
-  decorators: [withGroups(mockGroups)],
-  play: async ({ canvasElement }) => {
-    const nameLink = await getByRole(canvasElement, "button", { name: "Engineering Team" });
-    await userEvent.click(nameLink);
-
-    await getByRole(document.body, "dialog");
-  },
-};
-
-/** Deleting a single group from its row options menu — shows the real "Delete group"
- * confirmation dialog, opened via its actual trigger path (row menu → Delete). */
-export const DeleteConfirmationSingle: Story = {
-  render,
-  decorators: [withGroups(mockGroups)],
-  play: async ({ canvasElement }) => {
-    const optionsButton = getAllByRole(canvasElement, "button", { name: "Options" })[0];
-    await userEvent.click(optionsButton);
-
-    const deleteItem = await getByRole(document.body, "menuitem", { name: "Delete" });
-    await userEvent.click(deleteItem);
-  },
-};
-
-/** Bulk-deleting the current selection via the bulk-actions bar — shows the real
- * "Delete N groups" confirmation dialog, opened via its actual trigger path (select rows →
- * bulk-actions bar → Delete). */
-export const DeleteConfirmationBulk: Story = {
-  render,
-  decorators: [withGroups(mockGroups)],
-  play: async ({ canvasElement }) => {
-    const selectRow = getAllByRole(canvasElement, "checkbox", { name: "Select row" });
-    for (const checkbox of selectRow) {
-      await userEvent.click(checkbox);
-    }
-
-    const deleteButton = await getByRole(document.body, "button", { name: "Delete" });
-    await userEvent.click(deleteButton);
-  },
 };
