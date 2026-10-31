@@ -113,7 +113,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "image",
     "file",
     "search",
-    "url",
     "date",
     "time",
     "datetime", // Note: datetime is deprecated in HTML5; keeping here for backwards compatibility
