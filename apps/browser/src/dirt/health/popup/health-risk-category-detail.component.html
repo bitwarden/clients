@@ -47,7 +47,7 @@
             </div>
           </button>
           <ng-container slot="end">
-            @if (cipher.login.uri != null) {
+            @if (hasWebsiteUri(cipher)) {
               <bit-item-action>
                 <button
                   type="button"
