@@ -87,6 +87,24 @@ describe("DefaultAutofillLifecycleService", () => {
         service["handleTabCreated"],
       );
     });
+
+    it("registers a tabs onUpdated listener", () => {
+      service.init();
+
+      expect(BrowserApi.addListener).toHaveBeenCalledWith(
+        chrome.tabs.onUpdated,
+        service["handleTabUpdated"],
+      );
+    });
+
+    it("registers a tabs onReplaced listener", () => {
+      service.init();
+
+      expect(BrowserApi.addListener).toHaveBeenCalledWith(
+        chrome.tabs.onReplaced,
+        service["handleTabReplaced"],
+      );
+    });
   });
 
   describe("live-tab set", () => {
@@ -128,6 +146,42 @@ describe("DefaultAutofillLifecycleService", () => {
       service["handleTabCreated"](createChromeTabMock({ id: undefined }));
 
       expect(await firstValueFrom(service.liveTabs$)).toEqual(new Set());
+    });
+
+    it("tracks a discarded tab's new id without a created or replaced event", async () => {
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([createChromeTabMock({ id: 1 })]);
+      service.init();
+      const liveTabs: number[][] = [];
+      const sub = service.liveTabs$.subscribe((tabs) => liveTabs.push([...tabs]));
+      await flushPromises();
+
+      service["handleTabUpdated"](2);
+
+      expect(liveTabs.at(-1)).toEqual([1, 2]);
+
+      // Repeated load/status updates must not duplicate the tab; closing it must still retire it.
+      service["handleTabUpdated"](2);
+      expect(liveTabs.at(-1)).toEqual([1, 2]);
+      service["handleTabRemoved"](2);
+      expect(liveTabs.at(-1)).toEqual([1]);
+      sub.unsubscribe();
+    });
+
+    it("replaces the old tab id and notifies its removal subscribers", async () => {
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([createChromeTabMock({ id: 1 })]);
+      service.init();
+      const liveTabs: number[][] = [];
+      const liveSub = service.liveTabs$.subscribe((tabs) => liveTabs.push([...tabs]));
+      await flushPromises();
+      const removed = jest.fn();
+      const sub = service.tabRemoved$(1).subscribe(removed);
+
+      service["handleTabReplaced"](2, 1);
+
+      expect(liveTabs.at(-1)).toEqual([2]);
+      expect(removed).toHaveBeenCalledTimes(1);
+      sub.unsubscribe();
+      liveSub.unsubscribe();
     });
 
     it("errors liveTabs$ when the seed query fails", async () => {
