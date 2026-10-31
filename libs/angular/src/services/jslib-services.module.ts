@@ -117,6 +117,10 @@ import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstr
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import {
+  AccountDeletionService,
+  DefaultAccountDeletionService,
+} from "@bitwarden/common/auth/account-deletion";
+import {
   AccountSwitcherService,
   DefaultAccountSwitcherService,
 } from "@bitwarden/common/auth/account-switcher";
@@ -814,18 +818,22 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AccountApiServiceAbstraction,
     useClass: AccountApiServiceImplementation,
+    deps: [ApiServiceAbstraction, LogService, EnvironmentService],
+  }),
+  safeProvider({
+    provide: AccountDeletionService,
+    useClass: DefaultAccountDeletionService,
     deps: [
-      ApiServiceAbstraction,
+      AccountApiServiceAbstraction,
       UserVerificationServiceAbstraction,
+      LogoutService,
       LogService,
-      InternalAccountService,
-      EnvironmentService,
     ],
   }),
   safeProvider({
     provide: InternalAccountService,
     useClass: AccountServiceImplementation,
-    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider, SingleUserStateProvider],
+    deps: [GlobalStateProvider, SingleUserStateProvider],
   }),
   safeProvider({
     provide: AccountServiceAbstraction,

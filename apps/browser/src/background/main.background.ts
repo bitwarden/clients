@@ -737,8 +737,6 @@ export default class MainBackground {
       this.logService,
     );
     this.accountService = new AccountServiceImplementation(
-      this.messagingService,
-      this.logService,
       this.globalStateProvider,
       this.singleUserStateProvider,
     );

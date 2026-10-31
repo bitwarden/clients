@@ -110,6 +110,4 @@ export abstract class AccountService {
   abstract setShowHeader(visible: boolean): Promise<void>;
 }
 
-export abstract class InternalAccountService extends AccountService {
-  abstract delete(): void;
-}
+export abstract class InternalAccountService extends AccountService {}
