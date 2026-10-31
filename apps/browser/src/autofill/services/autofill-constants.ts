@@ -192,6 +192,9 @@ export class AutoFillConstants {
     "update password",
     "change password",
     "current password",
+    "current-password",
+    "old password",
+    "old-password",
     "kennwort ändern",
   ];
 
