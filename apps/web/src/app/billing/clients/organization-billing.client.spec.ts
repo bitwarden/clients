@@ -158,4 +158,39 @@ describe("OrganizationBillingClient", () => {
       await expect(sut.redeemAnnualUpgradeOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
     });
   });
+
+  describe("updatePrivilegedControlsSubscription", () => {
+    it("sends the seat adjustment and limit to the correct route", async () => {
+      mockApiService.send.mockResolvedValue(undefined);
+
+      const result = await sut.updatePrivilegedControlsSubscription(orgId, {
+        seatAdjustment: 2,
+        maxAutoscaleSeats: null,
+      });
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-123/billing/subscription/privileged-controls",
+        { seatAdjustment: 2, maxAutoscaleSeats: null },
+        true,
+        false,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it("propagates errors", async () => {
+      const serverError = new ErrorResponse(
+        { Message: "Privileged Controls requires at least 10 seats." },
+        400,
+      );
+      mockApiService.send.mockRejectedValue(serverError);
+
+      await expect(
+        sut.updatePrivilegedControlsSubscription(orgId, {
+          seatAdjustment: -1,
+          maxAutoscaleSeats: null,
+        }),
+      ).rejects.toBe(serverError);
+    });
+  });
 });
