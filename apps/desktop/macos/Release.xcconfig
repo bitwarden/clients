@@ -1,0 +1,15 @@
+//
+//  Release.xcconfig
+//  desktop
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// The configuration carries the profile -- optimization, assertions, debug information -- and
+// nothing about how the build is distributed. A build driven by bw-task passes the identity,
+// provisioning profile and entitlements for its distribution channel on the command line,
+// which outranks everything here. These are what a Release build gets when it is built from
+// Xcode instead, where there is no channel to ask.
+CODE_SIGN_IDENTITY = Developer ID Application
+PROVISIONING_PROFILE_SPECIFIER = Bitwarden Desktop Autofill Extension Developer Dis
