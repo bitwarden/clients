@@ -155,7 +155,7 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macos-14
+          - macos-26
           - windows-2022
 
     steps:
@@ -204,7 +204,7 @@ jobs:
         run: cargo test --lib -- --test-threads=1
 
       - name: MacOS unit tests
-        if: ${{ matrix.os=='macos-14' }}
+        if: ${{ matrix.os=='macos-26' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib -- --test-threads=1
 
@@ -224,7 +224,7 @@ jobs:
 
   rust-coverage:
     name: Rust Coverage
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
