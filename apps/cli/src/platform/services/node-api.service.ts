@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import * as FormData from "form-data";
 import * as fe from "node-fetch";
+import { getProxyForUrl } from "proxy-from-env";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -47,11 +48,12 @@ export class NodeApiService extends ApiService {
   }
 
   async nativeFetch(request: Request): Promise<Response> {
-    const proxy = process.env.http_proxy || process.env.https_proxy;
-    if (proxy) {
-      const { HttpsProxyAgent } = await import("https-proxy-agent");
-      (request as any).agent = new HttpsProxyAgent(proxy);
-    }
+    const { HttpsProxyAgent } = await import("https-proxy-agent");
+    // node-fetch calls this again for redirects, which may have different proxy exclusions.
+    (request as Request & Pick<fe.Request, "agent">).agent = (url) => {
+      const proxy = getProxyForUrl(url.href);
+      return proxy ? new HttpsProxyAgent(proxy) : undefined;
+    };
     return fetch(request);
   }
 
