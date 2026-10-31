@@ -22,7 +22,7 @@ import { SubscriptionCardActions, SubscriptionPreview } from "@bitwarden/subscri
 import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBillingClient } from "../clients";
 
-import { AdjustSubscription } from "./adjust-subscription.component";
+import { AdjustSubscriptionComponent } from "./adjust-subscription.component";
 import { OrganizationSubscriptionCloudVNextComponent } from "./organization-subscription-cloud-vnext.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
 import * as restartSubscriptionDialog from "./restart-subscription-dialog.component";
@@ -258,7 +258,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       remove: {
         imports: [
           HeaderModule,
-          AdjustSubscription,
+          AdjustSubscriptionComponent,
           SecretsManagerSubscribeStandaloneComponent,
           SecretsManagerAdjustSubscriptionComponent,
           OrganizationScheduledPriceIncreaseWarningComponent,
@@ -902,7 +902,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       // Matches the legacy page: free orgs see the usage bar, but have no subscription to modify.
       createComponent({
         organization: buildOrganization({ isFreeOrg: true, canEditSubscription: true }),
-        subscription: buildSubscriptionResponse({ subscription: null, planType: PlanType.Free }),
+        subscription: buildSubscriptionResponse({
+          subscription: undefined,
+          planType: PlanType.Free,
+        }),
         detectChanges: true,
       });
       await fixture.whenStable();

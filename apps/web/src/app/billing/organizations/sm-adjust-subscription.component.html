@@ -4,8 +4,8 @@
     <input bitInput id="smSeatCount" formControlName="seatCount" type="number" step="1" min="1" />
     <bit-hint>
       <strong>{{ "total" | i18n }}:</strong>
-      {{ formGroup.value.seatCount || 0 }} &times; {{ options.seatPrice | currency: "$" }} =
-      {{ seatTotalCost | currency: "$" }} / {{ options.interval | i18n }}
+      {{ formGroup.value.seatCount || 0 }} &times; {{ options().seatPrice | currency: "$" }} =
+      {{ seatTotalCost | currency: "$" }} / {{ options().interval | i18n }}
     </bit-hint>
   </bit-form-field>
   <bit-form-control>
@@ -15,23 +15,25 @@
       {{ "limitSmSubscriptionDesc" | i18n }}
     </bit-hint>
   </bit-form-control>
-  <bit-form-field class="tw-w-2/3" *ngIf="formGroup.value.limitSeats">
-    <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
-    <input
-      bitInput
-      id="smSeatLimit"
-      formControlName="maxAutoscaleSeats"
-      type="number"
-      step="1"
-      [min]="formGroup.value.seatCount"
-    />
-    <bit-hint>
-      <strong>{{ "maxSeatCost" | i18n }}:</strong>
-      {{ formGroup.value.maxAutoscaleSeats || 0 }} &times; {{ options.seatPrice | currency: "$" }} =
-      {{ maxSeatTotalCost | currency: "$" }} /
-      {{ options.interval | i18n }}
-    </bit-hint>
-  </bit-form-field>
+  @if (formGroup.value.limitSeats) {
+    <bit-form-field class="tw-w-2/3">
+      <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="smSeatLimit"
+        formControlName="maxAutoscaleSeats"
+        type="number"
+        step="1"
+        [min]="formGroup.value.seatCount"
+      />
+      <bit-hint>
+        <strong>{{ "maxSeatCost" | i18n }}:</strong>
+        {{ formGroup.value.maxAutoscaleSeats || 0 }} &times;
+        {{ options().seatPrice | currency: "$" }} = {{ maxSeatTotalCost | currency: "$" }} /
+        {{ options().interval | i18n }}
+      </bit-hint>
+    </bit-form-field>
+  }
   <bit-form-field class="tw-w-2/3">
     <bit-label>{{ "additionalMachineAccounts" | i18n }}</bit-label>
     <input
@@ -44,17 +46,19 @@
     />
     <bit-hint>
       <div>
-        {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
-        <span *ngIf="options.graceServiceAccounts > 0">
-          {{ "graceMachineAccounts" | i18n: options.graceServiceAccounts }}
-        </span>
+        {{ "includedMachineAccounts" | i18n: options().baseServiceAccountCount }}
+        @if (options().graceServiceAccounts > 0) {
+          <span>
+            {{ "graceMachineAccounts" | i18n: options().graceServiceAccounts }}
+          </span>
+        }
         {{ "addAdditionalMachineAccounts" | i18n: (monthlyServiceAccountPrice | currency: "$") }}
       </div>
       <div>
         <strong>{{ "total" | i18n }}:</strong>
         {{ formGroup.value.additionalServiceAccounts || 0 }} &times;
-        {{ options.additionalServiceAccountPrice | currency: "$" }} =
-        {{ serviceAccountTotalCost | currency: "$" }} / {{ options.interval | i18n }}
+        {{ options().additionalServiceAccountPrice | currency: "$" }} =
+        {{ serviceAccountTotalCost | currency: "$" }} / {{ options().interval | i18n }}
       </div>
     </bit-hint>
   </bit-form-field>
@@ -70,26 +74,28 @@
       {{ "limitMachineAccountsDesc" | i18n }}
     </bit-hint>
   </bit-form-control>
-  <bit-form-field class="tw-w-2/3" *ngIf="formGroup.value.limitServiceAccounts">
-    <bit-label>{{ "machineAccountLimit" | i18n }}</bit-label>
-    <input
-      bitInput
-      id="additionalServiceAccountLimit"
-      formControlName="maxAutoscaleServiceAccounts"
-      type="number"
-      step="1"
-      [min]="formGroup.value.additionalServiceAccounts"
-    />
-    <bit-hint>
-      <div>
-        {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
-      </div>
-      <strong>{{ "maxMachineAccountCost" | i18n }}:</strong>
-      {{ maxAdditionalServiceAccounts }} &times;
-      {{ options.additionalServiceAccountPrice | currency: "$" }} =
-      {{ maxServiceAccountTotalCost | currency: "$" }} / {{ options.interval | i18n }}
-    </bit-hint>
-  </bit-form-field>
+  @if (formGroup.value.limitServiceAccounts) {
+    <bit-form-field class="tw-w-2/3">
+      <bit-label>{{ "machineAccountLimit" | i18n }}</bit-label>
+      <input
+        bitInput
+        id="additionalServiceAccountLimit"
+        formControlName="maxAutoscaleServiceAccounts"
+        type="number"
+        step="1"
+        [min]="formGroup.value.additionalServiceAccounts"
+      />
+      <bit-hint>
+        <div>
+          {{ "includedMachineAccounts" | i18n: options().baseServiceAccountCount }}
+        </div>
+        <strong>{{ "maxMachineAccountCost" | i18n }}:</strong>
+        {{ maxAdditionalServiceAccounts }} &times;
+        {{ options().additionalServiceAccountPrice | currency: "$" }} =
+        {{ maxServiceAccountTotalCost | currency: "$" }} / {{ options().interval | i18n }}
+      </bit-hint>
+    </bit-form-field>
+  }
   <button type="submit" bitButton buttonType="primary" bitFormButton>
     {{ "save" | i18n }}
   </button>
