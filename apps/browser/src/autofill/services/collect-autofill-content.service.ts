@@ -37,6 +37,11 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import {
+  InScopeFormsDetection,
+  QualificationResult,
+  RuleQualificationService,
+} from "./abstractions/rule-qualification.service";
 import { AutoFillConstants } from "./autofill-constants";
 import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
@@ -67,6 +72,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * [] = blocklisted (suppress autofill), [...] = use targeted fill
    */
   private pageTargetingRules: FormContent[] | null | undefined = undefined;
+  // Populated alongside `pageTargetingRules` from the background envelope. Sibling
+  // caches that short-circuit the per-call qualification cost (Half 1 + Half 2) on
+  // subsequent `getPageDetails()` calls for the same page load.
+  private ruleFailureFallback: boolean | undefined = undefined;
+  private ruleQualificationResult: QualificationResult | undefined = undefined;
+  private ruleQualificationService?: RuleQualificationService;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -280,11 +291,40 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
-      this.pageTargetingRules =
-        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
+      const { result } = await this.sendExtensionMessage("getUrlAutofillTargetingRules");
+      const envelope = result ?? { targetingRules: null, ruleFailureFallback: false };
+      this.pageTargetingRules = envelope.targetingRules;
+      this.ruleFailureFallback = envelope.ruleFailureFallback;
     }
 
     const targetingRules = this.pageTargetingRules;
+
+    // Rule qualification branch. When the envelope's `ruleFailureFallback`
+    // is set and a non-empty rule matches, run qualification once per page
+    // load and route on the result. On miss, pin `pageTargetingRules = null`
+    // so later calls on this document skip this branch and run the heuristic
+    // path. The null check on `ruleQualificationService` guards against the
+    // branch firing before the service is wired by content-script DI setup.
+    if (
+      this.ruleFailureFallback &&
+      targetingRules != null &&
+      targetingRules.length > 0 &&
+      this.ruleQualificationService
+    ) {
+      if (this.ruleQualificationResult === undefined) {
+        this.ruleQualificationResult = await this.ruleQualificationService.qualifyRule(
+          location.href,
+          targetingRules,
+        );
+      }
+      const qualification = this.ruleQualificationResult;
+      if (qualification.kind === "proceedTargeted") {
+        return this.getTargetedPageDetails(targetingRules);
+      }
+      this.pageTargetingRules = null;
+      return qualification.pageDetails;
+    }
+
     if (targetingRules != null) {
       if (targetingRules.length === 0) {
         // Blocklisted; return empty page details, skip heuristics
@@ -306,6 +346,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
     }
 
+    return this.runHeuristicCollection();
+  }
+
+  /**
+   * Walks the DOM for forms and fields, builds the page details, and sets up
+   * overlay listeners. Shared by `getPageDetails` and
+   * `collectHeuristicPageDetailsBypass`.
+   */
+  private async runHeuristicCollection(): Promise<AutofillPageDetails> {
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
@@ -323,6 +372,29 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
+  }
+
+  /**
+   * Runs the heuristic collection path on the miss path, after clearing any
+   * targeted-rule state so the heuristic pass starts fresh. Called by
+   * `RuleQualificationService` when a matched rule fails qualification.
+   *
+   * The `cachedInScopeForms` parameter is reserved for a later optimization
+   * that reuses Half 2's field detection within the rule's in-scope forms
+   * rather than detecting them again. Not consumed yet; the heuristic walk
+   * runs over the full document.
+   */
+  async collectHeuristicPageDetailsBypass(
+    cachedInScopeForms?: InScopeFormsDetection,
+  ): Promise<AutofillPageDetails> {
+    this.pageTargetingRules = null;
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    return this.runHeuristicCollection();
+  }
+
+  setRuleQualificationService(ruleQualificationService: RuleQualificationService): void {
+    this.ruleQualificationService = ruleQualificationService;
   }
 
   /**
@@ -585,6 +657,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   clearCachedTargetingRules(): void {
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
   }
 
   /**
@@ -1466,12 +1540,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Checks if the passed node is a form field element.
-   * @param {Element} element the element to check.
-   * @returns {boolean} whether the element is a form field element.
-   * @private
+   * Checks if the passed node is a form field element. Mirrors the filter used
+   * by the heuristic collection pass: excludes ignored input types and
+   * `data-bwignore` elements.
+   * @param element the element to check.
+   * @returns whether the element is a form field element.
    */
-  private isElementFormFieldElement(element: Element): boolean {
+  isElementFormFieldElement(element: Element): boolean {
     const nodeTagName = element.tagName.toLowerCase();
 
     const nodeIsSpanElementWithAutofillAttribute =
@@ -1604,6 +1679,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Targeting rules are URL-scoped and gated by user/feature state at fetch
     // time; the new URL must re-fetch to pick up rule and gate changes.
     this.pageTargetingRules = undefined;
+    this.ruleFailureFallback = undefined;
+    this.ruleQualificationResult = undefined;
 
     this.clearFieldCache();
 
