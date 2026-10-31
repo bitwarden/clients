@@ -15,7 +15,7 @@
 // them from here so a Renovate bump can't leave a workflow literal behind.
 //
 // The equivalent in bitwarden/sdk-internal is a `grep -oP` in each workflow,
-// which we can't reuse: our Rust lint matrix includes macos-14, whose BSD grep
+// which we can't reuse: our Rust lint matrix includes macOS, whose BSD grep
 // has no -P.
 //
 // Usage:
