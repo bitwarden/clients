@@ -101,7 +101,6 @@ export enum FeatureFlag {
   PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
-  FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
   PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
@@ -215,7 +214,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
   /* Platform */
-  [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
   [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,

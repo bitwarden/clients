@@ -871,7 +871,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AvailableRegionsService,
     useClass: DefaultAvailableRegionsService,
-    deps: [EnvironmentService, ConfigService],
+    deps: [EnvironmentService],
   }),
   safeProvider({
     provide: GovModeService,

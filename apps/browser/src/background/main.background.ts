@@ -1001,10 +1001,7 @@ export default class MainBackground {
       this.sdkService,
     );
 
-    this.availableRegionsService = new DefaultAvailableRegionsService(
-      this.environmentService,
-      this.configService,
-    );
+    this.availableRegionsService = new DefaultAvailableRegionsService(this.environmentService);
 
     this.govModeService = new DefaultGovModeService(this.environmentService);
 
