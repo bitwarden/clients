@@ -141,7 +141,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    *
    * @param element  - The element being checked
    */
-  isElementInlineMenu(element: HTMLElement) {
+  isElementInlineMenu(element: Element) {
     return element === this.buttonElement || element === this.listElement;
   }
 
@@ -563,36 +563,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
-   * Returns the name of the generated container tags for usage internally to avoid
-   * unintentional targeting of the owned experience.
-   */
-  getOwnedTagNames = (): string[] => {
-    return [
-      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
-      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
-    ];
-  };
-
-  /**
    * Queries and return elements (excluding those of the inline menu) that exist in the
    * top-layer via popover or dialog
    * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
    * may or may not be active) should be included in the query
    */
-  getUnownedTopLayerItems = (includeCandidates = false) => {
-    const inlineMenuTagExclusions = [
-      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
-      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
-      ":popover-open",
-    ].join("");
+  getUnownedTopLayerItems = (includeCandidates = false): Element[] => {
     const selector = [
       ":modal",
-      inlineMenuTagExclusions,
+      ":popover-open",
       ...(includeCandidates ? ["[popover], dialog"] : []),
     ].join(",");
-    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
+    const topLayerItems = globalThis.document.querySelectorAll(selector);
 
-    return otherTopLayeritems;
+    // Exclude the inline menu by element identity rather than by tag name: Firefox renders
+    // the menu containers as plain `div` elements, so a tag name exclusion would also
+    // exclude every page `div` popover.
+    return Array.from(topLayerItems).filter((element) => !this.isElementInlineMenu(element));
   };
 
   /**

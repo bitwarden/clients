@@ -290,10 +290,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
   refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
 
-  getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
-
   isElementInlineMenu = (element: Element): boolean =>
-    this.inlineMenuContentService?.isElementInlineMenu(element as HTMLElement) ?? false;
+    this.inlineMenuContentService?.isElementInlineMenu(element) ?? false;
 
   getUnownedTopLayerItems = (includeCandidates?: boolean) =>
     this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);

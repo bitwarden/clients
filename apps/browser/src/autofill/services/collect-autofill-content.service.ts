@@ -87,7 +87,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly overlaySetupDelayMs = 100;
   // Constructed in the constructor body, not here: it closes over a field declared further down.
   private readonly shadowTracker: ShadowHostHydrationTracker;
-  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
@@ -1749,10 +1748,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupTopLayerCandidateListener = (element: Element) => {
     const overlayService = this.autofillOverlayContentService;
     if (overlayService !== undefined) {
-      const ownedTags = overlayService.getOwnedInlineMenuTagNames() || [];
-      this.ownedExperienceTagNames = ownedTags;
-
-      if (!ownedTags.includes(element.tagName)) {
+      if (!overlayService.isElementInlineMenu(element)) {
         if (!this.topLayerListenedElements.has(element)) {
           this.topLayerListenedElements.add(element);
           const toggleListener = (event: Event) => {
@@ -1779,7 +1775,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   private shouldListenToTopLayerCandidate = (element: Element) => {
     return (
-      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      // Excluded by element identity, since Firefox renders the inline menu as plain `div`s
+      !this.autofillOverlayContentService?.isElementInlineMenu(element) &&
       (element.tagName === "DIALOG" ||
         Array.from(element.attributes || []).some((attribute) =>
           this.isPopoverAttribute(attribute.name),
