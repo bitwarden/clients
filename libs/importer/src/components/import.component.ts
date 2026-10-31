@@ -382,12 +382,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.format === "onepassword";
   }
 
-  /** The i18n key of the hint for the selected method of a grouped source, if it has one. */
-  protected get selectedMethodHint(): string | undefined {
-    const method = this.formGroup.controls.method.value;
-    return this.selectedSourceGroup?.methods.find((m) => m.format === method)?.hint;
-  }
-
   protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
     const subgroup = this.formGroup.get("keeperOptions");
     // Default before import-keeper registers keeperOptions, or the @if below throws NG0100.

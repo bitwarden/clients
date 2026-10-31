@@ -2,6 +2,8 @@ import { ipcRenderer } from "electron";
 
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 
+import type { OnePasswordSsoLoginOutcome } from "../../types/onepassword-sso-login-outcome";
+
 const chromiumImporter = {
   getMetadata: (): Promise<Record<string, chromium_importer.NativeImporterMetadata>> =>
     ipcRenderer.invoke("chromium_importer.getMetadata"),
@@ -20,6 +22,13 @@ const chromiumImporter = {
     ipcRenderer.invoke("chromium_importer.importLogins", browser, profileId),
 };
 
+const onePasswordSso = {
+  login: (ssoLoginUrl: string, redirectTo: string): Promise<OnePasswordSsoLoginOutcome> =>
+    ipcRenderer.invoke("onePasswordSso.login", ssoLoginUrl, redirectTo),
+  cancel: (): Promise<void> => ipcRenderer.invoke("onePasswordSso.cancel"),
+};
+
 export default {
   chromiumImporter,
+  onePasswordSso,
 };

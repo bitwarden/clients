@@ -35,7 +35,13 @@ import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
 import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
-import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
+import {
+  buildSdkImporterRegistry,
+  OnePasswordImportRequest,
+  OnePasswordImportSummary,
+  OnePasswordSsoImportRequest,
+  SdkImportCredentials,
+} from "../sdk";
 import { toSdkCollectionType } from "../sdk/sdk-collection-type";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
@@ -611,14 +617,42 @@ describe("ImportService", () => {
     });
   });
 
-  describe("onePasswordSignInMethods", () => {
-    const signInAddress = { subdomain: "my", domain: "Global" } as const;
+  describe("1Password", () => {
+    const userId = Utils.newGuid() as UserId;
+    const summary: OnePasswordImportSummary = {
+      imported: { ciphers: [{ type: CipherType.Login, count: 1 }], folders: 0, collections: 0 },
+      skipped_vaults: [],
+      skipped_items: [],
+    };
+    const ssoRequest = {
+      credentials: {
+        username: "user@example.com",
+        sign_in_address: { subdomain: "my", domain: "Global" },
+      },
+      ui: { performSsoLogin: jest.fn(), beginSsoEnrollment: jest.fn() },
+    } as OnePasswordSsoImportRequest;
+    const passwordRequest = {
+      credentials: {
+        username: "user@example.com",
+        password: "pw",
+        account_key: "A3-KEY",
+        sign_in_address: { subdomain: "my", domain: "Global" },
+      },
+      twoFactorUi: { provideTotp: jest.fn() },
+    } as OnePasswordImportRequest;
+
+    let importOnePassword: jest.Mock;
+    let importOnePasswordSso: jest.Mock;
     let onePasswordSignInMethods: jest.Mock;
 
     beforeEach(() => {
+      importOnePassword = jest.fn().mockResolvedValue(summary);
+      importOnePasswordSso = jest.fn().mockResolvedValue(summary);
       onePasswordSignInMethods = jest.fn().mockResolvedValue({ password: false, sso: true });
       const sdkValue = {
         importers: jest.fn().mockReturnValue({
+          import_onepassword: importOnePassword,
+          import_onepassword_sso: importOnePasswordSso,
           onepassword_sign_in_methods: onePasswordSignInMethods,
         }),
       };
@@ -626,25 +660,116 @@ describe("ImportService", () => {
         take: jest.fn().mockReturnValue({ value: sdkValue, [Symbol.dispose]: jest.fn() }),
       };
       sdkService.userClient$.mockReturnValue(of(sdkClient) as any);
-      accountService.activeAccount$ = of({ id: Utils.newGuid() as UserId } as any);
+      accountService.activeAccount$ = of({ id: userId } as any);
+      (restrictedItemTypesService as any).restricted$ = of([]);
+      i18nService.t.mockImplementation((key) => key);
     });
 
-    it("asks the SDK how the account signs in", async () => {
-      const result = await importService.onePasswordSignInMethods(
-        "user@example.com",
-        signInAddress,
-      );
+    describe("importOnePasswordSso", () => {
+      it("imports into the personal vault, passing the target folder", async () => {
+        const target = new FolderView();
+        target.id = Utils.newGuid();
+        target.name = "My Folder";
 
-      expect(result).toEqual({ password: false, sso: true });
-      expect(onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", signInAddress);
+        const result = await importService.importOnePasswordSso(ssoRequest, null, target, false);
+
+        expect(result).toBe(summary);
+        expect(importOnePasswordSso).toHaveBeenCalledWith(ssoRequest.credentials, ssoRequest.ui, {
+          organization_id: undefined,
+          target_folder: { id: target.id, name: "My Folder" },
+          target_collection: undefined,
+          restricted_types: [],
+        });
+      });
+
+      it("imports into an organization, passing the target collection", async () => {
+        const organizationId = Utils.newGuid() as OrganizationId;
+        const target = new CollectionView({
+          id: Utils.newGuid() as CollectionId,
+          name: "Shared",
+          organizationId,
+        });
+
+        await importService.importOnePasswordSso(ssoRequest, organizationId, target, false);
+
+        expect(importOnePasswordSso).toHaveBeenCalledWith(ssoRequest.credentials, ssoRequest.ui, {
+          organization_id: organizationId,
+          target_folder: undefined,
+          target_collection: {
+            id: target.id,
+            name: "Shared",
+            type: toSdkCollectionType(target.type),
+          },
+          restricted_types: [],
+        });
+      });
+
+      it("throws importUnassignedItemsError for an org import with no target and no permission", async () => {
+        const organizationId = Utils.newGuid() as OrganizationId;
+
+        await expect(
+          importService.importOnePasswordSso(ssoRequest, organizationId, null, false),
+        ).rejects.toThrow("importUnassignedItemsError");
+        expect(importOnePasswordSso).not.toHaveBeenCalled();
+      });
+
+      it("forwards restricted cipher types to the SDK options", async () => {
+        (restrictedItemTypesService as any).restricted$ = of([{ cipherType: CipherType.Card }]);
+
+        await importService.importOnePasswordSso(ssoRequest, null, null, false);
+
+        expect(importOnePasswordSso).toHaveBeenCalledWith(
+          ssoRequest.credentials,
+          ssoRequest.ui,
+          expect.objectContaining({ restricted_types: [CipherType.Card] }),
+        );
+      });
+
+      it("throws when the SDK client is unavailable", async () => {
+        sdkService.userClient$.mockReturnValue(of(null) as any);
+
+        await expect(
+          importService.importOnePasswordSso(ssoRequest, null, null, false),
+        ).rejects.toThrow("SDK not available");
+      });
     });
 
-    it("throws when the SDK client is unavailable", async () => {
-      sdkService.userClient$.mockReturnValue(of(null) as any);
+    describe("onePasswordSignInMethods", () => {
+      it("asks the SDK how the account signs in", async () => {
+        const signInAddress = { subdomain: "my", domain: "Global" } as const;
 
-      await expect(
-        importService.onePasswordSignInMethods("user@example.com", signInAddress),
-      ).rejects.toThrow("SDK not available");
+        const result = await importService.onePasswordSignInMethods(
+          "user@example.com",
+          signInAddress,
+        );
+
+        expect(result).toEqual({ password: false, sso: true });
+        expect(onePasswordSignInMethods).toHaveBeenCalledWith("user@example.com", signInAddress);
+      });
+
+      it("throws when the SDK client is unavailable", async () => {
+        sdkService.userClient$.mockReturnValue(of(null) as any);
+
+        await expect(
+          importService.onePasswordSignInMethods("user@example.com", {
+            subdomain: "my",
+            domain: "Global",
+          }),
+        ).rejects.toThrow("SDK not available");
+      });
+    });
+
+    describe("importOnePassword", () => {
+      it("signs in with the password and the two-factor prompt", async () => {
+        const result = await importService.importOnePassword(passwordRequest, null, null, false);
+
+        expect(result).toBe(summary);
+        expect(importOnePassword).toHaveBeenCalledWith(
+          passwordRequest.credentials,
+          passwordRequest.twoFactorUi,
+          expect.objectContaining({ organization_id: undefined, restricted_types: [] }),
+        );
+      });
     });
   });
 });
