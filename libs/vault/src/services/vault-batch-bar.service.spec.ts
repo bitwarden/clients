@@ -1260,6 +1260,22 @@ describe("VaultBatchBarService", () => {
       );
     });
 
+    it("resolves full cipher views with the host's resolver when configured", async () => {
+      const selected = makeCipher();
+      const resolved = makeCipher();
+      const getFullCipherViews = jest.fn().mockResolvedValue([resolved]);
+      service.setConfig(makeConfig({ getFullCipherViews }));
+      service.selection.select({ cipher: selected });
+      mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Canceled);
+
+      await service.bulkAssignToCollections();
+
+      expect(getFullCipherViews).toHaveBeenCalledWith([selected]);
+      expect(mockAssignCollectionsDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ ciphers: [resolved] }),
+      );
+    });
+
     it("clears selection and emits completed$ when result is Saved", async () => {
       const completedSpy = jest.fn();
       service.completed$.subscribe(completedSpy);

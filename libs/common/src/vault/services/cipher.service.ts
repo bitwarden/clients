@@ -36,10 +36,15 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
+import {
+  CipherSdkService,
+  DecryptAllCiphersResult,
+  OrganizationCipherListResult,
+} from "../abstractions/cipher-sdk.service";
 import {
   CipherService as CipherServiceAbstraction,
   EncryptionContext,
+  OrganizationCipherListViews,
   RestrictedCipherWriteError,
 } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
@@ -576,13 +581,12 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const [ciphers] = await this.cipherSdkService.getAllFromApiForOrganization(
+      const { successes, failures } = await this.cipherSdkService.getAllFromApiForOrganization(
         organizationId,
         userId,
         includeMemberItems,
       );
-
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const cipherViews = [...successes, ...failures];
 
       // Sort by locale (matching existing behavior)
       cipherViews.sort(this.getLocaleSortingFunction());
@@ -601,12 +605,11 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      const [ciphers] = await this.cipherSdkService.getManyFromApiForOrganization(
+      const { successes, failures } = await this.cipherSdkService.getManyFromApiForOrganization(
         organizationId,
         userId,
       );
-
-      const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+      const cipherViews = [...successes, ...failures];
 
       cipherViews.sort(this.getLocaleSortingFunction());
 
@@ -614,6 +617,57 @@ export class CipherService implements CipherServiceAbstraction {
     } catch {
       return [];
     }
+  }
+
+  async getAllListViewsFromApiForOrganization(
+    organizationId: string,
+    includeMemberItems?: boolean,
+  ): Promise<OrganizationCipherListViews> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    try {
+      const result = await this.cipherSdkService.getAllListViewsFromApiForOrganization(
+        organizationId,
+        userId,
+        includeMemberItems ?? false,
+      );
+      return this.toOrganizationCipherListViews(result);
+    } catch {
+      // Return empty arrays on error to maintain existing behavior
+      return { ciphers: [], views: [] };
+    }
+  }
+
+  async getManyListViewsFromApiForOrganization(
+    organizationId: string,
+  ): Promise<OrganizationCipherListViews> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    try {
+      const result = await this.cipherSdkService.getManyListViewsFromApiForOrganization(
+        organizationId,
+        userId,
+      );
+      return this.toOrganizationCipherListViews(result);
+    } catch {
+      return { ciphers: [], views: [] };
+    }
+  }
+
+  private toOrganizationCipherListViews({
+    ciphers,
+    listViews,
+    failures,
+  }: OrganizationCipherListResult): OrganizationCipherListViews {
+    const views: CipherViewLike[] = [...listViews, ...failures];
+    views.sort(this.getLocaleSortingFunction());
+    return { ciphers, views };
   }
 
   async getCiphersOrganizationLogins(organizationId: string): Promise<DecryptAllCiphersResult> {

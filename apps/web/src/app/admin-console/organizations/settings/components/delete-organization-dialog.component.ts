@@ -17,7 +17,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -122,7 +125,10 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
       this.organizationService
         .organizations$(userId)
         .pipe(getOrganizationById(this.params.organizationId)),
-      this.cipherService.getAllFromApiForOrganization(this.params.organizationId),
+      // Only item types are counted, so lightweight list views are enough
+      this.cipherService
+        .getAllListViewsFromApiForOrganization(this.params.organizationId)
+        .then(({ views }) => views),
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([organization, ciphers]) => {
@@ -145,9 +151,9 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     await this.dialogRef.close(DeleteOrganizationDialogResult.Deleted);
   };
 
-  private buildOrganizationContentSummary(ciphers: CipherView[]): OrganizationContentSummary {
+  private buildOrganizationContentSummary(ciphers: CipherViewLike[]): OrganizationContentSummary {
     const organizationContentSummary = new OrganizationContentSummary();
-    const organizationItems = ciphers.filter((item) => item.deletedDate == null);
+    const organizationItems = ciphers.filter((item) => !CipherViewLikeUtils.isDeleted(item));
 
     if (organizationItems.length < 1) {
       return organizationContentSummary;
@@ -169,8 +175,8 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     return organizationContentSummary;
   }
 
-  private getOrganizationItemCountByType(items: CipherView[], type: CipherType) {
-    return items.filter((item) => item.type == type).length;
+  private getOrganizationItemCountByType(items: CipherViewLike[], type: CipherType) {
+    return items.filter((item) => CipherViewLikeUtils.getType(item) === type).length;
   }
 
   private getOrganizationItemLocalizationKeysByType(type: string): CountBasedLocalizationKey {
