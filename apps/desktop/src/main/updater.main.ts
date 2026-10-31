@@ -49,7 +49,10 @@ export class UpdaterMain {
     // temporarily disable AppImage auto updates. See PM-41518.
     const linuxCanUpdate = false;
     const windowsCanUpdate =
-      process.platform === "win32" && !isWindowsStore() && !isWindowsPortable();
+      process.platform === "win32" &&
+      !isWindowsStore() &&
+      !isWindowsPortable() &&
+      process.arch !== "ia32"; // ia32 unsupported from Electron 44+
     const macCanUpdate = process.platform === "darwin" && !isMacAppStore();
     this.canUpdate =
       !this.userDisabledUpdates() && (linuxCanUpdate || windowsCanUpdate || macCanUpdate);
