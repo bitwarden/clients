@@ -17,8 +17,10 @@
 import path from "path";
 
 // TODO: @napi-rs/cli is declared in desktop_native/napi/package.json and reaches this import
-// only because npm hoists it to the workspace root. Declare it where it is used -- as a
-// devDependency of apps/desktop -- so the resolution is real rather than incidental.
+// only because npm hoists it to the workspace root. Declaring it where it is used -- as a
+// devDependency of apps/desktop -- would make the resolution real rather than incidental.
+// Deliberately deferred: it changes the dependency manifest the existing build system installs
+// from, and that system is not being touched yet.
 import { NapiCli } from "@napi-rs/cli";
 
 import { type BuildConfig, BuildError } from "./build-config.mts";

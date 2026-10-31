@@ -41,7 +41,7 @@ const XCODE_INPUTS: Inputs = [
   "profile",
   "derived.platform",
   "derived.macosAutofillExtension",
-  "derived.macos.bundleId",
+  "derived.appId",
 ];
 
 /// Exhaustive over `Toolchain`, so a target built by something new has to say what its output
