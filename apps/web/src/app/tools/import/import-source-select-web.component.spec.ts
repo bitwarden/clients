@@ -4,6 +4,8 @@ import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ImportType } from "@bitwarden/importer-core";
 
 import { ImportSourceSelectWebComponent } from "./import-source-select-web.component";
@@ -22,7 +24,9 @@ describe("ImportSourceSelectWebComponent", () => {
   let fixture: ComponentFixture<ImportSourceSelectWebComponent>;
   let router: MockProxy<Router>;
 
-  const setup = async (query: Record<string, string> = {}) => {
+  const orgId = "5bb2e4b0-5d4e-4a58-9a6a-3a5f5b8c2f11";
+
+  const setup = async (query: Record<string, string> = {}, organizationId?: string) => {
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
 
@@ -30,9 +34,16 @@ describe("ImportSourceSelectWebComponent", () => {
       imports: [ImportSourceSelectWebComponent],
       providers: [
         { provide: Router, useValue: router },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: AccountService, useValue: mock<AccountService>() },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { queryParamMap: convertToParamMap(query) } },
+          useValue: {
+            snapshot: {
+              queryParamMap: convertToParamMap(query),
+              paramMap: convertToParamMap(organizationId == null ? {} : { organizationId }),
+            },
+          },
         },
       ],
     })
@@ -69,5 +80,35 @@ describe("ImportSourceSelectWebComponent", () => {
       .triggerEventHandler("continue", "keeper");
 
     expect(router.navigate).toHaveBeenCalledWith(["/tools/import", "keeper"]);
+  });
+
+  it("keeps returnTo in the URL when continuing", async () => {
+    await setup({ returnTo: "access-intelligence" }, orgId);
+
+    fixture.debugElement
+      .query(By.css("importer-source-select"))
+      .triggerEventHandler("continue", "keeper");
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      ["/organizations", orgId, "settings", "tools", "import", "keeper"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
+  });
+
+  it("navigates under the organization's admin console when the route has an organization", async () => {
+    await setup({}, orgId);
+
+    fixture.debugElement
+      .query(By.css("importer-source-select"))
+      .triggerEventHandler("continue", "keeper");
+
+    expect(router.navigate).toHaveBeenCalledWith([
+      "/organizations",
+      orgId,
+      "settings",
+      "tools",
+      "import",
+      "keeper",
+    ]);
   });
 });

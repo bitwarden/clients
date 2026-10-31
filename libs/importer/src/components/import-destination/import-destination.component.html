@@ -10,7 +10,7 @@
       } @else {
         <h2 bitTypography="h2" noMargin class="tw-mb-0">{{ titleKey() | i18n }}</h2>
         <p bitTypography="body1" class="tw-text-fg-body tw-mt-1 tw-mb-4">
-          {{ "importDestinationDescription" | i18n }}
+          {{ description() }}
         </p>
 
         @for (callout of restrictionCallouts(); track callout.key) {
@@ -44,10 +44,14 @@
           </div>
         </bit-form-control-group>
 
+        @if (noSharedFolderError(); as message) {
+          <bit-callout type="danger">{{ message }}</bit-callout>
+        }
+
         @if (showMoveToSharedFolder()) {
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
             <div class="tw-flex tw-flex-col tw-gap-4">
-              <bit-form-control>
+              <bit-form-control disableMargin>
                 <input
                   #moveToSharedFolder
                   bitCheckbox
@@ -66,7 +70,11 @@
                     id="import-destination_select_shared-folder"
                   >
                     @for (folder of selectedOption()?.sharedFolders; track folder.id) {
-                      <bit-option [value]="folder" [label]="folder.name" />
+                      <bit-option
+                        [value]="folder"
+                        [label]="folder.name"
+                        [icon]="folderIcon(folder)"
+                      />
                     }
                   </bit-select>
                   <bit-hint class="tw-text-fg-body tw-leading-4">{{

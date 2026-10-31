@@ -27,6 +27,7 @@ export {
   ImportDestinationServiceAbstraction,
 } from "./import-destination.service.abstraction";
 export { DefaultImportDestinationService } from "./default-import-destination.service";
+export { OrganizationImportDestinationService } from "./organization-import-destination.service";
 export {
   ImportStagingServiceAbstraction,
   StagedImport,

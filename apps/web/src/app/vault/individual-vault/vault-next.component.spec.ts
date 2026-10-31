@@ -1520,6 +1520,77 @@ describe("VaultNextComponent", () => {
       expect(legacyOpen).not.toHaveBeenCalled();
     });
 
+    it("starts the new import on the organization when viewing an org vault", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      scopeTo(organizationId);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"], {
+        queryParams: { defaultOrganizationId: organizationId },
+      });
+    });
+
+    it("starts the new import on the shared folder too when viewing one", async () => {
+      const sharedFolderId = "6f1e2d3c-4b5a-4c6d-8e7f-9a0b1c2d3e4f";
+      configService.getFeatureFlag.mockResolvedValue(true);
+      scopeTo(organizationId, sharedFolderId);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"], {
+        queryParams: {
+          defaultOrganizationId: organizationId,
+          defaultCollectionId: sharedFolderId,
+        },
+      });
+    });
+
+    it("starts the new import from My vault so it ends there", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      scopeTo(MY_VAULT_ROUTE);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"], {
+        queryParams: { startedFrom: "my-vault" },
+      });
+    });
+
+    it("starts the new import from Trash so it ends there", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      scopeTo(TRASH_ROUTE);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"], {
+        queryParams: { startedFrom: "trash" },
+      });
+    });
+
+    it("starts the new import from an organization's My items so it ends there", async () => {
+      const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+      configService.getFeatureFlag.mockResolvedValue(true);
+      vaultNav$.next({
+        vaults: [
+          personalNavItem,
+          { ...buildOrgNavItem(organizationId, "Acme"), defaultUserCollectionId: myItemsId },
+        ],
+        organizationDataOwnership: true,
+      });
+      scopeTo(organizationId, MY_ITEMS_ROUTE);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"], {
+        queryParams: {
+          defaultOrganizationId: organizationId,
+          defaultCollectionId: myItemsId,
+          startedFrom: "my-items",
+        },
+      });
+    });
+
     it("passes the scoped organization ID to the legacy dialog when viewing an org vault", async () => {
       configService.getFeatureFlag.mockResolvedValue(false);
       scopeTo(organizationId);

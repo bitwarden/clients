@@ -33,7 +33,11 @@ import {
   ImportUpgradeServiceAbstraction,
   ItemTypeCounts,
 } from "../../services";
-import { ImportErrorDialogComponent } from "../dialog";
+import {
+  ImportErrorDialogComponent,
+  ImportSkippedItemsDialogComponent,
+  ImportSuccessDialogComponent,
+} from "../dialog";
 
 import { ImportDestinationComponent } from "./import-destination.component";
 
@@ -127,7 +131,11 @@ describe("ImportDestinationComponent", () => {
   };
 
   const setup = async (
-    options: { destinationsSource?: ImportDestinationServiceAbstraction["destinations$"] } = {},
+    options: {
+      destinationsSource?: ImportDestinationServiceAbstraction["destinations$"];
+      // Set before the first render, as a parent binding would.
+      inputs?: Record<string, unknown>;
+    } = {},
   ) => {
     destinationService = Object.assign(mock<ImportDestinationServiceAbstraction>(), {
       destinations$: options.destinationsSource ?? destinations$.asObservable(),
@@ -155,6 +163,9 @@ describe("ImportDestinationComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImportDestinationComponent);
+    for (const [name, value] of Object.entries(options.inputs ?? {})) {
+      fixture.componentRef.setInput(name, value);
+    }
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -176,6 +187,314 @@ describe("ImportDestinationComponent", () => {
     syncService.fullSync.mockResolvedValue(true);
     logService = mock<LogService>();
     liveAnnouncer = mock<LiveAnnouncer>();
+  });
+
+  describe("in the admin console", () => {
+    const checkboxId = "import-destination_input_move-to-shared-folder";
+    const selectId = "import-destination_select_shared-folder";
+    const adminOrg = (extra: Partial<ImportDestinationOption> = {}) =>
+      organization("a", "Acme Co", {
+        lockedToOrganization: true,
+        allowsUnassignedItems: true,
+        ...extra,
+      });
+    const offerOnly = (option: ImportDestinationOption) =>
+      destinations$.next({ options: [option], hasStep: true });
+
+    it("says the items go into the organization", async () => {
+      offerOnly(adminOrg());
+
+      await setup();
+
+      expect(text()).toContain("importIntoOrganization:Acme Co");
+      expect(text()).not.toContain("importDestinationDescription");
+    });
+
+    it("always offers moving the items into a shared folder, even with none to pick", async () => {
+      offerOnly(adminOrg());
+
+      await setup();
+
+      expect(byId(checkboxId)).not.toBeNull();
+    });
+
+    it("words the checkbox without the organization's name", async () => {
+      offerOnly(adminOrg());
+
+      await setup();
+
+      expect(text()).toContain("importMoveAllItemsIntoSharedFolder");
+      expect(text()).not.toContain("importMoveAllItemsIntoSharedFolderA");
+      expect(text()).not.toContain("Acme Co shared folder");
+    });
+
+    it("shows the shared folder dropdown once the box is checked, and requires a folder", async () => {
+      offerOnly(adminOrg());
+      stageParsed();
+      await setup();
+      component().moveToSharedFolderControl.setValue(true);
+      fixture.detectChanges();
+
+      expect(byId(selectId)).not.toBeNull();
+
+      await component().submit();
+      fixture.detectChanges();
+
+      expect(importService.importImportResult).not.toHaveBeenCalled();
+      expect(component().sharedFolderControl.touched).toBe(true);
+    });
+
+    it("offers the folders the admin can pick when there are some", async () => {
+      offerOnly(adminOrg({ sharedFolders: [folder("f1", "a", "Alpha")] }));
+
+      await setup();
+      component().moveToSharedFolderControl.setValue(true);
+      fixture.detectChanges();
+
+      expect(byId(checkboxId)).not.toBeNull();
+      expect(byId(selectId)).not.toBeNull();
+    });
+
+    describe("when the option starts with a shared folder picked (the ownership policy)", () => {
+      const mine = folder("mine", "a", "me@example.com", CollectionTypes.DefaultUserCollection);
+      const theirs = folder(
+        "theirs",
+        "a",
+        "them@example.com",
+        CollectionTypes.DefaultUserCollection,
+      );
+      const alpha = folder("f1", "a", "Alpha");
+      const withDefault = () =>
+        offerOnly(adminOrg({ sharedFolders: [alpha, mine, theirs], defaultSharedFolder: mine }));
+
+      it("starts with the box checked and that folder picked", async () => {
+        withDefault();
+
+        await setup();
+
+        expect(component().moveToSharedFolderControl.value).toBe(true);
+        expect(component().sharedFolderControl.value).toBe(mine);
+        expect(byId(selectId)).not.toBeNull();
+      });
+
+      it("imports into it without asking about sharing, since nothing is shared", async () => {
+        withDefault();
+        stageParsed();
+        await setup();
+
+        await component().submit();
+
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(importService.importImportResult).toHaveBeenCalledWith(
+          expect.anything(),
+          "a",
+          mine,
+          true,
+        );
+      });
+
+      it("still asks about sharing when the user picks another folder", async () => {
+        withDefault();
+        stageParsed();
+        await setup();
+        component().sharedFolderControl.setValue(alpha);
+
+        await component().submit();
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+        expect(importService.importImportResult).toHaveBeenCalledWith(
+          expect.anything(),
+          "a",
+          alpha,
+          true,
+        );
+      });
+
+      it("still asks about sharing for another member's My items collection", async () => {
+        withDefault();
+        stageParsed();
+        await setup();
+        component().sharedFolderControl.setValue(theirs);
+
+        await component().submit();
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      });
+
+      it("asks about sharing when the box is unchecked, so there is no target", async () => {
+        withDefault();
+        stageParsed();
+        await setup();
+        component().moveToSharedFolderControl.setValue(false);
+        fixture.detectChanges();
+
+        await component().submit();
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it("starts with nothing picked when the option has no default folder", async () => {
+      offerOnly(adminOrg({ sharedFolders: [folder("f1", "a", "Alpha")] }));
+
+      await setup();
+
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+      expect(component().sharedFolderControl.value).toBeNull();
+    });
+
+    it("takes no starting point from the URL, as the legacy admin console didn't", async () => {
+      const alpha = folder("f1", "a", "Alpha");
+      offerOnly(adminOrg({ sharedFolders: [alpha] }));
+
+      await setup({
+        inputs: { defaultOrganizationId: "a", defaultCollectionId: "f1" },
+      });
+
+      expect(component().destinationControl.value).toBe("organization:a");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+      expect(component().sharedFolderControl.value).toBeNull();
+    });
+
+    it("leaves the personal import's wording and checkbox rule alone", async () => {
+      destinations$.next({
+        options: [myVault, organization("n", "No folders"), organization("a", "Acme Co")],
+        hasStep: true,
+      });
+      await setup();
+
+      component().destinationControl.setValue("organization:n");
+      fixture.detectChanges();
+
+      expect(text()).toContain("importDestinationDescription");
+      expect(text()).not.toContain("importIntoOrganization");
+      expect(byId(checkboxId)).toBeNull();
+    });
+  });
+
+  describe("the vault the import was started from", () => {
+    const alpha = folder("f1", "a", "Alpha");
+    const beta = folder("f2", "a", "Beta");
+    const acme = (extra: Partial<ImportDestinationOption> = {}) =>
+      organization("a", "Acme Co", { sharedFolders: [alpha, beta], ...extra });
+    const offer = (...options: ImportDestinationOption[]) =>
+      destinations$.next({ options, hasStep: true });
+    const select = () => byId("import-destination_select_shared-folder");
+    const scope = (organizationId?: string, collectionId?: string) => ({
+      defaultOrganizationId: organizationId,
+      defaultCollectionId: collectionId,
+    });
+
+    it("starts on the first card when nothing says otherwise", async () => {
+      offer(myVault, acme());
+
+      await setup();
+
+      expect(component().destinationControl.value).toBe("myVault");
+    });
+
+    it("starts on the organization's card", async () => {
+      offer(myVault, organization("b", "Beta Co"), acme());
+
+      await setup({ inputs: scope("a") });
+
+      expect(component().destinationControl.value).toBe("organization:a");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+    });
+
+    it("starts on the organization's My items card when the collection is its My items collection", async () => {
+      offer(myItems("b", "Beta Co"), myItems("a", "Acme Co"), acme());
+
+      await setup({ inputs: scope("a", "my-a") });
+
+      expect(component().destinationControl.value).toBe("myItems:a");
+    });
+
+    it("starts on the organization's My items card when the scope names no collection, as under the policy the legacy import did", async () => {
+      offer(myItems("b", "Beta Co"), myItems("a", "Acme Co"), acme());
+
+      await setup({ inputs: scope("a") });
+
+      expect(component().destinationControl.value).toBe("myItems:a");
+    });
+
+    it("starts on the organization's card when the scope names no collection and there is no My items card", async () => {
+      offer(myVault, acme());
+
+      await setup({ inputs: scope("a") });
+
+      expect(component().destinationControl.value).toBe("organization:a");
+    });
+
+    it("starts on the organization's card, with the shared folder picked, when the collection is one it offers", async () => {
+      offer(myVault, acme());
+
+      await setup({ inputs: scope("a", "f2") });
+
+      expect(component().destinationControl.value).toBe("organization:a");
+      expect(component().moveToSharedFolderControl.value).toBe(true);
+      expect(component().sharedFolderControl.value).toBe(beta);
+      expect(select()).not.toBeNull();
+    });
+
+    it("starts on the organization's card alone when the collection is not one the user can pick", async () => {
+      offer(myVault, acme());
+
+      await setup({ inputs: scope("a", "not-offered") });
+
+      expect(component().destinationControl.value).toBe("organization:a");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+      expect(component().sharedFolderControl.value).toBeNull();
+    });
+
+    it("starts on My items when the collection is not one the user can pick and the policy gives a My items card, as in legacy", async () => {
+      offer(myItems("a", "Acme Co"), acme());
+
+      await setup({ inputs: scope("a", "not-offered") });
+
+      expect(component().destinationControl.value).toBe("myItems:a");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+    });
+
+    it("starts on the organization's card alone for its My items collection when there is no My items card", async () => {
+      offer(myVault, acme());
+
+      await setup({ inputs: scope("a", "my-a") });
+
+      expect(component().destinationControl.value).toBe("organization:a");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+    });
+
+    it("keeps the first card when the organization is not offered", async () => {
+      offer(myVault, acme());
+
+      await setup({ inputs: scope("z", "f1") });
+
+      expect(component().destinationControl.value).toBe("myVault");
+    });
+
+    it("ignores a collection given without its organization", async () => {
+      offer(myVault, acme());
+
+      await setup({ inputs: scope(undefined, "f1") });
+
+      expect(component().destinationControl.value).toBe("myVault");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+    });
+
+    it("does not override a choice the user made when the cards are emitted again", async () => {
+      offer(myVault, organization("b", "Beta Co"), acme());
+      await setup({ inputs: scope("a", "f1") });
+      expect(component().destinationControl.value).toBe("organization:a");
+      component().destinationControl.setValue("organization:b");
+      fixture.detectChanges();
+
+      offer(myVault, organization("b", "Beta Co"), acme());
+      fixture.detectChanges();
+
+      expect(component().destinationControl.value).toBe("organization:b");
+      expect(component().moveToSharedFolderControl.value).toBe(false);
+    });
   });
 
   describe("rendering", () => {
@@ -535,6 +854,29 @@ describe("ImportDestinationComponent", () => {
       expect(select()).toBeNull();
     });
 
+    it("marks a default collection with the user icon and any other with the shared folder icon", async () => {
+      await setup();
+
+      expect(
+        component().folderIcon(folder("d", "a", "Mine", CollectionTypes.DefaultUserCollection)),
+      ).toBe("bwi-user");
+      expect(component().folderIcon(folder("s", "a", "Eng"))).toBe("bwi-shared-folder");
+    });
+
+    it("has no bottom margin of its own, so the gap to the dropdown is the stack's alone", async () => {
+      await setup();
+      component().destinationControl.setValue("organization:a");
+      component().moveToSharedFolderControl.setValue(true);
+      fixture.detectChanges();
+
+      const control = fixture.debugElement.query(
+        By.css("bit-form-control:has(input[bitCheckbox])"),
+      );
+
+      expect(control.nativeElement.classList.contains("tw-mb-4")).toBe(false);
+      expect(select()).not.toBeNull();
+    });
+
     it("words the label with 'a' or 'an' by the org name's first letter", async () => {
       await setup();
 
@@ -602,6 +944,52 @@ describe("ImportDestinationComponent", () => {
       expect(dialogService.open).toHaveBeenCalled();
       expect(stagingService.current()).toBeUndefined();
       expect(continueSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("disables Import once the items are imported, so a click on a screen that stays can't do nothing", async () => {
+      stageParsed();
+      await setup();
+      await submit();
+      fixture.detectChanges();
+
+      expect(component().importDisabled()).toBe(true);
+      expect(importButton().getAttribute("aria-disabled")).toBe("true");
+    });
+
+    describe("into a leftover My items collection of a personal import's org, as in legacy", () => {
+      const mine = folder("mine", "a", "me@example.com", CollectionTypes.DefaultUserCollection);
+      const shared = folder("f1", "a", "Alpha");
+
+      const pick = async (target: CollectionView) => {
+        destinations$.next({
+          options: [organization("a", "Acme Co", { sharedFolders: [mine, shared] })],
+          hasStep: true,
+        });
+        stageParsed();
+        await setup();
+        component().destinationControl.setValue("organization:a");
+        component().moveToSharedFolderControl.setValue(true);
+        component().sharedFolderControl.setValue(target);
+        await submit();
+      };
+
+      it("skips the sharing dialog", async () => {
+        await pick(mine);
+
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(importService.importImportResult).toHaveBeenCalledWith(
+          expect.anything(),
+          "a",
+          mine,
+          false,
+        );
+      });
+
+      it("still asks about sharing for a regular shared folder", async () => {
+        await pick(shared);
+
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      });
     });
 
     it("asks to confirm sharing for an org, and stays put with selections intact on Cancel", async () => {
@@ -877,6 +1265,269 @@ describe("ImportDestinationComponent", () => {
 
         expect(component().moveToSharedFolderControl.errors).toBeNull();
         expect(importService.importImportResult).toHaveBeenCalled();
+      });
+    });
+
+    describe("an org where the user manages no shared folder", () => {
+      const calloutShown = () =>
+        (fixture.nativeElement as HTMLElement).textContent?.includes(
+          "importNoSharedFoldersForOrg:No Folders Co",
+        );
+      const selectOrg = () => {
+        component().destinationControl.setValue("organization:n");
+        fixture.detectChanges();
+      };
+      const offerOrg = (extra: Partial<ImportDestinationOption> = {}) =>
+        destinations$.next({
+          options: [myVault, organization("n", "No Folders Co", extra)],
+          hasStep: true,
+        });
+
+      it("is offered as a card, with no checkbox", async () => {
+        offerOrg();
+        await setup();
+
+        expect(cards().map((card) => card.nativeElement.textContent)).toEqual([
+          expect.stringContaining("myVault"),
+          expect.stringContaining("No Folders Co"),
+        ]);
+        selectOrg();
+        expect(byId("import-destination_input_move-to-shared-folder")).toBeNull();
+      });
+
+      it("shows a callout, announces it, and imports nothing when items would be unassigned", async () => {
+        offerOrg();
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrg();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(calloutShown()).toBe(true);
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+          "importNoSharedFoldersForOrg:No Folders Co",
+          "assertive",
+        );
+        expect(importService.importImportResult).not.toHaveBeenCalled();
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(stagingService.current()).toBeDefined();
+      });
+
+      it("shows the callout for a file the SDK imports, which can't go to an org without a folder", async () => {
+        offerOrg();
+        stagingService.stage({
+          kind: "sdk",
+          format: "keepasskdbx",
+          file: new Uint8Array([1]),
+          credentials: { kind: "password", password: "pw" },
+        });
+        await setup();
+        selectOrg();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(calloutShown()).toBe(true);
+        expect(importService.importWithSdk).not.toHaveBeenCalled();
+      });
+
+      it("clears the callout when the destination changes", async () => {
+        offerOrg();
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrg();
+        await submit();
+
+        component().destinationControl.setValue("myVault");
+        fixture.detectChanges();
+
+        expect(calloutShown()).toBe(false);
+      });
+
+      it("imports without a folder when every item already has a collection, without the admin allowance", async () => {
+        offerOrg();
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(false);
+        selectOrg();
+
+        await submit();
+        fixture.detectChanges();
+
+        expect(calloutShown()).toBe(false);
+        expect(importService.importImportResult).toHaveBeenCalledWith(
+          expect.anything(),
+          "n",
+          undefined,
+          false,
+        );
+      });
+
+      it("lets an org that allows unassigned items import with no folder, and says so to the import", async () => {
+        offerOrg({ allowsUnassignedItems: true });
+        stageParsed();
+        await setup();
+        destinationService.hasUnassignedItems.mockResolvedValue(true);
+        selectOrg();
+
+        await submit();
+
+        expect(destinationService.hasUnassignedItems).not.toHaveBeenCalled();
+        expect(calloutShown()).toBe(false);
+        expect(importService.importImportResult).toHaveBeenCalledWith(
+          expect.anything(),
+          "n",
+          undefined,
+          true,
+        );
+      });
+
+      it("passes the allowance to an SDK import too", async () => {
+        offerOrg({ allowsUnassignedItems: true });
+        const file = new Uint8Array([1]);
+        const credentials = { kind: "password", password: "pw" } as const;
+        stagingService.stage({ kind: "sdk", format: "keepasskdbx", file, credentials });
+        importService.importWithSdk.mockResolvedValue({ ciphers: [] } as any);
+        await setup();
+        selectOrg();
+
+        await submit();
+
+        expect(importService.importWithSdk).toHaveBeenCalledWith(
+          "keepasskdbx",
+          file,
+          credentials,
+          "n",
+          undefined,
+          true,
+        );
+      });
+    });
+
+    describe("return button", () => {
+      const returnUrl = "/organizations/a/access-intelligence?source=import&status=success";
+      const orgImport = () =>
+        destinations$.next({
+          options: [
+            organization("a", "Acme Co", {
+              allowsUnassignedItems: true,
+              lockedToOrganization: true,
+            }),
+          ],
+          hasStep: true,
+        });
+      const dialogDataOf = (dialog: unknown) => {
+        const call = dialogService.open.mock.calls.find((c) => c[0] === dialog);
+        return (call?.[1] as { data: Record<string, unknown> } | undefined)?.data;
+      };
+
+      it("leads the success dialog back to Access Intelligence for an organization import", async () => {
+        orgImport();
+        stageParsed();
+        await setup();
+        fixture.componentRef.setInput("returnTo", "access-intelligence");
+
+        await submit();
+
+        expect(dialogDataOf(ImportSuccessDialogComponent)).toEqual(
+          expect.objectContaining({ returnUrl, returnLabel: "goToAccessIntelligence" }),
+        );
+      });
+
+      it("leads the skipped-items dialog back too", async () => {
+        orgImport();
+        stageParsed();
+        await setup();
+        fixture.componentRef.setInput("returnTo", "access-intelligence");
+        const skipped = new ImportResult();
+        skipped.errors = [{ message: "bad item" } as any];
+        importService.importImportResult.mockResolvedValue(skipped);
+
+        await submit();
+
+        expect(dialogDataOf(ImportSkippedItemsDialogComponent)).toEqual(
+          expect.objectContaining({ returnUrl, returnLabel: "goToAccessIntelligence" }),
+        );
+      });
+
+      it("adds no button without a returnTo", async () => {
+        orgImport();
+        stageParsed();
+        await setup();
+
+        await submit();
+
+        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+      });
+
+      it("adds no button for a returnTo it does not know", async () => {
+        orgImport();
+        stageParsed();
+        await setup();
+        fixture.componentRef.setInput("returnTo", "https://evil.example");
+
+        await submit();
+
+        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+      });
+
+      it("imports and finishes normally when returnTo is an inherited object name", async () => {
+        orgImport();
+        stageParsed();
+        await setup();
+        fixture.componentRef.setInput("returnTo", "__proto__");
+        const continueSpy = jest.fn();
+        component().continue.subscribe(continueSpy);
+
+        await submit();
+
+        expect(importService.importImportResult).toHaveBeenCalledTimes(1);
+        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+        expect(stagingService.current()).toBeUndefined();
+        expect(continueSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it("clears the staged items even when showing the result fails after the import", async () => {
+        orgImport();
+        stageParsed();
+        await setup();
+        dialogService.open.mockImplementation(() => {
+          throw new Error("dialog failed");
+        });
+
+        await expect(submit()).rejects.toThrow("dialog failed");
+
+        expect(importService.importImportResult).toHaveBeenCalledTimes(1);
+        expect(stagingService.current()).toBeUndefined();
+      });
+
+      it("adds no button for a personal import into an organization, as only the admin console has one", async () => {
+        destinations$.next({
+          options: [myVault, organization("a", "Acme Co", { allowsUnassignedItems: true })],
+          hasStep: true,
+        });
+        stageParsed();
+        await setup();
+        fixture.componentRef.setInput("returnTo", "access-intelligence");
+        component().destinationControl.setValue("organization:a");
+        fixture.detectChanges();
+
+        await submit();
+
+        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
+      });
+
+      it("adds no button for an import into My vault", async () => {
+        stageParsed();
+        await setup();
+        fixture.componentRef.setInput("returnTo", "access-intelligence");
+
+        await submit();
+
+        expect(dialogDataOf(ImportSuccessDialogComponent)).not.toHaveProperty("returnUrl");
       });
     });
 

@@ -1,3 +1,9 @@
 @if (hasStagedItems) {
-  <importer-destination (back)="onBack()" (continue)="onContinue()" />
+  <importer-destination
+    [returnTo]="returnTo"
+    [defaultOrganizationId]="scope.defaultOrganizationId"
+    [defaultCollectionId]="scope.defaultCollectionId"
+    (back)="onBack()"
+    (continue)="onContinue()"
+  />
 }

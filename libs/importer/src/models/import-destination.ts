@@ -36,6 +36,16 @@ export type ImportDestinationOption = {
   restrictions: readonly ImportDestinationRestriction[];
   /** The types an import into this card drops, by the same rule the import filter uses. */
   removedTypes: readonly CipherType[];
+  /** Set when the user may import into this org with no shared folder chosen. Unset means no. */
+  allowsUnassignedItems?: boolean;
+  /** Set for an import started from this organization's admin console, where it is the only
+   *  location. The page says the items go into it, and the choice to move them into a shared
+   *  folder always shows, even with no folder to pick. Unset means neither. */
+  lockedToOrganization?: boolean;
+  /** The shared folder the import starts with picked. For the admin console under the ownership
+   *  policy this is the user's own My items collection, and importing into it needs no sharing
+   *  warning, as nothing is shared. Unset means none. */
+  defaultSharedFolder?: CollectionView;
 };
 
 export type ImportDestinations = {

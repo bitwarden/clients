@@ -3,6 +3,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { DialogService } from "@bitwarden/components";
 
 import { ImportSkippedItemsDialogComponent, ImportSuccessDialogComponent } from "../dialog";
+import { ImportReturnDestination } from "../import-return-destination";
 
 import { FinishedImportOutcome } from "./import-outcome";
 
@@ -12,6 +13,7 @@ import { FinishedImportOutcome } from "./import-outcome";
 export async function presentImportOutcome(
   outcome: FinishedImportOutcome,
   services: { syncService: SyncService; logService: LogService; dialogService: DialogService },
+  returnDestination?: ImportReturnDestination,
 ): Promise<void> {
   const { syncService, logService, dialogService } = services;
 
@@ -28,14 +30,16 @@ export async function presentImportOutcome(
 
   if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
     dialogService.open(ImportSkippedItemsDialogComponent, {
-      data: { errors: outcome.result.errors },
+      data: { errors: outcome.result.errors, ...returnDestination },
     });
   } else {
     dialogService.open(ImportSuccessDialogComponent, {
-      data:
-        outcome.kind === "imported"
+      data: {
+        ...(outcome.kind === "imported"
           ? { importResult: outcome.result }
-          : { sdkSummary: outcome.sdkSummary },
+          : { sdkSummary: outcome.sdkSummary }),
+        ...returnDestination,
+      },
     });
   }
 }

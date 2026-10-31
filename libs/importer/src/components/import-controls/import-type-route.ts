@@ -1,20 +1,25 @@
 import { inject, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, CanActivateFn, Router } from "@angular/router";
+import { ActivatedRoute, ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
 import { map } from "rxjs";
 
 import { UpgradeImportType } from "../../models";
 import { isPickerVendor } from "../import-source-select/picker-vendor-data";
 
 // Rejects an invalid importType route param before the lazy chunk/component ever construct —
-// redirects to redirectTo instead.
-export function canActivateImportType(redirectTo: string): CanActivateFn {
+// redirects to redirectTo instead. A function builds the commands from the rejected route, for a
+// path that holds a route param.
+export function canActivateImportType(
+  redirectTo: string | ((route: ActivatedRouteSnapshot) => string[]),
+): CanActivateFn {
   return (route) => {
     const param = route.paramMap.get("importType");
     if (param && isPickerVendor(param)) {
       return true;
     }
-    return inject(Router).createUrlTree([redirectTo]);
+    return inject(Router).createUrlTree(
+      typeof redirectTo === "function" ? redirectTo(route) : [redirectTo],
+    );
   };
 }
 

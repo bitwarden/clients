@@ -8,7 +8,9 @@ import {
   effect,
   ElementRef,
   inject,
+  input,
   output,
+  signal,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -20,13 +22,14 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
+import { Router } from "@angular/router";
 import { catchError, map, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -71,6 +74,7 @@ import {
 import { ImportErrorDialogComponent } from "../dialog";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 import { presentImportOutcome } from "../import-controls/present-import-outcome";
+import { resolveImportReturnDestination } from "../import-return-destination";
 
 type DestinationsState =
   { status: "pending" } | { status: "error" } | { status: "ready"; value: ImportDestinations };
@@ -130,6 +134,15 @@ export class ImportDestinationComponent {
   private readonly destinationService = inject(ImportDestinationServiceAbstraction);
   private readonly stagingService = inject(ImportStagingServiceAbstraction);
   private readonly importService = inject(ImportUpgradeServiceAbstraction);
+  private readonly router = inject(Router);
+
+  /** Where an organization import was started from, so its result dialog can lead back there. */
+  readonly returnTo = input<string | undefined>(undefined);
+
+  /** The vault the import was started from. The location step starts on that organization, and on
+   *  the collection if it is one the user can pick there. */
+  readonly defaultOrganizationId = input<OrganizationId | undefined>(undefined);
+  readonly defaultCollectionId = input<CollectionId | undefined>(undefined);
 
   /** Fires once the import succeeds, not on button click. */
   readonly continue = output<void>();
@@ -228,17 +241,36 @@ export class ImportDestinationComponent {
     })),
   );
 
-  // Only an org with a shared folder the user manages offers the choice.
+  // An org offers the choice when the user has a shared folder to pick, or always in the admin
+  // console.
   protected readonly showMoveToSharedFolder = computed(() => {
     const option = this.selectedOption();
-    return option?.kind === ImportDestinationKind.Organization && option.sharedFolders.length > 0;
+    return (
+      option?.kind === ImportDestinationKind.Organization &&
+      (option.sharedFolders.length > 0 || option.lockedToOrganization === true)
+    );
+  });
+
+  // In the admin console there is one place the items can go, so the page says where.
+  protected readonly description = computed(() => {
+    const option = this.selectedOption();
+    return option?.lockedToOrganization
+      ? this.i18nService.t("importIntoOrganization", option.organizationName ?? "")
+      : this.i18nService.t("importDestinationDescription");
   });
 
   protected readonly showSharedFolder = computed(
     () => this.showMoveToSharedFolder() && this.moveToSharedFolder(),
   );
 
+  /** The refusal for an org the user has no shared folder in; unset until Import is refused. */
+  protected readonly noSharedFolderError = signal<string | undefined>(undefined);
+
   protected readonly moveToSharedFolderLabel = computed(() => {
+    // The admin console is already in the organization, so its label doesn't name it.
+    if (this.selectedOption()?.lockedToOrganization) {
+      return this.i18nService.t("importMoveAllItemsIntoSharedFolder");
+    }
     const name = this.selectedOption()?.organizationName ?? "";
     return this.i18nService.t(
       /^[aeiou]/i.test(name.trim())
@@ -259,17 +291,35 @@ export class ImportDestinationComponent {
       : this.i18nService.t("importItemsCount", count.toString());
   });
 
+  // False once the import has run, when nothing is left to import.
+  private readonly hasStagedItems = toSignal(
+    this.stagingService.staged$.pipe(map((staged) => staged != null)),
+    { initialValue: this.stagingService.current() != null },
+  );
+
   protected readonly importDisabled = computed(
-    () => this.state().status !== "ready" || this.options().length === 0,
+    () => this.state().status !== "ready" || this.options().length === 0 || !this.hasStagedItems(),
   );
 
   constructor() {
     // Drop everything staged, however this screen is left.
     inject(DestroyRef).onDestroy(() => this.stagingService.clear());
 
-    // The first card is selected by default, and again if the list no longer holds the selection.
+    // The vault the import was started from is selected once, when the cards are first known. Past
+    // that, and without one, the first card is selected by default, and again if the list no longer
+    // holds the selection.
+    let defaultScopeApplied = false;
     effect(() => {
       const options = this.options();
+      if (!defaultScopeApplied && options.length > 0) {
+        defaultScopeApplied = true;
+        if (this.applyDefaultScope(options)) {
+          return;
+        }
+        this.destinationControl.setValue(options[0].id);
+        this.applyDefaultFolder(options[0]);
+        return;
+      }
       if (!options.some((option) => option.id === this.destinationControl.value)) {
         this.destinationControl.setValue(options[0]?.id ?? "");
       }
@@ -279,6 +329,7 @@ export class ImportDestinationComponent {
     this.destinationControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.moveToSharedFolderControl.reset(false);
       this.sharedFolderControl.reset(null);
+      this.noSharedFolderError.set(undefined);
     });
 
     effect(() => {
@@ -300,6 +351,77 @@ export class ImportDestinationComponent {
         });
       }
     });
+  }
+
+  // Selects what the vault the import was started from points at. Only ever picks among the cards
+  // it was given, so the URL it came from can't choose a destination the user wasn't offered.
+  // Returns whether it chose a card.
+  private applyDefaultScope(options: readonly ImportDestinationOption[]): boolean {
+    const organizationId = this.defaultOrganizationId();
+    // The admin console has the one organization and, as in the legacy import, takes no default
+    // from the URL.
+    if (organizationId == null || options.some((option) => option.lockedToOrganization)) {
+      return false;
+    }
+    const collectionId = this.defaultCollectionId();
+
+    // The organization's My items card, when the scope is its My items collection or names no
+    // collection at all: under the ownership policy My items is where the legacy import starts.
+    const myItems = options.find(
+      (option) =>
+        option.kind === ImportDestinationKind.MyItems &&
+        option.organizationId === organizationId &&
+        (collectionId == null || option.defaultCollection?.id === collectionId),
+    );
+    if (myItems != null) {
+      this.destinationControl.setValue(myItems.id);
+      return true;
+    }
+
+    const organization = options.find(
+      (option) =>
+        option.kind === ImportDestinationKind.Organization &&
+        option.organizationId === organizationId,
+    );
+    if (organization == null) {
+      return false;
+    }
+    const folder =
+      collectionId == null
+        ? undefined
+        : organization.sharedFolders.find((candidate) => candidate.id === collectionId);
+
+    // A collection the user can't pick falls to My items under the ownership policy, as in legacy.
+    const fallbackMyItems =
+      folder == null
+        ? options.find(
+            (option) =>
+              option.kind === ImportDestinationKind.MyItems &&
+              option.organizationId === organizationId,
+          )
+        : undefined;
+    if (fallbackMyItems != null) {
+      this.destinationControl.setValue(fallbackMyItems.id);
+      return true;
+    }
+    this.destinationControl.setValue(organization.id);
+
+    // After the destination, which resets both of these when it changes.
+    if (folder != null) {
+      this.moveToSharedFolderControl.setValue(true);
+      this.sharedFolderControl.setValue(folder);
+    }
+    return true;
+  }
+
+  // The shared folder an option starts with picked, such as the user's own My items collection in
+  // the admin console under the ownership policy. Set after the destination, which resets it.
+  private applyDefaultFolder(option: ImportDestinationOption): void {
+    if (option.kind !== ImportDestinationKind.Organization || option.defaultSharedFolder == null) {
+      return;
+    }
+    this.moveToSharedFolderControl.setValue(true);
+    this.sharedFolderControl.setValue(option.defaultSharedFolder);
   }
 
   protected onBack(): void {
@@ -331,9 +453,10 @@ export class ImportDestinationComponent {
 
     // Checked before the sharing dialog so the user isn't asked to confirm an import that will be
     // refused. An SDK import has no items to inspect and is always refused for an org without a
-    // target.
+    // target. An admin console admin may import with no target.
     if (
       isOrganization &&
+      !option.allowsUnassignedItems &&
       sharedFolder == null &&
       (items == null ||
         (await this.destinationService.hasUnassignedItems(items, option.organizationId)))
@@ -342,7 +465,14 @@ export class ImportDestinationComponent {
       return;
     }
 
-    if (isOrganization && !(await this.confirmSharing(option))) {
+    // Nothing is shared when the items go into the user's own My items collection, as in the legacy
+    // import, which skipped the warning for a My items target.
+    const intoOwnMyItems =
+      sharedFolder != null &&
+      (option.lockedToOrganization
+        ? sharedFolder.id === option.defaultSharedFolder?.id
+        : sharedFolder.isDefaultCollection);
+    if (isOrganization && !intoOwnMyItems && !(await this.confirmSharing(option))) {
       return;
     }
 
@@ -351,20 +481,44 @@ export class ImportDestinationComponent {
         ? option.defaultCollection
         : (sharedFolder ?? undefined);
 
+    // Before the import writes anything, so nothing here can fail once items are in the vault. Only
+    // the admin console has a page to return to, as in the legacy import.
+    const returnDestination = resolveImportReturnDestination(
+      this.returnTo(),
+      option.lockedToOrganization ? option.organizationId : undefined,
+      this.router,
+      this.i18nService,
+    );
+
     let outcome: FinishedImportOutcome;
     try {
-      outcome = await this.runImport(staged, items, option.organizationId, target);
+      outcome = await this.runImport(
+        staged,
+        items,
+        option.organizationId,
+        target,
+        option.allowsUnassignedItems ?? false,
+      );
     } catch (error) {
       this.reportFailure(error);
       return;
     }
 
-    await presentImportOutcome(outcome, {
-      syncService: this.syncService,
-      logService: this.logService,
-      dialogService: this.dialogService,
-    });
-    this.stagingService.clear();
+    // The items are in the vault now, so the staged copy goes whether or not showing the result
+    // succeeds.
+    try {
+      await presentImportOutcome(
+        outcome,
+        {
+          syncService: this.syncService,
+          logService: this.logService,
+          dialogService: this.dialogService,
+        },
+        returnDestination,
+      );
+    } finally {
+      this.stagingService.clear();
+    }
     this.continue.emit();
   };
 
@@ -396,7 +550,17 @@ export class ImportDestinationComponent {
 
   // Shows the inline error on the control the user can act on, and focuses it: the dropdown when
   // the box is checked, otherwise the checkbox, since the dropdown is hidden until it is checked.
+  // An org with no shared folder to choose has neither, so the error goes in a callout.
   private requireSharedFolder(): void {
+    if (!this.showMoveToSharedFolder()) {
+      const message = this.i18nService.t(
+        "importNoSharedFoldersForOrg",
+        this.selectedOption()?.organizationName ?? "",
+      );
+      this.noSharedFolderError.set(message);
+      void this.liveAnnouncer.announce(message, "assertive");
+      return;
+    }
     if (this.showSharedFolder()) {
       this.sharedFolderControl.markAsTouched();
       this.sharedFolderSelect()?.select().focus();
@@ -465,6 +629,7 @@ export class ImportDestinationComponent {
     items: ImportResult | undefined,
     organizationId: OrganizationId | undefined,
     target: CollectionView | undefined,
+    canAccessImportExport: boolean,
   ): Promise<FinishedImportOutcome> {
     if (staged.kind !== "sdk") {
       if (items == null) {
@@ -474,7 +639,7 @@ export class ImportDestinationComponent {
         items,
         organizationId,
         target,
-        false,
+        canAccessImportExport,
       );
       return { kind: "imported", result };
     }
@@ -486,7 +651,7 @@ export class ImportDestinationComponent {
         staged.credentials,
         organizationId,
         target,
-        false,
+        canAccessImportExport,
       );
       return { kind: "importedWithSdk", sdkSummary };
     } catch (error) {
@@ -498,6 +663,12 @@ export class ImportDestinationComponent {
       }
       throw messageKey != null ? new Error(this.i18nService.t(messageKey)) : error;
     }
+  }
+
+  // A default collection gets the user icon, as in the legacy import. In an admin console import
+  // it is another member's My items collection.
+  protected folderIcon(folder: CollectionView): BitwardenIcon {
+    return folder.isDefaultCollection ? "bwi-user" : "bwi-shared-folder";
   }
 
   private iconFor(option: ImportDestinationOption): BitwardenIcon {
