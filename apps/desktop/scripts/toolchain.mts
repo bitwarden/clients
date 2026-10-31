@@ -61,6 +61,36 @@ export function verifyXcode(): ToolchainReport {
   return { errors: [], warnings: [] };
 }
 
+/// makemsix and osslsigncode stand in for Microsoft's makeappx and signtool, which only run on
+/// Windows. Needed only when an Appx is being built somewhere else.
+export function verifyAppxCrossTools(): ToolchainReport {
+  const report: ToolchainReport = { errors: [], warnings: [] };
+
+  const tools = [
+    {
+      tool: "makemsix",
+      probe: ["makemsix"],
+      install: "brew install iinuwa/msix-packaging-tap/msix-packaging",
+    },
+    {
+      tool: "osslsigncode",
+      probe: ["osslsigncode", "--version"],
+      install: "brew install osslsigncode",
+    },
+  ];
+
+  for (const { tool, probe, install } of tools) {
+    if (probeVersion(probe) == null) {
+      report.errors.push(
+        `${tool} is required to build a Windows Appx on ${process.platform}, but was not ` +
+          `found.\n       Install it with: ${install}`,
+      );
+    }
+  }
+
+  return report;
+}
+
 export function verifyToolchain(plan: CrossCompilationPlan): ToolchainReport {
   const report: ToolchainReport = { errors: [], warnings: [] };
 
