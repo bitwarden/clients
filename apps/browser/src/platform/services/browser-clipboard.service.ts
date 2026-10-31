@@ -96,7 +96,12 @@ class BrowserClipboardService {
     textareaElement.focus();
 
     try {
-      return globalContext.document.execCommand("paste") ? textareaElement.value : "";
+      const success = globalContext.document.execCommand("paste");
+      if (!success) {
+        BrowserClipboardService.consoleLogService.warning("execCommand('paste') returned false");
+      }
+
+      return success ? textareaElement.value : "";
     } catch (error) {
       BrowserClipboardService.consoleLogService.warning(`Error reading from clipboard: ${error}`);
     } finally {
