@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Dossiers dans $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ dossiers",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ dossier",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "Dossiers partagés imbriqués $COUNT$",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 dossier partagé imbriqué",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ sous-dossiers",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 sous-dossier",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Mon dossier"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Édition"
   },
+  "editInfo": {
+    "message": "Edit info"
+  },
+  "editAccess": {
+    "message": "Edit access"
+  },
   "authenticatorKeyTotp": {
     "message": "Clé d'authentification (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "Élément envoyé à la corbeille"
+  },
+  "deleteItemError": {
+    "message": "Impossible de supprimer l'élément."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Cet élément est restreint. Votre modification n'a pas été enregistrée."
+  },
+  "controlledAccess": {
+    "message": "Accès contrôlé"
   },
   "overwritePasswordConfirmation": {
     "message": "Êtes-vous sûr de vouloir écraser le mot de passe actuel ?"
@@ -4573,7 +4630,7 @@
     "message": "Les données ne sont pas correctement mises en forme. Veuillez vérifier le fichier importé et réessayer."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Ce fichier utilise des paramètres de chiffrement non pris en charge et ne peut pas être importé."
   },
   "importNothingError": {
     "message": "Rien à importer."
@@ -4911,6 +4968,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Les logins, les cartes, les identités, les notes sécurisées et les TOTPs avec leur structure de dossier préservée."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Rapide et sécuritaire"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Ce processus est chiffré de bout en bout. Aucun fichier d'exportation nécessaire."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Tout ce dont vous avez besoin, c'est de votre identifiant"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "Dans la prochaine étape, vous entrerez vos identifiants de connexion $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Ce qui sera transféré"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Vos identifiants, autres éléments et dossiers seront transférés. Les clés d'accès et pièces jointes peuvent être exclues."
+  },
   "importAcceptedFormats": {
     "message": "Accepté : $FORMATS$",
     "placeholders": {
@@ -5192,6 +5273,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 pièce jointe corrompue a été ignorée lors de l'exportation. Toutes les autres données et pièces jointes du coffre ont été exportées avec succès."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ pièces jointes corrompues ont été ignorées lors de l'exportation. Toutes les autres données et pièces jointes du coffre ont été exportées avec succès.",
     "placeholders": {
@@ -5231,8 +5324,92 @@
   "lastPassEmail": {
     "message": "Courriel LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Un courriel est requis."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Saisissez une adresse courriel valide."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Un mot de passe est requis."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Entrez un mot de passe valide"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Entrez un code de vérification valide."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Veuillez entrer votre mot de passe principal de LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Veuillez entrer le code de vérification ci-dessous."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "En attente de l'authentification SSO"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Une fois connecté, nous continuerons automatiquement votre importation."
+  },
   "importingYourAccount": {
     "message": "Importation de votre compte..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Serveur"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Un courriel est requis."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Saisissez une adresse courriel valide."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Méthode à deux facteurs non prise en charge. Changez de méthode ou importez manuellement."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Méthode d'approbation de l'appareil"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Entrez un code de vérification valide."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Renvoyer le code de vérification"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Veuillez entrer le code de votre application d'authentification."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Veuillez entrer le code envoyé sous forme de message texte."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Veuillez entrer votre mot de passe principal de Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Votre demande d'approbation sera annulée. Êtes-vous sûr de vouloir continuer ?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Nous avons envoyé une demande d'approbation d'administrateur à votre administrateur."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Le mot de passe est requis."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Entrez un mot de passe valide."
   },
   "lastPassMFARequired": {
     "message": "Authentification multifacteur LastPass requise"
@@ -5280,7 +5457,7 @@
     "message": "Insérez la YubiKey associée à votre compte LastPass dans le port USB de votre ordinateur, puis appuyez sur son bouton."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "Les éléments ou coffres $COUNT$ 1Password n'ont pas pu être importés",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5289,52 +5466,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "Une erreur est survenue. Vérifiez vos identifiants et réessayez."
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "Seule la connexion avec le mot de passe est prise en charge."
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "Seule la connexion avec le mot de passe est prise en charge. Réessayez ou utilisez une méthode d'importation différente."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "Entrez une adresse e-mail valide ou utilisez une méthode d'importation différente."
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "Une erreur est survenue. Réessayez ou utilisez une méthode d'importation différente."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "L'adresse e-mail est requise."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Entrez une adresse e-mail valide."
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "L'adresse de connexion est requise."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "Entrez une adresse de connexion valide."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "La clé secrète est requise."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Entrez une clé secrète valide."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Le mot de passe est requis."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Entrez un code de vérification valide."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Adresse de connexion"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "Email 1Password"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "Entrez l'adresse e-mail que vous utilisez pour vous connecter à 1Password"
   },
   "secretKey": {
     "message": "Clé secrète"
@@ -6625,6 +6802,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Aucun élément dans $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Aucun élément dans Mes éléments"
   },
@@ -6692,19 +6883,19 @@
     "message": "Ajouter un dossier partagé pour partager de façon sécuritaire les éléments du coffre avec d'autres membres."
   },
   "pinned": {
-    "message": "Pinned",
+    "message": "Épinglé",
     "description": "Heading of the side navigation section that lists the shared folders the user pinned."
   },
   "pinToSidebar": {
-    "message": "Pin to sidebar",
+    "message": "Épingler sur la barre latérale",
     "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
   },
   "unpinFromSidebar": {
-    "message": "Unpin from sidebar",
+    "message": "Désépingler de la barre latérale",
     "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
   },
   "folderPinnedToSidebar": {
-    "message": "$NAME$ pinned to sidebar",
+    "message": "$NAME$ a épinglé sur la barre latérale",
     "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -6714,7 +6905,7 @@
     }
   },
   "folderUnpinnedFromSidebar": {
-    "message": "$NAME$ unpinned from sidebar",
+    "message": "$NAME$ a été retiré de la barre latérale",
     "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -6724,15 +6915,15 @@
     }
   },
   "pinnedEmptyStatePrefix": {
-    "message": "Find a shared folder in this vault and select",
+    "message": "Trouvez un dossier partagé dans ce coffre et sélectionnez",
     "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
   },
   "pinnedEmptyStateSuffix": {
-    "message": "from the Options menu.",
+    "message": "dans le menu Options.",
     "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
   },
   "noPinnedFoldersTooltip": {
-    "message": "Pin shared folders to the sidebar to filter them here."
+    "message": "Épingler les dossiers partagés dans la barre latérale pour les filtrer ici."
   },
   "sendPasswordHelperText": {
     "message": "Les individus devront entrer le mot de passe pour visionner ce Send",
@@ -7265,6 +7456,15 @@
   "unknownCipher": {
     "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   },
+  "viewSharedItem": {
+    "message": "Voir l'élément partagé"
+  },
+  "copyShareLink": {
+    "message": "Copier le lien de partage"
+  },
+  "unableToDetermineItemId": {
+    "message": "Impossible de déterminer l'ID de l'article"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden a un nouveau look",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7294,58 +7494,58 @@
     "message": "Revenir à la valeur par défaut"
   },
   "coachmarkImportTitle": {
-    "message": "Quickly import your passwords"
+    "message": "Importez rapidement vos mots de passe"
   },
   "coachmarkImportDescription": {
-    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+    "message": "Avez-vous déjà eu un gestionnaire de mots de passe ? Vous pouvez importer un CSV de connexions existantes et d'autres données dans votre coffre."
   },
   "coachmarkAddItemTitle": {
-    "message": "Add an item"
+    "message": "Ajouter un élément"
   },
   "coachmarkAddItemDescription": {
-    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+    "message": "Ajoutez de nouveaux mots de passe, notes et autres informations à votre coffre. Tout est protégé par un chiffrement de bout en bout."
   },
   "coachmarkShareWithCollectionsTitle": {
-    "message": "Safely share items with others"
+    "message": "Partagez en toute sécurité des éléments avec d'autres personnes"
   },
   "coachmarkShareWithCollectionsDescription": {
-    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+    "message": "En déplaçant un élément dans une collection, vous pouvez le partager en toute sécurité avec d'autres personnes de votre organisation."
   },
   "coachmarkShareWithSharedFoldersDescription": {
-    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+    "message": "En déplaçant un élément dans un dossier partagé, vous pouvez le partager en toute sécurité avec d'autres membres du coffre."
   },
   "coachmarkMonitorSecurityTitle": {
-    "message": "Monitor your password security"
+    "message": "Surveiller la sécurité de votre mot de passe"
   },
   "coachmarkMonitorSecurityDescription": {
-    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+    "message": "Gardez la sécurité de vos éléments de coffre forts en vérifiant les rapports de vulnérabilités."
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "Quoi de neuf"
   },
   "tourTheNewVaultDescription": {
-    "message": "With updated navigation and design, it's easier than ever to find what you need."
+    "message": "Avec la mise à jour de la navigation et du design, il est plus facile que jamais de trouver ce dont vous avez besoin."
   },
   "coachmarkVaultListTitle": {
-    "message": "All your vaults in one place"
+    "message": "Tous vos coffres en un seul endroit"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Voyez rapidement des objets personnels ou des objets dans un coffre que vous partagez avec les autres."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Les collections et les dossiers ont de nouveaux noms"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "Les mêmes fonctionnalités, des noms plus clairs. Les collections sont maintenant appelées dossiers partagés. Les dossiers sont maintenant Mes dossiers."
   },
   "coachmarkFiltersTitle": {
-    "message": "Mix and match filters"
+    "message": "Mélanger et faire correspondre les filtres"
   },
   "coachmarkFiltersDescription": {
-    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+    "message": "Sélectionnez plusieurs filtres à la fois pour affiner exactement les résultats que vous voulez. Ils resteront appliqués même lorsque vous quitterez."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ de $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -7356,5 +7556,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Remplir automatiquement les invites de connexion du navigateur",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Répondre aux demandes d'authentification HTTP basiques des sites Web qui correspondent à cet élément de connexion."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Ouvrir un article d'aide sur le remplissage automatique des invites de connexion du navigateur"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Les sites Web peuvent déclencher ces invites à votre insu, ce qui peut exposer vos identifiants.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Pour utiliser ce paramètre, choisissez une option de détection de correspondances autre que \"Défaut\" pour chaque site Web de cet élément de connexion."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Activer le remplissage automatique pour les invites de connexion au navigateur?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "La réactivation du mot de passe principal sera désactivée pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Activer la réactivation du mot de passe maître ?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Le remplissage automatique pour les invites de connexion du navigateur sera désactivé pour cet élément. Les deux paramètres ne peuvent pas être activés en même temps."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Utiliser la détection de correspondance par défaut ?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Les sites Web utilisant la détection de correspondance par défaut ne peuvent pas être utilisés avec les invites de connexion du navigateur. Le remplissage automatique des invites de connexion du navigateur sera désactivé pour cet élément."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Le remplissage automatique des invites de connexion au navigateur a été désactivé"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Cet élément a une nouvelle demande de mot de passe principal activée, donc le remplissage automatique pour les invites de connexion au navigateur a été désactivé. Enregistrez l'élément pour conserver ce changement."
   }
 }

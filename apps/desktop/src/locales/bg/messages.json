@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Папки в $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ вложени споделени папки",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 вложена споделена папка",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ вложени папки",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 вложена папка",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Моята папка"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Редактиране"
   },
+  "editInfo": {
+    "message": "Edit info"
+  },
+  "editAccess": {
+    "message": "Edit access"
+  },
   "authenticatorKeyTotp": {
     "message": "Удостоверителен ключ (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "Елементът е изтрит"
+  },
+  "deleteItemError": {
+    "message": "Записът не може да бъде изтрит."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Този запис е ограничен. Промяната не беше запазена."
+  },
+  "controlledAccess": {
+    "message": "Контролиран достъп"
   },
   "overwritePasswordConfirmation": {
     "message": "Сигурни ли сте, че искате да обновите текущата парола?"
@@ -4911,6 +4968,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Данни за вписване, карти, самоличности, защитени бележки и еднократни временни пароли, като структурата на папките ще бъде запазена."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Бързо и сигурно"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Този процес е шифрован от край до край. Не е необходимо изнасяне на файлове."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Нужни са само данните Ви за вписване"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "В следващата стъпка, ще въведете данните си за вписване в $VENDOR$.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Какво ще бъде прехвърлено"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Ще бъдат прехвърлени Вашите данни за вписване, други записи, както и папките. Секретните ключове и прикачените файлове може да бъдат пропуснати."
+  },
   "importAcceptedFormats": {
     "message": "Приемани формати: $FORMATS$",
     "placeholders": {
@@ -5192,6 +5273,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 повреден прикачен файл беше пропуснат при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 елемент не беше включен в това изнасяне. Той е защитен от правило за доверен достъп, така че удостоверителните му данни не са налични на това устройство."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ елемента не бяха включени в това изнасяне. Те са защитени от правила за доверен достъп, така че удостоверителните им данни не са налични на това устройство.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ повредени прикачени файла бяха пропуснати при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно.",
     "placeholders": {
@@ -5231,8 +5324,92 @@
   "lastPassEmail": {
     "message": "Е-поща от LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Въведете правилна парола"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за LastPass."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Въведете кода за потвърждаване по-долу."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Изчакване на еднократното удостоверяване"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "След като се впишете, внасянето ще продължи автоматично."
+  },
   "importingYourAccount": {
     "message": "Внасяне на данните Ви…"
+  },
+  "keeperLoginServerLabel": {
+    "message": "Сървър"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Е-пощата е задължителна."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Въведете правилен адрес на е-поща."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Този метод на двустепенно удостоверяване не се поддържа. Превключете към друг или внесете ръчно."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Начин за одобрение на устройството"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Въведете правилен код за потвърждаване."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Кодът за потвърждаване е изпратен отново"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Изпратено е известие Keeper Push до одобрено устройство."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Одобрете това устройство като изберете метод по-долу."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Проверете е-пощата си и въведете кода за потвърждение по-долу."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Моля, въведете кода от приложението си за удостоверяване."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Моля, въведете кода изпратен като текстово съобщение."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Моля, въведете главната си парола за Keeper."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA е изпратено"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Потвърдете известието от Keeper DNA на устройството си."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Вашата заявка за одобрение ще бъде отменена. Наистина ли искате да продължите?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Изпратихме заявка за одобрение до Вашия администратор."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Паролата е задължителна."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Въведете правилна парола."
   },
   "lastPassMFARequired": {
     "message": "Изисква се многостъпково удостоверяване за LastPass"
@@ -6625,6 +6802,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Няма елементи в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Добавете елементи в тази папка. Ще можете да имате бърз достъп до тух чрез филтрите в трезора.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Няма елементи в Моите елементи"
   },
@@ -7265,6 +7456,15 @@
   "unknownCipher": {
     "message": "Неизвестен запис. Може да се нуждаете от правомощие за достъп до този запис."
   },
+  "viewSharedItem": {
+    "message": "Преглед на споделения елемент"
+  },
+  "copyShareLink": {
+    "message": "Копиране на връзката за споделяне"
+  },
+  "unableToDetermineItemId": {
+    "message": "Идентификаторът на елемента не може да бъде определен"
+  },
   "newExperienceDialogTitle": {
     "message": "Биуорден има нов облик",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7329,8 +7529,8 @@
   "coachmarkVaultListTitle": {
     "message": "Всички Ваши трезори на едно място"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Лични, семейни и фирмени трезори вече се показват тук."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Бърз поглед върху личните елементи и елементите в трезор, който споделяте с други."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Колекциите и папките имат нови имена"
@@ -7356,5 +7556,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автоматично попълване на заявки за вписване към браузъра",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Отговаряне на базови искания за удостоверяване по HTTP от уеб сайтове, които съвпадат с този елемент за вписване."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Отворете помощната статия за автоматичното попълване на заявки за вписване към браузъра"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Уеб сайтовете могат да изпратят тези заявки без Ваше знание, което може да разкрие данните Ви.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "За да използвате тази настройка, изберете начин за откриване на съвпадения, който е различен от стандартния, за всеки уеб сайт в този елемент за вписване."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Включване на автоматичното попълване за заявки към браузъра?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Повторното искане за главна парола ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Включване на повторното запитване за главната парола?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент. Двете настройки не могат да бъдат включени едновременно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Използване на стандартното откриване на съвпадения?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Уеб сайтовете, които използват стандартното откриване на съвпадения, не могат да бъдат ползвани при заявки за вписване към браузъра. Автоматичното попълване на заявки за вписване към браузъра ще бъде изключено за този елемент."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Автоматичното попълване на заявки за вписване към браузъра е изключено"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Повторното запитване за главната парола е включено за този елемент, така че автоматичното попълване на заявки за вписване към браузъра е изключено. Запазете елемента, за да се приложи тази промяна."
   }
 }
