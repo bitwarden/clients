@@ -23,6 +23,37 @@ npm run test:e2e:shared    # web + extension together, e.g. passkey unlock
 npm run test:e2e:all       # all four, sequentially
 ```
 
+## Memory
+
+`npm run test:e2e:memory` walks the browser extension through its lifecycle (logged out,
+popup on the vault, popup closed, pages with content scripts, inline menu, autofill, a
+restarted service worker, popup reopened) and records, at each step:
+
+- the JS heap and WebAssembly memory of every extension context, after a forced GC
+- the extension process's physical footprint (macOS `footprint`)
+- in the service worker: vault decrypt calls, the decrypted cipher cache, and how many
+  plaintext passwords its heap holds
+
+Results land in `.debug/e2e/memory/<E2E_MEMORY_LABEL>/report.json`. Compare runs, or
+inspect a heap:
+
+```
+E2E_EXTENSION_DIR=/path/to/build E2E_MEMORY_LABEL=after npm run test:memory --workspace @bitwarden/e2e
+node e2e/scripts/memory-compare.mjs before after
+E2E_HEAP_SNAPSHOT=1 ...                      # save heap snapshots too
+node e2e/scripts/heap-retainers.mjs <file>   # what keeps the most memory alive
+```
+
+Use a large vault, e.g. `E2E_ACCOUNT=<section with ~10k items>`.
+
+`tests/browser-memory/unlock.e2e.ts`, in the same suite, times master password and PIN
+unlock from the click to the vault list's first paint (the popup's `Vault rendered` mark),
+and opening the popup while unlocked, 10 runs each, into `unlock.json`. Biometric unlock
+runs through the desktop app over native messaging and is not covered.
+
+The browser window opens off-screen; `E2E_HEADED=1` shows it. Headless Chromium restarts
+the extension's service worker, which leaves the popup loading.
+
 Failing tests keep a video and a trace (`npx playwright show-trace <trace.zip>`).
 Set `E2E_VIDEO=1` to record every test; both land in `e2e/test-results/<test>/`.
 

@@ -8,5 +8,7 @@ export const DEBUG_DIR = resolve(REPO_ROOT, ".debug");
 
 export const E2E_STATE_DIR = resolve(DEBUG_DIR, "e2e");
 
-export const BROWSER_BUILD_DIR = resolve(REPO_ROOT, "apps/browser/build");
+// `E2E_EXTENSION_DIR` loads another build, e.g. to compare branches.
+export const BROWSER_BUILD_DIR =
+  process.env.E2E_EXTENSION_DIR ?? resolve(REPO_ROOT, "apps/browser/build");
 export const DESKTOP_BUILD_DIR = resolve(REPO_ROOT, "apps/desktop/build");
