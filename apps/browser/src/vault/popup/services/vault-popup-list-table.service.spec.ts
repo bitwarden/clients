@@ -42,7 +42,7 @@ describe("VaultPopupListTableService", () => {
   const loading$ = new BehaviorSubject<boolean>(false);
   const hasFilterApplied$ = new BehaviorSubject<boolean>(false);
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
-  const applyFilter = jest.fn();
+  const applyScopedFilter = jest.fn();
 
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   /** The chip selection, as the table's `filterValues` reports it. */
@@ -96,7 +96,7 @@ describe("VaultPopupListTableService", () => {
             searchText$: searchText$.asObservable(),
             emptyVault$: emptyVault$.asObservable(),
             hasFilterApplied$: hasFilterApplied$.asObservable(),
-            applyFilter,
+            applyScopedFilter,
           },
         },
         {
@@ -549,10 +549,10 @@ describe("VaultPopupListTableService", () => {
       const sub = service.applyFilterOnInput(input$).subscribe();
 
       input$.next("git");
-      expect(applyFilter).not.toHaveBeenCalled();
+      expect(applyScopedFilter).not.toHaveBeenCalled();
 
       tick(SearchTextDebounceInterval);
-      expect(applyFilter).toHaveBeenCalledWith("git");
+      expect(applyScopedFilter).toHaveBeenCalledWith("git");
 
       sub.unsubscribe();
     }));
@@ -564,7 +564,7 @@ describe("VaultPopupListTableService", () => {
 
       input$.next("git");
       tick(0);
-      expect(applyFilter).toHaveBeenCalledWith("git");
+      expect(applyScopedFilter).toHaveBeenCalledWith("git");
 
       sub.unsubscribe();
     }));
