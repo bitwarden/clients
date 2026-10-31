@@ -2,6 +2,7 @@ import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import {
   AutoConfirmPolicy,
   DesktopAutotypeDefaultSettingPolicy,
+  DesktopAutotypeGaPolicy,
   DisableSendPolicy,
   FillAssistPolicy,
   MasterPasswordPolicy,
@@ -38,6 +39,8 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new RestrictedItemTypesPolicy(),
   // Autotype MVP only: only displayed when the Autotype MVP feature flag is on and GA is off
   new DesktopAutotypeDefaultSettingPolicy(),
+  // Autotype GA only: only displayed when the Autotype GA feature flag is on and MVP is off
+  new DesktopAutotypeGaPolicy(),
   new UriMatchDefaultPolicy(),
   new FillAssistPolicy(),
   new AutoConfirmPolicy(),
