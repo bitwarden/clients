@@ -60,10 +60,12 @@
 
   <!-- PIN Unlock -->
   <ng-container *ngIf="unlockOptions.pin.enabled && activeUnlockOption === UnlockOption.Pin">
-    <form [bitSubmit]="submit" [formGroup]="formGroup">
+    <form [bitSubmit]="submit" [formGroup]="formGroup" #pinForm>
       <bit-form-field>
         <bit-label>{{ "pin" | i18n }}</bit-label>
         <input
+          #pinInput
+          (input)="tryPinWhenComplete(pinInput.value, pinForm)"
           type="password"
           formControlName="pin"
           bitInput
