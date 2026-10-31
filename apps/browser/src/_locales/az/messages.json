@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Seyfimdə element yoxdur"
   },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Elementlərimdə element yoxdur"
   },
@@ -1236,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Element tullantı qutusuna göndərildi"
+  },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
   },
   "overwritePassword": {
     "message": "Parolun üzərinə yaz"
@@ -5396,16 +5416,16 @@
     "message": "Girişlər, kartlar, kimliklər, güvənli notlar və TOTP-lər qovluq strukturunda qorunur."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Sürətli və güvənli"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Bu proses ucdan-uca şifrlənib. Xaricə köçürmə faylına ehtiyac yoxdur."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Ehtiyacınız olan tək şey giriş məlumatlarınızdır"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "Növbəti addımda, $VENDOR$ giriş məlumatlarınızı daxil edəcəksiniz.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Nələr köçürüləcək"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Giriş məlumatlarınız, digər elementlər və qovluqlar köçürüləcək. Keçid açarları və qoşmalar köçürülməyə bilər. "
   },
   "importAcceptedFormats": {
     "message": "Qəbul edildi: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "Xaricə köçürmə zamanı 1 zədəli qoşma ötürüldü. Digər bütün seyf veriləri və qoşmaları uğurla xaricə köçürüldü."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "Xaricə köçürmə zamanı $COUNT$ zədəli qoşma ötürüldü. Digər bütün seyf veriləri və qoşmaları uğurla xaricə köçürüldü.",
     "placeholders": {
@@ -5803,31 +5835,31 @@
     "message": "LastPass E-poçtu"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-poçt tələb olunur."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Yararlı bir e-poçt ünvanı daxil edin."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Parol tələb olunur."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Yararlı bir parol daxil edin"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Yararlı bir doğrulama kodu daxil edin."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Lütfən LastPass ana parolunuzu daxil edin."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Lütfən doğrulama kodunu aşağıda daxil edin."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "SSO kimlik doğrulaması gözlənilir"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Hesaba daxil olduqdan sonra, daxilə köçürmə prosesinizi avtomatik davam etdirəcəyik."
   },
   "importingYourAccount": {
     "message": "Hesabınız daxilə köçürülür..."
@@ -5836,58 +5868,58 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-poçt tələb olunur."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Yararlı bir e-poçt ünvanı daxil edin."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "İki faktorlu kimlik doğrulama üsulu dəstəklənmir. Üsulu dəyişin və ya daxilə manual olaraq köçürün."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Cihaz təsdiqləmə üsulu"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Yararlı bir doğrulama kodu daxil edin."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Doğrulama kodu təkrar göndərildi"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Keeper Push bildirişi təsdiqlənmiş cihaza göndərildi."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Aşağıdakı üsullardan birini seçərək bu cihazı təsdiqlə."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Lütfən e-poçtunuzu yoxlayın və doğrulama kodunu aşağıda daxil edin."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Lütfən kimlik doğrulama tətbiqinizdəki kodu daxil edin."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Lütfən mətn mesajı olaraq göndərilən kodu daxil edin."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Lütfən Keeper ana parolunuzu daxil edin."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA göndərildi"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Keeper DNA bildirişini cihazınızda təsdiqləyin."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Təsdiq sorğunuz ləğv edildi. Davam etmək istədiyinizə əminsiniz?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Admin təsdiqi sorğunuzu admininizə göndərmişik."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Parol tələb olunur."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Yararlı bir parol daxil edin."
   },
   "lastPassMFARequired": {
     "message": "LastPass çox faktorlu kimlik doğrulama tələb olunur"
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Bu parol üçün əlavə risklər var:"
   },
+  "excludeFromList": {
+    "message": "Siyahıdan kənarlaşdır"
+  },
+  "excludeFromListDesc": {
+    "message": "Kənarlaşdırma, parolunuzla bağlı riski aradan qaldırmır. Hesabınızı qorumaq üçün əvvəlcə parolunuzu dəyişdirin."
+  },
+  "excludeAnyway": {
+    "message": "Yenə də kənarlaşdır"
+  },
   "reused": {
     "message": "Təkrar ist. olunub",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Bilinməyən element, bu elementə erişmək üçün izin istəməyiniz lazım gələ bilər."
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden-in görünüşü yeniləndi",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8575,7 +8625,7 @@
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$/$TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -8588,22 +8638,22 @@
     }
   },
   "coachmarkSwitchVaultsTitle": {
-    "message": "Switch between vaults"
+    "message": "Seyflər arasında keçid et"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
   },
   "coachmarkFiltersTitle": {
-    "message": "Mix and match filters"
+    "message": "Filtrləri qarışdır və uyuşdur"
   },
   "coachmarkFiltersDescription": {
-    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+    "message": "İstədiyiniz nəticəyə daha tez çatmaq üçün eyni anda bir neçə filtr istifadə edin. Siz başqa səhifəyə keçsəniz belə filtrlər aktiv qalacaq."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Kolleksiyalar və qovluqlar artıq yeni ada sahibdir"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "Eyni özəlliklər, daha aydın adlar. Kolleksiyalara artıq paylaşılan qovluq deyilir. Qovluqlar isə \"Qovluqlarım\" oldu."
   },
   "customize": {
     "message": "Özəlləşdir"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "İlkin halına sıfırla"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }

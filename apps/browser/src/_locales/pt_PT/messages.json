@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Não existem itens no meu cofre"
   },
+  "noItemsInFolder": {
+    "message": "Não existem itens em $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Adicione itens a esta pasta para lhes aceder rapidamente através dos filtros do cofre.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Não existem itens em Os meus itens"
   },
@@ -1236,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Item movido para o lixo"
+  },
+  "deleteItemError": {
+    "message": "Não foi possível eliminar o item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Este item tem restrições. As alterações não foram guardadas."
   },
   "overwritePassword": {
     "message": "Substituir palavra-passe"
@@ -3024,13 +3044,13 @@
     "message": "A palavra-passe mestra que escolheu é fraca. Deve utilizar uma palavra-passe mestra forte (ou uma frase de acesso) para proteger adequadamente a sua conta Bitwarden. Tem a certeza de que pretende utilizar esta palavra-passe mestra?"
   },
   "rotateAccountEncKey": {
-    "message": "Rotacionar também a chave de encriptação da minha conta"
+    "message": "Rodar também a chave de encriptação da minha conta"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotacionar chave de encriptação"
+    "message": "Rodar chave de encriptação"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Tem a certeza de que pretende rotacionar a chave de encriptação da sua conta?"
+    "message": "Tem a certeza de que pretende proceder à rotação da chave de encriptação da sua conta?"
   },
   "updateEncryptionKeyWarning": {
     "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
@@ -3039,7 +3059,7 @@
     "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "Existem anexos antigos no seu cofre que precisam de ser corrigidos antes de poder rotacionar a chave de encriptação da sua conta."
+    "message": "Existem anexos antigos no seu cofre que têm de ser corrigidos antes de poder proceder à rotação da chave de encriptação da sua conta."
   },
   "impactOfRotatingYourEncryptionKey": {
     "message": "Impacto da rotação da sua chave de encriptação"
@@ -4632,7 +4652,7 @@
     "message": "Confirmar acesso"
   },
   "denyAccess": {
-    "message": "Recusar acesso"
+    "message": "Negar acesso"
   },
   "time": {
     "message": "Hora"
@@ -5396,16 +5416,16 @@
     "message": "Credenciais, cartões, identidades, notas seguras e códigos TOTP, mantendo a estrutura das pastas."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rápido e seguro"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Este processo é encriptado ponto a ponto. Não é necessário nenhum ficheiro de exportação."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Só precisa das suas credenciais"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "No passo seguinte, terá de introduzir as suas credenciais do $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "O que será transferido"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "As suas credenciais, os outros itens e as pastas serão transferidas. As chaves de acesso e os anexos poderão não ser incluídos."
   },
   "importAcceptedFormats": {
     "message": "Formatos aceites: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 anexo corrompido foi ignorado durante a exportação. Todos os restantes dados do cofre e anexos foram exportados com sucesso."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ anexos corrompidos foram ignorados durante a exportação. Todos os restantes dados do cofre e anexos foram exportados com sucesso.",
     "placeholders": {
@@ -5803,91 +5835,91 @@
     "message": "E-mail do LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "O e-mail é obrigatório."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Introduza um endereço de e-mail válido."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "A palavra-passe é obrigatória."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Introduza uma palavra-passe válida"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Introduza um código de verificação válido."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Introduza a sua palavra-passe mestra do LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Introduza o código de verificação abaixo."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "A aguardar autenticação SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Após iniciar sessão, continuaremos a importação automaticamente."
   },
   "importingYourAccount": {
     "message": "A importar a sua conta..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Servidor"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "O e-mail é obrigatório."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Introduza um endereço de e-mail válido."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Método de autenticação de dois fatores não suportado. Altere o método ou faça a importação manualmente."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Método de aprovação do dispositivo"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Introduza um código de verificação válido."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Código de verificação reenviado"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Notificação do Keeper Push enviada para o dispositivo aprovado."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Aprove este dispositivo selecionando um dos métodos abaixo."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Verifique o seu e-mail e introduza o código de verificação abaixo."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Introduza o código da sua app de autenticação."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Introduza o código enviado por SMS."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Introduza a sua palavra-passe mestra do Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA enviado"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Aprove a notificação do Keeper DNA no seu dispositivo."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "O seu pedido de aprovação será cancelado. Tem a certeza de que pretende continuar?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Enviámos um pedido de aprovação ao seu administrador."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "A palavra-passe é obrigatória."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Introduza uma palavra-passe válida."
   },
   "lastPassMFARequired": {
     "message": "Autenticação multifator do LastPass necessária"
@@ -6016,7 +6048,7 @@
     "message": "Introduza o código da sua app de autenticação"
   },
   "smsCodePrompt": {
-    "message": "Introduza o código enviado por mensagem de texto"
+    "message": "Introduza o código enviado por SMS"
   },
   "keeperDnaCodePrompt": {
     "message": "Introduza o código da sua app Keeper DNA"
@@ -6172,7 +6204,7 @@
     "message": "Aprove a notificação push do Duo no seu dispositivo."
   },
   "duoSmsWaiting": {
-    "message": "Foi enviada uma mensagem de texto para o seu telemóvel. Introduza o código na app Duo para continuar."
+    "message": "Foi enviada uma SMS para o seu telemóvel. Introduza o código na app Duo para continuar."
   },
   "duoVoiceWaiting": {
     "message": "Atenda a chamada do Duo e siga as instruções."
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Esta palavra-passe apresenta riscos adicionais:"
   },
+  "excludeFromList": {
+    "message": "Excluir da lista"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluir da lista não elimina o risco para a sua palavra-passe. Para proteger a sua conta, altere primeiro a palavra-passe."
+  },
+  "excludeAnyway": {
+    "message": "Excluir mesmo assim"
+  },
   "reused": {
     "message": "Reutilizada",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Item desconhecido. Poderá ter de pedir permissão para aceder a este item."
   },
+  "viewSharedItem": {
+    "message": "Ver item partilhado"
+  },
+  "copyShareLink": {
+    "message": "Copiar link de partilha"
+  },
+  "unableToDetermineItemId": {
+    "message": "Não foi possível determinar o ID do item"
+  },
   "newExperienceDialogTitle": {
     "message": "O Bitwarden tem um novo visual",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Alternar entre cofres"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "Com o novo seletor de cofres, pode ver rapidamente o seu cofre pessoal ou um cofre que partilha com outras pessoas."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "Com o novo seletor de cofres, pode ver rapidamente os itens pessoais ou os itens de um cofre que partilha com outras pessoas."
   },
   "coachmarkFiltersTitle": {
     "message": "Combinar filtros"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Repor predefinições"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Preencher automaticamente os pedidos de início de sessão do navegador",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Responda aos pedidos de autenticação HTTP básica dos sites que correspondam a esta credencial."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Abrir artigo de ajuda sobre o preenchimento automático de pedidos de início de sessão no navegador"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Os sites podem apresentar estes pedidos sem o seu conhecimento, o que pode expor as suas credenciais.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Para utilizar esta definição, selecione uma opção de deteção de correspondências diferente de «Predefinição» para cada site associado a esta credencial."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Ativar o preenchimento automático dos pedidos de início de sessão no navegador?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "O pedido da palavra-passe mestra será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Ativar o pedido de nova introdução da palavra-passe mestra?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "O preenchimento automático dos pedidos de início de sessão no navegador será desativado para esta credencial. Não é possível ativar ambas as definições em simultâneo."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Utilizar a deteção de correspondências predefinida?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Os sites que utilizam a deteção de correspondências predefinida não podem ser utilizados com pedidos de início de sessão no navegador. O preenchimento automático destes pedidos será desativado para esta credencial."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Preenchimento automático dos pedidos de início de sessão no navegador desativado"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Esta credencial tem a opção de pedir novamente a palavra-passe mestra ativada. Por isso, o preenchimento automático dos pedidos de início de sessão no navegador foi desativado. Guarde a credencial para manter esta alteração."
   }
 }

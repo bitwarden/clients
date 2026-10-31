@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "В моем хранилище нет элементов"
   },
+  "noItemsInFolder": {
+    "message": "Нет элементов в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Добавьте элементы в эту папку. Вы сможете быстро получить к ним доступ с помощью фильтров хранилища.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "В моих элементах нет элементов"
   },
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Элемент отправлен в корзину"
   },
+  "deleteItemError": {
+    "message": "Не удалось удалить элемент."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Доступ к этому элементу ограничен. Ваши изменения не были сохранены."
+  },
   "overwritePassword": {
     "message": "Перезаписать пароль"
   },
@@ -1478,16 +1498,16 @@
     "message": "О помощнике по заполнению"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
-    "message": "Allow websites to exclude fields to autofill"
+    "message": "Разрешить сайтам исключать поля для автозаполнения"
   },
   "honorDataBitwardenIgnoreAttributeHint": {
-    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+    "message": "Пропускать поля, которые сайт помечает атрибутом `data-bwignore`."
   },
   "honorDataBitwardenAutofillAttributeLabel": {
-    "message": "Allow websites to add fields to autofill"
+    "message": "Разрешить сайтам добавлять поля для автозаполнения"
   },
   "honorDataBitwardenAutofillAttributeHint": {
-    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+    "message": "Использовать все элементы `span`, которые на сайте помечены атрибутом `data-bwautofill`."
   },
   "enableBasicAuthResponseLabel": {
     "message": "Автозаполнение логинов в браузере",
@@ -5094,7 +5114,7 @@
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "В этом файле используются неподдерживаемые настройки шифрования, поэтому его невозможно импортировать."
   },
   "importNothingError": {
     "message": "Ничего не было импортировано."
@@ -5396,16 +5416,16 @@
     "message": "Логины, карты, личная информация, защищенные заметки и TOTP с сохраненной структурой папок."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Быстро и безопасно"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Этот процесс защищен сквозным шифрованием. Не требуется экспортировать файл."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Все, что вам нужно, - это ваш логин"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "На следующем этапе вам будет предложено ввести свои учетные данные для авторизации в $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Что будет перенесено"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Ваши логины, прочие элементы и папки будут перенесены. Passkey и вложения могут быть исключены."
   },
   "importAcceptedFormats": {
     "message": "Принято: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "При экспорте было пропущено 1 поврежденное вложение. Все остальные данные хранилища и вложения были экспортированы успешно."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "При экспорте было пропущено $COUNT$ поврежденных вложений. Все остальные данные хранилища и вложения были экспортированы успешно.",
     "placeholders": {
@@ -5803,91 +5835,91 @@
     "message": "LastPass Email"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Необходимо указать email."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Введите действительный адрес email."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Необходимо ввести пароль."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Введите правильный пароль"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Введите правильный код подтверждения."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Пожалуйста, введите мастер-пароль LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Введите код подтверждения ниже."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Ожидание аутентификации SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "После авторизации мы автоматически продолжим импорт."
   },
   "importingYourAccount": {
     "message": "Импорт вашего аккаунта..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Сервер"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Необходимо указать email."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Введите действительный адрес email."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Неподдерживаемый метод двухфакторной аутентификации. Смените метод или импортируйте данные вручную."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Метод подтверждения устройства"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Введите правильный код подтверждения."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Повторно отправить код подтверждения"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Отправлено push-уведомление Keeper на авторизованное устройство."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Подтвердите это устройство, выбрав один из способов ниже."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Пожалуйста, проверьте свою почту и введите код подтверждения ниже."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Введите код из приложения-аутентификатора."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Введите код, присланный в SMS."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Пожалуйста, введите мастер-пароль Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Отправлен Keeper DNA"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Подтвердите уведомление Keeper DNA на своем устройстве."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Ваш запрос на утверждение будет отменен. Вы действительно хотите продолжить?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Мы отправили запрос на одобрение администратора вашему администратору."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Необходимо ввести пароль."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Введите правильный пароль."
   },
   "lastPassMFARequired": {
     "message": "Требуется многофакторная аутентификация LastPass"
@@ -7591,10 +7623,10 @@
     }
   },
   "youHaveNoFoldersV2": {
-    "message": "You have no folders"
+    "message": "У вас нет папок"
   },
   "emptyFoldersDescriptionV2": {
-    "message": "Use folders to organize vault items. They're just for you. No one else will see or use them."
+    "message": "Используйте папки для организации элементов хранилища. Они предназначены только для вас. Никто другой не сможет их увидеть или использовать."
   },
   "introCarouselLabel": {
     "message": "Добро пожаловать в Bitwarden"
@@ -8050,16 +8082,16 @@
     "message": "Совместная разблокировка"
   },
   "syncUnlockWithDesktop": {
-    "message": "Sync unlock with desktop app"
+    "message": "Синхронизировать разблокировку с приложением для компьютера"
   },
   "syncUnlockWithDesktopDescription": {
-    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
+    "message": "Расширение для браузера и приложение Bitwarden для компьютера блокируются и разблокируются одновременно."
   },
   "syncUnlockWithWeb": {
-    "message": "Sync unlock with web app"
+    "message": "Синхронизировать разблокировку с веб-приложением"
   },
   "syncUnlockWithWebDescription": {
-    "message": "The Bitwarden browser extension and web app lock and unlock together."
+    "message": "Расширение для браузера и веб-приложение Bitwarden блокируются и разблокируются одновременно."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
     "message": "Общая разблокировка недоступна, поскольку вы выбрали не запоминать это устройство. Чтобы включить эту настройку, попробуйте авторизоваться повторно."
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Этот пароль имеет дополнительные риски:"
   },
+  "excludeFromList": {
+    "message": "Исключить из списка"
+  },
+  "excludeFromListDesc": {
+    "message": "Исключение не устраняет угрозу безопасности вашего пароля. Чтобы защитить свой аккаунт, сначала смените пароль."
+  },
+  "excludeAnyway": {
+    "message": "Все равно исключить"
+  },
   "reused": {
     "message": "Повторный",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Неизвестный элемент. Вам может потребоваться запросить разрешение на доступ к этому элементу."
   },
+  "viewSharedItem": {
+    "message": "Просмотр общего элемента"
+  },
+  "copyShareLink": {
+    "message": "Скопировать ссылку для обмена"
+  },
+  "unableToDetermineItemId": {
+    "message": "Не удалось определить ID элемента"
+  },
   "newExperienceDialogTitle": {
     "message": "У Bitwarden новый облик!",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Переключение между хранилищами"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "С помощью нового переключателя хранилищ вы можете быстро перейти в свое личное хранилище или в хранилище, к которому у вас есть общий доступ с другими пользователями."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "С помощью нового переключателя хранилищ вы можете быстро просматривать свои личные элементы или элементы в хранилище, которым вы делитесь с другими."
   },
   "coachmarkFiltersTitle": {
     "message": "Комбинировать и сочетать фильтры"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Сбросить по умолчанию"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автозаполнение логинов в браузере",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Отвечайте на базовые запросы HTTP-аутентификации от сайтов, соответствующих данному элементу логина."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Открыть статью справки об автозаполнении запросов на авторизацию в браузере"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Сайты могут запускать эти запросы без вашего ведома, что может привести к раскрытию ваших учетных данных.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Чтобы использовать эту настройку, выберите опцию обнаружения совпадений, отличную от \"По умолчанию\", для каждого сайта, указанного для этого элемента входа."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Включить автозаполнение запросов на авторизацию в браузере?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Повторный запрос мастер-пароля для этого элемента будет отключен. Обе настройки не могут быть включены одновременно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Включить запрос мастер-пароля?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Для этого элемента автозаполнение запросов на авторизацию браузера будет отключено. Обе настройки не могут быть включены одновременно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Использовать метод обнаружения совпадений по умолчанию?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Сайты, использующие определение совпадений по умолчанию, не могут использоваться с запросами на авторизацию в браузере. Автозаполнение запросов на авторизацию в браузере будет отключено для этого элемента."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Автоматическое заполнение запросов на авторизацию в браузере отключено"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "В этом элементе включен запрос на повторный ввод мастер-пароля, поэтому автозаполнение запросов на авторизацию в браузере было отключено. Сохраните этот элемент, чтобы оставить это изменение."
   }
 }

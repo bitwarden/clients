@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "У моєму сховищі немає записів"
   },
+  "noItemsInFolder": {
+    "message": "Немає записів в $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Додайте записи до цієї теки. Ви зможете швидко отримати до них доступ за допомогою фільтрів сховища.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "У моїх записах немає записів"
   },
@@ -1236,6 +1250,12 @@
   },
   "deletedItem": {
     "message": "Запис переміщено до смітника"
+  },
+  "deleteItemError": {
+    "message": "Не вдалося видалити запис."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Запис обмежений. Ваші зміни не було збережено."
   },
   "overwritePassword": {
     "message": "Перезаписати пароль"
@@ -5396,16 +5416,16 @@
     "message": "Дані входу, картки, посвідчення, захищені нотатки й одноразові паролі (TOTP) зі збереженням структури тек."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Швидкий і безпечний"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Цей процес наскрізно зашифрований. Файл експорту не потрібен."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Все, що вам потрібно, - це ваш вхід"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "На наступному кроці вам потрібно буде ввести свої облікові дані для $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Що буде передано"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Ваші облікові записи, інші елементи та теки будуть перенесені. Паролі та вкладення можуть бути виключені."
   },
   "importAcceptedFormats": {
     "message": "Прийнято: $FORMATS$",
@@ -5700,6 +5720,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "Під час експорту пропущено 1 пошкоджене вкладення. Усі інші дані сховища та вкладення успішно експортовано."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "Під час експорту пропущено пошкоджені вкладення ($COUNT$). Усі інші дані сховища та вкладення успішно експортовано.",
     "placeholders": {
@@ -5803,91 +5835,91 @@
     "message": "Електронна пошта LastPass"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Електронна пошта є обов'язковою."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Введіть дійсну адресу електронної пошти."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Пароль є обов'язковим."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Введіть дійсний пароль"
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Введіть дійсний код підтвердження."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Будь ласка, введіть головний пароль LastPass."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Будь ласка, введіть нижче код підтвердження."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Очікування аутентифікації SSO"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "Після входу в систему ми автоматично продовжимо імпорт."
   },
   "importingYourAccount": {
     "message": "Ваш обліковий запис імпортується..."
   },
   "keeperLoginServerLabel": {
-    "message": "Server"
+    "message": "Сервер"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "Електронна пошта є обов'язковою."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Введіть дійсну адресу електронної пошти."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Цей метод двофакторної аутентифікації не підтримується. Змініть метод або імпортуйте дані вручну."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Метод затвердження пристрою"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Введіть дійсний код підтвердження."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Повторно надіслати код підтвердження"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "На затверджений пристрій надіслано push-повідомлення від Keeper."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Затвердіть цей пристрій, вибравши один із наведених нижче способів."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Будь ласка, перевірте свою електронну пошту та введіть код підтвердження нижче."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Будь ласка, введіть код із вашого застосунку для аутентифікації."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Будь ласка, введіть код, надісланий у текстовому повідомленні."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Будь ласка, введіть головний пароль Keeper."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "ДНК Keeper надіслано"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Підтвердьте сповіщення від Keeper DNA на своєму пристрої."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Ваш запит на затвердження буде скасовано. Ви впевнені, що хочете продовжити?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Ми надіслали запит на затвердження адміністратору вашого сайту."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Пароль є обов'язковим."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Введіть дійсний пароль."
   },
   "lastPassMFARequired": {
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Цей пароль має додаткові ризики:"
   },
+  "excludeFromList": {
+    "message": "Виключити зі списку"
+  },
+  "excludeFromListDesc": {
+    "message": "Виключення не усуває ризик, пов’язаний із вашим паролем. Щоб захистити свій обліковий запис, спочатку змініть пароль."
+  },
+  "excludeAnyway": {
+    "message": "Виключити все одно"
+  },
   "reused": {
     "message": "Повторно використано",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Невідомий запис. Можливо, вам необхідно запитати дозвіл для доступу до нього."
   },
+  "viewSharedItem": {
+    "message": "Перегляд спільного запису"
+  },
+  "copyShareLink": {
+    "message": "Копіювати посилання для спільного доступу"
+  },
+  "unableToDetermineItemId": {
+    "message": "Не вдалося визначити ідентифікатор запису"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden має новий вигляд",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8575,7 +8625,7 @@
     "description": "Button that closes the dialog introducing the redesigned vault."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ з $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -8588,22 +8638,22 @@
     }
   },
   "coachmarkSwitchVaultsTitle": {
-    "message": "Switch between vaults"
+    "message": "Перемикання між сховищами"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "За допомогою нового перемикача сховищ ви можете швидко переглянути особисті записи або записи у сховищі, яке ви використовуєте спільно з іншими."
   },
   "coachmarkFiltersTitle": {
-    "message": "Mix and match filters"
+    "message": "Комбінуйте фільтри"
   },
   "coachmarkFiltersDescription": {
-    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+    "message": "Виберіть одразу кілька фільтрів, щоб звузити пошук саме до тих результатів, які вам потрібні. Вони залишатимуться активними навіть після переходу на іншу сторінку."
   },
   "coachmarkSharedFoldersTitle": {
-    "message": "Collections and folders have new names"
+    "message": "Збірки й теки мають нові назви"
   },
   "coachmarkSharedFoldersDescription": {
-    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+    "message": "Ті ж функції, зрозуміліші назви. Збірки тепер називаються \"Спільні теки\". Теки – тепер мають назву \"Мої теки\"."
   },
   "customize": {
     "message": "Налаштувати"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Відновити типові налаштування"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Автозаповнення полів входу в браузері",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Відповідайте на запити щодо базової HTTP-аутентифікації від вебсайтів, які відповідають цьому запису входу."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Відкрити статтю довідки про автозаповнення полів входу в браузері"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Вебсайти можуть активувати ці запити без вашого відома, що може призвести до витоку ваших облікових даних.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Щоб скористатися цим параметром, для кожного вебсайту цього запису входу виберіть варіант виявлення збігів, відмінний від «За замовчуванням»."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Увімкнути автозаповнення у вікнах входу в браузері?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Для цього запису буде вимкнено повторне запитування головного пароля. Обидва параметри не можуть бути увімкнені одночасно."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Увімкнути повторне запитування головного пароля?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Для цього запису буде вимкнено автозаповнення у вікнах входу в браузері. Обидва параметри не можуть бути увімкнені одночасно."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Використовувати стандартне виявлення збігів?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Вебсайти, що використовують стандартне виявлення збігів, не можна використовувати разом із вікнами входу в браузері. Функція автозаповнення для вікон входу в браузері буде вимкнена для цього запису."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Функція автозаповнення у вікнах входу в браузері вимкнена"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Для цього елемента увімкнено повторне запитування головного пароля, тому автозаповнення полів входу в браузері було вимкнено. Збережіть запис, щоб зберегти цю зміну."
   }
 }
