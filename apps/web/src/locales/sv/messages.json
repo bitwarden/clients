@@ -1259,6 +1259,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Mappar i $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ mappar",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ mapp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ underordnade delade mappar",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -1272,6 +1300,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 underordnad delad mapp",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ kapslade mappar",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 kapslad mapp",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Min mapp"
@@ -2091,6 +2133,12 @@
   "deletedItem": {
     "message": "Objekt skickades till papperskorgen"
   },
+  "deleteItemError": {
+    "message": "Det gick inte att ta bort objektet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Det här objektet är begränsat. Ändringen sparades inte."
+  },
   "deletedItems": {
     "message": "Objekt skickades till papperskorgen"
   },
@@ -2574,6 +2622,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Det finns inga objekt i $FOLDER_NAME$.",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Lägg till objekt i den här mappen. Du kan sedan snabbt komma åt dem med valvfilter.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Inga objekt i Mina objekt"
   },
@@ -2655,6 +2717,38 @@
   },
   "noMembersInList": {
     "message": "Det finns inga medlemmar att visa."
+  },
+  "noMembersInvitedToOrg": {
+    "message": "Inga medlemmar har bjudits in till din organisation"
+  },
+  "memberCount": {
+    "message": "$COUNT$ medlemmar",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 medlem"
+  },
+  "memberRangeOfTotal": {
+    "message": "$START$–$END$ av $TOTAL$ medlemmar",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
   },
   "noMembersToExport": {
     "message": "Det finns inga medlemmar att exportera."
@@ -3039,6 +3133,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 skadad bilaga hoppades över vid exporten. Alla andra data och bilagor i valvet exporterades."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 post ingick inte i exporten. Den skyddas av en regel för privilegierad åtkomst, så dess inloggningsuppgifter är inte tillgängliga på den här enheten."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ poster ingick inte i exporten. De skyddas av regler för privilegierad åtkomst, så deras inloggningsuppgifter är inte tillgängliga på den här enheten.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ skadade bilagor hoppades över vid exporten. Alla andra data och bilagor i valvet exporterades.",
@@ -3651,31 +3757,31 @@
     "message": "LastPass-e-postadress"
   },
   "lastPassLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-postadress krävs."
   },
   "lastPassLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Ange en giltig e-postadress."
   },
   "lastPassLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Lösenord krävs."
   },
   "lastPassLoginPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "Ange ett giltigt lösenord."
   },
   "lastPassLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Ange en giltig verifieringskod."
   },
   "lastPassLoginPasswordDesc": {
-    "message": "Please enter your LastPass master password."
+    "message": "Ange ditt LastPass-huvudlösenord."
   },
   "lastPassLoginCodeDesc": {
-    "message": "Please enter the verification code below."
+    "message": "Ange verifieringskoden nedan."
   },
   "lastPassLoginWaitingForSso": {
-    "message": "Waiting for SSO authentication"
+    "message": "Väntar på SSO-autentisering"
   },
   "lastPassLoginWaitingForSsoDesc": {
-    "message": "Once signed in, we’ll continue your import automatically."
+    "message": "När du har loggat in fortsätter vi importen automatiskt."
   },
   "includeSharedFolders": {
     "message": "Ta med delade mappar"
@@ -3761,16 +3867,16 @@
     "message": "Inloggningar, kort, identiteter, säkra anteckningar och TOTP-koder med bevarad mappstruktur."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Snabbt och säkert"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Processen är krypterad från början till slut. Ingen exportfil behövs."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Allt du behöver är dina inloggningsuppgifter"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "I nästa steg anger du dina inloggningsuppgifter för $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -3779,10 +3885,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Detta överförs"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Dina inloggningar, andra objekt och mappar överförs. Passkeys och bilagor kan utelämnas."
   },
   "importAcceptedFormats": {
     "message": "Godkända format: $FORMATS$",
@@ -3964,25 +4070,25 @@
     "message": "Klicka på ”Settings” och sedan ”Export Saved Logins” i webbläsartillägget Yoti och spara CSV-filen."
   },
   "importPsonoInstructions": {
-    "message": "Logga in på Psono-webbvalvet, klicka på listan ”Signed in as” och välj ”Others”. Öppna fliken ”Export”, välj exporttypen json och klicka sedan på Export."
+    "message": "Logga in på Psono-webbvalvet, klicka på rullgardinsmenyn ”Signed in as” och välj ”Others”. Öppna fliken ”Export”, välj exporttypen JSON och klicka sedan på ”Export”."
   },
   "importPasskyInstructions": {
-    "message": "Logga in på ”https://vault.passky.org” → ”Import & Export” → ”Export” i avsnittet Passky. (”Backup” stöds inte eftersom den är krypterad.)."
+    "message": "Logga in på ”https://vault.passky.org” och välj ”Import & Export” → ”Export” under Passky. ”Backup” stöds inte eftersom den är krypterad."
   },
   "importProtonpassInstructions": {
-    "message": "Öppna Settings > Export i webbläsartillägget ProtonPass. Exportera utan PGP-kryptering och spara zip-filen."
+    "message": "Gå till Settings > Export i ProtonPass-webbläsartillägget. Exportera utan PGP-kryptering och spara ZIP-filen."
   },
   "importPasswordxpInstructions": {
-    "message": "Välj menyn Database → Export to file.... Kontrollera att Folder names och Column titles är markerade i exportalternativen. Klicka på Browse... och välj målfilen och ange filtypen CSV file."
+    "message": "Välj Database → Export to file… Kontrollera i exportalternativen att Folder names och Column titles är markerade. Klicka på Browse…, välj målfilen och ange filtypen CSV file."
   },
   "importNetwrixInstructions": {
     "message": "Öppna FullClient, gå till Main Menu och välj Export. Starta guiden för export av lösenord och följ anvisningarna för att exportera en CSV-fil."
   },
   "importNordpassInstructions": {
-    "message": "Logga in på NordPass och öppna Settings → bläddra ned till avsnittet Import and Export och välj Export items → ange Master Password och välj Continue → spara CSV-filen på enheten."
+    "message": "Logga in på NordPass och öppna Settings. Rulla ned till avsnittet Import and Export, välj Export items, ange Master Password och välj Continue. Spara CSV-filen på enheten."
   },
   "importPassworddepot17Instructions": {
-    "message": "Gå till Tools → Export i skrivbordsprogrammet → ange huvudlösenordet → välj XML Format (*.xml) som exportformat → klicka på next → välj vilka poster som ska tas med i exporten → klicka på next för att exportera till den plats som valdes tidigare."
+    "message": "Gå till Tools → Export i skrivbordsprogrammet. Ange huvudlösenordet, välj XML Format (*.xml) som exportformat, klicka på Next, välj poster som ska ingå och klicka på Next för att exportera till den tidigare valda platsen."
   },
   "importDelineaInstructions": {
     "message": "Logga in på Delinea, sök efter ”Import/Export” → välj ”Export” → välj ”XML” som exportformat → välj ”QuantumLock” som autentiserartyp → ange lösenordet och välj ”Export” för att spara XML-filen."
@@ -5502,6 +5608,9 @@
   "trialConfirmationEmail": {
     "message": "Vi har skickat en bekräftelse via e-post till ditt teams faktureringsadress "
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Din provperiod omfattar Privileged Controls."
+  },
   "monthly": {
     "message": "Månadsvis"
   },
@@ -5589,6 +5698,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "Ta bort grupp"
+  },
+  "deleteGroups": {
+    "message": "Ta bort $QUANTITY$ grupper",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "Om du tar bort den här gruppen kan medlemmar som har tilldelats gruppen förlora åtkomst till associerade delade mappar. Själva medlemmarna tas inte bort."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "Om du tar bort de här grupperna kan medlemmar som har tilldelats grupperna förlora åtkomst till associerade delade mappar. Själva medlemmarna tas inte bort."
+  },
+  "groupCreated": {
+    "message": "Gruppen skapades"
+  },
+  "groupDeleted": {
+    "message": "Gruppen togs bort"
+  },
+  "groupsDeleted": {
+    "message": "$QUANTITY$ grupper togs bort",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "Grupp redigerad"
+  },
+  "noGroupsYet": {
+    "message": "Inga grupper ännu"
+  },
+  "noGroupsYetDesc": {
+    "message": "Grupper hjälper till att organisera medlemmarna i $ORGANIZATIONNAME$ och ger dem åtkomst till delade mappar.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -7242,6 +7399,15 @@
   },
   "openOrgInviteAcceptUnexpected": {
     "message": "Något gick fel. Läs in sidan igen och försök igen."
+  },
+  "verify": {
+    "message": "Verifiera"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "Ange koden som skickades till din e-postadress för att gå med i organisationen."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Det gick inte att skicka verifieringsmeddelandet. Försök igen."
   },
   "openOrgInviteNoSeatsMessage": {
     "message": "Din inbjudan kunde inte accepteras eftersom det inte finns någon ledig plats."
@@ -8983,22 +9149,22 @@
     "message": "Jag accepterar dessa risker och policyuppdateringar"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "Aktiverade inställningen för automatisk användarbekräftelse"
+    "message": "Inställningen för automatisk användarbekräftelse aktiverades"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "Inaktiverade inställningen för automatisk användarbekräftelse"
+    "message": "Inställningen för automatisk användarbekräftelse inaktiverades"
   },
   "autoConfirmEnabledByPortal": {
-    "message": "Lade till principen för automatisk användarbekräftelse"
+    "message": "Policyn för automatisk användarbekräftelse lades till"
   },
   "autoConfirmDisabledByPortal": {
-    "message": "Tog bort principen för automatisk användarbekräftelse"
+    "message": "Policyn för automatisk användarbekräftelse togs bort"
   },
   "inviteLinkEventCreated": {
     "message": "Skapade inbjudningslänk"
   },
   "inviteLinkEventDomainsEdited": {
-    "message": "Redigerade tillåtna domäner för inbjudningslänk"
+    "message": "Tillåtna domäner för inbjudningslänken redigerades"
   },
   "inviteLinkEventDeleted": {
     "message": "Tog bort inbjudningslänk"
@@ -9007,10 +9173,10 @@
     "message": "Kopierade inbjudningslänk"
   },
   "inviteLinkEventRegenerated": {
-    "message": "Skapade inbjudningslänk igen"
+    "message": "Inbjudningslänken skapades på nytt"
   },
   "inviteLinkEventAccepted": {
-    "message": "Medlemmen $ID$ accepterade inbjudan via inbjudningslänk",
+    "message": "Medlemmen $ID$ accepterade inbjudan via inbjudningslänken",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9019,15 +9185,15 @@
     }
   },
   "inviteLinkEventConfirmEnabled": {
-    "message": "Kravet på administratörsgodkännande för inbjudningslänk är inaktiverat",
+    "message": "Kravet på administratörsgodkännande för inbjudningslänken är inaktiverat",
     "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
   },
   "inviteLinkEventConfirmDisabled": {
-    "message": "Kravet på administratörsgodkännande för inbjudningslänk är aktiverat",
+    "message": "Kravet på administratörsgodkännande för inbjudningslänken är aktiverat",
     "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
   },
   "inviteLinkEventMemberConfirmed": {
-    "message": "Medlemmen $ID$ bekräftades via inbjudningslänk",
+    "message": "Medlemmen $ID$ bekräftades via inbjudningslänken",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -15835,6 +16001,9 @@
   "restartSubscription": {
     "message": "Starta om din prenumeration"
   },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Det gick inte att läsa in dina faktureringsuppgifter. Stäng dialogrutan och försök igen."
+  },
   "suspendedManagedOrgMessage": {
     "message": "Kontakta $PROVIDER$ för hjälp.",
     "placeholders": {
@@ -17312,8 +17481,8 @@
   "coachmarkVaultListTitle": {
     "message": "Alla dina valv på ett ställe"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personliga valv, familjevalv och företagsvalv visas här nu."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Se snabbt personliga objekt eller objekt i ett valv som du delar med andra."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Samlingar och mappar har nya namn"
@@ -17654,58 +17823,58 @@
     "message": "Server"
   },
   "keeperLoginEmailRequired": {
-    "message": "Email is required."
+    "message": "E-postadress krävs."
   },
   "keeperLoginEmailInvalid": {
-    "message": "Enter a valid email address."
+    "message": "Ange en giltig e-postadress."
   },
   "keeperLoginUnsupportedTwoFactor": {
-    "message": "Unsupported two-factor method. Switch methods or import manually."
+    "message": "Metoden för tvåfaktorsautentisering stöds inte. Byt metod eller importera manuellt."
   },
   "keeperLoginApprovalMethod": {
-    "message": "Device approval method"
+    "message": "Metod för enhetsgodkännande"
   },
   "keeperLoginCodeInvalid": {
-    "message": "Enter a valid verification code."
+    "message": "Ange en giltig verifieringskod."
   },
   "keeperLoginCodeResent": {
-    "message": "Resent verification code"
+    "message": "Verifieringskoden har skickats igen"
   },
   "keeperLoginPushSentDesc": {
-    "message": "Keeper Push notification sent to approved device."
+    "message": "Keeper Push-notis har skickats till den godkända enheten."
   },
   "keeperLoginApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below."
+    "message": "Godkänn enheten genom att välja en metod nedan."
   },
   "keeperLoginEmailCodeDesc": {
-    "message": "Please check your email and enter the verification code below."
+    "message": "Kontrollera din e-post och ange verifieringskoden nedan."
   },
   "keeperLoginAuthenticatorDesc": {
-    "message": "Please enter the code from your authenticator app."
+    "message": "Ange koden från din autentiseringsapp."
   },
   "keeperLoginSmsDesc": {
-    "message": "Please enter the code sent as a text message."
+    "message": "Ange koden som skickats i ett sms."
   },
   "keeperLoginPasswordDesc": {
-    "message": "Please enter your Keeper master password."
+    "message": "Ange ditt Keeper-huvudlösenord."
   },
   "keeperLoginDnaSent": {
-    "message": "Keeper DNA sent"
+    "message": "Keeper DNA har skickats"
   },
   "keeperLoginDnaSentDesc": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Godkänn Keeper DNA-notisen på din enhet."
   },
   "keeperLoginCancelRequestDesc": {
-    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+    "message": "Din begäran om godkännande avbryts. Vill du fortsätta?"
   },
   "keeperLoginAdminRequestedDesc": {
-    "message": "We’ve sent an admin approval request to your admin."
+    "message": "Vi har skickat en begäran om administratörsgodkännande till din administratör."
   },
   "keeperLoginPasswordRequired": {
-    "message": "Password is required."
+    "message": "Lösenord krävs."
   },
   "keeperLoginPasswordInvalid": {
-    "message": "Enter a valid password."
+    "message": "Ange ett giltigt lösenord."
   },
   "passcode": {
     "message": "Åtkomstkod"
@@ -17964,6 +18133,142 @@
   "pamAccessRequestsTitle": {
     "message": "Åtkomstbegäranden"
   },
+  "pamAccessRequestsSubtitle": {
+    "message": "Godkänn, övervaka och granska tidsbegränsad åtkomst till dina inloggningsuppgifter."
+  },
+  "pamTabApprovals": {
+    "message": "Godkännanden"
+  },
+  "pamTabMyRequests": {
+    "message": "Mina begäranden"
+  },
+  "pamTabHistory": {
+    "message": "Historik"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Sök autentiseringsuppgift, samling eller begärare"
+  },
+  "pamCollectionFilter": {
+    "message": "Samling"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Begäranden om utökning"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Aktiv åtkomst"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "Ingen aktiv åtkomst"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Det gick inte att läsa in dina begäranden"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Väntande"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "Inga väntande begäranden"
+  },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "Ingen förfrågningshistorik"
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "Du har inga förfrågningar"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "Du har för närvarande inga förfrågningar om åtkomst till känsliga inloggningsuppgifter."
+  },
+  "pamColumnItem": {
+    "message": "Objekt"
+  },
+  "pamColumnWindow": {
+    "message": "Tidsfönster"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Begärt tidsfönster"
+  },
+  "pamColumnSubmitted": {
+    "message": "Skickad"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnResolver": {
+    "message": "Handläggare"
+  },
+  "pamColumnComment": {
+    "message": "Kommentar"
+  },
+  "pamColumnResolved": {
+    "message": "Avgjord"
+  },
+  "pamColumnRemaining": {
+    "message": "Återstående"
+  },
+  "pamColumnActions": {
+    "message": "Åtgärder"
+  },
+  "pamWindowUntil": {
+    "message": "Till $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Förlängd +$DURATION$ · till $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Aktivera inom $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Åtkomstregel"
+  },
+  "pamResolverRequester": {
+    "message": "Begärare"
+  },
+  "pamResolverUnknown": {
+    "message": "Okänd användare"
+  },
+  "pamInboxInCollection": {
+    "message": "i $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Orsak"
+  },
+  "pamInboxReasonMissing": {
+    "message": "Ingen anledning angavs"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Åtkomst begärd"
+  },
+  "pamInboxRequester": {
+    "message": "Begärare"
+  },
   "pamInboxDurationMinutes": {
     "message": "$MINUTES$ min",
     "placeholders": {
@@ -17972,6 +18277,12 @@
         "example": "30"
       }
     }
+  },
+  "pamStartLeaseButton": {
+    "message": "Starta åtkomst"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Åtkomst har startats."
   },
   "pamInboxDuration1Hour": {
     "message": "1 timme"
@@ -18006,6 +18317,304 @@
   "pamStartLeaseError": {
     "message": "Det gick inte att starta åtkomsten."
   },
+  "pamMyRequestsCanceledToast": {
+    "message": "Begäran avbröts"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Det gick inte att avbryta begäran"
+  },
+  "pamEndLeaseButton": {
+    "message": "Avsluta åtkomst"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Avsluta åtkomst?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Detta återkallar omedelbart din åtkomst. Åtgärden kan inte ångras."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Åtkomsten har avslutats."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Förläng"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Förläng åtkomst"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Förlängningens längd"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Anledning"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Åtkomsten har förlängts."
+  },
+  "pamExtendLeaseError": {
+    "message": "Det gick inte att förlänga åtkomsten."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Din åtkomst upphörde innan den kunde förlängas. Förfrågan finns i historiken."
+  },
+  "pamStatusApproved": {
+    "message": "Godkänd"
+  },
+  "pamStatusActivated": {
+    "message": "Aktiv"
+  },
+  "pamStatusDenied": {
+    "message": "Avslagen"
+  },
+  "pamStatusCanceled": {
+    "message": "Avbruten"
+  },
+  "pamStatusExpired": {
+    "message": "Utgången"
+  },
+  "pamStatusRevoked": {
+    "message": "Återkallad"
+  },
+  "pamStatusUnknown": {
+    "message": "Okänd"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged Controls: åtkomst kräver en begäran"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privilegierad"
+  },
+  "pamAccessBadgePending": {
+    "message": "Väntar på godkännande"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Inte tillgänglig"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Klar att användas"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ kvar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Avslutas snart • $DURATION$ kvar",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Sessionen har avslutats"
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Aktiv",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "Åtkomsten avslutades av den som begärde den"
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "Åtkomsten har återkallats"
+  },
+  "pamAuditLoadError": {
+    "message": "Det gick inte att läsa in granskningsloggen"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "Ingen granskningsaktivitet"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Aktivitet för privilegierad åtkomst i den här organisationen visas här."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "Inga matchande händelser"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "Inga händelser matchar de aktuella filtren."
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Välj ett datum inom de senaste $DAYS$ dagarna.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "Händelse"
+  },
+  "pamAuditColumnActor": {
+    "message": "Aktör"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Begärande"
+  },
+  "pamAuditColumnItem": {
+    "message": "Objektobjekt"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Varaktighet"
+  },
+  "pamAuditColumnDetail": {
+    "message": ""
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Förlängt till $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "System"
+  },
+  "pamAuditIncomplete": {
+    "message": "Ofullständig"
+  },
+  "pamAuditIncompleteTooltip": {
+    "message": "Den här åtgärden registrerades, men resultatet bekräftades aldrig. Den kan ha misslyckats eller avbrutits."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Åtkomst begärd"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Begäran godkänd"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Begäran nekad"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Begäran avbröts"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Begäran löpte ut utan beslut"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Godkännandet löpte ut utan att användas"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "Åtkomst aktiverad"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Aktiveringen avvisades"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "Åtkomsten förlängdes"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "Åtkomsten löpte ut"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Inloggningsuppgift öppnades"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Åtkomst till inloggningsuppgift nekades"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Åtkomstregel skapades"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Åtkomstregel uppdaterades"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Åtkomstregel togs bort"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Nödstopp utlöst"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Åtkomstspärr aktiverades"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Åtkomstspärren upphävdes"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Okänd händelse"
+  },
+  "pamAuditLog": {
+    "message": "Granskningslogg"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Åtkomstbegäran"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Information om begäran"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Åtkomst"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Beslutslogg"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Åtkomstbegäran är inte tillgänglig"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "Den här åtkomstbegäran är inte tillgänglig för dig eller finns inte längre."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Det gick inte att läsa in åtkomstbegäran."
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "Du har aktiv åtkomst till det här objektet – $DURATION$ återstår",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitle": {
+    "message": "Åtkomsten till det här objektet upphör snart – $DURATION$ återstår",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Åtkomstbegäran väntar på godkännande"
+  },
+  "pamApprovedRequestBannerHeading": {
+    "message": "Åtkomst beviljad"
+  },
+  "pamApprovedRequestBannerDuration": {
+    "message": "Åtkomst i $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Inloggningsuppgifterna är maskerade tills åtkomst har beviljats."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Du kan begära åtkomst"
+  },
+  "pamUnlicensedBannerHeading": {
+    "message": "En licens för Privileged Controls krävs",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerBody": {
+    "message": "Du behöver en licens för Privileged Controls för att visa det här objektet. Be administratören aktivera licensen.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Det går inte att begära åtkomst utan licens.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
   "pamStartLeaseErrorWindowNotStarted": {
     "message": "Det godkända åtkomstfönstret har inte börjat ännu."
   },
@@ -18037,8 +18646,257 @@
     "message": "En Privileged Controls-licens krävs. Be administratören att aktivera din licens.",
     "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
   },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Åtkomst i högst $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Åtkomst i högst $DURATION$ med omedelbart godkännande om du uppfyller villkoren",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Begär åtkomst"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Någon annan har åtkomst till det här objektet just nu. Du kan begära åtkomst men kan inte börja använda den förrän personen är klar."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Någon annan har åtkomst till det här objektet just nu. Du kan begära åtkomst men kan inte börja använda den förrän $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Avbryt begäran"
+  },
+  "pamKeepRequest": {
+    "message": "Behåll begäran"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Avbryt åtkomstbegäran"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Det här återkallar din begäran innan någon har fattat beslut om den. Du kan lämna in en ny begäran när som helst."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Du avsäger dig den åtkomst som redan har godkänts. Du kan lämna in en ny begäran, men den måste godkännas på nytt."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Begäran avbröts"
+  },
+  "pendingStateCancelError": {
+    "message": "Det gick inte att avbryta begäran."
+  },
+  "requestAccessModalSubmit": {
+    "message": "Begär åtkomst"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Välj en varaktighet. Du får åtkomst direkt under den perioden."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Välj ett tidsintervall och berätta för godkännaren varför du behöver åtkomst. Personen granskar och fattar ett beslut."
+  },
+  "requestAccessModalDuration": {
+    "message": "Varaktighet"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Startdatum"
+  },
+  "requestAccessModalStart": {
+    "message": "Starttid"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Slutdatum"
+  },
+  "requestAccessModalEnd": {
+    "message": "Sluttid"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "Sluttiden måste vara efter starttiden."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (nu)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Anpassad tid…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Anpassat slutdatum och anpassad sluttid…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Visa föreslagna starttider"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Tillbaka till föreslagna tidslängder"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, till $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Begär åtkomst i $DURATION$: $START$–$END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "Det begärda tidsfönstret har redan passerat. Välj ett senare datum eller en senare tid."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Tidsfönstret får inte vara längre än $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Motivering"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Motivering (valfritt)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Varför behöver du åtkomst?"
+  },
+  "requestAccessModalAutomaticReasonHint": {
+    "message": "Den här motiveringen sparas med din åtkomstbegäran."
+  },
+  "requestAccessModalHumanReasonHint": {
+    "message": "Godkännare ser den här motiveringen när de granskar din begäran."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Det gick inte att begära åtkomst. Försök igen."
+  },
   "requestAccessModalAlreadyActive": {
     "message": "Du har redan aktiv åtkomst till detta objekt."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "Åtkomsten har godkänts – välj Starta åtkomst för att börja."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Begäran har skickats – väntar på godkännande."
+  },
+  "pamApprovalsActiveAccessEmpty": {
+    "message": "Ingen aktiv åtkomst"
+  },
+  "pamApprovalsActiveAccessSection": {
+    "message": "Aktiv åtkomst"
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Samling"
+  },
+  "pamApprovalsPendingEmpty": {
+    "message": "Inga begäranden väntar på ditt beslut"
+  },
+  "pamApprovalsPendingSection": {
+    "message": "Väntar på godkännande"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Begärande"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Sök efter inloggningsuppgift, samling eller begärande"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Ytterligare information"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Valfritt, sparas i granskningsloggen"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Godkänn åtkomstbegäran"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Neka åtkomstbegäran"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Orsak till avslag"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "t.ex. Åtkomst behövs inte längre"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "Du måste ange en orsak för att neka den här begäran."
+  },
+  "pamInboxApprove": {
+    "message": "Godkänn"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Begäran godkänd"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Återkalla godkännandet"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "Du kan inte godkänna din egen begäran."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Kommentar"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Lägg till en valfri kommentar"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Godkänn begäran"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Neka begäran"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Det gick inte att registrera beslutet"
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "Den här begäran väntar inte längre. Den har återkallats eller redan avgjorts."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "Tidsfönstret för den här begäran har löpt ut och kan inte längre avgöras."
+  },
+  "pamInboxDeny": {
+    "message": "Neka"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Begäran nekad"
   },
   "requestAccessModalAlreadyApproved": {
     "message": "Du har redan en godkänd begäran för detta objekt."
@@ -18054,6 +18912,84 @@
         "example": "2"
       }
     }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "Det finns inga begäranden som väntar på ditt beslut."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Inkorg noll"
+  },
+  "pamInboxHistoryEmpty": {
+    "message": "Ingen historik att visa"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Det gick inte att läsa in inkorgen"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Anledning till begäran"
+  },
+  "pamInboxRevoke": {
+    "message": "Återkalla"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Det gick inte att återkalla åtkomsten"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Åtkomst återkallades"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Godkännandet drogs tillbaka"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Det gick inte att dra tillbaka godkännandet"
+  },
+  "pamInboxWindow": {
+    "message": "Begärt tidsfönster"
+  },
+  "pamApprovalsNoResults": {
+    "message": "Inga åtkomstbegäranden matchar dina filter."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Åtkomstbegäranden har lästs in"
+  },
+  "pamHistoryLoaded": {
+    "message": "Historik över begäranden har lästs in"
+  },
+  "pamHistoryScopeAll": {
+    "message": "Alla"
+  },
+  "pamHistoryScopeMine": {
+    "message": "Skapade av mig"
+  },
+  "pamHistoryScopeManaged": {
+    "message": "För mina samlingar"
+  },
+  "pamHistoryScopeLabel": {
+    "message": "Historikens omfattning"
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Det finns inget att visa än"
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "Aktivitet kring begäranden och godkännanden visas här när åtgärder har vidtagits."
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "Detta återkallar omedelbart medlemmens åtkomst. Medlemmen behöver ett nytt godkännande för att få tillbaka den."
+  },
+  "pamInboxWithdrawApprovalConfirm": {
+    "message": "Detta drar tillbaka medlemmens godkännande för $ITEM$. Åtkomsten startar inte och medlemmen behöver ett nytt godkännande för att få den.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      }
+    }
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Åtkomstregel"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Åtkomst till objekten här styrs av"
   },
   "pamInboxElapsedHours": {
     "message": "$HOURS$ h sedan",
@@ -18078,6 +19014,18 @@
   },
   "pamAccessRules": {
     "message": "Åtkomstregler"
+  },
+  "pamCollectionRequiresRequest": {
+    "message": "Objekten i den här samlingen kräver en begäran.",
+    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  },
+  "pamGatedCollectionBannerName": {
+    "message": "Privilegierad åtkomst",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
+  },
+  "pamNoAccessRule": {
+    "message": "Ingen åtkomstregel",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
   "pamAccessRuleActive": {
     "message": "Aktiv"
@@ -18728,6 +19676,15 @@
   "serviceAccountsProratedCharge": {
     "message": "Proportionell avgift för tjänstekonton"
   },
+  "viewSharedItem": {
+    "message": "Visa delat objekt"
+  },
+  "copyShareLink": {
+    "message": "Kopiera delningslänk"
+  },
+  "unableToDetermineItemId": {
+    "message": "Det gick inte att fastställa objekt-ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden har ett nytt utseende",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -18752,5 +19709,817 @@
   },
   "resetToDefault": {
     "message": "Återställ till standard"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Fyll i inloggningsuppgifter automatiskt i webbläsarens inloggningsdialoger",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Svara på dialoger för grundläggande HTTP-autentisering från webbplatser som matchar den här inloggningsposten."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Öppna hjälpartikeln om automatisk ifyllning i webbläsarens inloggningsdialoger"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Webbplatser kan visa dessa dialoger utan din vetskap, vilket kan exponera dina inloggningsuppgifter.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Om du vill använda den här inställningen väljer du ett annat matchningsalternativ än ”Standard” för varje webbplats i det här inloggningsobjektet."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Vill du aktivera automatisk ifyllning för webbläsarens inloggningsfrågor?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Återfrågan om huvudlösenord stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Vill du aktivera återfrågan om huvudlösenord?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet. Båda inställningarna kan inte vara aktiva samtidigt."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Vill du använda standardmatchning?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Webbplatser som använder standardmatchning kan inte användas med webbläsarens inloggningsfrågor. Automatisk ifyllning för webbläsarens inloggningsfrågor stängs av för det här objektet."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Återfrågan om huvudlösenord är aktiverad för det här objektet, så automatisk ifyllning för webbläsarens inloggningsfrågor har stängts av. Spara objektet om du vill behålla ändringen."
+  },
+  "pamRotation": {
+    "message": "Rotering"
+  },
+  "pamRotationSubtitle": {
+    "message": "Lägg till hanterade inloggningsuppgifter och de målsystem där de används. Registrera sedan åtkomstanslutningar som körs i ditt nätverk och utför rotering. När de har konfigurerats kan inloggningsuppgifter roteras automatiskt i målsystemen."
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Hanterade inloggningsuppgifter"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "Hanterade inloggningsuppgifter har lästs in"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Sidan har lästs in"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Lägg till hanterad inloggningsuppgift"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Redigera hanterad inloggningsuppgift"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Lägg till målsystem"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Rotationsschema"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Ingen"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Varje timme"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Var sjätte timme"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Dagligen"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Veckovis"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Månadsvis"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Anpassat"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Anpassat cron-uttryck"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Ange ett Quartz-cron-uttryck med sex fält, till exempel 0 0 */4 * * ?. Servern tillämpar ett minimiintervall på 15 minuter."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Ange ett giltigt Quartz-cron-uttryck med sex eller sju blankstegsseparerade fält."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Ingen schemalagd rotering. Inloggningsuppgiften roteras bara när du startar en, eller när åtkomsten avslutas om det alternativet är aktiverat."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Roteras en gång i timmen, på hel timme."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Roteras var sjätte timme, på hel timme."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Roteras en gång om dagen vid midnatt."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Roteras en gång i veckan, vid midnatt på söndagar."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Roteras en gång i månaden, vid midnatt den första."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Roteras varje dag kl. $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Roteras var $COUNT$:e dag kl. $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Roteras varje månad kl. $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Roteras var $COUNT$:e månad kl. $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Anpassat Quartz-schema: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Scheman körs i UTC, inte i din lokala tidszon."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Intervall"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Upprepa var"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Enhet"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Dagar"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Månader"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Tid på dygnet (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Intervaller följer kalendern. Dagsintervall börjar om den första varje månad och månadsintervall körs den första och börjar om i januari."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Ange hur ofta roteringen upprepas och tid på dygnet."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Ange ett heltal."
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Typ"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "Inga målsystem ännu"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Tilldela åtkomstanslutningar"
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Åtkomstanslutningar kan bara tilldelas målsystem som är inställda på automatisk rotering."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Endast aktiva åtkomstanslutningar kan tilldelas det här målsystemet."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Det finns inga aktiva åtkomstanslutningar att tilldela. Registrera en på fliken Åtkomstanslutningar eller aktivera en befintlig."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatisk"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manuell"
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Anpassat skript"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Den här principen är för svag. Öka längden eller inkludera fler teckentyper."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "Det gick inte att bekräfta att målsystemets teknik stämmer överens. Läs in sidan på nytt och försök igen."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Anslutning"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Tilldelade mål"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Ansluten"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Frånkopplad"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "Målsystem kan bara tilldelas när åtkomstanslutningen är aktiv."
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Målsystem"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Tilldela målsystem"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Endast målsystem som är inställda på automatisk rotering kan tilldelas."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "Det finns inga automatiska målsystem att tilldela. Skapa ett på fliken Målsystem."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Gå till Målsystem"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Det gick inte att läsa in målsystemen. Uppdatera sidan och försök igen."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "Inga målsystem har tilldelats."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "Ta bort $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Inaktivera"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Inaktivera åtkomstanslutning?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Inaktivera $NAME$? Den slutar ta emot nya rotationsjobb och alla jobb den kör just nu släpps. Du kan aktivera den igen senare.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Ta bort åtkomstanslutning?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Att ta bort $NAME$ är permanent och ogiltigförklarar dess inloggningsuppgifter. Åtkomstanslutningen har haft organisationsnyckeln i minnet. Om du misstänker en kompromettering ska du rotera organisationsnyckeln som skyddsåtgärd. Pågående rotationsjobb släpps. Registrera en ny åtkomstanslutning för att återuppta roteringen.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamRotationConfigNew": {
+    "message": "Ny hanterad inloggningsuppgift"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Sök hanterade inloggningsuppgifter"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "Inga hanterade inloggningsuppgifter har konfigurerats"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Lägg till en hanterad inloggningsuppgift för att börja rotera den automatiskt."
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Det gick inte att läsa in"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Kontrollera anslutningen och försök igen. Uppdatera sidan om problemet kvarstår."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Konfigurera ett målsystem innan du kan rotera inloggningsuppgifter. Ett målsystem anger var en inloggningsuppgift används och hur Bitwarden roterar den."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Konfigurera ett målsystem"
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "Inga hanterade inloggningsuppgifter matchar dina filter."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Inloggningsuppgift"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Objekt"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Målsystem"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Schema"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Rotera när åtkomsten avslutas"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Senaste rotering"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Senast roterad"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Nästa rotering"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Pausad"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Roterar"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Dags för rotering"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Rotera nu"
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Det går inte att rotera nu. Målsystemet är inaktivt eller roteringen är pausad eller redan pågår."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Roteringen har skickats."
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Markera som roterad"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Det finns ännu inget att markera. Det här blir tillgängligt när nästa manuella rotering ska göras."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Markera som roterad"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "Det här registrerar att inloggningsuppgiften roterades utanför Bitwarden och återställer schemat. Granskningsloggen visar den manuella roteringen."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Registrera rotering"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Manuell rotering har registrerats."
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Redigera inloggningsuppgift"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Ta bort från rotering"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Pausa rotering"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Roteringen har pausats."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Återuppta rotering"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Roteringen har återupptagits."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Ta bort hanterad inloggningsuppgift"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "Det här tar bort rotationshanteringen för inloggningsuppgiften. Objektet finns kvar i ditt valv och rotationshistoriken finns kvar i granskningsloggen."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Det går inte att ta bort medan en rotering pågår. Det här försvinner när det aktuella jobbet är klart eller tidsgränsen går ut."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Hanterad inloggningsuppgift har tagits bort."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Aldrig"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "Inga roteringar har körts ännu."
+  },
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "Ett rotationsjobb pågår. Du kan ta bort inloggningsuppgiften från rotering när åtkomstanslutningen har slutfört det eller tidsgränsen går ut. En paus stoppar bara nya jobb och avbryter inte det som redan körs."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Information om inloggningsuppgiften"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Information"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Rotationsinställningar"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Konto"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Konfiguration"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "Historik"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Inloggningsuppgift"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Välj en inloggningsuppgift"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Välj objektet i valvet vars lösenord ska roteras."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Målsystem"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Välj ett målsystem"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Kontoidentitet"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "Kontot som ska roteras i målsystemet, till exempel en UPN, SQL-inloggning eller ett skriptargument. Skickas oförändrat till åtkomstanslutningen."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Avsluta aktiva sessioner efter rotering"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Kräver att målsystemet har stöd för att avsluta sessioner."
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "Det gick inte att verifiera om målsystemet har stöd för att avsluta sessioner."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Rotera när åtkomsten avslutas"
+  },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Rotera automatiskt inloggningsuppgiften när PAM-åtkomsten till den avslutas."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Hanterad inloggningsuppgift har skapats."
+  },
+  "pamRotationConfigSaved": {
+    "message": "Hanterad inloggningsuppgift har sparats."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Inställningarna är inte tillgängliga"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Ändringar kan inte sparas medan ett rotationsjobb pågår. Du kan spara igen när jobbet är klart eller tidsgränsen går ut."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Integritetskontrollen misslyckades"
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "Det gick inte att verifiera den hanterade inloggningsuppgiftens inställningar. Spara för att åter säkra den."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "Målsystemet bekräftar inte stöd för att avsluta sessioner. Avmarkera alternativet för sessionsavslutning eller uppdatera målsystemet först."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "Det gick inte att verifiera det valda målsystemets inställningar. Åtgärda målsystemet innan du sparar."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "Det gick inte att bekräfta att den hanterade inloggningsuppgiftens objekt eller målsystem stämmer överens. Läs in sidan på nytt och försök igen."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "Inga rotationsjobb har registrerats ännu."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Källa"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Försök"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Schemalagd"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "På begäran"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Åtkomsten avslutades"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Väntande"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Hämtat"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Lyckades"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Misslyckades"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Tidsgränsen överskreds"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Körs"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Roterad"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Fel uppstod"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Avbruten"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "Pågår"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Startad"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Målet är oförändrat"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Målet har uppdaterats"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Kan inte fastställas"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Avslutning av sessioner har inte begärts"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Sessioner har avslutats"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Det gick inte att avsluta sessionerna"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Okänd"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "Åtkomstanslutningens konto får inte ändra lösenordet. Ge det behörighet att återställa målkontots lösenord och rotera sedan igen."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "Målsystemet avvisade åtkomstanslutningens inloggning. Kontrollera inloggningsuppgifterna som anslutningen använder för målsystemet och rotera sedan igen."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "Målsystemet avvisade det nya lösenordet. Kontrollera att den här inloggningsuppgiftens lösenordspolicy uppfyller målsystemets egna lösenordsregler och rotera sedan igen."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "Målsystemet hittade inte kontot som ska roteras. Kontrollera kontoidentiteten för den här hanterade inloggningsuppgiften och rotera sedan igen."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "Målsystemet avvisade ändringen. Det betyder ofta att det nya lösenordet bröt mot en lösenordsregel eller att anslutningen till målsystemet inte var krypterad."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "Åtkomstanslutningen kunde inte nå målsystemet. Kontrollera målsystemets adress och att anslutningen kan nå det via nätverket och rotera sedan igen."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Rapporterat av åtkomstanslutningen: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Rotationsjobb, senaste först"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Varaktighet"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Försök"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Resultat"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Försök, äldsta först"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Alla försök slutade på samma sätt."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Rotationsjobb"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Varför det misslyckades"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$ s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$ min $SECONDS$ s",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$ h $MINUTES$ min",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Rotationskonfiguration skapades"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Rotationsinställningar uppdaterades"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Rotationskonto uppdaterades"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Roteringen pausades"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Roteringen återupptogs"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Rotationskonfiguration togs bort"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Rotationskonfiguration uppdaterades"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "Roteringen erbjöds åtkomstanslutningen"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Roteringen skickades iväg"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Inloggningsuppgiften roterades"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Rotationsförsöket misslyckades"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Roteringen misslyckades"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Roteringen frigjordes"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Roteringen överskred tidsgränsen"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Skrivning till valvet avvisades"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Rotationsrapporten avvisades"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Manuell rotering krävs"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Manuell rotering registrerades"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Åtkomstanslutning registrerades"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Åtkomstanslutning återkallades"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Åtkomstanslutning inaktiverades"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Åtkomstanslutning aktiverades"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Åtkomstanslutning togs bort"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Åtkomstanslutning tilldelades målsystemet"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Åtkomstanslutning togs bort från målsystemet"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Målsystem registrerades"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "Målsystem inaktiverades"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "Målsystem aktiverades"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Målsystem bytte namn"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Målsystemets inställningar uppdaterades"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Målsystem togs bort"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Målsystem uppdaterades"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Målsystem"
+  },
+  "pamAuditAccessConnector": {
+    "message": "Åtkomstanslutning"
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "Det finns inga aktiva målsystem att välja bland."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Tilldelade åtkomstanslutningar"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "Inga åtkomstanslutningar är tilldelade det här målsystemet."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "Åtkomstanslutningarna för det här målsystemet kunde inte läsas in."
   }
 }
