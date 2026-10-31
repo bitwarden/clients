@@ -191,6 +191,7 @@ export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { organizationVaultGuard } from "./routing/organization-vault.guard";
 export { MY_ITEMS_ROUTE_DATA } from "./routing/scoped-collection";
+export { importStartedFrom, vaultCommandsAfterImport } from "./routing/import-return";
 export { routeVaultScope } from "./routing/route-vault-scope";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";

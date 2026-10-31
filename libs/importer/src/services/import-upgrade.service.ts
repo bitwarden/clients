@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -12,6 +14,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -20,6 +23,7 @@ import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 
 import { UpgradeBitwardenPasswordProtectedImporter } from "../importers/bitwarden-upgrade/upgrade-bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
+import { KeeperDirectImporter } from "../importers/keeper/keeper-direct-importer";
 import { ImportOption, ImportType, importOptionsById } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
 import { importUpgradeOptionsById, UpgradeImportType } from "../models/import-upgrade-options";
@@ -28,6 +32,7 @@ import { ImportResultError, ImportUpgradeResult } from "../models/import-upgrade
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportUpgradeServiceAbstraction } from "./import-upgrade.service.abstraction";
 import { ImportService } from "./import.service";
+import { restrictedTypesForDestination } from "./restricted-types-for-destination";
 
 const isImportType = (id: string): id is ImportType =>
   Object.prototype.hasOwnProperty.call(importOptionsById, id);
@@ -119,18 +124,57 @@ export class ImportUpgradeService extends ImportService implements ImportUpgrade
     return importer;
   }
 
-  override async importImportResult(
-    importResult: ImportResult,
-    organizationId: OrganizationId = null,
-    selectedImportTarget: FolderView | CollectionView = null,
-    canAccessImportExport: boolean = false,
-  ): Promise<ImportResult> {
+  /** Parses and checks `fileContents` exactly as `import` does, without importing. Credential
+   *  parsing stages the result for location selection, which imports it. */
+  async parse(importer: Importer, fileContents: string): Promise<ImportResult> {
+    let importResult: ImportResult;
+    try {
+      importResult = await importer.parse(fileContents);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error(this.bitwardenImporterDeps.i18nService.t("importFormatError"));
+      }
+      throw error;
+    }
+    this.validateParsed(importResult);
+    return importResult;
+  }
+
+  protected override async restrictedTypesFor(
+    organizationId: OrganizationId | null,
+  ): Promise<CipherType[]> {
+    return restrictedTypesForDestination(
+      await firstValueFrom(this.restrictedItemTypesService.restricted$),
+      organizationId,
+    );
+  }
+
+  toOrganizationShape(importResult: ImportResult, organizationId: string): void {
+    new KeeperDirectImporter().moveToOrganization(importResult, organizationId as OrganizationId);
+  }
+
+  /** The checks `importImportResult` runs before it imports, for a result parsed elsewhere. */
+  validateParsed(importResult: ImportResult): void {
+    this.throwIfFailed(importResult);
+    this.validateImportResult(importResult);
+  }
+
+  private throwIfFailed(importResult: ImportResult): void {
     if (!importResult.success && !Utils.isNullOrWhitespace(importResult.errorMessage)) {
       throw new ImportResultError(
         importResult.errorMessage,
         importResult instanceof ImportUpgradeResult ? importResult.errorKey : undefined,
       );
     }
+  }
+
+  override async importImportResult(
+    importResult: ImportResult,
+    organizationId: OrganizationId = null,
+    selectedImportTarget: FolderView | CollectionView = null,
+    canAccessImportExport: boolean = false,
+  ): Promise<ImportResult> {
+    this.throwIfFailed(importResult);
     return super.importImportResult(
       importResult,
       organizationId,

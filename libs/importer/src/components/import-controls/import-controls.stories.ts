@@ -16,7 +16,10 @@ import { DialogService, I18nMockService, ToastService } from "@bitwarden/compone
 import { DataLoader, Loader } from "../../metadata";
 import { CredentialKind, ImportOption, UpgradeImportType } from "../../models";
 import {
+  DefaultImportStagingService,
   ImporterUpgradeCapabilities,
+  ImportDestinationServiceAbstraction,
+  ImportStagingServiceAbstraction,
   ImportUpgradeMetadataServiceAbstraction,
   ImportUpgradeServiceAbstraction,
 } from "../../services";
@@ -220,6 +223,13 @@ function decoratorsFor(
     moduleMetadata({
       providers: [
         { provide: ImportUpgradeServiceAbstraction, useValue: importServiceStub },
+        {
+          provide: ImportDestinationServiceAbstraction,
+          useValue: {
+            destinations$: of({ options: [], hasStep: false }),
+          } as Partial<ImportDestinationServiceAbstraction>,
+        },
+        { provide: ImportStagingServiceAbstraction, useValue: new DefaultImportStagingService() },
         {
           provide: ImportUpgradeMetadataServiceAbstraction,
           useValue: metadataServiceOverride ?? metadataService(loaders),

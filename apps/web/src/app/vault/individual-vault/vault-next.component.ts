@@ -42,6 +42,7 @@ import {
   PopoverModule,
 } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
+import { importQueryParamsForVault } from "@bitwarden/importer-ui";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -76,6 +77,7 @@ import {
   collectionMenuTargetForScope,
   folderNameForScope,
   hasMultipleVaults,
+  importStartedFrom,
   organizationNameForScope,
   organizationInScope,
   organizationVaultPage,
@@ -766,10 +768,14 @@ export class VaultNextComponent implements OnInit {
 
   protected async openImport(): Promise<void> {
     if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
-      // TODO: (PM-41469) this drops the org/collection scope the legacy branch below pre-fills.
-      // The new picker has no defined way to receive it yet (its `continue` output isn't wired
-      // to anything) — Tools Team to implement this before finalizing Import UI/UX upgrades
-      await this.router.navigate(["/tools/import"]);
+      const queryParams = importQueryParamsForVault(
+        this.scopedOrganizationId(),
+        this.scopedCollectionId(),
+        importStartedFrom(this.parsedVaultScope(), this.vaultNav()),
+      );
+      await (queryParams == null
+        ? this.router.navigate(["/tools/import"])
+        : this.router.navigate(["/tools/import"], { queryParams }));
       return;
     }
 

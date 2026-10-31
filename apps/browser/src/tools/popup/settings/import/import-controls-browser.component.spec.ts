@@ -6,7 +6,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ImportType } from "@bitwarden/importer-core";
+import {
+  DefaultImportStagingService,
+  ImportResult,
+  ImportStagingServiceAbstraction,
+  ImportType,
+} from "@bitwarden/importer-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ImportControlsBrowserComponent } from "./import-controls-browser.component";
@@ -25,15 +30,18 @@ class ImporterControlsStubComponent {
 describe("ImportControlsBrowserComponent", () => {
   let fixture: ComponentFixture<ImportControlsBrowserComponent>;
   let router: MockProxy<Router>;
+  let stagingService: DefaultImportStagingService;
 
   const setup = async (importTypeParam: string) => {
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
+    stagingService = new DefaultImportStagingService();
 
     await TestBed.configureTestingModule({
       imports: [ImportControlsBrowserComponent],
       providers: [
         { provide: Router, useValue: router },
+        { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
         {
           provide: ActivatedRoute,
@@ -75,7 +83,7 @@ describe("ImportControlsBrowserComponent", () => {
     });
   });
 
-  it("navigates to the vault when the controls component emits continue", async () => {
+  it("navigates to the vault when the controls component emits continue with nothing staged", async () => {
     await setup("keeper");
 
     fixture.debugElement
@@ -83,5 +91,21 @@ describe("ImportControlsBrowserComponent", () => {
       .triggerEventHandler("continue", undefined);
 
     expect(router.navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+  });
+
+  it("navigates to location selection when continue is emitted with items staged", async () => {
+    await setup("keeper");
+    stagingService.stage({ kind: "parsed", importType: "keeper", result: new ImportResult() });
+
+    fixture.debugElement
+      .query(By.css("importer-controls"))
+      .triggerEventHandler("continue", undefined);
+
+    expect(router.navigate).toHaveBeenCalledWith([
+      "/import-source-select",
+      "keeper",
+      "destination",
+    ]);
+    expect(router.navigate).not.toHaveBeenCalledWith(["/tabs/vault"]);
   });
 });
