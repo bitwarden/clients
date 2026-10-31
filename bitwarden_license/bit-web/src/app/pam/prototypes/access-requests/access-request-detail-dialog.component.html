@@ -1,0 +1,140 @@
+@let req = request();
+@let badge = statusBadge();
+
+<bit-dialog dialogSize="large" background="alt" [title]="title()">
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-6">
+    <!-- Identity card stays put across both steps so the user always sees who/what the
+         decision is about. -->
+    <bit-card>
+      <div class="tw-flex tw-items-start tw-gap-2">
+        <!-- 40x40 wrapper + coloredIcon mirrors the canonical cipher-view identity header
+             (libs/vault/src/cipher-view/item-details/item-details-v2.component.html). -->
+        <div
+          class="tw-flex tw-shrink-0 tw-items-center tw-justify-center"
+          style="width: 40px; height: 40px"
+        >
+          <app-vault-icon [cipher]="cipher()" [coloredIcon]="true"></app-vault-icon>
+        </div>
+
+        <div class="tw-flex tw-flex-1 tw-flex-col tw-gap-2">
+          <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
+            <h2 bitTypography="h3" class="tw-m-0">{{ req.itemName }}</h2>
+            @if (step() === "detail") {
+              <span bitBadge [variant]="badge.variant" [startIcon]="badge.icon ?? null">
+                {{ badge.label }}
+              </span>
+            }
+          </div>
+
+          @if (req.organization || req.folder) {
+            <div class="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-2 tw-text-muted">
+              @if (req.organization) {
+                <span class="tw-inline-flex tw-items-center tw-gap-1.5" bitTypography="body2">
+                  <bit-icon name="bwi-business" />
+                  {{ req.organization }}
+                </span>
+              }
+              @if (req.folder) {
+                <span class="tw-inline-flex tw-items-center tw-gap-1.5" bitTypography="body2">
+                  <bit-icon name="bwi-collection-shared" />
+                  {{ req.folder }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </bit-card>
+
+    @if (step() === "detail") {
+      <!-- Each cluster (Details / Decision / Session) is its own bit-section +
+           bit-card. Groups only render once they have content, so the dialog grows
+           with the lifecycle. -->
+      @for (group of fieldGroups(); track group.title) {
+        <bit-section disableMargin>
+          <bit-section-header>
+            <h3 bitTypography="h6">{{ group.title }}</h3>
+          </bit-section-header>
+          <bit-card>
+            <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-6">
+              @for (field of group.rows; track $index) {
+                <div class="tw-flex tw-flex-col tw-gap-1.5">
+                  <dt bitTypography="body2" class="tw-m-0 tw-font-semibold tw-text-muted">
+                    {{ field.label }}
+                  </dt>
+                  <dd
+                    bitTypography="body1"
+                    class="tw-m-0 tw-text-main"
+                    [class.tw-whitespace-pre-line]="field.multiline"
+                  >
+                    {{ field.value }}
+                  </dd>
+                </div>
+              }
+            </dl>
+          </bit-card>
+        </bit-section>
+      }
+    } @else {
+      <bit-callout type="warning">
+        This withdraws your approval for
+        <span class="tw-font-semibold">{{ req.itemName }}</span
+        >. Access won't start, and
+        <span class="tw-font-semibold">{{ req.requester.name }}</span> will need a new approval to
+        get it.
+      </bit-callout>
+      <bit-form-field disableMargin>
+        <bit-label>Reason</bit-label>
+        <textarea
+          bitInput
+          rows="3"
+          [ngModel]="reason()"
+          (ngModelChange)="reason.set($event)"
+          placeholder="Shown to the requester in their decision log."
+          required
+        ></textarea>
+        <bit-hint>Keep it brief. The requester reads this directly.</bit-hint>
+      </bit-form-field>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (step() === "detail") {
+      @for (action of startActions(); track action.key) {
+        <button
+          type="button"
+          bitButton
+          [buttonType]="action.style === 'secondary' ? 'secondary' : action.style"
+          (click)="invoke(action.key)"
+        >
+          {{ action.label }}
+        </button>
+      }
+      <button type="button" bitButton buttonType="secondary" (click)="close()">Close</button>
+      @for (action of endActions(); let first = $first; track action.key) {
+        <button
+          type="button"
+          bitButton
+          [class.tw-ms-auto]="first"
+          [buttonType]="action.style === 'secondary' ? 'secondary' : action.style"
+          (click)="invoke(action.key)"
+        >
+          {{ action.label }}
+        </button>
+      }
+    } @else {
+      <button
+        type="button"
+        bitButton
+        buttonType="danger"
+        [disabled]="!reason().trim()"
+        (click)="confirmWithdraw()"
+      >
+        Withdraw approval
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="backToDetail()">
+        Cancel
+      </button>
+    }
+  </ng-container>
+</bit-dialog>

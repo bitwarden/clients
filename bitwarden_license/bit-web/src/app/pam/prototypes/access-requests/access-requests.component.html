@@ -1,0 +1,69 @@
+<div class="tw-flex tw-flex-col tw-gap-4">
+  <header class="tw-flex tw-flex-col tw-gap-1">
+    <h1 bitTypography="h1" class="tw-m-0">Access requests</h1>
+    <p bitTypography="body1" class="tw-m-0 tw-text-muted">
+      Approve, monitor, and audit time-limited access to your credentials.
+    </p>
+  </header>
+
+  <bit-tab-group>
+    <bit-tab label="Approvals" [berryValue]="approvalsCount() || undefined">
+      <div class="tw-pt-4">
+        <pam-access-requests-list
+          [requests]="approvals()"
+          context="approvals"
+          (rowClick)="onRowClick('approvals', $event)"
+          (action)="onAction('approvals', $event)"
+        ></pam-access-requests-list>
+      </div>
+    </bit-tab>
+
+    <bit-tab label="My requests" [berryValue]="myRequestsCount() || undefined">
+      <div class="tw-pt-4">
+        <pam-access-requests-list
+          [requests]="myRequests()"
+          context="my-requests"
+          (rowClick)="onRowClick('my-requests', $event)"
+          (action)="onAction('my-requests', $event)"
+        ></pam-access-requests-list>
+      </div>
+    </bit-tab>
+
+    <bit-tab label="History">
+      <div class="tw-pt-4">
+        <pam-access-requests-list
+          [requests]="history()"
+          context="history"
+          (rowClick)="onRowClick('history', $event)"
+        ></pam-access-requests-list>
+      </div>
+    </bit-tab>
+  </bit-tab-group>
+</div>
+
+@let dialog = openDialog();
+@if (dialog) {
+  <!-- Inline modal shell. See `OpenDialogState` note on `access-requests.component.ts` for why this
+       does not route through DialogService. Backdrop click + ESC both close the dialog. -->
+  <div
+    class="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-start tw-justify-center tw-overflow-y-auto tw-bg-bg-overlay tw-p-6"
+    role="presentation"
+    (click)="closeDialog()"
+    (keydown.escape)="closeDialog()"
+  >
+    <div
+      class="tw-w-full tw-max-w-3xl"
+      role="presentation"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <pam-access-request-detail-dialog
+        [request]="dialog.request"
+        [context]="dialog.context"
+        [initialStep]="dialog.initialStep ?? 'detail'"
+        (action)="onDialogAction($event)"
+        (withdrawConfirmed)="onWithdrawConfirmed($event)"
+      ></pam-access-request-detail-dialog>
+    </div>
+  </div>
+}
