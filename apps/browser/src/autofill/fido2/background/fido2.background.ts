@@ -3,15 +3,19 @@ import { pairwise } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
   AssertCredentialResult,
   CreateCredentialParams,
   CreateCredentialResult,
+  FallbackRequestedError,
   Fido2ClientService,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -62,6 +66,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
     private permissionsPolicy: PermissionsPolicyBackground,
+    private domainSettingsService: DomainSettingsService,
   ) {}
 
   /**
@@ -308,10 +313,13 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<CreateCredentialResult> {
+    if (await this.isDisabledByAncestorFrame(sender)) {
+      throw new FallbackRequestedError();
+    }
     await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Create);
     return await this.handleCredentialRequest<CreateCredentialResult>(
       message,
-      sender.tab!,
+      await this.buildParentWindowReference(sender),
       (data, tabParam, abortController) =>
         this.fido2ClientService.createCredential(
           data as CreateCredentialParams,
@@ -331,10 +339,13 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<AssertCredentialResult> {
+    if (await this.isDisabledByAncestorFrame(sender)) {
+      throw new FallbackRequestedError();
+    }
     await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Get);
     return await this.handleCredentialRequest<AssertCredentialResult>(
       message,
-      sender.tab!,
+      await this.buildParentWindowReference(sender),
       (data, tabParam, abortController) =>
         this.fido2ClientService.assertCredential(
           data as AssertCredentialParams,
@@ -342,6 +353,99 @@ export class Fido2Background implements Fido2BackgroundInterface {
           abortController,
         ),
     );
+  }
+
+  /**
+   * Builds the reference the FIDO2 client passes through to the user interface. The requesting
+   * frame's URL is resolved from the browser-attested sender, because a WebAuthn request from a
+   * sub-frame belongs to that frame's origin rather than the tab's.
+   *
+   * @param sender - The sender of the credential request. Its tab is verified as present by
+   * `handleExtensionMessage` before any credential request handler runs.
+   */
+  private async buildParentWindowReference(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<BrowserFido2ParentWindowReference> {
+    const tab = sender.tab!;
+    const requestFrameUrl = (await BrowserApi.getSenderFrameUrl(sender)) ?? tab.url;
+
+    return { ...tab, requestFrameUrl };
+  }
+
+  /**
+   * Indicates whether a blocked or excluded domain rule for a frame enclosing the sender's frame
+   * disables FIDO2 for it. A frame's rule applies to that frame and every frame nested within it,
+   * but not to the frames enclosing it. The rule for the sender's own frame is enforced against
+   * its hostname by `Fido2ClientService.isFido2FeatureEnabled`.
+   *
+   * Blocked domains match by hostname suffix, as they do for content script injection. Excluded
+   * domains match the hostname exactly.
+   *
+   * @param sender - The sender whose frame FIDO2 is evaluated for.
+   */
+  private async isDisabledByAncestorFrame(sender: chrome.runtime.MessageSender): Promise<boolean> {
+    const blockedDomains = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+    const excludedDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
+
+    // Without any rules, there is nothing to match, so skip reading the frame tree
+    if (!Object.keys(blockedDomains ?? {}).length && !Object.keys(excludedDomains ?? {}).length) {
+      return false;
+    }
+
+    const ancestorFrameUrls = await this.getAncestorFrameUrls(sender);
+
+    return ancestorFrameUrls.some((frameUrl) => {
+      if (isUrlInList(frameUrl, blockedDomains)) {
+        return true;
+      }
+
+      const frameHostname = Utils.getHostname(frameUrl);
+
+      return excludedDomains != null && frameHostname != null && frameHostname in excludedDomains;
+    });
+  }
+
+  /**
+   * Resolves the URLs of the frames enclosing the sender's frame, nearest first. The tab URL is
+   * included whenever the frame tree cannot be followed up to the top-level frame, since the
+   * top-level frame encloses every sub-frame.
+   *
+   * @param sender - The sender whose enclosing frames are resolved.
+   */
+  private async getAncestorFrameUrls(sender: chrome.runtime.MessageSender): Promise<string[]> {
+    const { frameId, tab } = sender;
+    if (frameId === 0) {
+      return [];
+    }
+
+    const frames =
+      tab?.id != null
+        ? await BrowserApi.getAllFrameDetails(tab.id).catch((): undefined => undefined)
+        : undefined;
+    const framesById = new Map((frames ?? []).map((frame) => [frame.frameId, frame]));
+    const ancestorFrameUrls: string[] = [];
+    let parentFrameId = frameId != null ? framesById.get(frameId)?.parentFrameId : undefined;
+
+    while (parentFrameId != null && parentFrameId >= 0) {
+      const parentFrame = framesById.get(parentFrameId);
+
+      if (!parentFrame) {
+        break;
+      }
+
+      // Each frame is visited at most once, so a malformed frame tree cannot loop indefinitely.
+      framesById.delete(parentFrameId);
+      ancestorFrameUrls.push(parentFrame.url);
+      parentFrameId = parentFrame.parentFrameId;
+    }
+
+    if (parentFrameId !== -1 && tab?.url) {
+      ancestorFrameUrls.push(tab.url);
+    }
+
+    return ancestorFrameUrls;
   }
 
   /**
@@ -384,15 +488,15 @@ export class Fido2Background implements Fido2BackgroundInterface {
    *
    * @param requestId - The request ID associated with the request.
    * @param data - The request data to handle.
-   * @param tab - The tab associated with the request.
+   * @param tab - The tab associated with the request, and the URL of the requesting frame.
    * @param callback - The callback to call with the request data, tab, and abort controller.
    */
   private handleCredentialRequest = async <CredentialResult>(
     message: Fido2ExtensionMessage,
-    tab: chrome.tabs.Tab,
+    tab: BrowserFido2ParentWindowReference,
     callback: (
       data: AssertCredentialParams | CreateCredentialParams,
-      tab: chrome.tabs.Tab,
+      tab: BrowserFido2ParentWindowReference,
       abortController: AbortController,
     ) => Promise<CredentialResult>,
   ): Promise<CredentialResult> => {
@@ -486,7 +590,10 @@ export class Fido2Background implements Fido2BackgroundInterface {
 
     try {
       const { hostname, origin } = new URL(port.sender.url);
-      if (!(await this.fido2ClientService.isFido2FeatureEnabled(hostname, origin))) {
+      if (
+        !(await this.fido2ClientService.isFido2FeatureEnabled(hostname, origin)) ||
+        (await this.isDisabledByAncestorFrame(port.sender))
+      ) {
         port.disconnect();
         return;
       }
