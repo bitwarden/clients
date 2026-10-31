@@ -155,7 +155,11 @@ export class TargetingRulesDataService {
 
   private async _resetMeta(): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    const cacheKey = fillAssistRulesCacheKey(env.getApiUrl(), await this._resolveResourceBaseUrl());
+    const resourceBaseUrl = await this._resolveResourceBaseUrl();
+    if (!resourceBaseUrl) {
+      return;
+    }
+    const cacheKey = fillAssistRulesCacheKey(env.getApiUrl(), resourceBaseUrl);
     await this._metaState.update((existing) => ({
       ...existing,
       [cacheKey]: { cid: undefined, timestamp: 0 },
@@ -233,6 +237,16 @@ export class TargetingRulesDataService {
 
     const env = await firstValueFrom(this.environmentService.environment$);
     const resourceBaseUrl = await this._resolveResourceBaseUrl();
+
+    // Without a rules-feed URL there is nothing to fetch, and the reader
+    // resolves no cache key
+    if (!resourceBaseUrl) {
+      this.logService.warning(
+        "[TargetingRulesDataService] No rules-feed URL from policy or server config, skipping fetch.",
+      );
+      return;
+    }
+
     const cacheKey = fillAssistRulesCacheKey(env.getApiUrl(), resourceBaseUrl);
 
     const allMeta = await firstValueFrom(this._metaState.state$);
@@ -330,8 +344,9 @@ export class TargetingRulesDataService {
   /**
    * Snapshots the shared effective rules-feed URL so the fetcher and the
    * targeting-rules reader/writer key their caches off identical inputs.
+   * Resolves `undefined` when neither policy nor server config supplies a URL.
    */
-  private async _resolveResourceBaseUrl(): Promise<string> {
+  private async _resolveResourceBaseUrl(): Promise<string | undefined> {
     return firstValueFrom(this.domainSettingsService.effectiveFillAssistRulesUrl$);
   }
 }
