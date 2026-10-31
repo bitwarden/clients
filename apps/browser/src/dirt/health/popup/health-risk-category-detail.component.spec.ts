@@ -810,6 +810,17 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(changePasswordButton(0)).toBeUndefined();
     });
 
+    it("does not render the change password button for an item without a website URI", async () => {
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1", uris: ["WIFI:S:Home.Network;T:WPA;P:secret;;"] }),
+      ]);
+
+      await initComponent();
+
+      expect(rows()).toHaveLength(1);
+      expect(changePasswordButton(0)).toBeUndefined();
+    });
+
     it("opens the change password URL for the clicked item using platform utils service", async () => {
       setReport(RiskCategory.Exposed, [
         buildLogin({ id: "cipher-1", uris: ["https://example.com"] }),

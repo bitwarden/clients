@@ -20,6 +20,7 @@ import { VaultHealthReportService } from "@bitwarden/common/dirt/vault-health/se
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -220,6 +221,13 @@ export class HealthRiskCategoryDetailComponent {
 
     this.healthScanService.retryScan(userId);
   };
+
+  /** Change password only resolves http(s) URIs, so other schemes (e.g. `WIFI:`) get no button. */
+  protected readonly hasWebsiteUri = (cipher: CipherView) =>
+    cipher.login.uris?.some((u) => {
+      const protocol = Utils.getUrl(u.uri)?.protocol;
+      return protocol === "http:" || protocol === "https:";
+    }) ?? false;
 
   readonly onChangePassword = async (item: CipherView) => {
     const changePasswordUrl = await this.changeLoginPasswordService.getChangePasswordUrl(item);
