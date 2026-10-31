@@ -822,6 +822,32 @@ describe("NotificationBackground", () => {
         expectSkippedCheckingNotification();
       });
 
+      it("checks for a saved login when passkey UI no longer defers notifications", async () => {
+        const formEntryData: ModifyLoginCipherFormData = {
+          newPassword: "",
+          password: "I<3VogonPoetry",
+          uri: mockFormURI,
+          username: "ADent",
+        };
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValueOnce(false);
+        getEnableAddedLoginPromptSpy.mockResolvedValueOnce(true);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
+        pushAddLoginToQueueSpy.mockImplementation();
+
+        await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+        expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi).toHaveBeenCalledWith(
+          tab.id,
+        );
+        expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
+        expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+          mockFormattedURI,
+          { username: formEntryData.username, url: mockFormURI, password: formEntryData.password },
+          tab,
+        );
+      });
+
       it("skips checking if a notification should trigger if the user has disabled both the new login and update password notification", async () => {
         const formEntryData: ModifyLoginCipherFormData = {
           newPassword: "Bab3lPhs5h",

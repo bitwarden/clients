@@ -9,6 +9,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
+  AssertCredentialResult,
+  CreateCredentialResult,
   CreateCredentialParams,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -22,6 +24,8 @@ import {
   sendMockExtensionMessage,
   triggerPortOnDisconnectEvent,
   triggerRuntimeOnConnectEvent,
+  triggerTabOnRemovedEvent,
+  triggerWebNavigationOnCommittedEvent,
 } from "../../../autofill/spec/testing-utils";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../../platform/services/browser-script-injector.service";
@@ -415,8 +419,126 @@ describe("Fido2Background", () => {
       expect(duringRequestResult!).toBe(false);
     });
 
+    it.each([
+      ["fido2GetCredentialRequest", "navigation"],
+      ["fido2RegisterCredentialRequest", "reload"],
+      ["fido2GetCredentialRequest", "close"],
+    ])("retires an unresolved %s on %s", async (command, event) => {
+      let resolveRequest: () => void;
+      const pendingRequest = new Promise<AssertCredentialResult & CreateCredentialResult>(
+        (resolve) => {
+          resolveRequest = () => resolve(mock());
+        },
+      );
+      fido2ClientService.assertCredential.mockReturnValue(pendingRequest);
+      fido2ClientService.createCredential.mockReturnValue(pendingRequest);
+      sendMockExtensionMessage(
+        mock<Fido2ExtensionMessage>({ command, requestId: "old", data: mock() }),
+        senderMock,
+      );
+      await flushPromises();
+      expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(true);
+
+      triggerWebNavigationOnCommittedEvent(
+        mock<chrome.webNavigation.WebNavigationTransitionCallbackDetails>({
+          tabId: tabMock.id,
+          frameId: 1,
+        }),
+      );
+      triggerWebNavigationOnCommittedEvent(
+        mock<chrome.webNavigation.WebNavigationTransitionCallbackDetails>({
+          tabId: tabMock.id + 1,
+          frameId: 0,
+        }),
+      );
+      expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(true);
+      expect(abortManagerMock.abort).not.toHaveBeenCalled();
+
+      if (event === "close") {
+        triggerTabOnRemovedEvent(tabMock.id, mock<chrome.tabs.OnRemovedInfo>());
+      } else {
+        triggerWebNavigationOnCommittedEvent(
+          mock<chrome.webNavigation.WebNavigationTransitionCallbackDetails>({
+            tabId: tabMock.id,
+            frameId: 0,
+            transitionType: event === "reload" ? "reload" : "link",
+          }),
+        );
+      }
+      expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(false);
+      expect(abortManagerMock.abort).toHaveBeenCalledWith("old");
+      expect(fido2ActiveRequestManager.removeActiveRequest).toHaveBeenCalledWith(tabMock.id);
+
+      resolveRequest!();
+      await flushPromises();
+      expect(focusTabSpy).not.toHaveBeenCalled();
+      expect(focusWindowSpy).not.toHaveBeenCalled();
+    });
+
+    it.each([false, true])(
+      "keeps new and overlapping requests active after old rejection: %s",
+      async (rejectOld) => {
+        let settleOld: () => void;
+        let settleNew: () => void;
+        let settleOverlap: () => void;
+        fido2ClientService.assertCredential
+          .mockReturnValueOnce(
+            new Promise((resolve, reject) => {
+              settleOld = () => (rejectOld ? reject(new Error("aborted")) : resolve(mock()));
+            }),
+          )
+          .mockReturnValueOnce(
+            new Promise((resolve) => {
+              settleNew = () => resolve(mock());
+            }),
+          )
+          .mockReturnValueOnce(
+            new Promise((resolve) => {
+              settleOverlap = () => resolve(mock());
+            }),
+          );
+        sendMockExtensionMessage(
+          mock<Fido2ExtensionMessage>({
+            command: "fido2GetCredentialRequest",
+            requestId: "old",
+            data: mock(),
+          }),
+          senderMock,
+        );
+        await flushPromises();
+        triggerWebNavigationOnCommittedEvent(
+          mock<chrome.webNavigation.WebNavigationTransitionCallbackDetails>({
+            tabId: tabMock.id,
+            frameId: 0,
+          }),
+        );
+        for (const requestId of ["new", "overlap"]) {
+          sendMockExtensionMessage(
+            mock<Fido2ExtensionMessage>({
+              command: "fido2GetCredentialRequest",
+              requestId,
+              data: mock(),
+            }),
+            senderMock,
+          );
+        }
+        await flushPromises();
+        settleOld!();
+        await flushPromises();
+        expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(true);
+        expect(focusTabSpy).not.toHaveBeenCalled();
+        expect(focusWindowSpy).not.toHaveBeenCalled();
+        settleNew!();
+        await flushPromises();
+        expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(true);
+        settleOverlap!();
+        await flushPromises();
+        expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(false);
+      },
+    );
+
     it("returns true when conditional mediation has credentials to show", () => {
-      fido2Background["activeCredentialRequests"].add(tabMock.id);
+      fido2Background["activeCredentialRequests"].set(tabMock.id, new Set(["123"]));
       fido2ActiveRequestManager.getActiveRequest.mockReturnValue(
         mock<ActiveRequest>({
           credentials: [mock<Fido2CredentialView>({ credentialId: "credential-id" })],
