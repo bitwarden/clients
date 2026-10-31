@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -17,7 +16,6 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 
 export const VisibleVaultBanner = {
   OutdatedBrowser: "outdated-browser",
-  VerifyEmail: "verify-email",
   PendingAuthRequest: "pending-auth-request",
 } as const;
 
@@ -38,7 +36,6 @@ export const BANNERS_DISMISSED_DISK_KEY = new UserKeyDefinition<SessionBanners[]
 @Injectable()
 export class VaultBannersService {
   constructor(
-    private accountService: AccountService,
     private stateProvider: StateProvider,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private platformUtilsService: PlatformUtilsService,
@@ -67,19 +64,6 @@ export class VaultBannersService {
     );
 
     return outdatedBrowser && !alreadyDismissed;
-  }
-
-  /** Returns true when the verify email banner should be shown */
-  async shouldShowVerifyEmailBanner(userId: UserId): Promise<boolean> {
-    const needsVerification = !(
-      await firstValueFrom(this.accountService.accounts$.pipe(map((accounts) => accounts[userId])))
-    )?.emailVerified;
-
-    const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
-      VisibleVaultBanner.VerifyEmail,
-    );
-
-    return needsVerification && !alreadyDismissed;
   }
 
   /** Dismiss the given banner and perform any respective side effects */
