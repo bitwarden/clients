@@ -18,7 +18,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import {
+  getReleaseChannelType,
+  ReleaseChannelType,
+} from "@bitwarden/common/platform/misc/release-channel-type";
 import {
   AsyncActionsModule,
   ButtonType,
@@ -76,7 +79,8 @@ export class PopupHeaderComponent {
     { initialValue: false },
   );
 
-  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
+  protected readonly logo =
+    getReleaseChannelType() === ReleaseChannelType.Beta ? BitwardenLogoBeta : BitwardenLogo;
 
   /**
    * Background treatment of the page title bar.

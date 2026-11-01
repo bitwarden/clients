@@ -1,7 +1,11 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import {
+  getReleaseChannelType,
+  ReleaseChannelType,
+} from "@bitwarden/common/platform/misc/release-channel-type";
 import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 
 import { BrowserApi } from "../browser/browser-api";
@@ -12,7 +16,11 @@ import BrowserInitialInstallService from "./browser-initial-install.service";
 jest.mock("@bitwarden/common/platform/misc/flags", () => ({
   ...jest.requireActual("@bitwarden/common/platform/misc/flags"),
   devFlagEnabled: jest.fn(),
-  flagEnabled: jest.fn(),
+}));
+
+jest.mock("@bitwarden/common/platform/misc/release-channel-type", () => ({
+  ...jest.requireActual("@bitwarden/common/platform/misc/release-channel-type"),
+  getReleaseChannelType: jest.fn(),
 }));
 
 describe("BrowserInitialInstallService", () => {
@@ -20,7 +28,7 @@ describe("BrowserInitialInstallService", () => {
   let getInstallTypeSpy: jest.SpyInstance;
   let createNewTabSpy: jest.SpyInstance;
   const devFlagEnabledMock = devFlagEnabled as jest.Mock;
-  const flagEnabledMock = flagEnabled as jest.Mock;
+  const getReleaseChannelTypeMock = getReleaseChannelType as jest.Mock;
 
   beforeEach(() => {
     const stateProvider = mock<StateProvider>();
@@ -31,7 +39,7 @@ describe("BrowserInitialInstallService", () => {
     getInstallTypeSpy = jest.spyOn(BrowserApi, "getInstallType");
     createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue({} as any);
     devFlagEnabledMock.mockReturnValue(false);
-    flagEnabledMock.mockReturnValue(false);
+    getReleaseChannelTypeMock.mockReturnValue(ReleaseChannelType.Production);
 
     service = new BrowserInitialInstallService(stateProvider);
   });
@@ -96,10 +104,10 @@ describe("BrowserInitialInstallService", () => {
       ["Development", ExtensionInstallType.Development],
       ["Unknown", ExtensionInstallType.Unknown],
     ])(
-      "does not open the welcome page for %s installs when the prereleaseBuild flag is on",
+      "does not open the welcome page for %s installs on the beta channel",
       async (_, installType) => {
         getInstallTypeSpy.mockResolvedValue(installType);
-        flagEnabledMock.mockImplementation((flag) => flag === "prereleaseBuild");
+        getReleaseChannelTypeMock.mockReturnValue(ReleaseChannelType.Beta);
 
         await service.displayWelcomePage();
 

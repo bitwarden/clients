@@ -37,6 +37,7 @@ const config: StorybookConfig = {
   env: (existingConfig) => ({
     ...existingConfig,
     FLAGS: JSON.stringify({}),
+    RELEASE_CHANNEL: "production",
   }),
   viteFinal: async (config) => {
     return {

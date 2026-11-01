@@ -7,6 +7,9 @@ const { AngularWebpackPlugin } = require("@ngtools/webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
+const {
+  releaseChannelDefinitions,
+} = require("../../libs/release-channel/webpack/release-channel-define");
 const manifest = require("./webpack/manifest");
 const AngularCheckPlugin = require("./webpack/angular-check");
 
@@ -53,6 +56,8 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const envConfig = configurator.load(ENV, process.env.CHANNEL);
   configurator.log(envConfig);
+
+  const releaseChannel = releaseChannelDefinitions(process.env.CHANNEL);
 
   const moduleRules = [
     {
@@ -147,6 +152,7 @@ module.exports.buildConfig = function buildConfig(params) {
       FLAGS: envConfig.flags,
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
     }),
+    new webpack.DefinePlugin(releaseChannel),
     // The Chrome build ships without core-js's polyfills: modern Chrome provides them
     // natively, and core-js's IE-era Object.create shim is what the Chrome Web Store flags
     // as "obfuscated code". The Chrome manifest pins minimum_chrome_version to 134 (see

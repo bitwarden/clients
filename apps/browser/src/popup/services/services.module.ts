@@ -186,6 +186,7 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { FlightRecorderLogRecorderService } from "@bitwarden/logging-angular";
+import { DefaultReleaseChannelService, ReleaseChannelService } from "@bitwarden/release-channel";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import { SHARE_ITEM_PRESENTER, SHARE_PASSWORD_REPROMPT } from "@bitwarden/tools-share";
@@ -285,6 +286,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
   safeProvider(InlineMenuFieldQualificationService),
+  safeProvider({
+    provide: ReleaseChannelService,
+    useClass: DefaultReleaseChannelService,
+    deps: [ConfigService],
+  }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
     useValue: VaultTimeoutStringType.OnRestart,

@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
-import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import {
+  getReleaseChannelType,
+  ReleaseChannelType,
+} from "@bitwarden/common/platform/misc/release-channel-type";
 import { BitIconButtonComponent, SvgComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -18,5 +21,6 @@ export class Fido2ModalHeaderComponent {
   readonly pageTitle = input.required<string>();
   readonly closeModal = output<void>();
 
-  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
+  protected readonly logo =
+    getReleaseChannelType() === ReleaseChannelType.Beta ? BitwardenLogoBeta : BitwardenLogo;
 }

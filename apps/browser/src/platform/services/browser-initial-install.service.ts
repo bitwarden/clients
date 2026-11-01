@@ -1,6 +1,10 @@
 import { Observable, map } from "rxjs";
 
-import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import {
+  getReleaseChannelType,
+  ReleaseChannelType,
+} from "@bitwarden/common/platform/misc/release-channel-type";
 import {
   GlobalState,
   EXTENSION_INITIAL_INSTALL_DISK,
@@ -56,7 +60,7 @@ export default class BrowserInitialInstallService {
     if (
       isUserInitiatedInstall &&
       !devFlagEnabled("skipWelcomeOnInstall") &&
-      !flagEnabled("prereleaseBuild")
+      getReleaseChannelType() !== ReleaseChannelType.Beta
     ) {
       void BrowserApi.createNewTab(WELCOME_PAGE_URL);
     }

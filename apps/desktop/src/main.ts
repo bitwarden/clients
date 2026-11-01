@@ -22,6 +22,10 @@ import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
+import {
+  getReleaseChannelType,
+  ReleaseChannelType,
+} from "@bitwarden/common/platform/misc/release-channel-type";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
@@ -61,7 +65,6 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { flagEnabled } from "./platform/flags";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
@@ -405,7 +408,7 @@ export class Main {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
         const trayName = this.i18nService.t(
-          flagEnabled("prereleaseBuild") ? "bitwardenBeta" : "bitwarden",
+          getReleaseChannelType() === ReleaseChannelType.Beta ? "bitwardenBeta" : "bitwarden",
         );
         await this.trayMain.init(trayName, [
           {

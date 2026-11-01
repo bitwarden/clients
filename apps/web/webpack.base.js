@@ -9,6 +9,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const webpack = require("webpack");
 
+const {
+  releaseChannelDefinitions,
+} = require("../../libs/release-channel/webpack/release-channel-define");
+
 const config = require(path.resolve(__dirname, "config.js"));
 const pjson = require(path.resolve(__dirname, "package.json"));
 
@@ -213,6 +217,7 @@ module.exports.buildConfig = function buildConfig(params) {
       DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
       ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
     }),
+    new webpack.DefinePlugin(releaseChannelDefinitions()),
     new AngularWebpackPlugin({
       tsconfig: params.tsConfig,
       entryModule: params.app.entryModule,

@@ -8,6 +8,10 @@ import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
 import { BitwardenLogo, BitwardenLogoBeta, BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  getReleaseChannelType,
+  ReleaseChannelType,
+} from "@bitwarden/common/platform/misc/release-channel-type";
+import {
   SvgModule,
   Translation,
   AnonLayoutComponent,
@@ -23,7 +27,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { AccountSwitcherService } from "../../../auth/popup/account-switching/services/account-switcher.service";
-import { flagEnabled } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -75,7 +78,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
   protected theme: string;
-  protected logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
+  protected logo =
+    getReleaseChannelType() === ReleaseChannelType.Beta ? BitwardenLogoBeta : BitwardenLogo;
 
   constructor(
     private router: Router,

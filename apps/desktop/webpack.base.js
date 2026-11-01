@@ -10,6 +10,9 @@ const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { EnvironmentPlugin, DefinePlugin } = require("webpack");
 const configurator = require(path.resolve(__dirname, "config/config"));
+const { releaseChannelDefinitions } = require(
+  path.resolve(__dirname, "../../libs/release-channel/webpack/release-channel-define"),
+);
 
 module.exports.getEnv = function getEnv() {
   const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
@@ -54,6 +57,8 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const envConfig = configurator.load(NODE_ENV, process.env.CHANNEL);
   configurator.log(envConfig);
+
+  const releaseChannel = releaseChannelDefinitions(process.env.CHANNEL);
 
   const commonConfig = {
     resolve: {
@@ -181,6 +186,7 @@ module.exports.buildConfig = function buildConfig(params) {
       }),
       new DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+        ...releaseChannel,
       }),
       new EnvironmentPlugin({
         FLAGS: envConfig.flags,
@@ -229,6 +235,7 @@ module.exports.buildConfig = function buildConfig(params) {
     plugins: [
       new DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+        ...releaseChannel,
       }),
     ],
   };
@@ -391,6 +398,7 @@ module.exports.buildConfig = function buildConfig(params) {
       }),
       new webpack.DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+        ...releaseChannel,
       }),
       new webpack.EnvironmentPlugin({
         ENV: ENV,

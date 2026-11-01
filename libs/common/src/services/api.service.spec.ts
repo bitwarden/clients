@@ -1505,4 +1505,69 @@ describe("ApiService", () => {
       expect(response.headers.get("content-type")).toBeNull();
     });
   });
+
+  describe("Is-Prerelease header", () => {
+    const sendGet = async () => {
+      environmentService.environment$ = of({
+        getApiUrl: () => "https://example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.getEnvironment$.mockReturnValue(
+        of({
+          getApiUrl: () => "https://authed.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+      tokenService.getAccessToken.mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        headers: new Headers({ "content-type": "application/json" }),
+      } satisfies Partial<Response> as Response);
+      sut.nativeFetch = nativeFetch;
+
+      await sut.send("GET", "/something", null, true, true, null, null);
+      return nativeFetch.mock.calls[0][0];
+    };
+
+    const buildRequestHeaders = () =>
+      (sut as unknown as { buildRequestHeaders(): Promise<Headers> }).buildRequestHeaders();
+
+    afterEach(() => {
+      delete process.env.RELEASE_CHANNEL;
+    });
+
+    it("is sent as 1 on the beta channel", async () => {
+      process.env.RELEASE_CHANNEL = "beta";
+      tokenService.getAccessToken.mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      const request = await sendGet();
+      const headers = await buildRequestHeaders();
+
+      expect(request.headers.get("Is-Prerelease")).toBe("1");
+      expect(headers.get("Is-Prerelease")).toBe("1");
+    });
+
+    it.each([undefined, "production"])(
+      "is not sent when RELEASE_CHANNEL is %p",
+      async (channel) => {
+        if (channel === undefined) {
+          delete process.env.RELEASE_CHANNEL;
+        } else {
+          process.env.RELEASE_CHANNEL = channel;
+        }
+        tokenService.getAccessToken.mockResolvedValue("access_token");
+        tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+        const request = await sendGet();
+        const headers = await buildRequestHeaders();
+
+        expect(request.headers.has("Is-Prerelease")).toBe(false);
+        expect(headers.has("Is-Prerelease")).toBe(false);
+      },
+    );
+  });
 });
