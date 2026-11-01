@@ -19,11 +19,11 @@ import {
   HeroTextAlignmentType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
+import { isBetaChannel } from "@bitwarden/release-channel";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { AccountSwitcherService } from "../../../auth/popup/account-switching/services/account-switcher.service";
-import { flagEnabled } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -75,7 +75,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
   protected theme: string;
-  protected logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
+  protected logo = isBetaChannel() ? BitwardenLogoBeta : BitwardenLogo;
 
   constructor(
     private router: Router,
