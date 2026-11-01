@@ -14,7 +14,7 @@ import {
  * Reads the beta channel status from the `beta-channel-status` feature flag.
  *
  * The flag fails open: only an explicit `closing` or `closed` changes the channel, and anything
- * else, including a missing key, reports `Open`. Self-hosted servers send `closed`. The status
+ * else, including a missing key, reports `Open`. The status
  * follows `ConfigService.getFeatureFlag$`, so before a server config loads it reports the default,
  * `Open`, and an offline launch uses the cached config.
  */

@@ -54,7 +54,7 @@ An environment without the flag, such as a QA server with no rule, leaves the be
 
 ### Self-hosted and offline
 
-A self-hosted server does not contact LaunchDarkly. It sends `beta-channel-status: "closed"` unless the operator sets a value. **Self-hosted has no beta channel, and a beta client is blocked against a self-hosted server.** A self-hosted operator could set `Features:FlagValues:beta-channel-status` to `"open"`, but that is unsupported.
+A self-hosted server does not contact LaunchDarkly, so it sends no value for `beta-channel-status` unless the operator sets one in `Features:FlagValues`. With no value, the flag fails open, and beta clients can connect to self-hosted servers.
 
 Offline, the client keeps the cached config, so the last status it received stays in place until the next successful fetch.
 
@@ -100,7 +100,7 @@ There are two ways to change the flag for a test build:
 - **Client override.** Every Angular client attaches `bitwardenAutomationDriver` to the window. Its `featureFlags` capability writes a local flag override that wins over the server config. This needs no server changes.
 - **Server override.** A local server with no LaunchDarkly key serves values from `Features:FlagValues`. This tests the real delivery path through the server config.
 
-A self-hosted server, including a local dev server set up as self-hosted, closes the beta channel. So each test sets `"open"` first, with the client override or the server override. A cloud config without the key reports `open` and `allowed`. The warning and block screens come in PM-46097. Until they exist, you see the values in a developer tools console.
+A server that sends no value, such as a self-hosted or local dev server without an override, reports `open` and `allowed`, the same as a cloud config without the key. The warning and block screens come in PM-46097. Until they exist, you see the values in a developer tools console.
 
 Each test sets these flag values in order. The expected access for a beta client is:
 

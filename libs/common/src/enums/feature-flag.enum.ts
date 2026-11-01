@@ -121,8 +121,7 @@ export enum FeatureFlag {
   /**
    * Status of the beta channel: "open", "closing", or "closed". Read by ReleaseChannelService.
    * The flag fails open: only an explicit "closing" or "closed" changes the channel, and anything
-   * else, including a missing value or an unknown string, means open. Self-hosted servers send
-   * "closed".
+   * else, including a missing value or an unknown string, means open.
    */
   BetaChannelStatus = "beta-channel-status",
 }
