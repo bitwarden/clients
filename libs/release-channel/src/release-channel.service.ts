@@ -37,9 +37,9 @@ export type BetaClientAccess = (typeof BetaClientAccess)[keyof typeof BetaClient
  */
 export abstract class ReleaseChannelService {
   /**
-   * The status of the connected environment's beta channel, for every client. Emits once a server
-   * config exists, and again when the server config changes the flag. Before the first server
-   * config loads, it emits nothing.
+   * The status of the connected environment's beta channel, for every client. Emits with the
+   * server config, and again when the server config changes the flag. It fails open: anything
+   * other than an explicit `closing` or `closed` reports `Open`.
    */
   abstract readonly betaChannelStatus$: Observable<BetaChannelStatus>;
 

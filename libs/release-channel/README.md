@@ -26,12 +26,12 @@ Use it for checks that only depend on the client, such as the beta logos and the
 | `Closing`  | `"closing"`    | The beta channel is closing. Beta clients warn. |
 | `Closed`   | `"closed"`     | The beta channel is closed. Beta clients block. |
 
-- Only the exact values `"open"` and `"closing"` keep the channel open.
-- Anything else reports `Closed`: `"closed"`, an unknown or differently cased value, an empty string, a non-string value, and a missing key, which resolves to the client default `"closed"`.
+- The flag fails open. Only an explicit `"closing"` or `"closed"` changes the channel.
+- Anything else reports `Open`: `"open"`, an unknown or differently cased value, an empty string, a non-string value, and a missing key, which resolves to the client default `"open"`.
 - The status can move in any direction. Serving `"open"` again reopens the channel.
-- The status carries no date. Product moves the flag from `"closing"` to `"closed"` when it chooses.
+- The status carries no date. Product ends the beta by explicitly serving `"closed"`, after `"closing"` when it wants a warning period.
 
-`betaChannelStatus$` waits for a server config. On a first launch, the client has no config until the first fetch completes, and `betaChannelStatus$` emits nothing until then, so a cloud beta does not flash a block. After that, a slow or failed fetch keeps the last config. It emits only when the status changes.
+`betaChannelStatus$` follows the server config. Before the first config loads, it reports the default, `Open`. A beta against a closed channel can briefly report `Open` on a first launch, until the config arrives. After that, a slow or failed fetch keeps the last config. It emits only when the status changes.
 
 The flag is in the **Permanent** section of `FeatureFlag` in `libs/common/src/enums/feature-flag.enum.ts` and of `FeatureFlagKeys` in the server's `src/Core/Constants.cs`. Permanent flags are operational, are never removed, and are exempt from the flag cleanup lifecycle.
 
@@ -42,19 +42,19 @@ The server adds the `client-version-is-prerelease` attribute to the LaunchDarkly
 To open the beta channel, then close it:
 
 1. In LaunchDarkly, open `beta-channel-status`.
-2. Add a rule: `client-version-is-prerelease` is `true`. Serve `"open"`. Beta clients block until this rule serves `"open"`.
+2. Add a rule: `client-version-is-prerelease` is `true`. Serve `"open"`.
 3. When Product decides to close the channel, change the served value to `"closing"`.
 4. When the channel closes, change the served value to `"closed"`.
 
-Set the flag's off variation to `"closed"`, so turning the flag off acts as a kill switch.
+Set the flag's off variation to `"open"`, so turning the flag off does not block anyone. End the beta by serving `"closed"`.
 
 To limit a rule to one client or version range, add a `device-type` or `client-version` clause to the rule. Production clients are always allowed, whatever the flag serves.
 
-**Every environment that runs beta clients needs the flag configured**, including QA and local servers. Without it, the beta channel is closed there.
+An environment without the flag, such as a QA server with no rule, leaves the beta channel open.
 
 ### Self-hosted and offline
 
-A self-hosted server does not contact LaunchDarkly, so its config response has no `beta-channel-status` entry. **Self-hosted has no beta channel, and a beta client is blocked against a self-hosted server.** A self-hosted operator could set `Features:FlagValues:beta-channel-status` to `"open"`, but that is unsupported.
+A self-hosted server does not contact LaunchDarkly. It sends `beta-channel-status: "closed"` unless the operator sets a value. **Self-hosted has no beta channel, and a beta client is blocked against a self-hosted server.** A self-hosted operator could set `Features:FlagValues:beta-channel-status` to `"open"`, but that is unsupported.
 
 Offline, the client keeps the cached config, so the last status it received stays in place until the next successful fetch.
 
@@ -69,7 +69,7 @@ Offline, the client keeps the cached config, so the last status it received stay
 | On the beta channel, `Closing` | `Warning`                                           |
 | On the beta channel, `Closed`  | `Blocked`                                           |
 
-For a beta client, `betaClientAccess$` follows `betaChannelStatus$`, so it also emits nothing before the first server config.
+For a beta client, `betaClientAccess$` follows `betaChannelStatus$`, so it also reports `Allowed` before the first server config.
 
 ```ts
 const access = await firstValueFrom(releaseChannelService.betaClientAccess$);
@@ -100,15 +100,15 @@ There are two ways to change the flag for a test build:
 - **Client override.** Every Angular client attaches `bitwardenAutomationDriver` to the window. Its `featureFlags` capability writes a local flag override that wins over the server config. This needs no server changes.
 - **Server override.** A local server with no LaunchDarkly key serves values from `Features:FlagValues`. This tests the real delivery path through the server config.
 
-A server without LaunchDarkly, such as a local dev server, closes the beta channel. So each test sets `"open"` first, with the client override or the server override. The warning and block screens come in PM-46097. Until they exist, you see the values in a developer tools console.
+A self-hosted server, including a local dev server set up as self-hosted, closes the beta channel. So each test sets `"open"` first, with the client override or the server override. A cloud config without the key reports `open` and `allowed`. The warning and block screens come in PM-46097. Until they exist, you see the values in a developer tools console.
 
 Each test sets these flag values in order. The expected access for a beta client is:
 
 | **Flag value** | `"open"`  | `"closing"` | `"Open"`  | `"bogus"` | `"closed"` | `"open"`  |
 | -------------- | --------- | ----------- | --------- | --------- | ---------- | --------- |
-| **Access**     | `allowed` | `warning`   | `blocked` | `blocked` | `blocked`  | `allowed` |
+| **Access**     | `allowed` | `warning`   | `allowed` | `allowed` | `blocked`  | `allowed` |
 
-`betaClientAccess$` emits only when the access changes, so `"Open"` emits `blocked` once, and `"bogus"` and `"closed"` emit nothing new.
+`betaClientAccess$` emits only when the access changes, so `"Open"` emits `allowed`, and `"bogus"` emits nothing new.
 
 ### Test the Desktop app
 
@@ -147,9 +147,10 @@ The release build of Desktop has no developer tools. Build Desktop in developmen
 
 8. Make sure that the console shows `access allowed` and `status open`.
 9. Run `await flags.set("beta-channel-status", "closing")`, and make sure that the console shows `access warning`.
-10. Run `await flags.set("beta-channel-status", "Open")`, and make sure that the console shows `access blocked`.
-11. Run `await flags.set("beta-channel-status", "bogus")`, then `await flags.set("beta-channel-status", "closed")`. Make sure that no new access value appears.
-12. Run `await flags.set("beta-channel-status", "open")`, and make sure that the console shows `access allowed`.
+10. Run `await flags.set("beta-channel-status", "Open")`, and make sure that the console shows `access allowed`.
+11. Run `await flags.set("beta-channel-status", "bogus")`. Make sure that no new access value appears.
+12. Run `await flags.set("beta-channel-status", "closed")`, and make sure that the console shows `access blocked`.
+13. Run `await flags.set("beta-channel-status", "open")`, and make sure that the console shows `access allowed`.
 
 ### Test the browser extension
 
@@ -179,9 +180,10 @@ The release build of Desktop has no developer tools. Build Desktop in developmen
 11. Make sure that the console shows `access allowed`. The override is stored on disk, so the background sees it.
 12. Keep the service worker developer tools open, so that Chrome does not stop the worker and end the subscription.
 13. In the popup console, run `await flags.set("beta-channel-status", "closing")`. In the service worker console, make sure that `access warning` appears.
-14. In the popup console, run `await flags.set("beta-channel-status", "Open")`. Make sure that `access blocked` appears.
-15. In the popup console, run `await flags.set("beta-channel-status", "bogus")`, then `await flags.set("beta-channel-status", "closed")`. Make sure that no new access value appears.
-16. In the popup console, run `await flags.set("beta-channel-status", "open")`. Make sure that `access allowed` appears.
+14. In the popup console, run `await flags.set("beta-channel-status", "Open")`. Make sure that `access allowed` appears.
+15. In the popup console, run `await flags.set("beta-channel-status", "bogus")`. Make sure that no new access value appears.
+16. In the popup console, run `await flags.set("beta-channel-status", "closed")`. Make sure that `access blocked` appears.
+17. In the popup console, run `await flags.set("beta-channel-status", "open")`. Make sure that `access allowed` appears.
 
 ### Test the server delivery path
 

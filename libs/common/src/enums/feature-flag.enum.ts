@@ -120,8 +120,9 @@ export enum FeatureFlag {
   // Operational flags that are never removed. They are exempt from the flag cleanup lifecycle.
   /**
    * Status of the beta channel: "open", "closing", or "closed". Read by ReleaseChannelService.
-   * Only exactly "open" or "closing" keeps the channel open. The default is "closed", so a
-   * self-hosted server, which sends no value, has no beta channel.
+   * The flag fails open: only an explicit "closing" or "closed" changes the channel, and anything
+   * else, including a missing value or an unknown string, means open. Self-hosted servers send
+   * "closed".
    */
   BetaChannelStatus = "beta-channel-status",
 }
@@ -241,7 +242,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VFO1Foundation]: FALSE,
 
   /* Permanent */
-  [FeatureFlag.BetaChannelStatus]: "closed" as string,
+  [FeatureFlag.BetaChannelStatus]: "open" as string,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

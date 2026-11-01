@@ -1,5 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable, distinctUntilChanged, firstValueFrom, map } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  defer,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+} from "rxjs";
 
 import {
   AllowedFeatureFlagTypes,
@@ -16,6 +23,8 @@ import { BetaChannelStatus, BetaClientAccess } from "./release-channel.service";
 describe("DefaultReleaseChannelService", () => {
   let configService: MockProxy<ConfigService>;
   let serverConfig: BehaviorSubject<ServerConfig | null>;
+  /** How many times something subscribed to a `getFeatureFlag$` observable. */
+  let flagSubscriptions: number;
 
   /** A server config with the given feature states. */
   const config = (featureStates: Record<string, AllowedFeatureFlagTypes> = {}) =>
@@ -42,11 +51,15 @@ describe("DefaultReleaseChannelService", () => {
     configService = mock<ConfigService>();
     configService.serverConfig$ = serverConfig.asObservable();
     // Resolve flags the way DefaultConfigService does: server value, else the default.
+    flagSubscriptions = 0;
     configService.getFeatureFlag$.mockImplementation(((flag: FeatureFlag) =>
-      serverConfig.pipe(
-        map((current) => getFeatureFlagValue(current, flag)),
-        distinctUntilChanged(),
-      )) as unknown as ConfigService["getFeatureFlag$"]);
+      defer(() => {
+        flagSubscriptions++;
+        return serverConfig.pipe(
+          map((current) => getFeatureFlagValue(current, flag)),
+          distinctUntilChanged(),
+        );
+      })) as unknown as ConfigService["getFeatureFlag$"]);
   });
 
   afterEach(() => {
@@ -67,33 +80,22 @@ describe("DefaultReleaseChannelService", () => {
       },
     );
 
-    it("emits nothing while no server config exists", () => {
+    it("reports Open before any server config exists, then follows the config when it loads", () => {
       const sut = new DefaultReleaseChannelService(configService);
       const { emissions, subscription } = record(sut.betaChannelStatus$);
 
-      serverConfig.next(null);
+      serverConfig.next(withStatus("closed"));
 
-      expect(emissions).toEqual([]);
-      expect(configService.getFeatureFlag$).not.toHaveBeenCalled();
+      expect(emissions).toEqual([BetaChannelStatus.Open, BetaChannelStatus.Closed]);
       subscription.unsubscribe();
     });
 
-    it("emits the served status once the first server config loads, without a Closed flash", () => {
-      const sut = new DefaultReleaseChannelService(configService);
-      const { emissions, subscription } = record(sut.betaChannelStatus$);
-
-      serverConfig.next(withStatus("open"));
-
-      expect(emissions).toEqual([BetaChannelStatus.Open]);
-      subscription.unsubscribe();
-    });
-
-    it("reports Closed when the server config does not include the key", async () => {
+    it("reports Open when the server config does not include the key", async () => {
       serverConfig.next(config());
 
       const sut = new DefaultReleaseChannelService(configService);
 
-      expect(await firstValueFrom(sut.betaChannelStatus$)).toBe(BetaChannelStatus.Closed);
+      expect(await firstValueFrom(sut.betaChannelStatus$)).toBe(BetaChannelStatus.Open);
     });
 
     it.each([
@@ -116,12 +118,13 @@ describe("DefaultReleaseChannelService", () => {
       ["a value with whitespace", " open"],
       ["a boolean", true],
       ["a number", 1],
-    ])("reports Closed for %s (%p)", async (_, value) => {
+      ["different casing", "Closed"],
+    ])("reports Open for %s (%p)", async (_, value) => {
       serverConfig.next(withStatus(value));
 
       const sut = new DefaultReleaseChannelService(configService);
 
-      expect(await firstValueFrom(sut.betaChannelStatus$)).toBe(BetaChannelStatus.Closed);
+      expect(await firstValueFrom(sut.betaChannelStatus$)).toBe(BetaChannelStatus.Open);
     });
 
     it("emits again when the server config changes the flag, and not for a repeated status", () => {
@@ -130,6 +133,7 @@ describe("DefaultReleaseChannelService", () => {
       const { emissions, subscription } = record(sut.betaChannelStatus$);
 
       serverConfig.next(withStatus("closing"));
+      serverConfig.next(withStatus("closed"));
       serverConfig.next(withStatus("closed"));
       serverConfig.next(withStatus("bogus"));
       serverConfig.next(withStatus("open"));
@@ -143,14 +147,14 @@ describe("DefaultReleaseChannelService", () => {
       subscription.unsubscribe();
     });
 
-    it("keeps the last status when the server config later becomes null", () => {
-      serverConfig.next(withStatus("open"));
+    it("reports Open when the server config later becomes null", () => {
+      serverConfig.next(withStatus("closed"));
       const sut = new DefaultReleaseChannelService(configService);
       const { emissions, subscription } = record(sut.betaChannelStatus$);
 
       serverConfig.next(null);
 
-      expect(emissions).toEqual([BetaChannelStatus.Open]);
+      expect(emissions).toEqual([BetaChannelStatus.Closed, BetaChannelStatus.Open]);
       subscription.unsubscribe();
     });
 
@@ -161,7 +165,7 @@ describe("DefaultReleaseChannelService", () => {
       const first = record(sut.betaChannelStatus$);
       const second = record(sut.betaChannelStatus$);
 
-      expect(configService.getFeatureFlag$).toHaveBeenCalledTimes(1);
+      expect(flagSubscriptions).toBe(1);
       expect(second.emissions).toEqual([BetaChannelStatus.Open]);
       first.subscription.unsubscribe();
       second.subscription.unsubscribe();
@@ -174,7 +178,7 @@ describe("DefaultReleaseChannelService", () => {
         ["without prereleaseBuild", JSON.stringify({})],
         ["with prereleaseBuild off", JSON.stringify({ prereleaseBuild: false })],
         ["with no FLAGS", undefined],
-      ])("emits Allowed %s and never reads the flag", async (_, flags) => {
+      ])("emits Allowed %s and never subscribes to the flag", async (_, flags) => {
         if (flags === undefined) {
           delete process.env.FLAGS;
         } else {
@@ -185,7 +189,7 @@ describe("DefaultReleaseChannelService", () => {
         const sut = new DefaultReleaseChannelService(configService);
 
         expect(await firstValueFrom(sut.betaClientAccess$)).toBe(BetaClientAccess.Allowed);
-        expect(configService.getFeatureFlag$).not.toHaveBeenCalled();
+        expect(flagSubscriptions).toBe(0);
       });
 
       it("emits Allowed before any server config exists", async () => {
@@ -205,7 +209,8 @@ describe("DefaultReleaseChannelService", () => {
         ["open", BetaClientAccess.Allowed],
         ["closing", BetaClientAccess.Warning],
         ["closed", BetaClientAccess.Blocked],
-        ["bogus", BetaClientAccess.Blocked],
+        ["bogus", BetaClientAccess.Allowed],
+        ["Closed", BetaClientAccess.Allowed],
       ])("maps the served value %p to %s", async (value, access) => {
         serverConfig.next(withStatus(value));
 
@@ -214,19 +219,21 @@ describe("DefaultReleaseChannelService", () => {
         expect(await firstValueFrom(sut.betaClientAccess$)).toBe(access);
       });
 
-      it("blocks when the server config does not include the key", async () => {
+      it("allows when the server config does not include the key", async () => {
         serverConfig.next(config());
 
         const sut = new DefaultReleaseChannelService(configService);
 
-        expect(await firstValueFrom(sut.betaClientAccess$)).toBe(BetaClientAccess.Blocked);
+        expect(await firstValueFrom(sut.betaClientAccess$)).toBe(BetaClientAccess.Allowed);
       });
 
-      it("emits nothing while no server config exists", () => {
+      it("allows before any server config exists, then blocks when a closed config loads", () => {
         const sut = new DefaultReleaseChannelService(configService);
         const { emissions, subscription } = record(sut.betaClientAccess$);
 
-        expect(emissions).toEqual([]);
+        serverConfig.next(withStatus("closed"));
+
+        expect(emissions).toEqual([BetaClientAccess.Allowed, BetaClientAccess.Blocked]);
         subscription.unsubscribe();
       });
 
@@ -242,6 +249,7 @@ describe("DefaultReleaseChannelService", () => {
         expect(emissions).toEqual([
           BetaClientAccess.Allowed,
           BetaClientAccess.Warning,
+          BetaClientAccess.Allowed,
           BetaClientAccess.Blocked,
           BetaClientAccess.Allowed,
         ]);
