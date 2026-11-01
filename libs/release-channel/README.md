@@ -26,7 +26,7 @@ if (channel.type === ReleaseChannelType.Beta && channel.status === BetaStatus.Bl
 }
 ```
 
-`ReleaseChannelType`, `BetaStatus`, and the channel shapes are exported from this library. Code that only needs to know whether the build is a beta, such as the beta logos, the "Bitwarden Beta" name, and the `Is-Prerelease` header, keeps reading `flagEnabled("prereleaseBuild")`.
+`ReleaseChannelType`, `BetaStatus`, and the channel shapes are exported from this library, along with `isBetaBuild()`. `isBetaBuild()` reads the `prereleaseBuild` flag synchronously. Use it for checks that only depend on the build, such as the beta logos and the "Bitwarden Beta" name. Inject `ReleaseChannelService` for the beta status.
 
 ## The flag
 
@@ -83,7 +83,15 @@ The change lives in this library. Only these files outside it change:
 | `apps/browser/src/background/main.background.ts`                                  | Creates the service for the extension background                   |
 | `tsconfig.base.json`, `jest.config.js`, `.github/CODEOWNERS`, `package-lock.json` | Nx library scaffolding: path alias, Jest project, owner, workspace |
 
-The Desktop main process does not create the service, because it has no `ConfigService`.
+These callers read `isBetaBuild()` instead of checking the `prereleaseBuild` flag with `flagEnabled`:
+
+- the beta logos in `popup-header.component.ts` and `extension-anon-layout-wrapper.component.ts` (browser), `fido2-modal-header.component.ts` (Desktop), and `landing-header.component.ts` and `nav-logo.component.ts` (`libs/components`)
+- the welcome page check in `browser-initial-install.service.ts`
+- the "Bitwarden Beta" tray name in `apps/desktop/src/main.ts` and About dialog name in `menu.about.ts`
+
+`ApiService` in `libs/common` deliberately keeps its own `flagEnabled` check of `prereleaseBuild` for the `Is-Prerelease` header. This library depends on `libs/common`, so `libs/common` cannot import it.
+
+The Desktop main process does not create the service, because it has no `ConfigService`. It only reads `isBetaBuild()`.
 
 ## Test the sunset in a real build
 

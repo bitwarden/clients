@@ -2,8 +2,8 @@ import { NEVER, Observable, distinctUntilChanged, map, of, shareReplay, switchMa
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 
+import { isBetaBuild } from "./is-beta-build";
 import {
   BetaStatus,
   ReleaseChannel,
@@ -25,7 +25,7 @@ export class DefaultReleaseChannelService implements ReleaseChannelService {
   readonly channel$: Observable<ReleaseChannel>;
 
   constructor(configService: ConfigService) {
-    if (!flagEnabled("prereleaseBuild")) {
+    if (!isBetaBuild()) {
       this.channel$ = of({ type: ReleaseChannelType.Production });
       return;
     }
