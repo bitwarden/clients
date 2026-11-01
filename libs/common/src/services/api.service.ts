@@ -74,7 +74,7 @@ import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-middleware";
-import { getReleaseChannelType, ReleaseChannelType } from "../platform/misc/release-channel-type";
+import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
 import { ProviderAddOrganizationRequest } from "../provider/models/request/provider-add-organization.request";
@@ -1201,7 +1201,7 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    if (getReleaseChannelType() === ReleaseChannelType.Beta) {
+    if (flagEnabled("prereleaseBuild")) {
       headers.set("Is-Prerelease", "1");
     }
     await this.applyPlatformHeaders(headers);
@@ -1584,7 +1584,7 @@ export class ApiService implements ApiServiceAbstraction {
       "Device-Type": this.deviceType,
     });
 
-    if (getReleaseChannelType() === ReleaseChannelType.Beta) {
+    if (flagEnabled("prereleaseBuild")) {
       headers.set("Is-Prerelease", "1");
     }
     if (this.customUserAgent != null) {

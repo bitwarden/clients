@@ -1,6 +1,11 @@
 import { Observable } from "rxjs";
 
-import { ReleaseChannelType } from "@bitwarden/common/platform/misc/release-channel-type";
+/** The release channel a client was built for. Fixed at build time. */
+export const ReleaseChannelType = Object.freeze({
+  Production: "production",
+  Beta: "beta",
+} as const);
+export type ReleaseChannelType = (typeof ReleaseChannelType)[keyof typeof ReleaseChannelType];
 
 /**
  * Where a beta build is in its sunset. Only a {@link BetaChannel} has a status.
@@ -31,14 +36,16 @@ export type ReleaseChannel = ProductionChannel | BetaChannel;
 /**
  * Exposes the release channel a client was built for and, for a beta, where it is in its lifetime.
  *
- * The channel type is fixed at build time. The beta status comes from the `beta-channel-status`
- * feature flag in the server config. Product moves the flag from warning to blocked when it
- * chooses, so the status carries no date.
+ * The channel type is fixed at build time: `CHANNEL=beta` builds set the `prereleaseBuild` flag
+ * through `config/beta.json`. The beta status comes from the `beta-channel-status` feature flag
+ * in the server config. Product moves the flag from warning to blocked when it chooses, so the
+ * status carries no date.
  */
 export abstract class ReleaseChannelService {
   /**
    * The release channel. A production build always emits a {@link ProductionChannel}. A beta build
-   * emits a {@link BetaChannel} and emits again when the server config changes the flag.
+   * emits a {@link BetaChannel} once a server config exists, and again when the server config
+   * changes the flag. Before the first server config loads, a beta build emits nothing.
    */
   abstract readonly channel$: Observable<ReleaseChannel>;
 }

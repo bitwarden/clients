@@ -4,5 +4,6 @@ export {
   ProductionChannel,
   ReleaseChannel,
   ReleaseChannelService,
+  ReleaseChannelType,
 } from "./release-channel.service";
 export { DefaultReleaseChannelService } from "./default-release-channel.service";

@@ -68,9 +68,9 @@ export const Dark: Story = {
 };
 
 /**
- * Beta variant of the side-nav logo, shipped in beta builds, where `NavLogoComponent` reads the
- * build-time release channel from `getReleaseChannelType()`. Storybook always builds the
- * production channel, so this story feeds `SideNavLogoBeta` through `openIcon` on the
+ * Beta variant of the side-nav logo — shipped in beta builds via a build-time flag
+ * (`prereleaseBuild`) that `NavLogoComponent` reads directly. Storybook can't flip
+ * `process.env.FLAGS`, so this story feeds `SideNavLogoBeta` through `openIcon` on the
  * v1 code path to preview the asset itself in a real nav container.
  */
 export const Beta: Story = {

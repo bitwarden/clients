@@ -2,10 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
-import {
-  getReleaseChannelType,
-  ReleaseChannelType,
-} from "@bitwarden/common/platform/misc/release-channel-type";
+import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SvgModule } from "../svg";
@@ -42,6 +39,5 @@ import { SvgModule } from "../svg";
 })
 export class LandingHeaderComponent {
   readonly hideLogo = input<boolean>(false);
-  protected readonly logo =
-    getReleaseChannelType() === ReleaseChannelType.Beta ? BitwardenLogoBeta : BitwardenLogo;
+  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
 }

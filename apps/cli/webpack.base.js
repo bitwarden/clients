@@ -3,10 +3,6 @@ const webpack = require("webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const {
-  releaseChannelDefinitions,
-} = require("../../libs/release-channel/webpack/release-channel-define");
-
 const config = require("./config/config");
 
 module.exports.getEnv = function getEnv() {
@@ -60,7 +56,6 @@ module.exports.buildConfig = function buildConfig(params) {
     }),
     new webpack.DefinePlugin({
       "process.env.BWCLI_ENV": JSON.stringify(ENV),
-      ...releaseChannelDefinitions(),
     }),
     new webpack.BannerPlugin({
       banner: "#!/usr/bin/env node",

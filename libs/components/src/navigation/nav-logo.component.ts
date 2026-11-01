@@ -3,10 +3,7 @@ import { ChangeDetectionStrategy, Component, input, inject } from "@angular/core
 import { RouterLinkActive, RouterLink } from "@angular/router";
 
 import { BitwardenShield, SideNavLogo, SideNavLogoBeta, BitSvg } from "@bitwarden/assets/svg";
-import {
-  getReleaseChannelType,
-  ReleaseChannelType,
-} from "@bitwarden/common/platform/misc/release-channel-type";
+import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 
 import { SvgComponent } from "../svg/svg.component";
 
@@ -25,8 +22,7 @@ export class NavLogoComponent {
   /**
    * The v2 side nav always displays this logo for the open state, regardless of `openIcon`.
    */
-  protected readonly sideNavLogo =
-    getReleaseChannelType() === ReleaseChannelType.Beta ? SideNavLogoBeta : SideNavLogo;
+  protected readonly sideNavLogo = flagEnabled("prereleaseBuild") ? SideNavLogoBeta : SideNavLogo;
 
   /**
    * Icon that is displayed when the side nav is closed

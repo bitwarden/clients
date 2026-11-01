@@ -66,7 +66,6 @@ const config: StorybookConfig = {
   env: (config) => ({
     ...config,
     FLAGS: JSON.stringify({}),
-    RELEASE_CHANNEL: "production",
   }),
   webpackFinal: async (config, { configType }) => {
     if (config.resolve) {

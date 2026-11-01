@@ -118,7 +118,11 @@ export enum FeatureFlag {
 
   /* Permanent */
   // Operational flags that are never removed. They are exempt from the flag cleanup lifecycle.
-  /** Beta sunset status: "active", "warning", or "blocked". Read by ReleaseChannelService. */
+  /**
+   * Beta sunset status: "active", "warning", or "blocked". Read by ReleaseChannelService. Beta is
+   * cloud-only: only exactly "active" or "warning" keeps a beta running, and any other value,
+   * including a missing one, blocks.
+   */
   BetaChannelStatus = "beta-channel-status",
 }
 
@@ -237,7 +241,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VFO1Foundation]: FALSE,
 
   /* Permanent */
-  [FeatureFlag.BetaChannelStatus]: "active" as string,
+  [FeatureFlag.BetaChannelStatus]: "blocked" as string,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
