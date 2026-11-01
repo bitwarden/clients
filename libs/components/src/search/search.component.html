@@ -5,14 +5,18 @@
   (keydown)="handleInputKeydown($event)"
   class="tw-relative tw-items-center tw-w-full tw-ps-3 tw-pe-1"
 >
-  <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
+  <!-- Covers the field so clicks anywhere focus the input -->
+  <label class="tw-absolute tw-inset-0 tw-cursor-text" [for]="id">
+    <span class="tw-sr-only">{{ "search" | i18n }}</span>
+  </label>
   <bit-icon name="bwi-search"></bit-icon>
+  <!-- tw-size-full keeps the placeholder pixel-stable; tw-relative lifts it above the label -->
   <input
     #input
     [type]="inputType"
     [id]="id"
     [placeholder]="placeholder() ?? ('search' | i18n)"
-    class="tw-block tw-w-full tw-self-stretch tw-bg-transparent tw-text-fg-heading tw-placeholder-fg-body-subtle tw-border-none focus:tw-outline-none [&:disabled]:tw-bg-bg-inactive [&:disabled]:!tw-placeholder-fg-inactive [&:disabled]:!tw-text-fg-inactive tw-ps-2 tw-pe-1"
+    class="tw-relative tw-block tw-size-full tw-bg-transparent tw-text-fg-heading tw-placeholder-fg-body-subtle tw-border-none focus:tw-outline-none [&:disabled]:tw-bg-bg-inactive [&:disabled]:!tw-placeholder-fg-inactive [&:disabled]:!tw-text-fg-inactive tw-ps-2 tw-pe-1"
     name="searchText"
     [ngModel]="searchText()"
     (ngModelChange)="onChange($event)"

@@ -411,9 +411,9 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
   { id: "attachments", label: "Attachments", icon: "bwi-paperclip", run: () => {} },
   { id: "clone", label: "Clone", icon: "bwi-files", run: () => {} },
   {
-    id: "assign-to-collections",
-    label: "Assign to collections",
-    icon: "bwi-collection-shared",
+    id: "addToSharedFolder",
+    label: "Add to shared folder",
+    icon: "bwi-shared-folder",
     run: () => {},
   },
   {

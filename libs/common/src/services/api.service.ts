@@ -5,9 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -19,33 +16,16 @@ import { CollectionBulkDeleteRequest } from "../admin-console/models/request/col
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
-import { ProviderAddOrganizationRequest } from "../admin-console/models/request/provider/provider-add-organization.request";
-import { ProviderOrganizationCreateRequest } from "../admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderUserAcceptRequest } from "../admin-console/models/request/provider/provider-user-accept.request";
-import { ProviderUserBulkConfirmRequest } from "../admin-console/models/request/provider/provider-user-bulk-confirm.request";
-import { ProviderUserBulkRequest } from "../admin-console/models/request/provider/provider-user-bulk.request";
-import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
-import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
-import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
 import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
-import {
-  ProviderOrganizationOrganizationDetailsResponse,
-  ProviderOrganizationResponse,
-} from "../admin-console/models/response/provider/provider-organization.response";
-import { ProviderUserBulkPublicKeyResponse } from "../admin-console/models/response/provider/provider-user-bulk-public-key.response";
-import { ProviderUserBulkResponse } from "../admin-console/models/response/provider/provider-user-bulk.response";
-import {
-  ProviderUserResponse,
-  ProviderUserUserDetailsResponse,
-} from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/logout";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -97,6 +77,24 @@ import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-midd
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
+import { ProviderAddOrganizationRequest } from "../provider/models/request/provider-add-organization.request";
+import { ProviderOrganizationCreateRequest } from "../provider/models/request/provider-organization-create.request";
+import { ProviderUserAcceptRequest } from "../provider/models/request/provider-user-accept.request";
+import { ProviderUserBulkConfirmRequest } from "../provider/models/request/provider-user-bulk-confirm.request";
+import { ProviderUserBulkRequest } from "../provider/models/request/provider-user-bulk.request";
+import { ProviderUserConfirmRequest } from "../provider/models/request/provider-user-confirm.request";
+import { ProviderUserInviteRequest } from "../provider/models/request/provider-user-invite.request";
+import { ProviderUserUpdateRequest } from "../provider/models/request/provider-user-update.request";
+import {
+  ProviderOrganizationOrganizationDetailsResponse,
+  ProviderOrganizationResponse,
+} from "../provider/models/response/provider-organization.response";
+import { ProviderUserBulkPublicKeyResponse } from "../provider/models/response/provider-user-bulk-public-key.response";
+import { ProviderUserBulkResponse } from "../provider/models/response/provider-user-bulk.response";
+import {
+  ProviderUserResponse,
+  ProviderUserUserDetailsResponse,
+} from "../provider/models/response/provider-user.response";
 import { UserId } from "../types/guid";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";

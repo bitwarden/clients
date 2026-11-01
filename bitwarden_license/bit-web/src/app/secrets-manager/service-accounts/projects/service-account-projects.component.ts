@@ -113,7 +113,7 @@ export class ServiceAccountProjectsComponent implements OnInit, OnDestroy {
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("serviceAccountAccessUpdated"),
+        message: this.i18nService.t("machineAccountAccessUpdated"),
       });
     } catch (e) {
       this.validationService.showError(e);

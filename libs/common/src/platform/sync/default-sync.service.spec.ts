@@ -7,7 +7,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  LogoutReason,
   UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -22,19 +21,20 @@ import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { LogoutReason } from "../../auth/logout";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { SyncSendNotification } from "../../models/response/notification.response";
+import { ProviderService } from "../../provider/abstractions/provider.service";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";

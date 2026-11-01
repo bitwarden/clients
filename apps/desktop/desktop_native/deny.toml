@@ -9,6 +9,13 @@ ignore = [
   # https://rustsec.org/advisories/RUSTSEC-2026-0194 / https://rustsec.org/advisories/RUSTSEC-2026-0195
   { id = "RUSTSEC-2026-0194", reason = "quick-xml is used only by the wayland-scanner proc-macro at build time, parsing trusted protocol XML vendored in the wayland crates (few attributes per element). Not runtime-reachable; wayland-client speaks the binary wire protocol at runtime." },
   { id = "RUSTSEC-2026-0195", reason = "Not affected: wayland-scanner uses quick_xml::Reader, never NsReader, so the vulnerable namespace-resolution path is not present." },
+  # crypto-bigint / ctutils constant-time fixes. https://rustsec.org/advisories/RUSTSEC-2026-0387 / https://rustsec.org/advisories/RUSTSEC-2026-0385
+  # TEMPORARY: the fixed releases, crypto-bigint >=0.7.9 (0.7.6-0.7.8 were yanked) and ctutils >=0.4.4, were published
+  # 2026-10-23..26. Adopt them with `cargo update -p ctutils -p crypto-bigint@0.7.5`, then drop the RUSTSEC-2026-0385 entry.
+  { id = "RUSTSEC-2026-0385", reason = "Temporary: ctutils 0.4.4+ is too new to adopt yet. Bump with `cargo update -p ctutils` and remove this entry." },
+  # crypto-bigint 0.5.x has no patched release; it is pulled via ssh-key 0.6 -> p256/p384/p521 -> elliptic-curve 0.13 (ssh_agent).
+  # This entry stays until ssh-key is upgraded to 0.7 (elliptic-curve 0.14 / crypto-bigint 0.7).
+  { id = "RUSTSEC-2026-0387", reason = "crypto-bigint 0.5.x has no fix (reachable via ssh-key 0.6 ECDSA in ssh_agent); 0.7.x temporarily covered until 0.7.9+ is adopted." },
 ]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html

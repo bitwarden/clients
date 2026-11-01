@@ -8,6 +8,12 @@ import { BitwardenIcon } from "@bitwarden/components";
 export type CipherStatus = "all" | "favorites" | "archive" | "trash" | CipherType;
 
 export type CipherTypeFilter = ITreeNodeObject & { type: CipherStatus; icon?: BitwardenIcon };
+/**
+ * A node of the "Controlled access" group. Its ids and names come from the host that fills the
+ * controlled-access seam; this library only routes the selected id back out.
+ */
+export type ControlledAccessFilter = ITreeNodeObject & { icon?: BitwardenIcon };
+
 export type CollectionFilter = CollectionAdminView & {
   icon?: BitwardenIcon;
 };

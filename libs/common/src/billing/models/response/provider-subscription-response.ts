@@ -1,5 +1,5 @@
-import { ProviderType } from "../../../admin-console/enums";
 import { BaseResponse } from "../../../models/response/base.response";
+import { ProviderType } from "../../../provider/enums";
 import { PlanType, ProductTierType } from "../../enums";
 
 import { PaymentSourceResponse } from "./payment-source.response";

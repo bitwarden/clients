@@ -98,6 +98,11 @@
                 &nbsp;{{ f.node.name }}
               </button>
               <span class="tw-ml-auto tw-flex tw-items-center">
+                @if (gatedCollectionIndicator && isCollectionFilter && f.node.id) {
+                  <ng-container
+                    *ngComponentOutlet="gatedCollectionIndicator; inputs: { collection: f.node }"
+                  />
+                }
                 @if (editInfo() && f.node.id) {
                   <button
                     type="button"

@@ -181,12 +181,12 @@ export const OverflowLinks: Story = {
     template: /*html*/ `
       <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
         <bit-breadcrumb route="/vault">Vault</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" route="/acme-corp">ACME Corp</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" route="/groups">Groups</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" route="/members">Members</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" route="/items">Items</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" route="/sends">Sends</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" route="/settings">Settings</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" route="/acme-corp">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" route="/groups">Groups</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" route="/members">Members</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" route="/items">Items</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" route="/sends">Sends</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" route="/settings">Settings</bit-breadcrumb>
       </bit-breadcrumbs>
       <router-outlet/>
     `,
@@ -203,12 +203,12 @@ export const OverflowButtons: Story = {
     template: /*html*/ `
       <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
         <bit-breadcrumb (click)="clickHandler()">Vault</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">ACME Corp</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Groups</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Members</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Items</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Sends</bit-breadcrumb>
-        <bit-breadcrumb icon="bwi-collection-shared" (click)="clickHandler()">Settings</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" (click)="clickHandler()">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" (click)="clickHandler()">Groups</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" (click)="clickHandler()">Members</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" (click)="clickHandler()">Items</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" (click)="clickHandler()">Sends</bit-breadcrumb>
+        <bit-breadcrumb icon="bwi-shared-folder" (click)="clickHandler()">Settings</bit-breadcrumb>
       </bit-breadcrumbs>
     `,
   }),

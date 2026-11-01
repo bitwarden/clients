@@ -43,7 +43,6 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
-  LogoutService,
 } from "@bitwarden/auth/common";
 import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -62,6 +61,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   DefaultOrganizationInviteService,
   OrganizationInviteService,

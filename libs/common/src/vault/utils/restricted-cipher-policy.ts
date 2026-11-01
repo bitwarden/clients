@@ -43,7 +43,7 @@ const REVEALED_ALLOWED_ACTIONS: ReadonlySet<RestrictedCipherAction> = new Set([
 export class RestrictedCipherPolicy {
   /** True for a restricted cipher. Accepts the domain `Cipher` and any view. */
   static isRestricted(cipher: CipherLike): boolean {
-    return cipher instanceof Cipher ? cipher.isPartial : CipherViewLikeUtils.isPartial(cipher);
+    return cipher instanceof Cipher ? cipher.isPartial : CipherViewLikeUtils.isRestricted(cipher);
   }
 
   /**

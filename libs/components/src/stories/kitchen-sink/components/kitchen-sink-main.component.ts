@@ -126,7 +126,7 @@ export class KitchenSinkDialogWithAutofocusComponent {
           </bit-banner>
         </div>
       }
-      <bit-header title="Kitchen Sink" icon="bwi-collection">
+      <bit-header title="Kitchen Sink" icon="bwi-shared-folder">
         <bit-breadcrumbs slot="breadcrumbs">
           @for (item of navItems; track item) {
             <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
@@ -217,8 +217,8 @@ export class KitchenSinkMainComponent {
   }
 
   protected readonly navItems = [
-    { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
-    { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
+    { icon: "bwi-shared-folder", name: "Password Managers", route: "/" },
+    { icon: "bwi-shared-folder", name: "Favorites", route: "/" },
   ];
 
   // remove when VFO1 flag is removed

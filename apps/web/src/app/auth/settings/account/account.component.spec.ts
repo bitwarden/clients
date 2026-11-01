@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
+import { AccountDeletionDialogService } from "@bitwarden/angular/auth/account-deletion";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -18,13 +18,13 @@ describe("AccountComponent", () => {
   let component: AccountComponent;
   let fixture: ComponentFixture<AccountComponent>;
 
-  let accountDeletionService: MockProxy<AccountDeletionService>;
+  let accountDeletionDialogService: MockProxy<AccountDeletionDialogService>;
 
   const mockUserId = "test-user-id" as UserId;
 
   beforeEach(async () => {
-    accountDeletionService = mock<AccountDeletionService>();
-    accountDeletionService.openDeleteAccountFlow.mockResolvedValue();
+    accountDeletionDialogService = mock<AccountDeletionDialogService>();
+    accountDeletionDialogService.openDeleteAccountFlow.mockResolvedValue();
 
     await TestBed.configureTestingModule({
       imports: [AccountComponent],
@@ -40,7 +40,7 @@ describe("AccountComponent", () => {
         { provide: ConfigService, useValue: { getFeatureFlag$: () => new BehaviorSubject(false) } },
       ],
     })
-      .overrideProvider(AccountDeletionService, { useValue: accountDeletionService })
+      .overrideProvider(AccountDeletionDialogService, { useValue: accountDeletionDialogService })
       .overrideComponent(AccountComponent, { set: { template: "" } })
       .compileComponents();
 
@@ -50,10 +50,10 @@ describe("AccountComponent", () => {
   });
 
   describe("deleteAccount", () => {
-    it("delegates to AccountDeletionService", async () => {
+    it("delegates to AccountDeletionDialogService", async () => {
       await component.deleteAccount();
 
-      expect(accountDeletionService.openDeleteAccountFlow).toHaveBeenCalledTimes(1);
+      expect(accountDeletionDialogService.openDeleteAccountFlow).toHaveBeenCalledTimes(1);
     });
   });
 });

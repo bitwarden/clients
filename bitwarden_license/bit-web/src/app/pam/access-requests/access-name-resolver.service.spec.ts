@@ -29,14 +29,14 @@ function organizations(entries: Array<[string, string]>): Organization[] {
 describe("AccessNameResolverService", () => {
   let service: AccessNameResolverService;
   // Narrowed to the one method the service calls, so the mock names only what it depends on.
-  let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
+  let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingRestricted">>;
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
 
   beforeEach(() => {
     cipherService = {
-      getAllDecryptedForIdsIncludingPartials: jest.fn().mockResolvedValue([]),
-    } as jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
+      getAllDecryptedForIdsIncludingRestricted: jest.fn().mockResolvedValue([]),
+    } as jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingRestricted">>;
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
 
@@ -53,14 +53,14 @@ describe("AccessNameResolverService", () => {
   });
 
   it("resolves cipher and collection names from local vault state", async () => {
-    cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([
+    cipherService.getAllDecryptedForIdsIncludingRestricted.mockResolvedValue([
       cipherView("cipher-1", "Prod database"),
     ]);
     collections$.next(collectionViews([["col-1", "Production"]]));
 
     const names = await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
 
-    expect(cipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(USER_ID, [
+    expect(cipherService.getAllDecryptedForIdsIncludingRestricted).toHaveBeenCalledWith(USER_ID, [
       "cipher-1",
     ]);
     expect(names.cipherNameById.get("cipher-1")).toBe("Prod database");
@@ -89,7 +89,7 @@ describe("AccessNameResolverService", () => {
 
   it("resolves names for PAM-gated (partial) ciphers", async () => {
     // Every id here names a gated cipher, so it must read the partial-inclusive accessor.
-    cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([
+    cipherService.getAllDecryptedForIdsIncludingRestricted.mockResolvedValue([
       cipherView("cipher-gated", "AWS Root Account", true),
     ]);
 
@@ -112,7 +112,7 @@ describe("AccessNameResolverService", () => {
       { cipherId: "cipher-1", collectionId: "col-2" },
     ]);
 
-    expect(cipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(USER_ID, [
+    expect(cipherService.getAllDecryptedForIdsIncludingRestricted).toHaveBeenCalledWith(USER_ID, [
       "cipher-1",
     ]);
   });
@@ -121,12 +121,12 @@ describe("AccessNameResolverService", () => {
     const names = await service.resolveNames([]);
 
     expect(names).toEqual(emptyResolvedNames());
-    expect(cipherService.getAllDecryptedForIdsIncludingPartials).not.toHaveBeenCalled();
+    expect(cipherService.getAllDecryptedForIdsIncludingRestricted).not.toHaveBeenCalled();
   });
 
   it("exposes the decrypted views themselves, by identity, for favicon rendering", async () => {
     const view = cipherView("cipher-1", "Prod database");
-    cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([view]);
+    cipherService.getAllDecryptedForIdsIncludingRestricted.mockResolvedValue([view]);
 
     const names = await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
 
@@ -146,7 +146,7 @@ describe("AccessNameResolverService", () => {
   it("resolves against the active user", async () => {
     await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
 
-    expect(cipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(
+    expect(cipherService.getAllDecryptedForIdsIncludingRestricted).toHaveBeenCalledWith(
       USER_ID,
       expect.anything(),
     );

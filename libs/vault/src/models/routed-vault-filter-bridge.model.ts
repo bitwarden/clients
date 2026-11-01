@@ -18,6 +18,7 @@ import {
   FolderFilter,
   CollectionFilter,
   CipherStatus,
+  ControlledAccessFilter,
 } from "./vault-filter.type";
 
 /**
@@ -57,6 +58,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
       organizationId: value?.node.id === "MyVault" ? Unassigned : value?.node.id,
       folderId: undefined,
       collectionId: undefined,
+      controlledAccess: undefined,
     });
   }
   get selectedCipherTypeNode(): TreeNode<CipherTypeFilter> {
@@ -81,6 +83,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
       type,
       folderId: undefined,
       collectionId: undefined,
+      controlledAccess: undefined,
     });
   }
   get selectedFolderNode(): TreeNode<FolderFilter> {
@@ -93,6 +96,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
       folderId,
       type: undefined,
       collectionId: undefined,
+      controlledAccess: undefined,
     });
   }
   get selectedCollectionNode(): TreeNode<CollectionFilter> {
@@ -122,6 +126,19 @@ export class RoutedVaultFilterBridge implements VaultFilter {
       collectionId,
       type: undefined,
       folderId: undefined,
+      controlledAccess: undefined,
+    });
+  }
+  get selectedControlledAccessNode(): TreeNode<ControlledAccessFilter> {
+    return this.legacyFilter.selectedControlledAccessNode;
+  }
+  set selectedControlledAccessNode(value: TreeNode<ControlledAccessFilter>) {
+    this.bridgeService.navigate({
+      ...this.routedFilter,
+      controlledAccess: value?.node.id,
+      type: undefined,
+      folderId: undefined,
+      collectionId: undefined,
     });
   }
   get isFavorites(): boolean {
@@ -151,6 +168,9 @@ export class RoutedVaultFilterBridge implements VaultFilter {
   get collectionId(): string {
     return this.legacyFilter.collectionId;
   }
+  get controlledAccessId(): string {
+    return this.legacyFilter.controlledAccessId;
+  }
   resetFilter(): void {
     this.bridgeService.navigate({
       ...this.routedFilter,
@@ -161,6 +181,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
           ? this.routedFilter.organizationId
           : undefined,
       type: undefined,
+      controlledAccess: undefined,
     });
   }
   resetOrganization(): void {

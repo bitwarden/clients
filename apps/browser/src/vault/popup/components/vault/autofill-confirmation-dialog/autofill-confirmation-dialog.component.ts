@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -20,7 +28,6 @@ import {
   TypographyModule,
   CalloutComponent,
   LinkModule,
-  TooltipDirective,
 } from "@bitwarden/components";
 
 export interface AutofillConfirmationDialogParams {
@@ -46,8 +53,24 @@ const FULL_URI_MATCH_STRATEGIES = [
   UriMatchStrategy.Exact,
 ];
 
+/** Hostname plus port (when non-default), since a different port is a different site */
+function getHostWithPort(uri: string): string | null {
+  const hostname = Utils.getHostname(uri);
+  const port = hostname ? Utils.getUrl(uri)?.port : null;
+  return port ? `${hostname}:${port}` : hostname;
+}
+
 @Component({
   templateUrl: "./autofill-confirmation-dialog.component.html",
+  // URI rows scroll horizontally in sync without showing a scrollbar
+  styles: `
+    [data-hidden-scrollbar] {
+      scrollbar-width: none;
+    }
+    [data-hidden-scrollbar]::-webkit-scrollbar {
+      display: none;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     BadgeComponent,
@@ -58,7 +81,6 @@ const FULL_URI_MATCH_STRATEGIES = [
     LinkModule,
     TypographyModule,
     JslibModule,
-    TooltipDirective,
   ],
 })
 export class AutofillConfirmationDialogComponent {
@@ -74,6 +96,9 @@ export class AutofillConfirmationDialogComponent {
   readonly savedUrls = signal<LoginUriView[]>(this.params.savedUris ?? []);
 
   readonly currentUrl = signal<string>(this.params.currentUrl);
+
+  private readonly uriScrollers = viewChildren<ElementRef<HTMLElement>>("uriScroller");
+  private readonly sharedUriScrollLeft = signal(0);
 
   /**
    * When any of the saved URIs contain a `FULL_URI_MATCH_STRATEGIES` setting,
@@ -95,27 +120,26 @@ export class AutofillConfirmationDialogComponent {
 
     return this.showFullUrls()
       ? savedUrls.map((u) => u.uri)
-      : savedUrls.map((u) => Utils.getHostname(u.uri ?? "")).filter(Boolean);
+      : savedUrls.map((u) => getHostWithPort(u.uri ?? "")).filter(Boolean);
   });
 
   readonly formattedCurrentUrl = computed(() => {
-    return this.showFullUrls() ? this.currentUrl() : Utils.getHostname(this.currentUrl());
+    return this.showFullUrls() ? this.currentUrl() : getHostWithPort(this.currentUrl());
   });
 
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
 
   readonly currentUrlMatchesNeverUri = computed<boolean>(() => {
-    const currentHostname = Utils.getHostname(this.currentUrl());
-    if (!currentHostname) {
+    const currentHost = getHostWithPort(this.currentUrl());
+    if (!currentHost) {
       return false;
     }
     const uriMatchSetting = this.uriMatchSetting();
     return this.savedUrls().some((u) => {
       const effectiveMatch = u.match ?? uriMatchSetting;
       return (
-        effectiveMatch === UriMatchStrategy.Never &&
-        Utils.getHostname(u.uri ?? "") === currentHostname
+        effectiveMatch === UriMatchStrategy.Never && getHostWithPort(u.uri ?? "") === currentHost
       );
     });
   });
@@ -150,6 +174,21 @@ export class AutofillConfirmationDialogComponent {
          after:tw-content-[''] after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0
          after:tw-h-8 after:tw-bg-gradient-to-t after:tw-from-background after:tw-to-transparent`,
   );
+
+  /** Scrolls all URI rows together; shorter rows stay clamped at their end until the offset returns. */
+  syncUriScroll(source: HTMLElement) {
+    const expected = Math.min(this.sharedUriScrollLeft(), source.scrollWidth - source.clientWidth);
+    // Ignore scroll events triggered by our own sync (the row was clamped to its max)
+    if (Math.abs(source.scrollLeft - expected) < 1) {
+      return;
+    }
+    this.sharedUriScrollLeft.set(source.scrollLeft);
+    for (const { nativeElement } of this.uriScrollers()) {
+      if (nativeElement !== source) {
+        nativeElement.scrollLeft = source.scrollLeft;
+      }
+    }
+  }
 
   toggleSavedUrlExpandedState() {
     this.savedUrlsExpanded.update((v) => !v);

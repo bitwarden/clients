@@ -207,6 +207,24 @@ describe("AutofillConfirmationDialogComponent", () => {
     ]);
   });
 
+  it("includes non-default ports in formatted hostnames", async () => {
+    const { component: c } = await createFreshFixture({
+      params: {
+        currentUrl: "https://example.com:8443/login",
+        savedUris: [makeUri("https://example.com/login"), makeUri("https://example.com:8080")],
+      },
+    });
+    expect(c.formattedCurrentUrl()).toBe("example.com:8443");
+    expect(c.formattedSavedUrls()).toEqual(["example.com", "example.com:8080"]);
+  });
+
+  it("omits default ports from formatted hostnames", async () => {
+    const { component: c } = await createFreshFixture({
+      params: { currentUrl: "https://example.com:443/login", savedUris: [] },
+    });
+    expect(c.formattedCurrentUrl()).toBe("example.com");
+  });
+
   it("formattedSavedUrls returns full URIs when default strategy is StartsWith", async () => {
     const { component: c } = await createFreshFixture({
       uriMatchStrategy: UriMatchStrategy.StartsWith,
@@ -496,6 +514,16 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(text).not.toContain("neverMatch");
     });
 
+    it("currentUrlMatchesNeverUri is false when the Never URI has a different port", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com:8443/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.currentUrlMatchesNeverUri()).toBe(false);
+    });
+
     it("shows URI match rule label and neverMatch badge", async () => {
       const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
       const text = vf.nativeElement.textContent as string;
@@ -509,6 +537,42 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(text).toContain("autofillAndSaveThisSite");
       expect(text).toContain("autofillOnly");
       expect(text).toContain("cancel");
+    });
+  });
+
+  describe("synced URI scrolling", () => {
+    function getRows(widths: number[]): HTMLElement[] {
+      const rows = Array.from(
+        fixture.nativeElement.querySelectorAll(
+          '[data-testid="saved-uri"], [data-testid="current-uri"]',
+        ),
+      ) as HTMLElement[];
+      rows.forEach((row, i) => {
+        Object.defineProperty(row, "scrollWidth", { value: widths[i] ?? 100 });
+        Object.defineProperty(row, "clientWidth", { value: 100 });
+      });
+      return rows;
+    }
+
+    it("applies a row's scroll offset to every other URI row", () => {
+      const rows = getRows([300, 300, 300, 300]);
+      rows[0].scrollLeft = 80;
+      component.syncUriScroll(rows[0]);
+
+      expect(rows.map((r) => r.scrollLeft)).toEqual([80, 80, 80, 80]);
+    });
+
+    it("ignores scroll events from rows clamped at their end by a sync", () => {
+      const rows = getRows([300, 150, 300, 300]);
+      rows[0].scrollLeft = 120;
+      component.syncUriScroll(rows[0]);
+
+      // Simulate the browser clamping the shorter row to its max offset
+      rows[1].scrollLeft = 50;
+      component.syncUriScroll(rows[1]);
+
+      expect(rows[0].scrollLeft).toBe(120);
+      expect(rows[2].scrollLeft).toBe(120);
     });
   });
 });

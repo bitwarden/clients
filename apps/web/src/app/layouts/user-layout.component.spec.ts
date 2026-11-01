@@ -6,6 +6,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -188,6 +189,10 @@ describe("UserLayoutComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
         { provide: VaultNavService, useValue: vaultNavService },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+        },
         {
           provide: CollectionService,
           useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),

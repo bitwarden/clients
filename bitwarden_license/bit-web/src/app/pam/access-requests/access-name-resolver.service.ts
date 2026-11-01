@@ -47,7 +47,7 @@ export function organizationNameFor(
 }
 
 /**
- * Reads through `getAllDecryptedForIdsIncludingPartials`, since every id names a restricted
+ * Reads through `getAllDecryptedForIdsIncludingRestricted`, since every id names a restricted
  * cipher and the default accessors exclude restricted ciphers. A one-shot `Promise`, since callers
  * re-resolve on every fetch.
  */
@@ -69,7 +69,7 @@ export class AccessNameResolverService {
     const cipherIds = [...new Set(refs.map((ref) => ref.cipherId))];
     // Organizations are keyed off the caller's whole membership; a ref carries no organization id.
     const [cipherViews, collections, organizations] = await Promise.all([
-      this.cipherService.getAllDecryptedForIdsIncludingPartials(userId, cipherIds),
+      this.cipherService.getAllDecryptedForIdsIncludingRestricted(userId, cipherIds),
       firstValueFrom(this.collectionService.decryptedCollections$(userId)),
       firstValueFrom(this.organizationService.organizations$(userId)),
     ]);

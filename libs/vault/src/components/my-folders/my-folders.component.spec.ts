@@ -142,7 +142,10 @@ describe("MyFoldersComponent", () => {
       providers: [
         provideRouter([]),
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
-        { provide: CipherService, useValue: { cipherListViews$: () => cipherListViews$ } },
+        {
+          provide: CipherService,
+          useValue: { cipherListViewsIncludingRestricted$: () => cipherListViews$ },
+        },
         { provide: DialogService, useValue: dialogService },
         { provide: FolderApiServiceAbstraction, useValue: folderApiService },
         { provide: FolderService, useValue: folderService },

@@ -150,4 +150,18 @@ describe("VaultExportService", () => {
       );
     });
   });
+
+  describe("getManagedExportGatedItemCount", () => {
+    it("returns the organization export service's count", async () => {
+      organizationVaultExportService.getManagedExportGatedItemCount.mockResolvedValue(3);
+
+      const count = await service.getManagedExportGatedItemCount(mockUserId, mockOrganizationId);
+
+      expect(count).toBe(3);
+      expect(organizationVaultExportService.getManagedExportGatedItemCount).toHaveBeenCalledWith(
+        mockUserId,
+        mockOrganizationId,
+      );
+    });
+  });
 });

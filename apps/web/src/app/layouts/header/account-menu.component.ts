@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, Observable } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,

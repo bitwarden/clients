@@ -6,12 +6,16 @@ export class VersionMain {
   constructor(private windowMain: WindowMain) {}
 
   sdkVersion() {
-    const timeout = new Promise((resolve) => setTimeout(() => resolve("Timeout error"), 1000));
-    const version = new Promise((resolve) => {
-      ipcMain.once("sdkVersion", (_, version) => resolve(version));
-      this.windowMain.win.webContents.send("sdkVersion");
-    });
+    return (
+      this.windowMain.withWindow((win) => {
+        const timeout = new Promise((resolve) => setTimeout(() => resolve("Timeout error"), 1000));
+        const version = new Promise((resolve) => {
+          ipcMain.once("sdkVersion", (_, version) => resolve(version));
+          win.webContents.send("sdkVersion");
+        });
 
-    return Promise.race([timeout, version]);
+        return Promise.race([timeout, version]);
+      }) ?? Promise.resolve("Unavailable")
+    );
   }
 }

@@ -18,7 +18,7 @@ const EXTENSION_VAULT_TOUR_STEPS: CoachmarkStep[] = [
   {
     id: "switchVaults",
     titleKey: "coachmarkSwitchVaultsTitle",
-    descriptionKey: "coachmarkSwitchVaultsDescription",
+    descriptionKey: "coachmarkVaultSwitcherDescription",
     position: "below-start",
   },
   {

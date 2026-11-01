@@ -1,22 +1,32 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
   concatMap,
+  filter,
   firstValueFrom,
-  from,
   lastValueFrom,
   map,
   Observable,
+  shareReplay,
   switchMap,
 } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionView,
   CollectionDetailsResponse,
@@ -24,13 +34,17 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc";
+import { CollectionId } from "@bitwarden/common/types/guid";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
-  BadgeGroupComponent,
-  type BadgeGroupItem,
   BitCellComponent,
   BitCellDefDirective,
   BitColumnComponent,
@@ -40,6 +54,8 @@ import {
   BitTableV2Component,
   BulkActionComponent,
   BulkActionsBarComponent,
+  ChipGroupComponent,
+  type ChipGroupItem,
   defineTable,
   DialogService,
   FilterMenuModule,
@@ -48,6 +64,10 @@ import {
   MenuModule,
   SearchModule,
   type SelectionConfig,
+  type SortFn,
+  StatusLockupComponent,
+  ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
@@ -64,16 +84,13 @@ import {
 } from "./group-add-edit";
 
 type GroupRow = {
-  /** Details used for displaying group information. */
   details: GroupDetailsView;
 
-  /** Collections (shared folders) the group has access to, as badges for display. */
-  collectionBadges: BadgeGroupItem[];
+  collectionChips: ChipGroupItem[];
 };
 
 type GroupFilters = {
   search?: string;
-  /** Selected collection ids from the shared-folders filter. */
   collections?: string[];
 };
 
@@ -87,7 +104,7 @@ type GroupFilters = {
     SearchModule,
     MenuModule,
     FilterMenuModule,
-    BadgeGroupComponent,
+    ChipGroupComponent,
     BitTableV2Component,
     BitColumnComponent,
     BitCellDefDirective,
@@ -97,6 +114,8 @@ type GroupFilters = {
     BitTablePaginatorComponent,
     BulkActionsBarComponent,
     BulkActionComponent,
+    StatusLockupComponent,
+    TooltipDirective,
     Vfo1IconPipe,
     Vfo1I18nPipe,
   ],
@@ -106,96 +125,130 @@ export class GroupsV2Component {
   private readonly apiService = inject(ApiService);
   private readonly groupService = inject(GroupService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
   private readonly dialogService = inject(DialogService);
   private readonly collectionService = inject(CollectionService);
   private readonly accountService = inject(AccountService);
   private readonly keyService = inject(KeyService);
   private readonly vfo1Terminology = inject(Vfo1TerminologyService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
 
-  protected readonly loading = signal(true);
+  private readonly tableRef =
+    viewChild.required<BitTableV2Component<GroupRow>>(BitTableV2Component);
+
+  private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
+
   protected readonly searchControl = new FormControl("");
 
   protected readonly ModalTabType = GroupAddEditTabType;
-  private readonly refreshGroups$ = new BehaviorSubject<void>(undefined);
 
-  private readonly rows = signal<GroupRow[]>([]);
-  protected readonly table = defineTable<GroupRow, "actions">(this.rows);
-
-  /** Enables the selection column and bit-bulk-actions-bar. Delete is stubbed here; the real
-   * confirm/delete/toast flow lands in a follow-up ticket. */
   protected readonly selection: SelectionConfig<GroupRow> = { multiple: true };
 
-  /** Data-driven tree for the shared-folders filter — one top-level node per collection. */
-  protected readonly collectionFilterOptions = signal<FilterOptionNode<string>[]>([]);
+  protected readonly selectedGroups = signal<readonly GroupRow[]>([]);
 
-  /** Seeds the table's search chip from `?search=` on first load; the table reads the live
-   * value from the projected bit-search itself afterward. */
   protected readonly initialFilters: Partial<GroupFilters> = {
     search: this.route.snapshot.queryParams.search ?? "",
   };
 
   private readonly organizationId$ = this.route.params.pipe(map((params) => params.organizationId));
 
+  private readonly userId$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly organization$ = combineLatest([this.organizationId$, this.userId$]).pipe(
+    switchMap(([organizationId, userId]) =>
+      this.organizationService.organizations$(userId).pipe(getById(organizationId)),
+    ),
+    filter((organization): organization is Organization => organization != null),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected readonly organizationName = toSignal(this.organization$.pipe(map((o) => o.name)));
+
+  private readonly collectionMap$ = this.organizationId$.pipe(
+    switchMap((organizationId) => this.apiService.getCollections(organizationId)),
+    concatMap((collections) => this.toCollectionMap(collections)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly rowsData$ = this.organizationId$.pipe(
+    switchMap((organizationId) =>
+      combineLatest([
+        this.collectionMap$,
+        this.refreshGroups$.pipe(switchMap(() => this.groupService.getAllDetails(organizationId))),
+      ]),
+    ),
+    map(([collectionMap, groups]) => {
+      const sharedFolderIcon = this.vfo1Terminology.iconClass("bwi-collection-shared");
+      return groups.map<GroupRow>((g) => ({
+        details: g,
+        collectionChips: g.collections
+          .flatMap((c) => {
+            const collection = collectionMap[c.id];
+            return collection
+              ? [{ id: collection.id, label: collection.name, startIcon: sharedFolderIcon }]
+              : [];
+          })
+          .sort((a, b) => this.i18nService.collator?.compare(a.label, b.label) ?? 0)
+          .map((chip): ChipGroupItem => ({ ...chip, variant: "subtle" })),
+      }));
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly collectionMap = toSignal(this.collectionMap$);
+
+  protected readonly collectionFilterOptions = computed(() => {
+    const rows = this.rows();
+    const collectionMap = this.collectionMap() ?? {};
+    const hasCollection = (row: GroupRow, collectionId: string) =>
+      row.details.collections.some((c) => c.id === collectionId);
+
+    const toFilterOption = (node: TreeNode<CollectionView>): FilterOptionNode<CollectionId> => ({
+      value: node.node.id as CollectionId,
+      label: node.node.name,
+      count: rows.filter((row) => hasCollection(row, node.node.id)).length,
+      options: node.children.map(toFilterOption),
+    });
+
+    return getNestedCollectionTree(Object.values(collectionMap))
+      .map(toFilterOption)
+      .sort((a, b) => this.i18nService.collator?.compare(a.label, b.label) ?? 0);
+  });
+
+  private readonly fetchedRows = toSignal(this.rowsData$);
+  protected readonly loading = computed(() => this.fetchedRows() == null);
+
+  protected readonly rows = signal<GroupRow[]>([]);
+
+  protected readonly table = defineTable<GroupRow, "actions">(this.rows);
+
+  protected readonly hasNoGroups = computed(() => !this.loading() && this.rows().length === 0);
+
   constructor() {
-    this.organizationId$
-      .pipe(
-        switchMap((organizationId) => {
-          return combineLatest([
-            // collectionMap
-            from(this.apiService.getCollections(organizationId)).pipe(
-              concatMap((response) => this.toCollectionMap(response)),
-            ),
-            // groups
-            this.refreshGroups$.pipe(
-              switchMap(() => this.groupService.getAllDetails(organizationId)),
-            ),
-          ]);
-        }),
-        map(([collectionMap, groups]) => {
-          const sharedFolderIcon = this.vfo1Terminology.iconClass("bwi-collection-shared");
-          const rows = groups.map<GroupRow>((g) => ({
-            details: g,
-            collectionBadges: g.collections
-              .map((c) => collectionMap[c.id]?.name)
-              .filter((name): name is string => name != null)
-              .sort(this.i18nService.collator?.compare)
-              .map((label): BadgeGroupItem => ({
-                label,
-                variant: "primary",
-                startIcon: sharedFolderIcon,
-              })),
-          }));
+    effect(() => {
+      this.rows.set(this.fetchedRows() ?? []);
+    });
 
-          const filterOptions: FilterOptionNode<string>[] = Object.values(collectionMap)
-            .sort((a, b) => this.i18nService.collator?.compare(a.name, b.name) ?? 0)
-            .map((collection) => ({
-              value: collection.id,
-              label: collection.name,
-              count: rows.filter((r) => r.details.collections.some((c) => c.id === collection.id))
-                .length,
-            }));
-
-          return { rows, filterOptions };
-        }),
-        takeUntilDestroyed(),
-      )
-      .subscribe(({ rows, filterOptions }) => {
-        this.rows.set(rows);
-        this.collectionFilterOptions.set(filterOptions);
-        this.loading.set(false);
-      });
+    effect(() => {
+      const currentRows = new Set(this.rows());
+      const model = this.tableRef().selectionModel();
+      const stale = model?.selected().filter((row) => !currentRows.has(row)) ?? [];
+      if (stale.length > 0) {
+        model?.deselect(...stale);
+      }
+    });
 
     this.route.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((qParams) => {
       this.searchControl.setValue(qParams.search);
     });
   }
 
-  /**
-   * Row test given the table's {@link filterValues}: matches search by id/name only (not member
-   * or collection names, which can unintentionally collide), and, when one or more collections
-   * are selected in the shared-folders filter, requires the row to have access to at least one.
-   */
   protected readonly filterGroups = (row: GroupRow, filters: GroupFilters): boolean => {
     const search = (filters.search ?? "").trim().toLowerCase();
     const matchesSearch =
@@ -210,6 +263,35 @@ export class GroupsV2Component {
 
     return matchesSearch && matchesCollections;
   };
+
+  protected readonly sortByName: SortFn = (a: GroupRow, b: GroupRow) =>
+    this.i18nService.collator?.compare(a.details.name, b.details.name) ??
+    a.details.name.localeCompare(b.details.name);
+
+  protected readonly sortByCollections: SortFn = (a: GroupRow, b: GroupRow) => {
+    const first = a.collectionChips.at(0)?.label;
+    const second = b.collectionChips.at(0)?.label;
+    if (!first && !second) {
+      return 0;
+    }
+    if (!first) {
+      return 1;
+    }
+    if (!second) {
+      return -1;
+    }
+    return this.i18nService.collator?.compare(first, second) ?? first.localeCompare(second);
+  };
+
+  protected async goToCollection(chip: ChipGroupItem) {
+    const organizationId = await firstValueFrom(this.organizationId$);
+    if (organizationId == null) {
+      return;
+    }
+    await this.router.navigate(["/organizations", organizationId, "vault"], {
+      queryParams: this.vfo1Terminology.collectionQueryParams(chip.id),
+    });
+  }
 
   async edit(group: GroupRow, startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info) {
     const organizationId = await firstValueFrom(this.organizationId$);
@@ -252,17 +334,53 @@ export class GroupsV2Component {
     }
   }
 
-  /**
-   * Stub for the bulk-actions bar's Delete action. Confirmation dialog, the actual delete call,
-   * and the success toast land in a follow-up ticket — this ticket only wires selection and
-   * surfaces the bar.
-   */
-  protected bulkDelete() {
-    throw new Error("Not yet implemented — delete confirmation lands in a follow-up ticket.");
-  }
+  protected readonly confirmDelete = async (groups: GroupRow[]): Promise<void> => {
+    if (groups.length === 0) {
+      return;
+    }
+
+    const bulk = groups.length > 1;
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: bulk
+        ? { key: "deleteGroups", placeholders: [groups.length.toString()] }
+        : { key: "deleteGroup" },
+      content: { key: bulk ? "deleteGroupsWarningDesc" : "deleteGroupWarningDesc" },
+      type: "danger",
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    const organizationId = await firstValueFrom(this.organizationId$);
+    if (organizationId == null) {
+      return;
+    }
+
+    try {
+      await this.groupService.deleteMany(
+        organizationId,
+        groups.map((g) => g.details.id),
+      );
+      this.toastService.showToast({
+        variant: "success",
+        message: bulk
+          ? this.i18nService.t("groupsDeleted", groups.length.toString())
+          : this.i18nService.t("groupDeleted"),
+      });
+      groups.forEach((g) => this.removeGroup(g));
+    } catch (e) {
+      this.logService.error(e);
+    }
+  };
+
+  protected readonly confirmDeleteSelected = (): void => {
+    void this.confirmDelete([...this.selectedGroups()]);
+  };
 
   private removeGroup(group: GroupRow) {
-    this.rows.set(this.rows().filter((r) => r !== group));
+    this.rows.update((rows) => rows.filter((r) => r !== group));
   }
 
   private toCollectionMap(
@@ -272,8 +390,7 @@ export class GroupsV2Component {
       Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
     );
 
-    return this.accountService.activeAccount$.pipe(
-      getUserId,
+    return this.userId$.pipe(
       switchMap((userId) => this.keyService.orgKeys$(userId)),
       switchMap((orgKeys) => this.collectionService.decryptMany$(collections, orgKeys ?? {})),
       map((decrypted) => {

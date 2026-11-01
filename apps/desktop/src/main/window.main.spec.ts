@@ -1,10 +1,11 @@
 import * as fs from "fs";
+import { EventEmitter } from "node:events";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
-import { app, session } from "electron";
-import { mock } from "jest-mock-extended";
-import { NEVER } from "rxjs";
+import { app, BrowserWindow, ipcMain, session } from "electron";
+import { mock, MockProxy } from "jest-mock-extended";
+import { NEVER, of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -125,7 +126,9 @@ describe("WindowMain", () => {
         on: jest.fn(),
         whenReady: jest.fn().mockResolvedValue(undefined),
       });
-      Object.assign(session, { fromPartition: jest.fn() });
+      Object.assign(session, {
+        fromPartition: jest.fn().mockReturnValue({ clearCache: jest.fn() }),
+      });
 
       const desktopSettingsService = mock<DesktopSettingsService>();
       Object.assign(desktopSettingsService, { modalMode$: NEVER, preventScreenshots$: NEVER });
@@ -148,12 +151,249 @@ describe("WindowMain", () => {
     afterEach(() => {
       jest.restoreAllMocks();
       delete (global as any).BIT_ENVIRONMENT;
+      delete (global as any).setImmediate;
     });
+
+    const setUpReload = async () => {
+      await sut.init(true);
+      // Reloads are skipped in development mode.
+      (global as any).BIT_ENVIRONMENT = "production";
+      // jsdom has no setImmediate, which the reload uses to yield a tick.
+      (global as any).setImmediate = (fn: () => void) => setTimeout(fn, 0);
+      jest.spyOn(sut, "getBackgroundColor").mockResolvedValue("#000000");
+      (sut as any).enableRendererProcessForceCrashReload = true;
+
+      return jest
+        .mocked(ipcMain.on)
+        .mock.calls.findLast(([channel]) => channel === "reload-process")[1] as () => Promise<void>;
+    };
 
     it("creates the window when the ready event has already fired", async () => {
       await sut.init(true);
 
       expect(createWindow).toHaveBeenCalledWith("full-app", true);
+    });
+
+    describe("while the startup window is still being created", () => {
+      let finishStartupWindow: () => void;
+      let initDone: Promise<void>;
+
+      const appHandler = (event: string) =>
+        jest.mocked(app.on).mock.calls.find(([name]) => name === event)[1] as (
+          ...args: unknown[]
+        ) => Promise<void>;
+
+      beforeEach(async () => {
+        createWindow.mockReturnValueOnce(
+          new Promise<void>((resolve) => (finishStartupWindow = resolve)),
+        );
+        initDone = sut.init(true);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(createWindow).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not create a second window on activate", async () => {
+        const activateDone = appHandler("activate")();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(createWindow).toHaveBeenCalledTimes(1);
+
+        const win = mock<BrowserWindow>();
+        sut.win = win;
+        finishStartupWindow();
+        await initDone;
+        await activateDone;
+
+        expect(createWindow).toHaveBeenCalledTimes(1);
+        expect(win.show).toHaveBeenCalled();
+      });
+
+      it("focuses the startup window on second-instance", async () => {
+        const secondInstanceDone = appHandler("second-instance")({}, [], "");
+
+        const win = mock<BrowserWindow>();
+        win.isDestroyed.mockReturnValue(false);
+        sut.win = win;
+        finishStartupWindow();
+        await initDone;
+        await secondInstanceDone;
+
+        expect(win.focus).toHaveBeenCalled();
+      });
+    });
+
+    it("leaves no crash listeners behind after a reload", async () => {
+      const reloadProcess = await setUpReload();
+      const webContents = Object.assign(new EventEmitter(), {
+        forcefullyCrashRenderer: jest.fn(() => webContents.emit("render-process-gone")),
+        reloadIgnoringCache: jest.fn(),
+      });
+      sut.win = {
+        webContents,
+        setBackgroundColor: jest.fn(),
+        isDestroyed: () => false,
+      } as any;
+
+      await reloadProcess();
+      await reloadProcess();
+
+      expect(webContents.reloadIgnoringCache).toHaveBeenCalledTimes(2);
+      expect(webContents.listenerCount("render-process-gone")).toBe(0);
+      expect(webContents.listenerCount("destroyed")).toBe(0);
+      expect(webContents.listenerCount("error")).toBe(0);
+    });
+
+    it("finishes a reload when the window is destroyed during the renderer crash", async () => {
+      const reloadProcess = await setUpReload();
+      let destroyed = false;
+      const webContents = Object.assign(new EventEmitter(), {
+        forcefullyCrashRenderer: jest.fn(() => {
+          destroyed = true;
+          webContents.emit("destroyed");
+        }),
+        reloadIgnoringCache: jest.fn(),
+      });
+      sut.win = {
+        webContents,
+        setBackgroundColor: jest.fn(),
+        isDestroyed: () => destroyed,
+      } as any;
+
+      await reloadProcess();
+
+      expect(webContents.reloadIgnoringCache).not.toHaveBeenCalled();
+
+      // A stuck reload would skip this one as a duplicate.
+      destroyed = false;
+      await reloadProcess();
+
+      expect(webContents.forcefullyCrashRenderer).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("createWindow", () => {
+    let sut: WindowMain;
+
+    const fakeWindow = () =>
+      Object.assign(new EventEmitter(), {
+        webContents: {
+          on: jest.fn(),
+          send: jest.fn(),
+          setWindowOpenHandler: jest.fn(),
+          userAgent: "",
+        },
+        isDestroyed: jest.fn().mockReturnValue(false),
+        loadURL: jest.fn().mockResolvedValue(undefined),
+        show: jest.fn(),
+        setContentProtection: jest.fn(),
+        setMinimumSize: jest.fn(),
+        setResizable: jest.fn(),
+        setAlwaysOnTop: jest.fn(),
+      });
+
+    beforeEach(() => {
+      (global as any).BIT_ENVIRONMENT = "production";
+
+      const desktopSettingsService = mock<DesktopSettingsService>();
+      Object.assign(desktopSettingsService, {
+        alwaysOnTop$: of(false),
+        preventScreenshots$: of(false),
+      });
+
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        desktopSettingsService,
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+
+      jest.spyOn(sut as any, "getWindowState").mockResolvedValue({});
+      jest.spyOn(sut, "getBackgroundColor").mockResolvedValue("#000000");
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      delete (global as any).BIT_ENVIRONMENT;
+    });
+
+    it("keeps the newer window when an older window closes", async () => {
+      const first = fakeWindow();
+      const second = fakeWindow();
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => first as any);
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => second as any);
+
+      await sut.createWindow();
+      await sut.createWindow();
+      first.emit("closed");
+
+      expect(sut.win).toBe(second);
+    });
+
+    it("handles focus on the remaining window after another window closes", async () => {
+      const first = fakeWindow();
+      const second = fakeWindow();
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => first as any);
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => second as any);
+
+      await sut.createWindow();
+      await sut.createWindow();
+      first.emit("closed");
+      second.emit("focus");
+
+      expect(second.webContents.send).toHaveBeenCalledWith("messagingService", {
+        command: "windowIsFocused",
+        windowIsFocused: true,
+      });
+    });
+
+    it("clears the window reference when the current window closes", async () => {
+      const win = fakeWindow();
+      jest.mocked(BrowserWindow).mockImplementationOnce(() => win as any);
+
+      await sut.createWindow();
+      win.emit("closed");
+
+      expect(sut.win).toBeNull();
+    });
+  });
+
+  describe("withWindow", () => {
+    let sut: WindowMain;
+    let desktopSettingsService: MockProxy<DesktopSettingsService>;
+
+    beforeEach(() => {
+      desktopSettingsService = mock<DesktopSettingsService>();
+      sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        mock<AbstractStorageService>(),
+        desktopSettingsService,
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+    });
+
+    it("skips the callback when the window is destroyed", () => {
+      const win = mock<BrowserWindow>();
+      win.isDestroyed.mockReturnValue(true);
+      sut.win = win;
+      const fn = jest.fn();
+
+      expect(sut.withWindow(fn)).toBeUndefined();
+      expect(fn).not.toHaveBeenCalled();
+    });
+
+    it("skips toggling always on top when there is no window", async () => {
+      sut.win = null;
+
+      await sut.toggleAlwaysOnTop();
+
+      expect(desktopSettingsService.setAlwaysOnTop).not.toHaveBeenCalled();
     });
   });
 });

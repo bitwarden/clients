@@ -1,0 +1,104 @@
+import { Component, Inject } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  ProviderApiServiceAbstraction,
+  UpdateProviderOrganizationRequest,
+} from "@bitwarden/common/provider";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+type ManageClientNameDialogParams = {
+  providerId: string;
+  organization: {
+    id: string;
+    name: string;
+    seats: number;
+  };
+};
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
+export enum ManageClientNameDialogResultType {
+  Closed = "closed",
+  Submitted = "submitted",
+}
+
+export const openManageClientNameDialog = (
+  dialogService: DialogService,
+  dialogConfig: DialogConfig<ManageClientNameDialogParams>,
+) =>
+  dialogService.open<ManageClientNameDialogResultType, ManageClientNameDialogParams>(
+    ManageClientNameDialogComponent,
+    dialogConfig,
+  );
+
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  templateUrl: "manage-client-name-dialog.component.html",
+  imports: [
+    ReactiveFormsModule,
+    I18nPipe,
+    DialogModule,
+    FormFieldModule,
+    ButtonModule,
+    AsyncActionsModule,
+  ],
+})
+export class ManageClientNameDialogComponent {
+  protected ResultType = ManageClientNameDialogResultType;
+  protected formGroup = this.formBuilder.group({
+    name: [this.dialogParams.organization.name, Validators.required],
+  });
+
+  constructor(
+    @Inject(DIALOG_DATA) protected dialogParams: ManageClientNameDialogParams,
+    private providerApiService: ProviderApiServiceAbstraction,
+    private dialogRef: DialogRef<ManageClientNameDialogResultType>,
+    private formBuilder: FormBuilder,
+    private i18nService: I18nService,
+    private toastService: ToastService,
+  ) {}
+
+  submit = async () => {
+    this.formGroup.markAllAsTouched();
+
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    const name = this.formGroup.value.name;
+    if (name == null) {
+      return;
+    }
+    const request = new UpdateProviderOrganizationRequest({
+      assignedSeats: this.dialogParams.organization.seats,
+      name,
+    });
+
+    await this.providerApiService.updateProviderOrganization(
+      this.dialogParams.providerId,
+      this.dialogParams.organization.id,
+      request,
+    );
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("updatedOrganizationName"),
+    });
+
+    await this.dialogRef.close(this.ResultType.Submitted);
+  };
+}

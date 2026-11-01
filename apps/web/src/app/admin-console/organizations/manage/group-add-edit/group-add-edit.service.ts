@@ -230,10 +230,7 @@ export class GroupAddEditService {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(
-        groupId != null ? "editedGroupId" : "createdGroupId",
-        formValue.name,
-      ),
+      message: this.i18nService.t(groupId != null ? "groupEdited" : "groupCreated"),
     });
   }
 

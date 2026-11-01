@@ -103,6 +103,16 @@
         [options]="nestedFolders()"
       ></bit-filter-menu>
     }
+
+    @if (itemFilter != null && contributedFilterKey != null && contributedOptions().length > 0) {
+      <bit-filter-menu [key]="contributedFilterKey" [placeholderText]="itemFilter.label" multiple>
+        @for (option of contributedOptions(); track option.id) {
+          <bit-filter-option [value]="option.id" [iconTile]="contributedTiles().get(option.id)">{{
+            option.name
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
 
   <vault-empty-vault
@@ -263,6 +273,26 @@
       }
     </bit-cell>
   </bit-column>
+
+  <!-- Host-provided column -->
+  @if (itemColumn; as column) {
+    @if (itemColumnKey; as key) {
+      <bit-column
+        [sortable]="column.sortRanks$ != null"
+        [sortFn]="sortByContributed"
+        width="minmax(140px, 200px)"
+      >
+        <bit-header-cell>{{ column.label }}</bit-header-cell>
+        <bit-cell
+          *bitCellDef="table.columns[key]; let row"
+          [class.tw-cursor-pointer]="itemAction() != null"
+          (click)="onCellActivate(row, $event)"
+        >
+          <ng-container *ngComponentOutlet="column.component; inputs: { cipher: row }" />
+        </bit-cell>
+      </bit-column>
+    }
+  }
 
   <!-- Options -->
   <vault-items-table-actions-column
