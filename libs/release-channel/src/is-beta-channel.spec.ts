@@ -1,6 +1,6 @@
-import { isBetaBuild } from "./is-beta-build";
+import { isBetaChannel } from "./is-beta-channel";
 
-describe("isBetaBuild", () => {
+describe("isBetaChannel", () => {
   afterEach(() => {
     process.env.FLAGS = JSON.stringify({});
   });
@@ -8,7 +8,7 @@ describe("isBetaBuild", () => {
   it("returns true when the build sets prereleaseBuild", () => {
     process.env.FLAGS = JSON.stringify({ prereleaseBuild: true });
 
-    expect(isBetaBuild()).toBe(true);
+    expect(isBetaChannel()).toBe(true);
   });
 
   it.each([
@@ -17,12 +17,12 @@ describe("isBetaBuild", () => {
   ])("returns false when prereleaseBuild %s", (_, flags) => {
     process.env.FLAGS = flags;
 
-    expect(isBetaBuild()).toBe(false);
+    expect(isBetaChannel()).toBe(false);
   });
 
   it("returns false when FLAGS is not defined", () => {
     delete process.env.FLAGS;
 
-    expect(isBetaBuild()).toBe(false);
+    expect(isBetaChannel()).toBe(false);
   });
 });

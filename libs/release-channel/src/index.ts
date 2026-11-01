@@ -1,10 +1,7 @@
 export {
-  BetaChannel,
-  BetaStatus,
-  ProductionChannel,
-  ReleaseChannel,
+  BetaChannelStatus,
+  BetaClientAccess,
   ReleaseChannelService,
-  ReleaseChannelType,
 } from "./release-channel.service";
 export { DefaultReleaseChannelService } from "./default-release-channel.service";
-export { isBetaBuild } from "./is-beta-build";
+export { isBetaChannel } from "./is-beta-channel";

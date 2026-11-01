@@ -2,78 +2,85 @@
 
 Owned by: platform
 
-`ReleaseChannelService` tells the client which release channel it was built for. For a beta build, it also tells them where that beta is in its sunset. The warning and block surfaces read the service. They do not read feature flags or build config themselves.
+This library answers two separate questions, and combines them into the one that warning and block surfaces need.
 
-## What the service does
+| **Question**                                    | **Kind of fact**                         | **API**              |
+| ----------------------------------------------- | ---------------------------------------- | -------------------- |
+| Is this client on the beta release channel?     | A client property, fixed at build time   | `isBetaChannel()`    |
+| What is the status of Bitwarden's beta channel? | An environment property, from the server | `betaChannelStatus$` |
+| May this client be used?                        | Both combined                            | `betaClientAccess$`  |
 
-A build is either a production build or a beta build. The channel is fixed at build time. A build is a beta build when it sets the existing `prereleaseBuild` flag, which `CHANNEL=beta` builds of Desktop and the browser extension get from their `config/beta.json`. For a beta build, the sunset status comes from one permanent LaunchDarkly flag, which the client receives in the server config through `ConfigService`. Product changes the status in LaunchDarkly, with no client release.
+## The client: `isBetaChannel()`
 
-| **Member** | **Type**                     | **Meaning**                                                                                                                                                                                   |
-| ---------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `channel$` | `Observable<ReleaseChannel>` | The channel. A production build emits a `ProductionChannel` and never reads the flag. A beta build emits once a server config exists, and again each time the server config changes the flag. |
+`isBetaChannel()` returns whether the client is on the beta release channel, synchronously. A client is on the beta channel when its build sets the existing `prereleaseBuild` flag, which `CHANNEL=beta` builds of Desktop and the browser extension get from their `config/beta.json`. Web and the CLI are never on the beta channel.
 
-`ReleaseChannel` is a union of two shapes. Narrow on `type` before you read the beta status:
+Use it for checks that only depend on the client, such as the beta logos and the "Bitwarden Beta" name.
 
-| **Shape**           | **`type`**     | **Other fields**                        |
-| ------------------- | -------------- | --------------------------------------- |
-| `ProductionChannel` | `"production"` | None. A production build has no status. |
-| `BetaChannel`       | `"beta"`       | `status: BetaStatus`                    |
+## The environment: `betaChannelStatus$`
+
+`ReleaseChannelService.betaChannelStatus$` emits the status of the beta channel in the connected environment. It comes from the permanent `beta-channel-status` feature flag, which the client receives in the server config through `ConfigService`. It is read the same way on every client, beta or not.
+
+| **Status** | **Flag value** | **Meaning**                                     |
+| ---------- | -------------- | ----------------------------------------------- |
+| `Open`     | `"open"`       | Beta clients work normally.                     |
+| `Closing`  | `"closing"`    | The beta channel is closing. Beta clients warn. |
+| `Closed`   | `"closed"`     | The beta channel is closed. Beta clients block. |
+
+- Only the exact values `"open"` and `"closing"` keep the channel open.
+- Anything else reports `Closed`: `"closed"`, an unknown or differently cased value, an empty string, a non-string value, and a missing key, which resolves to the client default `"closed"`.
+- The status can move in any direction. Serving `"open"` again reopens the channel.
+- The status carries no date. Product moves the flag from `"closing"` to `"closed"` when it chooses.
+
+`betaChannelStatus$` waits for a server config. On a first launch, the client has no config until the first fetch completes, and `betaChannelStatus$` emits nothing until then, so a cloud beta does not flash a block. After that, a slow or failed fetch keeps the last config. It emits only when the status changes.
+
+The flag is in the **Permanent** section of `FeatureFlag` in `libs/common/src/enums/feature-flag.enum.ts` and of `FeatureFlagKeys` in the server's `src/Core/Constants.cs`. Permanent flags are operational, are never removed, and are exempt from the flag cleanup lifecycle.
+
+### Set the flag in LaunchDarkly
+
+The server adds the `client-version-is-prerelease` attribute to the LaunchDarkly device and user contexts, from the `Is-Prerelease: 1` header that only beta clients send. The context also carries `client-version` and `device-type`. So one targeting rule reaches every beta client, signed in or not.
+
+To open the beta channel, then close it:
+
+1. In LaunchDarkly, open `beta-channel-status`.
+2. Add a rule: `client-version-is-prerelease` is `true`. Serve `"open"`. Beta clients block until this rule serves `"open"`.
+3. When Product decides to close the channel, change the served value to `"closing"`.
+4. When the channel closes, change the served value to `"closed"`.
+
+Set the flag's off variation to `"closed"`, so turning the flag off acts as a kill switch.
+
+To limit a rule to one client or version range, add a `device-type` or `client-version` clause to the rule. Production clients are always allowed, whatever the flag serves.
+
+**Every environment that runs beta clients needs the flag configured**, including QA and local servers. Without it, the beta channel is closed there.
+
+### Self-hosted and offline
+
+A self-hosted server does not contact LaunchDarkly, so its config response has no `beta-channel-status` entry. **Self-hosted has no beta channel, and a beta client is blocked against a self-hosted server.** A self-hosted operator could set `Features:FlagValues:beta-channel-status` to `"open"`, but that is unsupported.
+
+Offline, the client keeps the cached config, so the last status it received stays in place until the next successful fetch.
+
+## The combination: `betaClientAccess$`
+
+`ReleaseChannelService.betaClientAccess$` emits whether this client may be used. **Warning and block surfaces, such as those in PM-46097, read this.**
+
+| **Client**                     | **Access**                                          |
+| ------------------------------ | --------------------------------------------------- |
+| Not on the beta channel        | Always `Allowed`, at once. It never reads the flag. |
+| On the beta channel, `Open`    | `Allowed`                                           |
+| On the beta channel, `Closing` | `Warning`                                           |
+| On the beta channel, `Closed`  | `Blocked`                                           |
+
+For a beta client, `betaClientAccess$` follows `betaChannelStatus$`, so it also emits nothing before the first server config.
 
 ```ts
-const channel = await firstValueFrom(releaseChannelService.channel$);
-if (channel.type === ReleaseChannelType.Beta && channel.status === BetaStatus.Blocked) {
+const access = await firstValueFrom(releaseChannelService.betaClientAccess$);
+if (access === BetaClientAccess.Blocked) {
   // Show the block screen.
 }
 ```
 
-`ReleaseChannelType`, `BetaStatus`, and the channel shapes are exported from this library, along with `isBetaBuild()`. `isBetaBuild()` reads the `prereleaseBuild` flag synchronously. Use it for checks that only depend on the build, such as the beta logos and the "Bitwarden Beta" name. Inject `ReleaseChannelService` for the beta status.
-
-## The flag
-
-The flag is in the **Permanent** section of `FeatureFlag` in `libs/common/src/enums/feature-flag.enum.ts` and of `FeatureFlagKeys` in the server's `src/Core/Constants.cs`. Permanent flags are operational, are never removed, and are exempt from the flag cleanup lifecycle.
-
-| **Flag key**          | **Type** | **Values**                              | **Client default** |
-| --------------------- | -------- | --------------------------------------- | ------------------ |
-| `beta-channel-status` | string   | `"active"`, `"warning"`, or `"blocked"` | `"blocked"`        |
-
-**Beta clients are cloud-only.** The client default is `"blocked"`, so a beta works only while LaunchDarkly serves `"active"` or `"warning"`. A server config without the key, including one from a server whose flag was deleted, blocks the beta.
-
-The service maps the flag like this:
-
-- Only the exact values `"active"` and `"warning"` keep a beta running. They map to `Active` and `Warning`.
-- Anything else blocks: `"blocked"`, an unknown or differently cased value, an empty string, a non-string value, and a missing key, which resolves to the client default.
-- The status can move in any direction. Setting the flag back to `"active"` unblocks a beta.
-
-`channel$` waits for a server config. On a first launch, the client has no config until the first fetch completes, and `channel$` emits nothing until then, so a cloud beta does not flash `Blocked`. After that, a slow or failed fetch keeps the last config.
-
-The status carries no date, so the warning copy does not state one. Product moves the flag from `"warning"` to `"blocked"` when it chooses.
-
-## Set the flag in LaunchDarkly
-
-The server adds the `client-version-is-prerelease` attribute to the LaunchDarkly device and user contexts, from the `Is-Prerelease: 1` header that only beta builds send. The context also carries `client-version` and `device-type`. So one targeting rule reaches every beta client, signed in or not, and no production client.
-
-To run a beta, then warn, then block it:
-
-1. In LaunchDarkly, open `beta-channel-status`.
-2. Add a rule: `client-version-is-prerelease` is `true`. Serve `"active"`. Betas block until this rule serves `"active"`.
-3. When Product decides to warn, change the served value to `"warning"`.
-4. When Product decides to block the beta, change the served value to `"blocked"`.
-
-Set the flag's off variation to `"blocked"`, so turning the flag off acts as a kill switch.
-
-To limit a rule to one client or version range, add a `device-type` or `client-version` clause to the rule. Production clients ignore the flag, so the default rule does not affect them.
-
-**Every environment that runs beta builds needs the flag configured**, including QA and local servers. Without it, betas block.
-
-## Self-hosted and offline behavior
-
-A self-hosted server does not contact LaunchDarkly, so its config response has no `beta-channel-status` entry. **A beta client is blocked against a self-hosted server.** A self-hosted operator could set `Features:FlagValues:beta-channel-status` to `"active"`, but that is unsupported.
-
-The status follows the server config the client last fetched. Offline, the client keeps the cached config, so the last status it received stays in place until the next successful fetch.
-
 ## Touch points outside the package
 
-The change lives in this library. Only these files outside it change:
+These files outside the library change:
 
 | **File**                                                                          | **Change**                                                         |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -83,7 +90,7 @@ The change lives in this library. Only these files outside it change:
 | `apps/browser/src/background/main.background.ts`                                  | Creates the service for the extension background                   |
 | `tsconfig.base.json`, `jest.config.js`, `.github/CODEOWNERS`, `package-lock.json` | Nx library scaffolding: path alias, Jest project, owner, workspace |
 
-These callers read `isBetaBuild()` instead of checking the `prereleaseBuild` flag with `flagEnabled`:
+These callers read `isBetaChannel()` instead of checking the `prereleaseBuild` flag with `flagEnabled`:
 
 - the beta logos in `popup-header.component.ts` and `extension-anon-layout-wrapper.component.ts` (browser), `fido2-modal-header.component.ts` (Desktop), and `landing-header.component.ts` and `nav-logo.component.ts` (`libs/components`)
 - the welcome page check in `browser-initial-install.service.ts`
@@ -91,16 +98,24 @@ These callers read `isBetaBuild()` instead of checking the `prereleaseBuild` fla
 
 `ApiService` in `libs/common` deliberately keeps its own `flagEnabled` check of `prereleaseBuild` for the `Is-Prerelease` header. This library depends on `libs/common`, so `libs/common` cannot import it.
 
-The Desktop main process does not create the service, because it has no `ConfigService`. It only reads `isBetaBuild()`.
+The Desktop main process does not create the service, because it has no `ConfigService`. It only reads `isBetaChannel()`.
 
-## Test the sunset in a real build
+## Test in a real build
 
 There are two ways to change the flag for a test build:
 
 - **Client override.** Every Angular client attaches `bitwardenAutomationDriver` to the window. Its `featureFlags` capability writes a local flag override that wins over the server config. This needs no server changes.
 - **Server override.** A local server with no LaunchDarkly key serves values from `Features:FlagValues`. This tests the real delivery path through the server config.
 
-A server without LaunchDarkly, such as a local dev server, blocks beta builds. So each test sets `"active"` first, with the client override or the server override. The warning and block screens come in PM-46097. Until they exist, you see the status in a developer tools console.
+A server without LaunchDarkly, such as a local dev server, closes the beta channel. So each test sets `"open"` first, with the client override or the server override. The warning and block screens come in PM-46097. Until they exist, you see the values in a developer tools console.
+
+Each test sets these flag values in order. The expected access for a beta client is:
+
+| **Flag value** | `"open"`  | `"closing"` | `"Open"`  | `"bogus"` | `"closed"` | `"open"`  |
+| -------------- | --------- | ----------- | --------- | --------- | ---------- | --------- |
+| **Access**     | `allowed` | `warning`   | `blocked` | `blocked` | `blocked`  | `allowed` |
+
+`betaClientAccess$` emits only when the access changes, so `"Open"` emits `blocked` once, and `"bogus"` and `"closed"` emit nothing new.
 
 ### Test the Desktop app
 
@@ -111,11 +126,11 @@ The release build of Desktop has no developer tools. Build Desktop in developmen
 3. Run `npx cross-env CHANNEL=beta npm run build:dev`.
 4. Run `npm run start`. The Desktop app opens.
 5. Press F12 to open the developer tools.
-6. In the **Console** tab, run this code to set `"active"`:
+6. In the **Console** tab, run this code to set `"open"`:
 
    ```js
    const flags = bitwardenAutomationDriver.get("featureFlags");
-   await flags.set("beta-channel-status", "active");
+   await flags.set("beta-channel-status", "open");
    ```
 
 7. Paste this code and press Enter:
@@ -127,16 +142,21 @@ The release build of Desktop has no developer tools. Build Desktop in developmen
    const releaseChannel = ng
      .getInjector(document.querySelector("app-root"))
      .get(ReleaseChannelService);
-   releaseChannel.channel$.subscribe((channel) => console.log(new Date().toISOString(), channel));
+   releaseChannel.betaClientAccess$.subscribe((access) =>
+     console.log(new Date().toISOString(), "access", access),
+   );
+   releaseChannel.betaChannelStatus$.subscribe((status) =>
+     console.log(new Date().toISOString(), "status", status),
+   );
    ```
 
    The code gets the app's own `ReleaseChannelService` from Angular. `ng` exists only in development builds.
 
-8. Make sure that the console shows a channel with `type: "beta"` and `status: "active"`.
-9. Run `await flags.set("beta-channel-status", "warning")`.
-10. Make sure that the console shows a channel with `status: "warning"`.
-11. Run `await flags.set("beta-channel-status", "blocked")`.
-12. Make sure that the console shows a channel with `status: "blocked"`.
+8. Make sure that the console shows `access allowed` and `status open`.
+9. Run `await flags.set("beta-channel-status", "closing")`, and make sure that the console shows `access warning`.
+10. Run `await flags.set("beta-channel-status", "Open")`, and make sure that the console shows `access blocked`.
+11. Run `await flags.set("beta-channel-status", "bogus")`, then `await flags.set("beta-channel-status", "closed")`. Make sure that no new access value appears.
+12. Run `await flags.set("beta-channel-status", "open")`, and make sure that the console shows `access allowed`.
 
 ### Test the browser extension
 
@@ -147,38 +167,38 @@ The release build of Desktop has no developer tools. Build Desktop in developmen
 5. Select **Load unpacked**.
 6. Select the `apps/browser/build` folder.
 7. Open the extension popup. Right-click in it and select **Inspect**. The developer tools open for the popup.
-8. In the popup **Console** tab, run this code to set `"active"`:
+8. In the popup **Console** tab, run this code to set `"open"`:
 
    ```js
    const flags = bitwardenAutomationDriver.get("featureFlags");
-   await flags.set("beta-channel-status", "active");
+   await flags.set("beta-channel-status", "open");
    ```
 
 9. On the Bitwarden card in `chrome://extensions`, select the **service worker** link. The developer tools open for the background service worker.
 10. In the service worker **Console** tab, paste this code and press Enter:
 
     ```js
-    bitwardenMain.releaseChannelService.channel$.subscribe((channel) =>
-      console.log(new Date().toISOString(), channel),
+    bitwardenMain.releaseChannelService.betaClientAccess$.subscribe((access) =>
+      console.log(new Date().toISOString(), "access", access),
     );
     ```
 
-11. Make sure that the console shows a channel with `type: "beta"` and `status: "active"`. The override is stored on disk, so the background sees it.
+11. Make sure that the console shows `access allowed`. The override is stored on disk, so the background sees it.
 12. Keep the service worker developer tools open, so that Chrome does not stop the worker and end the subscription.
-13. In the popup console, run `await flags.set("beta-channel-status", "warning")`.
-14. In the service worker console, make sure that a channel with `status: "warning"` appears.
-15. In the popup console, run `await flags.set("beta-channel-status", "blocked")`.
-16. In the service worker console, make sure that a channel with `status: "blocked"` appears.
+13. In the popup console, run `await flags.set("beta-channel-status", "closing")`. In the service worker console, make sure that `access warning` appears.
+14. In the popup console, run `await flags.set("beta-channel-status", "Open")`. Make sure that `access blocked` appears.
+15. In the popup console, run `await flags.set("beta-channel-status", "bogus")`, then `await flags.set("beta-channel-status", "closed")`. Make sure that no new access value appears.
+16. In the popup console, run `await flags.set("beta-channel-status", "open")`. Make sure that `access allowed` appears.
 
 ### Test the server delivery path
 
 Use this to confirm that the server sends the flag. It needs a local server set up as described in the [server setup guide](https://contributing.bitwarden.com/getting-started/server/guide).
 
-1. In the server repository, run `dotnet user-secrets set "Features:FlagValues:beta-channel-status" "active" --project src/Api`.
+1. In the server repository, run `dotnet user-secrets set "Features:FlagValues:beta-channel-status" "open" --project src/Api`.
 2. Start or restart the API with `dotnet run --project src/Api`. The server reads flag values only at startup.
-3. Run `curl -s http://localhost:4000/config` and make sure that `featureStates` contains `"beta-channel-status": "active"`.
+3. Run `curl -s http://localhost:4000/config` and make sure that `featureStates` contains `"beta-channel-status": "open"`.
 4. Point the Desktop dev build or the extension at your local server, and sign in.
-5. Subscribe as in step 7 of the Desktop test, or steps 9 and 10 of the extension test. Skip the client override, and make sure that the channel shows `status: "active"`.
+5. Subscribe as in step 7 of the Desktop test, or steps 9 and 10 of the extension test. Skip the client override, and make sure that the console shows `access allowed`.
 6. To change the status, set a new value with `dotnet user-secrets set`, restart the API, and select **Sync now**. In Desktop, it is in the **File** menu. In the extension, it is in **Settings** > **Vault options**. The client fetches the config again after a sync.
 
 ### Reset

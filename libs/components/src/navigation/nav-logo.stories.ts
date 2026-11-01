@@ -69,7 +69,7 @@ export const Dark: Story = {
 
 /**
  * Beta variant of the side-nav logo — shipped in beta builds, where `NavLogoComponent` reads
- * `isBetaBuild()` from `@bitwarden/release-channel`. Storybook can't flip
+ * `isBetaChannel()` from `@bitwarden/release-channel`. Storybook can't flip
  * `process.env.FLAGS`, so this story feeds `SideNavLogoBeta` through `openIcon` on the
  * v1 code path to preview the asset itself in a real nav container.
  */

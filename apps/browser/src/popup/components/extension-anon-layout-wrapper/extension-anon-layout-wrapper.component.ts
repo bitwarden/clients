@@ -19,7 +19,7 @@ import {
   HeroTextAlignmentType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
-import { isBetaBuild } from "@bitwarden/release-channel";
+import { isBetaChannel } from "@bitwarden/release-channel";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -75,7 +75,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
   protected theme: string;
-  protected logo = isBetaBuild() ? BitwardenLogoBeta : BitwardenLogo;
+  protected logo = isBetaChannel() ? BitwardenLogoBeta : BitwardenLogo;
 
   constructor(
     private router: Router,

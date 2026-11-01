@@ -3,7 +3,7 @@ import { of } from "rxjs";
 
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
-import { isBetaBuild } from "@bitwarden/release-channel";
+import { isBetaChannel } from "@bitwarden/release-channel";
 
 import { BrowserApi } from "../browser/browser-api";
 import { ExtensionInstallType } from "../browser/extension-install-type";
@@ -17,7 +17,7 @@ jest.mock("@bitwarden/common/platform/misc/flags", () => ({
 
 jest.mock("@bitwarden/release-channel", () => ({
   ...jest.requireActual("@bitwarden/release-channel"),
-  isBetaBuild: jest.fn(),
+  isBetaChannel: jest.fn(),
 }));
 
 describe("BrowserInitialInstallService", () => {
@@ -25,7 +25,7 @@ describe("BrowserInitialInstallService", () => {
   let getInstallTypeSpy: jest.SpyInstance;
   let createNewTabSpy: jest.SpyInstance;
   const devFlagEnabledMock = devFlagEnabled as jest.Mock;
-  const isBetaBuildMock = isBetaBuild as jest.Mock;
+  const isBetaChannelMock = isBetaChannel as jest.Mock;
 
   beforeEach(() => {
     const stateProvider = mock<StateProvider>();
@@ -36,7 +36,7 @@ describe("BrowserInitialInstallService", () => {
     getInstallTypeSpy = jest.spyOn(BrowserApi, "getInstallType");
     createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue({} as any);
     devFlagEnabledMock.mockReturnValue(false);
-    isBetaBuildMock.mockReturnValue(false);
+    isBetaChannelMock.mockReturnValue(false);
 
     service = new BrowserInitialInstallService(stateProvider);
   });
@@ -102,7 +102,7 @@ describe("BrowserInitialInstallService", () => {
       ["Unknown", ExtensionInstallType.Unknown],
     ])("does not open the welcome page for %s installs on a beta build", async (_, installType) => {
       getInstallTypeSpy.mockResolvedValue(installType);
-      isBetaBuildMock.mockReturnValue(true);
+      isBetaChannelMock.mockReturnValue(true);
 
       await service.displayWelcomePage();
 

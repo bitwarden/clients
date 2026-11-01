@@ -7,7 +7,7 @@ import {
   KeyDefinition,
   StateProvider,
 } from "@bitwarden/common/platform/state";
-import { isBetaBuild } from "@bitwarden/release-channel";
+import { isBetaChannel } from "@bitwarden/release-channel";
 
 import { BrowserApi } from "../browser/browser-api";
 import { ExtensionInstallType } from "../browser/extension-install-type";
@@ -54,7 +54,7 @@ export default class BrowserInitialInstallService {
       installType === ExtensionInstallType.Development ||
       installType === ExtensionInstallType.Unknown;
 
-    if (isUserInitiatedInstall && !devFlagEnabled("skipWelcomeOnInstall") && !isBetaBuild()) {
+    if (isUserInitiatedInstall && !devFlagEnabled("skipWelcomeOnInstall") && !isBetaChannel()) {
       void BrowserApi.createNewTab(WELCOME_PAGE_URL);
     }
   }

@@ -1,51 +1,52 @@
 import { Observable } from "rxjs";
 
-/** The release channel a client was built for. Fixed at build time. */
-export const ReleaseChannelType = Object.freeze({
-  Production: "production",
-  Beta: "beta",
+/**
+ * The status of Bitwarden's beta channel in the connected environment, from the server's
+ * `beta-channel-status` feature flag. This is a property of the environment, not of the client.
+ *
+ * - `Open`: beta clients work normally.
+ * - `Closing`: the beta channel is closing. Beta clients warn.
+ * - `Closed`: the beta channel is closed. Beta clients are blocked.
+ */
+export const BetaChannelStatus = Object.freeze({
+  Open: "open",
+  Closing: "closing",
+  Closed: "closed",
 } as const);
-export type ReleaseChannelType = (typeof ReleaseChannelType)[keyof typeof ReleaseChannelType];
+export type BetaChannelStatus = (typeof BetaChannelStatus)[keyof typeof BetaChannelStatus];
 
 /**
- * Where a beta build is in its sunset. Only a {@link BetaChannel} has a status.
+ * Whether this client may be used, combining its release channel with the beta channel status.
  *
- * - `Active`: the beta works normally.
- * - `Warning`: show the sunset warning.
+ * - `Allowed`: use the client normally.
+ * - `Warning`: show the beta closing warning.
  * - `Blocked`: block all vault access.
  */
-export const BetaStatus = Object.freeze({
-  Active: "active",
+export const BetaClientAccess = Object.freeze({
+  Allowed: "allowed",
   Warning: "warning",
   Blocked: "blocked",
 } as const);
-export type BetaStatus = (typeof BetaStatus)[keyof typeof BetaStatus];
-
-/** A production build. It never warns or blocks. */
-export type ProductionChannel = { readonly type: typeof ReleaseChannelType.Production };
-
-/** A beta build and where it is in its sunset. */
-export type BetaChannel = {
-  readonly type: typeof ReleaseChannelType.Beta;
-  readonly status: BetaStatus;
-};
-
-/** Narrow on `type` to read the beta status. */
-export type ReleaseChannel = ProductionChannel | BetaChannel;
+export type BetaClientAccess = (typeof BetaClientAccess)[keyof typeof BetaClientAccess];
 
 /**
- * Exposes the release channel a client was built for and, for a beta, where it is in its lifetime.
+ * Exposes the status of the environment's beta channel, and whether this client may be used.
  *
- * The channel type is fixed at build time: `CHANNEL=beta` builds set the `prereleaseBuild` flag
- * through `config/beta.json`. The beta status comes from the `beta-channel-status` feature flag
- * in the server config. Product moves the flag from warning to blocked when it chooses, so the
- * status carries no date.
+ * Whether the client itself is on the beta channel is fixed at build time. Read it with
+ * `isBetaChannel()`.
  */
 export abstract class ReleaseChannelService {
   /**
-   * The release channel. A production build always emits a {@link ProductionChannel}. A beta build
-   * emits a {@link BetaChannel} once a server config exists, and again when the server config
-   * changes the flag. Before the first server config loads, a beta build emits nothing.
+   * The status of the connected environment's beta channel, for every client. Emits once a server
+   * config exists, and again when the server config changes the flag. Before the first server
+   * config loads, it emits nothing.
    */
-  abstract readonly channel$: Observable<ReleaseChannel>;
+  abstract readonly betaChannelStatus$: Observable<BetaChannelStatus>;
+
+  /**
+   * Whether this client may be used. A production client is always `Allowed`. A beta client
+   * follows `betaChannelStatus$`: `Open` is `Allowed`, `Closing` is `Warning`, and `Closed` is
+   * `Blocked`. Warning and block surfaces read this.
+   */
+  abstract readonly betaClientAccess$: Observable<BetaClientAccess>;
 }

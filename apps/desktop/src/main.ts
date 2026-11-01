@@ -31,7 +31,7 @@ import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import { FlightRecorderLogRecorder } from "@bitwarden/logging";
-import { isBetaBuild } from "@bitwarden/release-channel";
+import { isBetaChannel } from "@bitwarden/release-channel";
 import { FlightRecorderClient } from "@bitwarden/sdk-internal";
 import {
   DefaultActiveUserStateProvider,
@@ -404,7 +404,7 @@ export class Main {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
-        const trayName = this.i18nService.t(isBetaBuild() ? "bitwardenBeta" : "bitwarden");
+        const trayName = this.i18nService.t(isBetaChannel() ? "bitwardenBeta" : "bitwarden");
         await this.trayMain.init(trayName, [
           {
             label: this.i18nService.t("lockVault"),

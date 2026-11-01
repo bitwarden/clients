@@ -30,7 +30,7 @@ import {
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { isBetaBuild } from "@bitwarden/release-channel";
+import { isBetaChannel } from "@bitwarden/release-channel";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
@@ -76,7 +76,7 @@ export class PopupHeaderComponent {
     { initialValue: false },
   );
 
-  protected readonly logo = isBetaBuild() ? BitwardenLogoBeta : BitwardenLogo;
+  protected readonly logo = isBetaChannel() ? BitwardenLogoBeta : BitwardenLogo;
 
   /**
    * Background treatment of the page title bar.

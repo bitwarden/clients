@@ -1,7 +1,7 @@
 import { BrowserWindow, clipboard, dialog, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { isBetaBuild } from "@bitwarden/release-channel";
+import { isBetaChannel } from "@bitwarden/release-channel";
 
 import { VersionMain } from "../../platform/main/version.main";
 import { isMacAppStore, isSnapStore, isWindowsStore } from "../platform-utils.main";
@@ -71,7 +71,7 @@ export class AboutMenu implements IMenubarMenu {
           process.versions.node +
           "\nArchitecture " +
           process.arch;
-        const productName = this.localize(isBetaBuild() ? "bitwardenBeta" : "bitwarden");
+        const productName = this.localize(isBetaChannel() ? "bitwardenBeta" : "bitwarden");
         const result = await dialog.showMessageBox(this._window, {
           title: productName,
           message: productName,
