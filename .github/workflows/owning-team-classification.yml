@@ -1,0 +1,21 @@
+name: Owning-Team Classification
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions: {}
+
+jobs:
+  classify:
+    name: Classify
+    if: github.event.label.name == 'owner-classification'
+    uses: bitwarden/gh-actions/.github/workflows/_classify-owning-team.yml@main
+    secrets:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
