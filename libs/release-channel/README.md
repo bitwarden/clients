@@ -92,7 +92,7 @@ These files outside the library change:
 
 These callers read `isBetaChannel()` instead of checking the `prereleaseBuild` flag with `flagEnabled`:
 
-- the beta logos in `popup-header.component.ts` and `extension-anon-layout-wrapper.component.ts` (browser), `fido2-modal-header.component.ts` (Desktop), and `landing-header.component.ts` and `nav-logo.component.ts` (`libs/components`)
+- the beta logos in `popup-header.component.ts` and `extension-anon-layout-wrapper.component.ts` (browser), and `fido2-modal-header.component.ts` (Desktop)
 - the welcome page check in `browser-initial-install.service.ts`
 - the "Bitwarden Beta" tray name in `apps/desktop/src/main.ts` and About dialog name in `menu.about.ts`
 
