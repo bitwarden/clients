@@ -106,7 +106,14 @@ describe("LoginCommand", () => {
 
   // Env var snapshot for save/restore
   const savedEnv: Record<string, string | undefined> = {};
-  const ENV_KEYS = ["BW_NOINTERACTION", "BW_SESSION", "BW_CLIENTID", "BW_CLIENTSECRET", "MY_PW"];
+  const ENV_KEYS = [
+    "BW_NOINTERACTION",
+    "BW_SESSION",
+    "BW_RAW",
+    "BW_CLIENTID",
+    "BW_CLIENTSECRET",
+    "MY_PW",
+  ];
 
   beforeEach(() => {
     // Save env vars
@@ -926,7 +933,17 @@ describe("LoginCommand", () => {
 
       expect(response.success).toBe(true);
       expect((response.data as any).title).toBe("You are logged in!");
-      expect((response.data as any).message).toContain("BW_SESSION");
+      expect((response.data as any).message).toContain("bw status");
+      expect((response.data as any).message).not.toContain(B64_SESSION_KEY);
+      expect((response.data as any).message).toContain("bw list items");
+      expect((response.data as any).raw).toBeUndefined();
+    });
+
+    it("returns the session key only when raw output is explicitly requested", async () => {
+      process.env.BW_RAW = "true";
+
+      const response = await command.run("a@b.c", "password", {});
+
       expect((response.data as any).raw).toBe(B64_SESSION_KEY);
     });
 
@@ -939,9 +956,11 @@ describe("LoginCommand", () => {
       const response = await command.run(NULL, NULL, { apikey: true });
 
       expect(response.success).toBe(true);
-      // When usesKeyConnector is true, falls through to session key message
-      expect((response.data as any).message).toContain("BW_SESSION");
-      expect((response.data as any).raw).toBe(B64_SESSION_KEY);
+      // When usesKeyConnector is true, falls through to the session key guidance.
+      expect((response.data as any).message).toContain("bw status");
+      expect((response.data as any).message).not.toContain(B64_SESSION_KEY);
+      expect((response.data as any).message).toContain("bw list items");
+      expect((response.data as any).raw).toBeUndefined();
     });
 
     it("sets BW_SESSION env var via validatedParams", async () => {
