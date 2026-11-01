@@ -2,7 +2,7 @@
 
 Owned by: platform
 
-This library answers two separate questions, and combines them into the one that warning and block surfaces need.
+This library is responsible for surfacing to consumers the current client's relationship with our release channels. It answers these questions:
 
 | **Question**                                    | **Kind of fact**                         | **API**              |
 | ----------------------------------------------- | ---------------------------------------- | -------------------- |
@@ -78,27 +78,13 @@ if (access === BetaClientAccess.Blocked) {
 }
 ```
 
-## Touch points outside the package
-
-These files outside the library change:
-
-| **File**                                                                          | **Change**                                                         |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `libs/common/src/enums/feature-flag.enum.ts`                                      | The `beta-channel-status` entry and default, in **Permanent**      |
-| `apps/desktop/src/app/services/services.module.ts`                                | Registers the service for the Desktop renderer                     |
-| `apps/browser/src/popup/services/services.module.ts`                              | Registers the service for the extension popup                      |
-| `apps/browser/src/background/main.background.ts`                                  | Creates the service for the extension background                   |
-| `tsconfig.base.json`, `jest.config.js`, `.github/CODEOWNERS`, `package-lock.json` | Nx library scaffolding: path alias, Jest project, owner, workspace |
-
-These callers read `isBetaChannel()` instead of checking the `prereleaseBuild` flag with `flagEnabled`:
-
-- the beta logos in `popup-header.component.ts` and `extension-anon-layout-wrapper.component.ts` (browser), `fido2-modal-header.component.ts` (Desktop), and `landing-header.component.ts` and `nav-logo.component.ts` (`libs/components`)
-- the welcome page check in `browser-initial-install.service.ts`
-- the "Bitwarden Beta" tray name in `apps/desktop/src/main.ts` and About dialog name in `menu.about.ts`
+## Exceptions to preferred usage
 
 `ApiService` in `libs/common` deliberately keeps its own `flagEnabled` check of `prereleaseBuild` for the `Is-Prerelease` header. This library depends on `libs/common`, so `libs/common` cannot import it.
 
 The Desktop main process does not create the service, because it has no `ConfigService`. It only reads `isBetaChannel()`.
+
+Outside of these exceptions, the package API surface should be used as described.
 
 ## Test in a real build
 
