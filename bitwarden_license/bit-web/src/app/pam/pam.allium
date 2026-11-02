@@ -1808,7 +1808,7 @@ surface CipherViewBanner {
     -- access, which folds out RequestAccessModal inline). Also the surface that reveals the
     -- credential in place the moment a lease becomes active, without reopening the
     -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
-    -- the reveal itself goes through the GATED_CIPHER_RELOADER seam.
+    -- the reveal itself goes through Vault's RevealedCipherService.
     --
     -- It also renders on an item the server no longer gates for the caller while they
     -- still hold a live lease on it (the item was since filed into a collection with no
