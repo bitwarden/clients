@@ -65,7 +65,7 @@
     position: relative;
     min-height: inherit;
     overflow: hidden;
-    @apply tw-bg-background-alt;
+    @apply tw-bg-bg-primary;
   }
 
   /**
