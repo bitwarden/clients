@@ -31,11 +31,10 @@ import { UnlockService } from "@bitwarden/unlock";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 
-import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { UserApiLoginStrategy, UserApiLoginStrategyData } from "./user-api-login.strategy";
+import { identityTokenResponseFactory } from "./login.strategy.spec-util";
+import { UserApiLoginStrategy } from "./user-api-login.strategy";
 
 describe("UserApiLoginStrategy", () => {
-  let cache: UserApiLoginStrategyData;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
 
@@ -70,8 +69,6 @@ describe("UserApiLoginStrategy", () => {
   const apiClientSecret = "API_CLIENT_SECRET";
 
   beforeEach(async () => {
-    cache = new UserApiLoginStrategyData();
-
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
 
@@ -101,7 +98,7 @@ describe("UserApiLoginStrategy", () => {
     });
 
     apiLogInStrategy = new UserApiLoginStrategy(
-      cache,
+      undefined,
       unlockService,
       accountService,
       masterPasswordService,

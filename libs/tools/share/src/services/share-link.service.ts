@@ -12,6 +12,7 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -28,12 +29,17 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { PolicyType } from "@bitwarden/sdk-internal";
 
 /**
@@ -62,6 +68,8 @@ export class ShareLinkService {
   private collectionService = inject(CollectionService);
   private policyService = inject(PolicyService);
   private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private organizationService = inject(OrganizationService);
+  private revealedCipherService = inject(RevealedCipherService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   /** Observable of all active share links. */
@@ -196,24 +204,37 @@ export class ShareLinkService {
       ),
       this.accountService.activeAccount$.pipe(
         getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+      ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
         switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendControls, userId)),
       ),
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.revealedCipherService.revealed$(userId)),
+      ),
     ]).pipe(
-      map(([ffEnabled, hasPremium, sendControlsPolicies, collections]) => {
+      map(([ffEnabled, hasPremium, organizations, sendControlsPolicies, collections, revealed]) => {
         // Sharing feature must be enabled and, as a premium feature, accessible
         if (!ffEnabled || !hasPremium) {
           return false;
         }
-        // Cannot be shared if the cipher is undefined, archived, deleted, or an SSH key
+        // Cannot be shared if the cipher is undefined, archived, deleted, an SSH key, or restricted
         if (
           !c ||
           c.archivedDate ||
           c.deletedDate ||
-          CipherViewLikeUtils.getType(c) === CipherType.SshKey
+          CipherViewLikeUtils.getType(c) === CipherType.SshKey ||
+          !RestrictedCipherPolicy.allows(
+            c,
+            RestrictedCipherAction.Share,
+            c.id == null ? undefined : revealed.get(c.id as CipherId),
+          )
         ) {
           return false;
         }
@@ -227,6 +248,18 @@ export class ShareLinkService {
         );
         if (policyDisablingItemSends) {
           return false;
+        }
+        // If the cipher belongs to an organization that allows admins/owners to access all collection items
+        // and the user is an admin/owner then they'll be able to see the item via the Admin Console but they
+        // won't have the permissions we look for below. Owners and admins are exempt from the Send Controls
+        // policy but custom users aren't, so we do this check after the policy check.
+        if (c.organizationId) {
+          const canEditAllOrgCiphers = organizations.some(
+            (org) => org.id === c.organizationId && org.canEditAllCiphers,
+          );
+          if (canEditAllOrgCiphers) {
+            return true;
+          }
         }
         // Lastly check that, if a cipher belongs to any collections,
         // the user has edit-level access to at least one of them.

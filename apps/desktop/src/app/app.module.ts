@@ -3,22 +3,11 @@ import "zone.js";
 // Register the locales for the application
 import "../platform/app/locales";
 
-import { OverlayModule, OVERLAY_DEFAULT_CONFIG } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { IconModule, SpinnerComponent } from "@bitwarden/components";
-
-import { SshAgentService } from "../autofill/services/ssh-agent.service";
-import { DesktopPremiumUpgradePromptService } from "../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { AvatarComponent } from "./components/avatar.component";
-import { ServicesModule } from "./services/services.module";
+import { OssModule } from "./oss.module";
 
 /**
  * This is the `AppModule` for the Bitwarden desktop application.
@@ -27,25 +16,8 @@ import { ServicesModule } from "./services/services.module";
  * **DO NOT** want to modify this file. Routable components are handled by the `AppRoutingModule`.
  */
 @NgModule({
-  imports: [
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    JslibModule,
-    IconModule,
-    SpinnerComponent,
-    ReactiveFormsModule,
-    OverlayModule,
-    ServicesModule,
-  ],
-  declarations: [AvatarComponent, AppComponent],
-  providers: [
-    SshAgentService,
-    {
-      provide: PremiumUpgradePromptService,
-      useClass: DesktopPremiumUpgradePromptService,
-    },
-    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
-  ],
+  imports: [OssModule, AppRoutingModule],
+  declarations: [AppComponent],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -39,6 +39,12 @@ export default {
                   return "Password Manager";
                 case "secretsManager":
                   return "Secrets Manager";
+                case "privilegedControls":
+                  return "Privileged Controls";
+                case "privilegedControlsPlanPrice":
+                  return "Privileged Controls plan price";
+                case "privilegedControlsProratedCharge":
+                  return "Privileged Controls prorated charge";
                 case "additionalStorage":
                   return "Additional Storage";
                 case "estimatedTax":
@@ -65,10 +71,16 @@ export default {
                   return "Account credit";
                 case "appliedSubscriptionCredits":
                   return "Applied subscription credits";
+                case "appliedProrationCredits":
+                  return "Applied proration credits";
                 case "passwordManagerProratedCharge":
                   return "Password Manager prorated charge";
                 case "discount":
                   return "discount";
+                case "appliedBalance":
+                  return "Applied balance";
+                case "amountDue":
+                  return "Amount due";
                 default:
                   return key;
               }
@@ -221,6 +233,13 @@ export const AllProducts: Story = {
           quantity: 2,
           translationKey: "additionalServiceAccountsV2",
           cost: 6.0,
+        },
+      },
+      privilegedControls: {
+        seats: {
+          quantity: 4,
+          translationKey: "members",
+          cost: 20.0,
         },
       },
       cadence: "monthly",
@@ -419,30 +438,19 @@ export const WithCredit: Story = {
   },
 };
 
-export const WithAppliedAccountBalance: Story = {
+export const WithAppliedBalance: Story = {
+  name: "With Applied Account Balance (Premium Renewal)",
   args: {
     cart: {
       passwordManager: {
-        seats: {
-          quantity: 1,
-          translationKey: "familiesMembership",
-          cost: 40.0,
-          hideBreakdown: true,
-        },
+        seats: { quantity: 1, translationKey: "premiumMembership", cost: 19.8 },
       },
       cadence: "annually",
-      credit: {
-        translationKey: "premiumSubscriptionCredit",
-        value: 6.67,
-      },
-      estimatedTax: 2.0,
-      accountCredit: {
-        translationKey: "accountCredit",
-        value: 10.0,
-      },
-      total: 25.33,
+      estimatedTax: 1.58,
+      total: 21.38,
+      appliedBalance: 12.96,
+      amountDue: 8.42,
     } satisfies Cart,
-    hidePricingTerm: true,
   },
 };
 
@@ -747,7 +755,7 @@ export const AllProrationInvoice: Story = {
       },
       cadence: "annually",
       credit: {
-        translationKey: "appliedSubscriptionCredits",
+        translationKey: "appliedProrationCredits",
         value: 37.64,
       },
       estimatedTax: 12.05,
@@ -783,10 +791,70 @@ export const RecurringWithProration: Story = {
       },
       cadence: "annually",
       credit: {
-        translationKey: "appliedSubscriptionCredits",
+        translationKey: "appliedProrationCredits",
         value: 9.02,
       },
       estimatedTax: 0.36,
+    } satisfies Cart,
+  },
+};
+
+export const WithPrivilegedControls: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 72.0,
+        },
+      },
+      secretsManager: {
+        seats: {
+          quantity: 3,
+          translationKey: "members",
+          cost: 144.0,
+        },
+      },
+      privilegedControls: {
+        seats: {
+          quantity: 4,
+          translationKey: "members",
+          cost: 20.0,
+        },
+      },
+      cadence: "annually",
+      estimatedTax: 0,
+    } satisfies Cart,
+  },
+};
+
+export const PrivilegedControlsProrationOnly: Story = {
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 72.0,
+        },
+      },
+      privilegedControls: {
+        prorationCharges: [
+          {
+            translationKey: "privilegedControlsProratedCharge",
+            quantity: 1,
+            cost: 12.5,
+            hideBreakdown: true,
+          },
+        ],
+      },
+      cadence: "annually",
+      credit: {
+        translationKey: "appliedProrationCredits",
+        value: 3.0,
+      },
+      estimatedTax: 0,
     } satisfies Cart,
   },
 };

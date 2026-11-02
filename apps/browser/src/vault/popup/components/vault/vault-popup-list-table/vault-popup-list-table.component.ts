@@ -10,7 +10,6 @@ import {
   DestroyRef,
   inject,
   Injector,
-  signal,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -28,7 +27,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
@@ -44,7 +42,6 @@ import {
   BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
-  ChipActionComponent,
   ChipFilterOption,
   CollapseOnScrollDirective,
   CompactModeService,
@@ -60,16 +57,12 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
-  cipherInScope,
-  collectionInScope,
   EmptyVaultComponent,
   hasMultipleVaults,
-  idString,
   matchesFolder,
   matchesSharedFolder,
   matchesType,
   matchesVault,
-  MY_VAULT,
   NO_FOLDER,
   organizationNameForScope,
   OrgIconDirective,
@@ -89,19 +82,14 @@ import {
   VaultTableRow,
 } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
+import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../../services/vault-popup-tour.service";
+import { collectionOptionsInScope, folderOptionsInScope } from "../../../utils/filter-options";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
-
-/**
- * Flattens a `ChipFilterOption` tree depth-first, since scope/org visibility is decided per
- * option, not per branch. Nested rendering rebuilds nesting from the original tree instead of
- * this flat list — see {@link VaultPopupListTableComponent.toFilterOptionNodes}.
- */
-function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
-  return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
-}
+import { VaultFiltersTourComponent } from "../vault-filters-tour/vault-filters-tour.component";
 
 /** Collects every value in a {@link FilterOptionNode} subtree, depth-first. */
 function subtreeValues(nodes: readonly FilterOptionNode<string>[]): string[] {
@@ -134,6 +122,7 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    VaultFiltersTourComponent,
     ScrollCollapseSourceDirective,
     CollapseOnScrollDirective,
     FilterMenuModule,
@@ -143,7 +132,6 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     StatusLockupComponent,
     SvgComponent,
     TypographyModule,
-    ChipActionComponent,
     EmptyVaultComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
@@ -165,11 +153,15 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly vaultTourService = inject(VaultPopupTourService);
+
+  /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
+  protected readonly autofocusSearch = !inject(VaultPopupScrollPositionService).restoresCollapse();
+
   /** Whether the page is narrowed to a single vault, which drops the organization chip. */
   protected readonly vaultSelected = computed(
     () => this.listTableService.vaultScope().type !== VaultScopeType.AllItems,
   );
-  private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
@@ -308,6 +300,22 @@ export class VaultPopupListTableComponent {
    */
   protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
 
+  /** Whether the user left the toolbar's filter dialog open; restored when the popup reopens. */
+  private readonly filterDialogOpen = this.listFiltersService.filterDialogOpen;
+
+  /** The filter dialog is up while the user or the tour holds it open. */
+  protected readonly showFilterDialog = computed(
+    () => this.filterDialogOpen() || this.vaultTourService.filterDialogOpen(),
+  );
+
+  /** Closing the dialog releases the tour's hold too, which ends the tour on its step. */
+  protected setFilterDialogOpen(open: boolean) {
+    this.filterDialogOpen.set(open);
+    if (!open) {
+      this.vaultTourService.filterDialogOpen.set(false);
+    }
+  }
+
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],
   });
@@ -332,12 +340,9 @@ export class VaultPopupListTableComponent {
    * Narrowed to the scoped vault's collections — the vault chip is gone, so the filter service
    * hands back every organization's.
    */
-  protected readonly collectionOptions = computed(() => {
-    const scope = this.listTableService.vaultScope();
-    return flattenOptions(this.collectionTree()).filter(
-      (option) => option.value != null && collectionInScope(option.value, scope),
-    );
-  });
+  protected readonly collectionOptions = computed(() =>
+    collectionOptionsInScope(this.collectionTree(), this.listTableService.vaultScope()),
+  );
   /** Every active cipher, before the search narrows it — the folder chip's options come from here. */
   private readonly activeCiphers = toSignal(this.vaultPopupItemsService.activeCiphers$, {
     initialValue: [] as PopupCipherViewLike[],
@@ -347,22 +352,13 @@ export class VaultPopupListTableComponent {
    * Narrowed like {@link collectionOptions}, against the unsearched list: an option that vanished
    * as the user typed could not widen the results again.
    */
-  protected readonly folderOptions = computed(() => {
-    const options = flattenOptions(this.folderTree());
-    const scope = this.listTableService.vaultScope();
-
-    if (scope.type === VaultScopeType.AllItems) {
-      return options;
-    }
-
-    const inScope = this.activeCiphers().filter((cipher) => cipherInScope(cipher, scope));
-    return options.filter((option) => {
-      const id = option.value?.id;
-      return id
-        ? inScope.some((cipher) => idString(cipher.folderId) === id)
-        : inScope.some((cipher) => cipher.folderId == null);
-    });
-  });
+  protected readonly folderOptions = computed(() =>
+    folderOptionsInScope(
+      this.folderTree(),
+      this.activeCiphers(),
+      this.listTableService.vaultScope(),
+    ),
+  );
 
   /**
    * {@link folderOptions}, nested — pruned from {@link folderTree} rather than rebuilt from names,
@@ -505,9 +501,6 @@ export class VaultPopupListTableComponent {
   /** Whether the popup is rendered in the sidebar, where the autofill refresh control is offered. */
   protected readonly showRefresh = BrowserPopupUtils.inSidebar(this.window);
 
-  /** Keyboard-shortcut tooltip shown on the legacy (flag-off) autofill chip, e.g. "Autofill ⌘⇧L". */
-  protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
-
   /** The all-items section heading, which becomes "Search results" while a search is active. */
   protected readonly allItemsSectionKey = computed(() =>
     this.hasSearchText() ? "searchResults" : "allItems",
@@ -585,9 +578,6 @@ export class VaultPopupListTableComponent {
         );
       });
 
-    // Resolve the keyboard-shortcut tooltip for the legacy (flag-off) autofill chip.
-    void this.setAutofillShortcutTooltip();
-
     // Wire up persistence after the first render so we can access the table reference.
     afterNextRender(() => {
       const table = this.tableEl();
@@ -600,7 +590,6 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-          this.validateOrgChips(table, values);
         });
 
       // The controls hold their own values. Driven by the switcher, not the scope, which also
@@ -615,13 +604,6 @@ export class VaultPopupListTableComponent {
           }
         });
     });
-  }
-
-  private async setAutofillShortcutTooltip() {
-    const shortcut = await this.platformUtilsService.getAutofillKeyboardShortcut();
-    this.autofillShortcutTooltip.set(
-      shortcut === "" ? undefined : `${this.i18nService.t("autofillVerb")} ${shortcut}`,
-    );
   }
 
   onSearchTextChanged() {
@@ -679,41 +661,5 @@ export class VaultPopupListTableComponent {
       return this.i18nService.t("nSharedFolders", collectionIds.length);
     }
     return collections[0]?.name;
-  }
-
-  /**
-   * Clears collection chip selections that are no longer valid for the newly-selected
-   * organizations. Called whenever the org chip changes.
-   */
-  private validateOrgChips(
-    table: BitTableV2Component<any, any, any>,
-    values: { organization?: string[]; collection?: string[] },
-  ): void {
-    const selectedOrgIds = (values.organization ?? []).filter((id) => id !== MY_VAULT);
-
-    if (!selectedOrgIds.length) {
-      return;
-    }
-
-    const currentCollectionIds = values.collection ?? [];
-    if (!currentCollectionIds.length) {
-      return;
-    }
-
-    const collectionOrgById = new Map<string | undefined, string | undefined>(
-      this.collectionOptions().map((o) => [o.value?.id, o.value?.organizationId]),
-    );
-
-    const validCollectionIds = currentCollectionIds.filter((id) => {
-      const organizationId = collectionOrgById.get(id);
-      return organizationId != null && selectedOrgIds.includes(organizationId);
-    });
-
-    if (validCollectionIds.length !== currentCollectionIds.length) {
-      table
-        .filterControls()
-        .find((c) => c.key() === "collection")
-        ?.setValue(validCollectionIds.length ? validCollectionIds : undefined);
-    }
   }
 }

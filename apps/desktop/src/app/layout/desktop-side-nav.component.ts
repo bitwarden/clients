@@ -5,13 +5,14 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { NavigationModule, SideNavService, SideNavVariant } from "@bitwarden/components";
+import { VaultTourCalloutComponent } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 
 @Component({
   selector: "app-side-nav",
   templateUrl: "desktop-side-nav.component.html",
-  imports: [CommonModule, NavigationModule, AccountSwitcherV2Component],
+  imports: [CommonModule, NavigationModule, AccountSwitcherV2Component, VaultTourCalloutComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DesktopSideNavComponent {

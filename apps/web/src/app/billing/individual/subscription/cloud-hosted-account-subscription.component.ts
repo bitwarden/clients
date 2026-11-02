@@ -9,6 +9,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import { PersonalSubscriptionPricingTierIds } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,6 +27,7 @@ import {
   SubscriptionCardAction,
   SubscriptionCardActions,
   SubscriptionCardComponent,
+  SubscriptionPreview,
   SubscriptionStatuses,
 } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -39,6 +41,7 @@ import {
   UnifiedUpgradeDialogStatus,
   UnifiedUpgradeDialogStep,
 } from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
+import { SubscriptionPreviewService } from "@bitwarden/web-vault/app/billing/services/subscription-preview.service";
 import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
@@ -71,6 +74,7 @@ export class CloudHostedAccountSubscriptionComponent {
   private readonly fileDownloadService = inject(FileDownloadService);
   private readonly i18nService = inject(I18nService);
   private readonly router = inject(Router);
+  private readonly subscriptionPreviewService = inject(SubscriptionPreviewService);
   private readonly subscriptionPricingService = inject(SubscriptionPricingServiceAbstraction);
   private readonly toastService = inject(ToastService);
 
@@ -109,7 +113,12 @@ export class CloudHostedAccountSubscriptionComponent {
         await this.router.navigate(["/settings/subscription/premium"]);
         return null;
       }
-      const subscription = await this.accountBillingClient.getSubscription();
+      const previewDrivenCart = await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM36631_PreviewDrivenCart),
+      );
+      const subscription = previewDrivenCart
+        ? await this.getAccountSubscriptionPreview()
+        : await this.accountBillingClient.getSubscription();
       if (!subscription) {
         const hasPremiumFromAnyOrganization = this.hasPremiumFromAnyOrganization();
         await this.router.navigate([
@@ -120,6 +129,19 @@ export class CloudHostedAccountSubscriptionComponent {
       return subscription;
     },
   });
+
+  private readonly getAccountSubscriptionPreview = async (): Promise<
+    Maybe<SubscriptionPreview>
+  > => {
+    try {
+      return await this.subscriptionPreviewService.getAccountSubscriptionPreview();
+    } catch (error: unknown) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
+        return null;
+      }
+      throw error;
+    }
+  };
 
   readonly subscriptionLoading = computed<boolean>(() => this.subscription.isLoading());
 

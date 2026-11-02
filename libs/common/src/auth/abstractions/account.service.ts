@@ -34,7 +34,13 @@ export abstract class AccountService {
   abstract accountVerifyNewDeviceLogin$: Observable<boolean>;
   /** Account list in order of descending recency */
   abstract sortedUserIds$: Observable<UserId[]>;
-  /** Next account that is not the current active account */
+  /**
+   * Next account that is not the current active account. Does not check auth status, so it can
+   * return a logged-out account.
+   *
+   * @deprecated To choose an account to switch to, use `AccountSwitcherService.nextSwitchableAccount$`
+   * from `@bitwarden/common/auth/account-switcher`, which never returns a logged-out account.
+   */
   abstract nextUpAccount$: Observable<Account>;
   /** Observable to display the header */
   abstract showHeader$: Observable<boolean>;

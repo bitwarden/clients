@@ -27,11 +27,8 @@ import {
   KeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { LogService } from "@bitwarden/logging";
 
 import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
-
-import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
 /*
   The storage key definition for whether the user's local Autotype GA
@@ -91,8 +88,6 @@ export class DesktopAutotypeService implements OnDestroy {
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private desktopAutotypePolicy: DesktopAutotypeDefaultSettingPolicy,
-    private logService: LogService,
   ) {
     this.autotypeEnabledUserSetting$ = this.autotypeEnabledState.state$.pipe(
       map((enabled) => enabled ?? false),
@@ -120,29 +115,6 @@ export class DesktopAutotypeService implements OnDestroy {
     if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
       return;
     }
-
-    // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
-    // user has never changed their local autotype setting (`autotypeEnabledState`),
-    // we set their local setting to `true` (once the local user setting is changed
-    // by this policy or the user themselves, the default policy should
-    // never change the user setting again).
-    combineLatest([
-      this.autotypeEnabledState.state$,
-      this.desktopAutotypePolicy.autotypeDefaultSetting$,
-    ])
-      .pipe(
-        concatMap(async ([autotypeEnabledState, autotypeDefaultPolicy]) => {
-          try {
-            if (autotypeDefaultPolicy === true && autotypeEnabledState === null) {
-              await this.setAutotypeEnabledState(true);
-            }
-          } catch {
-            this.logService.error("Failed to set Autotype enabled state.");
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
 
     // Listen for changes in keyboard shortcut settings
     this.autotypeKeyboardShortcut$

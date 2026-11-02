@@ -14,7 +14,6 @@ import { Guid, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA } from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
-import { SharedModule } from "../../../../../shared/shared.module";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { BulkActionResult } from "../../services/member-actions/member-actions.types";
 
@@ -59,8 +58,7 @@ export default {
   component: BulkReinviteFailureDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [BulkReinviteFailureDialogComponent],
-      imports: [SharedModule],
+      imports: [BulkReinviteFailureDialogComponent],
       providers: [
         { provide: DialogRef, useValue: mockDialogRef },
         { provide: EnvironmentService, useValue: mockEnvironmentService },

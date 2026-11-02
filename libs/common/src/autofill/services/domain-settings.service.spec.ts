@@ -441,6 +441,75 @@ describe("DefaultDomainSettingsService", () => {
       });
     });
 
+    describe("resolves fragments", () => {
+      const formsFor = (id: string): FormContent[] => [
+        { category: FormPurposeCategories.AccountLogin, fields: { username: [`input#${id}`] } },
+      ];
+      const pageFragmentForms = formsFor("page-fragment");
+      const pageForms = formsFor("page");
+      const siteWideForms = formsFor("site");
+      const hostnameForms = formsFor("host");
+
+      const rules: TargetingRulesByDomain = {
+        "example.com": {
+          forms: hostnameForms,
+          fragments: {
+            "#login": { forms: siteWideForms },
+            "#help": null,
+          },
+          pathnames: {
+            "/": {
+              fragments: {
+                "#login": { forms: pageFragmentForms },
+                "#caf%C3%A9": { forms: pageFragmentForms },
+              },
+            },
+            "/account": { forms: pageForms },
+            "/auth": {
+              forms: pageForms,
+              fragments: { "#recover": { forms: pageFragmentForms } },
+            },
+            "/app": { fragments: { "#/login": { forms: pageFragmentForms } } },
+            "/status": {
+              forms: pageForms,
+              fragments: { "#login": null },
+            },
+            "/blank": { fragments: {} },
+            "/legal": null,
+          },
+        },
+        "fragments-only.example": {
+          fragments: { "#login": { forms: siteWideForms } },
+        },
+      };
+
+      it.each([
+        ["https://example.com#login", pageFragmentForms],
+        ["https://example.com/account#login", pageForms],
+        ["https://example.com/auth#recover", pageFragmentForms],
+        ["https://example.com/auth#login", pageForms],
+        ["https://example.com/status#login", []],
+        ["https://example.com/app?q=1#/login", pageFragmentForms],
+        ["https://example.com/app#login", siteWideForms],
+        ["https://example.com/app#missing", null],
+        ["https://example.com/any#login", siteWideForms],
+        ["https://example.com/any#help", []],
+        ["https://example.com/any#other", hostnameForms],
+        ["https://example.com/legal#login", []],
+        ["https://example.com/blank#login", []],
+        ["https://example.com/#%2Flogin", null],
+        ["https://example.com/#café", pageFragmentForms],
+        ["https://fragments-only.example/page", null],
+        ["https://fragments-only.example/page#login", siteWideForms],
+      ])("resolves %s", async (url, expected) => {
+        await setupRules(rules);
+
+        const result = await domainSettingsService.getTargetingRulesForUrl(url);
+
+        expect(result).toEqual(expected);
+      });
+    });
+
     describe("defensively handles schema-violating data", () => {
       it("returns empty array when host is an empty object (no forms or pathnames)", async () => {
         await setupRules({
@@ -878,6 +947,23 @@ describe("DefaultDomainSettingsService", () => {
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({
           rulesUrl: "https://fillassist.bitwarden.com/",
+        }),
+      ]);
+      serverConfigMock$.next({
+        environment: { fillAssistRules: "https://server.example.com/rules" },
+      });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBe("https://server.example.com/rules/");
+    });
+
+    it("falls back to server config when the policy URL is a legacy default value", async () => {
+      // Legacy default values must be recognized here so legacy policies fetch
+      // current server config, matching how the edit UI treats them.
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({
+          rulesUrl: "https://github.com/bitwarden/map-the-web/releases/latest/download",
         }),
       ]);
       serverConfigMock$.next({

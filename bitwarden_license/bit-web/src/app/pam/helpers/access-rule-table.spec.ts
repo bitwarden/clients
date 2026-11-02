@@ -1,45 +1,4 @@
-import { AccessRuleFilter, accessRuleMatchesFilter, accessRuleWindow } from "./access-rule-table";
-
-const ONE_HOUR = 60 * 60;
-const FOUR_HOURS = 4 * 60 * 60;
-
-describe("accessRuleWindow", () => {
-  it("returns null when there is no default duration", () => {
-    expect(
-      accessRuleWindow({
-        defaultLeaseDurationSeconds: undefined,
-        maxLeaseDurationSeconds: undefined,
-      }),
-    ).toBeNull();
-  });
-
-  it("returns the default alone when there is no cap", () => {
-    expect(
-      accessRuleWindow({
-        defaultLeaseDurationSeconds: ONE_HOUR,
-        maxLeaseDurationSeconds: undefined,
-      }),
-    ).toEqual({ defaultSeconds: ONE_HOUR, maxSeconds: null });
-  });
-
-  it("returns the default alone when the cap equals the default", () => {
-    expect(
-      accessRuleWindow({
-        defaultLeaseDurationSeconds: ONE_HOUR,
-        maxLeaseDurationSeconds: ONE_HOUR,
-      }),
-    ).toEqual({ defaultSeconds: ONE_HOUR, maxSeconds: null });
-  });
-
-  it("returns a default–max range when a distinct cap is set", () => {
-    expect(
-      accessRuleWindow({
-        defaultLeaseDurationSeconds: ONE_HOUR,
-        maxLeaseDurationSeconds: FOUR_HOURS,
-      }),
-    ).toEqual({ defaultSeconds: ONE_HOUR, maxSeconds: FOUR_HOURS });
-  });
-});
+import { AccessRuleFilter, accessRuleMatchesFilter } from "./access-rule-table";
 
 describe("accessRuleMatchesFilter", () => {
   const rule = (overrides: Partial<{ name: string; enabled: boolean; collections: string[] }>) => ({
@@ -52,7 +11,7 @@ describe("accessRuleMatchesFilter", () => {
   const filter = (overrides: Partial<AccessRuleFilter> = {}): AccessRuleFilter => ({
     text: "",
     status: null,
-    collectionId: null,
+    collectionIds: [],
     ...overrides,
   });
 
@@ -80,16 +39,33 @@ describe("accessRuleMatchesFilter", () => {
       accessRuleMatchesFilter(
         rule({ collections: ["col-1"] }),
         [],
-        filter({ collectionId: "col-2" }),
+        filter({ collectionIds: ["col-2"] }),
       ),
     ).toBe(false);
     expect(
       accessRuleMatchesFilter(
         rule({ collections: ["col-2"] }),
         [],
-        filter({ collectionId: "col-2" }),
+        filter({ collectionIds: ["col-2"] }),
       ),
     ).toBe(true);
+  });
+
+  it("matches a rule carrying any of several selected collections", () => {
+    expect(
+      accessRuleMatchesFilter(
+        rule({ collections: ["col-3"] }),
+        [],
+        filter({ collectionIds: ["col-2", "col-3"] }),
+      ),
+    ).toBe(true);
+    expect(
+      accessRuleMatchesFilter(
+        rule({ collections: ["col-1"] }),
+        [],
+        filter({ collectionIds: ["col-2", "col-3"] }),
+      ),
+    ).toBe(false);
   });
 
   it("matches search text against the rule name", () => {

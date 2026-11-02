@@ -1,0 +1,15 @@
+@if (showHeader$ | async) {
+  <div class="header" [class.vfo1]="vfo1Enabled()"></div>
+}
+
+<div id="container">
+  @if (loading) {
+    <div class="loading">
+      <bit-spinner />
+    </div>
+  } @else {
+    <router-outlet />
+  }
+</div>
+
+<bit-toast-container></bit-toast-container>

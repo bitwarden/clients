@@ -5,6 +5,8 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -17,15 +19,18 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
-
-import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
-import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 import {
+  PinnedSharedFoldersService,
+  VaultNavService,
+  VaultsNavViewModel,
   CoachmarkComponent,
   CoachmarkService,
   CoachmarkStepId,
-} from "../vault/components/coachmark";
+} from "@bitwarden/vault";
+
+import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
+import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
 
 import { UserLayoutComponent } from "./user-layout.component";
 import { WebLayoutModule } from "./web-layout.module";
@@ -52,7 +57,14 @@ class MockWebSideNavComponent {}
 class MockBillingFreeFamiliesNavItemComponent {}
 
 @Component({
-  selector: "app-coachmark",
+  selector: "app-pam-user-nav-slot",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockPamUserNavSlotComponent {}
+
+@Component({
+  selector: "vault-coachmark",
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -177,6 +189,22 @@ describe("UserLayoutComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
         { provide: VaultNavService, useValue: vaultNavService },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>({ organizations$: () => of([]) }),
+        },
+        {
+          provide: CollectionService,
+          useValue: mock<CollectionService>({ decryptedCollections$: () => of([]) }),
+        },
+        {
+          // Nothing pinned and the hint dismissed, so the nav's Pinned section stays out of these tests.
+          provide: PinnedSharedFoldersService,
+          useValue: mock<PinnedSharedFoldersService>({
+            pinnedIds$: () => of([]),
+            emptyStateDismissed$: () => of(true),
+          }),
+        },
         { provide: PolicyService, useValue: policyService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: SyncService, useValue: mock<SyncService>() },
@@ -193,7 +221,12 @@ describe("UserLayoutComponent", () => {
     })
       .overrideComponent(UserLayoutComponent, {
         remove: {
-          imports: [WebLayoutModule, BillingFreeFamiliesNavItemComponent, CoachmarkComponent],
+          imports: [
+            WebLayoutModule,
+            BillingFreeFamiliesNavItemComponent,
+            CoachmarkComponent,
+            PamUserNavSlotComponent,
+          ],
         },
         add: {
           imports: [
@@ -202,6 +235,7 @@ describe("UserLayoutComponent", () => {
             MockWebSideNavComponent,
             MockBillingFreeFamiliesNavItemComponent,
             MockCoachmarkComponent,
+            MockPamUserNavSlotComponent,
           ],
         },
       })
@@ -274,12 +308,12 @@ describe("UserLayoutComponent", () => {
       });
     });
 
-    it("renders Add plan after Emergency access and before Export", () => {
+    it("renders Add plan after Appearance and before Domain rules", () => {
       const children = childText(expandGroup("settings"));
 
       expect(children).toContain("addPlan");
-      expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
-      expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
+      expect(children.indexOf("appearance")).toBeLessThan(children.indexOf("addPlan"));
+      expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("domainRules"));
     });
   });
 });

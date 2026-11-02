@@ -43,7 +43,7 @@ export class CartSummaryComponent {
   readonly cart = input.required<Cart>();
 
   // Optional inputs
-  readonly header = input<TemplateRef<{ total: number }>>();
+  readonly header = input<TemplateRef<{ total: number; amountDue: number }>>();
 
   // Hide pricing term (e.g., "/ month" or "/ year") if true
   readonly hidePricingTerm = input<boolean>(false);
@@ -118,8 +118,12 @@ export class CartSummaryComponent {
     this.lineDiscountRows(this.cart().secretsManager?.additionalServiceAccounts),
   );
 
+  readonly privilegedControlsSeatsDiscountRows = computed(() =>
+    this.lineDiscountRows(this.cart().privilegedControls?.seats),
+  );
+
   /**
-   * Sums every per-line discount across all four line items
+   * Sums every per-line discount across all line items
    */
   private readonly lineDiscountTotal = computed<number>(() =>
     [
@@ -127,6 +131,7 @@ export class CartSummaryComponent {
       this.additionalStorageDiscountRows(),
       this.secretsManagerSeatsDiscountRows(),
       this.additionalServiceAccountsDiscountRows(),
+      this.privilegedControlsSeatsDiscountRows(),
     ]
       .flat()
       .reduce((sum, row) => sum + row.amount, 0),
@@ -170,6 +175,14 @@ export class CartSummaryComponent {
     );
   });
 
+  readonly privilegedControlsSeatsTotal = computed<number>(() => {
+    const seats = this.cart().privilegedControls?.seats;
+    if (!seats) {
+      return 0;
+    }
+    return seats.quantity * seats.cost;
+  });
+
   readonly estimatedTax = computed<number>(() => this.cart().estimatedTax);
 
   readonly term = computed<string>(() => {
@@ -198,7 +211,12 @@ export class CartSummaryComponent {
       this.additionalStorageTotal() +
       this.secretsManagerSeatsTotal() +
       this.additionalServiceAccountsTotal() +
-      [this.cart().passwordManager.prorationCharges, this.cart().secretsManager?.prorationCharges]
+      this.privilegedControlsSeatsTotal() +
+      [
+        this.cart().passwordManager.prorationCharges,
+        this.cart().secretsManager?.prorationCharges,
+        this.cart().privilegedControls?.prorationCharges,
+      ]
         .flatMap((charges) => charges ?? [])
         .reduce((sum, charge) => sum + charge.cost, 0) -
       this.lineDiscountTotal(),
@@ -259,7 +277,8 @@ export class CartSummaryComponent {
     return credit.value;
   });
 
-  readonly accountCreditAmount = computed<number>(() => this.cart().accountCredit?.value ?? 0);
+  readonly appliedBalance = computed<number>(() => this.cart().appliedBalance ?? 0);
+  readonly amountDue = computed<number>(() => this.cart().amountDue ?? this.total());
 
   /**
    * Calculates the total of all line items including discounts, credits and tax. Per-line
@@ -267,12 +286,7 @@ export class CartSummaryComponent {
    * subtracted here.
    */
   private readonly computedTotal = computed<number>(
-    () =>
-      this.subtotal() -
-      this.discountAmount() -
-      this.creditAmount() +
-      this.estimatedTax() -
-      this.accountCreditAmount(),
+    () => this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax(),
   );
 
   /**

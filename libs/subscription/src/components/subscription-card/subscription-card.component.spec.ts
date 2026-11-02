@@ -687,6 +687,19 @@ describe("SubscriptionCardComponent", () => {
       );
       expect(header?.textContent).toContain("has been paused");
     });
+
+    it("shows the amount due in the next-charge header when a balance reduces it", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "active",
+        nextCharge: new Date("2025-02-01"),
+        cart: { ...mockCart, total: 14.54, appliedBalance: 12.96, amountDue: 1.58 },
+      } as SubscriptionPreview);
+
+      const header = fixture.debugElement.query(By.css("#cart-summary-header-custom"));
+      expect(header.nativeElement.textContent).toContain("$1.58");
+      expect(header.nativeElement.textContent).not.toContain("$14.54");
+    });
   });
 
   describe("Title rendering", () => {

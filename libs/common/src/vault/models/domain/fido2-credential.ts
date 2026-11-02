@@ -1,13 +1,12 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { EncString } from "@bitwarden/legacy-crypto";
 import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
-import { Fido2CredentialView } from "../view/fido2-credential.view";
 
 export class Fido2Credential extends Domain {
   credentialId!: EncString;
@@ -44,46 +43,6 @@ export class Fido2Credential extends Domain {
     this.rpName = conditionalEncString(obj.rpName);
     this.userDisplayName = conditionalEncString(obj.userDisplayName);
     this.creationDate = new Date(obj.creationDate);
-  }
-
-  async decrypt(decryptionKey: SymmetricCryptoKey): Promise<Fido2CredentialView> {
-    const view = await this.decryptObj<Fido2Credential, Fido2CredentialView>(
-      this,
-      new Fido2CredentialView(),
-      [
-        "credentialId",
-        "keyType",
-        "keyAlgorithm",
-        "keyCurve",
-        "keyValue",
-        "rpId",
-        "userHandle",
-        "userName",
-        "rpName",
-        "userDisplayName",
-      ],
-      decryptionKey,
-    );
-
-    const { counter } = await this.decryptObj<
-      Fido2Credential,
-      {
-        counter: string;
-      }
-    >(this, { counter: "" }, ["counter"], decryptionKey);
-    // Counter will end up as NaN if this fails
-    view.counter = parseInt(counter);
-
-    const { discoverable } = await this.decryptObj<Fido2Credential, { discoverable: string }>(
-      this,
-      { discoverable: "" },
-      ["discoverable"],
-      decryptionKey,
-    );
-    view.discoverable = discoverable === "true";
-    view.creationDate = this.creationDate;
-
-    return view;
   }
 
   toFido2CredentialData(): Fido2CredentialData {

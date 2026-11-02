@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
@@ -42,6 +43,7 @@ const DEFAULT_PARAMS = {
  *    tsConfig: string;
  *  };
  *  outputPath?: string;
+ *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
@@ -61,7 +63,32 @@ module.exports.buildConfig = function buildConfig(params) {
         path.resolve(__dirname, "../../node_modules"),
         path.resolve(process.cwd(), "node_modules"),
       ],
+      alias: params.importAliases,
     },
+  };
+
+  // Pick up locally linked @bitwarden packages (notably the SDK) on `--watch`:
+  //  - unmanagedPaths: content-hash them instead of trusting package.json version,
+  //    which a local build never bumps. Mirrors apps/web and apps/browser.
+  //  - poll: resolve.symlinks is false, so the native macOS watcher misses changes
+  //    made at the symlink's real path. Gated on a local symlink since polling has a
+  //    real CPU cost on registry installs.
+  const sdkLinkPaths = [
+    path.resolve(__dirname, "../../node_modules/@bitwarden/sdk-internal"),
+    path.resolve(process.cwd(), "node_modules/@bitwarden/sdk-internal"),
+  ];
+  const isLocalLinkedSdk = sdkLinkPaths.some((p) => {
+    try {
+      return fs.lstatSync(p).isSymbolicLink();
+    } catch {
+      return false;
+    }
+  });
+  const localSdkWatch = {
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
+    ...(isLocalLinkedSdk ? { watchOptions: { poll: 1000 } } : {}),
   };
 
   const getOutputConfig = (isDev) => ({
@@ -73,6 +100,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const mainConfig = {
     name: "main",
     mode: NODE_ENV,
+    ...localSdkWatch,
     target: "electron-main",
     node: {
       __dirname: false,
@@ -168,6 +196,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const preloadConfig = {
     name: "preload",
     mode: NODE_ENV,
+    ...localSdkWatch,
     target: "electron-preload",
     node: {
       __dirname: false,
@@ -207,6 +236,7 @@ module.exports.buildConfig = function buildConfig(params) {
   const rendererConfig = {
     name: "renderer",
     mode: NODE_ENV,
+    ...localSdkWatch,
     devtool: "source-map",
     target: "web",
     node: {
@@ -334,6 +364,7 @@ module.exports.buildConfig = function buildConfig(params) {
         path: require.resolve("path-browserify"),
         fs: false,
       },
+      plugins: [new TsconfigPathsPlugin({ configFile: params.renderer.tsConfig })],
     },
     plugins: [
       new AngularWebpackPlugin({

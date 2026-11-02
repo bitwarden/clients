@@ -1080,6 +1080,10 @@
   "resetSearch": {
     "message": "Keresés visszaállítása"
   },
+  "clearSearchTooltip": {
+    "message": "Törlés ide kattintva vagy az Esc billentyűt lenyomva.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
+  },
   "allItems": {
     "message": "Összes elem"
   },
@@ -1179,6 +1183,9 @@
   "collections": {
     "message": "Gyűjtemények"
   },
+  "controlledAccess": {
+    "message": "Ellenőrzött hozzáférés"
+  },
   "firstName": {
     "message": "Személynév"
   },
@@ -1252,6 +1259,62 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Mappák: $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ mappa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ mappa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "nestedSharedFolderCount": {
+    "message": "$COUNT$ beágyazott megosztott mappa",
+    "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedSharedFolderSingular": {
+    "message": "1 beágyazott megosztott mappa",
+    "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ beágyazott mappa",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 beágyazott mappa",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
+  },
   "myFolder": {
     "message": "Saját mappa"
   },
@@ -1269,9 +1332,6 @@
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
-  },
-  "newSharedFolder": {
-    "message": "Új megosztott mappa"
   },
   "searchSharedFolder": {
     "message": "Új megosztott mappa"
@@ -1464,42 +1524,6 @@
     "message": "Útlevél hozzáadása",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderLogin": {
-    "message": "Új bejelentkezés",
-    "description": "Header for new login item type"
-  },
-  "newItemHeaderCard": {
-    "message": "Új kártya",
-    "description": "Header for new card item type"
-  },
-  "newItemHeaderIdentity": {
-    "message": "Új személyazonosság",
-    "description": "Header for new identity item type"
-  },
-  "newItemHeaderNote": {
-    "message": "Új jegyzet",
-    "description": "Header for new note item type"
-  },
-  "newItemHeaderSecureNote": {
-    "message": "Új biztonságos jegyzet",
-    "description": "Header for new secure note item type"
-  },
-  "newItemHeaderSshKey": {
-    "message": "Új SSH kulcs",
-    "description": "Header for new SSH key item type"
-  },
-  "newItemHeaderBankAccount": {
-    "message": "Új bankszámla",
-    "description": "Header for new bank account item type"
-  },
-  "newItemHeaderDriversLicense": {
-    "message": "Új licensz",
-    "description": "Header for new license item type"
-  },
-  "newItemHeaderPassport": {
-    "message": "Új útlevél",
-    "description": "Header for new passport item type"
-  },
   "newItemHeaderTextSendV2": {
     "message": "Új szöveg",
     "description": "Header for new text send"
@@ -1507,22 +1531,6 @@
   "newItemHeaderFileSendV2": {
     "message": "Új fájl",
     "description": "Header for new file send"
-  },
-  "editItemHeaderLogin": {
-    "message": "Bejelentkezés szerkesztése",
-    "description": "Header for edit login item type"
-  },
-  "editItemHeaderCard": {
-    "message": "Kártya szerkesztése",
-    "description": "Header for edit card item type"
-  },
-  "editItemHeaderIdentity": {
-    "message": "Személyazonossság szerkesztése",
-    "description": "Header for edit identity item type"
-  },
-  "editItemHeaderNote": {
-    "message": "Jegyzet szerkesztése",
-    "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
     "message": "Biztonságos jegyzet szerkesztése",
@@ -1992,6 +2000,27 @@
   "selectFile": {
     "message": "Válasszunk egy fájlt."
   },
+  "selectFileUnsupportedType": {
+    "message": "Ez a fájltípus nem elfogadott ehhez a forráshoz. Válasszunk egy másik fájlt."
+  },
+  "pasteContentRequired": {
+    "message": "Exportált tartalom beszúrása."
+  },
+  "fileTypeNotSupported": {
+    "message": "Ez a fájltípus nem támogatott. Válasszunk egy $TYPES$ fájlt.",
+    "placeholders": {
+      "types": {
+        "content": "$1",
+        "example": ".json, .csv, or .1pux"
+      }
+    }
+  },
+  "pasteContentFormatMismatch": {
+    "message": "A beillesztett tartalom nem egyezik a kiválasztott formátummal."
+  },
+  "errorReadingFile": {
+    "message": "A kiválasztott fájl nem volt olvasható."
+  },
   "maxFileSize": {
     "message": "A maximális fájl méret 500 MB."
   },
@@ -2103,6 +2132,12 @@
   },
   "deletedItem": {
     "message": "Az elem törlésre került."
+  },
+  "deleteItemError": {
+    "message": "Nem sikerült törölni az elemet."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Ez az elem korlátozott. A változás nem lett mentve."
   },
   "deletedItems": {
     "message": "Törölt elemek"
@@ -2587,6 +2622,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Nincsenek elemek $FOLDER_NAME$ mappában.",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Elemek hozzáadása ehhez a mappához. Gyorsan elérhetjük őket a széf szűrők segítségével.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Nincsenek elemek a saját széfben."
   },
@@ -2626,11 +2675,11 @@
       }
     }
   },
-  "youHaveNoFolders": {
+  "youHaveNoFoldersV2": {
     "message": "Nincsenek mappák."
   },
-  "emptyFoldersDescription": {
-    "message": ""
+  "emptyFoldersDescriptionV2": {
+    "message": "Használjunk mappákat a széf elemek rendszerezéséhez. Ezek sajátok — senki más nem látja vagy használhatja ezeket."
   },
   "emptyVaultsDescription": {
     "message": "A kezdéshez adjunk hozzá bejelentkezéseket, azonosítókat, kártyákat és egyéb elemeket."
@@ -2668,6 +2717,38 @@
   },
   "noMembersInList": {
     "message": "Nincsenek megjeleníthető tagok."
+  },
+  "noMembersInvitedToOrg": {
+    "message": "Nincs meghívott tag a szervezetbe."
+  },
+  "memberCount": {
+    "message": "$COUNT$ tag",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "0"
+      }
+    }
+  },
+  "memberCountSingular": {
+    "message": "1 tag"
+  },
+  "memberRangeOfTotal": {
+    "message": "$START$ – $END$ / $TOTAL$ tag",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "150"
+      }
+    }
   },
   "noMembersToExport": {
     "message": "Nincsenek exportálható tagok."
@@ -2966,11 +3047,44 @@
   "keePassMasterPassword": {
     "message": "KeePass mesterjelszó"
   },
+  "keePassMasterPasswordV2": {
+    "message": "$VENDOR$ jelszó",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
+  },
+  "kdbxPasswordRequired": {
+    "message": "Jelszó szükséges."
+  },
+  "filePasswordRequired": {
+    "message": "Fájl jelszó megadása szükséges."
+  },
+  "filePasswordInvalid": {
+    "message": "Adjunk meg egy érvényes fájl jelszót."
+  },
+  "filePasswordProtectedSubtitle": {
+    "message": "A feltöltött fájl jelszóval védett. A folytatáshoz adjuk meg a jelszót."
+  },
+  "selectProfile": {
+    "message": "Profil kiválasztása"
+  },
+  "kdbxPasswordInvalid": {
+    "message": "Adjunk meg egy érvényes jelszót."
+  },
+  "importAccountMismatchError": {
+    "message": "Ez a fájl csak abba a fiókba importálható, ahonnan exportálva lett."
+  },
   "addKeyFile": {
     "message": "Kulcs fájl hozzáadása"
   },
   "keyFileUpload": {
     "message": "Kulcs fájl feltöltés"
+  },
+  "keyFileUploadV2": {
+    "message": "Kulcs fájl"
   },
   "kdbxFileUpload": {
     "message": "KDBX fájl feltöltés"
@@ -3019,6 +3133,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
@@ -3374,6 +3500,9 @@
   "importFormatError": {
     "message": "Az adatok formázása nem megfelelő. Ellenőrizzük az import fájlt és próbáljuk újra."
   },
+  "importUnsupportedKdfSettings": {
+    "message": "Ez a fájl nem támogatott titkosítási beállításokat használ és nem importálható."
+  },
   "importNothingError": {
     "message": "Semmi nem lett importálva."
   },
@@ -3452,15 +3581,6 @@
   "learnAboutImportOptions": {
     "message": "Információ az importálási opciókról"
   },
-  "selectImportFolder": {
-    "message": "Mappa kiválasztása"
-  },
-  "selectImportCollection": {
-    "message": "Gyűjtemény kiválasztása"
-  },
-  "selectImportSharedFolder": {
-    "message": "Select a shared folder"
-  },
   "importTargetHintCollection": {
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
   },
@@ -3468,7 +3588,7 @@
     "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importTargetHintSharedFolder": {
-    "message": "Select this option if you want the imported file contents moved to a shared folder"
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy megosztott mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -3478,6 +3598,40 @@
   },
   "selectImportFile": {
     "message": "Válasszuk ki az import fájlt"
+  },
+  "importSourceBreadcrumb": {
+    "message": "Forrás kiválasztása"
+  },
+  "importSourceSelectTitle": {
+    "message": "Válasszuk ki a forrást."
+  },
+  "importSourceSelectDescription": {
+    "message": "Válasszuk ki azt a jelszókezelőt vagy böngészőt, amelyből importálunk."
+  },
+  "importSourceBrowsers": {
+    "message": "Böngészők"
+  },
+  "importSourcePasswordManagers": {
+    "message": "Jelszókezelők"
+  },
+  "importSourceShowAll": {
+    "message": "Összes megjelenítése"
+  },
+  "importSourceShowLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "importSourceStepCount": {
+    "message": "$CURRENT$ / $TOTAL$ lépés",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
   },
   "chooseFile": {
     "message": "Fájl kiválasztása"
@@ -3586,6 +3740,173 @@
   },
   "importHelpCenterLinkText": {
     "message": "Ügyféltámogatás"
+  },
+  "uploadFile": {
+    "message": "Fájl feltöltése"
+  },
+  "pasteAsPlainText": {
+    "message": "Beillesztés egyszerű szövegként"
+  },
+  "plainText": {
+    "message": "Egyszerű szöveg"
+  },
+  "profile": {
+    "message": "Profil"
+  },
+  "lastPassEmail": {
+    "message": "LastPass email cím"
+  },
+  "lastPassLoginEmailRequired": {
+    "message": "Email cím megadása kötelező."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Adjunk meg egy érvényes email címet."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Jelszó megadása szükséges."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Adjunk meg egy érvényes jelszót."
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Érvényes ellenőrző kódot adjunk meg."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Adjuk meg a Lastpass mesterjelszót."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Adjuk meg az ellenőző kódot lentebb."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Várakozás SSO hitelesítésre"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "A bejelentkezés után az importálás automatikusan folytatódik."
+  },
+  "includeSharedFolders": {
+    "message": "Megosztott mappák is"
+  },
+  "importManuallyInstead": {
+    "message": "Manuális importálás helyette"
+  },
+  "directlyImportInstead": {
+    "message": "Közvetlen importálás helyette"
+  },
+  "fastest": {
+    "message": "Leggyorsabb"
+  },
+  "importDataTitle": {
+    "message": "Adatok importálása"
+  },
+  "importDataDirectTitle": {
+    "message": "Adatok importálása percek alatt"
+  },
+  "importDataDirectSubtitlePrefix": {
+    "message": "Importáljuk az elemeket közvetlenül innen",
+    "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
+  },
+  "importDataDirectSubtitleSuffix": {
+    "message": "az összes adat beolvasásához.",
+    "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
+  },
+  "importDataManualSubtitle": {
+    "message": "Importálás $VENDOR$ alkalmazásból vagy az exportált tartalom beillsztése vágólapon át.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataChromiumSubtitle": {
+    "message": "Válasszuk ki azt a profilt, amelyből jelszavakat szeretnénk importálni."
+  },
+  "noBrowserProfilesFound": {
+    "message": "Nem található böngésző profil."
+  },
+  "importDataLoginTitle": {
+    "message": "Bejelentkezés $VENDOR$ alkalmazásba",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "Keeper"
+      }
+    }
+  },
+  "importDataLoginSubtitle": {
+    "message": "A hitelesítő adatok titkosítva vannak az átvitel során és soha nem tárolódnak."
+  },
+  "importDataSecureByDesignTitle": {
+    "message": "Biztonságos a tervezéssel"
+  },
+  "importDataSecureByDesignBody": {
+    "message": "Végpontok közötti titkosított átadás. A Bitwarden soha nem látja $VENDOR$ bejelentkezési adatait.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataLoginInfoTitle": {
+    "message": "A bejelentkezési adatok bekérése"
+  },
+  "importDataLoginInfoBody": {
+    "message": "A következő lépésben jelentkezzünk be $VENDOR$ fiókba.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataEverythingTransfersTitle": {
+    "message": "Minden átmegy"
+  },
+  "importDataEverythingTransfersBody": {
+    "message": "Megőrzött mappa struktúrájú bejelentkezések, kártyák, személyazonosságok, biztonságos jegyzetek és TOTP elemek."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Gyors és biztonságos"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Ez a folyamat végponttól végpontig titkosított. Nincs szükség exportálás fájlra."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Csak a bejelentkezés kell"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "A következő lépésben adjuk meg $VENDOR$ bejelentkezési adatait.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Mi kerül átvitelre"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "A bejelentkezések, egyéb elemek és mappák átkerülnek. A belépőkulcsok és a mellékletek kizárhatók."
+  },
+  "importAcceptedFormats": {
+    "message": "Elfogadva: $FORMATS$",
+    "placeholders": {
+      "formats": {
+        "content": "$1",
+        "example": ".json, .csv, .1pux"
+      }
+    }
+  },
+  "importVendorFileType": {
+    "message": "$VENDOR$ fájltípus",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "KeePass"
+      }
+    }
   },
   "importChromiumAliasPreamble": {
     "message": "A folyamat pontosan ugyanaz, mint a Google Chrome-ból történő importálás.",
@@ -3843,9 +4164,6 @@
   },
   "customize": {
     "message": "Testreszabás"
-  },
-  "newCustomDomain": {
-    "message": "Új egyedi domain"
   },
   "addCustomDomain": {
     "message": "Egyedi tartomány hozzáadása"
@@ -4471,6 +4789,14 @@
   "accountCredit": {
     "message": "Fiók  hitelkeret",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
+  },
+  "appliedBalance": {
+    "message": "Alkalmazott egyenleg",
+    "description": "Financial term. The portion of the customer's account balance (credit) applied to the current invoice, reducing the amount charged."
+  },
+  "amountDue": {
+    "message": "Esedékes összeg",
+    "description": "Financial term. The amount the customer is charged for the current invoice after any applied account balance."
   },
   "accountBalance": {
     "message": "Fiók egyenleg",
@@ -5282,6 +5608,9 @@
   "trialConfirmationEmail": {
     "message": "A megerősítő email elküldésre került a csoport számlázási email címére:"
   },
+  "trialIncludesPrivilegedControls": {
+    "message": "Your trial includes Privileged Controls."
+  },
   "monthly": {
     "message": "Havi"
   },
@@ -5354,9 +5683,6 @@
   "groups": {
     "message": "Csoportok"
   },
-  "newGroup": {
-    "message": "Új csoport"
-  },
   "addGroup": {
     "message": "Csoport hozzáadása"
   },
@@ -5372,6 +5698,54 @@
       "quantity": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "deleteGroup": {
+    "message": "Delete group"
+  },
+  "deleteGroups": {
+    "message": "Delete $QUANTITY$ groups",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteGroupWarningDesc": {
+    "message": "Once you delete this group, members assigned to the group could lose access to associated shared folders. The members themselves won't be deleted."
+  },
+  "deleteGroupsWarningDesc": {
+    "message": "Once you delete these groups, members assigned to the groups could lose access to associated shared folders. The members themselves won't be deleted."
+  },
+  "groupCreated": {
+    "message": "Group created"
+  },
+  "groupDeleted": {
+    "message": "Group deleted"
+  },
+  "groupsDeleted": {
+    "message": "$QUANTITY$ groups deleted",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "groupEdited": {
+    "message": "Group edited"
+  },
+  "noGroupsYet": {
+    "message": "No groups yet"
+  },
+  "noGroupsYetDesc": {
+    "message": "Groups will help organize $ORGANIZATIONNAME$ members and give them access to shared folders.",
+    "placeholders": {
+      "organizationname": {
+        "content": "$1",
+        "example": "My Organization"
       }
     }
   },
@@ -5411,9 +5785,6 @@
   },
   "readOnly": {
     "message": "Csak olvasható"
-  },
-  "newCollection": {
-    "message": "Új gyűjtemény"
   },
   "addCollection": {
     "message": "Gyűjtemény hozzáadása"
@@ -6109,6 +6480,15 @@
       }
     }
   },
+  "httpAuthReleasedItemId": {
+    "message": "Megválaszolásra került egy HTTP hitelesítési kérelem $ID$ elemmel.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "a1234b5c-6789-0d12-3efg-h4ij56klm789"
+      }
+    }
+  },
   "createdCollectionId": {
     "message": "$ID$ azonosítójú gyűjtemény létrehozásra került.",
     "placeholders": {
@@ -6728,11 +7108,26 @@
   "resendInvitation": {
     "message": "Meghívás újraküldése"
   },
+  "sendInvite": {
+    "message": "Meghívó küldése"
+  },
+  "sendInvites": {
+    "message": "Meghívók küldése"
+  },
   "resendEmail": {
     "message": "Email újraküldése"
   },
   "hasBeenReinvited": {
     "message": "$USER$ ismételten meghívásra került.",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ meghívásra került.",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6894,6 +7289,9 @@
   "clickHereToAddPaymentMethod": {
     "message": "Kattintás ide egy fizetési mód hozzáadásához."
   },
+  "freeTrialSalesAssistedContactRep": {
+    "message": "A számlázás beállításához lépjünk kapcsolatba Bitwarden értékesítési képviselőjével."
+  },
   "joinOrganization": {
     "message": "Csatlakozás szervezethez"
   },
@@ -7001,6 +7399,15 @@
   },
   "openOrgInviteAcceptUnexpected": {
     "message": "Valamilyen hiba történt. Töltsük be újra az oldalt és próbáljuk újra."
+  },
+  "verify": {
+    "message": "Ellenőrzés"
+  },
+  "toJoinThisOrganizationEnterTheCodeSentToYourEmail": {
+    "message": "A szervezethez csatlakozáshoz adjuk meg az emailben küldött kódot."
+  },
+  "failedToSendVerificationEmail": {
+    "message": "Nem sikerült elküldeni a megerősítő emailt. Próbáljuk újra."
   },
   "openOrgInviteNoSeatsMessage": {
     "message": "A meghívást nem sikerült elfogadni, mert nincs szabad hely."
@@ -7524,20 +7931,14 @@
   "setYourAllowedDomainsCoachMarkBody": {
     "message": "Engedélyezett email tartományok hozzáadása (például acme.com), így csak az egyező emailekkel rendelkező felhasználók használhatják ezt a meghívó hivatkozást. Ez bármikor frissíthető."
   },
+  "tourPreviewExampleDomainsNotice": {
+    "message": "A bemutató előnézetben vagyunk, így ezek a tartományok csak példák."
+  },
   "adjustTheLink": {
     "message": "Hivatkozás beállítása"
   },
   "adjustTheLinkCoachMarkBody": {
     "message": "Az igények változnak és a hivatkozás ezzel együtt változhat. A hivatkozás <strong>újragenerálása</strong> érvényteleníteni a régi hivatkozást és egy újat hoz létre."
-  },
-  "adjustTheLinkCoachMarkBodyIntro": {
-    "message": "Az igények változnak és a hivatkozás ezzel együtt változhat."
-  },
-  "adjustTheLinkCoachMarkRegenerate": {
-    "message": "<strong>Generáljuk újra</strong> a hivatkozást a régi hivatkozás érvénytelenítéséhez és egy új létrehozásához."
-  },
-  "adjustTheLinkCoachMarkAdminConfirmation": {
-    "message": "<strong>Szükséges az adminisztrátori megerősítés</strong> az új tagok jóváhagyásához a szervezethez csatlakozásuk előtt."
   },
   "shareTheLinkAnywhere": {
     "message": "Osszuk meg a hivatkozást bárhol."
@@ -8422,6 +8823,10 @@
     "message": "A Küldéshez társított fájl nem található.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "Ezt a fájlt nem sikerült letölteni, mert a letöltési hivatkozás nem ment át a biztonsági ellenőrzésen.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "A listában nincs küldés.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -8919,17 +9324,43 @@
     "message": "A kitöltési segédről",
     "description": "'Fill assist' is a Bitwarden feature name; do not translate."
   },
+  "fillAssistPolicyV2": {
+    "message": "Kitöltési segédlet használata",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
   "fillAssistPolicyDesc": {
     "message": "Alapértelmezés szerint kapcsoljuk be a kitöltési segédletet az összes tagnál. Ez a funkció áttekintett, helyspecifikus utasításokat használ az automatikus kitöltési pontosság javítására azokon a webhelyeken, amelyekről ismert, hogy nehéz automatikusan kitölteni."
+  },
+  "fillAssistRuleSource": {
+    "message": "Automatikus kitöltési szabály készlet"
+  },
+  "fillAssistRuleSourceDefault": {
+    "message": "Alapértelmezett"
+  },
+  "fillAssistRuleSourceDefaultDesc": {
+    "message": "Használjuk a Bitwarden által felülvizsgált automatikus kitöltési szabály készletet."
+  },
+  "fillAssistRuleSourceCustom": {
+    "message": "Egyedi"
+  },
+  "fillAssistRuleSourceCustomDesc": {
+    "message": "Adjuk meg saját egyedi szabály készletet."
   },
   "fillAssistRulesUrl": {
     "message": "Egyedi automatikus kitöltési szabálykészlet"
   },
-  "fillAssistRulesUrlHint": {
-    "message": "Alapértelmezés szerint a kitöltési segédlet a Bitwarden által összeállított szabálykészletet használja. Írjunk be ide egy webcímet, hogy felülírjuk a sajáttal."
+  "fillAssistRulesUrlV2": {
+    "message": "Egyedi szabály készlet"
+  },
+  "learnMoreAboutCustomRules": {
+    "message": "További információ az egyedi szabályokról"
   },
   "invalidFillAssistRulesUrl": {
     "message": "Adjon meg érvényes webcímet.",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
+  },
+  "invalidFillAssistRulesUrlV2": {
+    "message": "Adjunk meg egy érvényes webcímet egy egyedi szabály készlethez.",
     "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
@@ -9015,6 +9446,12 @@
   },
   "manageAccountRecovery": {
     "message": "Fiók helyreállítás lezelése"
+  },
+  "manageAccessRules": {
+    "message": "Hozzáférési szabályok kezelése"
+  },
+  "manageRotation": {
+    "message": "Forgatás kezelése"
   },
   "disableRequiredError": {
     "message": "A szabály letiltása előtt manuálisan le kell tiltani $POLICYNAME$ házirendet.",
@@ -9888,6 +10325,9 @@
   "activateAutofillPolicyDescV2": {
     "message": "Az automatikus kitöltés engedélyezése az oldalbetöltés beállításánál a böngésző bővítményben az összes meglévő és új tag esetében. Legyünk tudatában annak, hogy a veszélyeztetett vagy megbízhatatlan webhelyek képesek"
   },
+  "activateAutofillPolicyDescV3": {
+    "message": "Engedélyezzük az automatikus kitöltést az oldal betöltés beállításánál a böngésző bővítményben az összes meglévő és új tag esetében. Miután ez a házirend be van kapcsolva, a tagoknak módosítaniuk kell személyes beállításaikat az automatikus kitöltés bekapcsolásához. Legyünk tudatában annak, hogy a veszélyeztetett vagy megbízhatatlan webhelyek képesek:"
+  },
   "exploitAutofillOnPageLoad": {
     "message": "kihasználni automatikus kitöltést az oldal betöltéskor."
   },
@@ -10104,6 +10544,9 @@
   "sponsoredFamiliesSelectOffer": {
     "message": "Válasszuk ki a szponzorálni kívánt szervezetet."
   },
+  "selectAFamilyVault": {
+    "message": "Családi széf kiválasztása"
+  },
   "familiesSponsoringOrgSelect": {
     "message": "Melyik ingyenes családi ajánlatot szeretnénk beváltani?"
   },
@@ -10115,6 +10558,20 @@
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Meglévő szervezet ajánlatának elfogadása vagy új Családi szervezet létrehozása."
+  },
+  "acceptSponsoredFamiliesPlanHelp": {
+    "message": "$ORGANIZATION$ szponzorált egy ingyenes Bitwarden Families csomagot! Alkalmazhatjuk a kiegészítő csomagot egy meglévő családi széfre vagy létrehozhatunk egy újat.",
+    "description": "Sponsored Families redemption page. The single 'or' is the approved copy.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "acceptSponsoredFamiliesPlanHelpNoOrg": {
+    "message": "Szponzorálásra került egy ingyenes Bitwarden Families csomag! Alkalmazhatjuk a kiegészítő csomagot egy meglévő családi széfre vagy létrehozhatunk egy újat.",
+    "description": "Fallback for the redemption page when the sponsoring organization name is unavailable. The single 'or' is the approved copy."
   },
   "setupSponsoredFamiliesLoginDesc": {
     "message": "Ingyenes Bitwarden Családi csomag szervezetet ajánlottak fel. A folytatáshoz be kell jelentkezni az ajánlatot fogadó fiókba."
@@ -10133,6 +10590,12 @@
   },
   "sponsoredFamiliesOffer": {
     "message": "Az ingyenes Bitwarden Családi csomag elfogadása"
+  },
+  "acceptSponsoredFamiliesPlan": {
+    "message": "Szponzorált Families csomag elfogadása"
+  },
+  "sponsoredPlanDetails": {
+    "message": "Szponzorált csomag részletek"
   },
   "sponsoredFamiliesOfferRedeemed": {
     "message": "Az ingyenes Bitwarden családi szervezet ajánlat beváltásra került."
@@ -10302,14 +10765,24 @@
   "paymentSponsored": {
     "message": "Adjunk meg egy, a szervezethez társítandó fizetési módot. Nem kell aggódni, nem kerül semmi felszámításra, hacsak nem választunk további funkciókat vagy ha szponzorálás lejár. "
   },
+  "paymentSponsoredFamilyVault": {
+    "message": "Adjunk meg egy fizetési módot a családi széfhez társításhoz. Ne aggódjunk, nem lesz felszámítva semmi, hacsak nem választunk kiegészítő funkciókat vagy ha a szponzoráció lejár.",
+    "description": "VFO1 variant of paymentSponsored: 'the organization' becomes 'your family vault'."
+  },
   "orgCreatedSponsorshipInvalid": {
     "message": "A szponzorálási ajánlat lejárt, törölhető a létrehozott szervezet a 7 napos próbaidőszak végén jelentkező díj elkerüléséért. Ellenkező esetben bezárhatjuk ezt az üzenetet a szervezet megtartásához és a számlázási felelősség vállalásához."
   },
   "newFamiliesOrganization": {
     "message": "Új családi szervezet"
   },
+  "createVault": {
+    "message": "Széf létrehozása"
+  },
   "acceptOffer": {
     "message": "Ajánlat elfogadása"
+  },
+  "applySponsorship": {
+    "message": "Szponzorálás alkalmazása"
   },
   "sponsoringOrg": {
     "message": "Szponzoráló szervezet"
@@ -10867,6 +11340,30 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "Ez a webcím nem engedélyezett. Https-t kell használni és nem lehet helyi vagy személyes hálózati címre mutatni.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Adjunk meg egy érvényes webcímet.",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderUnsafeUrlDialogTitle": {
+    "message": "Nem biztonságos webcím lett észlelve.",
+    "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderUnsafeUrlDialogContent": {
+    "message": "Előfordulhat, hogy ez a webcím nem biztonságos vagy személyes hálózatra mutat. Használata személyes adatok nyilvánosságra hozatalát eredményezheti. Csak akkor folytassuk, ha megbízunk ebben a szerverben.",
+    "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
+  },
+  "forwarderTrustUrl": {
+    "message": "Bizalmas webcím",
+    "description": "Accept button on the forwarder unsafe url confirmation dialog."
+  },
+  "forwarderUrlTrustedHint": {
+    "message": "Ez a webcím megbízhatónak lett megjelölve. Szerkeszteni bármikor lehet.",
+    "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
     "message": "Ismeretlen $SERVICENAME$ hiba történt.",
@@ -11779,6 +12276,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Adjunk hozzá egy megosztott mappát a széfelemek más tagokkal történő biztonságos megosztásához."
   },
+  "pinned": {
+    "message": "Kitűzött",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Kitűzés az oldalsávra",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Levétel az oldalsávról",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ kitűzésre került az oldalsávra.",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ levételre került az oldalsávról.",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Keressünk egy megosztott mappát ebben a széfben és válasszuk ki",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "az Opciók menüből.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "A megosztott mappák kitűzése az oldalsávra a szűrésükért."
+  },
   "noMembersAdded": {
     "message": "Nem lett tag hozzáadva."
   },
@@ -11790,9 +12330,6 @@
   },
   "domainVerification": {
     "message": "Domain ellenőrzés"
-  },
-  "newDomain": {
-    "message": "Új domain"
   },
   "addDomain": {
     "message": "Tartomány hozzáadása"
@@ -12162,9 +12699,6 @@
   },
   "groupSlashUser": {
     "message": "Csoport/Felhasználó"
-  },
-  "kdfSettingsChangeLogoutWarning": {
-    "message": "A folytatás kijelentkeztet az összes aktív munkamenetből. Újra be kell jelentkezni és kétlépcsős bejelentkezést kell végrehajtani, ha van ilyen. Célszerű a titkosítási beállítások módosítása előtt a széf exportálása az adatvesztés elkerülése érdekében."
   },
   "secretsManager": {
     "message": "Titkos kód kezelő"
@@ -13067,6 +13601,10 @@
   "secretsManagerPlanPrice": {
     "message": "Titkos kód kezelő csomag ár"
   },
+  "privilegedControlsPlanPrice": {
+    "message": "Privileged Controls csomag ár",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "passwordManager": {
     "message": "Jelszókezelő"
   },
@@ -13782,10 +14320,6 @@
     "message": "Gépi fiókok",
     "description": "The title for the section that deals with machine accounts."
   },
-  "newMachineAccount": {
-    "message": "Új gépi fiók",
-    "description": "Title for creating a new machine account."
-  },
   "addMachineAccount": {
     "message": "Gépi fiók hozzáadása",
     "description": "Title for creating a new machine account."
@@ -14255,6 +14789,9 @@
   "organizationOptionsMenu": {
     "message": "Szervezeti menü váltás"
   },
+  "vaultOptions": {
+    "message": "Vault options"
+  },
   "vaultItemSelect": {
     "message": "Széf elem választás"
   },
@@ -14415,6 +14952,40 @@
   },
   "billingPreviewInvoiceError": {
     "message": "Hiba történt a számla előnézete közben. Próbáljuk újra később."
+  },
+  "billingPreviewInvalidAddressError": {
+    "message": "Ellenőrizzük a számlázási adatokat és próbáljuk újra."
+  },
+  "planChangeTrialIncluded": {
+    "message": "Ez a frissítés tartalmaz egy $DAYS$ napos próbaverziót. A fenti összeg az, ami a próbaidőszak végén terhelésre kerül.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
+  },
+  "planChangeTrialRemaining": {
+    "message": "Még 1 nap van vissza a próbaidőszakból. A fenti összeg $DATE$ dátummal esedékes.",
+    "placeholders": {
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
+  },
+  "planChangeTrialRemainingPlural": {
+    "message": "Még $DAYS$ nap van vissza a próbaidőszakból. A fenti összeg $DATE$ dátummal esedékes.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun. 4, 2025"
+      }
+    }
   },
   "unverified": {
     "message": "Nem ellenőrzött"
@@ -15430,6 +16001,9 @@
   "restartSubscription": {
     "message": "Feliratkozás újra indítása"
   },
+  "restartSubscriptionBillingAddressLoadError": {
+    "message": "Nem lehetett betölteni a számlázási adatokat. Zárjuk be ezt a párbeszédpanelt és próbáljuk újra."
+  },
   "suspendedManagedOrgMessage": {
     "message": "Segítséget $PROVIDER$ szolgáltatótól kaphatunk.",
     "placeholders": {
@@ -15515,20 +16089,11 @@
   "atRiskPassword": {
     "message": "Veszélyes jelszó"
   },
-  "changeAtRiskPassword": {
-    "message": "Kockázatos jelszó megváltoztatása"
-  },
-  "changeAtRiskPasswordAndAddWebsite": {
-    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
-  },
   "vulnerablePassword": {
     "message": "A jelszó sérülékeny."
   },
   "changeNow": {
     "message": "Módosítás most"
-  },
-  "missingWebsite": {
-    "message": "Hiányzó webhely"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Feloldás eltávolítása PIN kóddal"
@@ -16735,8 +17300,8 @@
   "premiumSubscriptionCredit": {
     "message": "Prémium előfizetés jóváírás"
   },
-  "appliedSubscriptionCredits": {
-    "message": "Alkalmazott előfizetési kreditek"
+  "appliedProrationCredits": {
+    "message": "Alkalmazott előfizetési kredit"
   },
   "enterpriseMembership": {
     "message": "Vállalati tagság"
@@ -16901,6 +17466,30 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Tartsuk meg erősen a széfelemek biztonságát azáltal, hogy ellenőrizzük a jelentéseket a sebezhetőség tekintetében."
   },
+  "whatsNew": {
+    "message": "Újdonságok"
+  },
+  "tourTheNewVaultDescription": {
+    "message": "A frissített navigációval és megjelenéssel minden eddiginél könnyebben megtalálhatjuk, amire szükség van."
+  },
+  "coachmarkSwitchProductsTitle": {
+    "message": "Váltás a termékek között"
+  },
+  "coachmarkSwitchProductsDescription": {
+    "message": "Kattintsunk a többi Bitwarden termék megtekintéséhez, amelyekhez hozzáférünk, vagy fedezzÜNK fel új termékeket és csomagokat."
+  },
+  "coachmarkVaultListTitle": {
+    "message": "Az összes széf egy helyen"
+  },
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Gyorsan megtekinthejük a másokkal megosztott széf elemeit vagy a személyes elemeket."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "A gyűjteményeknek és mappáknak új nevük van"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Ugyanazok a funkciók, tisztább nevek. A gyűjteményeket mostantól megosztott mappáknak nevezzük. A mappák mostantól Saját mappák."
+  },
   "aiCoachmarkMonitorActivityTitle": {
     "message": "Biztonyági tevékenység monitorozása"
   },
@@ -16931,6 +17520,12 @@
   "aiCoachmarkRunReportDescription": {
     "message": "Rendszeresen frissítsük a jelentéseket és a betekintéseket, hogy észleljük az új kockázatokat és tekintsük meg a legújabb mutatókat, ahogy a szervezet növekszik."
   },
+  "coachmarkFiltersTitle": {
+    "message": "Szűrők keverése és összeillesztése"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Válasszunk ki egyszerre több szűrőt, hogy pontosan a kívánt eredményekre szűkítsünk. Ezek akkor is alkalmazva maradnak, ha elnavigálunk."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
@@ -16956,6 +17551,72 @@
         "example": "4"
       }
     }
+  },
+  "onePasswordPartialImport": {
+    "message": "$COUNT$ 1Password elem vagy széf nem importálható.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "onePasswordCheckCredentials": {
+    "message": "Hiba történt. Ellenőrizzük a hitelesítő adatokat és próbáljuk újra."
+  },
+  "onePasswordOnlyPasswordLogin": {
+    "message": "Csak a jelszavas bejelentkezés támogatott."
+  },
+  "onePasswordOnlyPasswordLoginTryAgain": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "enterValidEmailOrUseDifferentImportMethod": {
+    "message": "Csak a jelszavas bejelentkezés támogatott. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "onePasswordImportError": {
+    "message": "Hiba történt. Próbáljuk újra, vagy használjunk más importálási módot."
+  },
+  "emailIsRequired": {
+    "message": "Email cím megadása kötelező."
+  },
+  "enterValidEmailAddress": {
+    "message": "Adjunk meg egy érvényes email címet."
+  },
+  "signInAddressIsRequired": {
+    "message": "A bejelentkezési email cím megadása kötelező."
+  },
+  "enterValidSignInAddress": {
+    "message": "Adjunk meg egy érvényes bejelentkezési címet."
+  },
+  "secretKeyIsRequired": {
+    "message": "Titkos kulcs megadása kötelező."
+  },
+  "enterValidSecretKey": {
+    "message": "Adjunk meg egy érvényes titkos kulcsot."
+  },
+  "passwordIsRequired": {
+    "message": "Jelszó megadása szükséges."
+  },
+  "enterValidVerificationCode": {
+    "message": "Érvényes ellenőrző kódot adjunk meg."
+  },
+  "signInAddress": {
+    "message": "Bejelentkezési cím"
+  },
+  "onePasswordEmail": {
+    "message": "1Password email cím"
+  },
+  "onePasswordEmailHint": {
+    "message": "Adjuk meg az 1Password bejelentkezéshez használt email címet."
+  },
+  "secretKey": {
+    "message": "Titkos kulcs"
+  },
+  "secretKeyAndPassword": {
+    "message": "Titkos kulcs és jelszó"
+  },
+  "secretKeyAndPasswordDesc": {
+    "message": "A fók titkos kulccsal és jelszóval van biztosítva. A folytatáshoz mindkettőt be kell írni."
   },
   "keeperEmail": {
     "message": "Keeper email cím"
@@ -17157,6 +17818,63 @@
   },
   "importingYourAccount": {
     "message": "A iók importálása folyamatban van..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Szerver"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email cím megadása kötelező."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Adjunk meg egy érvényes email címet."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Nem támogatott kéttényezős metódus. Metódus váltás vagy manuális importálás."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Eszköz jóváhagyás szükséges."
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Érvényes ellenőrző kódot adjunk meg."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Az ellenőrző kód ismét elküldésre került."
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "A Keeper Push értesítés elküldésre került a jóváhagyott eszközre."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Hagyjuk jóvá ezt az eszközt a metódus kiválasztásával lentebb."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Ellenőrizzük az email címet és írjuk be az alábbi ellenőrző kódot."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Adjuk meg a hitelesítő alkalmazás által generált kódot."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Adjuk meg a szöveges üzenetben küldött kódot."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Adjuk meg a Keeper mesterjelszót."
+  },
+  "keeperLoginDnaSent": {
+    "message": "A Keeper DNA elküldésre került."
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "A Keeper DNA értesítés jóváhagyása az eszközön."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "A jóváhagyási kérelem törlésre kerül. Biztos, hogy folytatni akarjuk?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "Elküldésre került egy adminisztrátori jóváhagyási kérelem az adminisztrátornak."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Jelszó megadása szükséges."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Adjunk meg egy érvényes jelszót."
   },
   "passcode": {
     "message": "Belépési kód"
@@ -17409,29 +18127,914 @@
   "copy": {
     "message": "Másolás"
   },
-  "pam": {
-    "message": "PAM"
+  "pamAccessRequestsTitle": {
+    "message": "Hozzáférési kérelmek"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "Engedélyezzük, figyeljük és ellenőrizzük a hitelesítőkhöz az időkorlátos hozzáférést."
+  },
+  "pamTabApprovals": {
+    "message": "Jóváhagyások"
+  },
+  "pamTabMyRequests": {
+    "message": "Saját kérések"
+  },
+  "pamTabHistory": {
+    "message": "Előzmények"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Keresési hitelesítés, gyűjtemény, kérelmező"
+  },
+  "pamCollectionFilter": {
+    "message": "Gyűjtemény"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Kiterjesztés kérés"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Hozzáférés bekapcsolása"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "Nincs aktív hozzáférés."
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Nem sikerült betölteni a kéréseket."
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Függő"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "Nincs függőben levő kérés."
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "Nincsenek kérések."
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "Jelenleg nincs kérés a bizalmas hitelesítések eléréséhez."
+  },
+  "pamColumnItem": {
+    "message": "Elem"
+  },
+  "pamColumnWindow": {
+    "message": "Ablak"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Kért ablak"
+  },
+  "pamColumnSubmitted": {
+    "message": "Beküldött"
+  },
+  "pamColumnStatus": {
+    "message": "Állapot"
+  },
+  "pamColumnResolvedBy": {
+    "message": "Resolved by"
+  },
+  "pamColumnResolved": {
+    "message": "Megoldott"
+  },
+  "pamColumnRemaining": {
+    "message": "Maradt"
+  },
+  "pamColumnActions": {
+    "message": "Műveletek"
+  },
+  "pamWindowUntil": {
+    "message": "Végdátum: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Kiterjesztett +$DURATION$ · $DATE$ céldátumig",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Aktív $REMAINING$ időn belül",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Hozzáférési szabály"
+  },
+  "pamResolverRequester": {
+    "message": "Kérelmező"
+  },
+  "pamResolverUnknown": {
+    "message": "Ismeretlen felhasználó"
+  },
+  "pamInboxInCollection": {
+    "message": "$COLLECTION$ gyűjteményben",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Indok"
+  },
+  "pamInboxReasonMissing": {
+    "message": "Nincs megadva ok."
+  },
+  "pamAccessRequestedLabel": {
+    "message": "A hozzáférés lekérésre került."
+  },
+  "pamInboxRequester": {
+    "message": "Kérelmező"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ perc",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Hozzáférés kezdése"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "A hozzáférés elkezdődött."
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 óra"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "mostantól indul"
+  },
+  "pamInboxStartToday": {
+    "message": "ma"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "holnap"
+  },
+  "pamInboxStartInDays": {
+    "message": "$DAYS$ nap múlva",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Nem sikerült elindítani a hozzáférést."
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "A kérés törlésre került."
+  },
+  "pamMyRequestsCancelError": {
+    "message": "A kérést nem lehetett törölni."
+  },
+  "pamEndLeaseButton": {
+    "message": "Hozzáférés befejezése"
+  },
+  "pamEndLeaseTitle": {
+    "message": "Hozzáférés befejezése?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "Ez azonnal visszavonja a hozzáférést. Ezt a műveletet nem lehet visszavonni."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "A hozzáférés befejeződött."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Kiterjesztés"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Hozzáférés kiterjesztése"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Kiterjesztés hossz"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Indok"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "A hozzáférés kiterjesztésre került."
+  },
+  "pamExtendLeaseError": {
+    "message": "Nem lehet kiterjeszteni a hozzáférést."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "A hozzáférés véget ért, mielőtt meghosszabbítható lenne. A kérés az előzményekben van."
+  },
+  "pamStatusApproved": {
+    "message": "Jóváhagyva"
+  },
+  "pamStatusActivated": {
+    "message": "Aktív"
+  },
+  "pamStatusDenied": {
+    "message": "Megtagadva"
+  },
+  "pamStatusCanceled": {
+    "message": "Törölve"
+  },
+  "pamStatusExpired": {
+    "message": "Lejárt"
+  },
+  "pamStatusRevoked": {
+    "message": "Visszavonva"
+  },
+  "pamStatusSessionEnded": {
+    "message": "Session ended"
+  },
+  "pamStatusUnknown": {
+    "message": "Ismeretlen"
+  },
+  "pamSharedFolderPrivilegedControls": {
+    "message": "Privileged controls: access requires a request"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Kiemelt"
+  },
+  "pamAccessBadgePending": {
+    "message": "Jóváhagyás függőben"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Nem elérhető"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Használatra kész"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ maradt",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Hamarosan befejeződik • $DURATION$ maradt",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "A munkamenet véget ért."
+  },
+  "pamControlledAccessFilterActive": {
+    "message": "Active",
+    "description": "Controlled access filter option in the vault table: items with an active access session."
+  },
+  "pamAuditKindAccessEndedByRequester": {
+    "message": "A kérelmező hozzáférése véget ért."
+  },
+  "pamAuditKindAccessRevoked": {
+    "message": "A hozzáférés visszavonásra került."
+  },
+  "pamAuditLoadError": {
+    "message": "Could not load the audit trail"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "No audit activity"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Privileged-access activity in this organization will appear here."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "No matching events"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "No events match the current filters."
+  },
+  "pamAuditRangeOutsideHistory": {
+    "message": "Choose a date within the last $DAYS$ days.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "90"
+      }
+    }
+  },
+  "pamAuditColumnEvent": {
+    "message": "Event"
+  },
+  "pamAuditColumnActor": {
+    "message": "Actor"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Requester"
+  },
+  "pamAuditColumnItem": {
+    "message": "Item"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Duration"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Detail"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Extended to $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "System"
+  },
+  "pamAuditIncomplete": {
+    "message": "Incomplete"
+  },
+  "pamAuditIncompleteTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Access requested"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Request approved"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Request denied"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Request canceled"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Request expired without a decision"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Approval expired unused"
+  },
+  "pamAuditKindAccessActivated": {
+    "message": "Access activated"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Activation rejected"
+  },
+  "pamAuditKindAccessExtended": {
+    "message": "Access extended"
+  },
+  "pamAuditKindAccessExpired": {
+    "message": "Access expired"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Credential accessed"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Credential access denied"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Access rule created"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Access rule updated"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Access rule deleted"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Kill switch triggered"
+  },
+  "pamAuditKindAccessFreezeEnabled": {
+    "message": "Access freeze enabled"
+  },
+  "pamAuditKindAccessFreezeLifted": {
+    "message": "Access freeze lifted"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Unknown event"
+  },
+  "pamAuditLog": {
+    "message": "Audit log"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Hozzáférési kérelem"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Kérés részletei"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Access"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Döntési napló"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Hozzáférési kérelem nem érhető el."
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "Ez a hozzáférési kérelem nem érhető el vagy már nem létezik."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Nem lehetett betölteni ezt a hozzáférési kérelmet."
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "Aktív hozzáférés van ehhez az elemhez — $DURATION$ megmarad.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamActiveLeaseBannerEndingSoonTitle": {
+    "message": "Az elemhez hozzáférés hamarosan véget ér — $DURATION$ megmarad.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "A hozzáférési kérelem jóváhagyásig függőben van."
+  },
+  "pamApprovedRequestBannerHeading": {
+    "message": "A hozzáférés jóváhagyásra került."
+  },
+  "pamApprovedRequestBannerDuration": {
+    "message": "$DURATION$ hozzáférés",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "A hitelesítések maszkolásra kerülnek, amíg a hozzáférést meg nem adják."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "Kérhetünk hozzáférést"
+  },
+  "pamUnlicensedBannerHeading": {
+    "message": "Privileged Controls engedély szükséges",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerBody": {
+    "message": "Privileged Controls licensz szükséges az elem megtekintéséhez. Kérjük meg az adminisztrátort, hogy aktiválja licenszet.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "A hozzáférés igénylése kicensz nélkül nem érhető el.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "A jóváhagyott hozzáférési ablak még nem indult el."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "A jóváhagyott hozzáférési ablak már véget ért."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Ez a kérés még nem lett jóváhagyva."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "A kérés a továbbiakban már nem aktivált."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "Ezen kérés hozzáférése már használatban volt és már nem aktív."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Egyszerre csak 1 felhasználó férhet hozzá aktívan ehhez az elemhez. Próbáljuk újra, ha az aktuális hozzáférés véget ér."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Az elemhez való hozzáférés nem engedélyezett a jelenlegi hálózatról."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Az elemhez a hozzáférés jelenleg nem engedélyezett."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Ehhez az elemhez a hozzáférés jelenleg nem engedélyezett."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Privileged Controls licensz szükséges. Kérjük meg az adminisztrátort, hogy aktiválja licenszet.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Hozzáférés akár $DURATION$ időtartamban.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Hozzáférés akár $DURATION$ időtartamban, azonnali jóváhagyás, ha megfelelünk a feltételeknek.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Hozzáférés kérelmezése"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Valaki másnak is van hozzáférése ehhez az elemhez. Kérhetünk hozzáférést, de addig nem lehet elindítani, amíg el nem végzik azt."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Valaki másnak is van hozzáférése ehhez az elemhez. Kérhetünk hozzáférést, de csak $TIME$ időpont után lehet elindítani.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "pendingStateCancelRequest": {
+    "message": "Kérelem törlése"
+  },
+  "pamKeepRequest": {
+    "message": "Kérelem megtartása"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Hozzáférési kérelem törlése"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "Ez visszavonja a kérelmet, mielőtt a jóváhagyó döntene róla. Bármikor benyújthatunk új kérelmet."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "Ez feladja a már jóváhagyott hozzáférést. Új kérelmet nyújthatunk be, de azt újra jóvá kell hagyni."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "A kérés törlésre került."
+  },
+  "pendingStateCancelError": {
+    "message": "A kérést nem lehetett törölni."
+  },
+  "requestAccessModalSubmit": {
+    "message": "Hozzáférés kérelmezése"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Válasszunk egy időtartamot. Ilyen hosszan azonnali hozzáférést kapunk."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Válasszunk egy ablakot és mondja el a jóváhagyónak, miért van szükség a hozzáférésre. Átnézik és eldöntik."
+  },
+  "requestAccessModalDuration": {
+    "message": "Időtartam"
+  },
+  "requestAccessModalStartDate": {
+    "message": "Kezdő dátum"
+  },
+  "requestAccessModalStart": {
+    "message": "Kezdő időpont"
+  },
+  "requestAccessModalEndDate": {
+    "message": "Befejező dátum"
+  },
+  "requestAccessModalEnd": {
+    "message": "Befejező időpont"
+  },
+  "requestAccessModalEndNotAfterStart": {
+    "message": "A befejezésnek a kezdés után kell lennie."
+  },
+  "requestAccessModalStartNow": {
+    "message": "$TIME$ (most)",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:57 AM"
+      }
+    }
+  },
+  "requestAccessModalCustomOption": {
+    "message": "Egyéni idő…"
+  },
+  "requestAccessModalCustomEndOption": {
+    "message": "Egyedi befejező dátum és időpont…"
+  },
+  "requestAccessModalShowStartPresets": {
+    "message": "Javasolt kezdő időpontok megjelenítése"
+  },
+  "requestAccessModalShowEndPresets": {
+    "message": "Vissza a javasolt időtartamokhoz"
+  },
+  "requestAccessModalDurationUntil": {
+    "message": "$DURATION$, $END$ időpontig",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4 hours"
+      },
+      "end": {
+        "content": "$2",
+        "example": "2:57 PM"
+      }
+    }
+  },
+  "requestAccessModalWindowSummary": {
+    "message": "Hozzáférés kérés: $DURATION$: $START$ – $END$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 days, 22 hours"
+      },
+      "start": {
+        "content": "$2",
+        "example": "Tue, Sep 29, 10:57 AM"
+      },
+      "end": {
+        "content": "$3",
+        "example": "Thu, Oct 1, 9:00 AM"
+      }
+    }
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "A kért ablak már véget ért. Válasszunk egy későbbi dátumot vagy időpontot."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "Az ablak nem haladhatja meg $DURATION$ időtartamot.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Indok"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Indok (opcionális)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Miért szükséges ez?"
+  },
+  "requestAccessModalAutomaticReasonHint": {
+    "message": "Ez az indok mentésre került a hozzáférési kérelemmel."
+  },
+  "requestAccessModalHumanReasonHint": {
+    "message": "A jóváhagyók ezt az indokot fogják látni a kérés áttekintésekor."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Nem lehetett hozzáférést kérni. Próbáljuk újra!"
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Már aktív hozzáférés van ehhez az elemhez."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "A hozzáférés jóváhagyásra került – válasszuk a Hozzáférés indítása lehetőséget a kezdéshez."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "A kérelem beküldésre került– jóváhagyásra vár."
+  },
+  "pamApprovalsActiveAccessEmpty": {
+    "message": "Nincs aktív hozzáférés."
+  },
+  "pamApprovalsActiveAccessSection": {
+    "message": "Aktív hozzáférés."
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Gyűjtemény"
+  },
+  "pamApprovalsPendingEmpty": {
+    "message": "Nincsenek kérések, amelyek döntésre várnak."
+  },
+  "pamApprovalsPendingSection": {
+    "message": "Jóváhagyás függőben"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Kérelmező"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Keresési hitelesítés, gyűjtemény, kérelmező"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "További információ"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Opcionális, elmentésre került az ellenőrző naplóba."
+  },
+  "pamDecideApproveTitle": {
+    "message": "Hozzáférési kérelem jóváhagyása"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Hozzáférési kérelem megtagadása"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Megtagadás indoklása"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "Példa: A további hozzáférés nem szükséges."
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "Indolkás szükséges a kérés megtagadásához."
+  },
+  "pamInboxApprove": {
+    "message": "Jóváhagyás"
+  },
+  "pamInboxApprovedToast": {
+    "message": "A kérés jóváhagyásra került."
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Jóváhagyás visszavonása"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "A saját kérést nem lehet jóváhagyni."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Megjegyzés"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Opcionális megjegyzés hozzáadása"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Kérés jóváhagyása"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Kérés elutasítása"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "A döntést nem lehet rögzíteni."
+  },
+  "pamInboxDecisionNoLongerPending": {
+    "message": "Ez a kérés már nem függő. Visszavonásra vagy eldöntésre került."
+  },
+  "pamInboxDecisionWindowEnded": {
+    "message": "A kérés ablak befejeződött és már nem lehet eldönteni."
+  },
+  "pamInboxDeny": {
+    "message": "Megtagadás"
+  },
+  "pamInboxDeniedToast": {
+    "message": "A kérés megtagadásra került."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Erre az elemre már van jóváhagyott kérelem."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Erre az elemre már van függőben lévő kérés."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$ napja",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$w ago",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "Nincsenek kérések, amelyek döntésre várnak."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Nincs új beérkezett üzenet."
+  },
+  "pamInboxLoadFailed": {
+    "message": "Nem sikerült betölteni a beérkező levelek mappát."
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Kérés indoklás"
+  },
+  "pamInboxRevoke": {
+    "message": "Visszavonás"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Nem sikerült visszavonni a hozzáférést."
+  },
+  "pamInboxRevokedToast": {
+    "message": "A hozzáférés visszavonásra került."
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "A jóváhagyás visszavonásra került."
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "A jóváhagyást nem sikerült visszavonni."
+  },
+  "pamInboxWindow": {
+    "message": "Kért ablak"
+  },
+  "pamApprovalsNoResults": {
+    "message": "A szűrőkkel nem egyeznek hozzáférési szabályok."
+  },
+  "pamApprovalsLoaded": {
+    "message": "A hozzáférés betöltésre került."
+  },
+  "pamHistoryLoaded": {
+    "message": "A kérés előzmény betöltésre került."
+  },
+  "pamHistoryEmptyTitle": {
+    "message": "Még nincs megjeleníthető tartalom."
+  },
+  "pamHistoryEmptyDescription": {
+    "message": "A kérések és jóváhagyások körüli tevékenység a műveletek után itt jelenik meg."
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "Ez azonnal visszavonja a tagi hozzáférést. Új jóváhagyásra lesz szükségük a visszaszerzéshez."
+  },
+  "pamInboxWithdrawApprovalConfirm": {
+    "message": "Ez visszavonja a tagi jóváhagyást $ITEM$ esetében. A hozzáférés nem indul el és új jóváhagyásra lesz szükségük ahhoz, hogy megkapják.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      }
+    }
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Access rule"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Access to items here is controlled by"
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$ órája",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Éppen most"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$ perce",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Hozzáférési szabályok"
   },
-  "pamAccessRuleEnabled": {
-    "message": "Engedélyezve"
+  "pamCollectionRequiresRequest": {
+    "message": "Items in this collection require a request.",
+    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
   },
-  "pamAccessRuleEnabledHint": {
-    "message": "Letiltva a szabály inaktív és nem korlátozza a hozzáférést."
+  "pamGatedCollectionBannerName": {
+    "message": "Privileged access",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
   },
-  "pamAccessRuleEnable": {
-    "message": "Szabály engedélyezése"
+  "pamNoAccessRule": {
+    "message": "No access rule",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
-  "pamAccessRuleDisable": {
-    "message": "Szabály letiltása"
+  "pamAccessRuleActive": {
+    "message": "Aktív"
   },
-  "pamAccessRuleEnableSuccess": {
-    "message": "A hozzáférési szabály engedélyezésre került."
+  "pamAccessRuleInactive": {
+    "message": "Inaktív"
   },
-  "pamAccessRuleDisableSuccess": {
-    "message": "A hozzáférési szabály letiltásra került."
+  "pamAccessRuleActiveHint": {
+    "message": "Ha inaktív, a szabály nem korlátozza a hozzáférést."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Szabály aktiválása"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Szabály lekapcsolása"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "A hozzáférési szabály aktiválásra került."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "A hozzáférési szabály lekapcsolásra került."
   },
   "pamAccessRuleNotFound": {
     "message": "A hozzáférési szabály nem található."
@@ -17439,8 +19042,8 @@
   "pamAccessRulesSubheading": {
     "message": "Állítsunk be szabályokat annak vezérlésére, hogy ki, milyen feltételek mellett és mennyi ideig kérhet hozzáférést az érzékeny hitelesítő adatokhoz."
   },
-  "pamAccessRuleNew": {
-    "message": "Új szabály"
+  "pamAccessRuleCreate": {
+    "message": "Hozzáférési szabály létrehozása"
   },
   "pamAccessRuleCreateTitle": {
     "message": "Új hozzáférési szabály"
@@ -17457,6 +19060,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "Általános információ"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Állapot"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Hozzáférési időtartam"
   },
@@ -17469,6 +19075,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "Ez a hozzáférési szabály minden kiválasztott gyűjteményre vonatkozik."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "Minden kérés és döntés naplózásra kerül."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "Vizsgálati napló megtekintése"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Nem sikerült betölteni a gyűjteményeket. Frissítsük az oldalt az újbóli próbálkozáshoz."
   },
@@ -17478,17 +19090,17 @@
   "pamAccessRuleDescription": {
     "message": "Leírás"
   },
-  "pamAccessRuleDefaultDuration": {
-    "message": "Alapértelmezett hozzáférési időtartam"
+  "pamAccessRuleDefaultDurationLabel": {
+    "message": "Alapértelmezett időtartam"
   },
-  "pamAccessRuleMaxDuration": {
-    "message": "Maximális hozzáférési időtartam"
+  "pamAccessRuleMaxDurationLabel": {
+    "message": "Maximális időtartam"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "Nincs felső határ"
   },
-  "pamAccessRuleMaxDurationHint": {
-    "message": "Bármely egyszeri bérlet legfeljebb ennyi ideig kötött, bármit is kér a kérelmező."
+  "pamAccessRuleMaxDurationLimitHint": {
+    "message": "A hozzáférés erre a hosszúságra korlátozódik, bármilyen időtartamot is kérnek."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 perc"
@@ -17508,23 +19120,29 @@
   "pamAccessRuleDuration8h": {
     "message": "8 óra"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 óra"
+  "pamAccessRuleDuration1d": {
+    "message": "1 nap"
+  },
+  "pamAccessRuleDuration2d": {
+    "message": "2 nap"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 nap"
   },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Egyszerre csak egy felhasználó tarthat aktív bérletet."
+  "pamAccessRuleDuration30d": {
+    "message": "30 nap"
   },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "Az új kérések sorba állnak, amíg az aktuális bérlet le nem jár vagy vissza nem vonják."
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Egyszerre csak egy felhasználó tarthat aktív hozzáférést."
   },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Bérlet kiterjesztések engedélyezése"
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Mások jóváhagyással megkísérelhetik elindítani a hozzáférést, amint az aktuális hozzáférés véget ér vagy visszavonásra kerül."
   },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "A tagok új jóváhagyás nélkül egyszer meghosszabbíthatják az aktív bérletet, az alábbi maximális hosszig."
+  "pamAccessRuleAllowAccessExtensions": {
+    "message": "Hozzáférés kiterjesztések engedélyezése"
+  },
+  "pamAccessRuleAllowAccessExtensionsHint": {
+    "message": "A tagok új jóváhagyás nélkül egyszer meghosszabbíthatják az aktív hozzáférést, az alábbi maximális hosszig."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Maximális kiterjesztés hossz"
@@ -17544,23 +19162,85 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Gyűjtemény kezelők"
   },
-  "pamAccessRuleCreated": {
-    "message": "A hozzáférési szabály létrehozásra került."
-  },
-  "pamAccessRuleUpdated": {
-    "message": "A hozzáférési szabály frissítésre került."
-  },
-  "pamAccessRuleDeleteConfirmTitle": {
-    "message": "Törlésre kerüljön a hozzáférési szabály?"
-  },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "\"$NAME$“ törlésre kerüljön? Az ezt a szabályt használó gyűjtemények bérlése le van tiltva.",
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (másolat)",
     "placeholders": {
       "name": {
         "content": "$1",
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ ($NUMBER$ másolat)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "A másolat létrehozásra került. Válasszuk ki azokat a gyűjteményeket, amelyekre vonatkozik."
+  },
+  "pamAccessRuleCreated": {
+    "message": "A hozzáférési szabály létrehozásra került."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "A hozzáférési szabály frissítésre került."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "A hozzáférési szabály törlésre került."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Törlésre kerüljön a hozzáférési szabály?"
+  },
+  "pamAccessRuleDeleteConfirmDescription": {
+    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Hozzáférési szabály kikapcsolása"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "Ez a szabály nem vonatkozik az új hozzáférési kérelmekre."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Valamilyen hiba történt. A szabály nem lett elmentve, de az információk még mindig itt vannak."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Adjunk meg egy nevet."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Egy másik szabály már ezt a nevet használja. Írjunk be egy másik nevet."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Egy másik hozzáférési szabály már lefedi az egyik ilyen gyűjteményt. Válasszunk más gyűjteményeket."
+  },
+  "pamAccessRuleErrorCollectionsGovernedNamed": {
+    "message": "Egy másik hozzáférési szabály már kiterjed $COLLECTIONS$ gyűjteményekre. Válasszunk más gyűjteményeket.",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Engineering, Finance"
+      }
+    }
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "A kiválasztott gyűjtemények egyike már nem létezik. Válasszunk másik gyűjteményt."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "A kiválasztott gyűjtemények egyike nem része ennek a szervezetnek. Válasszunk másik gyűjteményt."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Válasszunk egy maximális kiterjesztés hosszt vagy kapcsoljuk ki a kiterjesztéseket."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "Ez a szabály már nem létezik. Lehet, hogy egy másik adminisztrátor törölte."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "Még nincsenek hozzáférési szabályok."
@@ -17580,8 +19260,8 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Azonnal"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Automatikus jóváhagyás • 1 óra után lejár • Az ellenőrzés naplózásra került."
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Automatikusan elfogadva"
   },
   "pamTemplateJustInTimeName": {
     "message": "Azonnali hozzáférés"
@@ -17589,8 +19269,8 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Jóváhagyás szükséges"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Emberi jóváhagyás • 1 jóváhagyó szükséges • Az ellenőrzés naplózásra került."
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Emberi jóváhagyás • 1 jóváhagyó szükséges."
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Jóváhagyás szükséges"
@@ -17598,8 +19278,8 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "IP cím korlátozott"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Automatikus jóváhagyás • IP engedélyezés lista • Az ellenőrzés naplózásra került."
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Automatikus jóváhagyás • IP engedélyezési lista"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP cím korlátozott elérés"
@@ -17610,17 +19290,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Nincs hozzárendelve"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 gyűjtemény"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ gyűjtemény",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Szabályok keresése"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Vonatkozás:"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Feltételek"
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Jóváhagyási mód"
   },
-  "pamAccessWindow": {
-    "message": "Elérési ablak"
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximális időtartam"
   },
   "pamAccessRuleLastModified": {
     "message": "Utolsó módosítás"
@@ -17637,11 +19329,11 @@
   "pamAccessRulesNoResults": {
     "message": "A szűrőkkel nem egyeznek hozzáférési szabályok."
   },
-  "pamAccessRuleBulkEnable": {
-    "message": "Engedélyezés"
+  "pamAccessRuleBulkActivate": {
+    "message": "Aktiválás"
   },
-  "pamAccessRuleBulkDisable": {
-    "message": "Letiltás"
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Kikapcsolás"
   },
   "pamAccessRulesUpdated": {
     "message": "A hozzáférési szabályok frissítésre kerültek."
@@ -17654,6 +19346,18 @@
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
     "message": "$COUNT$ hozzáférési szabály véglegesen törlődik. Ezt a műveletet nem lehet visszavonni.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Hozzáférési szabály kikapcsolása"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -17748,6 +19452,9 @@
   },
   "inviteLinkCalloutBody": {
     "message": "Bárki, aki rendelkezik vállalati email címmel, használhatja a meghívó hivatkozást, hogy csatlakozzon szervezethez. Dobjuk be a beépített erőforrásokba, hogy az új alkalmazottak csatlakozhassanak, amikor készen állnak."
+  },
+  "inviteLinkCalloutTourPreviewNotice": {
+    "message": "A bemutató mintaadatokat használ. A szervezetben semmi sem fog változni."
   },
   "inviteLinkCalloutImageAlt": {
     "message": "A tagok meghívása párbeszédpanel előnézete, amely az új hivatkozási fület mutatja."
@@ -17887,7 +19594,1412 @@
   "secretsManagerProratedCharge": {
     "message": "Titkos kód kezelő arányos díj"
   },
+  "privilegedControlsProratedCharge": {
+    "message": "Privileged Controls arányos díjszabás",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "serviceAccountsProratedCharge": {
     "message": "Szolgáltatás fiókok arányos díj"
+  },
+  "viewSharedItem": {
+    "message": "Megosztott elem megtekintése"
+  },
+  "copyShareLink": {
+    "message": "Megosztási hivatkozás másolása"
+  },
+  "unableToDetermineItemId": {
+    "message": "Nem határozható meg az elem azonosítója."
+  },
+  "newExperienceDialogTitle": {
+    "message": "A Bitwarden új külsővel rendelkezik.",
+    "description": "Title of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogDesc": {
+    "message": "",
+    "description": "Body copy of the dialog that introduces the redesigned vault to existing users."
+  },
+  "newExperienceDialogImgAlt": {
+    "message": "Az újratervezett Bitwarden széf előnézete.",
+    "description": "Alt text for the screenshot shown in the dialog that introduces the redesigned vault."
+  },
+  "exploreTheNewVault": {
+    "message": "Fedezzük fel az új széfet.",
+    "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "customizeYourView": {
+    "message": "Nézet testreszabása"
+  },
+  "showColumns": {
+    "message": "Oszlopok megjelenítése"
+  },
+  "resetToDefault": {
+    "message": "Visszaállítás alaphelyzetbe"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Böngésző bejelentkezési felszólítások automatikus kitöltése",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Válaszoljunk az alapvető HTTP hitelesítési kérdésekre azokról a webhelyekről, amelyek megfelelnek ennek a bejelentkezési elemnek."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Súgó cikk megnyitása a böngészőbeli bejelentkezési adatok automatikus kitöltéséről"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "A webhelyek a tudtunk nélkül aktiválhatják ezeket az utasításokat, ami felfedheti a hitelesítéseket.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "A beállítás használatához válasszunk egy \"Alapértelmezett\" beállítástól eltérő egyezés érzékelési lehetőséget a bejelentkezési elem minden webhelyéhez."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Kapcsoljuk be az automatikus kitöltést a böngésző bejelentkezési utasításaihoz?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "A mesterjelszó új bekérés kikapcsolásra kerül ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "A mesterjelszó újbóli bekérése?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Alapértelmezett találat érzékelés?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "A böngésző automatikus kitöltése bejelentkezési utasítások kikapcsolásra kerülnek ehhez az elemhez. Mindkét beállítás nem lehet egyszerre bekapcsolva."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Az automatikus kitöltés a böngésző bejelentkezési utasításaihoz kikapcsolásra került."
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Ez az elemhez be van kapcsolva a mesterjelszó újra bekérése, így a böngésző bejelentkezési utasításainak automatikus kitöltése ki volt kapcsolva. Mentsük el az elemet a módosítás megtartásához."
+  },
+  "pamRotation": {
+    "message": "Forgatás"
+  },
+  "pamRotationSubtitle": {
+    "message": "Adjuk hozzá a felügyelt hitelesítő adatokat és azokat a célrendszereket, ahol ezek a hitelesítő adatok élnek. Ezután regisztráljuk a hozzáférési csatlakozókat a hálózaton belüli futáshoz és a forgatás végrehajtásához. A konfigurálás után a hitelesítő adatok automatikusan forgathatók a célrendszereken."
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Hitelesítések kezelése"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "Target systems"
+  },
+  "pamRotationTabAccessConnectors": {
+    "message": "Access connectors"
+  },
+  "pamManagedCredentialsLoaded": {
+    "message": "A kezelt hitelesítések betöltésre kerültek."
+  },
+  "pamAccessConnectorsLoaded": {
+    "message": "Access connectors loaded"
+  },
+  "pamTargetSystemsLoaded": {
+    "message": "Target systems loaded"
+  },
+  "pamRotationPageLoaded": {
+    "message": "Az oldal betöltésre került."
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Kezelt hitelesítés hozzáadása"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Kezelt hitelesítés szerkesztése"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Célrendszer hozzáadása"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Edit target system"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Forgatás időzítés"
+  },
+  "pamRotationScheduleNone": {
+    "message": "Nincs"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Óránként"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "6 óránként"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Naponta"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Hetente"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Havonta"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Egyedi"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Egyedi időzítő kifejezés"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Adjunk meg egy Quartz 6 mező cron kifejezést (például 0 0 */4 * *?). A szerver minimum 15 perces intervallumot kényszerít."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Adjunk meg egy érvényes Quartz cron kifejezést (6 vagy 7 szóközzel elválasztott mező)."
+  },
+  "pamRotationScheduleEchoNone": {
+    "message": "Nincs ütemezett forgatás. Ez a hitelesítő adat csak akkor kerül forgításra, ha elindítunk egyet, vagy ha a hozzáférés véget ér, ha az opció be van kapcsolva."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Forgatás óránként egyszer, az órán."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Forgatás 6 óránként, az órán."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Forgatás naponta egyszer, éjfélkor."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Forgatás hetente egyszer, vasárnap éjfélkor."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Forgatás havonta egyszer, 1-én éjfélkor."
+  },
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Forgatás minden nap, $TIME$ időpontban.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Forgatás minden $COUNT$. napon, $TIME$ időpontban.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "7"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Forgatás minden hónapban, $TIME$ időpontban.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Forgatás minden $COUNT$. hónapban, $TIME$ időpontban.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Egyedi Quartz időzítés: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Az ütemezések UTC-ben futnak, nem a helyi időzónában."
+  },
+  "pamRotationScheduleInterval": {
+    "message": "Intervallum"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Ismétlés minden"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Egység"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Napok"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Hónapok"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Napszak (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Az intervallumok a naptárhoz vannak rögzítve. A napi intervallumok minden hónap 1-jén indulnak újra, a havi intervallumok pedig 1-jén futnak és januárban indulnak újra."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Adjuk meg, hogy milyen gyakran ismétlődik a forgatás és a napszak."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Adjunk meg egy egész számot."
+  },
+  "pamTargetSystemNew": {
+    "message": "New target system"
+  },
+  "pamTargetSystemSearch": {
+    "message": "Search target systems"
+  },
+  "pamTargetSystemMethodColumn": {
+    "message": "Method"
+  },
+  "pamTargetSystemTypeColumn": {
+    "message": "Típus"
+  },
+  "pamTargetSystemSessionTerminationColumn": {
+    "message": "Session termination"
+  },
+  "pamTargetSystemSessionTerminationYes": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNo": {
+    "message": "Not supported"
+  },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "Még nincs célrendszer."
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Add the system whose credentials Bitwarden should rotate."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "You rotate the credential yourself; Bitwarden tracks the schedule and logs each rotation."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
+  },
+  "pamTargetSystemTemplateCustomScriptSummaryConnector": {
+    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
+  },
+  "pamTargetSystemNoFilterResults": {
+    "message": "No target systems match your filters."
+  },
+  "pamTargetSystemEditTarget": {
+    "message": "Edit target system"
+  },
+  "pamTargetSystemDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Activate"
+  },
+  "pamTargetSystemActivationBlockedPendingSeal": {
+    "message": "Finish setting up this target system before activating or deactivating it."
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Delete target system"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Hozzáférési csatlakozók hozzárendelés"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Assign access connector"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "All active access connectors are already assigned to this target system."
+  },
+  "pamTargetSystemAssignConnectorManual": {
+    "message": "Hozzáférési csatlakozók csak automatikus forgatásra beállított célrendszerekhez rendelhetők."
+  },
+  "pamTargetSystemAssignConnectorSelectHint": {
+    "message": "Ehhez a célrendszerhez csak aktív hozzáférési csatlakozók rendelhetők."
+  },
+  "pamTargetSystemAssignConnectorNone": {
+    "message": "Nincsenek hozzárendelhető aktív hozzáférési csatlakozók. Regisztráljunk egyet az Hozzáférési csatlakozók fülön, vagy aktiváljunk egy meglévőt."
+  },
+  "pamTargetSystemAssignGoToConnectors": {
+    "message": "Go to Access connectors"
+  },
+  "pamTargetSystemDeactivateTitle": {
+    "message": "Deactivate target system?"
+  },
+  "pamTargetSystemDeactivateContent": {
+    "message": "Deactivating this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  },
+  "pamTargetSystemDeactivateConfirm": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemDeactivateSuccess": {
+    "message": "Target system deactivated."
+  },
+  "pamTargetSystemActivateSuccess": {
+    "message": "Target system activated."
+  },
+  "pamTargetSystemDeleteTitle": {
+    "message": "Delete target system?"
+  },
+  "pamTargetSystemDeleteContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteContentDeactivateInstead": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Target system deleted."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatikus"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manuális"
+  },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
+  },
+  "pamTargetSystemTypeEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemTypeCustomScript": {
+    "message": "Egyedi szkript"
+  },
+  "pamTargetSystemNameWithDetail": {
+    "message": "$NAME$ ($DETAIL$)",
+    "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "dc01 AD domain accounts"
+      },
+      "detail": {
+        "content": "$2",
+        "example": "Entra"
+      }
+    }
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "Active"
+  },
+  "pamTargetSystemStatusInactive": {
+    "message": "Inactive"
+  },
+  "pamTargetSystemStatusPendingSeal": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "General information"
+  },
+  "pamTargetSystemIdLabel": {
+    "message": "System ID"
+  },
+  "pamTargetSystemCopyId": {
+    "message": "Copy system ID"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Enter a name"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Rotation method"
+  },
+  "pamTargetSystemTypeHeading": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeLabel": {
+    "message": "Type"
+  },
+  "pamTargetSystemTypeUnverifiedHint": {
+    "message": "This target's integration could not be confirmed. Choose it again to finish setup."
+  },
+  "pamTargetSystemPolicyManualHint": {
+    "message": "These are the rules to follow when you rotate this credential by hand."
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Password policy"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Minimum length"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Maximum length"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "Minimum length must be less than or equal to maximum length."
+  },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Include at least one character type."
+  },
+  "pamTargetSystemPolicyBelowStrengthFloor": {
+    "message": "Ez a rendszabály túl gyenge. Növeljük a hosszt, vagy vegyünk fel több karaktertípust."
+  },
+  "pamTargetSystemPolicyUppercase": {
+    "message": "Include uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercase": {
+    "message": "Include lowercase letters"
+  },
+  "pamTargetSystemPolicyDigits": {
+    "message": "Include digits"
+  },
+  "pamTargetSystemPolicySymbols": {
+    "message": "Include symbols"
+  },
+  "pamTargetSystemSupportsSessionTermination": {
+    "message": "Supports session termination"
+  },
+  "pamTargetSystemSupportsSessionTerminationHintConnector": {
+    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNativeHint": {
+    "message": "Native integrations always terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamTargetSystemSessionTerminationUnknownTooltip": {
+    "message": "This target system's settings could not be verified, so its session-termination support is unknown."
+  },
+  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
+    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Target system created."
+  },
+  "pamTargetSystemSaved": {
+    "message": "Target system saved."
+  },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
+  },
+  "pamTargetSystemCreatePartialFailure": {
+    "message": "The target system was created, but setup could not finish. Save again to finish securing it."
+  },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Finish setting up rotation"
+  },
+  "pamTargetSystemSetupGuidanceAutomaticConnector": {
+    "message": "Assign an access connector in the Assigned access connectors section below."
+  },
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Add a managed credential on the Managed credentials tab."
+  },
+  "pamTargetSystemSetupIncompleteTitle": {
+    "message": "Setup incomplete"
+  },
+  "pamTargetSystemSetupIncompleteContent": {
+    "message": "This target system was created but never finished securing its settings. Save to finish, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTitle": {
+    "message": "Integrity check failed"
+  },
+  "pamTargetSystemIntegrityCheckFailedContent": {
+    "message": "This target system's settings could not be verified. Save to re-secure it, or delete it."
+  },
+  "pamTargetSystemIntegrityCheckFailedTooltip": {
+    "message": "This target system's settings could not be verified."
+  },
+  "pamTargetSystemImmutableFieldMismatch": {
+    "message": "Ennek a célrendszernek a technológiáját nem sikerült megerősíteni. Töltsük be újra az oldalt és próbáljuk újra."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Target system not found."
+  },
+  "pamAccessConnectorSearch": {
+    "message": "Search access connectors"
+  },
+  "pamAccessConnectorNew": {
+    "message": "New access connector"
+  },
+  "pamAccessConnectorRegister": {
+    "message": "Register access connector"
+  },
+  "pamAccessConnectorEmptyStateTitle": {
+    "message": "No access connectors registered"
+  },
+  "pamAccessConnectorEmptyStateDescription": {
+    "message": "Register an access connector to start rotating credentials."
+  },
+  "pamAccessConnectorConnection": {
+    "message": "Kapcsolat"
+  },
+  "pamAccessConnectorLastSeen": {
+    "message": "Last seen"
+  },
+  "pamAccessConnectorAssignments": {
+    "message": "Hozzárendelt célok"
+  },
+  "pamAccessConnectorConnected": {
+    "message": "Csatlakozva"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Szétkapcsolva"
+  },
+  "pamAccessConnectorAssignTargetDisabled": {
+    "message": "A célrendszerek csak akkor rendelhetők hozzá, ha a hozzáférési csatlakozó aktív."
+  },
+  "pamAccessConnectorViewDetails": {
+    "message": "View details"
+  },
+  "pamAccessConnectorAssignTargets": {
+    "message": "Assign targets"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Delete access connector"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "Assign target system"
+  },
+  "pamAccessConnectorAssignTargetLabel": {
+    "message": "Célrendszer"
+  },
+  "pamAccessConnectorAssignSelectLabel": {
+    "message": "Célrendszerek hozzárendelése"
+  },
+  "pamAccessConnectorAssignSelectHint": {
+    "message": "Csak az automatikus forgatásra beállított célrendszerek rendelhetők hozzá."
+  },
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "All automatic target systems are already assigned to this access connector."
+  },
+  "pamAccessConnectorAssignNoTargetSystems": {
+    "message": "Nincsenek hozzárendelhető automatikus célrendszerek. Hozzunk létre egyet a Célrendszerek fülön."
+  },
+  "pamAccessConnectorAssignGoToTargetSystems": {
+    "message": "Ugrás a célrendszerhez"
+  },
+  "pamAccessConnectorTargetSystemsLoadError": {
+    "message": "Nem sikerült betölteni a célrendszereket. Frissítsük az oldalt az újbóli próbálkozáshoz."
+  },
+  "pamAccessConnectorAssigned": {
+    "message": "Target system assigned."
+  },
+  "pamAccessConnectorAssignmentsEmpty": {
+    "message": "Nincs célrendszer hozzárendelve."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Access connector assigned."
+  },
+  "pamAccessConnectorUnassign": {
+    "message": "$NAME$ eltávolítása",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassignConfirmTitle": {
+    "message": "Remove assignment?"
+  },
+  "pamAccessConnectorUnassignConfirmContent": {
+    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassigned": {
+    "message": "Target system removed."
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Kikapcsolás"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "Activate"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Hozzáférési csatlakozó kikapcsolása?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Deaktiválásra kerüljön $NAME$? Abbahagyjuk az új forgatási munkák igénylését és minden jelenleg futó munka megjelenik. Később újra aktiválhatjuk.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeactivated": {
+    "message": "Access connector deactivated."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "Access connector activated."
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Hozzáférési csatlakozó törlése?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "$NAME$ törlése végleges és érvényteleníti a hitelesítő adatokat. Ez a hozzáférési csatlakozó tartotta a memóriában a szervezési kulcsot. Ha hibára gyanakszunkk, forgassuk el a szervezeti kulcsot kármentesítésként. A futó forgítási munkák felszabadulnak. Regisztráljunk egy új hozzáférési csatlakozót a forgatás folytatásához.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleted": {
+    "message": "Access connector deleted."
+  },
+  "pamAccessConnectorSaved": {
+    "message": "Access connector saved."
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Register access connector"
+  },
+  "pamAccessConnectorNamePlaceholder": {
+    "message": "e.g. On-prem production server"
+  },
+  "pamAccessConnectorNameHint": {
+    "message": "A descriptive name to identify this access connector. Max 200 characters."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "Access connector registered."
+  },
+  "pamAccessConnectorNoResults": {
+    "message": "No access connectors match your filters."
+  },
+  "pamAccessConnectorDetailTitle": {
+    "message": "Access connector"
+  },
+  "pamAccessConnectorDetailsHeading": {
+    "message": "Details"
+  },
+  "pamAccessConnectorTabConfiguration": {
+    "message": "Configuration"
+  },
+  "pamAccessConnectorTabHistory": {
+    "message": "History"
+  },
+  "pamAccessConnectorActivityEmpty": {
+    "message": "No rotation activity yet."
+  },
+  "pamAccessConnectorActiveHint": {
+    "message": "When inactive, the access connector does not claim new rotation jobs and any jobs it is running are released."
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "Access connector token"
+  },
+  "pamAccessConnectorTokenWarningTitle": {
+    "message": "Save this token now"
+  },
+  "pamAccessConnectorTokenWarningBody": {
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+  },
+  "pamAccessConnectorTokenLabel": {
+    "message": "Access connector token"
+  },
+  "pamAccessConnectorTokenHint": {
+    "message": "This token will not be shown again."
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "Copy token"
+  },
+  "pamAccessConnectorTokenCopied": {
+    "message": "Access connector token copied."
+  },
+  "pamRotationConfigNew": {
+    "message": "Új kezelt hitelesítés"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Kezelt hitelesítések kezelése"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "Nincsenek beállítva kezelt hitelesítések."
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Adjunk hozzá egy kezelt hitelesítést az automatikus forgatás megkezdéséhez."
+  },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Nem sikerült betölteni."
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Ellenőrizzük a kapcsolatot és próbáljuk újra. Ha a probléma folytatódik, frissítsük az oldalt."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Állítsunk be egy célrendszert, mielőtt forgathatnánk a hitelesítéseket. A célrendszer meghatározza, hogy hol él egy hitelesítés és hogyan forgatja azt a Bitwarden."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Állítsunk be egy célrendszert."
+  },
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "Nincsenek kezelt hitelesítők, amelyek megfelelnének a szűrőknek."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Hitelesítés"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Elem"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Célrendszer"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Időzítés"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Forgatás a hozzáférés végén"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Utolsó forgatás"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Utoljára forgatva"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Következő forgatás"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Felfüggesztve"
+  },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Forgatás"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Forgatás esedékes"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Forgatás most"
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
+    "message": "Most nem lehet forgatni. A célrendszer inaktív, vagy a forgatás szünetel vagy már folyamatban van."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "A forgatás elküldésre került."
+  },
+  "pamRotationConfigMarkRotated": {
+    "message": "Megjelölés forgatottként"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Még nincs mit megjelölni. Ez akkor válik elérhetővé, amikor a következő manuális forgatás esedékes."
+  },
+  "pamRotationConfigMarkRotatedTitle": {
+    "message": "Megjelölés forgatottként"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "Ez rögzíti, hogy a hitelesítések a Bitwardenen kívül forgatták és visszaállítja az időzítést. Az ellenőrzési napló tükrözi a manuális forgatást."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Forgatás rögzítése"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "A manuális forgatás rögzítésre került."
+  },
+  "pamRotationConfigEditCredential": {
+    "message": "Hitelesítés szerkesztése"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Eltávolítás a forgatásból"
+  },
+  "pamRotationConfigPauseRotation": {
+    "message": "Forgatás megállítása"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "A forgatás megállításra került."
+  },
+  "pamRotationConfigResumeRotation": {
+    "message": "Forgatás folytatása"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "A forgatás folytatásra került."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Kezelt hitelesítés eltávolítása"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "Ezzel eltávolítjuk a hitelesítés forgatás kezelését. Az elem a széfben marad, a forgatási előzmények pedig az ellenőrzési naplóban."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Nem lehet eltávolítani, amíg a forgatás folyamatban van. Törlődik, ha az aktuális munka befejeződik vagy lejár."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "A kezelt hitelesítések eltávolításra kerültek."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Soha"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "Nincs még lefutott forgatás."
+  },
+  "pamRotationConfigRemoveLockedContentConnector": {
+    "message": "Jelenleg forgatási munka van folyamatban. Ezt a hitelesítőt eltávolíthatjuk a forgatásból, ha a hozzáférési csatlakozó befejeződik, vagy ha egyszer lejár. A szüneteltetés csak az új munkákat állítja le; nem szünteti meg a már futót."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Hitelesítés adatai"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Részletek"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Forgatási beállítások"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Fiók"
+  },
+  "pamRotationConfigTabConfiguration": {
+    "message": "Konfiguráció"
+  },
+  "pamRotationConfigTabHistory": {
+    "message": "Előzmények"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Hitelesítés"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Válasszunk egy hitelesítést."
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Válasszuk ki azt a széf elemet, amelynek jelszava forgatva lesz."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Célrendszer"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Válasszunk egy célrendszert."
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Fiók azonosítás"
+  },
+  "pamRotationConfigAccountIdentityHintConnector": {
+    "message": "A célrendszerben elforgatandó fiók, például UPN, SQL bejelentkezés vagy szkript argumentum. Átadva a hozzáférési csatlakozóhoz úgy, ahogy van."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Aktív munkamenetek leállítása forgatás után"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Megköveteli, hogy a célrendszer támogassa a munkamenet befejezését."
+  },
+  "pamRotationConfigTerminationUnknownHint": {
+    "message": "Ennek a célrendszernek a munkamenet lezárás támogatása nem ellenőrizhető."
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Forgatás a hozzáférés végén"
+  },
+  "pamRotationConfigRotateWhenAccessEndsHint": {
+    "message": "Ezen hitelesítés automatikusan forgatása, amikor a PAM hozzáfér és véget ér."
+  },
+  "pamRotationConfigCreated": {
+    "message": "A kezelt hitelesítések létrehozásra kerültek."
+  },
+  "pamRotationConfigSaved": {
+    "message": "A kezelt hitelesítések mentésre kerültek."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "A beállítás nem áll rendelkezésre."
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "A változtatásokat nem lehet elmenteni, amíg a forgatási munka folyamatban van. A munka befejezése vagy időkorlátozása után ismét menthetünk."
+  },
+  "pamRotationConfigIntegrityCheckFailedTitle": {
+    "message": "Az integritás ellenőrzése nem sikerült."
+  },
+  "pamRotationConfigIntegrityCheckFailedContent": {
+    "message": "Ennek a kezelt hitelesítésnek a beállításait nem lehetett ellenőrizni. Mentsük el az újbóli biztonságossá tételhez."
+  },
+  "pamRotationConfigTerminationUnsupported": {
+    "message": "Ez a célrendszer nem erősíti meg, hogy támogatja a munkamenetek befejezését. Töröljük a munkamenet megszakítás opciót, vagy először frissítsük a célrendszert."
+  },
+  "pamRotationConfigTargetSealInvalid": {
+    "message": "A kiválasztott célrendszer beállításait nem sikerült ellenőrizni. Mentés előtt javítsuk a célrendszert."
+  },
+  "pamRotationConfigImmutableFieldMismatch": {
+    "message": "Ennek a kezelt hitelesítő adatnak az elemét vagy célrendszerét nem lehetett megerősíteni, hogy egyezik-e. Töltsük be újra az oldalt és próbáljuk újra."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "Még nincsenek rögzítve forgatási munkák."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Forrás"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Próbálkozások"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Időzített"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "Igény szerint"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "A hozzáférés befejeződött."
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Ismeretlen"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Függő"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Igényelve"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Sikeres"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Sikertelen"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Időkifutott"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Ismeretlen"
+  },
+  "pamRotationAssignmentPendingAssign": {
+    "message": "Pending assignment"
+  },
+  "pamRotationAssignmentPendingUnassign": {
+    "message": "Pending removal"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Végrehajtás alatt"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Forgatott"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Hibás"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Felhagyott"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Ismeretlen"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "Folyamatban"
+  },
+  "pamRotationAttemptStarted": {
+    "message": "Elkezdődött"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "A cél nem változott."
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "A cél frissítésre került."
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Meghatározatlan"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Ismeretlen"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "A munkamenet befejezése nem lett kérve."
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "A munkamenet befejeződött."
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "A munkamenet befejezése nem sikerült."
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Ismeretlen"
+  },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "A hozzáférési csatlakozó fiókja nem módosíthatja ezt a jelszót. Engedélyezzük a célfiók jelszavának visszaállítását, majd forgassuk újra."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "A célrendszer elutasította a hozzáférési csatlakozó bejelentkezését. Ellenőrizzük a csatlakozó által ehhez a célrendszerhez használt hitelesítést, majd forgassuk újra."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "A célrendszer elutasította az új jelszót. Ellenőrizzük, hogy ennek a hitelesítőnek a jelszó házirendje megfelel-e a célrendszer saját jelszó szabályainak, majd forgassuk újra."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "A célrendszer nem találta a forgatandó fiókot. Ellenőrizzük a fiók azonosítóját ezen a kezelt hitelesítőn, majd forgassuk újra."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "A célrendszer megtagadta a változtatást. Ez általában azt jelenti, hogy az új jelszó megszegett egy jelszó szabályt, vagy a célrendszerhez a kapcsolat nem volt titkosítva."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "A hozzáférési csatlakozó nem tudta elérni a célrendszert. Ellenőrizzük a célrendszer címét és azt, hogy a csatlakozó elérheti-e a hálózaton, majd forgassuk újra."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Jelentés a hozzáférési csatlakozótól: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
+  "pamRotationHistoryCaption": {
+    "message": "Forgatási munkák, a legújabbak előre"
+  },
+  "pamRotationHistoryDurationLabel": {
+    "message": "Időtartam"
+  },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Próbálkozás"
+  },
+  "pamRotationHistoryColumnResult": {
+    "message": "Eredmény"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Kísérletek, legrégebbiek előre"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Minden próbálkozás ugyanúgy végződött."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Forgatási munka"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Miért volt sikertelen"
+  },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$ másodperc",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$ perc $SECONDS$ másodperc",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$ óra $MINUTES$ perc",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Rotation config created"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Rotation settings updated"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Rotation account updated"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Rotation paused"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Rotation resumed"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Rotation config deleted"
+  },
+  "pamAuditKindRotationConfigUpdated": {
+    "message": "Rotation config updated"
+  },
+  "pamAuditKindRotationOfferedToConnector": {
+    "message": "Rotation offered to access connector"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Rotation dispatched"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Credential rotated"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Rotation attempt failed"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Rotation failed"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Rotation released"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Rotation timed out"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Vault write rejected"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Rotation report rejected"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Manual rotation due"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Manual rotation recorded"
+  },
+  "pamAuditKindAccessConnectorRegistered": {
+    "message": "Access connector registered"
+  },
+  "pamAuditKindAccessConnectorRevoked": {
+    "message": "Access connector revoked"
+  },
+  "pamAuditKindAccessConnectorDeactivated": {
+    "message": "Access connector deactivated"
+  },
+  "pamAuditKindAccessConnectorActivated": {
+    "message": "Access connector activated"
+  },
+  "pamAuditKindAccessConnectorDeleted": {
+    "message": "Access connector deleted"
+  },
+  "pamAuditKindAccessConnectorAssigned": {
+    "message": "Access connector assigned to target"
+  },
+  "pamAuditKindAccessConnectorUnassigned": {
+    "message": "Access connector unassigned from target"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Target system registered"
+  },
+  "pamAuditKindTargetDeactivated": {
+    "message": "Target system deactivated"
+  },
+  "pamAuditKindTargetActivated": {
+    "message": "Target system activated"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Target system renamed"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Target system settings updated"
+  },
+  "pamAuditKindTargetDeleted": {
+    "message": "Target system deleted"
+  },
+  "pamAuditKindTargetUpdated": {
+    "message": "Target system updated"
+  },
+  "pamAuditTargetSystem": {
+    "message": "Target system"
+  },
+  "pamAuditAccessConnector": {
+    "message": "Access connector"
+  },
+  "pamAccessConnectorAssignmentCountSingular": {
+    "message": "$COUNT$ target",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentCount": {
+    "message": "$COUNT$ targets",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "None",
+    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
+  },
+  "pamRotationConfigNoActiveTargetSystems": {
+    "message": "Nincs aktív célrendszer, amiből választhatnánk."
+  },
+  "pamTargetSystemConnectorAssignments": {
+    "message": "Hozzárendelt hozzáférési csatlakozók"
+  },
+  "pamTargetSystemConnectorAssignmentsEmpty": {
+    "message": "Ehhez a célrendszerhez nincs hozzáférési csatlakozó hozzárendelve."
+  },
+  "pamTargetSystemConnectorAssignmentsLoadError": {
+    "message": "Ennek a célrendszernek a hozzáférési csatlakozóit nem sikerült betölteni."
+  },
+  "pamTargetSystemDeleteAssignedConnectorsContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first, and its access connector assignments are removed with it.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamEventRequestedAccess": {
+    "message": "Requested privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "Approved privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "Denied privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccess": {
+    "message": "Activated privileged access to item $ITEM$ (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccess": {
+    "message": "Revoked privileged access to item $ITEM$ (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventCancelledAccessRequest": {
+    "message": "Cancelled the privileged access request for item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccess": {
+    "message": "Extended privileged access to item $ITEM$ (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccess": {
+    "message": "Privileged access to item $ITEM$ expired (access $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "Could not activate privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "Created a privileged access rule."
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "Edited a privileged access rule."
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "Deleted a privileged access rule."
+  },
+  "pamEventRotatedCredential": {
+    "message": "Rotated the credential for item $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "pamEventFailedCredentialRotation": {
+    "message": "Could not rotate the credential for item $ITEM$.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   }
 }

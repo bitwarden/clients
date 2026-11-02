@@ -22,7 +22,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  LogoutService,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -33,6 +32,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutService } from "@bitwarden/common/auth/logout";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -214,7 +214,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       message: this.i18nService.t("activeUserEmailNotFoundLoggingYouOut"),
     });
 
-    await this.logoutService.logout(this.activeAccountId);
+    await this.logoutService.logout(this.activeAccountId, "missingEmailError");
     // navigate to root so redirect guard can properly route next active user or null user to correct page
     await this.router.navigate(["/"]);
   }
@@ -543,7 +543,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (confirmed) {
-      await this.logoutService.logout(userId);
+      await this.logoutService.logout(userId, "userInitiated");
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }

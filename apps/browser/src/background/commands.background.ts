@@ -13,6 +13,7 @@ import {
   isExternalMessage,
   MessageListener,
 } from "@bitwarden/common/platform/messaging";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { LockService, LockSource } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -153,7 +154,17 @@ export default class CommandsBackground {
       return;
     }
 
-    await this.main.collectPageDetailsForContentScript(tab, commandSender);
+    switch (commandSender) {
+      case ExtensionCommand.AutofillCard:
+        this.main.autofillOrchestrator.autofillActiveTabForCipherType(tab, CipherType.Card);
+        break;
+      case ExtensionCommand.AutofillIdentity:
+        this.main.autofillOrchestrator.autofillActiveTabForCipherType(tab, CipherType.Identity);
+        break;
+      default:
+        this.main.autofillOrchestrator.autofillActiveTabFromCommand(tab);
+        break;
+    }
   }
 
   private async openPopup() {

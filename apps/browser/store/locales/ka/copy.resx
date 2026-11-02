@@ -118,75 +118,75 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden პაროლების მენეჯერი</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>სახლში, სამსახურში ან გზაში, Bitwarden მარტივად იცავს თქვენს ყველა პაროლს, პასკის და მგრძნობიარე ინფორმაციას.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>აღიარებულია საუკეთესო პაროლების მენეჯერად PCMag, WIRED, The Verge, CNET, G2 და სხვების მიერ!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+დაიცავით თქვენი ციფრული ცხოვრება
+დაიცავით თქვენი ციფრული ცხოვრება და თავიდან აიცილეთ მონაცემთა გაჟონვები თითოეული ანგარიშისთვის უნიკალური, ძლიერი პაროლების გენერირებითა და შენახვით. შეინახეთ ყველაფერი ბოლოდან ბოლომდე დაშიფრულ პაროლების საცავში, რომელზეც მხოლოდ თქვენ გაქვთ წვდომა.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+წვდით თქვენს მონაცემებს ყველგან, ნებისმიერ დროს, ნებისმიერ მოწყობილობაზე
+მარტივად მართეთ, შეინახეთ, დაიცავით და გააზიარეთ ულიმიტო პაროლები ულიმიტო მოწყობილობებზე შეზღუდვების გარეშე.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ყველას უნდა ჰქონდეს ონლაინ უსაფრთხოდ ყოფნის ინსტრუმენტები
+გამოიყენეთ Bitwarden უფასოდ რეკლამების და მონაცემების გაყიდვის გარეშე. Bitwarden მიიჩნევს, რომ ყველას უნდა ჰქონდეს ონლაინ უსაფრთხოდ ყოფნის შესაძლებლობა. პრემიუმ გეგმები გთავაზობთ წვდომას გაფართოებულ ფუნქციებზე.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+გააძლიერეთ თქვენი გუნდები Bitwarden-ით
+გუნდების და საწარმოს გეგმები მოყვება პროფესიონალურ ბიზნეს ფუნქციებს. მაგალითები მოიცავს SSO ინტეგრაციას, თვითჰოსტინგს, დირექტორიის ინტეგრაციას და SCIM უზრუნველყოფას, გლობალურ პოლიტიკებს, API წვდომას, მოვლენების ჟურნალებს და სხვა.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+გამოიყენეთ Bitwarden თქვენი სამუშაო ძალის დასაცავად და მგრძნობიარე ინფორმაციის კოლეგებთან გასაზიარებლად.
 
 
-More reasons to choose Bitwarden:
+Bitwarden-ის არჩევის სხვა მიზეზები:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+მსოფლიო დონის დაშიფვრა
+პაროლები დაცულია გაფართოებული ბოლოდან ბოლომდე დაშიფვრით (AES-256 ბიტი, მარილიანი ჰეშირება და PBKDF2 SHA-256), რომ თქვენი მონაცემები დარჩეს უსაფრთხო და პირადი.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+მესამე მხარის აუდიტები
+Bitwarden რეგულარულად ატარებს ყოვლისმომცველ მესამე მხარის უსაფრთხოების აუდიტებს ცნობილ უსაფრთხოების კომპანიებთან. ეს წლიური აუდიტები მოიცავს წყაროს კოდის შეფასებას და შეღწევადობის ტესტირებას Bitwarden-ის IP-ებზე, სერვერებზე და ვებ აპლიკაციებზე.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+გაფართოებული 2FA
+დაიცავით თქვენი შესვლა მესამე მხარის აუთენტიფიკატორით, ელფოსტით გაგზავნილი კოდებით, ან FIDO2 WebAuthn მონაცემებით, როგორიცაა ტექნიკური უსაფრთხოების გასაღები ან პასკი.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+გადასცემთ მონაცემებს პირდაპირ სხვებს, შეინარჩუნეთ ბოლოდან ბოლომდე დაშიფრული უსაფრთხოება და შეზღუდეთ გამოვლენა.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+ჩაშენებული გენერატორი
+შექმენით გრძელი, რთული და განსხვავებული პაროლები და უნიკალური მომხმარებლის სახელები ყველა საიტისთვის, რომელსაც სტუმრობთ. ინტეგრაცია ელფოსტის ალიასის პროვაიდერებთან დამატებითი კონფიდენციალურობისთვის.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+გლობალური თარგმანები
+Bitwarden-ის თარგმანები არსებობს 60-ზე მეტი ენისთვის, ნათარგმნია გლობალური საზოგადოების მიერ Crowdin-ის მეშვეობით.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+ჯვარედინ პლატფორმული აპლიკაციები
+დაიცავით და გააზიარეთ მგრძნობიარე მონაცემები თქვენს Bitwarden საცავში ნებისმიერი ბრაუზერიდან, მობილური მოწყობილობიდან ან დესკტოპ OS-იდან და სხვა.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden იცავს არა მხოლოდ პაროლებს
+ბოლოდან ბოლომდე დაშიფრული მონაცემების მართვის გადაწყვეტილებები Bitwarden-ისგან აძლევს ორგანიზაციებს საშუალებას დაიცვან ყველაფერი, მათ შორის დეველოპერის საიდუმლოებები და პასკის გამოცდილება. ეწვიეთ Bitwarden.com-ს, რომ გაიგოთ მეტი Bitwarden Secrets Manager-ისა და Bitwarden Passwordless.dev-ის შესახებ!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>სახლში, სამსახურში ან გზაში, Bitwarden მარტივად იცავს თქვენს ყველა პაროლს, პასკის და მგრძნობიარე ინფორმაციას.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sync and access your vault from multiple devices</value>
+    <value>სინქრონიზაცია და წვდომა თქვენს საცავზე მრავალი მოწყობილობიდან</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Manage all your logins and passwords from a secure vault</value>
+    <value>მართეთ ყველა თქვენი შესვლა და პაროლი დაცული საცავიდან</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Quickly auto-fill your login credentials into any website that you visit</value>
+    <value>სწრაფად შეავსეთ თქვენი შესვლის მონაცემები ავტომატურად ნებისმიერ ვებსაიტზე, რომელსაც სტუმრობთ</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Your vault is also conveniently accessible from the right-click menu</value>
+    <value>თქვენი საცავი ასევე მოხერხებულად ხელმისაწვდომია კონტექსტური მენიუდან</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatically generate strong, random, and secure passwords</value>
+    <value>ავტომატურად დააგენერირეთ ძლიერი, შემთხვევითი და უსაფრთხო პაროლები</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Your information is managed securely using AES-256 bit encryption</value>
+    <value>თქვენი ინფორმაცია უსაფრთხოდ იმართება AES-256 ბიტიანი დაშიფვრის გამოყენებით</value>
   </data>
 </root>

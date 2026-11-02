@@ -19,6 +19,7 @@ import { EnvironmentService } from "../../platform/abstractions/environment.serv
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
+import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
@@ -49,6 +50,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
     private unlockService: UnlockService,
     private configService: ConfigService,
+    private stateProvider: StateProvider,
   ) {}
 
   async start(): Promise<void> {
@@ -59,6 +61,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
+      this.stateProvider,
     );
 
     const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);

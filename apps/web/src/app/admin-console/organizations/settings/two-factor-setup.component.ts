@@ -3,6 +3,8 @@ import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
+import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import {
   getOrganizationById,
   OrganizationService,
@@ -18,18 +20,33 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  DialogRef,
+  DialogService,
+  ItemModule,
+  ToastService,
+} from "@bitwarden/components";
 
 import { TwoFactorSetupDuoComponent } from "../../../auth/settings/two-factor/two-factor-setup-duo.component";
 import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor/two-factor-setup.component";
 import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-factor-verify.component";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",
-  standalone: false,
+  imports: [
+    ItemModule,
+    HeaderModule,
+    BreadcrumbsModule,
+    PremiumBadgeComponent,
+    TwoFactorIconComponent,
+    SharedModule,
+  ],
 })
 export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent implements OnInit {
   tabbedHeader = false;

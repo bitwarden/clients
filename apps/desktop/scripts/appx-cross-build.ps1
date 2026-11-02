@@ -166,11 +166,13 @@ Copy-Item $srcDir/resources/appx/* $outDir/appx/assets/
 
 if ($Beta) {
     Copy-Item $srcDir/resources/windows_plugin_authenticator_config.beta.json $outDir/appx/app/resources/plugin_authenticator_config.json
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_light.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo_light.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_dark.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo_dark.svg
 }
 else {
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.json $outDir/appx/app/resources/plugin_authenticator_config.json
-    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.stable.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_light.stable.svg $outDir/appx/app/resources/plugin_authenticator_logo_light.svg
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo_dark.stable.svg $outDir/appx/app/resources/plugin_authenticator_logo_dark.svg
 }
 
 Write-Host "Building Appx manifest"
@@ -202,15 +204,11 @@ $translationMap.Keys | ForEach-Object {
     $manifest = $manifest.Replace("`${$_}", $translationMap[$_])
 }
 
-# The extensions inlined above name their channel's plugin config rather than carrying the
-# COM class ID; resolve it the same way scripts/appx-manifest-created.js does for CI builds.
-$manifest = [regex]::Replace($manifest, '\$\{clsid:([\w.-]+)\}', {
-    param($clsidMacro)
-    $pluginConfigFile = Join-Path $srcDir resources $clsidMacro.Groups[1].Value
-    (Get-Content -Raw $pluginConfigFile | ConvertFrom-Json).clsid
-})
-
 $manifest | Out-File appx/AppxManifest.xml
+
+# Apply the same fixups electron-builder applies for CI builds through its appxManifestCreated hook.
+$manifestHook = Join-Path $srcDir scripts appx-manifest-created.js
+node -e "require(process.argv[1]).default(process.argv[2])" $manifestHook (Resolve-Path appx/AppxManifest.xml)
 $unsignedArtifactpath = [System.IO.Path]::GetFileNameWithoutExtension($artifactName) + "-unsigned.$ext"
 Write-Host "Creating unsigned Appx"
 makemsix pack -d appx -p $unsignedArtifactpath

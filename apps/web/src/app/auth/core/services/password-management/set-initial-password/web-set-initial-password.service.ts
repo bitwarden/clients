@@ -92,12 +92,15 @@ export class WebSetInitialPasswordService
      *     Whether or not an invite (of either kind) was stashed in state up front,
      *     the JIT accept happens by SSO-org lookup, not by reading client state.
      *
-     * `clearOrganizationInvite()` clears both direct + open state keys.
-     * `getAndClearLoginRedirectUrl()` removes any /accept-organization or /join deep-link
-     * so `deepLinkGuard` doesn't replay it after JIT completes.
+     * When an invite is stashed, clear it (both direct + open state keys) and its
+     * /accept-organization or /join redirect so `deepLinkGuard` doesn't replay it after JIT.
+     * Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard`
+     * to replay.
      */
-    await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvite();
+    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+      await this.routerService.getAndClearLoginRedirectUrl();
+      await this.organizationInviteService.clearOrganizationInvite();
+    }
   }
 
   override async initializePasswordJitPasswordUserV2Encryption(
@@ -107,7 +110,10 @@ export class WebSetInitialPasswordService
     await super.initializePasswordJitPasswordUserV2Encryption(credentials, userId);
 
     // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
-    await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvite();
+    // Without a stashed invite, the redirect is an unrelated deep link for `deepLinkGuard` to replay.
+    if ((await this.organizationInviteService.getOrganizationInvite()) != null) {
+      await this.routerService.getAndClearLoginRedirectUrl();
+      await this.organizationInviteService.clearOrganizationInvite();
+    }
   }
 }

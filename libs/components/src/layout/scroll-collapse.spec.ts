@@ -318,18 +318,6 @@ describe("scroll collapse", () => {
       expect(service.direction()).toBe("down");
     });
 
-    it("tells a would-be restore when the scroller cannot afford the collapse", async () => {
-      // The `VaultPageShortScroll` geometry again: 104px of overflow against 130px of collapsible
-      // height. The floor `minScrollable` applies to a flip has to be asked for explicitly here.
-      Object.defineProperty(region(), "offsetHeight", { value: 130, configurable: true });
-      await scrollTo(0);
-
-      const service = TestBed.inject(ScrollCollapseService);
-
-      expect(service.affordsCollapse(stubGeometry(el("scroller"), 453, 349))).toBe(false);
-      expect(service.affordsCollapse(stubGeometry(el("scroller"), 512, 349))).toBe(true);
-    });
-
     it("stops counting a region towards the collapsible height once it is destroyed", async () => {
       const service = TestBed.inject(ScrollCollapseService);
       host.showRegion.set(false);

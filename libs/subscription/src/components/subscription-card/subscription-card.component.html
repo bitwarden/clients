@@ -40,7 +40,7 @@
   <ng-content></ng-content>
 </bit-card>
 
-<ng-template #cartSummaryHeader let-total="total">
+<ng-template #cartSummaryHeader let-amountDue="amountDue">
   <h2
     bitTypography="h5"
     class="!tw-m-0"
@@ -63,7 +63,7 @@
           <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
           {{ "yourNextChargeIsFor" | i18n }}
-          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          <span class="tw-font-bold">{{ amountDue | currency: "USD" : "symbol" }} USD</span>
           {{ "dueOn" | i18n }}
           <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }
@@ -74,7 +74,7 @@
           <span class="tw-font-bold">{{ cancelAt | date: dateFormat }}</span>
         } @else {
           {{ "yourNextChargeIsFor" | i18n }}
-          <span class="tw-font-bold">{{ total | currency: "USD" : "symbol" }} USD</span>
+          <span class="tw-font-bold">{{ amountDue | currency: "USD" : "symbol" }} USD</span>
           {{ "dueOn" | i18n }}
           <span class="tw-font-bold">{{ nextCharge() | date: dateFormat }}</span>
         }

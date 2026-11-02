@@ -11,9 +11,11 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  StagedStatus = "pm-34423-staged-status",
+  CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  GroupsComponentRefactor = "pm-43419-groups-table-v2",
+  MembersTableV2 = "pm-37463-members-table-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -26,10 +28,11 @@ export enum FeatureFlag {
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
+  PM44303_EmergencyAccessSdkApi = "pm-44303-emergency-access-sdk-api",
 
   /* Autofill */
-  UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
   // Note: This flag gates security risks and should not be turned on without
@@ -52,23 +55,19 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM36631_PreviewDrivenCart = "pm-36631-preview-driven-cart",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
+  PamBillingSupport = "pm-39883-pam-billing-support",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
-  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
-  SdkKeyRotation = "pm-30144-sdk-key-rotation",
   // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
   // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
   // get to use the feature.
   SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
-  NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
-  NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
@@ -91,40 +90,28 @@ export enum FeatureFlag {
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
+  HealthReportExclusions = "pm-39196-health-report-exclusions",
   AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
-  PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
-  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
-  PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
-  PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
-  PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
-  PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
-  PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
-  PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM29968_FillAfterSave = "pm-29968-fill-after-save",
-  PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
-  PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
-  PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
-  PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
   PM40201_DeriveSSHKeys = "pm-40201-derive-ssh-keys",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
-  WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
-  PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
+  PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
+  PamAccessConnector = "pm-42354-rotation-daemon",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",
@@ -145,16 +132,17 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.StagedStatus]: FALSE,
+  [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
+  [FeatureFlag.MembersTableV2]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
-  [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
+  [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
-  [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
@@ -183,25 +171,14 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.HealthReportExclusions]: FALSE,
   [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
-  [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
-  [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
-  [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
-  [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.PM29438_DialogWithExtensionPromptAccountAge]: 5,
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
-  [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
-  [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM29968_FillAfterSave]: FALSE,
-  [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
-  [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
-  [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
-  [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
   [FeatureFlag.PM40201_DeriveSSHKeys]: FALSE,
 
   /* Auth */
@@ -214,6 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
+  [FeatureFlag.PM44303_EmergencyAccessSdkApi]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
@@ -227,13 +205,8 @@ export const DefaultFeatureFlagValue = {
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
-  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
-  [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
-  [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
@@ -244,15 +217,16 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
-  [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
-  [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
+  [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamBillingSupport]: FALSE,
+  [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */
   [FeatureFlag.VFO1Foundation]: FALSE,

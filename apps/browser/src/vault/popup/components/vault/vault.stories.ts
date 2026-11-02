@@ -44,7 +44,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -68,6 +67,7 @@ import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
+  CoachmarkService,
   PasswordRepromptService,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -87,6 +87,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 import { VaultComponent } from "./vault.component";
@@ -325,6 +326,23 @@ type StoryArgs = {
   showAtRiskSecuredBanner?: boolean;
 };
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+  startTour: () => Promise.resolve(),
+};
+
 /**
  * The org-user-notification policy backing `vault-organization-user-notifications`.
  *
@@ -338,20 +356,22 @@ const buildNotificationPolicies = (args: StoryArgs) => {
     return [];
   }
 
-  const policy = new Policy();
-  policy.id = "00000000-0000-4000-8000-0000000000fd" as PolicyId;
-  policy.organizationId = STORY_ORG_ID;
-  policy.type = PolicyType.OrganizationUserNotification;
-  policy.enabled = true;
-  policy.revisionDate = FIXED_REVISION_DATE;
-  policy.data = {
-    header: "Scheduled maintenance",
-    description:
-      "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
-    buttonText: "Learn more",
-    showAfterEveryLogin: false,
-  };
-  return [policy];
+  return [
+    new Policy({
+      id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
+      organizationId: STORY_ORG_ID,
+      type: PolicyType.OrganizationUserNotification,
+      enabled: true,
+      revisionDate: FIXED_REVISION_DATE.toISOString(),
+      data: {
+        header: "Scheduled maintenance",
+        description:
+          "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
+        buttonText: "Learn more",
+        showAfterEveryLogin: false,
+      },
+    }),
+  ];
 };
 
 /**
@@ -493,6 +513,7 @@ const buildProviders = (args: StoryArgs) => {
         saveFilters: () => {},
         cachedFilters: signal({}),
         clearVaultScopedFilters: () => {},
+        filterDialogOpen: signal(false),
         vaultScopedFiltersCleared$: NEVER,
         suspended$: () => of(false),
         selectedFilters$: of({
@@ -501,7 +522,6 @@ const buildProviders = (args: StoryArgs) => {
           collection: [] as string[],
           folder: [] as string[],
         }),
-        selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
         organizationNames$: of(FILTER_ORGANIZATION_NAMES),
@@ -512,7 +532,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => {}, stop: () => {} },
+      useValue: { start: () => {}, stop: () => {}, restoresCollapse: () => false },
     },
     {
       provide: NudgesService,
@@ -559,8 +579,13 @@ const buildProviders = (args: StoryArgs) => {
     // would announce into a detached node.
     { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
     {
+      // `false` keeps the new experience dialog shut, so stories render the vault itself rather
+      // than an onboarding bottom sheet over it.
       provide: IntroCarouselService,
-      useValue: { setIntroCarouselDismissed: () => Promise.resolve() },
+      useValue: {
+        introCarouselState$: of(false),
+        setIntroCarouselDismissed: () => Promise.resolve(),
+      },
     },
     {
       provide: VaultPopupAutofillService,
@@ -582,7 +607,6 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: VaultCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
     { provide: CompactModeService, useValue: { enabled$: of(false) } },
-    { provide: VaultSettingsService, useValue: { clickItemsToAutofillVaultView$: of(true) } },
     {
       provide: PolicyService,
       useValue: { policiesByType$: () => of(buildNotificationPolicies(args)) },
@@ -591,9 +615,14 @@ const buildProviders = (args: StoryArgs) => {
       // Both the org-notifications and at-risk services read state through `getUser`, keyed by
       // their own `UserKeyDefinition`. Everything defaults to `null` (nothing dismissed); only the
       // at-risk key carries a value, since its success banner is gated on prior interaction.
+      // The simplified-autofill info icon reads `getUserState$` and is marked dismissed to keep it
+      // out of snapshots.
       provide: StateProvider,
       useValue: {
-        getUserState$: () => of(null),
+        getUserState$: (key: { key: string }) =>
+          key?.key === "vaultAutofillSimplifiedIcon"
+            ? of({ hasSeen: true, hasDismissed: true })
+            : of(null),
         // Matched on the literal key: `@bitwarden/vault` doesn't re-export
         // `AT_RISK_PASSWORD_CALLOUT_KEY`, and widening its public API for a story isn't worth it.
         getUser: (_userId: UserId, key: { key: string }) => ({
@@ -647,7 +676,6 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: PlatformUtilsService,
       useValue: {
-        getAutofillKeyboardShortcut: () => Promise.resolve("Ctrl+Shift+L"),
         isSafari: () => false,
         isChrome: () => true,
         isFirefox: () => false,
@@ -673,6 +701,11 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
     },
     { provide: TotpService, useValue: {} },
+    { provide: CoachmarkService, useValue: mockCoachmarkService },
+    {
+      provide: VaultPopupTourService,
+      useValue: { sharedFoldersRow: signal(null), filterDialogOpen: signal(false) },
+    },
     { provide: PasswordRepromptService, useValue: {} },
     { provide: ToastService, useValue: { showToast: () => {} } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
@@ -762,6 +795,7 @@ const buildProviders = (args: StoryArgs) => {
           itemCount: "__$1__ items",
           // Table presentation (flag on)
           resetSearch: "Reset search",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           itemSuggestions: "Suggested items",
@@ -832,6 +866,10 @@ const buildProviders = (args: StoryArgs) => {
           popOutNewWindow: "Pop out to a new window",
           account: "Account",
           back: "Back",
+          // The tour's coachmarks render their popover templates even when no step is active.
+          learnMore: "Learn more",
+          coachmarkStepsIndicator: "__$1__ of __$2__",
+          next: "Next",
           bitwardenAccount: "Bitwarden account",
           switchAccounts: "Switch accounts",
           // Banners whose host is always present even when their service reports nothing to show.
@@ -852,9 +890,12 @@ const buildProviders = (args: StoryArgs) => {
           noItemsInVaults: "Your vaults are empty",
           noItemsInOrganizationVault: (name) => `No items in ${name}`,
           noItemsInSharedFolder: (name) => `No items in ${name}`,
+          noItemsInFolder: (name) => `No items in ${name}`,
           emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
           emptySharedFolderDescription: (name) =>
             `Add items to this shared folder, then give access to other ${name} members.`,
+          emptyFolderDescription:
+            "Add items to this folder. You’ll be able to quickly access them using vault filters.",
           noItemsInTrash: "No items in trash",
           noItemsInTrashDescription:
             "Items you delete will appear here and be permanently deleted after 30 days.",

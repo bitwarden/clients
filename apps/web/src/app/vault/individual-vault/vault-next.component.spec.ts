@@ -5,7 +5,8 @@ jest.mock("../../admin-console/organizations/shared/components/collection-dialog
 }));
 
 import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of, Subject } from "rxjs";
@@ -29,18 +30,28 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogRef, DialogService, PopoverModule } from "@bitwarden/components";
+import { DialogRef, DialogService, PopoverModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
+  BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
+  BulkDeleteDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  COLLECTION_DIALOG,
+  CollectionDialogOutcome,
+  CollectionDialogRef,
+  CollectionDialogTab,
+  CollectionOptionsMenuComponent,
+  DecryptionFailureDialogComponent,
   ARCHIVE_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   MY_VAULT_ROUTE,
+  sharedFoldersCommands,
   TRASH_ROUTE,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -50,6 +61,9 @@ import {
   VaultRemountOnDirective,
   VaultsNavViewModel,
   Vfo1I18nPipe,
+  CoachmarkComponent,
+  CoachmarkService,
+  PinnedSharedFoldersService,
 } from "@bitwarden/vault";
 
 import {
@@ -58,7 +72,6 @@ import {
   openCollectionDialog,
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
-import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
@@ -91,10 +104,15 @@ describe("VaultNextComponent", () => {
   let webVaultPromptService: MockProxy<WebVaultPromptService>;
   let coachmarkService: MockProxy<CoachmarkService>;
   let collectionService: MockProxy<CollectionService>;
+  let collectionDialog: MockProxy<CollectionDialogRef>;
+  let bulkDeleteDialog: MockProxy<BulkDeleteDialogRef>;
   let addItemDialogOpen: jest.SpyInstance;
   let addEditFolderDialogOpen: jest.SpyInstance;
 
   let ciphers$: Subject<CipherView[] | null>;
+  let failedCiphers$: BehaviorSubject<CipherView[]>;
+  let dialogService: MockProxy<DialogService>;
+  let decryptionFailureDialogOpen: jest.SpyInstance;
   let folders$: BehaviorSubject<FolderView[]>;
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
@@ -197,6 +215,7 @@ describe("VaultNextComponent", () => {
 
   beforeEach(async () => {
     ciphers$ = new Subject<CipherView[] | null>();
+    failedCiphers$ = new BehaviorSubject<CipherView[]>([]);
     folders$ = new BehaviorSubject<FolderView[]>([]);
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
@@ -249,13 +268,17 @@ describe("VaultNextComponent", () => {
     accountService.activeAccount$ = of({ id: userId } as Account);
 
     const cipherService = mock<CipherService>();
-    cipherService.cipherListViews$.mockReturnValue(ciphers$ as never);
+    cipherService.cipherListViewsIncludingRestricted$.mockReturnValue(ciphers$ as never);
+    cipherService.failedToDecryptCiphers$.mockReturnValue(failedCiphers$);
 
     const folderService = mock<FolderService>();
     folderService.folderViews$.mockReturnValue(folders$);
 
     collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(collections$);
+
+    collectionDialog = mock<CollectionDialogRef>();
+    bulkDeleteDialog = mock<BulkDeleteDialogRef>();
 
     // Needed only by the projected toolbar button's i18n pipe.
     const i18nService = mock<I18nService>();
@@ -281,6 +304,17 @@ describe("VaultNextComponent", () => {
 
     coachmarkService = mock<CoachmarkService>();
     Object.defineProperty(coachmarkService, "activeStepId", { value: signal(null) });
+
+    dialogService = mock<DialogService>();
+
+    // Same reason as the dialog spies below: a static method stays spied across tests.
+    decryptionFailureDialogOpen = jest
+      .spyOn(DecryptionFailureDialogComponent, "open")
+      .mockClear()
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<
+        unknown,
+        DecryptionFailureDialogComponent
+      >);
 
     // `jest.spyOn` returns the existing mock (rather than a fresh one) once a static method is
     // already spied, so its call history survives across tests unless cleared explicitly here.
@@ -315,7 +349,7 @@ describe("VaultNextComponent", () => {
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
         { provide: ConfigService, useValue: configService },
-        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: DialogService, useValue: dialogService },
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
@@ -342,6 +376,7 @@ describe("VaultNextComponent", () => {
             Vfo1I18nPipe,
             VaultRemountOnDirective,
             CoachmarkComponent,
+            CollectionOptionsMenuComponent,
             PopoverModule,
           ],
           schemas: [NO_ERRORS_SCHEMA],
@@ -349,6 +384,16 @@ describe("VaultNextComponent", () => {
             { provide: WebVaultItemActionsService, useValue: itemActions },
             { provide: WebVaultPromptService, useValue: webVaultPromptService },
             { provide: VaultBatchBarService, useValue: batchBarService },
+            { provide: COLLECTION_DIALOG, useValue: collectionDialog },
+            { provide: BULK_DELETE_DIALOG, useValue: bulkDeleteDialog },
+            {
+              provide: PinnedSharedFoldersService,
+              useValue: mock<PinnedSharedFoldersService>({
+                pinnedIds$: () => of([]),
+                activePinnedIds: signal([]),
+              }),
+            },
+            { provide: ToastService, useValue: mock<ToastService>() },
           ],
         },
       })
@@ -402,6 +447,20 @@ describe("VaultNextComponent", () => {
       ).toEqual(["visible"]);
     });
 
+    it("lists PAM-gated (partial) items alongside ungated ones", () => {
+      const ungated = buildCipher({ id: "ungated" });
+      const gated = buildCipher({ id: "gated", partial: true });
+
+      ciphers$.next([ungated, gated]);
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .ciphers()
+          .map((c: CipherView) => c.id),
+      ).toEqual(["ungated", "gated"]);
+    });
+
     it("excludes restricted items from every scope, trash and archive included", () => {
       const restricted = buildCipher({ id: "restricted", deletedDate: new Date() });
 
@@ -412,6 +471,121 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
 
       expect(component().ciphers()).toEqual([]);
+    });
+  });
+
+  describe("decryption failures", () => {
+    const buildFailedCipher = (overrides: Partial<CipherView> = {}) =>
+      buildCipher({ decryptionFailure: true, ...overrides });
+
+    it("opens the dialog with every failed item id", () => {
+      failedCiphers$.next([
+        buildFailedCipher({ id: "failed-1" }),
+        buildFailedCipher({ id: "failed-2" }),
+      ]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-1", "failed-2"],
+      });
+    });
+
+    it("does not open when every item decrypted", () => {
+      ciphers$.next([buildCipher()]);
+      fixture.detectChanges();
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("ignores a trashed failure on a page that does not show it", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed", deletedDate: new Date() })]);
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("ignores an active failure on the Trash page", () => {
+      scopeTo(TRASH_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-active" })]);
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("names a trashed failure on the Trash page, where it is a row", () => {
+      scopeTo(TRASH_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-trashed", deletedDate: new Date() })]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-trashed"],
+      });
+    });
+
+    it("ignores an active failure on the Archive page", () => {
+      scopeTo(ARCHIVE_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-active" })]);
+
+      expect(decryptionFailureDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("names an archived failure on the Archive page, where it is a row", () => {
+      scopeTo(ARCHIVE_ROUTE);
+      failedCiphers$.next([buildFailedCipher({ id: "failed-archived", archivedDate: new Date() })]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-archived"],
+      });
+    });
+
+    it("names only the failures the scoped vault shows", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      failedCiphers$.next([
+        buildFailedCipher({ id: "failed-personal" }),
+        Object.assign(buildFailedCipher({ id: "failed-in-org" }), { organizationId }),
+      ]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledWith(dialogService, {
+        cipherIds: ["failed-personal"],
+      });
+    });
+
+    it("opens only once per visit", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+
+      expect(decryptionFailureDialogOpen).toHaveBeenCalledTimes(1);
+    });
+
+    it("lists a failed item among the rows", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+      ciphers$.next([buildCipher({ id: "decrypted" })]);
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .ciphers()
+          .map((c: CipherView) => c.id),
+      ).toEqual(["failed", "decrypted"]);
+    });
+
+    it("scopes a failed item by its organization", () => {
+      failedCiphers$.next([
+        buildFailedCipher({ id: "failed-personal" }),
+        Object.assign(buildFailedCipher({ id: "failed-in-org" }), { organizationId }),
+      ]);
+      ciphers$.next([]);
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(
+        component()
+          .ciphers()
+          .map((c: CipherView) => c.id),
+      ).toEqual(["failed-personal"]);
+    });
+
+    it("keeps a failed item out of activeCiphers", () => {
+      failedCiphers$.next([buildFailedCipher({ id: "failed" })]);
+      ciphers$.next([]);
+      fixture.detectChanges();
+
+      expect(component().activeCiphers()).toEqual([]);
     });
   });
 
@@ -583,6 +757,52 @@ describe("VaultNextComponent", () => {
       });
     });
 
+    describe("scoped to a folder", () => {
+      const folderId = "7d8e9f0a-1b2c-4d3e-8f4a-5b6c7d8e9f0a";
+      const inFolder = buildCipher({ id: "in-folder", folderId });
+      const orgItemInFolder = Object.assign(buildCipherFixture("org-in-folder", organizationId), {
+        folderId,
+      });
+      const inOtherFolder = buildCipher({ id: "in-other-folder", folderId: "other-folder" });
+      const trashedInFolder = buildCipher({
+        id: "trashed-in-folder",
+        folderId,
+        deletedDate: new Date(),
+      });
+
+      beforeEach(() => {
+        ciphers$.next([personal, inFolder, orgItemInFolder, inOtherFolder, trashedInFolder]);
+        folders$.next([Object.assign(new FolderView(), { id: folderId, name: "Family/Kids" })]);
+        paramMap$.next(convertToParamMap({ folderId }));
+        fixture.detectChanges();
+      });
+
+      it("resolves to the folder's scope, in no vault", () => {
+        expect(component().vaultScope()).toEqual({ type: "folder", folderId });
+      });
+
+      it("shows only the folder's own active items, whichever vault owns them", () => {
+        expect(rowIds()).toEqual(["in-folder", "org-in-folder"]);
+      });
+
+      it("keeps the shared folders and vaults of every vault, the way All items does", () => {
+        expect(collectionIds()).toEqual(["org-collection", "other-org-collection"]);
+        expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
+      });
+
+      it("titles the header with the folder's own name", () => {
+        expect(component().title()).toBe("Kids");
+      });
+
+      it("names the folder for the empty state", () => {
+        expect(component()["emptyFolderName"]()).toBe("Kids");
+      });
+
+      it("prefills new items into the folder", () => {
+        expect(component()["scopedFolderId"]()).toBe(folderId);
+      });
+    });
+
     describe("subscription ended callout", () => {
       beforeEach(() => {
         ciphers$.next([]);
@@ -638,6 +858,10 @@ describe("VaultNextComponent", () => {
         expect(component().showBreadcrumbs()).toBe(false);
         expect(component().headerTile()).toBeDefined();
       });
+
+      it("still counts the account's active My vault items for the Vault chip", () => {
+        expect(component().myVaultItemCount()).toBe(1);
+      });
     });
 
     describe("scoped to an organization's My items", () => {
@@ -676,6 +900,89 @@ describe("VaultNextComponent", () => {
       it("shows breadcrumbs rather than a header tile", () => {
         expect(component().showBreadcrumbs()).toBe(true);
         expect(component().headerTile()).toBeUndefined();
+      });
+
+      describe("the collection options menu", () => {
+        const manageableFolder = () =>
+          Object.assign(buildCollection(engineeringId, organizationId), { manage: true });
+
+        it("resolves the viewed folder and its organization for the menu", () => {
+          collections$.next([manageableFolder()]);
+          fixture.detectChanges();
+
+          expect(component().currentCollection()?.id).toBe(engineeringId);
+          expect(component().currentOrganization()?.id).toBe(organizationId);
+        });
+
+        describe("navigating away when the viewed folder disappears", () => {
+          it("goes to the organization's shared folders list once the viewed folder disappears", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            collections$.next([]);
+            fixture.detectChanges();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          });
+
+          it("stays put while the viewed folder is still there", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("does nothing once the viewed folder disappears if the viewer has since moved to a different one", () => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            scopeTo(organizationId, designId);
+
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+
+          it("navigates away when editing Access through the real child component leaves the viewer unassigned", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            collectionDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              fixture.detectChanges();
+              return CollectionDialogOutcome.Saved;
+            });
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["editCollection"](CollectionDialogTab.Info);
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+
+          it("navigates away when deleting through the real child component's delete()", fakeAsync(() => {
+            collections$.next([manageableFolder()]);
+            fixture.detectChanges();
+
+            bulkDeleteDialog.open.mockImplementation(async () => {
+              collections$.next([]);
+              fixture.detectChanges();
+              return BulkDeleteDialogResult.Deleted;
+            });
+
+            const menu = fixture.debugElement.query(By.directive(CollectionOptionsMenuComponent))
+              .componentInstance as CollectionOptionsMenuComponent;
+            void menu["delete"]();
+            tick();
+
+            expect(router.navigate).toHaveBeenCalledWith(sharedFoldersCommands(organizationId), {
+              replaceUrl: true,
+            });
+          }));
+        });
       });
     });
 
@@ -1414,6 +1721,20 @@ describe("VaultNextComponent", () => {
 
         expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith(cipherId);
       });
+
+      it.each(["view", "edit", "clone"])(
+        "reports a decryption failure for a %s link to an item that failed to decrypt",
+        (action) => {
+          failedCiphers$.next([buildCipher({ decryptionFailure: true })]);
+
+          linkTo({ itemId: cipherId, action });
+
+          expect(itemActions.showDecryptionFailure).toHaveBeenCalledWith(cipherId);
+          expect(itemActions.viewById).not.toHaveBeenCalled();
+          expect(itemActions.editById).not.toHaveBeenCalled();
+          expect(itemActions.cloneById).not.toHaveBeenCalled();
+        },
+      );
 
       it("reads an action it does not recognize as a view", () => {
         linkTo({ itemId: cipherId, action: "somethingElse" });

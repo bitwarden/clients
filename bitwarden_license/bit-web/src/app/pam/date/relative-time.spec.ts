@@ -1,9 +1,8 @@
 import { formatRelativeTime } from "./relative-time";
 
 describe("formatRelativeTime", () => {
-  // Fixed "en" formatter so assertions don't depend on the host locale. We assert
-  // against the formatter's own output to validate which unit/value our code
-  // selects, without hardcoding ICU's exact narrow-style wording.
+  // A fixed "en" formatter, compared against its own output, so these check the chosen unit
+  // without depending on the host locale or ICU's wording.
   const formatter = new Intl.RelativeTimeFormat("en", { numeric: "always", style: "narrow" });
   const now = Date.parse("2026-05-15T12:00:00Z");
 

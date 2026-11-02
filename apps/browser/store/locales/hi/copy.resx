@@ -118,58 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden पासवर्ड मैनेजर</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>घर पर, काम पर, या चलते-फिरते, Bitwarden आपके सभी पासवर्ड, पासकी और संवेदनशील जानकारी को आसानी से सुरक्षित करता है।</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 और अन्य द्वारा सर्वश्रेष्ठ पासवर्ड प्रबंधक के रूप में मान्यता प्राप्त!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+अपने डिजिटल जीवन को सुरक्षित करें
+प्रत्येक खाते के लिए अनोखे, मजबूत पासवर्ड जनरेट और सहेजकर अपने डिजिटल जीवन को सुरक्षित करें और डेटा उल्लंघनों से बचाएँ। सब कुछ एक एंड-टू-एंड एन्क्रिप्टेड पासवर्ड वॉल्ट में बनाए रखें जिसे केवल आप एक्सेस कर सकते हैं।
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+कहीं भी, कभी भी, किसी भी डिवाइस पर अपने डेटा तक पहुँचें
+बिना किसी प्रतिबंध के असीमित डिवाइसों पर असीमित पासवर्ड आसानी से प्रबंधित, संग्रहीत, सुरक्षित और साझा करें।
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+सभी के पास ऑनलाइन सुरक्षित रहने के उपकरण होने चाहिए
+Bitwarden का निःशुल्क उपयोग करें, बिना विज्ञापनों या डेटा बेचने के। Bitwarden का मानना है कि सभी के पास ऑनलाइन सुरक्षित रहने की क्षमता होनी चाहिए। Premium योजनाएँ उन्नत सुविधाओं तक पहुँच प्रदान करती हैं।
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+Bitwarden के साथ अपनी टीमों को सशक्त बनाएँ
+Teams और Enterprise के लिए योजनाएँ पेशेवर व्यावसायिक सुविधाओं के साथ आती हैं। कुछ उदाहरणों में SSO एकीकरण, सेल्फ-होस्टिंग, डायरेक्टरी एकीकरण और SCIM प्रोविज़निंग, वैश्विक नीतियाँ, API एक्सेस, इवेंट लॉग, और बहुत कुछ शामिल हैं।
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+अपने कार्यबल को सुरक्षित करने और सहकर्मियों के साथ संवेदनशील जानकारी साझा करने के लिए Bitwarden का उपयोग करें।
 
 
-More reasons to choose Bitwarden:
+Bitwarden चुनने के और कारण:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+विश्व-स्तरीय एन्क्रिप्शन
+पासवर्ड उन्नत एंड-टू-एंड एन्क्रिप्शन (AES-256 बिट, साल्टेड हैशिंग, और PBKDF2 SHA-256) से सुरक्षित होते हैं ताकि आपका डेटा सुरक्षित और निजी रहे।
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+तृतीय-पक्ष ऑडिट
+Bitwarden नियमित रूप से प्रमुख सुरक्षा फर्मों के साथ व्यापक तृतीय-पक्ष सुरक्षा ऑडिट करता है। इन वार्षिक ऑडिट में स्रोत कोड मूल्यांकन और Bitwarden IPs, सर्वर और वेब एप्लिकेशनों में प्रवेश परीक्षण शामिल हैं।
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+उन्नत 2FA
+तृतीय-पक्ष प्रमाणक, ईमेल किए गए कोड, या FIDO2 WebAuthn क्रेडेंशियल जैसे हार्डवेयर सुरक्षा कुंजी या पासकी से अपना लॉगिन सुरक्षित करें।
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+एंड-टू-एंड एन्क्रिप्टेड सुरक्षा बनाए रखते हुए और जोखिम सीमित करते हुए सीधे दूसरों को डेटा प्रसारित करें।
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+अंतर्निहित जनरेटर
+आपके द्वारा देखी जाने वाली प्रत्येक साइट के लिए लंबे, जटिल और अलग पासवर्ड और अनोखे उपयोगकर्ता नाम बनाएँ। अतिरिक्त गोपनीयता के लिए ईमेल उपनाम प्रदाताओं के साथ एकीकृत करें।
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+वैश्विक अनुवाद
+Bitwarden अनुवाद 60 से अधिक भाषाओं के लिए मौजूद हैं, जिनका अनुवाद वैश्विक समुदाय द्वारा Crowdin के माध्यम से किया गया है।
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+क्रॉस-प्लेटफ़ॉर्म एप्लिकेशन
+किसी भी ब्राउज़र, मोबाइल डिवाइस, या डेस्कटॉप OS से अपने Bitwarden वॉल्ट के भीतर संवेदनशील डेटा सुरक्षित और साझा करें, और बहुत कुछ।
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden केवल पासवर्ड से अधिक सुरक्षित करता है
+Bitwarden से एंड-टू-एंड एन्क्रिप्टेड क्रेडेंशियल प्रबंधन समाधान संगठनों को डेवलपर रहस्यों और पासकी अनुभवों सहित सब कुछ सुरक्षित करने के लिए सशक्त बनाते हैं। Bitwarden Secrets Manager और Bitwarden Passwordless.dev के बारे में और जानने के लिए Bitwarden.com पर जाएँ!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>घर पर, काम पर, या चलते-फिरते, Bitwarden आपके सभी पासवर्ड, पासकी और संवेदनशील जानकारी को आसानी से सुरक्षित करता है।</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>अनेक उपकरणों से अपने तिजोरी सिंक और एक्सेस करें</value>

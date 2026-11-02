@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -8,6 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ALL_ITEMS_SCOPE,
+  CoachmarkService,
   VAULT_BASE_ROUTE,
   VaultNavItemType,
   VaultNavService,
@@ -48,6 +50,7 @@ describe("VaultSwitcherComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultSwitcherComponent],
       providers: [
+        { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
         { provide: VaultNavService, useValue: { viewModel$: () => nav$ } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: Router, useValue: { navigate } },
