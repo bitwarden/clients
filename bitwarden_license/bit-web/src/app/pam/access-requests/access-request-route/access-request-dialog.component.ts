@@ -47,7 +47,7 @@ import {
   reasonText,
   relativeStart,
 } from "../..";
-import type { AccessDecisionVerdict } from "../../abstractions/access-lease";
+import type { AccessApprover, AccessDecisionVerdict } from "../../abstractions/access-lease";
 import type { AccessBadgeState } from "../../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { ApproverActionsService } from "../../approvals/approver-actions.service";
@@ -254,7 +254,7 @@ export class AccessRequestDialogComponent implements OnInit {
     const approver = humanApprover(decision);
     const named = approver?.name || approver?.email || null;
     return {
-      byLabelKey: request.status === "denied" ? "pamDecisionDeniedBy" : "pamDecisionApprovedBy",
+      byLabelKey: decisionLabelKey(decision.verdict, request.status, approver, request.requesterId),
       who:
         decision.decider === "automatic"
           ? this.i18nService.t("pamDecisionAutomatic")
@@ -362,9 +362,8 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly canResubmit = computed(() => {
     const status = this.request()?.status;
-    return (
-      this.offersActions && this.isRequester() && (status === "denied" || status === "expired")
-    );
+    const resubmittableStatus = status === "denied" || status === "expired";
+    return this.offersActions && this.isRequester() && resubmittableStatus;
   });
 
   /** The item this request was for, as the vault's own deep link opens it. */
@@ -412,7 +411,6 @@ export class AccessRequestDialogComponent implements OnInit {
     effect(() => {
       if (!intentApplied && this.withdrawable()) {
         intentApplied = true;
-        this.withdrawReason.setValue("");
         this.confirmingWithdraw.set(true);
       }
     });
@@ -534,12 +532,14 @@ export class AccessRequestDialogComponent implements OnInit {
     );
   }
 
-  /** Turns the dialog over to its confirmation face; the withdrawal itself waits for a reason. */
+  /**
+   * Turns the dialog over to its confirmation face; the withdrawal itself waits for a reason. Any
+   * note from an earlier Cancel or failed attempt is still there.
+   */
   protected withdrawApproval(): void {
     if (!this.canWithdrawApproval() || this.withdrawing()) {
       return;
     }
-    this.withdrawReason.setValue("");
     this.confirmingWithdraw.set(true);
   }
 
@@ -553,11 +553,15 @@ export class AccessRequestDialogComponent implements OnInit {
       return;
     }
     const reason = this.withdrawReason.value.trim();
-    await this.approverActions.withdrawApproval(
+    const withdrawn = await this.approverActions.withdrawApproval(
       () => this.detail.withdrawApproval(reason),
       (busy) => this.withdrawing.set(busy),
     );
-    this.confirmingWithdraw.set(false);
+    // A failure keeps the confirmation, and the reason, open so the approver can retry as is.
+    if (withdrawn) {
+      this.withdrawReason.setValue("");
+      this.confirmingWithdraw.set(false);
+    }
   }
 
   protected async revoke(): Promise<void> {
@@ -601,6 +605,26 @@ function boldRuns(text: string, values: ReadonlyMap<string, string>): TextRun[] 
     .map((part) =>
       values.has(part) ? { text: values.get(part) ?? "", bold: true } : { text: part, bold: false },
     );
+}
+
+/**
+ * The Decision card's label for the request's last decision. Revoking a lease, ending your own,
+ * and withdrawing an approval all record a deny without the request ending denied, so the label
+ * follows the verdict and, for those lease ends, who recorded it — never the status alone.
+ */
+function decisionLabelKey(
+  verdict: AccessDecisionVerdict,
+  status: AccessRequestView["status"],
+  approver: AccessApprover | undefined,
+  requesterId: AccessRequestView["requesterId"],
+): string {
+  if (verdict !== "deny") {
+    return "pamDecisionApprovedBy";
+  }
+  if (status === "denied") {
+    return "pamDecisionDeniedBy";
+  }
+  return approver?.id === requesterId ? "pamDecisionEndedBy" : "pamDecisionRevokedBy";
 }
 
 function cipherId(request: AccessRequestView): string {
