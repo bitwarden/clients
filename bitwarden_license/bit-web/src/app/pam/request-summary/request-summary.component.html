@@ -1,36 +1,19 @@
-<bit-card class="tw-mb-4" data-testid="request-summary-item">
-  <div class="tw-flex tw-items-center tw-gap-3">
-    @if (cipher(); as itemCipher) {
-      <app-vault-icon [cipher]="itemCipher" [size]="32" />
-    } @else {
-      <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
-    }
-    <span bitTypography="body1" class="tw-min-w-0 tw-flex-1 tw-font-bold">{{ itemName() }}</span>
-    <!-- The item's status reads with its name, so the badge sits on this row rather than among
-         the fields below. Empty for hosts that project none. -->
-    <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 empty:tw-hidden">
-      <ng-content select="[slot=badge]"></ng-content>
-    </span>
-  </div>
-
-  @if (organizationName() || collectionName()) {
-    <div class="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-gap-x-6 tw-gap-y-1 tw-text-sm">
-      @if (organizationName(); as organization) {
-        <span class="tw-flex tw-items-center tw-gap-2">
-          <bit-icon
-            name="bwi-business"
-            class="tw-text-muted"
-            [ariaLabel]="'organization' | i18n"
-            [fixedWidth]="true"
-          ></bit-icon>
-          {{ organization }}
-        </span>
+<bit-card class="tw-mb-6" data-testid="request-summary-item">
+  <div class="tw-flex tw-items-start tw-gap-2">
+    <!-- A 40px box with the colored icon, as the vault's own item header frames it. -->
+    <span class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center">
+      @if (cipher(); as itemCipher) {
+        <app-vault-icon [cipher]="itemCipher" [coloredIcon]="true" />
+      } @else {
+        <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
       }
     </span>
 
     <div class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-col tw-gap-2">
       <div class="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
         <span class="tw-min-w-0 tw-text-xl tw-font-medium tw-text-main">{{ itemName() }}</span>
+        <!-- The item's status reads with its name, so the badge sits on this row rather than
+             among the fields below. Empty for hosts that project none. -->
         <span class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 empty:tw-hidden">
           <ng-content select="[slot=badge]"></ng-content>
         </span>
@@ -46,7 +29,7 @@
           }
           @if (collectionName(); as collection) {
             <span class="tw-inline-flex tw-items-center tw-gap-1.5">
-              <bit-icon name="bwi-shared-folder" [ariaLabel]="'sharedFolder' | i18n"></bit-icon>
+              <bit-icon name="bwi-collection-shared" [ariaLabel]="'collection' | i18n"></bit-icon>
               {{ collection }}
             </span>
           }
