@@ -399,7 +399,6 @@ describe("ExtensionLockComponentService", () => {
       // Shared unlock
       configService.getFeatureFlag$.mockReturnValue(of(false));
       sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
-      sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
       sharedUnlockSettingsService.unlockSharingDisabled$.mockReturnValue(of(false));
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));

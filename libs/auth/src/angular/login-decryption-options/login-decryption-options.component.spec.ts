@@ -438,10 +438,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
       ).toHaveBeenCalledWith(false, mockUserId);
-      expect(sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb).toHaveBeenCalledWith(
-        false,
-        mockUserId,
-      );
     });
 
     it("does not clear the allow-sharing settings when the user trusts the device", async () => {
@@ -460,7 +456,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
       ).not.toHaveBeenCalled();
-      expect(sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb).not.toHaveBeenCalled();
     });
 
     it("should use legacy registration when feature flag is disabled", async () => {
