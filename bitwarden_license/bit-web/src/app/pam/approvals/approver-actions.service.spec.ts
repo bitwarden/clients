@@ -170,7 +170,7 @@ describe("ApproverActionsService", () => {
   describe("withdrawApproval", () => {
     /** The caller confirms — the access request dialog does so in place, taking the reason. */
     it("withdraws without confirming again, and toasts", async () => {
-      await service.withdrawApproval(run, busy);
+      await expect(service.withdrawApproval(run, busy)).resolves.toBe(true);
 
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       expect(run).toHaveBeenCalled();
@@ -184,7 +184,7 @@ describe("ApproverActionsService", () => {
       const error = new Error("boom");
       run.mockRejectedValue(error);
 
-      await service.withdrawApproval(run, busy);
+      await expect(service.withdrawApproval(run, busy)).resolves.toBe(false);
 
       expect(logService.error).toHaveBeenCalledWith(error);
       expect(toastService.showToast).toHaveBeenCalledWith({
