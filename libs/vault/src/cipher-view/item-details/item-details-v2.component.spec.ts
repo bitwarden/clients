@@ -214,6 +214,7 @@ describe("ItemDetailsV2Component badge seam (ITEM_DETAILS_BADGE)", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
+        { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
           useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
