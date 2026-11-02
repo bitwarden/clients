@@ -13,6 +13,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { isEligibleForHTTPAuthentication } from "@bitwarden/common/autofill/utils/http-authentication-eligibility";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -345,8 +346,9 @@ export default class WebRequestBackground {
   };
 
   /**
-   * Resolves to the credentials of the single vault login matching the request
-   * host, or to an empty response that leaves the challenge to the browser.
+   * Resolves to the credentials of the single vault login that matches the request
+   * URL and is eligible for HTTP authentication, or to an empty response that leaves
+   * the challenge to the browser.
    */
   private async getAuthChallengeResponse(
     details: chrome.webRequest.OnAuthRequiredDetails,
@@ -382,6 +384,9 @@ export default class WebRequestBackground {
     }
 
     try {
+      // The Host strategy is only applied to URIs using "Default", and logins with any such URI are
+      // removed by the eligibility filter below, so each remaining URI matched by its own strategy.
+      // Host is still passed so that a "Default" URI is never matched more loosely.
       const ciphers = await this.cipherService.getAllDecryptedForUrl(
         details.url,
         activeUserId,
@@ -389,11 +394,13 @@ export default class WebRequestBackground {
         UriMatchStrategy.Host,
       );
 
-      if (ciphers == null || ciphers.length !== 1) {
+      const eligibleCiphers = (ciphers ?? []).filter(isEligibleForHTTPAuthentication);
+
+      if (eligibleCiphers.length !== 1) {
         return {};
       }
 
-      const cipher = ciphers[0];
+      const cipher = eligibleCiphers[0];
       const username = cipher.login?.username;
       const password = cipher.login?.password;
 
