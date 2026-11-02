@@ -65,6 +65,17 @@ describe("DefaultRuleQualificationService", () => {
     collectService.isElementFormFieldElement.mockImplementation(realisticIsElementFormFieldElement);
 
     domQueryService = mock<DomQueryService>();
+    // Default stub mimics a light-DOM walk of the form root. Tests that need
+    // shadow-DOM-rooted or span[data-bwautofill] candidates override this.
+    domQueryService.queryWithUnresolvedShadowHosts.mockImplementation((root, predicate) => {
+      const elements: Element[] = [];
+      (root as Element).querySelectorAll("*").forEach((element) => {
+        if (predicate(element)) {
+          elements.push(element);
+        }
+      });
+      return { elements: elements as never[], unresolvedHosts: new Set<Element>() };
+    });
     domElementVisibilityService = mock<DomElementVisibilityService>();
     domElementVisibilityService.isElementHiddenByCss.mockReturnValue(false);
 
@@ -196,6 +207,196 @@ describe("DefaultRuleQualificationService", () => {
     });
   });
 
+  describe("qualifyRule — selector alternatives", () => {
+    const buildAlternativesRule = (): FormContent[] => [
+      {
+        category: "login" as FormPurposeCategory,
+        fields: {
+          username: ["#email", "#login"],
+          password: ["#pwd"],
+        },
+      },
+    ];
+
+    it("qualifies when only the first alternative resolves", async () => {
+      const form = document.createElement("form");
+      const email = document.createElement("input");
+      const pwd = document.createElement("input");
+      form.append(email, pwd);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#email" ? email : selector === "#pwd" ? pwd : null,
+      );
+
+      const result = await service.qualifyRule("https://example.com", buildAlternativesRule());
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+
+    it("qualifies when only the second alternative resolves", async () => {
+      const form = document.createElement("form");
+      const login = document.createElement("input");
+      const pwd = document.createElement("input");
+      form.append(login, pwd);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#login" ? login : selector === "#pwd" ? pwd : null,
+      );
+
+      const result = await service.qualifyRule("https://example.com", buildAlternativesRule());
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+
+    it("fails structural when no alternative resolves", async () => {
+      const form = document.createElement("form");
+      const pwd = document.createElement("input");
+      form.append(pwd);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#pwd" ? pwd : null,
+      );
+
+      const result = await service.qualifyRule("https://example.com", buildAlternativesRule());
+
+      expect(result).toMatchObject({ kind: "fallback", missReason: "structural" });
+    });
+
+    it("qualifies when a sequence alternative fully resolves even though the string alternative does not", async () => {
+      // Rule: `password: ["#pwd", ["#pwd-a", "#pwd-b"]]`.
+      // Page has `#pwd-a` and `#pwd-b` but not `#pwd`.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pwdA = document.createElement("input");
+      const pwdB = document.createElement("input");
+      form.append(user, pwdA, pwdB);
+      document.body.append(form);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: {
+            username: ["#user"],
+            password: ["#pwd", ["#pwd-a", "#pwd-b"]],
+          },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) => {
+        if (selector === "#user") {
+          return user;
+        }
+        if (selector === "#pwd-a") {
+          return pwdA;
+        }
+        if (selector === "#pwd-b") {
+          return pwdB;
+        }
+        return null;
+      });
+
+      const result = await service.qualifyRule("https://example.com", rule);
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+
+    it("fails structural when a sequence alternative has one member missing and no other alternative qualifies", async () => {
+      const form = document.createElement("form");
+      const d1 = document.createElement("input");
+      const d2 = document.createElement("input");
+      form.append(d1, d2);
+      document.body.append(form);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: {
+            oneTimeCode: [["#d1", "#d2", "#d3-missing"]],
+          },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#d1" ? d1 : selector === "#d2" ? d2 : null,
+      );
+
+      const result = await service.qualifyRule("https://example.com", rule);
+
+      expect(result).toMatchObject({ kind: "fallback", missReason: "structural" });
+    });
+
+    it("treats every alternative's resolved elements as declared for the extras check", async () => {
+      // Both `#email` and `#login` are declared as alternatives for the
+      // username and both exist on the page. Neither should be flagged as an
+      // extra. A third input that no alternative covers should.
+      const form = document.createElement("form");
+      const email = document.createElement("input");
+      const login = document.createElement("input");
+      const pwd = document.createElement("input");
+      const stray = document.createElement("input");
+      form.append(email, login, pwd, stray);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) => {
+        if (selector === "#email") {
+          return email;
+        }
+        if (selector === "#login") {
+          return login;
+        }
+        if (selector === "#pwd") {
+          return pwd;
+        }
+        return null;
+      });
+
+      const result = await service.qualifyRule("https://example.com", buildAlternativesRule());
+
+      expect(result).toMatchObject({ kind: "fallback", missReason: "in_scope_extras" });
+    });
+
+    it("qualifies when only one of several container selectors resolves", async () => {
+      // Container entries name the same element with different selectors.
+      // Any one resolving is enough. Pins the any-of semantic for container.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      form.append(user, pass);
+      document.body.append(form);
+
+      const rule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          container: ["#main-login", "#legacy-login"],
+          fields: {
+            username: ["#user"],
+            password: ["#pass"],
+          },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) => {
+        if (selector === "#legacy-login") {
+          return form;
+        }
+        if (selector === "#user") {
+          return user;
+        }
+        if (selector === "#pass") {
+          return pass;
+        }
+        return null;
+      });
+
+      const result = await service.qualifyRule("https://example.com", rule);
+
+      expect(result).toEqual({ kind: "proceedTargeted" });
+    });
+  });
+
   describe("qualifyRule — in-scope extras miss", () => {
     it("returns fallback with missReason in_scope_extras when an in-scope form contains an undeclared field", async () => {
       const form = document.createElement("form");
@@ -238,6 +439,80 @@ describe("DefaultRuleQualificationService", () => {
           detectedFields: expect.any(Map),
         }),
       );
+    });
+
+    it("flags a shadow-DOM-rooted field inside an in-scope form as in_scope_extras", async () => {
+      // Regression guard. The extras check must cross shadow boundaries, or a
+      // shadow-rooted field inside an in-scope form would be invisible and the
+      // rule would qualify despite the extra.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const customEl = document.createElement("my-input");
+      form.append(user, customEl);
+      document.body.append(form);
+
+      // Stand-in for a field inside customEl's shadow root. The test only
+      // exercises what the deep-query mock returns, not the live DOM.
+      const shadowPassword = document.createElement("input");
+      shadowPassword.type = "password";
+
+      const usernameOnlyRule: FormContent[] = [
+        {
+          category: "login" as FormPurposeCategory,
+          fields: { username: ["#user"] },
+        },
+      ];
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : null,
+      );
+      domQueryService.queryWithUnresolvedShadowHosts.mockImplementation((root, predicate) => {
+        if (root === form) {
+          return {
+            elements: [user, shadowPassword] as never[],
+            unresolvedHosts: new Set<Element>(),
+          };
+        }
+        const elements: Element[] = [];
+        (root as Element).querySelectorAll("*").forEach((element) => {
+          if (predicate(element)) {
+            elements.push(element);
+          }
+        });
+        return { elements: elements as never[], unresolvedHosts: new Set<Element>() };
+      });
+
+      const result = await service.qualifyRule("https://example.com", usernameOnlyRule);
+
+      expect(result).toMatchObject({ kind: "fallback", missReason: "in_scope_extras" });
+    });
+
+    it("flags a span[data-bwautofill] inside an in-scope form as in_scope_extras", async () => {
+      // When honorBitwardenAutofillAttribute is on, the heuristic treats
+      // span[data-bwautofill] as a fillable field. An undeclared one inside
+      // an in-scope form must be flagged as an extra.
+      const form = document.createElement("form");
+      const user = document.createElement("input");
+      const pass = document.createElement("input");
+      pass.type = "password";
+      const span = document.createElement("span");
+      span.setAttribute("data-bwautofill", "");
+      form.append(user, pass, span);
+      document.body.append(form);
+
+      domQueryService.queryDeepSelector.mockImplementation((selector) =>
+        selector === "#user" ? user : selector === "#pass" ? pass : null,
+      );
+      collectService.isElementFormFieldElement.mockImplementation((element) => {
+        if (element.tagName.toLowerCase() === "span" && element.hasAttribute("data-bwautofill")) {
+          return true;
+        }
+        return realisticIsElementFormFieldElement(element);
+      });
+
+      const result = await service.qualifyRule("https://example.com", buildLoginRule());
+
+      expect(result).toMatchObject({ kind: "fallback", missReason: "in_scope_extras" });
     });
 
     it("qualifies a realistic login form containing a submit button and hidden token", async () => {

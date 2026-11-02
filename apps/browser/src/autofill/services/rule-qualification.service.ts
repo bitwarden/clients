@@ -60,9 +60,9 @@ export class DefaultRuleQualificationService implements RuleQualificationService
   }
 
   /**
-   * Half 1: every declared selector resolves to an eligible field. Side-effect
-   * free. Collects enclosing `<form>` elements along the way so Half 2 knows
-   * which forms to detect fields within.
+   * Half 1: for each declared field, at least one alternative qualifies.
+   * Side-effect free. Collects enclosing `<form>` elements along the way so
+   * Half 2 knows which forms to detect fields within.
    */
   private async checkStructural(
     rule: FormContent[],
@@ -70,36 +70,16 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     const inScopeForms = new Set<HTMLFormElement>();
 
     for (const form of rule) {
-      for (const selector of this.extractDeclaredSelectors(form)) {
-        // Iframe `>>>` selectors are partially checked: verify the first-hop
-        // iframe exists in the parent's DOM. Later segments live in child
-        // frames and are not checked here.
-        if (selector.includes(">>>")) {
-          const iframeCrossing = this.domQueryService.findIframeCrossing(selector);
-          if (iframeCrossing) {
-            continue;
-          }
-        }
-
-        // Plain selector, shadow DOM `>>>`, or broken iframe `>>>` (first
-        // segment missing). queryDeepSelector resolves valid cases and returns
-        // null for broken chains.
-        const element = this.domQueryService.queryDeepSelector(selector) as HTMLElement | null;
-        // `isElementHiddenByCss` covers display, visibility, opacity, and
-        // clip-path, but not `input type="hidden"`. The eligibility probe
-        // treats both as unresolved.
-        const isHiddenInput = element instanceof HTMLInputElement && element.type === "hidden";
-        if (
-          !element ||
-          isHiddenInput ||
-          this.domElementVisibilityService.isElementHiddenByCss(element)
-        ) {
+      for (const alternatives of this.extractAlternativeGroups(form)) {
+        const winningElements = this.firstQualifyingAlternative(alternatives);
+        if (winningElements === null) {
           return { ok: false, inScopeForms: { forms: inScopeForms } };
         }
-
-        const enclosingForm = element.closest("form");
-        if (enclosingForm) {
-          inScopeForms.add(enclosingForm);
+        for (const element of winningElements) {
+          const enclosingForm = element.closest("form");
+          if (enclosingForm) {
+            inScopeForms.add(enclosingForm);
+          }
         }
       }
     }
@@ -112,6 +92,10 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    * `inScopeForms.detectedFields` with the detection result so the miss path
    * can reuse it rather than detecting fields in those forms again.
    *
+   * The declared set includes elements for every alternative that resolves,
+   * not just the one Half 1 picked. If a rule declares `username: ["#email",
+   * "#login"]` and both exist on the page, neither counts as an extra.
+   *
    * Note on formless pages: when every resolved declared selector sits outside
    * a `<form>`, `inScopeForms.forms` is empty and this method returns `ok: true`
    * without finding any extras. The check asks "is there an extra inside any
@@ -122,17 +106,19 @@ export class DefaultRuleQualificationService implements RuleQualificationService
     rule: FormContent[],
     inScopeForms: InScopeFormsDetection,
   ): Promise<{ ok: boolean }> {
-    // Resolve declared selectors to element references for the membership check.
-    // Iframe `>>>` selectors resolve inside child frames and are skipped here.
     const declaredElements = new Set<Element>();
     for (const form of rule) {
-      for (const selector of this.extractDeclaredSelectors(form)) {
-        if (selector.includes(">>>") && this.domQueryService.findIframeCrossing(selector)) {
-          continue;
-        }
-        const element = this.domQueryService.queryDeepSelector(selector);
-        if (element) {
-          declaredElements.add(element);
+      for (const alternatives of this.extractAlternativeGroups(form)) {
+        for (const members of alternatives) {
+          for (const selector of members) {
+            if (selector.includes(">>>") && this.domQueryService.findIframeCrossing(selector)) {
+              continue;
+            }
+            const element = this.domQueryService.queryDeepSelector(selector);
+            if (element) {
+              declaredElements.add(element);
+            }
+          }
         }
       }
     }
@@ -154,29 +140,67 @@ export class DefaultRuleQualificationService implements RuleQualificationService
   }
 
   /**
-   * Flattens a form's declared selectors from `fields` and `container` into a
-   * single list. For a `DeepSelectorSequence` (e.g. a 6-digit OTP split across
-   * 6 inputs), every member is included. The sequence qualifies only if all
-   * members resolve.
+   * Returns one list of alternatives per declared field, plus the container
+   * if present. A field qualifies when any one alternative qualifies. An
+   * alternative is a list of selectors that must all resolve together. A
+   * string entry becomes a one-member list. A `DeepSelectorSequence` entry
+   * carries all its members.
+   *
+   * Container selectors are grouped the same way: multiple entries name the
+   * same container element, so any one that resolves qualifies.
    */
-  private extractDeclaredSelectors(form: FormContent): string[] {
-    const selectors: string[] = [];
+  private extractAlternativeGroups(form: FormContent): string[][][] {
+    const groups: string[][][] = [];
+
     if (form.container) {
-      selectors.push(...form.container);
+      groups.push(form.container.map((selector) => [selector]));
     }
+
     for (const typeSelectors of Object.values(form.fields)) {
       if (!typeSelectors) {
         continue;
       }
-      for (const entry of typeSelectors) {
-        if (typeof entry === "string") {
-          selectors.push(entry);
-        } else {
-          selectors.push(...entry);
+      groups.push(typeSelectors.map((entry) => (typeof entry === "string" ? [entry] : entry)));
+    }
+
+    return groups;
+  }
+
+  /**
+   * Returns the resolved elements of the first alternative that fully
+   * qualifies, or null if none do. An iframe `>>>` selector with a resolved
+   * first-hop iframe counts as qualifying without contributing a local
+   * element. Later segments live in child frames and are not checked here.
+   */
+  private firstQualifyingAlternative(alternatives: string[][]): HTMLElement[] | null {
+    for (const members of alternatives) {
+      const resolved: HTMLElement[] = [];
+      let allResolve = true;
+      for (const selector of members) {
+        if (selector.includes(">>>") && this.domQueryService.findIframeCrossing(selector)) {
+          continue;
         }
+        const element = this.domQueryService.queryDeepSelector(selector) as HTMLElement | null;
+        if (!element || this.isElementIneligible(element)) {
+          allResolve = false;
+          break;
+        }
+        resolved.push(element);
+      }
+      if (allResolve) {
+        return resolved;
       }
     }
-    return selectors;
+    return null;
+  }
+
+  /**
+   * Treats `input type="hidden"` and CSS-hidden elements (display, visibility,
+   * opacity, clip-path) as unresolved, matching the eligibility probe.
+   */
+  private isElementIneligible(element: HTMLElement): boolean {
+    const isHiddenInput = element instanceof HTMLInputElement && element.type === "hidden";
+    return isHiddenInput || this.domElementVisibilityService.isElementHiddenByCss(element);
   }
 
   /**
@@ -190,15 +214,19 @@ export class DefaultRuleQualificationService implements RuleQualificationService
    * heuristic bypass path. Adding a `skipCaching` branch to the shared path
    * would clutter it for just one caller.
    *
-   * Uses the collect service's `isElementFormFieldElement` so the extras check
-   * matches the heuristic pass definition of a fillable field. Without
-   * this, submit buttons and hidden inputs would read as extras and almost
-   * every real-world rule would fail Half 2.
+   * Uses the same `queryWithUnresolvedShadowHosts` call the full heuristic
+   * scan uses, so shadow-rooted fields and `span[data-bwautofill]` surface
+   * the same way. The predicate is the collect service's
+   * `isElementFormFieldElement`, which excludes ignored input types (hidden,
+   * submit, button, etc.) and honors `data-bwignore` / `data-bwautofill`.
+   * Unresolved shadow hosts are discarded. The collect service handles
+   * shadow tracker reconciliation on its own full scan.
    */
   private detectHeuristicFieldsInForm(form: HTMLFormElement): FormFieldElement[] {
-    const candidates = form.querySelectorAll("input, select, textarea");
-    return Array.from(candidates).filter((element) =>
-      this.collectAutofillContentService.isElementFormFieldElement(element),
-    ) as FormFieldElement[];
+    const { elements } = this.domQueryService.queryWithUnresolvedShadowHosts<FormFieldElement>(
+      form,
+      (element) => this.collectAutofillContentService.isElementFormFieldElement(element),
+    );
+    return elements;
   }
 }
