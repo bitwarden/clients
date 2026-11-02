@@ -52,8 +52,8 @@ import {
   StorybookGlobalStateProvider,
   ToastService,
 } from "@bitwarden/components";
-import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { ConsoleLogService } from "@bitwarden/logging";
+import { MessageListener, MessageSender } from "@bitwarden/messaging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { LockService } from "@bitwarden/unlock";
