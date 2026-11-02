@@ -18136,9 +18136,6 @@
   "copy": {
     "message": "Copy"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
@@ -18178,9 +18175,6 @@
   "pamMyRequestsPendingEmpty": {
     "message": "No pending requests"
   },
-  "pamMyRequestsHistoryEmpty": {
-    "message": "No request history"
-  },
   "pamMyRequestsEmptyTitle": {
     "message": "You have no requests"
   },
@@ -18202,11 +18196,8 @@
   "pamColumnStatus": {
     "message": "Status"
   },
-  "pamColumnResolver": {
-    "message": "Resolver"
-  },
-  "pamColumnComment": {
-    "message": "Comment"
+  "pamColumnResolvedBy": {
+    "message": "Resolved by"
   },
   "pamColumnResolved": {
     "message": "Resolved"
@@ -18382,6 +18373,9 @@
   },
   "pamStatusRevoked": {
     "message": "Revoked"
+  },
+  "pamStatusSessionEnded": {
+    "message": "Session ended"
   },
   "pamStatusUnknown": {
     "message": "Unknown"
@@ -18922,14 +18916,20 @@
       }
     }
   },
+  "pamInboxElapsedWeeks": {
+    "message": "$WEEKS$w ago",
+    "placeholders": {
+      "weeks": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "pamInboxEmptyDescription": {
     "message": "There are no requests waiting for your decision."
   },
   "pamInboxEmptyTitle": {
     "message": "Inbox zero"
-  },
-  "pamInboxHistoryEmpty": {
-    "message": "No history to display"
   },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
@@ -18963,18 +18963,6 @@
   },
   "pamHistoryLoaded": {
     "message": "Request history loaded"
-  },
-  "pamHistoryScopeAll": {
-    "message": "All"
-  },
-  "pamHistoryScopeMine": {
-    "message": "Raised by me"
-  },
-  "pamHistoryScopeManaged": {
-    "message": "For my collections"
-  },
-  "pamHistoryScopeLabel": {
-    "message": "History scope"
   },
   "pamHistoryEmptyTitle": {
     "message": "Nothing to show yet"
@@ -19057,24 +19045,6 @@
   "pamAccessRuleDeactivateSuccess": {
     "message": "Access rule deactivated."
   },
-  "pamAccessRuleEnabled": {
-    "message": "Enabled"
-  },
-  "pamAccessRuleEnabledHint": {
-    "message": "When disabled, the rule is inactive and does not restrict access."
-  },
-  "pamAccessRuleEnable": {
-    "message": "Enable rule"
-  },
-  "pamAccessRuleDisable": {
-    "message": "Disable rule"
-  },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Access rule enabled."
-  },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Access rule disabled."
-  },
   "pamAccessRuleNotFound": {
     "message": "Access rule not found."
   },
@@ -19083,9 +19053,6 @@
   },
   "pamAccessRuleCreate": {
     "message": "Create access rule"
-  },
-  "pamAccessRuleNew": {
-    "message": "New rule"
   },
   "pamAccessRuleCreateTitle": {
     "message": "New access rule"
@@ -19168,9 +19135,6 @@
   "pamAccessRuleDuration2d": {
     "message": "2 days"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 hours"
-  },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
   },
@@ -19188,18 +19152,6 @@
   },
   "pamAccessRuleAllowAccessExtensionsHint": {
     "message": "Members can extend their active access once without a new approval, up to the maximum length below."
-  },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Only one user can hold an active lease at a time"
-  },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "New requests are queued until the current lease ends or is revoked."
-  },
-  "pamAccessRuleAllowExtensions": {
-    "message": "Allow lease extensions"
-  },
-  "pamAccessRuleAllowExtensionsHint": {
-    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "Maximum extension length"
@@ -19257,14 +19209,8 @@
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
   },
-  "pamAccessRuleDeleteConfirmContent": {
-    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "VPN + business hours"
-      }
-    }
+  "pamAccessRuleDeleteConfirmDescription": {
+    "message": "This will permanently remove this rule. Users in the collections it governs will regain normal access."
   },
   "pamAccessRuleDeactivateConfirmTitle": {
     "message": "Deactivate access rule"
@@ -19326,9 +19272,6 @@
   "pamTemplateJustInTimeShortSummary": {
     "message": "Auto-approved"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approved • Expires after 1h • Audit logged"
-  },
   "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
   },
@@ -19338,9 +19281,6 @@
   "pamTemplateApprovalRequiredShortSummary": {
     "message": "Human approval • 1 approver required"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Human approval • 1 approver required • Audit logged"
-  },
   "pamTemplateApprovalRequiredName": {
     "message": "Approval required"
   },
@@ -19349,9 +19289,6 @@
   },
   "pamTemplateIpRestrictedShortSummary": {
     "message": "Auto-approved • IP Allowlist"
-  },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approved • IP Allowlist • Audit logged"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
@@ -19386,12 +19323,6 @@
   "pamAccessRuleDurationColumn": {
     "message": "Maximum duration"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
-  },
-  "pamAccessWindow": {
-    "message": "Access window"
-  },
   "pamAccessRuleLastModified": {
     "message": "Last modified"
   },
@@ -19412,12 +19343,6 @@
   },
   "pamAccessRuleBulkDeactivate": {
     "message": "Deactivate"
-  },
-  "pamAccessRuleBulkEnable": {
-    "message": "Enable"
-  },
-  "pamAccessRuleBulkDisable": {
-    "message": "Disable"
   },
   "pamAccessRulesUpdated": {
     "message": "Access rules updated."
