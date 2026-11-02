@@ -19562,12 +19562,6 @@
   "pamInboxCommentPlaceholder": {
     "message": "Add an optional comment"
   },
-  "pamInboxConfirmApproveButton": {
-    "message": "Approve request"
-  },
-  "pamInboxConfirmDenyButton": {
-    "message": "Deny request"
-  },
   "pamInboxDecisionFailed": {
     "message": "Could not record decision"
   },
@@ -19649,12 +19643,17 @@
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
   },
-  "pamInboxWithdrawApprovalConfirm": {
-    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
+  "pamWithdrawApprovalConfirmMessage": {
+    "message": "This withdraws your approval for $ITEM$. Access won't start, and $REQUESTER$ will need a new approval to get it.",
+    "description": "Warning on the withdraw-approval confirmation. The item and requester names render in bold.",
     "placeholders": {
       "item": {
         "content": "$1",
         "example": "Prod database"
+      },
+      "requester": {
+        "content": "$2",
+        "example": "devon.ortiz"
       }
     }
   },
