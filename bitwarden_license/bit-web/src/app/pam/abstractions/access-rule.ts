@@ -43,11 +43,7 @@ export function isIpAllowlist(
   return condition.kind === "ip_allowlist";
 }
 
-/**
- * Adds `NotFound`, which the Rust SDK throws but no published `sdk-internal` declares yet. Collapse
- * once the bump lands.
- */
-export type AccessRuleErrorVariant = AccessRuleError["variant"] | "NotFound";
+export type AccessRuleErrorVariant = AccessRuleError["variant"];
 
 /**
  * Not the SDK's own `isAccessRuleError`, which is a runtime wasm import; this directory stays
@@ -77,6 +73,5 @@ export function isAccessRuleNotFound(e: unknown): boolean {
   if (!isAccessRuleError(e)) {
     return false;
   }
-  // Cast at the comparison, since a widened `const` would narrow back to its initializer's type.
-  return (e.variant as AccessRuleErrorVariant) === "NotFound";
+  return e.variant === "NotFound";
 }
