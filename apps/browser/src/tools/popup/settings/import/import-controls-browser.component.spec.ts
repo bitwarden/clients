@@ -6,12 +6,14 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import {
   DefaultImportStagingService,
   ImportResult,
   ImportStagingServiceAbstraction,
   ImportType,
 } from "@bitwarden/importer-core";
+import { GlobalStateProvider } from "@bitwarden/state";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ImportConfirmationStateService } from "./import-confirmation-state.service";
@@ -41,6 +43,7 @@ describe("ImportControlsBrowserComponent", () => {
     await TestBed.configureTestingModule({
       imports: [ImportControlsBrowserComponent],
       providers: [
+        { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: Router, useValue: router },
         { provide: ImportStagingServiceAbstraction, useValue: stagingService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (key: string) => key }) },
@@ -112,7 +115,7 @@ describe("ImportControlsBrowserComponent", () => {
 
   it("navigates to the confirmation page when continue is emitted after a finished import", async () => {
     await setup("keeper");
-    TestBed.inject(ImportConfirmationStateService).set({ summary: { total: 1, rows: [] } });
+    await TestBed.inject(ImportConfirmationStateService).set({ summary: { total: 1, rows: [] } });
 
     fixture.debugElement
       .query(By.css("importer-controls"))

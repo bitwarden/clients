@@ -1,10 +1,14 @@
+import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { ImportResult } from "@bitwarden/importer-core";
 import { ImportSkippedItemsDialogComponent } from "@bitwarden/importer-ui";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { BrowserImportOutcomePresenter } from "./browser-import-outcome-presenter";
 import { ImportConfirmationStateService } from "./import-confirmation-state.service";
@@ -23,40 +27,46 @@ describe("BrowserImportOutcomePresenter", () => {
 
   beforeEach(() => {
     dialogService = mock<DialogService>();
-    confirmationState = new ImportConfirmationStateService();
+    TestBed.configureTestingModule({
+      providers: [{ provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() }],
+    });
+    confirmationState = TestBed.inject(ImportConfirmationStateService);
     presenter = new BrowserImportOutcomePresenter(dialogService, confirmationState);
   });
 
-  it("keeps only the counts and file name for the confirmation page", () => {
-    presenter.present({ kind: "imported", result: resultWith() }, "export.csv");
+  it("keeps only the counts and file for the confirmation page and the popup", async () => {
+    await presenter.present({ kind: "imported", result: resultWith() }, { name: "export.csv" });
 
-    expect(confirmationState.current()).toEqual({
+    const expected = {
       summary: { total: 1, rows: [{ icon: "globe", labelKey: "typeLogin", count: 1 }] },
-      fileName: "export.csv",
-    });
+      importedFile: { name: "export.csv" },
+    };
+    expect(confirmationState.current()).toEqual(expected);
+    expect(await firstValueFrom(confirmationState.pending$)).toEqual(expected);
     expect(dialogService.open).not.toHaveBeenCalled();
   });
 
-  it("keeps the counts of an SDK import", () => {
-    presenter.present({
+  it("keeps the counts of an SDK import", async () => {
+    await presenter.present({
       kind: "importedWithSdk",
       sdkSummary: { ciphers: [{ type: CipherType.Card, count: 2 }], folders: 0, collections: 0 },
     });
 
     expect(confirmationState.current()?.summary.total).toBe(2);
-    expect(confirmationState.current()?.fileName).toBeUndefined();
+    expect(confirmationState.current()?.importedFile).toBeUndefined();
   });
 
-  it("opens the skipped-items dialog instead, and drops any earlier result", () => {
-    confirmationState.set({ summary: { total: 9, rows: [] } });
+  it("opens the skipped-items dialog instead, and drops any earlier result", async () => {
+    await confirmationState.set({ summary: { total: 9, rows: [] } });
     const errors = [{ message: "bad item" }] as unknown as ImportResult["errors"];
 
-    presenter.present({ kind: "imported", result: resultWith(errors) });
+    await presenter.present({ kind: "imported", result: resultWith(errors) });
 
     expect(dialogService.open).toHaveBeenCalledWith(
       ImportSkippedItemsDialogComponent,
       expect.objectContaining({ data: { errors } }),
     );
     expect(confirmationState.current()).toBeUndefined();
+    expect(await firstValueFrom(confirmationState.pending$)).toBeNull();
   });
 });

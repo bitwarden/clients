@@ -29,13 +29,13 @@ describe("DialogImportOutcomePresenter", () => {
   it("gives the confirmation dialog the counts and file name, not the imported items", () => {
     const result = resultWith();
 
-    presenter.present({ kind: "imported", result }, "export.csv");
+    presenter.present({ kind: "imported", result }, { name: "export.csv" });
 
     const [component, config] = dialogService.open.mock.calls[0] as [unknown, { data: unknown }];
     expect(component).toBe(ImportConfirmationDialogComponent);
     expect(config.data).toEqual({
       summary: { total: 1, rows: [{ icon: "globe", labelKey: "typeLogin", count: 1 }] },
-      fileName: "export.csv",
+      importedFile: { name: "export.csv" },
     });
     expect(JSON.stringify(config.data)).not.toContain("secret");
   });

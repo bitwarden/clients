@@ -1,0 +1,66 @@
+@switch (phase()) {
+  @case ("opening") {
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6 tw-text-center"
+    >
+      <bit-spinner size="base" />
+      <div class="tw-flex tw-flex-col tw-gap-1">
+        <p bitTypography="h4" noMargin class="tw-mb-0 tw-text-fg-heading">
+          {{
+            (total() === 1 ? "importingItemsTitleSingular" : "importingItemsTitle") | i18n: total()
+          }}
+        </p>
+        <p bitTypography="body2" noMargin class="tw-mb-0 tw-text-fg-body">
+          {{ "openingExtensionSubtitle" | i18n }}
+        </p>
+      </div>
+    </div>
+  }
+  @case ("opened") {
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6 tw-text-center"
+    >
+      <bit-svg [content]="celebration" class="tw-block" style="width: 100px; height: 100px" />
+      <p bitTypography="h4" noMargin class="tw-mb-0 tw-text-fg-heading">
+        {{ "openedExtensionTitle" | i18n }}
+      </p>
+    </div>
+  }
+  @default {
+    <div class="tw-flex tw-flex-col tw-items-center tw-text-center">
+      <bit-svg
+        [content]="extensionIllustration"
+        class="tw-block"
+        style="width: 100px; height: 100px"
+      />
+      <p bitTypography="h4" noMargin class="tw-mb-0 tw-text-main">
+        {{ "somethingWentWrong" | i18n }}
+      </p>
+    </div>
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-rounded-xl tw-border tw-border-solid tw-border-border-base tw-bg-bg-primary tw-p-6 tw-text-center"
+    >
+      @if (phase() === "button") {
+        <p bitTypography="body1" noMargin class="tw-mb-0 tw-text-main">
+          {{ "openingExtensionError" | i18n }}
+        </p>
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [loading]="retrying()"
+          id="import-confirmation_button_open-extension"
+          (click)="openExtension.emit()"
+        >
+          {{ "openExtension" | i18n }}
+        </button>
+      } @else {
+        <p bitTypography="body1" noMargin class="tw-mb-0 tw-text-main">
+          {{ "openingExtensionToolbarErrorPart1" | i18n }}
+          <bit-svg [content]="toolbarIcon" class="!tw-inline-block tw-align-middle" />
+          {{ "openingExtensionToolbarErrorPart2" | i18n }}
+        </p>
+      }
+    </div>
+  }
+}

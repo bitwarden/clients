@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ButtonModule, DIALOG_DATA, DialogModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { ImportedFile } from "../../models";
+
 import { ImportConfirmationSummaryComponent } from "./import-confirmation-summary.component";
 import { ImportSummary } from "./import-summary";
 
@@ -10,7 +12,7 @@ import { ImportSummary } from "./import-summary";
 export interface ImportConfirmationDialogData {
   summary: ImportSummary;
   /** Set for file imports, to remind the user to delete the file. */
-  fileName?: string;
+  importedFile?: ImportedFile;
 }
 
 @Component({

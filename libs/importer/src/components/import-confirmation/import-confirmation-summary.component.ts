@@ -1,7 +1,11 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit } from "@angular/core";
 
-import { CalloutComponent, IconTileComponent, TypographyModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CalloutComponent, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { ImportedFile } from "../../models";
 
 import { ImportSummary } from "./import-summary";
 
@@ -9,13 +13,38 @@ import { ImportSummary } from "./import-summary";
   selector: "importer-confirmation-summary",
   templateUrl: "./import-confirmation-summary.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CalloutComponent, IconTileComponent, I18nPipe, TypographyModule],
-  host: { class: "tw-flex tw-flex-col tw-gap-4" },
+  imports: [CalloutComponent, I18nPipe, TypographyModule],
+  host: { class: "tw-flex tw-flex-col tw-gap-2.5" },
 })
-export class ImportConfirmationSummaryComponent {
+export class ImportConfirmationSummaryComponent implements OnInit {
+  private readonly i18nService = inject(I18nService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
+
   readonly summary = input.required<ImportSummary>();
-  /** Name of the file the items came from. The delete-the-file tip shows only when set. */
-  readonly fileName = input<string>();
-  /** False where the host already supplies the title, such as a dialog header. */
-  readonly showHeading = input(true);
+  /** The file the items came from. The delete-the-file tip shows only when set. */
+  readonly importedFile = input<ImportedFile>();
+
+  protected readonly bodyKey = computed(() =>
+    this.summary().total === 1 ? "importConfirmationBodySingular" : "importConfirmationBody",
+  );
+
+  protected readonly tip = computed(() => {
+    const file = this.importedFile();
+    if (file == null) {
+      return undefined;
+    }
+    return file.name == null
+      ? this.i18nService.t("importDeleteFileTipGeneric")
+      : this.i18nService.t("importDeleteFileTip", file.name);
+  });
+
+  ngOnInit(): void {
+    const tip = this.tip();
+    if (tip != null) {
+      void this.liveAnnouncer.announce(
+        `${this.i18nService.t("importConfirmationTipLabel")} ${tip}`,
+        "polite",
+      );
+    }
+  }
 }

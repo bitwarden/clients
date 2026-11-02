@@ -1,3 +1,5 @@
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -26,7 +28,7 @@ describe("summarizeImport", () => {
       total: 4,
       rows: [
         { icon: "globe", labelKey: "typeLogin", count: 2 },
-        { icon: "credit-card", labelKey: "typeCard", count: 1 },
+        { icon: "id-card", labelKey: "typeCard", count: 1 },
         { icon: "key", labelKey: "typeSshKey", count: 1 },
       ],
     });
@@ -76,9 +78,28 @@ describe("summarizeImport", () => {
         { icon: "globe", labelKey: "typeLogin", count: 5 },
         { icon: "id-card", labelKey: "typeIdentity", count: 1 },
         { icon: "folder", labelKey: "folders", count: 2 },
-        { icon: "collection", labelKey: "collections", count: 4 },
+        { icon: "collection-shared", labelKey: "sharedFolder", count: 4 },
       ],
     });
+  });
+
+  it("labels secure notes Note, and shows the folders row between items and shared folders", () => {
+    const result = new ImportResult();
+    result.ciphers = [cipher(CipherType.SecureNote)];
+    result.folders = [Object.assign(new FolderView(), { name: "f" })];
+    result.collections = [
+      new CollectionView({
+        id: "c" as CollectionId,
+        organizationId: "o" as OrganizationId,
+        name: "c",
+      }),
+    ];
+
+    expect(summarizeImport({ kind: "imported", result }).rows).toEqual([
+      { icon: "sticky-note", labelKey: "typeNote", count: 1 },
+      { icon: "folder", labelKey: "folders", count: 1 },
+      { icon: "collection-shared", labelKey: "sharedFolder", count: 1 },
+    ]);
   });
 
   it("counts a cipher type with no row toward the total", () => {

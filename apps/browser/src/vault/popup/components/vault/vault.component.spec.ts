@@ -51,6 +51,7 @@ import {
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
+import { ImportConfirmationPopupService } from "../../../../tools/popup/settings/import/import-confirmation-popup.service";
 import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
@@ -315,6 +316,7 @@ describe("VaultComponent", () => {
   };
 
   const importUpgradeNavigationSvc = mock<ImportUpgradeNavigationService>();
+  const importConfirmationPopupSvc = mock<ImportConfirmationPopupService>();
 
   const premiumUpsellSvc = {
     showUpsell: jest.fn().mockReturnValue(false),
@@ -405,6 +407,10 @@ describe("VaultComponent", () => {
         {
           provide: ImportUpgradeNavigationService,
           useValue: importUpgradeNavigationSvc,
+        },
+        {
+          provide: ImportConfirmationPopupService,
+          useValue: importConfirmationPopupSvc,
         },
         {
           provide: SearchService,
@@ -873,6 +879,17 @@ describe("VaultComponent", () => {
     expect(DecryptionFailureDialogComponent.open).toHaveBeenCalledWith(expect.any(Object), {
       cipherIds: ["a", "c"],
     });
+
+    flush();
+  }));
+
+  it("ngOnInit shows the result of an import that finished in a tab", fakeAsync(() => {
+    importConfirmationPopupSvc.conditionallyOpen.mockClear();
+
+    void component.ngOnInit();
+    tick();
+
+    expect(importConfirmationPopupSvc.conditionallyOpen).toHaveBeenCalledTimes(1);
 
     flush();
   }));

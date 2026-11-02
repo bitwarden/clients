@@ -84,6 +84,7 @@ import { CurrentAccountComponent } from "../../../../auth/popup/account-switchin
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { ImportConfirmationPopupService } from "../../../../tools/popup/settings/import/import-confirmation-popup.service";
 import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
@@ -403,6 +404,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
+  private readonly importConfirmationPopupService = inject(ImportConfirmationPopupService);
 
   /**
    * Follows the scroll region rather than latching it: the table claims it only once its rows
@@ -505,6 +507,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.readySubject.next(true);
 
+    await this.importConfirmationPopupService.conditionallyOpen();
     await this.openNewExperienceDialog(this.activeUserId, onboardingWelcomeDismissed);
   }
 

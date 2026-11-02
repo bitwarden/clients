@@ -376,7 +376,7 @@ export class ImportDestinationComponent {
           logService: this.logService,
           presenter: this.presenter,
         },
-        staged.kind === "parsed" ? undefined : staged.fileName,
+        staged.kind === "parsed" ? undefined : staged.importedFile,
       );
     } finally {
       this.importing.set(false);

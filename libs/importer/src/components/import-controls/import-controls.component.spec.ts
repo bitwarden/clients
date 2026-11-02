@@ -3159,7 +3159,7 @@ describe("ImportControlsComponent", () => {
         expect.objectContaining({
           data: {
             summary: { total: 2, rows: [{ icon: "globe", labelKey: "typeLogin", count: 2 }] },
-            fileName: "export.kdbx",
+            importedFile: { name: "export.kdbx" },
           },
         }),
       );
@@ -3298,7 +3298,7 @@ describe("ImportControlsComponent", () => {
       expect(dialogService.open).toHaveBeenCalledWith(
         ImportConfirmationDialogComponent,
         expect.objectContaining({
-          data: { summary: { total: 0, rows: [] }, fileName: undefined },
+          data: { summary: { total: 0, rows: [] }, importedFile: undefined },
         }),
       );
       expect(continueSpy).toHaveBeenCalledTimes(1);
@@ -3651,7 +3651,7 @@ describe("ImportControlsComponent", () => {
         contents: "a,b",
         filePassword: null,
         itemTypeCounts: { [CipherType.Login]: 2, [CipherType.Card]: 1 },
-        fileName: "export.csv",
+        importedFile: { name: "export.csv" },
       });
       expect(syncService.fullSync).not.toHaveBeenCalled();
       expect(dialogService.open).not.toHaveBeenCalled();
@@ -3669,7 +3669,7 @@ describe("ImportControlsComponent", () => {
       await component().onContinue();
 
       expect(stagingService.current()).toEqual(
-        expect.objectContaining({ kind: "file", contents: "a,b", fileName: undefined }),
+        expect.objectContaining({ kind: "file", contents: "a,b", importedFile: undefined }),
       );
     });
 
@@ -3768,7 +3768,7 @@ describe("ImportControlsComponent", () => {
         format: "keepasskdbx",
         file: new Uint8Array([1, 2, 3]),
         credentials: { kind: "passwordWithKeyFile", password: "hunter2", keyFile: null },
-        fileName: "export.kdbx",
+        importedFile: { name: "export.kdbx" },
       });
       expect(continueSpy).toHaveBeenCalledTimes(1);
     });

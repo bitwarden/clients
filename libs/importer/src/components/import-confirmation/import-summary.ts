@@ -15,9 +15,9 @@ export interface ImportSummary {
 
 const cipherTypeRows: { type: CipherType; icon: string; labelKey: string }[] = [
   { type: CipherType.Login, icon: "globe", labelKey: "typeLogin" },
-  { type: CipherType.Card, icon: "credit-card", labelKey: "typeCard" },
+  { type: CipherType.Card, icon: "id-card", labelKey: "typeCard" },
   { type: CipherType.Identity, icon: "id-card", labelKey: "typeIdentity" },
-  { type: CipherType.SecureNote, icon: "sticky-note", labelKey: "typeSecureNote" },
+  { type: CipherType.SecureNote, icon: "sticky-note", labelKey: "typeNote" },
   { type: CipherType.SshKey, icon: "key", labelKey: "typeSshKey" },
   { type: CipherType.BankAccount, icon: "bank", labelKey: "typeBankAccount" },
   { type: CipherType.DriversLicense, icon: "id-card", labelKey: "typeDriversLicense" },
@@ -57,7 +57,7 @@ export function summarizeImport(outcome: FinishedImportOutcome): ImportSummary {
     rows.push({ icon: "folder", labelKey: "folders", count: folders });
   }
   if (collections > 0) {
-    rows.push({ icon: "collection", labelKey: "collections", count: collections });
+    rows.push({ icon: "collection-shared", labelKey: "sharedFolder", count: collections });
   }
 
   return { total, rows };

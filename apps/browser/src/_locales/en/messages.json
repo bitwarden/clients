@@ -5199,6 +5199,9 @@
       }
     }
   },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
   "importConfirmationTipLabel": {
     "message": "Tip:"
   },
@@ -5211,14 +5214,35 @@
       }
     }
   },
-  "viewImportedItems": {
-    "message": "View imported items"
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
   },
   "importingTitle": {
     "message": "Importing"
   },
   "importingDescription": {
     "message": "This might take a few minutes."
+  },
+  "importingItemsTitle": {
+    "message": "Importing $COUNT$ items!",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "74"
+      }
+    }
+  },
+  "importingItemsTitleSingular": {
+    "message": "Importing 1 item!"
+  },
+  "openingExtensionSubtitle": {
+    "message": "Opening the browser extension"
+  },
+  "openedExtensionTitle": {
+    "message": "Opened the browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
   },
   "openingExtensionError": {
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."

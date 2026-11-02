@@ -51,6 +51,7 @@ import { Loader } from "../../metadata";
 import {
   CredentialKind,
   ImportDestinations,
+  ImportedFile,
   ImportOption,
   ImportResult,
   ImportResultError,
@@ -535,9 +536,10 @@ export class ImportControlsComponent {
   protected readonly chosenFileName = computed(() => this.chosenFile()?.name);
 
   // The file picked for this import. A direct or Chromium import ignores any file chosen earlier.
-  private importedFileName(): string | undefined {
-    return this.primaryMode() === "manual" && this.method() === "file"
-      ? this.chosenFileName()
+  private importedFile(): ImportedFile | undefined {
+    const file = this.chosenFile();
+    return this.primaryMode() === "manual" && this.method() === "file" && file != null
+      ? { name: file.name }
       : undefined;
   }
 
@@ -1026,7 +1028,7 @@ export class ImportControlsComponent {
           logService: this.logService,
           presenter: this.presenter,
         },
-        this.importedFileName(),
+        this.importedFile(),
       );
     }
 
@@ -1255,7 +1257,7 @@ export class ImportControlsComponent {
         format,
         file: fileBytes,
         credentials,
-        fileName: this.importedFileName(),
+        importedFile: this.importedFile(),
       });
     }
 
@@ -1354,7 +1356,7 @@ export class ImportControlsComponent {
         contents,
         filePassword,
         itemTypeCounts: result == null ? undefined : countCipherTypes(result.ciphers),
-        fileName: this.importedFileName(),
+        importedFile: this.importedFile(),
       });
     }
 

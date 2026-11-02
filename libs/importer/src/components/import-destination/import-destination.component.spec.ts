@@ -1124,7 +1124,7 @@ describe("ImportDestinationComponent", () => {
           contents: "a,b",
           filePassword: null,
           itemTypeCounts: undefined,
-          fileName: "export.csv",
+          importedFile: { name: "export.csv" },
         });
         await setup();
 
@@ -1133,7 +1133,7 @@ describe("ImportDestinationComponent", () => {
         expect(dialogService.open).toHaveBeenCalledWith(
           ImportConfirmationDialogComponent,
           expect.objectContaining({
-            data: expect.objectContaining({ fileName: "export.csv" }),
+            data: expect.objectContaining({ importedFile: { name: "export.csv" } }),
           }),
         );
       });
@@ -1146,7 +1146,7 @@ describe("ImportDestinationComponent", () => {
 
         expect(dialogService.open).toHaveBeenCalledWith(
           ImportConfirmationDialogComponent,
-          expect.objectContaining({ data: expect.objectContaining({ fileName: undefined }) }),
+          expect.objectContaining({ data: expect.objectContaining({ importedFile: undefined }) }),
         );
       });
 

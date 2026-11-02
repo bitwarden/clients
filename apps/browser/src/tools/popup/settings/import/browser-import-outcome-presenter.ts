@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { DialogService } from "@bitwarden/components";
+import { ImportedFile } from "@bitwarden/importer-core";
 import {
   FinishedImportOutcome,
   ImportOutcomePresenter,
@@ -10,8 +11,8 @@ import {
 
 import { ImportConfirmationStateService } from "./import-confirmation-state.service";
 
-/** Leaves the result for the confirmation page, which the wrappers navigate to. Skipped items
- *  still open their dialog. */
+/** Leaves the result for the confirmation page, which the wrappers navigate to, and for the popup.
+ *  Skipped items still open their dialog. */
 @Injectable()
 export class BrowserImportOutcomePresenter extends ImportOutcomePresenter {
   constructor(
@@ -21,12 +22,13 @@ export class BrowserImportOutcomePresenter extends ImportOutcomePresenter {
     super();
   }
 
-  present(outcome: FinishedImportOutcome, fileName?: string): void {
+  async present(outcome: FinishedImportOutcome, file?: ImportedFile): Promise<void> {
     if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
       this.confirmationState.clear();
-      presentInDialog(this.dialogService, outcome, fileName);
+      await this.confirmationState.clearPending();
+      presentInDialog(this.dialogService, outcome, file);
       return;
     }
-    this.confirmationState.set({ summary: summarizeImport(outcome), fileName });
+    await this.confirmationState.set({ summary: summarizeImport(outcome), importedFile: file });
   }
 }

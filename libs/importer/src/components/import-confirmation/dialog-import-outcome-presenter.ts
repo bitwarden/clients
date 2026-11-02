@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 
 import { DialogService } from "@bitwarden/components";
 
+import { ImportedFile } from "../../models";
 import { ImportSkippedItemsDialogComponent } from "../dialog";
 import { FinishedImportOutcome } from "../import-controls/import-outcome";
 
@@ -15,8 +16,8 @@ export class DialogImportOutcomePresenter extends ImportOutcomePresenter {
     super();
   }
 
-  present(outcome: FinishedImportOutcome, fileName?: string): void {
-    presentInDialog(this.dialogService, outcome, fileName);
+  present(outcome: FinishedImportOutcome, file?: ImportedFile): void {
+    presentInDialog(this.dialogService, outcome, file);
   }
 }
 
@@ -24,7 +25,7 @@ export class DialogImportOutcomePresenter extends ImportOutcomePresenter {
 export function presentInDialog(
   dialogService: DialogService,
   outcome: FinishedImportOutcome,
-  fileName?: string,
+  file?: ImportedFile,
 ): void {
   if (outcome.kind === "imported" && outcome.result.errors.length > 0) {
     dialogService.open(ImportSkippedItemsDialogComponent, {
@@ -33,6 +34,6 @@ export function presentInDialog(
     return;
   }
   dialogService.open(ImportConfirmationDialogComponent, {
-    data: { summary: summarizeImport(outcome), fileName },
+    data: { summary: summarizeImport(outcome), importedFile: file },
   });
 }

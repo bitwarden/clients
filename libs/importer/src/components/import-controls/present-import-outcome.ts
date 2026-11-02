@@ -1,17 +1,18 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
+import { ImportedFile } from "../../models";
 import { ImportOutcomePresenter } from "../import-confirmation/import-outcome-presenter";
 
 import { FinishedImportOutcome } from "./import-outcome";
 
 /** Syncs the vault, then hands the outcome to the presenter. Shared by credential parsing
  *  (importing straight to the personal vault) and location selection (importing to the location
- *  the user chose). `fileName` is the file the items came from, if the user picked one. */
+ *  the user chose). `file` is set when the items came from a file the user picked. */
 export async function presentImportOutcome(
   outcome: FinishedImportOutcome,
   services: { syncService: SyncService; logService: LogService; presenter: ImportOutcomePresenter },
-  fileName?: string,
+  file?: ImportedFile,
 ): Promise<void> {
   const { syncService, logService, presenter } = services;
 
@@ -26,5 +27,5 @@ export async function presentImportOutcome(
     logService.error("Post-import sync failed:", error);
   }
 
-  await presenter.present(outcome, fileName);
+  await presenter.present(outcome, file);
 }

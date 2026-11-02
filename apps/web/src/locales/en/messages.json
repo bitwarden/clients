@@ -3497,6 +3497,9 @@
       }
     }
   },
+  "importConfirmationBodySingular": {
+    "message": "You’ve successfully imported 1 item into Bitwarden."
+  },
   "importConfirmationTipLabel": {
     "message": "Tip:"
   },
@@ -3509,8 +3512,8 @@
       }
     }
   },
-  "viewImportedItems": {
-    "message": "View imported items"
+  "importDeleteFileTipGeneric": {
+    "message": "Don't forget to delete your import file. It contains sensitive data and may be unencrypted."
   },
   "importingTitle": {
     "message": "Importing"
