@@ -159,7 +159,6 @@ export async function reachLoginPage(page: Page) {
 /** `popup` is the extension popup opened as a full page, which is how Playwright can drive it. */
 export const test = base.extend<{ context: BrowserContext; popup: Page }>({
   context: async ({ baseURL }, use, testInfo) => {
-    // Playwright's runner traces this persistent context itself, per the config's `trace`.
     const context = await launch(baseURL, videoDir(testInfo));
     await enableDeveloperMode(context);
 
