@@ -8084,8 +8084,8 @@
   "syncUnlockWithDesktop": {
     "message": "Sync unlock with desktop app"
   },
-  "syncUnlockWithDesktopDescription": {
-    "message": "The Bitwarden browser extension and desktop app lock and unlock together."
+  "syncUnlockWithDesktopDescription1": {
+    "message": "The Bitwarden browser extension and desktop app lock and unlock together. Biometrics will be used if available."
   },
   "syncUnlockWithWeb": {
     "message": "Sync unlock with web app"
