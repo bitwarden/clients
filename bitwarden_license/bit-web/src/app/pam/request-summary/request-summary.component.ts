@@ -43,7 +43,6 @@ export class RequestSummaryComponent {
   readonly organizationName = input<string | null>(null);
   readonly collectionName = input<string | null>(null);
   readonly requesterName = input.required<string>();
-  readonly requesterEmail = input<string | null>(null);
   readonly duration = input<LabelValue | null>(null);
   readonly relativeStart = input<LabelValue | null>(null);
   /** The fully-formatted window, shown on hover behind the coarse "4 hours, tomorrow" label. */
@@ -55,12 +54,6 @@ export class RequestSummaryComponent {
    * item on screen; repeating the request's fields there would bury the decision being asked for.
    */
   readonly hideDetails = input(false, { transform: booleanAttribute });
-
-  /** Hidden when `requesterName` already fell back to the email. */
-  protected readonly secondaryEmail = computed(() => {
-    const email = this.requesterEmail();
-    return email == null || email === this.requesterName() ? null : email;
-  });
 
   /** The window labels joined, e.g. "4 hours, starting tomorrow". */
   protected readonly accessRequested = computed(() =>
