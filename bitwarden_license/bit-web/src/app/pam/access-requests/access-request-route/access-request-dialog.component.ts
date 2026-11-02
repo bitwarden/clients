@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   LOCALE_ID,
   NgZone,
@@ -11,7 +12,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
@@ -79,6 +80,13 @@ export type AccessRequestDialogParams = {
    * root one, out of reach of route-scoped providers.
    */
   detail: AccessRequestDetailService;
+  /**
+   * Opened from the History tab: a record to read, so the footer offers Close alone. Withdrawing
+   * from there arrives through {@link intent} instead.
+   */
+  readOnly?: boolean;
+  /** Opens straight on the withdraw confirmation, as History's "Withdraw approval" asks. */
+  intent?: "withdraw";
 };
 
 /**
@@ -114,7 +122,10 @@ export type AccessRequestDialogParams = {
 export class AccessRequestDialogComponent implements OnInit {
   protected readonly noResultsSvg = NoResults;
 
-  private readonly detail = inject<AccessRequestDialogParams>(DIALOG_DATA).detail;
+  private readonly params = inject<AccessRequestDialogParams>(DIALOG_DATA);
+  private readonly detail = this.params.detail;
+  /** False on a read-only open, which gates every footer action but Close. */
+  private readonly offersActions = !this.params.readOnly;
   private readonly dialogService = inject(DialogService);
   private readonly approverActions = inject(ApproverActionsService);
   private readonly toastService = inject(ToastService);
@@ -225,8 +236,6 @@ export class AccessRequestDialogComponent implements OnInit {
       : request.requesterName || request.requesterEmail || uuidAsString(request.requesterId);
   });
 
-  protected readonly requesterEmail = computed(() => this.request()?.requesterEmail ?? null);
-
   /**
    * The decision that resolved the request, as the "Decision" card reads it: who decided, how to
    * reach them, and any note they left. The full log stays in the audit trail; this names only the
@@ -262,7 +271,30 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly confirmingWithdraw = signal(false);
 
-  protected readonly withdrawReason = new FormControl("", { nonNullable: true });
+  /** Required, so the field carries the required marker as well as gating the action. */
+  protected readonly withdrawReason = new FormControl("", {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
+
+  /**
+   * The withdraw warning in runs of plain and bold text. Translated as one sentence, so each
+   * locale keeps its own word order, then split at the item and requester names, which read in
+   * bold. Rendered as text, never HTML, since both names are user-supplied.
+   */
+  protected readonly withdrawWarning = computed(() =>
+    boldRuns(
+      this.i18nService.t(
+        "pamWithdrawApprovalConfirmMessage",
+        WITHDRAW_ITEM_MARK,
+        WITHDRAW_REQUESTER_MARK,
+      ),
+      new Map([
+        [WITHDRAW_ITEM_MARK, this.cipherName() ?? ""],
+        [WITHDRAW_REQUESTER_MARK, this.requesterDisplay() ?? ""],
+      ]),
+    ),
+  );
 
   private readonly withdrawReasonText = toSignal(this.withdrawReason.valueChanges, {
     initialValue: "",
@@ -308,6 +340,7 @@ export class AccessRequestDialogComponent implements OnInit {
     const request = this.request();
     return (
       request != null &&
+      this.offersActions &&
       this.isRequester() &&
       request.status === "approved" &&
       request.producedLeaseId == null &&
@@ -320,7 +353,7 @@ export class AccessRequestDialogComponent implements OnInit {
    * requester withdraws an approval they no longer want from the My requests table.
    */
   protected readonly canCancel = computed(
-    () => this.isRequester() && this.request()?.status === "pending",
+    () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
   );
 
   /**
@@ -329,7 +362,9 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly canResubmit = computed(() => {
     const status = this.request()?.status;
-    return this.isRequester() && (status === "denied" || status === "expired");
+    return (
+      this.offersActions && this.isRequester() && (status === "denied" || status === "expired")
+    );
   });
 
   /** The item this request was for, as the vault's own deep link opens it. */
@@ -343,20 +378,45 @@ export class AccessRequestDialogComponent implements OnInit {
     return request == null ? null : { itemId: cipherId(request), action: "view" };
   });
 
-  protected readonly canEndLease = computed(() => this.isRequester() && this.leaseActive());
+  protected readonly canEndLease = computed(
+    () => this.offersActions && this.isRequester() && this.leaseActive(),
+  );
 
-  protected readonly canDecide = computed(() => this.isApprover() && this.approvalRow() != null);
+  protected readonly canDecide = computed(
+    () => this.offersActions && this.isApprover() && this.approvalRow() != null,
+  );
 
-  protected readonly canWithdrawApproval = computed(() => {
+  /** Whether the viewer may withdraw this approval at all, read-only open or not. */
+  private readonly withdrawable = computed(() => {
     const request = this.request();
     return request != null && this.approverManages() && isUnstartedApproval(request);
   });
 
+  protected readonly canWithdrawApproval = computed(
+    () => this.offersActions && this.withdrawable(),
+  );
+
   /** No window check, since an extension runs the lease past the request's `leaseNotAfter`. */
   protected readonly canRevoke = computed(() => {
     const request = this.request();
-    return request != null && this.approverManages() && isLiveManagedLease(request);
+    return (
+      request != null && this.offersActions && this.approverManages() && isLiveManagedLease(request)
+    );
   });
+
+  constructor() {
+    // A withdraw intent turns the dialog to its confirmation face once the approval is known to
+    // be withdrawable, and only once, so Cancel returns to the request rather than re-entering
+    // it. A stale link to something no longer withdrawable is left on the request alone.
+    let intentApplied = this.params.intent !== "withdraw";
+    effect(() => {
+      if (!intentApplied && this.withdrawable()) {
+        intentApplied = true;
+        this.withdrawReason.setValue("");
+        this.confirmingWithdraw.set(true);
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Kept outside the Angular zone so a periodic in-zone timer never blocks `whenStable()`; the
@@ -524,6 +584,23 @@ export class AccessRequestDialogComponent implements OnInit {
       { data: params, closeOnNavigation: false },
     );
   }
+}
+
+/** Stand-ins handed to the translation, then swapped for the bold names. */
+const WITHDRAW_ITEM_MARK = "\u0000item\u0000";
+const WITHDRAW_REQUESTER_MARK = "\u0000requester\u0000";
+
+type TextRun = { readonly text: string; readonly bold: boolean };
+
+/** Splits `text` at each mark, replacing the mark with its value as a bold run. */
+function boldRuns(text: string, values: ReadonlyMap<string, string>): TextRun[] {
+  // The marks are fixed NUL-delimited words, so none needs escaping in the pattern.
+  return text
+    .split(new RegExp(`(${[...values.keys()].join("|")})`))
+    .filter((part) => part.length > 0)
+    .map((part) =>
+      values.has(part) ? { text: values.get(part) ?? "", bold: true } : { text: part, bold: false },
+    );
 }
 
 function cipherId(request: AccessRequestView): string {
