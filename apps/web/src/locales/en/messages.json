@@ -19213,6 +19213,14 @@
     "message": "Denied by",
     "description": "Label for who denied an access request."
   },
+  "pamDecisionRevokedBy": {
+    "message": "Revoked by",
+    "description": "Label for who revoked an approved access request or withdrew its approval."
+  },
+  "pamDecisionEndedBy": {
+    "message": "Ended by",
+    "description": "Label for the requester who ended their own access."
+  },
   "pamDecisionEmail": {
     "message": "Email",
     "description": "Label for the deciding approver's email address."
