@@ -13,7 +13,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 
 import { ApprovalRow } from "../../approvals/approval-row";
 import { DecideDialogComponent } from "../../approvals/decide-dialog/decide-dialog.component";
-import { automaticDecision, humanDecision } from "../../testing/decision-builders";
+import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
 import { lapsedGrantBadge } from "../my-access-row";
 
@@ -316,6 +316,40 @@ describe("AccessRequestDialogComponent", () => {
       expect(decisionCard()!.textContent).toContain("pamDecisionDeniedBy");
       expect(decisionCard()!.textContent).toContain("pamDecisionComment");
       expect(decisionCard()!.textContent).toContain("Out of scope");
+    });
+
+    it("reads the holder's own deny as ending their lease, not a denial or an approval", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [automaticDecision(), selfEndDecision("user-1")],
+        }),
+      );
+
+      create();
+
+      expect(decisionCard()!.textContent).toContain("pamDecisionEndedBy");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionApprovedBy");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionDeniedBy");
+    });
+
+    it("reads someone else's deny on an approved request as an operator revoke", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [
+            automaticDecision(),
+            humanDecision({ id: "operator-9", name: "Ops", verdict: "deny", comment: "Rotated" }),
+          ],
+        }),
+      );
+
+      create();
+
+      expect(decisionCard()!.textContent).toContain("pamDecisionRevokedBy");
+      expect(decisionCard()!.textContent).toContain("Ops");
+      expect(decisionCard()!.textContent).toContain("Rotated");
+      expect(decisionCard()!.textContent).not.toContain("pamDecisionApprovedBy");
     });
 
     it("stays away until there is an outcome to name", () => {
@@ -967,6 +1001,29 @@ describe("AccessRequestDialogComponent", () => {
 
         expect(detail.withdrawApproval).toHaveBeenCalledWith("Scope changed");
         expect(component["confirmingWithdraw"]()).toBe(false);
+        expect(component["withdrawReason"].value).toBe("");
+      });
+
+      it("keeps the confirmation and the reason open after a failed withdrawal", async () => {
+        detail.withdrawApproval.mockRejectedValue(new Error("boom"));
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        await component["confirmWithdraw"]();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(component["withdrawReason"].value).toBe("Scope changed");
+      });
+
+      it("keeps the reason across Cancel and re-opening the confirmation", () => {
+        openConfirm();
+        component["withdrawReason"].setValue("Scope changed");
+
+        component["cancelWithdraw"]();
+        component["withdrawApproval"]();
+
+        expect(component["confirmingWithdraw"]()).toBe(true);
+        expect(component["withdrawReason"].value).toBe("Scope changed");
       });
 
       it("returns to the request on Cancel, withdrawing nothing", () => {
