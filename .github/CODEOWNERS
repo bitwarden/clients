@@ -229,6 +229,8 @@ apps/web/src/app/layouts                                         @bitwarden/team
 
 ## Key management team files ##
 e2e                                               @bitwarden/team-key-management-dev
+.github/workflows/test-e2e-usdev.yml              @bitwarden/team-key-management-dev
+.github/workflows/test-e2e-usdev-changes.yml      @bitwarden/team-key-management-dev
 apps/desktop/src/key-management                   @bitwarden/team-key-management-dev
 apps/web/src/app/key-management                   @bitwarden/team-key-management-dev
 apps/browser/src/key-management                   @bitwarden/team-key-management-dev
