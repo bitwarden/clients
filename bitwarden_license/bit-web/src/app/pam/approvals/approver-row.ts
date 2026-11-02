@@ -6,13 +6,7 @@ import {
   AccessBadgeState,
   ENDING_SOON_THRESHOLD_MS,
 } from "../access-state-badge/access-badge-state";
-import {
-  FormattedLabel,
-  LabelValue,
-  durationLabel,
-  exactWindow,
-  windowRange,
-} from "../helpers/approval-window";
+import { durationText, exactWindow } from "../helpers/approval-window";
 
 import { ApprovalRow } from "./approval-row";
 import { ManagedLeaseRow } from "./managed-lease-row";
@@ -38,8 +32,7 @@ type ApproverRowBase = {
   /** The requester's name, falling back to email, then blank when the server resolved neither. */
   requester: string;
   requesterEmail: string | null;
-  duration: LabelValue;
-  windowRange: FormattedLabel;
+  duration: string;
   exactWindow: string;
   /** Sort key for the Requested window column. */
   windowStartMs: number;
@@ -58,7 +51,7 @@ export type ApproverRow =
   | (ApproverRowBase & { kind: "ready" })
   | (ApproverRowBase & { kind: "active"; lease: ManagedLeaseRow });
 
-export function fromApprovalRow(approval: ApprovalRow, now: Date): ApproverRow {
+export function fromApprovalRow(approval: ApprovalRow): ApproverRow {
   const request = approval.request;
   return {
     kind: "pending",
@@ -72,7 +65,6 @@ export function fromApprovalRow(approval: ApprovalRow, now: Date): ApproverRow {
     requester: approval.requester,
     requesterEmail: approval.requesterEmail,
     duration: approval.duration,
-    windowRange: windowRange(request, now),
     exactWindow: approval.exactWindow,
     windowStartMs: Date.parse(request.leaseNotBefore),
     windowEndMs: Date.parse(request.leaseNotAfter),
@@ -84,7 +76,6 @@ export function fromApprovalRow(approval: ApprovalRow, now: Date): ApproverRow {
 export function fromUnstartedApproval(
   request: AccessRequestView,
   names: ResolvedNames,
-  now: Date,
   locale: string,
 ): ApproverRow {
   const cipherId = uuidAsString(request.cipherId);
@@ -102,8 +93,7 @@ export function fromUnstartedApproval(
     collectionName,
     requester: request.requesterName || request.requesterEmail || "",
     requesterEmail: request.requesterEmail ?? null,
-    duration: durationLabel(request),
-    windowRange: windowRange(request, now),
+    duration: durationText(request, locale),
     exactWindow: exactWindow(request, locale),
     windowStartMs: Date.parse(request.leaseNotBefore),
     windowEndMs: Date.parse(request.leaseNotAfter),
@@ -115,7 +105,7 @@ export function fromUnstartedApproval(
 }
 
 /** Reads the window off the lease, so an extension shows in the duration and the end. */
-export function fromManagedLease(lease: ManagedLeaseRow, now: Date, locale: string): ApproverRow {
+export function fromManagedLease(lease: ManagedLeaseRow, locale: string): ApproverRow {
   const window = { leaseNotBefore: lease.startsAt, leaseNotAfter: lease.endsAt };
   return {
     kind: "active",
@@ -128,8 +118,7 @@ export function fromManagedLease(lease: ManagedLeaseRow, now: Date, locale: stri
     collectionName: lease.collectionName,
     requester: lease.requester,
     requesterEmail: lease.requesterEmail,
-    duration: durationLabel(window),
-    windowRange: windowRange(window, now),
+    duration: durationText(window, locale),
     exactWindow: exactWindow(window, locale),
     windowStartMs: Date.parse(lease.startsAt),
     windowEndMs: lease.endsAtMs,

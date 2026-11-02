@@ -1,4 +1,9 @@
-import { formatClockTime, formatWindowDay, windowParts } from "./format-window";
+import {
+  formatClockTime,
+  formatRequestedWindow,
+  formatWindowDay,
+  windowParts,
+} from "./format-window";
 
 function at(year: number, month: number, day: number, hour: number, minute = 0): number {
   return new Date(year, month - 1, day, hour, minute, 0, 0).getTime();
@@ -87,5 +92,63 @@ describe("windowParts", () => {
     expect(parts.sharedDay).toBe("");
     expect(parts.start).toEqual({ day: "", time: "10 PM" });
     expect(parts.end).toEqual({ day: "Tomorrow", time: "2 AM" });
+  });
+});
+
+describe("formatRequestedWindow", () => {
+  /** Stands in for the i18n service: resolves the three window keys the formatter uses. */
+  const translate = (key: string, ...args: string[]): string => {
+    switch (key) {
+      case "pamWindowUntil":
+        return `Until ${args[0]}`;
+      case "pamWindowRange":
+        return `${args[0]} to ${args[1]}`;
+      case "pamWindowOnDay":
+        return `${args[0]}, ${args[1]}`;
+      default:
+        return key;
+    }
+  };
+  const render = (locale: string, start: number, end: number, now = NOW) =>
+    formatRequestedWindow(translate, locale, start, end, now);
+
+  it("reads an open window as its end alone", () => {
+    expect(render("en-US", at(2026, 8, 20, 8, 0), at(2026, 8, 20, 20, 7))).toBe("Until 8:07 PM");
+  });
+
+  it("dates the end of an open window that runs past today", () => {
+    expect(render("en-US", at(2026, 8, 20, 8, 0), at(2026, 8, 22, 9, 0))).toBe(
+      "Until Aug 22, 9 AM",
+    );
+  });
+
+  it("lifts a shared day out in front of a window still to open", () => {
+    expect(render("en-US", at(2026, 8, 21, 9, 0), at(2026, 8, 21, 13, 0))).toBe(
+      "Tomorrow, 9 AM to 1 PM",
+    );
+  });
+
+  it("drops the day for a later window today, which the row is already read on", () => {
+    expect(render("en-US", at(2026, 8, 20, 14, 30), at(2026, 8, 20, 16, 0))).toBe(
+      "2:30 PM to 4 PM",
+    );
+  });
+
+  it("dates a single-day window further out", () => {
+    expect(render("en-US", at(2026, 8, 25, 9, 0), at(2026, 8, 25, 10, 0))).toBe(
+      "Aug 25, 9 AM to 10 AM",
+    );
+  });
+
+  it("dates both ends of a future window spanning days", () => {
+    expect(render("en-US", at(2026, 8, 25, 9, 0), at(2026, 8, 26, 13, 0))).toBe(
+      "Aug 25, 9 AM to Aug 26, 1 PM",
+    );
+  });
+
+  it("says nothing for an unparseable bound rather than rendering Invalid Date", () => {
+    expect(formatRequestedWindow(translate, "en-US", Number.NaN, at(2026, 8, 20, 10, 0), NOW)).toBe(
+      "",
+    );
   });
 });

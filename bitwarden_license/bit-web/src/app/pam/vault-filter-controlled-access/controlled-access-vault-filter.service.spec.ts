@@ -18,6 +18,7 @@ import {
 
 import type { CipherAccessStateView } from "../abstractions/access-lease";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
+import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
 
 import { ControlledAccessVaultFilterService } from "./controlled-access-vault-filter.service";
 
@@ -83,13 +84,31 @@ describe("ControlledAccessVaultFilterService", () => {
   });
 
   describe("stateOptions$", () => {
-    it("offers one option per access state, labelled like its badge", async () => {
+    // Read off ACCESS_BADGE_LOOK rather than spelled again, so an icon the badge changes cannot
+    // leave the chip showing the old one — Ready offered a plain check beside a circled badge.
+    it("offers one option per access state, labelled and iconed like its badge", async () => {
       expect(await firstValueFrom(service.stateOptions$)).toEqual([
-        { id: PRIVILEGED_FILTER_ID, name: "pamAccessBadgePrivileged", icon: "bwi-key" },
-        { id: PENDING_FILTER_ID, name: "pamAccessBadgePending", icon: "bwi-clock" },
-        { id: READY_FILTER_ID, name: "pamAccessBadgeReady", icon: "bwi-check" },
-        { id: ACTIVE_FILTER_ID, name: "pamControlledAccessFilterActive", icon: "bwi-unlock" },
-        { id: UNAVAILABLE_FILTER_ID, name: "pamAccessBadgeUnavailable", icon: "bwi-lock" },
+        {
+          id: PRIVILEGED_FILTER_ID,
+          name: "pamAccessBadgePrivileged",
+          icon: ACCESS_BADGE_LOOK.privileged.icon,
+        },
+        {
+          id: PENDING_FILTER_ID,
+          name: "pamAccessBadgePending",
+          icon: ACCESS_BADGE_LOOK.pending.icon,
+        },
+        { id: READY_FILTER_ID, name: "pamAccessBadgeReady", icon: ACCESS_BADGE_LOOK.ready.icon },
+        {
+          id: ACTIVE_FILTER_ID,
+          name: "pamControlledAccessFilterActive",
+          icon: ACCESS_BADGE_LOOK.active.icon,
+        },
+        {
+          id: UNAVAILABLE_FILTER_ID,
+          name: "pamAccessBadgeUnavailable",
+          icon: ACCESS_BADGE_LOOK.unavailable.icon,
+        },
       ]);
     });
 

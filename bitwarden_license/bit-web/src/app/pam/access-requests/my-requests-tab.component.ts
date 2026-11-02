@@ -2,23 +2,25 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
+  effect,
   inject,
   signal,
-  viewChild,
+  untracked,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { EMPTY, switchMap } from "rxjs";
+import { EMPTY, filter, map, shareReplay, startWith, switchMap, take } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoResults } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
-  AccordionComponent,
-  AccordionGroupComponent,
   BadgeComponent,
   BitCellComponent,
   BitCellDefDirective,
@@ -26,16 +28,18 @@ import {
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
-  ButtonModule,
   DialogService,
-  FILTER_CONTROL,
   FilterMenuComponent,
   FilterOptionComponent,
   IconComponent as BitIconComponent,
   IconButtonModule,
   IconTileOptions,
   SearchModule,
+  SkeletonComponent,
+  SkeletonTextComponent,
   SortFn,
+  StatusLockupComponent,
+  SvgComponent,
   ToastService,
   TypographyModule,
   defineTable,
@@ -48,11 +52,10 @@ import { AccessBadgeTickerService } from "../access-state-badge/access-badge-tic
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationCompoundPipe } from "../date/duration-compound.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
-import { RemainingTimePipe } from "../date/remaining-time.pipe";
-import { WindowInstantPipe } from "../date/window-instant.pipe";
-import { WindowRangePipe } from "../date/window-range.pipe";
+import { RequestedWindowPipe } from "../date/requested-window.pipe";
 import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
+import { announcementHoldMs } from "./announcement-hold";
 import {
   MyAccessLeaseRow,
   MyAccessRequestRow,
@@ -61,8 +64,7 @@ import {
 } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 import {
-  MY_REQUEST_STATUS_ICON,
-  MY_REQUEST_STATUS_LABEL_KEY,
+  MY_REQUEST_LOOK,
   MY_REQUEST_STATUSES,
   MyRequestRow,
   MyRequestStatus,
@@ -98,8 +100,10 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     ReactiveFormsModule,
     RouterModule,
     AccessStateBadgeComponent,
-    AccordionComponent,
-    AccordionGroupComponent,
+    SkeletonComponent,
+    SkeletonTextComponent,
+    StatusLockupComponent,
+    SvgComponent,
     BadgeComponent,
     BitCellComponent,
     BitCellDefDirective,
@@ -107,7 +111,6 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
-    ButtonModule,
     FilterMenuComponent,
     FilterOptionComponent,
     BitIconComponent,
@@ -118,9 +121,7 @@ type MyRequestsFilterValues = { search?: unknown; collection?: unknown; status?:
     I18nPipe,
     DurationCompoundPipe,
     DurationShortPipe,
-    WindowInstantPipe,
-    WindowRangePipe,
-    RemainingTimePipe,
+    RequestedWindowPipe,
   ],
 })
 export class MyRequestsTabComponent {
@@ -130,6 +131,7 @@ export class MyRequestsTabComponent {
   private readonly logService = inject(LogService);
   private readonly dialogService = inject(DialogService);
   private readonly ticker = inject(AccessBadgeTickerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   protected readonly starting = signal<Set<AccessRequestId>>(new Set());
@@ -137,13 +139,6 @@ export class MyRequestsTabComponent {
 
   /** Free-text search across item and collection names. */
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-
-  /**
-   * `bit-filter-menu` isn't a `ControlValueAccessor`, so each chip owns its own selection and is
-   * driven through the {@link FILTER_CONTROL} contract rather than a `FormControl`.
-   */
-  private readonly statusFilter = viewChild("statusFilter", { read: FILTER_CONTROL });
-  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
   private readonly allPending = toSignal(this.myAccess.pendingRows$, {
     initialValue: [] as MyAccessRequestRow[],
@@ -154,6 +149,54 @@ export class MyRequestsTabComponent {
   private readonly allLeases = toSignal(this.myAccess.leases$, {
     initialValue: [] as MyAccessLeaseRow[],
   });
+
+  /**
+   * Latched on the first complete load, so a background reload can't pull the table from under a
+   * reader. Until it raises, the tab renders neither empty state — "you have no requests" is not
+   * something an unfinished read can say.
+   */
+  private readonly loaded$ = this.myAccess.loading$.pipe(
+    filter((loading) => !loading),
+    take(1),
+    map(() => true),
+    startWith(false),
+    takeUntilDestroyed(this.destroyRef),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  protected readonly loaded = toSignal(this.loaded$, { initialValue: false });
+
+  /** Held back for a second of loading, so a quick read never flashes the skeleton. */
+  private readonly showSkeleton = toSignal(
+    this.loaded$.pipe(
+      map((isLoaded) => !isLoaded),
+      skeletonLoadingDelay(),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.loaded());
+
+  /** Raised once the skeleton shows, so its removal can be announced; lowered after the hold. */
+  private readonly skeletonShown = signal(false);
+
+  private readonly loadFailed = toSignal(
+    this.myAccess.loadError$.pipe(map((error) => error != null)),
+    { initialValue: false },
+  );
+
+  /**
+   * Announced only after a shown skeleton and a read that landed: a failure leaves the same empty
+   * table, and "loaded" would contradict the shell's error toast.
+   */
+  protected readonly announceLoaded = computed(
+    () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
+  );
+
+  /** Five rows fill the table's space without implying a real row count. */
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
+
+  protected readonly noResultsSvg = NoResults;
 
   protected readonly nowMs = toSignal(
     toObservable(computed(() => this.myRequestRows().length > 0)).pipe(
@@ -180,8 +223,8 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Overrides the host Pending table's option counts, which see only pending rows, since the chip
-   * narrows all three sections. Counted without the search term, like the host's absolute counts.
+   * The chip's own counts, over every row the tab holds. Counted without the search term, so a
+   * chip reads the same whether or not something is typed in the search box.
    */
   protected readonly collectionCounts = computed<ReadonlyMap<string, number>>(() => {
     const counts = new Map<string, number>();
@@ -212,11 +255,30 @@ export class MyRequestsTabComponent {
     buildMyRequestRows(this.allLeases(), this.allPending(), this.allExtensions()),
   );
 
+  /** Whether the tab holds anything at all, before any filter narrows it. */
+  protected readonly hasRows = computed(() => this.myRequestRows().length > 0);
+
+  constructor() {
+    // Holds the announcement region up briefly after the skeleton clears, so a screen reader
+    // reaches "loaded" before it is removed.
+    effect((onCleanup) => {
+      if (this.skeletonVisible()) {
+        this.skeletonShown.set(true);
+        return;
+      }
+      if (!untracked(this.skeletonShown)) {
+        return;
+      }
+      const handle = setTimeout(() => this.skeletonShown.set(false), announcementHoldMs);
+      onCleanup(() => clearTimeout(handle));
+    });
+  }
+
   protected readonly statusOptions = computed<FilterOption[]>(() =>
     MY_REQUEST_STATUSES.map((status) => ({
       value: status,
-      label: this.i18nService.t(MY_REQUEST_STATUS_LABEL_KEY[status]),
-      iconTile: MY_REQUEST_STATUS_ICON[status],
+      label: this.i18nService.t(MY_REQUEST_LOOK[status].labelKey),
+      iconTile: MY_REQUEST_LOOK[status].tile,
     })),
   );
 
@@ -286,7 +348,7 @@ export class MyRequestsTabComponent {
     return this.ending().has(id);
   }
 
-  /** An opened window renders as "until X" instead of a from-to range. */
+  /** The server refuses to activate before the window opens, so Start waits for it. */
   protected hasOpened(notBefore: string): boolean {
     return Date.parse(notBefore) <= this.nowMs();
   }

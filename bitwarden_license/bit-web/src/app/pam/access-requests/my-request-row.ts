@@ -1,45 +1,42 @@
 import { IconTileOptions } from "@bitwarden/components";
 
 import { AccessRequestId } from "..";
-import {
-  ACCESS_BADGE_LOOK,
-  ENDING_SOON_THRESHOLD_MS,
-} from "../access-state-badge/access-badge-state";
+import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
+import { requestedWindowSeconds } from "../helpers/requested-window";
 
 import { isRedeemableGrant, MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
+import { REQUEST_STATUS_LOOK } from "./request-status-look";
 
 export const MyRequestStatus = Object.freeze({
   Pending: "pending",
   Ready: "ready",
   Active: "active",
   EndingSoon: "endingSoon",
+  Expired: "expired",
 } as const);
 export type MyRequestStatus = (typeof MyRequestStatus)[keyof typeof MyRequestStatus];
 
 export const MY_REQUEST_STATUSES: readonly MyRequestStatus[] = Object.values(MyRequestStatus);
 
-export const MY_REQUEST_STATUS_LABEL_KEY: Readonly<Record<MyRequestStatus, string>> = Object.freeze(
-  {
-    [MyRequestStatus.Pending]: "pamAccessBadgePending",
-    [MyRequestStatus.Ready]: "pamAccessBadgeReady",
-    [MyRequestStatus.Active]: "pamMyRequestsStatusInUse",
-    [MyRequestStatus.EndingSoon]: "pamMyRequestsStatusEndingSoon",
-  },
-);
-
-export const MY_REQUEST_STATUS_ICON: Readonly<Record<MyRequestStatus, IconTileOptions>> =
-  Object.freeze({
-    [MyRequestStatus.Pending]: { icon: ACCESS_BADGE_LOOK.pending.icon, variant: "warning" },
-    [MyRequestStatus.Ready]: { icon: ACCESS_BADGE_LOOK.ready.icon, variant: "success" },
-    [MyRequestStatus.Active]: { icon: ACCESS_BADGE_LOOK.active.icon, variant: "primary" },
-    [MyRequestStatus.EndingSoon]: { icon: ACCESS_BADGE_LOOK.endingSoon.icon, variant: "danger" },
-  });
+/**
+ * Each of this tab's statuses, as the table it shares with Approvals words and draws it. The
+ * `satisfies` is what keeps a newly added status from silently missing an entry.
+ */
+export const MY_REQUEST_LOOK = Object.freeze({
+  [MyRequestStatus.Pending]: REQUEST_STATUS_LOOK.pending,
+  [MyRequestStatus.Ready]: REQUEST_STATUS_LOOK.ready,
+  [MyRequestStatus.Active]: REQUEST_STATUS_LOOK.inUse,
+  [MyRequestStatus.EndingSoon]: REQUEST_STATUS_LOOK.endingSoon,
+  [MyRequestStatus.Expired]: REQUEST_STATUS_LOOK.expired,
+} satisfies Record<MyRequestStatus, { labelKey: string; tile: IconTileOptions }>);
 
 const STATUS_RANK: Readonly<Record<MyRequestStatus, number>> = Object.freeze({
   [MyRequestStatus.EndingSoon]: 4,
   [MyRequestStatus.Active]: 3,
   [MyRequestStatus.Ready]: 2,
   [MyRequestStatus.Pending]: 1,
+  // Spent: nothing is left to do with it, so it sorts below everything still live.
+  [MyRequestStatus.Expired]: 0,
 });
 
 export type MyRequestRow = {
@@ -113,6 +110,11 @@ export function myRequestStatus(row: MyRequestRow, nowMs: number): MyRequestStat
   if (request != null && isRedeemableGrant(request, nowMs)) {
     return MyRequestStatus.Ready;
   }
+  // An approval nobody started before its window closed is spent, not still waiting — the badge
+  // has always said so, and the Status chip and sort now agree with it.
+  if (request != null && request.status === "approved") {
+    return MyRequestStatus.Expired;
+  }
   return MyRequestStatus.Pending;
 }
 
@@ -121,5 +123,8 @@ export function myRequestStatusRank(status: MyRequestStatus): number {
 }
 
 function windowSeconds(notBefore: string, notAfter: string): number {
-  return Math.max(0, (Date.parse(notAfter) - Date.parse(notBefore)) / 1000);
+  return Math.max(
+    0,
+    requestedWindowSeconds({ leaseNotBefore: notBefore, leaseNotAfter: notAfter }),
+  );
 }

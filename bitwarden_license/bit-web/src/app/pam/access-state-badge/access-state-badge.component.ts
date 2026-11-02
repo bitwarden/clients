@@ -44,6 +44,13 @@ type BadgeRecipe = {
 export class AccessStateBadgeComponent {
   readonly state = input.required<AccessBadgeState | null>();
 
+  /**
+   * The word for the `ready` state. "Ready to use" is addressed to the requester; a surface whose
+   * viewer is an approver has nothing to use and overrides this with "Approved", the same word
+   * `historyDisplayStatus` gives that grant.
+   */
+  readonly readyLabelKey = input<string>("pamAccessBadgeReady");
+
   private readonly i18nService = inject(I18nService);
   private readonly locale = inject(LOCALE_ID);
   private readonly ticker = inject(AccessBadgeTickerService);
@@ -109,7 +116,7 @@ export class AccessStateBadgeComponent {
       case "ready":
         return {
           ...ACCESS_BADGE_LOOK.ready,
-          label: this.i18nService.t("pamAccessBadgeReady"),
+          label: this.i18nService.t(this.readyLabelKey()),
           testId: "access-state-badge-ready",
         };
       case "expired":

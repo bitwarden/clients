@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -8,7 +9,12 @@ import { BehaviorSubject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  DialogService,
+  FilterControl,
+  ToastService,
+} from "@bitwarden/components";
 
 import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
 
@@ -75,10 +81,14 @@ describe("MyRequestsTabComponent", () => {
   let pendingRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let extensionRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let leases$: BehaviorSubject<MyAccessLeaseRow[]>;
+  let loading$: BehaviorSubject<boolean>;
+  let loadError$: BehaviorSubject<unknown | null>;
   let myAccess: {
     pendingRows$: BehaviorSubject<MyAccessRequestRow[]>;
     extensionRows$: BehaviorSubject<MyAccessRequestRow[]>;
     leases$: BehaviorSubject<MyAccessLeaseRow[]>;
+    loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
     activate: jest.Mock;
     cancel: jest.Mock;
@@ -86,6 +96,20 @@ describe("MyRequestsTabComponent", () => {
   };
   let toastService: MockProxy<ToastService>;
   let dialogService: MockProxy<DialogService>;
+
+  /**
+   * The chip as the table itself sees it. Reading the registered control keeps the spec on the
+   * page's own seam rather than a view child the component never uses.
+   */
+  function chipControl(key: string): FilterControl {
+    const table = fixture.debugElement.query(By.directive(BitTableV2Component))
+      .componentInstance as BitTableV2Component;
+    const control = table.filterControls().find((c) => c.key() === key);
+    if (control == null) {
+      throw new Error(`the ${key} chip did not register with the table`);
+    }
+    return control;
+  }
 
   function create(): void {
     fixture = TestBed.createComponent(MyRequestsTabComponent);
@@ -103,10 +127,16 @@ describe("MyRequestsTabComponent", () => {
     pendingRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     extensionRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     leases$ = new BehaviorSubject<MyAccessLeaseRow[]>([]);
+    // Settled by default: the tab renders neither empty state until the first read finishes, so
+    // a spec that left this loading would see no table at all.
+    loading$ = new BehaviorSubject<boolean>(false);
+    loadError$ = new BehaviorSubject<unknown | null>(null);
     myAccess = {
       pendingRows$,
       extensionRows$,
       leases$,
+      loading$,
+      loadError$,
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
       activate: jest.fn().mockResolvedValue(undefined),
       cancel: jest.fn().mockResolvedValue(undefined),
@@ -357,7 +387,7 @@ describe("MyRequestsTabComponent", () => {
       expect(queryAll(fixture.nativeElement, "bit-accordion")).toHaveLength(0);
     });
 
-    it("renders the designed columns in order, with Actions named but hidden", () => {
+    it("renders the designed columns in order, Actions among them and visible", () => {
       oneOfEach();
       create();
 
@@ -367,8 +397,10 @@ describe("MyRequestsTabComponent", () => {
         "pamColumnRequestedWindow",
         "pamColumnActions",
       ]);
+      // Shown rather than screen-reader-only, as it is on Approvals.
       const actionsHeader = queryAll(table(), '[role="columnheader"], th').at(-1)!;
-      expect(actionsHeader.querySelector(".tw-sr-only")?.textContent).toContain("pamColumnActions");
+      expect(actionsHeader.querySelector(".tw-sr-only")).toBeNull();
+      expect(text(actionsHeader)).toContain("pamColumnActions");
     });
 
     it("lists held access, grants and undecided requests together", () => {
@@ -389,20 +421,28 @@ describe("MyRequestsTabComponent", () => {
       expect(rowIds()).toContain("my-access-extension-req-ext");
     });
 
-    it("offers only Cancel on an undecided request", () => {
+    it("offers only Cancel on an undecided request, under the designed glyph", () => {
       pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
       create();
 
-      expect(query('[data-testid="my-access-cancel-req-pending"]')).not.toBeNull();
+      const cancel = query('[data-testid="my-access-cancel-req-pending"]');
+      expect(cancel).not.toBeNull();
+      // Figma names this glyph "clear" and maps it to bwi-error — a circled cross, not a bare one.
+      expect(cancel?.querySelector("i")?.className).toContain("bwi-error");
       expect(query('[data-testid="my-access-approved-start-req-pending"]')).toBeNull();
     });
 
-    it("offers Start and Cancel on a grant that can still be used", () => {
+    it("offers Start and Cancel on a grant that can still be used, under the designed glyphs", () => {
       pendingRows$.next([requestRow({ id: "req-grant", status: "approved" })]);
       create();
 
-      expect(query('[data-testid="my-access-approved-start-req-grant"]')).not.toBeNull();
-      expect(query('[data-testid="my-access-cancel-req-grant"]')).not.toBeNull();
+      const start = query('[data-testid="my-access-approved-start-req-grant"]');
+      const cancel = query('[data-testid="my-access-cancel-req-grant"]');
+      expect(start).not.toBeNull();
+      expect(cancel).not.toBeNull();
+      // Both circled, per the Action cell frame: check-circle to start, clear to cancel.
+      expect(start?.querySelector("i")?.className).toContain("bwi-check-circle");
+      expect(cancel?.querySelector("i")?.className).toContain("bwi-error");
     });
 
     it("withholds Start on a grant whose window has not opened yet", () => {
@@ -450,11 +490,14 @@ describe("MyRequestsTabComponent", () => {
       expect(query('[data-testid="my-access-approved-start-req-scheduled"]')).toBeNull();
     });
 
-    it("offers only End access on held access", () => {
+    it("offers only End access on held access, under the designed glyph", () => {
       leases$.next([leaseRow()]);
       create();
 
-      expect(query('[data-testid="my-access-end-lease-1"]')).not.toBeNull();
+      const end = query('[data-testid="my-access-end-lease-1"]');
+      expect(end).not.toBeNull();
+      // The same circled cross the cancel action wears, on the danger pill.
+      expect(end?.querySelector("i")?.className).toContain("bwi-error");
       expect(query('[data-testid="my-access-cancel-lease-1"]')).toBeNull();
     });
 
@@ -736,20 +779,17 @@ describe("MyRequestsTabComponent", () => {
         expect(optionLabels(chipFor("status")!)).toEqual([
           "pamAccessBadgePending",
           "pamAccessBadgeReady",
-          "pamMyRequestsStatusInUse",
-          "pamMyRequestsStatusEndingSoon",
+          "pamStatusInUse",
+          "pamStatusEndingSoon",
+          "pamStatusExpired",
         ]);
       });
 
-      it("still lists the statuses when there is nothing left to act on", () => {
+      it("drops the toolbar with the table when the caller holds nothing", () => {
         create();
 
-        expect(optionLabels(chipFor("status")!)).toEqual([
-          "pamAccessBadgePending",
-          "pamAccessBadgeReady",
-          "pamMyRequestsStatusInUse",
-          "pamMyRequestsStatusEndingSoon",
-        ]);
+        // Nothing to narrow, so the chips go with the table rather than filtering an empty list.
+        expect(chipFor("status")).toBeUndefined();
       });
 
       it("counts a status no row holds as zero rather than leaving it unset", () => {
@@ -779,7 +819,7 @@ describe("MyRequestsTabComponent", () => {
         oneOfEach();
         create();
 
-        component["statusFilter"]()?.setValue("pending");
+        chipControl("status").setValue("pending");
         fixture.detectChanges();
 
         expect(rowIds()).toEqual(["my-access-request-req-pending"]);
@@ -797,7 +837,7 @@ describe("MyRequestsTabComponent", () => {
         ]);
         create();
 
-        component["collectionFilter"]()?.setValue("col-2");
+        chipControl("collection").setValue("col-2");
         fixture.detectChanges();
 
         expect(rowIds()).toEqual(["my-access-request-req-other"]);
@@ -830,7 +870,7 @@ describe("MyRequestsTabComponent", () => {
         oneOfEach();
         create();
 
-        component["statusFilter"]()?.setValue(["pending", "ready"]);
+        chipControl("status").setValue(["pending", "ready"]);
         fixture.detectChanges();
 
         expect(rowIds()).toEqual(["my-access-request-req-grant", "my-access-request-req-pending"]);
@@ -848,8 +888,8 @@ describe("MyRequestsTabComponent", () => {
         ]);
         create();
 
-        component["statusFilter"]()?.setValue(["pending"]);
-        component["collectionFilter"]()?.setValue(["col-2"]);
+        chipControl("status").setValue(["pending"]);
+        chipControl("collection").setValue(["col-2"]);
         fixture.detectChanges();
 
         expect(rowIds()).toEqual(["my-access-request-req-b"]);
@@ -865,11 +905,60 @@ describe("MyRequestsTabComponent", () => {
         expect(rowIds()).toEqual(["my-access-request-req-pending"]);
       });
 
-      it("shows the empty state when nothing is left to act on", () => {
+      it("says the caller has no requests when they hold nothing at all", () => {
         create();
 
+        // The lockup replaces the table outright, as it does on Approvals and History.
+        expect(query("bit-table-v2")).toBeNull();
+        expect(query('[data-testid="my-access-empty"]')).not.toBeNull();
+        expect(query('[data-testid="my-access-no-results"]')).toBeNull();
+      });
+
+      it("blames the filters, not the account, when rows exist but none match", () => {
+        oneOfEach();
+        create();
+
+        component["searchControl"].setValue("nothing matches this");
+        fixture.detectChanges();
+
         expect(rowIds()).toEqual([]);
-        expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
+        expect(query('[data-testid="my-access-no-results"]')).not.toBeNull();
+        expect(query('[data-testid="my-access-empty"]')).toBeNull();
+      });
+
+      it("claims neither while the first read is still running", () => {
+        // "You have no requests" is not something an unfinished read can say.
+        loading$.next(true);
+        create();
+
+        expect(query('[data-testid="my-access-empty"]')).toBeNull();
+        expect(query('[data-testid="my-access-no-results"]')).toBeNull();
+      });
+
+      it("does not announce a load that failed", () => {
+        // The table is just as empty as before, and the shell already raises an error toast.
+        loading$.next(true);
+        create();
+        jest.advanceTimersByTime(1000);
+        fixture.detectChanges();
+
+        loadError$.next(new Error("read failed"));
+        loading$.next(false);
+        fixture.detectChanges();
+
+        expect(component["announceLoaded"]()).toBe(false);
+      });
+
+      it("shows a skeleton once the first read has run for a second", () => {
+        loading$.next(true);
+        create();
+
+        expect(query('[data-testid="my-requests-loading"]')).toBeNull();
+
+        jest.advanceTimersByTime(1000);
+        fixture.detectChanges();
+
+        expect(query('[data-testid="my-requests-loading"]')).not.toBeNull();
       });
     });
   });

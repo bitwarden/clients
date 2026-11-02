@@ -1,3 +1,6 @@
+/** Resolves an i18n key against its placeholders; the i18n service's `t`, minus the service. */
+type Translate = (key: string, ...args: string[]) => string;
+
 export type WindowParts = {
   sharedDay: string;
   start: WindowEndpoint;
@@ -66,10 +69,12 @@ function capitalize(locale: string, value: string): string {
   return value.charAt(0).toLocaleUpperCase(locale) + value.slice(1);
 }
 
+/** Exported for tests. */
 export function windowEndpoint(locale: string, epochMs: number, nowMs: number): WindowEndpoint {
   return { day: formatWindowDay(locale, epochMs, nowMs), time: formatClockTime(locale, epochMs) };
 }
 
+/** Exported for tests. */
 export function windowParts(
   locale: string,
   startMs: number,
@@ -89,9 +94,42 @@ export function windowParts(
   };
 }
 
-export function joinEndpoint(
-  translate: (key: string, ...args: string[]) => string,
-  endpoint: WindowEndpoint,
-): string {
+/** Exported for tests. */
+export function joinEndpoint(translate: Translate, endpoint: WindowEndpoint): string {
   return endpoint.day ? translate("pamWindowOnDay", endpoint.day, endpoint.time) : endpoint.time;
+}
+
+/**
+ * The requested window in words — the one spelling the My requests and Approvals tables share,
+ * since they render the same column over the same data. A window that has already opened reads
+ * as its end alone ("Until 8:07 PM"); one still to open reads as its range, with a day both
+ * endpoints share lifted out front ("Tomorrow, 9 AM to 1 PM").
+ *
+ * Takes the bounds as epoch milliseconds, so a caller holding either ISO strings or a parsed row
+ * can use it, and takes `nowMs` rather than reading the clock, so a live caller can re-format as
+ * the window opens and the day word turns over.
+ */
+export function formatRequestedWindow(
+  translate: Translate,
+  locale: string,
+  startMs: number,
+  endMs: number,
+  nowMs: number,
+): string {
+  if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
+    return "";
+  }
+  if (startMs <= nowMs) {
+    return translate(
+      "pamWindowUntil",
+      joinEndpoint(translate, windowEndpoint(locale, endMs, nowMs)),
+    );
+  }
+  const parts = windowParts(locale, startMs, endMs, nowMs);
+  const range = translate(
+    "pamWindowRange",
+    joinEndpoint(translate, parts.start),
+    joinEndpoint(translate, parts.end),
+  );
+  return parts.sharedDay ? translate("pamWindowOnDay", parts.sharedDay, range) : range;
 }

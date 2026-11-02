@@ -40,14 +40,11 @@ function request(overrides: Record<string, unknown> = {}): AccessRequestView {
 }
 
 function pending() {
-  return fromApprovalRow(
-    toApprovalRow(request({ status: "pending" }), NAMES, NOW, true, "en-US"),
-    NOW,
-  );
+  return fromApprovalRow(toApprovalRow(request({ status: "pending" }), NAMES, NOW, true, "en-US"));
 }
 
 function ready() {
-  return fromUnstartedApproval(request(), NAMES, NOW, "en-US");
+  return fromUnstartedApproval(request(), NAMES, "en-US");
 }
 
 function active(endsAt: Date, extension?: { addedSeconds: number; latestEndMs: number }) {
@@ -61,7 +58,7 @@ function active(endsAt: Date, extension?: { addedSeconds: number; latestEndMs: n
     NAMES,
     extension,
   );
-  return fromManagedLease(lease, NOW, "en-US");
+  return fromManagedLease(lease, "en-US");
 }
 
 describe("approver rows", () => {
@@ -74,7 +71,7 @@ describe("approver rows", () => {
       cipherName: "Prod database",
       collectionName: "Production",
       requester: "Grace",
-      duration: { key: "pamInboxDurationHours", value: 4 },
+      duration: "4 hours",
       searchText: "prod database production grace grace@example.com",
     });
   });
@@ -88,8 +85,7 @@ describe("approver rows", () => {
     });
 
     expect(row.windowEndMs).toBe(extendedEnd);
-    expect(row.duration).toEqual({ key: "pamInboxDurationHours", value: 5 });
-    expect(row.windowRange.key).toBe("pamWindowUntil");
+    expect(row.duration).toBe("5 hours");
   });
 
   describe("approverRowStatus", () => {

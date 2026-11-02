@@ -40,7 +40,6 @@ const names = storyNames();
 function row(overrides: Record<string, unknown>, canDecide = true): ApproverRow {
   return fromApprovalRow(
     toApprovalRow(accessRequest(overrides), names, STORY_NOW, canDecide, "en-US"),
-    STORY_NOW,
   );
 }
 
@@ -73,12 +72,7 @@ const PENDING: ApproverRow[] = [
  * countdown.
  */
 function approved(overrides: Record<string, unknown>): ApproverRow {
-  return fromUnstartedApproval(
-    accessRequest({ status: "approved", ...overrides }),
-    names,
-    new Date(),
-    "en-US",
-  );
+  return fromUnstartedApproval(accessRequest({ status: "approved", ...overrides }), names, "en-US");
 }
 
 function lease(
@@ -95,7 +89,6 @@ function lease(
       names,
       extension,
     ),
-    new Date(),
     "en-US",
   );
 }

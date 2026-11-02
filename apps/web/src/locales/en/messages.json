@@ -18130,18 +18130,6 @@
   "pamAccessRequestsTitle": {
     "message": "Access requests"
   },
-  "pamInboxDuration1Hour": {
-    "message": "1 hour"
-  },
-  "pamInboxDurationHours": {
-    "message": "$HOURS$ hours",
-    "placeholders": {
-      "hours": {
-        "content": "$1",
-        "example": "4"
-      }
-    }
-  },
   "pamInboxStartAsap": {
     "message": "starting now"
   },
@@ -18603,29 +18591,17 @@
   "pamCollectionFilter": {
     "message": "Collection"
   },
-  "pamMyRequestsGroupExtensions": {
-    "message": "Extension requests"
-  },
-  "pamMyRequestsActiveAccessSection": {
-    "message": "Active access"
-  },
-  "pamMyRequestsActiveAccessEmpty": {
-    "message": "No active access"
+  "pamMyRequestsLoaded": {
+    "message": "Requests loaded"
   },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
-  "pamMyRequestsPendingSection": {
-    "message": "Pending"
-  },
-  "pamMyRequestsPendingEmpty": {
-    "message": "No pending requests"
-  },
-  "pamMyRequestsStatusInUse": {
+  "pamStatusInUse": {
     "message": "In use",
     "description": "Status filter option on Access requests > My requests, selecting the rows whose access the requester currently holds. The row's own badge counts the time left rather than repeating this word."
   },
-  "pamMyRequestsStatusEndingSoon": {
+  "pamStatusEndingSoon": {
     "message": "Ending soon",
     "description": "Status filter option on Access requests > My requests, selecting active access within five minutes of lapsing — the same threshold at which the access badge escalates."
   },
@@ -18755,15 +18731,6 @@
   },
   "pamInboxRequester": {
     "message": "Requester"
-  },
-  "pamInboxDurationMinutes": {
-    "message": "$MINUTES$ min",
-    "placeholders": {
-      "minutes": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
   },
   "pamStartLeaseButton": {
     "message": "Start access"
@@ -19415,12 +19382,6 @@
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsStatusInUse": {
-    "message": "In use"
-  },
-  "pamApprovalsStatusEndingSoon": {
-    "message": "Ending soon"
-  },
   "pamApprovalsApproveRequest": {
     "message": "Approve request"
   },
@@ -19429,49 +19390,6 @@
   },
   "pamApprovalsRevokeAccess": {
     "message": "Revoke access"
-  },
-  "pamWindowTodayRange": {
-    "message": "Today, $START$ to $END$",
-    "placeholders": {
-      "start": {
-        "content": "$1",
-        "example": "9 AM"
-      },
-      "end": {
-        "content": "$2",
-        "example": "1 PM"
-      }
-    }
-  },
-  "pamWindowTomorrowRange": {
-    "message": "Tomorrow, $START$ to $END$",
-    "placeholders": {
-      "start": {
-        "content": "$1",
-        "example": "9 AM"
-      },
-      "end": {
-        "content": "$2",
-        "example": "1 PM"
-      }
-    }
-  },
-  "pamWindowSameDayRange": {
-    "message": "$DATE$, $START$ to $END$",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "Sep 30"
-      },
-      "start": {
-        "content": "$2",
-        "example": "9 AM"
-      },
-      "end": {
-        "content": "$3",
-        "example": "1 PM"
-      }
-    }
   },
   "pamDecideAdditionalInformation": {
     "message": "Additional information"
@@ -19578,7 +19496,7 @@
   "pamInboxWithdrawApprovalFailed": {
     "message": "Could not withdraw approval"
   },
-  "pamApprovalsNoResults": {
+  "pamAccessRequestsNoResults": {
     "message": "No access requests match your filters."
   },
   "pamApprovalsLoaded": {

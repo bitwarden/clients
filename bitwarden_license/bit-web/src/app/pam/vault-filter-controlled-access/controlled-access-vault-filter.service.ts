@@ -37,7 +37,11 @@ import {
 } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
+import {
+  ACCESS_BADGE_LOOK,
+  AccessBadgeState,
+  cipherAccessBadgeState,
+} from "../access-state-badge/access-badge-state";
 
 type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
   readonly nameKey: string;
@@ -55,44 +59,48 @@ const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
   {
     id: PRIVILEGED_FILTER_ID,
     nameKey: "pamAccessBadgePrivileged",
-    icon: "bwi-key",
+    // Single-kind, so it reads the badge's glyph like the state chip's option does. "My
+    // requests" above spans three kinds and so has no one badge to follow.
+    icon: ACCESS_BADGE_LOOK.privileged.icon,
     kinds: ["privileged"],
   },
 ];
 
 /**
- * The vault table chip's options: one per access state, labelled like the badge each admits, so
- * an option's count matches the badges on screen.
+ * The vault table chip's options: one per access state, labelled and iconed like the badge each
+ * admits, so an option's count matches the badges on screen. The icons come off
+ * {@link ACCESS_BADGE_LOOK} rather than being restated here, which is how Ready came to offer a
+ * plain check beside a badge showing a circled one.
  */
 const CONTROLLED_ACCESS_STATE_FILTERS: readonly ControlledAccessFilterDefinition[] = [
   {
     id: PRIVILEGED_FILTER_ID,
     nameKey: "pamAccessBadgePrivileged",
-    icon: "bwi-key",
+    icon: ACCESS_BADGE_LOOK.privileged.icon,
     kinds: ["privileged"],
   },
   {
     id: PENDING_FILTER_ID,
     nameKey: "pamAccessBadgePending",
-    icon: "bwi-clock",
+    icon: ACCESS_BADGE_LOOK.pending.icon,
     kinds: ["pending"],
   },
   {
     id: READY_FILTER_ID,
     nameKey: "pamAccessBadgeReady",
-    icon: "bwi-check",
+    icon: ACCESS_BADGE_LOOK.ready.icon,
     kinds: ["ready"],
   },
   {
     id: ACTIVE_FILTER_ID,
     nameKey: "pamControlledAccessFilterActive",
-    icon: "bwi-unlock",
+    icon: ACCESS_BADGE_LOOK.active.icon,
     kinds: ["active"],
   },
   {
     id: UNAVAILABLE_FILTER_ID,
     nameKey: "pamAccessBadgeUnavailable",
-    icon: "bwi-lock",
+    icon: ACCESS_BADGE_LOOK.unavailable.icon,
     kinds: ["unavailable"],
   },
 ];

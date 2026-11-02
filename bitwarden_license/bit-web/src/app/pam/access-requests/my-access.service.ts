@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, NgZone, inject } from "@angular/core";
+import { DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
@@ -7,10 +7,13 @@ import {
   combineLatest,
   concatMap,
   distinctUntilChanged,
+  filter,
   firstValueFrom,
   from,
   map,
+  merge,
   switchMap,
+  take,
 } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -27,6 +30,7 @@ import {
   AccessRequestSdkService,
   AccessRequestView,
 } from "..";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { isLeaseLive } from "../helpers/lease-liveness";
 
 import {
@@ -42,6 +46,7 @@ import {
   extensionsByLeaseId,
   isRedeemableGrant,
   lapsedGrantBadge,
+  lapsedInHistory,
   resolvedOrSubmittedMs,
   toLeaseRow,
   toRequestRow,
@@ -61,7 +66,7 @@ export class MyAccessService {
   private readonly accessRefresh = inject(AccessRefreshService);
   private readonly accountService = inject(AccountService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
+  private readonly ticker = inject(AccessBadgeTickerService);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _leases$ = new BehaviorSubject<AccessLeaseView[]>([]);
@@ -124,7 +129,8 @@ export class MyAccessService {
 
   /**
    * Terminal requests, newest first. A grant with an active lease joins once the lease ends, and
-   * an unactivated grant that lapsed gets {@link lapsedGrantBadge}.
+   * anything whose access is already over gets {@link lapsedGrantBadge} — see
+   * {@link lapsedInHistory}.
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this.rows$,
@@ -140,11 +146,7 @@ export class MyAccessService {
             !isRedeemableGrant(r, nowMs) &&
             !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
         )
-        .map((r) =>
-          r.status === "approved" && r.producedLeaseId == null
-            ? { ...r, statusBadge: lapsedGrantBadge }
-            : r,
-        )
+        .map((r) => (lapsedInHistory(r) ? { ...r, statusBadge: lapsedGrantBadge } : r))
         .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a))
         .slice(0, MY_ACCESS_PAGE_LIMIT);
     }),
@@ -159,34 +161,35 @@ export class MyAccessService {
   );
 
   constructor() {
-    // `concatMap` so two pushes can't interleave their loads and leave the subjects out of step.
-    this.accessEvents
-      .accessChanged$()
-      .pipe(
-        concatMap(() => from(this.load())),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
+    // A window closing and a push arriving are both reasons to re-read, so they share one
+    // stream: `concatMap` only serialises within a stream, and two of them could overlap and
+    // land out of order, leaving the subjects showing the older read.
+    const lapsed$ = combineLatest([this._leases$, this._requests$]).pipe(
+      map(([leases, requests]) => nextLapseMs(leases, requests)),
+      distinctUntilChanged(),
+      switchMap((endMs) => (endMs == null ? EMPTY : this.lapseAt(endMs))),
+    );
 
-    this._leases$
+    merge(this.accessEvents.accessChanged$(), lapsed$)
       .pipe(
-        map(nextLapseMs),
-        distinctUntilChanged(),
-        switchMap((endMs) => (endMs == null ? EMPTY : this.lapseAt(endMs))),
         concatMap(() => from(this.load())),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
 
-  private lapseAt(endMs: number): Observable<void> {
-    return new Observable<void>((subscriber) => {
-      let id: ReturnType<typeof setTimeout>;
-      this.ngZone.runOutsideAngular(() => {
-        id = setTimeout(() => subscriber.next(), Math.max(0, endMs - Date.now()));
-      });
-      return () => clearTimeout(id);
-    });
+  /**
+   * Waits on the badges' shared clock rather than a timer of this service's own: PAM keeps two
+   * clocks and no more (see this directory's CLAUDE.md), and the badges on this very tab already
+   * hold that one open. It is also the only form that survives a distant lease — `setTimeout`
+   * fires immediately for a delay past 2^31-1 ms (~24.8 days), so a grant a month out would have
+   * reloaded in a loop rather than waiting.
+   */
+  private lapseAt(endMs: number): Observable<number> {
+    return this.ticker.ticks$.pipe(
+      filter((nowMs) => nowMs >= endMs),
+      take(1),
+    );
   }
 
   async load(): Promise<void> {
@@ -305,11 +308,19 @@ function refsFor(
   ];
 }
 
-function nextLapseMs(leases: AccessLeaseView[]): number | null {
+/**
+ * When the soonest window closes, across both things that can close one: a running lease, and an
+ * approved grant nobody started. The grants matter as much as the leases — the server refuses to
+ * activate past `leaseNotAfter`, so a lapsed grant has to leave Pending for History, and nothing
+ * announces that either.
+ */
+function nextLapseMs(leases: AccessLeaseView[], requests: AccessRequestView[]): number | null {
   const nowMs = Date.now();
-  const ends = leases
-    .filter((l) => l.status === "active")
-    .map((l) => Date.parse(l.notAfter))
-    .filter((ms) => Number.isFinite(ms) && ms > nowMs);
+  const ends = [
+    ...leases.filter((l) => l.status === "active").map((l) => Date.parse(l.notAfter)),
+    ...requests
+      .filter((r) => r.status === "approved" && r.producedLeaseId == null)
+      .map((r) => Date.parse(r.leaseNotAfter)),
+  ].filter((ms) => Number.isFinite(ms) && ms > nowMs);
   return ends.length === 0 ? null : Math.min(...ends);
 }

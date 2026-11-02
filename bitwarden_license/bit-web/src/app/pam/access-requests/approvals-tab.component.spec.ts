@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, computed } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -29,6 +29,7 @@ import { toManagedLeaseRow } from "../approvals/managed-lease-row";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
+import { REQUEST_STATUS_LOOK } from "./request-status-look";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 const MINUTE = 60_000;
@@ -66,10 +67,7 @@ function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestVi
 }
 
 function pending(overrides: Record<string, unknown> = {}, canDecide = true): ApproverRow {
-  return fromApprovalRow(
-    toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide, "en-US"),
-    NOW,
-  );
+  return fromApprovalRow(toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide, "en-US"));
 }
 
 function ready(overrides: Record<string, unknown> = {}): ApproverRow {
@@ -81,7 +79,6 @@ function ready(overrides: Record<string, unknown> = {}): ApproverRow {
       ...overrides,
     }),
     NAMES,
-    NOW,
     "en-US",
   );
 }
@@ -98,7 +95,7 @@ function active(overrides: Record<string, unknown> = {}): ApproverRow {
     }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
     NAMES,
   );
-  return fromManagedLease(lease, NOW, "en-US");
+  return fromManagedLease(lease, "en-US");
 }
 
 describe("ApprovalsTabComponent", () => {
@@ -376,6 +373,17 @@ describe("ApprovalsTabComponent", () => {
       expect(badge("req-a")?.getAttribute("data-testid")).toBe("access-state-badge-active");
     });
 
+    it("calls an unstarted grant Approved, not the requester's Ready to use", () => {
+      // The approver has nothing to use; `historyDisplayStatus` already words it this way.
+      inbox.approverRows$.next([ready({ id: "req-r" })]);
+
+      create();
+
+      const badge = query('[data-testid="approvals-cell-status-req-r"] bit-badge');
+      expect(text(badge)).toContain("pamStatusApproved");
+      expect(text(badge)).not.toContain("pamAccessBadgeReady");
+    });
+
     it("shows the item, its shared folder, and links it to the request's detail dialog", () => {
       inbox.approverRows$.next([pending()]);
 
@@ -394,7 +402,7 @@ describe("ApprovalsTabComponent", () => {
       create();
 
       const cell = query('[data-testid="approvals-cell-window-req-1"]');
-      expect(text(cell)).toContain("pamInboxDurationHours 4");
+      expect(text(cell)).toContain("4 hours");
       expect(text(cell)).toMatch(/pamWindow\w+/);
       expect(cell?.querySelector("[title]")?.getAttribute("title")).toContain("–");
     });
@@ -453,18 +461,17 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="approvals-revoke-req-1"]')?.getAttribute("aria-label")).toBe(
-        "pamApprovalsRevokeAccess",
-      );
-      expect(query('[data-testid="approvals-revoke-req-1"]')?.className).toContain(
-        "tw-bg-bg-danger",
-      );
+      const revoke = query('[data-testid="approvals-revoke-req-1"]');
+      expect(revoke?.getAttribute("aria-label")).toBe("pamApprovalsRevokeAccess");
+      // The glyph has to track the label, or the row reads as one action and renders another.
+      expect(revoke?.querySelector(".bwi-subtract-circle")).not.toBeNull();
+      expect(revoke?.className).toContain("tw-bg-bg-danger");
       expect(query('[data-testid="approvals-withdraw-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-approve-req-1"]')).toBeNull();
       expect(query('[data-testid="approvals-deny-req-1"]')).toBeNull();
     });
 
-    it("reveals the actions only on row hover or keyboard focus", () => {
+    it("reveals the actions on row hover, keyboard focus, or any device without hover", () => {
       inbox.approverRows$.next([pending()]);
 
       create();
@@ -473,6 +480,9 @@ describe("ApprovalsTabComponent", () => {
       expect(strip?.className).toContain("tw-opacity-0");
       expect(strip?.className).toContain("group-hover/row:tw-opacity-100");
       expect(strip?.className).toContain("group-has-[:focus-visible]/row:tw-opacity-100");
+      // Without this the strip is invisible and untappable for the whole of a touch device.
+      expect(strip?.className).toContain("[@media(hover:none)]:tw-opacity-100");
+      expect(strip?.className).toContain("[@media(hover:none)]:tw-pointer-events-auto");
     });
 
     it("disables both decisions on the caller's own request, saying why", () => {
@@ -597,13 +607,51 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
-    it("runs no clock when every row is pending", () => {
+    it("runs no clock with nothing to watch", () => {
       const setInterval = jest.spyOn(window, "setInterval");
-      inbox.approverRows$.next([pending()]);
+      inbox.approverRows$.next([]);
 
       create();
 
       expect(setInterval.mock.calls.filter(([, delay]) => delay === 1000)).toHaveLength(0);
+    });
+
+    it("re-reads the requested window as the clock moves past its start", () => {
+      // Built once per load, so a window that opens mid-session would otherwise keep reading as
+      // its original from-to range.
+      const row = pending({
+        id: "req-opening",
+        leaseNotBefore: new Date(NOW.getTime() + 2000).toISOString(),
+        leaseNotAfter: new Date(NOW.getTime() + 60 * MINUTE).toISOString(),
+      });
+      inbox.approverRows$.next([row]);
+      create();
+
+      const cell = () => text(query('[data-testid="approvals-cell-window-req-opening"]'));
+      expect(cell()).not.toContain("pamWindowUntil");
+
+      tick(3000);
+
+      // Past its start, the window reads as its end alone.
+      expect(cell()).toContain("pamWindowUntil");
+    });
+
+    it("drops a pending request once its own window closes", () => {
+      // The server refuses a decision past the window, so Approve and Deny must not outlive it.
+      inbox.approverRows$.next([
+        pending({ id: "req-open" }),
+        pending({
+          id: "req-closing",
+          leaseNotAfter: new Date(NOW.getTime() + 2000).toISOString(),
+        }),
+      ]);
+      create();
+
+      expect(rowOrder()).toEqual(expect.arrayContaining(["req-open", "req-closing"]));
+
+      tick(3000);
+
+      expect(rowOrder()).not.toContain("req-closing");
     });
   });
 
@@ -635,16 +683,23 @@ describe("ApprovalsTabComponent", () => {
       expect(filterControl("search")).toBeDefined();
     });
 
-    it("gives each status option its own icon tile", () => {
+    it("words the ready option as the badge beside it does", () => {
+      create();
+
+      const ready = fixture.componentInstance["statusOptions"].find((o) => o.value === "ready");
+      expect(ready?.label).toBe("pamStatusApproved");
+    });
+
+    it("takes each status option tile from the table it shares with My requests", () => {
       create();
 
       expect(
         fixture.componentInstance["statusOptions"].map((option) => [option.value, option.iconTile]),
       ).toEqual([
-        ["pending", { icon: "bwi-clock", variant: "warning" }],
-        ["ready", { icon: "bwi-check-circle", variant: "success" }],
-        ["inUse", { icon: "bwi-unlock", variant: "teal" }],
-        ["endingSoon", { icon: "bwi-warning", variant: "danger" }],
+        ["pending", REQUEST_STATUS_LOOK.pending.tile],
+        ["ready", REQUEST_STATUS_LOOK.ready.tile],
+        ["inUse", REQUEST_STATUS_LOOK.inUse.tile],
+        ["endingSoon", REQUEST_STATUS_LOOK.endingSoon.tile],
       ]);
     });
 
@@ -682,6 +737,36 @@ describe("ApprovalsTabComponent", () => {
       setFilter("status", ["pending", "ready"]);
 
       expect(rowOrder()).toEqual(["req-p", "req-r"]);
+    });
+
+    it("reads the clock only while a status is selected, so idle chips do not recount each tick", () => {
+      create();
+      // Captured outside the probe, since `rows()` tracks the clock itself and would mask this.
+      const tab = fixture.componentInstance;
+      const row = tab["rows"]().find((r) => r.kind === "active")!;
+
+      const runs = { unfiltered: 0, byStatus: 0 };
+      const probe = (key: keyof typeof runs, values: Record<string, unknown>) =>
+        TestBed.runInInjectionContext(() =>
+          computed(() => {
+            runs[key]++;
+            return tab["rowMatchesFilter"](row, values);
+          }),
+        );
+
+      const unfiltered = probe("unfiltered", {});
+      const byStatus = probe("byStatus", { status: ["inUse"] });
+      unfiltered();
+      byStatus();
+
+      tick(2000);
+      unfiltered();
+      byStatus();
+
+      // No Status chip set, so the filter never touched `nowMs()` and nothing invalidated it.
+      expect(runs.unfiltered).toBe(1);
+      // With one set, the clock is a real dependency and the tick re-ran it.
+      expect(runs.byStatus).toBeGreaterThan(1);
     });
 
     it("ANDs across filters", () => {

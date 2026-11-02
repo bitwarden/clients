@@ -2,8 +2,9 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -106,6 +107,16 @@ describe("MyRequestsTabComponent (through the real MyAccessService)", () => {
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: AccessRefreshService, useValue: accessRefresh },
         { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: new BehaviorSubject<Account | null>({
+              id: "user-1",
+              name: "Ada",
+              email: "ada@example.com",
+            } as Account),
+          },
+        },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: LogService, useValue: mock<LogService>() },

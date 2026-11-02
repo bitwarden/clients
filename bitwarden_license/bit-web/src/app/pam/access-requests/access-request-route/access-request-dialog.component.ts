@@ -36,7 +36,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AccessRequestView,
   activateAccessErrorMessageKey,
-  durationLabel,
+  durationText,
   exactWindow,
   humanApprover,
   reasonText,
@@ -167,7 +167,7 @@ export class AccessRequestDialogComponent implements OnInit {
 
   protected readonly duration = computed(() => {
     const request = this.request();
-    return request == null ? null : durationLabel(request);
+    return request == null ? null : durationText(request, this.locale);
   });
 
   protected readonly start = computed(() => {

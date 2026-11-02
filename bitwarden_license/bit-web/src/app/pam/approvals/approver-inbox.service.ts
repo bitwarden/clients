@@ -163,7 +163,7 @@ export class ApproverInboxService {
     this._renderedAt$,
   ]).pipe(
     map(([pending, history, names, leases, now]) => [
-      ...pending.map((row) => fromApprovalRow(row, now)),
+      ...pending.map(fromApprovalRow),
       ...history
         .filter(
           (request) =>
@@ -172,9 +172,9 @@ export class ApproverInboxService {
             request.extensionOfLeaseId == null &&
             Date.parse(request.leaseNotAfter) > now.getTime(),
         )
-        .map((request) => fromUnstartedApproval(request, names, now, this.locale))
+        .map((request) => fromUnstartedApproval(request, names, this.locale))
         .sort((a, b) => a.windowStartMs - b.windowStartMs),
-      ...leases.map((lease) => fromManagedLease(lease, now, this.locale)),
+      ...leases.map((lease) => fromManagedLease(lease, this.locale)),
     ]),
   );
 
