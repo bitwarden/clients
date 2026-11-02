@@ -1283,10 +1283,12 @@ describe("DefaultSyncService", () => {
 
     it("does not fetch when the user is logged out", async () => {
       Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.LoggedOut));
+      cipherService.get.mockResolvedValue(localCipher(false));
 
       const result = await sut.syncUpsertCipher(notification(), true, user1);
 
       expect(result).toBe(false);
+      expect(cipherService.get).not.toHaveBeenCalled();
       expect(apiService.getFullCipherDetails).not.toHaveBeenCalled();
     });
   });
