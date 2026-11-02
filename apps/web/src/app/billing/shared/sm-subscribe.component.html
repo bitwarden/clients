@@ -6,12 +6,12 @@
     </div>
   </div>
   <div
-    class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-secondary-300 tw-p-5"
+    class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-border-base tw-p-5"
   >
     <h4 bitTypography="h4">{{ "secretsManagerForPlan" | i18n: planName }}</h4>
-    <div class="tw-text-muted">
+    <div class="tw-text-fg-body">
       {{ "secretsManagerPurchaseDesc" | i18n }}
-      <p class="tw-mb-0 tw-mt-3 tw-font-semibold">{{ "whatsIncluded" | i18n }}</p>
+      <p class="tw-mb-0 tw-mt-3 tw-font-medium tw-text-fg-heading">{{ "whatsIncluded" | i18n }}</p>
       <ul>
         <li *ngIf="product == productTypes.Free">{{ "limitedUsers" | i18n: maxUsers }}</li>
         <li>{{ "unlimitedSecrets" | i18n }}</li>
@@ -30,7 +30,7 @@
       </ul>
     </div>
 
-    <div class="tw-mb-5">
+    <div class="tw-mb-5 tw-text-fg-body">
       <span *ngIf="product != productTypes.Free; else freeForever">
         {{ "pricePerMember" | i18n: (monthlyCostPerUser | currency: "$") }} / {{ "month" | i18n }}
       </span>
