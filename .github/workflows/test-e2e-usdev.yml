@@ -1,0 +1,229 @@
+# Runs the e2e Playwright suites (e2e/) against the usdev environment.
+# Nightly, on demand by labeling a PR "ci:km-e2e-tests", and via test-e2e-usdev-changes.yml on PRs
+# that change e2e/. Fork PRs get no secrets, so they are skipped.
+# The web suite drives the deployed usdev vault; browser, shared and desktop build from the checkout.
+
+name: Test E2E (usdev)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+  workflow_call:
+
+# The suites share one usdev account and mutate it (e.g. passkeys), so runs never overlap.
+# Only runs that test join the shared group: a pending run in it is replaced by the next one, so
+# other labels must not enter it. A call holds the group in its caller (test-e2e-usdev-changes.yml).
+concurrency:
+  group: ${{ (github.event_name != 'pull_request' || github.event.label.name == 'ci:km-e2e-tests') && 'km-e2e-usdev' || format('km-e2e-usdev-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+permissions: {}
+
+jobs:
+  test:
+    name: ${{ matrix.suite.name }}
+    # Called runs arrive as unlabeled pull_request events from the caller.
+    if: >-
+      github.event_name != 'pull_request'
+      || (github.event.pull_request.head.repo.full_name == github.repository
+        && (github.event.action != 'labeled' || github.event.label.name == 'ci:km-e2e-tests'))
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      # One suite at a time, for the same shared account.
+      max-parallel: 1
+      matrix:
+        suite:
+          - name: web
+            command: npm run test:e2e:web
+          # Extensions and the shared suite need a headed Chromium, hence the virtual display.
+          - name: browser
+            command: xvfb-run -a npm run test:e2e:browser
+          - name: shared
+            command: xvfb-run -a npm run test:e2e:shared
+            native: true
+          # Electron has no headless mode. The suite builds the Rust native module first.
+          - name: desktop
+            command: xvfb-run -a npm run test:e2e:desktop
+            native: true
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # rustup on the runner installs the toolchain pinned in desktop_native/rust-toolchain.toml.
+      - name: Cache Rust dependencies
+        if: ${{ matrix.suite.native }}
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
+      - name: Install native build dependencies
+        if: ${{ matrix.suite.native }}
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev
+
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "gh-clients"
+          secrets: "KM-E2E-USDEV-EMAIL,KM-E2E-USDEV-PASSWORD"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Run ${{ matrix.suite.name }} suite
+        env:
+          CI: true
+          E2E_EMAIL: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-EMAIL }}
+          E2E_PASSWORD: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-PASSWORD }}
+          E2E_SERVER: vault.usdev.bitwarden.pw
+          _COMMAND: ${{ matrix.suite.command }}
+        run: $_COMMAND
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-usdev-${{ matrix.suite.name }}
+          path: |
+            e2e/test-results/
+            e2e/playwright-report/
+          if-no-files-found: ignore
+
+  # On a PR run: one PR comment with each suite's result, updated in place on reruns.
+  # Removes the label afterwards, since only adding it fires `labeled`; re-adding it reruns.
+  report:
+    name: Report
+    needs: test
+    if: ${{ always() && github.event_name == 'pull_request' && needs.test.result != 'skipped' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Comment results on PR
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const COMMENT_TAG = '<!-- comment_tag: e2e-usdev -->';
+            const LABEL = 'ci:km-e2e-tests';
+            const ICONS = { success: '✅', failure: '❌', cancelled: '⏹️', skipped: '⏭️' };
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            // Matrix jobs are named after their suite; this job is the only other one. Called runs
+            // prefix job names with the caller's job, e.g. "E2E / web".
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+              owner, repo, run_id: context.runId, filter: 'latest',
+            });
+            const rows = jobs
+              .filter((job) => !job.name.endsWith('Report'))
+              .map((job) => `| ${job.name.split(' / ').pop()} | ${ICONS[job.conclusion] ?? '❔'} ${job.conclusion ?? 'unknown'} |`);
+
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            const body = [
+              COMMENT_TAG,
+              `### E2E (usdev) for ${context.payload.pull_request.head.sha.slice(0, 7)}`,
+              '',
+              '| Suite | Result |',
+              '| --- | --- |',
+              ...rows,
+              '',
+              `[Run](${runUrl}). Add the \`${LABEL}\` label again to rerun.`,
+            ].join('\n');
+
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find((comment) => comment.body?.startsWith(COMMENT_TAG));
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+            try {
+              await github.rest.issues.removeLabel({ owner, repo, issue_number, name: LABEL });
+            } catch (error) {
+              // Someone already removed it.
+              if (error.status !== 404) {
+                throw error;
+              }
+            }
+
+  # On a failed nightly (or manual) run: triggers a Slack workflow with LINK set to the run.
+  notify:
+    name: Notify Slack
+    needs: test
+    if: ${{ always() && github.event_name != 'pull_request' && needs.test.result == 'failure' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+    steps:
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "gh-clients"
+          secrets: "KM-E2E-USDEV-SLACK-WEBHOOK"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Post message to a Slack channel
+        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+        with:
+          webhook: ${{ steps.get-kv-secrets.outputs.KM-E2E-USDEV-SLACK-WEBHOOK }}
+          webhook-type: webhook-trigger
+          payload: |
+            {"LINK": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}

@@ -66,6 +66,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   abstract cipherListViewsIncludingRestricted$(
     userId: UserId,
   ): Observable<CipherListView[] | CipherView[]>;
+  /** Not filtered: includes restricted ciphers, as do {@link get} and {@link getAll}. */
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -118,6 +119,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     ids: string[],
   ): Promise<CipherView[]>;
+  /** Excludes restricted ciphers; a revealed view (`partial` false) can match. */
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -266,6 +268,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<void>;
   /**
    * Update the local store of CipherData with the provided data. Values are upserted into the existing store.
+   * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} stays authoritative.
    *
    * @param cipher The cipher data to upsert. Can be a single CipherData object or an array of CipherData objects.
    * @param userId Optional user ID for whom the cipher data is being upserted.
