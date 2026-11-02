@@ -8,7 +8,7 @@
     <bit-search [formControl]="searchControl" [placeholder]="'search' | i18n" class="tw-mb-4">
     </bit-search>
 
-    <bit-form-control-group [grid]="true" [formControl]="sourceControl">
+    <bit-form-control-group [grid]="true" [formControl]="sourceControl" class="!tw-mb-0">
       <bit-label class="tw-sr-only">{{ "importSourceSelectTitle" | i18n }}</bit-label>
 
       <!-- Must be declared inside `bit-form-control-group`: `*ngTemplateOutlet` embedded views
