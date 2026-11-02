@@ -6,6 +6,7 @@ import {
   tabRemoved$,
   tabAttached$,
   tabDetached$,
+  tabReplaced$,
   windowFocusChanged$,
   windowRemoved$,
 } from "./browser-events";
@@ -90,6 +91,15 @@ describe("browser-events", () => {
           args: [9, { oldWindowId: 4, oldPosition: 0 }],
           expected: { tabId: 9, oldWindowId: 4, oldPosition: 0 },
         },
+      ],
+    },
+    {
+      name: "tabReplaced$",
+      event: () => chrome.tabs.onReplaced as unknown as EventMock,
+      observable: () => tabReplaced$(),
+      invocations: [
+        { args: [11, 5], expected: { addedTabId: 11, removedTabId: 5 } },
+        { args: [12, 6], expected: { addedTabId: 12, removedTabId: 6 } },
       ],
     },
     {

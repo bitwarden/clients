@@ -1,6 +1,6 @@
 {
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden ロゴ"
   },
   "bitwarden": {
     "message": "Bitwarden"
@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Folders in $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ nested shared folders",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 nested shared folder",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ nested folders",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 nested folder",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "マイフォルダー"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "編集"
   },
+  "editInfo": {
+    "message": "Edit info"
+  },
+  "editAccess": {
+    "message": "Edit access"
+  },
   "authenticatorKeyTotp": {
     "message": "認証キー (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "ごみ箱に移動しました"
+  },
+  "deleteItemError": {
+    "message": "Couldn't delete the item."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "This item is restricted. Your change was not saved."
+  },
+  "controlledAccess": {
+    "message": "Controlled access"
   },
   "overwritePasswordConfirmation": {
     "message": "現在のパスワードを上書きしてもよろしいですか?"
@@ -2126,16 +2183,16 @@
     "message": "アプリで使用する言語を変更します。再起動が必要です。"
   },
   "passkeyProvider": {
-    "message": "Passkey provider"
+    "message": "パスキー プロバイダー"
   },
   "passkeyProviderDesc": {
     "message": "Use Bitwarden to save and sign in with passkeys in other apps."
   },
   "turnedOn": {
-    "message": "On"
+    "message": "オン"
   },
   "turnedOff": {
-    "message": "Off"
+    "message": "オフ"
   },
   "manageInSystemSettings": {
     "message": "Manage in system settings"
@@ -3933,7 +3990,7 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "有効な URL を入力してください",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
@@ -3945,7 +4002,7 @@
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "URL を信頼する",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
@@ -4681,7 +4738,7 @@
     "message": "ソースを選択"
   },
   "importData": {
-    "message": "Import data"
+    "message": "データをインポート"
   },
   "importSourceSelectTitle": {
     "message": "ソースを選択してください"
@@ -4823,16 +4880,16 @@
     "message": "ヘルプ センター"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "ファイルをアップロード"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "書式なしテキストとして貼り付け"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "プレーンテキスト"
   },
   "profile": {
-    "message": "Profile"
+    "message": "プロフィール"
   },
   "importManuallyInstead": {
     "message": "Import manually instead"
@@ -4844,10 +4901,10 @@
     "message": "Fastest"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "データをインポート"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "データを数分でインポート"
   },
   "importDataDirectSubtitlePrefix": {
     "message": "Import your items directly from",
@@ -4870,7 +4927,7 @@
     "message": "Select the profile you wish to import passwords from."
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "$VENDOR$ にログイン",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -4879,7 +4936,7 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "資格情報は転送中に暗号化され、保存されません。"
   },
   "importDataSecureByDesignTitle": {
     "message": "Secure by design"
@@ -4911,8 +4968,32 @@
   "importDataEverythingTransfersBody": {
     "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "高速で安全"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "次のステップで $VENDOR$ のログイン情報を入力してください。",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "ログイン情報、他のアイテム、フォルダーを転送します。パスキーと添付ファイルは除外される場合があります。"
+  },
   "importAcceptedFormats": {
-    "message": "Accepted: $FORMATS$",
+    "message": "承認済み: $FORMATS$",
     "placeholders": {
       "formats": {
         "content": "$1",
@@ -4921,7 +5002,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ file type",
+    "message": "$VENDOR$ ファイルタイプ",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5130,7 +5211,7 @@
     "message": "KeePass のマスターパスワード"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ password",
+    "message": "$VENDOR$ パスワード",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5139,22 +5220,22 @@
     }
   },
   "kdbxPasswordRequired": {
-    "message": "Password is required."
+    "message": "パスワードが必要です。"
   },
   "filePasswordRequired": {
-    "message": "File password is required"
+    "message": "ファイルパスワードが必要です"
   },
   "filePasswordInvalid": {
-    "message": "Enter a valid file password."
+    "message": "有効なファイルパスワードを入力してください。"
   },
   "filePasswordProtectedSubtitle": {
-    "message": "The file uploaded is password protected. Enter the password to continue."
+    "message": "アップロードされたファイルはパスワードで保護されています。続行するにはパスワードを入力してください。"
   },
   "selectProfile": {
-    "message": "Select profile"
+    "message": "プロファイルを選択"
   },
   "kdbxPasswordInvalid": {
-    "message": "Enter a valid password"
+    "message": "有効なパスワードを入力"
   },
   "importAccountMismatchError": {
     "message": "This file can only be imported into the account it was exported from."
@@ -5166,7 +5247,7 @@
     "message": "キーファイルのアップロード"
   },
   "keyFileUploadV2": {
-    "message": "Key file"
+    "message": "キーファイル"
   },
   "kdbxFileUpload": {
     "message": "KDBX ファイルのアップロード"
@@ -5191,6 +5272,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。"
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ 個の破損した添付ファイルはエクスポート中にスキップされました。その他のすべての保管庫データと添付ファイルは正常にエクスポートされました。",
@@ -5231,8 +5324,92 @@
   "lastPassEmail": {
     "message": "LastPass メールアドレス"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "メールアドレスが必要です。"
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "正しいメールアドレスを入力してください。"
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "パスワードが必要です。"
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "正しいパスワードを入力してください"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "正しい認証コードを入力してください。"
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "LastPass のマスターパスワードを入力してください。"
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "SSO 認証を待機中"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "ログイン後、自動的にインポートを続行します。"
+  },
   "importingYourAccount": {
     "message": "アカウントをインポートしています..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "サーバー"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "メールアドレスが必要です。"
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "正しいメールアドレスを入力してください。"
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "サポートされていない 2 要素認証方法です。方法を切り替えるか、手動でインポートしてください。"
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "デバイスの承認方法"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "正しい認証コードを入力してください。"
+  },
+  "keeperLoginCodeResent": {
+    "message": "認証コードを再送信"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper プッシュ通知を承認済みデバイスに送信しました。"
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "以下の方法を選択してこのデバイスを承認してください。"
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA を送信しました"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "パスワードが必要です。"
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "正しいパスワードを入力してください。"
   },
   "lastPassMFARequired": {
     "message": "LastPass の多要素認証が必要です"
@@ -5304,10 +5481,10 @@
     "message": "An error has occurred. Try again or use a different import method."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "メールアドレスが必要です。"
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "正しいメールアドレスを入力してください。"
   },
   "signInAddressIsRequired": {
     "message": "Sign-in address is required."
@@ -5316,25 +5493,25 @@
     "message": "Enter a valid sign-in address."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "秘密鍵が必要です。"
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "正しい秘密鍵を入力してください。"
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "パスワードが必要です。"
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "正しい認証コードを入力してください。"
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "サインインアドレス"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "1Password メールアドレス"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "1Password にログインするために使用するメールアドレスを入力してください"
   },
   "secretKey": {
     "message": "秘密鍵"
@@ -6625,6 +6802,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "No items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Add items to this folder. You’ll be able to quickly access them using vault filters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "マイアイテムにアイテムがありません"
   },
@@ -7265,6 +7456,15 @@
   "unknownCipher": {
     "message": "不明なアイテムです。このアイテムにアクセスするには権限をリクエストする必要がある場合があります。"
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden has a new look",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7288,10 +7488,10 @@
     "message": "Customize your view"
   },
   "showColumns": {
-    "message": "Show columns"
+    "message": "カラムを表示"
   },
   "resetToDefault": {
-    "message": "Reset to default"
+    "message": "初期設定に戻す"
   },
   "coachmarkImportTitle": {
     "message": "Quickly import your passwords"
@@ -7300,7 +7500,7 @@
     "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
   },
   "coachmarkAddItemTitle": {
-    "message": "Add an item"
+    "message": "項目を追加"
   },
   "coachmarkAddItemDescription": {
     "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
@@ -7321,7 +7521,7 @@
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
   "whatsNew": {
-    "message": "What's new"
+    "message": "新着情報"
   },
   "tourTheNewVaultDescription": {
     "message": "With updated navigation and design, it's easier than ever to find what you need."
@@ -7329,8 +7529,8 @@
   "coachmarkVaultListTitle": {
     "message": "All your vaults in one place"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Personal, family, and business vaults are listed here now."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Quickly see personal items or items in a vault you share with others."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Collections and folders have new names"
@@ -7356,5 +7556,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }
