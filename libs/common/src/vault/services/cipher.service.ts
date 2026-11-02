@@ -151,8 +151,8 @@ export class CipherService implements CipherServiceAbstraction {
   }, this.clearCipherViewsForUser$);
 
   /**
-   * Decrypted list views including restricted ciphers, for the web vault list and its
-   * filters; everything else uses {@link cipherListViews$}.
+   * Decrypted list views including restricted ciphers, for the vault lists and their filters;
+   * everything else uses {@link cipherListViews$}.
    */
   cipherListViewsIncludingRestricted$ = perUserCache$((userId: UserId) => {
     let decryptMeasurement: Measurement;
@@ -520,6 +520,10 @@ export class CipherService implements CipherServiceAbstraction {
     );
 
     return ciphers.filter((cipher) => {
+      if (CipherViewLikeUtils.isRestricted(cipher)) {
+        return false;
+      }
+
       const type = CipherViewLikeUtils.getType(cipher);
       const login = CipherViewLikeUtils.getLogin(cipher);
       const cipherIsLogin = login !== null;
@@ -1078,15 +1082,44 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }
 
+  /**
+   * Never replaces a stored restricted cipher with an unrestricted copy; {@link replace} (full sync)
+   * stays authoritative.
+   */
   async upsert(
     cipher: CipherData | CipherData[],
     userId?: UserId,
   ): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
+    const keepsStored = (stored: CipherData | undefined, incoming: CipherData) =>
+      stored?.partialData != null && incoming.partialData == null;
+    const logKept = (count: number) =>
+      this.logService.debug(`Kept ${count} stored restricted cipher(s); did not save a full copy.`);
+
+    // When every item is kept, skip the write: an unchanged record clears the cache but emits
+    // nothing in the extension, the case replace() also guards against.
+    userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
+    const stored = (await firstValueFrom(this.encryptedCiphersState(userId).state$)) ?? {};
+    if (ciphers.length > 0 && ciphers.every((c) => keepsStored(stored[c.id as CipherId], c))) {
+      logKept(ciphers.length);
+      return stored;
+    }
+
+    const kept: CipherId[] = [];
     const res = await this.updateEncryptedCipherState((current) => {
-      ciphers.forEach((c) => (current[c.id as CipherId] = c));
+      ciphers.forEach((c) => {
+        const id = c.id as CipherId;
+        if (keepsStored(current[id], c)) {
+          kept.push(id);
+          return;
+        }
+        current[id] = c;
+      });
       return current;
     }, userId);
+    if (kept.length > 0) {
+      logKept(kept.length);
+    }
     // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
     // Otherwise, subscribers to cipherViews$ can get stale data
     await new Promise((resolve) => setTimeout(resolve, 0));
