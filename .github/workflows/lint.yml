@@ -91,7 +91,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04
-          - macos-14
+          - macos-26
           - windows-2022
         # Each check maps to `scripts/lint-rust.mjs --only <name>`. `nightly` pulls
         # in the nightly toolchain (fmt, udeps); `cargo_bin` bootstraps cargo-run-bin
@@ -113,7 +113,7 @@ jobs:
       # Both toolchains come from desktop_native/rust-toolchain.toml so a Renovate
       # bump can't leave a stale literal in this workflow. Read via Node rather
       # than the `grep -oP` bitwarden/sdk-internal uses, because this job also runs
-      # on macos-14, whose BSD grep has no -P.
+      # on macOS, whose BSD grep has no -P.
       #
       # Assign to variables before echoing: with `bash -e`, an assignment adopts the
       # command substitution's exit status, so a failing reader fails the step.

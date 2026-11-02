@@ -1,20 +1,21 @@
 <app-header></app-header>
 
-<bit-bulk-actions-bar>
-  <bit-bulk-action
-    [action]="bulkDelete"
-    [label]="'delete' | i18n"
-    icon="bwi-trash"
-  ></bit-bulk-action>
-</bit-bulk-actions-bar>
-
 <bit-table-v2
   [tableDef]="table"
   [filter]="filterGroups"
   [filters]="initialFilters"
   [selection]="selection"
   [loading]="loading()"
+  (selectedChange)="selectedGroups.set($event)"
 >
+  <bit-bulk-actions-bar>
+    <bit-bulk-action
+      [action]="confirmDeleteSelected"
+      [label]="'delete' | i18n"
+      icon="bwi-trash"
+    ></bit-bulk-action>
+  </bit-bulk-actions-bar>
+
   <bit-table-toolbar>
     <bit-search
       [placeholder]="'searchGroups' | i18n"
@@ -25,6 +26,7 @@
       key="collections"
       [placeholderText]="'collections' | vfo1I18n: 'sharedFolders'"
       multiple
+      [disabled]="hasNoGroups()"
       [options]="collectionFilterOptions()"
     ></bit-filter-menu>
     <button
@@ -39,23 +41,31 @@
     </button>
   </bit-table-toolbar>
 
-  <bit-column sortable defaultSort="asc" width="minmax(200px, 1fr)">
+  <bit-column sortable defaultSort="asc" [sortFn]="sortByName" width="minmax(200px, 1fr)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.details; let row">
-      <button type="button" bitLink class="tw-font-medium" (click)="edit(row)">
+      <button
+        type="button"
+        bitLink
+        truncate
+        class="tw-font-medium"
+        [bitTooltip]="row.details.name"
+        (click)="edit(row)"
+      >
         {{ row.details.name }}
       </button>
     </bit-cell>
   </bit-column>
 
-  <bit-column width="minmax(240px, 2fr)">
+  <bit-column sortable [sortFn]="sortByCollections" width="minmax(240px, 2fr)">
     <bit-header-cell>{{ "collections" | vfo1I18n: "sharedFolders" }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.collectionBadges; let row">
-      <bit-badge-group
-        [badges]="row.collectionBadges"
-        (click)="edit(row, ModalTabType.Collections)"
-        class="tw-cursor-pointer"
-      ></bit-badge-group>
+    <bit-cell *bitCellDef="table.columns.collectionChips; let row">
+      <bit-chip-group
+        class="tw-block tw-w-full tw-min-w-0"
+        [chips]="row.collectionChips"
+        [accessibleName]="'collections' | vfo1I18n: 'sharedFolders'"
+        (chipSelect)="goToCollection($event)"
+      ></bit-chip-group>
     </bit-cell>
   </bit-column>
 
@@ -86,9 +96,30 @@
           <bit-icon [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
           {{ "collections" | vfo1I18n: "sharedFolders" }}
         </button>
+        <button type="button" bitMenuItem variant="danger" (click)="confirmDelete([row])">
+          <bit-icon name="bwi-trash" slot="start" />
+          {{ "delete" | i18n }}
+        </button>
       </bit-menu>
     </bit-cell>
   </bit-column>
+
+  @if (hasNoGroups()) {
+    <bit-status-lockup slot="empty">
+      <span slot="title">{{ "noGroupsYet" | i18n }}</span>
+      <span slot="description">{{ "noGroupsYetDesc" | i18n: organizationName() }}</span>
+      <button
+        slot="button"
+        bitButton
+        type="button"
+        buttonType="primary"
+        startIcon="bwi-plus"
+        (click)="add()"
+      >
+        {{ "addGroup" | i18n }}
+      </button>
+    </bit-status-lockup>
+  }
 
   <bit-table-paginator></bit-table-paginator>
 </bit-table-v2>
