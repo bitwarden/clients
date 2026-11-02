@@ -12617,22 +12617,23 @@
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsPurchaseDesc": {
-    "message": "Credential leasing, automated rotation, and more inside the password manager your team already uses."
+    "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
+    "description": "'Bitwarden Password Manager' is a product name and should not be translated."
+  },
+  "privilegedControlsFeatureCredentialLeasing": {
+    "message": "Credential leasing"
   },
   "privilegedControlsFeatureAccessRules": {
-    "message": "Access rules you can apply to sensitive shared folders"
-  },
-  "privilegedControlsFeatureApprovals": {
-    "message": "Requests and approval workflows"
-  },
-  "privilegedControlsFeatureIpRestrictions": {
-    "message": "IP address restrictions"
+    "message": "Advanced access rules"
   },
   "privilegedControlsFeatureRotation": {
-    "message": "Automated credential rotation"
+    "message": "Automated password rotation"
   },
   "privilegedControlsFeatureAuditLog": {
-    "message": "Audit logs for every request and decision"
+    "message": "Compliance-ready audit logs"
+  },
+  "privilegedControlsFeatureGovernanceDashboard": {
+    "message": "Governance dashboard"
   },
   "addPrivilegedControls": {
     "message": "Add Privileged Controls",
@@ -13455,8 +13456,8 @@
       }
     }
   },
-  "secretsManagerForPlanDesc": {
-    "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
+  "secretsManagerPurchaseDesc": {
+    "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
   },
   "free2PersonOrganization": {
     "message": "Free 2-person Organizations"
