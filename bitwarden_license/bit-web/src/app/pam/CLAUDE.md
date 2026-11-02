@@ -307,9 +307,9 @@ redirect guard can land a member who holds only one of the PAM permissions — s
 DI"; all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
 
-`CipherLeaseStateService` (`libs/common`) is the exception to `{ optional: true }`: `CipherService`
-injects it unconditionally, so `jslib-services`, the browser background and the CLI bind
-`DefaultCipherLeaseStateService`, and `provide-pam.ts` overrides it with `MyLeasesService`.
+`RevealedCipherService` (`libs/common`, Vault's) is the exception to `{ optional: true }`: Vault
+and Tools code inject it unconditionally, so `jslib-services`, the browser background and the CLI
+bind `NoopRevealedCipherService`, and `provide-pam.ts` overrides it with `PamRevealedCipherService`.
 
 ## Routing and DI
 
