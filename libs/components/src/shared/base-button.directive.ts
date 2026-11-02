@@ -1,6 +1,6 @@
 import { booleanAttribute, computed, Directive, input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { debounce, interval } from "rxjs";
+import { debounce, interval, of } from "rxjs";
 
 import { ButtonType } from "./button-like.abstraction";
 
@@ -356,7 +356,9 @@ export class BaseButtonDirective {
   readonly showLoadingStyle = toSignal(
     toObservable(this.loading).pipe(
       debounce((isLoading) =>
-        interval(isLoading && !this.instantSpinner() ? BUTTON_SPINNER_DELAY_MS : 0),
+        isLoading && this.instantSpinner()
+          ? of(true)
+          : interval(isLoading ? BUTTON_SPINNER_DELAY_MS : 0),
       ),
     ),
   );

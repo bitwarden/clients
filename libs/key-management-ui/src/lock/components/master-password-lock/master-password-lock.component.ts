@@ -111,7 +111,6 @@ export class MasterPasswordLockComponent implements OnInit, OnDestroy {
     // Unlocking runs the KDF synchronously on the main thread, which blocks rendering. The button
     // shows its spinner at once (`instantSpinner`); wait until it has been painted, one frame,
     // rather than through the 75 ms spinner debounce.
-    await new Promise<void>((resolve) => setTimeout(resolve));
     await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve)));
 
     await this.unlockViaMasterPassword(masterPassword, activeUserId);
