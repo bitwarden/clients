@@ -122,6 +122,15 @@ stateDiagram-v2
 
 "Active" and "focused" are signals controlled by the browser. The states are virtual, owned by autofill and layered on top of them. The delays that make warm-up and cool-down stable and the churn they absorb belong to the protocol's [gating and delays](#gating-and-delays).
 
+### States are virtual
+
+This state machine models browser interaction patterns. Its states do not represent real experiences. They are a way to reason about events significant to the autofill system. Autofill logic must not couple to discreet states. It should, instead, interpret state transitions.
+
+> [!IMPORTANT]
+> A transition is a momentary fact: it states what changed, and it stays true after the moment passes. A state field offers no such guarantee. A settling tab moves on with no signal to mark its arrival, so a stored state describes the past as readily as the present. Reporting both the state being left and the state being entered is what lets a consumer act on a change without keeping a state of its own.
+
+A resolved transition leaves the service as a signal that this frame has reached a point where autofill _may_ act. Whether a fill actually happens is autofill's decision, governed by its own settings and policy (see [`autofill.design.md`](./autofill.design.md)), independent of the lifecycle. This is the reciprocal of one-directional reporting: producers report facts, the lifecycle reconciles them into an opportunity, and autofill decides what to make of it.
+
 ## The page lifecycle
 
 A page-lifecycle monitor watches for the moments a page becomes ready to act on — its load, and the navigations that follow — and reports each as a transition. It does not examine field data and is **not** an `AutofillMonitor`. The autofiller (`apps/browser/src/autofill/content/autofiller.ts`) is the current monitor of this lifecycle. The browser surfaces no reliable signal for single-page-app navigation, so the autofiller synthesizes these transitions itself: it polls for URL changes and reports each as a `pageTransitionDetected` fact to the background. Like the tab lifecycle's thermal states, a page transition is a virtual state autofill maintains, not a fact the browser hands it.
@@ -153,15 +162,6 @@ Reconciliation reads the reporting tab's lifecycle state (see [The tab lifecycle
 > **Buffering tracks the path to hot**, independent of monitoring state. Cold and warm states track the difference: cold does not monitor but buffers (a _page loaded in the background_ waits for its first focus), while warm monitors but drops (_unfocused windows_ never fill).
 
 A **command** — a user-initiated fill (keyboard shortcut, context menu, card/identity) targeting the tab — _consumes_ a buffered transition instead of resolving it. The command carries its own fill, so a page-load opportunity for the same tab would trigger a redundant second fill. The command drives the tab to hot early, which drops the pending transition rather than surfacing it.
-
-### States are virtual
-
-This state machine models browser interaction patterns. Its states do not represent real experiences. They are a way to reason about events significant to the autofill system. Autofill logic must not couple to discreet states. It should, instead, interpret state transitions.
-
-> [!IMPORTANT]
-> A transition is a momentary fact: it states what changed, and it stays true after the moment passes. A state field offers no such guarantee. A settling tab moves on with no signal to mark its arrival, so a stored state describes the past as readily as the present. Reporting both the state being left and the state being entered is what lets a consumer act on a change without keeping a state of its own.
-
-A resolved transition leaves the service as a signal that this frame has reached a point where autofill _may_ act. Whether a fill actually happens is autofill's decision, governed by its own settings and policy (see [`autofill.design.md`](./autofill.design.md)), independent of the lifecycle. This is the reciprocal of one-directional reporting: producers report facts, the lifecycle reconciles them into an opportunity, and autofill decides what to make of it.
 
 ## The lifecycle protocol
 

@@ -771,7 +771,7 @@ describe("MembersComponent", () => {
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
     });
 
-    it("opens the status dialog for the resend portion when self-hosted", async () => {
+    it("shows the success toast instead of the status dialog when self-hosted", async () => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest.spyOn(component["dataSource"](), "getCheckedUsers").mockReturnValue([invitedUser]);
       mockMemberActionsService.bulkReinvite.mockReturnValue(
@@ -783,35 +783,47 @@ describe("MembersComponent", () => {
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
+      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "reinviteSuccessToast",
+      });
     });
 
-    it("keeps staged members out of the self-hosted status dialog", async () => {
+    it("shows the error and no success toast when every resend fails", async () => {
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([invitedUser]);
+      const failed = [{ id: invitedUser.id, error: "Bulk reinvite failed" }];
+      mockMemberActionsService.bulkReinvite.mockReturnValue(of({ successful: [], failed }));
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockValidationService.showError).toHaveBeenCalledWith(failed);
+      expect(mockToastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("counts only the successful resends when some fail on self-hosted", async () => {
+      const otherInvitedUser = { ...invitedUser, id: "other-invited-user-id" };
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
       jest
         .spyOn(component["dataSource"](), "getCheckedUsers")
-        .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.bulkSendInvite.mockReturnValue(
-        of({
-          successful: [sent(stagedUser.id)],
-          failed: [],
-        }),
-      );
+        .mockReturnValue([invitedUser, otherInvitedUser]);
       mockMemberActionsService.bulkReinvite.mockReturnValue(
         of({
           successful: [sent(invitedUser.id)],
-          failed: [],
+          failed: [{ id: otherInvitedUser.id, error: "Bulk reinvite partially failed" }],
         }),
       );
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalledWith(
-        [invitedUser],
-        [invitedUser],
-        expect.anything(),
-        expect.anything(),
-      );
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "reinviteSuccessToast",
+      });
     });
 
     it("checks the seat limit before promoting staged members", async () => {

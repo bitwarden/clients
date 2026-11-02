@@ -15,14 +15,19 @@
     list. Has to stay outside the virtual scroll viewport: `bit-table-v2` renders the toolbar above
     it, so the height it gives up goes to that viewport rather than to the scrolled content.
   -->
-  <bit-table-toolbar bitCollapseOnScroll [(filterDialogOpen)]="filterDialogOpen">
+  <bit-table-toolbar
+    #toolbar
+    bitCollapseOnScroll
+    [filterDialogOpen]="showFilterDialog()"
+    (filterDialogOpenChange)="setFilterDialogOpen($event)"
+  >
     <bit-search
       class="tw-flex-1"
       autocomplete="off"
       [placeholder]="'search' | i18n"
       [(ngModel)]="searchText"
       (ngModelChange)="onSearchTextChanged()"
-      appAutofocus
+      [appAutofocus]="autofocusSearch"
     ></bit-search>
 
     <bit-filter-menu
@@ -87,6 +92,7 @@
       ></bit-filter-menu>
     }
   </bit-table-toolbar>
+  <app-vault-filters-tour [toolbar]="toolbar" />
   <!--
     The suspended-organization state renders here rather than replacing the table, so
     the filter that caused it stays clearable.
@@ -145,10 +151,10 @@
               row.cipher.name
             }}</span>
             <div class="tw-flex tw-items-center tw-gap-1.5 tw-shrink-0">
-              @if (row.cipher.organizationId) {
+              @if (row.cipher.organization; as organization) {
                 <i
                   appOrgIcon
-                  [tierType]="row.cipher.organization!.productTierType"
+                  [tierType]="organization.productTierType"
                   [size]="'small'"
                   [appA11yTitle]="orgIconTooltip(row.cipher)"
                 ></i>

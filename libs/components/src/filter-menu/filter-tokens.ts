@@ -35,8 +35,8 @@ export interface FilterHost {
   registerFilter(control: FilterControl): void;
   unregisterFilter(control: FilterControl): void;
   /**
-   * How many rows match if the chip's `key` is pinned to `value`, ignoring every other
-   * filter. `undefined` when the host can't count, so the chip falls back to an
+   * How many rows match if the chip's `key` is pinned to `value`, with every other active
+   * filter applied. `undefined` when the host can't count, so the chip falls back to an
    * option's explicit `count`.
    */
   optionCount?(key: string, value: unknown): number | undefined;

@@ -1,14 +1,18 @@
 @let open = sideNavService.open();
 @let isOverlay = sideNavService.isOverlay();
 @let version = sideNavService.version();
+<!-- Collapsed: center a 40px column in whatever width the scrollbar gutters leave. -->
+@let railPadding = "tw-px-[calc((100%_-_2.5rem)/2)]";
+<!-- Header and footer stay pinned unless open and under 600px, where the whole column scrolls. -->
+@let shrinkToFit = open ? "[@container_(min-height:600px)]:tw-min-h-0" : "tw-min-h-0";
 
 <ng-template #logoContent><ng-content select="bit-nav-logo"></ng-content></ng-template>
-<ng-template #productSwitcherContent
+<ng-template #headerContent
   ><ng-content select="[slot=product-switcher]"></ng-content
+  ><ng-content select="[slot=header]"></ng-content
 ></ng-template>
 <ng-template #navContent><ng-content></ng-content></ng-template>
 <ng-template #footerContent><ng-content select="[slot=footer]"></ng-content></ng-template>
-
 @if (version === "vfo1") {
   <div
     class="tw-relative tw-h-full"
@@ -20,7 +24,7 @@
     <div
       id="bit-side-nav"
       [attr.data-nav-version]="version"
-      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
+      class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none tw-group/side-nav tw-@container-[size]"
       [style.width.rem]="
         sideNavService.dragDisplayWidth() ?? (open ? sideNavService.widthRem() : closedWidthRem)
       "
@@ -31,65 +35,86 @@
           ? '--color-nav-bg-brand: var(--color-nav-bg-admin); --color-nav-bg-brand-soft: var(--color-nav-bg-admin-soft); --color-nav-bg-brand-hover: var(--color-nav-bg-admin-hover);'
           : ''
       "
-      (keydown)="handleKeyDown($event)"
     >
       <div
-        class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none tw-@container-[size]"
-        id="bit-side-nav--scroll"
-        (focusin)="scrollFocusedIntoView($event)"
+        data-nav-column
+        class="tw-flex tw-h-full tw-flex-col tw-overflow-y-auto tw-overscroll-none"
       >
-        <div class="tw-flex tw-flex-col tw-min-h-full tw-group/side-nav">
-          <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
+        <nav
+          class="tw-flex tw-flex-1 tw-flex-col"
+          [class]="shrinkToFit"
+          [attr.aria-label]="'sideNavigation' | i18n"
+        >
+          <!-- Outside the scroller so the divider spans its gutters. -->
+          <div
+            data-testid="side-nav-header"
+            class="tw-flex tw-shrink-0 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
+            [class]="open ? 'tw-px-3' : railPadding"
+            [class.tw-pt-3]="!isOverlay"
+            [class.tw-flex-col]="!open"
+            [class.tw-gap-1]="!open"
+            [class.tw-gap-2]="open"
+            [style.padding-top]="
+              isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
+            "
+          >
+            <ng-container *ngTemplateOutlet="logoContent"></ng-container>
+            <button
+              #toggleButton
+              type="button"
+              [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
+              buttonType="side-nav"
+              size="small"
+              (click)="sideNavService.toggle()"
+              [label]="'toggleSideNavigation' | i18n"
+              [attr.aria-expanded]="open"
+              aria-controls="bit-side-nav"
+            ></button>
+          </div>
+          <!-- Pinned so rows scroll beneath it; keeps its wider 48px collapsed column. Border overlays so toggling never shifts rows; hidden when empty to avoid doubling the header's.
+               Inner div caps tall content so body rows stay reachable; its padding keeps focus rings unclipped. -->
+          <div
+            class="tw-relative tw-w-full tw-shrink-0 tw-bg-bg-nav after:tw-absolute after:tw-inset-x-0 after:tw-bottom-0 after:tw-h-px after:tw-bg-border-nav-divider after:tw-opacity-0 after:tw-content-[''] motion-safe:after:tw-transition-opacity data-[header-border=true]:after:tw-opacity-100 has-[>:empty]:after:tw-hidden"
+            [attr.data-header-border]="headerBorder() === 'always' || scrolled().top"
+          >
             <div
-              #headerWrapper
-              data-testid="side-nav-header"
-              class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-top-0 [@container_(min-height:600px)]:tw-z-20"
-              [class.tw-pt-3]="!isOverlay"
-              [class.tw-flex-col]="!open"
-              [class.tw-gap-1]="!open"
-              [class.tw-gap-2]="open"
-              [class.tw-pe-3]="open"
-              [style.padding-top]="
-                isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
+              class="tw-py-2 empty:tw-pb-0"
+              [class]="
+                open
+                  ? 'tw-px-2 [@container_(min-height:600px)]:tw-max-h-[40cqh] [@container_(min-height:600px)]:tw-overflow-y-auto'
+                  : 'tw-px-[calc((100%_-_3rem)/2)]'
               "
             >
-              <ng-container *ngTemplateOutlet="logoContent"></ng-container>
-              <button
-                #toggleButton
-                type="button"
-                [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
-                buttonType="side-nav"
-                size="small"
-                (click)="sideNavService.toggle()"
-                [label]="'toggleSideNavigation' | i18n"
-                [attr.aria-expanded]="open"
-                aria-controls="bit-side-nav"
-              ></button>
+              <ng-container *ngTemplateOutlet="headerContent"></ng-container>
             </div>
-            <div class="tw-w-full tw-bg-bg-nav tw-p-2 tw-pb-0">
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
-            </div>
+          </div>
+          <!-- No overscroll-none: it would trap wheel scroll that must chain to the column.
+               Collapsed only: reserve gutters so classic scrollbars never squish the rail icons. -->
+          <div
+            class="tw-flex-1 tw-overflow-auto"
+            [class]="open ? shrinkToFit : 'tw-min-h-0 [scrollbar-gutter:stable_both-edges]'"
+            id="bit-side-nav--scroll"
+            cdkScrollable
+          >
+            <!-- Rows sit tight; top-level sections widen the gap to space themselves apart. -->
             <div
               data-testid="side-nav-body"
-              class="tw-flex tw-flex-col tw-gap-2 tw-p-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
+              class="tw-flex tw-flex-col tw-gap-0.5 has-[bit-nav-section:not(bit-nav-group_*)]:tw-gap-2 tw-pb-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
+              [class]="open ? 'tw-px-3' : railPadding"
             >
               <ng-container *ngTemplateOutlet="navContent"></ng-container>
             </div>
-          </nav>
-          <div
-            #footerWrapper
-            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0 [@container_(min-height:600px)]:tw-z-10"
-          >
-            <div
-              data-footer
-              class="tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
-            >
-              @if (open) {
-                <ng-content select="[slot=callout]"></ng-content>
-              }
-              <ng-content select="[slot=account]"></ng-content>
-            </div>
           </div>
+        </nav>
+        <div
+          data-footer
+          class="tw-shrink-0 tw-py-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden empty:*:tw-hidden"
+          [class]="open ? 'tw-px-3' : railPadding"
+        >
+          @if (open) {
+            <ng-content select="[slot=callout]"></ng-content>
+          }
+          <ng-content select="[slot=account]"></ng-content>
         </div>
       </div>
     </div>
@@ -97,7 +122,7 @@
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
       (cdkDragEnded)="onDragEnded($event)"
-      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
+      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-border-accent-primary focus:tw-outline-none focus-visible:tw-bg-border-accent-primary before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
       [cdkDragDisabled]="isTouchDevice()"
       tabindex="0"
       (keydown)="onKeydown($event)"
@@ -132,7 +157,6 @@
           ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'
           : ''
       "
-      (keydown)="handleKeyDown($event)"
       [attr.aria-label]="'sideNavigation' | i18n"
     >
       <div
@@ -148,7 +172,7 @@
             <div
               class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
             >
-              <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
+              <ng-container *ngTemplateOutlet="headerContent"></ng-container>
             </div>
           }
         </div>
@@ -178,7 +202,7 @@
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
       (cdkDragEnded)="onDragEnded($event)"
-      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
+      class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-border-accent-primary focus:tw-outline-none focus-visible:tw-bg-border-accent-primary before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
       [cdkDragDisabled]="isTouchDevice()"
       tabindex="0"
       (keydown)="onKeydown($event)"

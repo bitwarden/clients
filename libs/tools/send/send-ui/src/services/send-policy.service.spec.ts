@@ -11,7 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 
 import { SendPolicyService } from "..";
 
@@ -19,9 +19,13 @@ const userId = "test-user-id" as UserId;
 
 function makePolicy(data: Record<string, unknown> | null): Policy {
   return new Policy({
-    data,
+    id: "test-policy-id" as PolicyId,
+    organizationId: "test-org-id",
+    type: PolicyType.DisableSend,
+    data: data as PolicyData["data"],
     enabled: true,
-  } as unknown as PolicyData);
+    revisionDate: new Date().toISOString(),
+  });
 }
 
 describe("SendPolicyService", () => {

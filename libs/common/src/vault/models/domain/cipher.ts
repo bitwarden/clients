@@ -30,6 +30,12 @@ import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
 /**
+ * `SdkCipher` plus the PAM `partialData` envelope, bridged so the SDK mappers round-trip it until
+ * the published `sdk-internal` declares it. Optional, so a plain `SdkCipher` stays assignable.
+ */
+type SdkCipherWithPartialData = SdkCipher & { partialData?: string };
+
+/**
  * Encrypted cipher, as stored and synced.
  *
  * Only metadata fields (ids, `key`, `type`, flags, permissions, dates, `attachments`,
@@ -88,6 +94,8 @@ export class Cipher extends Domain {
   key?: EncString;
   /** @deprecated Opaque sealed blob (blob format only), not public API. Never parse or construct it. See {@link Cipher}. */
   data?: string;
+  /** Raw JSON partial-data envelope for PAM-gated rows; see {@link CipherData.partialData}. */
+  partialData?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -116,6 +124,7 @@ export class Cipher extends Domain {
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
     this.data = obj.data;
+    this.partialData = obj.partialData;
 
     switch (this.type) {
       case CipherType.Login:
@@ -159,6 +168,15 @@ export class Cipher extends Domain {
     }
   }
 
+  /**
+   * @returns `true` when this is a PAM-gated ("partial") row, whose sensitive fields the server
+   *   suppressed in favour of the {@link partialData} envelope. The decrypted-side equivalent is
+   *   `CipherViewLikeUtils.isRestricted`.
+   */
+  get isPartial(): boolean {
+    return this.partialData != null;
+  }
+
   toCipherData(): CipherData {
     const c = new CipherData();
     c.id = this.id;
@@ -193,6 +211,7 @@ export class Cipher extends Domain {
     }
 
     c.archivedDate = this.archivedDate != null ? this.archivedDate.toISOString() : undefined;
+    c.partialData = this.partialData;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -276,6 +295,8 @@ export class Cipher extends Domain {
       domain.permissions = new CipherPermissionsApi(obj.permissions);
     }
 
+    domain.partialData = obj.partialData;
+
     domain.collectionIds = obj.collectionIds;
     domain.localData = obj.localData;
     domain.reprompt = obj.reprompt;
@@ -348,10 +369,10 @@ export class Cipher extends Domain {
   /**
    * Maps Cipher to SDK format.
    *
-   * @returns {SdkCipher} The SDK cipher object.
+   * @returns {SdkCipherWithPartialData} The SDK cipher object.
    */
-  toSdkCipher(): SdkCipher {
-    const sdkCipher: SdkCipher = {
+  toSdkCipher(): SdkCipherWithPartialData {
+    const sdkCipher: SdkCipherWithPartialData = {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
@@ -389,6 +410,7 @@ export class Cipher extends Domain {
       driversLicense: undefined,
       passport: undefined,
       data: this.data,
+      partialData: this.partialData,
     };
 
     switch (this.type) {
@@ -443,7 +465,7 @@ export class Cipher extends Domain {
    * Maps an SDK Cipher object to a Cipher
    * @param sdkCipher - The SDK Cipher object
    */
-  static fromSdkCipher(sdkCipher?: SdkCipher): Cipher | undefined {
+  static fromSdkCipher(sdkCipher?: SdkCipherWithPartialData): Cipher | undefined {
     if (sdkCipher == null) {
       return undefined;
     }
@@ -481,6 +503,7 @@ export class Cipher extends Domain {
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
     cipher.data = sdkCipher.data;
+    cipher.partialData = sdkCipher.partialData;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);

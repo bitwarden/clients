@@ -28,7 +28,6 @@ import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import {
   AuthRequestServiceAbstraction,
-  LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -36,6 +35,7 @@ import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogoutReason } from "@bitwarden/common/auth/logout";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";

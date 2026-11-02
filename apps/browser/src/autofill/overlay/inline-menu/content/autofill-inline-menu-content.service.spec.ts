@@ -1133,6 +1133,14 @@ describe("AutofillInlineMenuContentService", () => {
   });
 
   describe("refreshTopLayerPosition", () => {
+    const createPopoverElement = () => {
+      const element = document.createElement("div");
+      element.setAttribute("popover", "manual");
+      element.showPopover = jest.fn();
+      element.hidePopover = jest.fn();
+      return element;
+    };
+
     it("does nothing when inline menu is disabled", () => {
       const getUnownedTopLayerItemsSpy = jest.spyOn(
         autofillInlineMenuContentService,
@@ -1140,7 +1148,7 @@ describe("AutofillInlineMenuContentService", () => {
       );
 
       autofillInlineMenuContentService["inlineMenuEnabled"] = false;
-      const buttonElement = document.createElement("div");
+      const buttonElement = createPopoverElement();
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
 
       autofillInlineMenuContentService.refreshTopLayerPosition();
@@ -1150,18 +1158,18 @@ describe("AutofillInlineMenuContentService", () => {
     });
 
     it("does nothing when no other top layer items exist", () => {
-      const buttonElement = document.createElement("div");
+      const buttonElement = createPopoverElement();
+      document.body.appendChild(buttonElement);
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
       jest
         .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
         .mockReturnValue([] as any);
 
-      const getElementsByTagSpy = jest.spyOn(globalThis.document, "getElementsByTagName");
-
       autofillInlineMenuContentService.refreshTopLayerPosition();
 
-      // Should exit early and not get inline elements to refresh
-      expect(getElementsByTagSpy).not.toHaveBeenCalled();
+      // Should exit early and not refresh the inline menu elements
+      expect(buttonElement.hidePopover).not.toHaveBeenCalled();
+      expect(buttonElement.showPopover).not.toHaveBeenCalled();
     });
 
     it("refreshes button popover when button is in document", () => {
@@ -1169,10 +1177,7 @@ describe("AutofillInlineMenuContentService", () => {
         .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
         .mockReturnValue([document.createElement("div")] as any);
 
-      const buttonElement = document.createElement("div");
-      buttonElement.setAttribute("popover", "manual");
-      buttonElement.showPopover = jest.fn();
-      buttonElement.hidePopover = jest.fn();
+      const buttonElement = createPopoverElement();
       document.body.appendChild(buttonElement);
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
 
@@ -1187,10 +1192,7 @@ describe("AutofillInlineMenuContentService", () => {
         .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
         .mockReturnValue([document.createElement("div")] as any);
 
-      const listElement = document.createElement("div");
-      listElement.setAttribute("popover", "manual");
-      listElement.showPopover = jest.fn();
-      listElement.hidePopover = jest.fn();
+      const listElement = createPopoverElement();
       document.body.appendChild(listElement);
       autofillInlineMenuContentService["listElement"] = listElement;
 
@@ -1198,6 +1200,78 @@ describe("AutofillInlineMenuContentService", () => {
 
       expect(listElement.hidePopover).toHaveBeenCalled();
       expect(listElement.showPopover).toHaveBeenCalled();
+    });
+
+    it("refreshes the stored elements instead of the first elements with a matching tag name", () => {
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([document.createElement("dialog")] as any);
+
+      // Firefox renders the inline menu as plain `div` elements. A page `div` that
+      // precedes the menu must not be picked up in place of the menu element.
+      const pageElement = createPopoverElement();
+      document.body.appendChild(pageElement);
+      const buttonElement = createPopoverElement();
+      document.body.appendChild(buttonElement);
+      const listElement = createPopoverElement();
+      document.body.appendChild(listElement);
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      autofillInlineMenuContentService["listElement"] = listElement;
+      const getElementsByTagNameSpy = jest.spyOn(globalThis.document, "getElementsByTagName");
+
+      autofillInlineMenuContentService.refreshTopLayerPosition();
+
+      expect(getElementsByTagNameSpy).not.toHaveBeenCalled();
+      expect(pageElement.hidePopover).not.toHaveBeenCalled();
+      expect(pageElement.showPopover).not.toHaveBeenCalled();
+      expect(buttonElement.hidePopover).toHaveBeenCalled();
+      expect(listElement.hidePopover).toHaveBeenCalled();
+    });
+
+    it("does not refresh an element that is no longer connected to the document", () => {
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([document.createElement("dialog")] as any);
+
+      const buttonElement = createPopoverElement();
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+      autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer = 0;
+
+      expect(() => autofillInlineMenuContentService.refreshTopLayerPosition()).not.toThrow();
+      expect(buttonElement.hidePopover).not.toHaveBeenCalled();
+      expect(buttonElement.showPopover).not.toHaveBeenCalled();
+      expect(autofillInlineMenuContentService["refreshCountWithinTimeThreshold"].topLayer).toBe(0);
+    });
+
+    it("does not refresh a connected element without a popover attribute", () => {
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([document.createElement("dialog")] as any);
+
+      const buttonElement = document.createElement("div");
+      buttonElement.showPopover = jest.fn();
+      buttonElement.hidePopover = jest.fn();
+      document.body.appendChild(buttonElement);
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      expect(() => autofillInlineMenuContentService.refreshTopLayerPosition()).not.toThrow();
+      expect(buttonElement.hidePopover).not.toHaveBeenCalled();
+      expect(buttonElement.showPopover).not.toHaveBeenCalled();
+    });
+
+    it("does not throw when the page contains a plain div before the inline menu elements", () => {
+      jest
+        .spyOn(autofillInlineMenuContentService, "getUnownedTopLayerItems")
+        .mockReturnValue([document.createElement("dialog")] as any);
+
+      document.body.innerHTML = "<div></div><dialog open></dialog>";
+      const buttonElement = createPopoverElement();
+      document.body.appendChild(buttonElement);
+      autofillInlineMenuContentService["buttonElement"] = buttonElement;
+
+      expect(() => autofillInlineMenuContentService.refreshTopLayerPosition()).not.toThrow();
+      expect(buttonElement.hidePopover).toHaveBeenCalled();
+      expect(buttonElement.showPopover).toHaveBeenCalled();
     });
   });
 

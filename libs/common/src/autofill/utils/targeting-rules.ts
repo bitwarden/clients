@@ -1,11 +1,11 @@
-import { FormContent, Pathname, TargetingRulesByDomain } from "../types";
+import { FormContent, Fragment, Pathname, TargetingRulesByDomain } from "../types";
 
 import { punycodeToUnicode } from "./punycode";
 
 /**
  * Pure matcher that determines which targeting rules apply to a URL, given an already-resolved
- * {@link TargetingRulesByDomain} set. Checks pathname-specific rules first, then falls back to
- * hostname-level forms.
+ * {@link TargetingRulesByDomain} set. A URL resolves to its most specific matching entry, in order:
+ * page fragment, page forms, site-wide fragment, then hostname-level forms.
  *
  * @returns `FormContent[]` with entries for targeted fill,
  *          `[]` (empty) if the URL is blocklisted (suppress autofill),
@@ -52,8 +52,18 @@ export function matchTargetingRulesForUrl(
   }
 
   // Hostname blocklisted (null or empty): suppress autofill on all paths
-  if (hostRules === null || (!hostRules.forms?.length && !hostRules.pathnames)) {
+  if (
+    hostRules === null ||
+    (!hostRules.forms?.length && !hostRules.pathnames && !hostRules.fragments)
+  ) {
     return [];
+  }
+
+  const fragment = parsed.hash as Fragment | "";
+  let siteWideFragmentForms: FormContent[] | undefined;
+  if (fragment && hostRules.fragments != null && fragment in hostRules.fragments) {
+    const forms = hostRules.fragments[fragment]?.forms;
+    siteWideFragmentForms = forms?.length ? forms : [];
   }
 
   // Check for pathname-specific rules
@@ -64,11 +74,27 @@ export function matchTargetingRulesForUrl(
     const pathnameEntry = hostRules.pathnames[pathname];
 
     // Pathname blocklisted (null/undefined/empty): suppress autofill on this path
-    if (!pathnameEntry?.forms?.length) {
+    if (
+      pathnameEntry == null ||
+      (pathnameEntry.forms == null && !Object.keys(pathnameEntry.fragments ?? {}).length)
+    ) {
       return [];
     }
 
-    return pathnameEntry.forms;
+    if (fragment && pathnameEntry.fragments != null && fragment in pathnameEntry.fragments) {
+      const forms = pathnameEntry.fragments[fragment]?.forms;
+      return forms?.length ? forms : [];
+    }
+
+    if (pathnameEntry.forms != null) {
+      return pathnameEntry.forms.length ? pathnameEntry.forms : [];
+    }
+
+    return siteWideFragmentForms ?? null;
+  }
+
+  if (siteWideFragmentForms !== undefined) {
+    return siteWideFragmentForms;
   }
 
   // No pathname-specific rule; fall back to hostname-level forms

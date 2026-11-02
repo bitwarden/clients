@@ -8,6 +8,7 @@ import { OrganizationData } from "@bitwarden/common/admin-console/models/data/or
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
@@ -72,6 +73,10 @@ async function createComponent(): Promise<Harness> {
       { provide: OrganizationService, useValue: organizationService },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: MemberActionsService, useValue: memberActionsService },
+      {
+        provide: ConfigService,
+        useValue: { getFeatureFlag$: () => of(false) },
+      },
     ],
   }).compileComponents();
 

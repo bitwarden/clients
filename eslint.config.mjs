@@ -715,6 +715,7 @@ export default tseslint.config(
       "apps/web/src/app/admin-console/**/*.ts",
       "bitwarden_license/bit-cli/src/admin-console/**/*.ts",
       "bitwarden_license/bit-web/src/app/admin-console/**/*.ts",
+      "bitwarden_license/bit-web/src/app/providers/**/*.ts",
       "libs/admin-console/src/**/*.ts",
     ],
     rules: {
@@ -762,6 +763,16 @@ export default tseslint.config(
     },
     rules: {
       "jest/no-alias-methods": "error",
+    },
+  },
+
+  // Playwright fixtures
+  {
+    files: ["e2e/**/*.ts"],
+    rules: {
+      // Playwright requires a destructuring pattern as the first fixture argument, so a
+      // fixture that depends on nothing has to be declared as `async ({}, use)`.
+      "no-empty-pattern": "off",
     },
   },
 

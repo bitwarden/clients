@@ -14,6 +14,8 @@ export class PermissionsApi extends BaseResponse {
   manageUsers?: boolean;
   manageResetPassword?: boolean;
   manageScim?: boolean;
+  manageAccessRules?: boolean;
+  manageRotation?: boolean;
 
   constructor(data: any = null) {
     super(data);
@@ -28,12 +30,13 @@ export class PermissionsApi extends BaseResponse {
     this.editAnyCollection = this.getResponseProperty("EditAnyCollection");
     this.deleteAnyCollection = this.getResponseProperty("DeleteAnyCollection");
 
-    this.manageCiphers = this.getResponseProperty("ManageCiphers");
     this.manageGroups = this.getResponseProperty("ManageGroups");
     this.manageSso = this.getResponseProperty("ManageSso");
     this.managePolicies = this.getResponseProperty("ManagePolicies");
     this.manageUsers = this.getResponseProperty("ManageUsers");
     this.manageResetPassword = this.getResponseProperty("ManageResetPassword");
     this.manageScim = this.getResponseProperty("ManageScim");
+    this.manageAccessRules = this.getResponseProperty("ManageAccessRules");
+    this.manageRotation = this.getResponseProperty("ManageRotation");
   }
 }

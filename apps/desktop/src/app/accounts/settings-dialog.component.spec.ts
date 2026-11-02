@@ -25,7 +25,6 @@ class MockTabComponent {
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -49,7 +48,7 @@ import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { PolicyId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { TabsModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
@@ -80,6 +79,16 @@ import { SettingsDialogComponent } from "./settings-dialog.component";
 class MockSessionTimeoutSettingsComponent {
   readonly refreshTimeoutActionSettings = input<any>();
 }
+
+const makePolicy = (enabled: boolean) =>
+  new Policy({
+    id: "policy-id" as PolicyId,
+    organizationId: "org-id",
+    type: PolicyType.RemoveUnlockWithPin,
+    data: null,
+    enabled,
+    revisionDate: new Date().toISOString(),
+  });
 
 describe("SettingsDialogComponent", () => {
   let component: SettingsDialogComponent;
@@ -249,10 +258,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy({
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: false,
-    } as unknown as PolicyData);
+    const policy = makePolicy(false);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
@@ -261,10 +267,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy({
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: true,
-    } as unknown as PolicyData);
+    const policy = makePolicy(true);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     const account = await firstValueFrom(accountService.activeAccount$);
@@ -291,10 +294,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
-    const policy = new Policy({
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: false,
-    } as unknown as PolicyData);
+    const policy = makePolicy(false);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
@@ -309,10 +309,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
-    const policy = new Policy({
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: true,
-    } as unknown as PolicyData);
+    const policy = makePolicy(true);
     policyService.policiesByType$.mockReturnValue(of([policy]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
@@ -328,10 +325,7 @@ describe("SettingsDialogComponent", () => {
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
-    const policy = new Policy({
-      type: PolicyType.RemoveUnlockWithPin,
-      enabled: true,
-    } as unknown as PolicyData);
+    const policy = makePolicy(true);
     policyService.policiesByType$.mockReturnValue(of([policy]));
 
     // Re-trigger pinEnabled by re-emitting the active account so toSignal()
@@ -365,10 +359,7 @@ describe("SettingsDialogComponent", () => {
       test.each([true, false])(
         `correct message display for require MP/PIN on app restart when pin is set, windows desktop, and policy is %s`,
         async (policyEnabled) => {
-          const policy = new Policy({
-            type: PolicyType.RemoveUnlockWithPin,
-            enabled: policyEnabled,
-          } as unknown as PolicyData);
+          const policy = makePolicy(policyEnabled);
           policyService.policiesByType$.mockReturnValue(of([policy]));
           platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
           pinServiceAbstraction.isPinSet.mockResolvedValue(true);
@@ -892,6 +883,47 @@ describe("SettingsDialogComponent", () => {
             expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
           });
 
+          // A failed persistent enrollment (e.g. a cancelled Windows Hello prompt) must not skip
+          // storing the session biometric key, nor the validation that reverts the enabled flag.
+          it("still stores the biometric unlock key when persistent enrollment fails", async () => {
+            const enrollmentError = new Error("Windows Hello cancelled");
+            (component as any).userHasMasterPassword.set(false);
+            (component as any).userHasPinSet.set(false);
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+            desktopBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+
+            await (component as any).updateBiometricHandler(true);
+
+            expect(validationService.showError).toHaveBeenCalledWith(enrollmentError);
+            expect(
+              desktopBiometricsService.setBiometricProtectedUnlockKeyForUser,
+            ).toHaveBeenCalledWith(mockUserId, mockUserKey);
+            expect((component as any).form.controls.requireMasterPasswordOnAppRestart.value).toBe(
+              true,
+            );
+            expect((component as any).form.controls.biometric.value).toBe(true);
+          });
+
+          it("disables biometric unlock when persistent enrollment fails", async () => {
+            (component as any).userHasMasterPassword.set(false);
+            (component as any).userHasPinSet.set(false);
+            desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
+            desktopBiometricsService.enrollPersistent.mockRejectedValue(
+              new Error("Windows Hello cancelled"),
+            );
+            desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+              BiometricsStatus.UnlockNeeded,
+            );
+
+            await (component as any).updateBiometricHandler(true);
+
+            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+              false,
+              mockUserId,
+            );
+            expect((component as any).form.controls.biometric.value).toBe(false);
+          });
+
           test.each([
             [true, true],
             [true, false],
@@ -930,6 +962,65 @@ describe("SettingsDialogComponent", () => {
             },
           );
         });
+      });
+
+      it("disables biometric unlock when storing the key fails", async () => {
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.setBiometricProtectedUnlockKeyForUser.mockRejectedValue(
+          new Error("Keychain unavailable"),
+        );
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+          false,
+          mockUserId,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(false);
+      });
+
+      // Touch ID always persists the key, so the enrolled key id must be recorded.
+      it("enrolls the persistent biometric key on mac", async () => {
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+          BiometricsStatus.Available,
+        );
+        component["isWindows"] = false;
+        component["isLinux"] = false;
+        component["isMac"] = true;
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(desktopBiometricsService.enrollPersistent).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(true);
+      });
+
+      // The key stored before enrollment still unlocks, so a failed enrollment is not fatal.
+      it("keeps biometric unlock enabled when enrollment fails on mac", async () => {
+        const enrollmentError = new Error("Touch ID unavailable");
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+        desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+        desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+          BiometricsStatus.Available,
+        );
+        desktopBiometricsService.enrollPersistent.mockRejectedValue(enrollmentError);
+        component["isWindows"] = false;
+        component["isLinux"] = false;
+        component["isMac"] = true;
+
+        await (component as any).updateBiometricHandler(true);
+
+        expect(validationService.showError).toHaveBeenCalledWith(enrollmentError);
+        expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
+        expect((component as any).form.controls.biometric.value).toBe(true);
       });
 
       it("handles linux case", async () => {
@@ -998,6 +1089,49 @@ describe("SettingsDialogComponent", () => {
           );
         });
       });
+
+      // The status check fails while the key is deleted, which unchecks the box (PM-45438).
+      it.each([
+        { platform: "windows", isWindows: true, isLinux: false },
+        { platform: "linux", isWindows: false, isLinux: true },
+      ])(
+        "checks the biometrics status only after the key is deleted and stored again on $platform",
+        async ({ isWindows, isLinux }) => {
+          (component as any).isWindows = isWindows;
+          (component as any).isLinux = isLinux;
+          (component as any).userHasMasterPassword.set(true);
+          desktopBiometricsService.getBiometricsStatus.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          desktopBiometricsService.getBiometricsStatusForUser.mockResolvedValue(
+            BiometricsStatus.Available,
+          );
+          let resolveDelete!: () => void;
+          desktopBiometricsService.deleteBiometricUnlockKeyForUser.mockReturnValue(
+            new Promise((resolve) => (resolveDelete = resolve)),
+          );
+
+          const update = (component as any).updateBiometricHandler(true);
+          await new Promise((resolve) => setTimeout(resolve));
+
+          expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+            mockUserId,
+          );
+          expect(desktopBiometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+
+          resolveDelete();
+          await update;
+
+          const [lastStoreOrder] =
+            desktopBiometricsService.setBiometricProtectedUnlockKeyForUser.mock.invocationCallOrder.slice(
+              -1,
+            );
+          const [statusCheckOrder] =
+            desktopBiometricsService.getBiometricsStatusForUser.mock.invocationCallOrder;
+          expect(statusCheckOrder).toBeGreaterThan(lastStoreOrder);
+          expect((component as any).form.controls.biometric.value).toBe(true);
+        },
+      );
 
       it.each([
         BiometricsStatus.UnlockNeeded,

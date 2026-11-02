@@ -2,8 +2,9 @@ import { Jsonify } from "type-fest";
 
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
+import { ProviderType } from "../../../provider/enums";
 import { OrganizationId } from "../../../types/guid";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
@@ -36,22 +37,27 @@ export class Organization {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  /**
+   * This member's own PAM seat, drawn against the organization's {@link usePam} subscription.
+   * Acting on a governed item needs both; see {@link canAccessPrivilegedAccess}.
+   */
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
-  seats: number;
-  maxCollections: number;
+  seats: number | null;
+  maxCollections: number | null;
   maxStorageGb?: number;
   ssoBound: boolean;
-  identifier: string;
+  identifier: string | null;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
-  organizationUserId: string;
+  organizationUserId: string | null;
   hasPublicAndPrivateKeys: boolean;
-  providerId: string;
-  providerName: string;
+  providerId: string | null;
+  providerName: string | null;
   providerType?: ProviderType;
   /**
    * Indicates that a user is a ProviderUser for the organization
@@ -61,11 +67,11 @@ export class Organization {
    * Indicates that a user is a member for the organization (may be `false` if they have access via a Provider only)
    */
   isMember: boolean;
-  familySponsorshipFriendlyName: string;
+  familySponsorshipFriendlyName: string | null;
   familySponsorshipAvailable: boolean;
   productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
-  keyConnectorUrl: string;
+  keyConnectorUrl: string | null;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
@@ -124,6 +130,7 @@ export class Organization {
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
     this.usePam = obj.usePam;
+    this.accessPam = obj.accessPam;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
@@ -327,8 +334,30 @@ export class Organization {
     return (this.isAdmin || (this.permissions.managePolicies ?? false)) && this.usePolicies;
   }
 
+  /**
+   * Whether the member may author access rules. Mirrors the server's
+   * `ManageAccessRulesRequirement`, which admits no provider, though {@link isAdmin} counts one as
+   * an Owner.
+   */
   get canManageAccessRules() {
-    return this.isAdmin && this.usePam;
+    return (
+      (this.isAdmin || (this.permissions.manageAccessRules ?? false)) &&
+      this.usePam &&
+      !this.isProviderUser
+    );
+  }
+
+  /**
+   * Whether the member may administer access connectors, their target systems and rotation
+   * configs. Mirrors the server's `ManageAccessConnectorRequirement`, which also admits no
+   * provider.
+   */
+  get canManageRotation() {
+    return (
+      (this.isAdmin || (this.permissions.manageRotation ?? false)) &&
+      this.usePam &&
+      !this.isProviderUser
+    );
   }
 
   get canManageUsers() {
@@ -393,6 +422,13 @@ export class Organization {
 
   get hasReseller() {
     return this.hasProvider && this.providerType === ProviderType.Reseller;
+  }
+  /**
+   * Whether this member may use PAM. Mirrors the server's `CurrentContextOrganization.AccessPam`.
+   * An admin without a seat can manage PAM but not use it.
+   */
+  get canAccessPrivilegedAccess() {
+    return this.usePam && this.accessPam;
   }
 
   get canAccessSecretsManager() {

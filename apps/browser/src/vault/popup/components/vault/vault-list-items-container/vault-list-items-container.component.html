@@ -111,11 +111,11 @@
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
             <div slot="default-trailing" class="tw-flex tw-gap-1.5">
-              @if (cipher.organizationId) {
+              @if (cipher.organization; as organization) {
                 <i
                   slot="default-trailing"
                   appOrgIcon
-                  [tierType]="cipher.organization!.productTierType"
+                  [tierType]="organization.productTierType"
                   [size]="'small'"
                   [appA11yTitle]="orgIconTooltip(cipher)"
                 ></i>

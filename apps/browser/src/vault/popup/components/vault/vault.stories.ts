@@ -18,7 +18,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -69,6 +68,7 @@ import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
 import { featureFlagModes } from "@bitwarden/storybook";
 import {
+  CoachmarkService,
   PasswordRepromptService,
   VaultCopyButtonsService,
   VaultNavItemType,
@@ -88,6 +88,7 @@ import { VaultPopupListTableFiltersService } from "../../services/vault-popup-li
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../services/vault-popup-section.service";
+import { VaultPopupTourService } from "../../services/vault-popup-tour.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 import { VaultComponent } from "./vault.component";
@@ -327,6 +328,23 @@ type StoryArgs = {
   showAtRiskSecuredBanner?: boolean;
 };
 
+/** Avoids constructing the real service, which needs OrganizationService/CollectionService/etc. */
+const mockCoachmarkService: Partial<CoachmarkService> = {
+  activeStepId: signal(null),
+  currentStepNumber: signal(0),
+  totalSteps: signal(0),
+  isRunning: signal(false),
+  isStepActive: () => false,
+  getStepPosition: () => undefined,
+  getStepTitle: () => "",
+  getStepDescription: () => "",
+  getStepLearnMoreUrl: () => undefined,
+  previousStep: () => Promise.resolve(),
+  nextStep: () => Promise.resolve(),
+  completeTour: () => Promise.resolve(),
+  startTour: () => Promise.resolve(),
+};
+
 /**
  * The org-user-notification policy backing `vault-organization-user-notifications`.
  *
@@ -340,21 +358,22 @@ const buildNotificationPolicies = (args: StoryArgs) => {
     return [];
   }
 
-  const policy = new Policy({
-    id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
-    organizationId: STORY_ORG_ID,
-    type: PolicyType.OrganizationUserNotification,
-    enabled: true,
-    revisionDate: FIXED_REVISION_DATE.toISOString(),
-    data: {
-      header: "Scheduled maintenance",
-      description:
-        "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
-      buttonText: "Learn more",
-      showAfterEveryLogin: false,
-    },
-  } as unknown as PolicyData);
-  return [policy];
+  return [
+    new Policy({
+      id: "00000000-0000-4000-8000-0000000000fd" as PolicyId,
+      organizationId: STORY_ORG_ID,
+      type: PolicyType.OrganizationUserNotification,
+      enabled: true,
+      revisionDate: FIXED_REVISION_DATE.toISOString(),
+      data: {
+        header: "Scheduled maintenance",
+        description:
+          "Your organization will be unavailable Saturday from 02:00-04:00 UTC while we upgrade.",
+        buttonText: "Learn more",
+        showAfterEveryLogin: false,
+      },
+    }),
+  ];
 };
 
 /**
@@ -515,7 +534,7 @@ const buildProviders = (args: StoryArgs) => {
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
     {
       provide: VaultPopupScrollPositionService,
-      useValue: { start: () => {}, stop: () => {} },
+      useValue: { start: () => {}, stop: () => {}, restoresCollapse: () => false },
     },
     {
       provide: NudgesService,
@@ -684,6 +703,11 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { debug: () => {}, info: () => {}, warning: () => {}, error: () => {} },
     },
     { provide: TotpService, useValue: {} },
+    { provide: CoachmarkService, useValue: mockCoachmarkService },
+    {
+      provide: VaultPopupTourService,
+      useValue: { sharedFoldersRow: signal(null), filterDialogOpen: signal(false) },
+    },
     { provide: PasswordRepromptService, useValue: {} },
     { provide: ToastService, useValue: { showToast: () => {} } },
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
@@ -844,6 +868,10 @@ const buildProviders = (args: StoryArgs) => {
           popOutNewWindow: "Pop out to a new window",
           account: "Account",
           back: "Back",
+          // The tour's coachmarks render their popover templates even when no step is active.
+          learnMore: "Learn more",
+          coachmarkStepsIndicator: "__$1__ of __$2__",
+          next: "Next",
           bitwardenAccount: "Bitwarden account",
           switchAccounts: "Switch accounts",
           // Banners whose host is always present even when their service reports nothing to show.
@@ -864,9 +892,12 @@ const buildProviders = (args: StoryArgs) => {
           noItemsInVaults: "Your vaults are empty",
           noItemsInOrganizationVault: (name) => `No items in ${name}`,
           noItemsInSharedFolder: (name) => `No items in ${name}`,
+          noItemsInFolder: (name) => `No items in ${name}`,
           emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
           emptySharedFolderDescription: (name) =>
             `Add items to this shared folder, then give access to other ${name} members.`,
+          emptyFolderDescription:
+            "Add items to this folder. You’ll be able to quickly access them using vault filters.",
           noItemsInTrash: "No items in trash",
           noItemsInTrashDescription:
             "Items you delete will appear here and be permanently deleted after 30 days.",

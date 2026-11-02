@@ -11,6 +11,7 @@ import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-manage
 import { assertNonNullish } from "../../auth/utils";
 import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../platform/state";
@@ -47,6 +48,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     cipherService: CipherService,
     sdkService: SdkService,
     stateProvider: StateProvider,
+    i18nService: I18nService,
   ) {
     // Register migrations here
 
@@ -75,6 +77,8 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
           biometricsService,
           biometricStateService,
           logService,
+          platformUtilsService,
+          i18nService,
         ),
       });
     }

@@ -255,6 +255,8 @@ export class IndividualVaultExportService
       this.cipherService.getAll(activeUserId).then((c) => {
         ciphers = c.filter(
           (f) =>
+            // Gated ("partial") rows have no sensitive fields; they would export as blanks.
+            !f.isPartial &&
             f.deletedDate == null &&
             !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
         );

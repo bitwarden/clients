@@ -225,8 +225,8 @@ describe("accessRuleToFormValue", () => {
       rule({ defaultLeaseDurationSeconds: 3500, maxExtensionDurationSeconds: 1700 }),
     );
 
-    expect(value.defaultLeaseDurationSeconds).toBe(3600); // nearest lease preset (1h)
-    expect(value.maxExtensionDurationSeconds).toBe(1800); // nearest extension option (30m)
+    expect(value.defaultLeaseDurationSeconds).toBe(3600);
+    expect(value.maxExtensionDurationSeconds).toBe(1800);
   });
 
   it("encodes an absent max lease as NO_DURATION_CAP (no cap)", () => {
