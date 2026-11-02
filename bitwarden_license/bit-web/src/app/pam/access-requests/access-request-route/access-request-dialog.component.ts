@@ -94,11 +94,14 @@ export type AccessRequestDialogParams = {
    */
   detail: AccessRequestDetailService;
   /**
-   * Opened from the History tab: a record to read, so the footer offers Close alone. Withdrawing
-   * from there arrives through {@link intent} instead.
+   * Opened from the History tab: a record to read, so the footer offers Close alone. History lists
+   * no approval that can still be withdrawn.
    */
   readOnly?: boolean;
-  /** Opens straight on the withdraw confirmation, as History's "Withdraw approval" asks. */
+  /**
+   * Opens straight on the withdraw confirmation, as `?action=withdraw` asks. Reserved for a
+   * "Withdraw approval" entry point on the Approvals tab.
+   */
   intent?: "withdraw";
 };
 
@@ -265,7 +268,12 @@ export class AccessRequestDialogComponent implements OnInit {
       return null;
     }
     const approver = humanApprover(decision);
-    const named = approver?.name || approver?.email || null;
+    // A holder ending their own lease is the requester, whose name the request already carries
+    // when their decision doesn't.
+    const named =
+      approver?.name ||
+      approver?.email ||
+      (approver != null && approver.id === request.requesterId ? this.requesterDisplay() : null);
     return {
       byLabelKey: decisionLabelKey(decision.verdict, request.status, approver, request.requesterId),
       who:
