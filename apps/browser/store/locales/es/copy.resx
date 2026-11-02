@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - Administrador de contraseñas</value>
+    <value>Administrador de contraseñas Bitwarden Beta</value>
   </data>
   <data name="Summary" xml:space="preserve">
     <value>En casa, en el trabajo o en el viaje, Bitwarden asegura fácilmente todas sus contraseñas, claves de acceso e información confidencial.</value>
