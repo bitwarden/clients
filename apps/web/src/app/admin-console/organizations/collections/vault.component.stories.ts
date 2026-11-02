@@ -53,6 +53,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { MessageListener, MessageSender } from "@bitwarden/messaging";
+import { ConsoleLogService } from "@bitwarden/logging";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { ShareLinkService } from "@bitwarden/tools-share";
 import { LockService } from "@bitwarden/unlock";
@@ -367,7 +368,7 @@ const rootProviders = [
     provide: PlatformUtilsService,
     useValue: { isSelfHost: () => false, copyToClipboard: () => {} },
   },
-  { provide: LogService, useValue: { error: () => {}, info: () => {} } },
+  { provide: LogService, useFactory: () => new ConsoleLogService(true) },
   { provide: DialogService, useValue: {} },
   { provide: ToastService, useValue: { showToast: () => {} } },
   { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
