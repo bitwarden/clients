@@ -43,7 +43,7 @@ export class RequestSummaryComponent {
   readonly organizationName = input<string | null>(null);
   readonly collectionName = input<string | null>(null);
   readonly requesterName = input.required<string>();
-  readonly duration = input<string | null>(null);
+  readonly duration = input<LabelValue | null>(null);
   readonly relativeStart = input<LabelValue | null>(null);
   /** The fully-formatted "from – to" window, shown as a second line under the coarse "4 hours, tomorrow" label. */
   readonly exactWindow = input<string>("");

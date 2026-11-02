@@ -18,7 +18,7 @@ import { MyRequestsTabComponent } from "../my-requests-tab.component";
 import { AccessRequestDetailService } from "./access-request-detail.service";
 import { AccessRequestDialogComponent } from "./access-request-dialog.component";
 
-/** Opens the dialog on the withdraw confirmation. */
+/** The query parameter History's "Withdraw approval" link sets to open on the confirmation. */
 const WITHDRAW_QUERY_PARAM = "action";
 
 /** The tabs that link to a request row, and so the surfaces the dialog can be opened over. */
@@ -71,6 +71,8 @@ export class AccessRequestRouteComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // History is a record, so a row opened from it reads without actions; its "Withdraw approval"
+    // button asks for that one action explicitly.
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
       detail: this.detail,
       readOnly: this.navigatedFrom === "history",
