@@ -2,7 +2,7 @@ import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrollin
 import { Component, ChangeDetectionStrategy, inject, computed, effect } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { of } from "rxjs";
+import { combineLatest, of } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -188,11 +188,27 @@ export class HealthRiskCategoryDetailComponent {
     return report.categoryItems[category] ?? [];
   });
   readonly cipherMap = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherService.cipherViews$(userId)),
-      filterOutNullish(),
-      map((ciphers) => new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]))),
+    // Decrypts only the ciphers the report lists, not the whole vault. The list views are a
+    // change trigger: a row re-renders when its cipher changes.
+    combineLatest([
+      toObservable(this.items),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.cipherService.cipherListViews$(userId).pipe(
+            filterOutNullish(),
+            map(() => userId),
+          ),
+        ),
+      ),
+    ]).pipe(
+      switchMap(async ([items, userId]) => {
+        const ciphers = await this.cipherService.getAllDecryptedForIds(
+          userId,
+          items.map((item) => item.cipherId),
+        );
+        return new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]));
+      }),
     ),
     { initialValue: new Map<string, CipherView>() },
   );

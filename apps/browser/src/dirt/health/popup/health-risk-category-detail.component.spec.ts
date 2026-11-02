@@ -359,7 +359,12 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
     cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     cipherService = mock<CipherService>();
+    // The scan service still decrypts the whole vault: it reads every password.
     cipherService.cipherViews$.mockReturnValue(cipherViews$);
+    cipherService.cipherListViews$.mockReturnValue(cipherViews$);
+    cipherService.getAllDecryptedForIds.mockImplementation(async (_userId, ids) =>
+      cipherViews$.value.filter((cipher) => ids.includes(cipher.id)),
+    );
 
     setReport(RiskCategory.Exposed, [
       buildLogin({ id: "cipher-1", name: "Item 1", uris: ["https://example.com"] }),
@@ -532,10 +537,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
     expect(reportService.getVaultHealthReport$).toHaveBeenCalledWith(userId);
   });
 
-  it("reads the ciphers it joins the report against for the active account", async () => {
+  it("decrypts only the ciphers the report lists, for the active account", async () => {
+    setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1", name: "One" })]);
     await initComponent();
 
-    expect(cipherService.cipherViews$).toHaveBeenCalledWith(userId);
+    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith(userId, ["cipher-1"]);
   });
 
   it("re-renders a row when its cipher changes in the vault", async () => {
@@ -546,6 +552,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
     // The report holds ids only, so a rename has to reach the row through the
     // cipher stream rather than a rebuilt report.
     cipherViews$.next([buildLogin({ id: "cipher-1", name: "After" })]);
+    await settle();
     fixture.detectChanges();
 
     expect(text()).toContain("After");

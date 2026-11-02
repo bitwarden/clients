@@ -148,7 +148,9 @@ describe("AtRiskPasswordsComponent", () => {
         {
           provide: CipherService,
           useValue: {
-            cipherViews$: () => mockCiphers$,
+            cipherListViews$: () => mockCiphers$,
+            getAllDecryptedForIds: async (_userId: string, ids: string[]) =>
+              mockCiphers$.value.filter((c) => ids.includes(c.id)),
           },
         },
         {
@@ -199,6 +201,7 @@ describe("AtRiskPasswordsComponent", () => {
       })
       .compileComponents();
 
+    mockAtRiskPasswordPageService.isGettingStartedDismissed.mockReturnValue(of(true));
     fixture = TestBed.createComponent(AtRiskPasswordsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -226,6 +229,7 @@ describe("AtRiskPasswordsComponent", () => {
           viewPassword: true,
         } as CipherView,
       ]);
+      await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
 
       const items = await firstValueFrom(component["atRiskItems$"]);
       expect(items).toHaveLength(0);
@@ -241,6 +245,7 @@ describe("AtRiskPasswordsComponent", () => {
           viewPassword: true,
         } as CipherView,
       ]);
+      await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
 
       const items = await firstValueFrom(component["atRiskItems$"]);
       expect(items).toHaveLength(0);
@@ -256,6 +261,7 @@ describe("AtRiskPasswordsComponent", () => {
           viewPassword: false,
         } as CipherView,
       ]);
+      await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
 
       const items = await firstValueFrom(component["atRiskItems$"]);
       expect(items).toHaveLength(0);
@@ -283,6 +289,7 @@ describe("AtRiskPasswordsComponent", () => {
           type: SecurityTaskType.UpdateAtRiskCredential,
         } as SecurityTask,
       ]);
+      await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
       description = await firstValueFrom(component["pageDescription$"]);
       expect(description).toBe("atRiskPasswordsDescSingleOrgPlural");
     });
@@ -302,6 +309,7 @@ describe("AtRiskPasswordsComponent", () => {
           type: SecurityTaskType.UpdateAtRiskCredential,
         } as SecurityTask,
       ]);
+      await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
       mockCiphers$.next([
         {
           id: "cipher",
@@ -318,6 +326,7 @@ describe("AtRiskPasswordsComponent", () => {
           viewPassword: true,
         } as CipherView,
       ]);
+      await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
 
       const description = await firstValueFrom(component["pageDescription$"]);
       expect(description).toBe("atRiskPasswordsDescMultiOrgPlural");
@@ -363,11 +372,16 @@ describe("AtRiskPasswordsComponent", () => {
     });
 
     describe("turn on autofill button", () => {
-      it("should call the service to turn on inline autofill and show a toast", () => {
+      it("should call the service to turn on inline autofill and show a toast", async () => {
+        mockInlineMenuVisibility$.next(AutofillOverlayVisibility.Off);
+        calloutDismissed$.next(false);
+        await new Promise((resolve) => setTimeout(resolve)); // lets the selective decrypt settle
+        fixture.detectChanges();
         const button = fixture.debugElement.query(
           By.css('[data-testid="turn-on-autofill-button"]'),
         );
         button.nativeElement.click();
+        await fixture.whenStable();
 
         expect(setInlineMenuVisibility).toHaveBeenCalledWith(
           AutofillOverlayVisibility.OnButtonClick,

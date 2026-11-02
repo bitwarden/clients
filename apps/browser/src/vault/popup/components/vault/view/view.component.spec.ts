@@ -113,7 +113,7 @@ describe("ViewComponent", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
   const mockCipherService = {
-    cipherViews$: jest.fn().mockImplementation((userId) => of([mockCipher])),
+    cipherView$: jest.fn().mockImplementation(() => of(mockCipher)),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
@@ -121,7 +121,7 @@ describe("ViewComponent", () => {
   const cipherArchiveService = mock<CipherArchiveService>();
 
   beforeEach(async () => {
-    mockCipherService.cipherViews$.mockClear();
+    mockCipherService.cipherView$.mockClear();
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
     mockNavigate.mockClear();
@@ -282,7 +282,7 @@ describe("ViewComponent", () => {
 
       flush(); // Resolve all promises
 
-      expect(mockCipherService.cipherViews$).toHaveBeenCalledWith(mockUserId);
+      expect(mockCipherService.cipherView$).toHaveBeenCalledWith(mockUserId, "122-333-444");
       expect(component.cipher).toEqual(mockCipher);
     }));
 
@@ -370,13 +370,11 @@ describe("ViewComponent", () => {
 
     it("does not set the cipher until reprompt is complete", fakeAsync(() => {
       let promptPromise: (val?: unknown) => void;
-      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
-        of([
-          {
-            ...mockCipher,
-            reprompt: CipherRepromptType.Password,
-          },
-        ]),
+      mockCipherService.cipherView$.mockImplementationOnce((userId) =>
+        of({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
       );
       doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
@@ -400,13 +398,11 @@ describe("ViewComponent", () => {
 
     it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
       let promptPromise: (val?: unknown) => void;
-      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
-        of([
-          {
-            ...mockCipher,
-            reprompt: CipherRepromptType.Password,
-          },
-        ]),
+      mockCipherService.cipherView$.mockImplementationOnce((userId) =>
+        of({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
       );
       doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
@@ -432,13 +428,11 @@ describe("ViewComponent", () => {
       "does not set cipher when copy fails for %s",
       fakeAsync((action: string) => {
         let promptPromise: (val?: unknown) => void;
-        mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
-          of([
-            {
-              ...mockCipher,
-              reprompt: CipherRepromptType.Password,
-            },
-          ]),
+        mockCipherService.cipherView$.mockImplementationOnce((userId) =>
+          of({
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          }),
         );
         copy.mockImplementationOnce(() => {
           return new Promise((resolve) => {
@@ -699,13 +693,11 @@ describe("ViewComponent", () => {
   describe("archived badge", () => {
     it("shows archived badge if the cipher is archived", fakeAsync(() => {
       component.cipher = { ...mockCipher, isArchived: true } as CipherView;
-      mockCipherService.cipherViews$.mockImplementationOnce(() =>
-        of([
-          {
-            ...mockCipher,
-            isArchived: true,
-          },
-        ]),
+      mockCipherService.cipherView$.mockImplementationOnce(() =>
+        of({
+          ...mockCipher,
+          isArchived: true,
+        }),
       );
 
       params$.next({ action: "view", cipherId: mockCipher.id });
@@ -720,13 +712,11 @@ describe("ViewComponent", () => {
 
     it("does not show archived badge if the cipher is not archived", () => {
       component.cipher = { ...mockCipher, isArchived: false } as CipherView;
-      mockCipherService.cipherViews$.mockImplementationOnce(() =>
-        of([
-          {
-            ...mockCipher,
-            archivedDate: new Date(),
-          },
-        ]),
+      mockCipherService.cipherView$.mockImplementationOnce(() =>
+        of({
+          ...mockCipher,
+          archivedDate: new Date(),
+        }),
       );
 
       fixture.detectChanges();

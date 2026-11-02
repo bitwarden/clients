@@ -777,15 +777,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     let ciphersToAssign: CipherView[];
     if (ciphers.some(CipherViewLikeUtils.isCipherListView)) {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      ciphersToAssign = await firstValueFrom(
-        this.cipherService
-          .cipherViews$(userId)
-          .pipe(
-            map(
-              (cipherViews) =>
-                cipherViews.filter((cv) => ciphers.some((c) => c.id === cv.id)) as CipherView[],
-            ),
-          ),
+      ciphersToAssign = await this.cipherService.getAllDecryptedForIds(
+        userId,
+        ciphers.map((c) => CipherViewLikeUtils.getId(c)).filter((id) => id != null),
       );
     } else {
       ciphersToAssign = ciphers as unknown as CipherView[];

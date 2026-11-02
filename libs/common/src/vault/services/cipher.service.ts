@@ -214,9 +214,17 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
-    return this.cipherViews$(userId).pipe(
+    // Matches on list views and decrypts only that cipher, so the vault is not fully decrypted.
+    return this.cipherListViews$(userId).pipe(
       filterOutNullish(),
-      map((ciphers) => ciphers.find((cipher) => cipher.id === cipherId)),
+      switchMap(async (views) => {
+        if (!views.some((view) => CipherViewLikeUtils.getId(view) === cipherId)) {
+          return undefined;
+        }
+
+        const [cipher] = await this.decryptIds(userId, [cipherId]);
+        return cipher;
+      }),
     );
   }
 
