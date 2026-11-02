@@ -14,7 +14,7 @@ import { RequestSummaryComponent } from "./request-summary.component";
       [organizationName]="organizationName()"
       [collectionName]="collectionName()"
       [requesterName]="requesterName()"
-      duration="1 hour"
+      [duration]="{ key: 'pamInboxDuration1Hour', value: null }"
       [relativeStart]="{ key: 'pamInboxStartTomorrow', value: null }"
       [exactWindow]="exactWindow()"
       [reason]="reason()"
@@ -64,15 +64,15 @@ describe("RequestSummaryComponent", () => {
     expect(card("item").textContent).toContain("Meridian Group");
     expect(card("item").textContent).toContain("Production");
     expect(card("item").querySelector(".bwi-business")).not.toBeNull();
-    expect(card("item").querySelector(".bwi-shared-folder")).not.toBeNull();
+    expect(card("item").querySelector(".bwi-collection-shared")).not.toBeNull();
   });
 
   it("says which of the two item-card names is the organization and which is the collection", () => {
     expect(card("item").querySelector(".bwi-business")!.getAttribute("aria-label")).toBe(
       "organization",
     );
-    expect(card("item").querySelector(".bwi-shared-folder")!.getAttribute("aria-label")).toBe(
-      "sharedFolder",
+    expect(card("item").querySelector(".bwi-collection-shared")!.getAttribute("aria-label")).toBe(
+      "collection",
     );
   });
 
@@ -86,7 +86,7 @@ describe("RequestSummaryComponent", () => {
     fixture.detectChanges();
 
     expect(card("item").querySelector(".bwi-business")).toBeNull();
-    expect(card("item").querySelector(".bwi-shared-folder")).toBeNull();
+    expect(card("item").querySelector(".bwi-collection-shared")).toBeNull();
   });
 
   it("names the requester without their email beside it", () => {

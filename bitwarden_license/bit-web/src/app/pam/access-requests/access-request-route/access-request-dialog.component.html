@@ -31,7 +31,13 @@
           @if (badge()?.badgeState; as state) {
             <app-pam-access-state-badge [state]="state" />
           } @else if (badge()?.statusBadge; as b) {
-            <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
+            <!-- A closed record badges with a lock, as the access-state pill does. -->
+            <span
+              bitBadge
+              [variant]="b.variant"
+              [startIcon]="b.variant === 'success' ? undefined : 'bwi-lock'"
+              >{{ b.labelKey | i18n }}</span
+            >
           }
           @if (extension(); as ext) {
             <span bitBadge variant="secondary" data-testid="request-detail-lease-extended">
@@ -50,7 +56,10 @@
 
       @if (confirmingWithdraw()) {
         <bit-callout type="warning" data-testid="withdraw-confirm-warning">
-          {{ "pamInboxWithdrawApprovalConfirm" | i18n: cipherName() ?? "" }}
+          <!-- One element per run, so template whitespace never lands before the punctuation. -->
+          @for (run of withdrawWarning(); track $index) {
+            <span [class.tw-font-semibold]="run.bold">{{ run.text }}</span>
+          }
         </bit-callout>
 
         <bit-form-field>
@@ -70,7 +79,7 @@
           {{ "pamAccessRequestDecisionHeading" | i18n }}
         </h2>
         <bit-card data-testid="request-detail-decision">
-          <div class="tw-flex tw-flex-col tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-gap-6">
             @if (decisionSummary(); as decision) {
               <pam-summary-field [label]="decision.byLabelKey | i18n">
                 {{ decision.who }}

@@ -11,7 +11,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
@@ -94,11 +94,11 @@ export type AccessRequestDialogParams = {
    */
   detail: AccessRequestDetailService;
   /**
-   * Opened from the History tab: a record to read, so the footer offers Close alone. History lists
-   * no approval that can still be withdrawn.
+   * Opened from the History tab: a record to read, so the footer offers Close alone. Withdrawing
+   * from there arrives through {@link intent} instead.
    */
   readOnly?: boolean;
-  /** Opens straight on the withdraw confirmation, as `?action=withdraw` asks. */
+  /** Opens straight on the withdraw confirmation, as History's "Withdraw approval" asks. */
   intent?: "withdraw";
 };
 
@@ -249,8 +249,6 @@ export class AccessRequestDialogComponent implements OnInit {
       : request.requesterName || request.requesterEmail || uuidAsString(request.requesterId);
   });
 
-  protected readonly requesterEmail = computed(() => this.request()?.requesterEmail ?? null);
-
   /**
    * The decision that resolved the request, as the "Decision" card reads it: who decided, how to
    * reach them, and any note they left. The full log stays in the audit trail; this names only the
@@ -286,7 +284,30 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly confirmingWithdraw = signal(false);
 
-  protected readonly withdrawReason = new FormControl("", { nonNullable: true });
+  /** Required, so the field carries the required marker as well as gating the action. */
+  protected readonly withdrawReason = new FormControl("", {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
+
+  /**
+   * The withdraw warning in runs of plain and bold text. Translated as one sentence, so each
+   * locale keeps its own word order, then split at the item and requester names, which read in
+   * bold. Rendered as text, never HTML, since both names are user-supplied.
+   */
+  protected readonly withdrawWarning = computed(() =>
+    boldRuns(
+      this.i18nService.t(
+        "pamWithdrawApprovalConfirmMessage",
+        WITHDRAW_ITEM_MARK,
+        WITHDRAW_REQUESTER_MARK,
+      ),
+      new Map([
+        [WITHDRAW_ITEM_MARK, this.cipherName() ?? ""],
+        [WITHDRAW_REQUESTER_MARK, this.requesterDisplay() ?? ""],
+      ]),
+    ),
+  );
 
   private readonly withdrawReasonText = toSignal(this.withdrawReason.valueChanges, {
     initialValue: "",
@@ -345,7 +366,7 @@ export class AccessRequestDialogComponent implements OnInit {
    * requester withdraws an approval they no longer want from the My requests table.
    */
   protected readonly canCancel = computed(
-    () => this.isRequester() && this.request()?.status === "pending",
+    () => this.offersActions && this.isRequester() && this.request()?.status === "pending",
   );
 
   /**
@@ -354,18 +375,9 @@ export class AccessRequestDialogComponent implements OnInit {
    */
   protected readonly canResubmit = computed(() => {
     const status = this.request()?.status;
-    return this.isRequester() && (status === "denied" || status === "expired");
-  });
-
-  /** The item this request was for, as the vault's own deep link opens it. */
-  protected readonly resubmitLink = computed(() => {
-    const request = this.request();
-    return request == null ? null : ["/vault"];
-  });
-
-  protected readonly resubmitParams = computed(() => {
-    const request = this.request();
-    return request == null ? null : { itemId: cipherId(request), action: "view" };
+    return (
+      this.offersActions && this.isRequester() && (status === "denied" || status === "expired")
+    );
   });
 
   /** The item this request was for, as the vault's own deep link opens it. */
@@ -413,6 +425,7 @@ export class AccessRequestDialogComponent implements OnInit {
     effect(() => {
       if (!intentApplied && this.withdrawable()) {
         intentApplied = true;
+        this.withdrawReason.setValue("");
         this.confirmingWithdraw.set(true);
       }
     });
@@ -601,26 +614,6 @@ function boldRuns(text: string, values: ReadonlyMap<string, string>): TextRun[] 
     .map((part) =>
       values.has(part) ? { text: values.get(part) ?? "", bold: true } : { text: part, bold: false },
     );
-}
-
-/**
- * The Decision card's label for the request's last decision. Revoking a lease, ending your own,
- * and withdrawing an approval all record a deny without the request ending denied, so the label
- * follows the verdict and, for those lease ends, who recorded it, never the status alone.
- */
-function decisionLabelKey(
-  verdict: AccessDecisionVerdict,
-  status: AccessRequestView["status"],
-  approver: AccessApprover | undefined,
-  requesterId: AccessRequestView["requesterId"],
-): string {
-  if (verdict !== "deny") {
-    return "pamDecisionApprovedBy";
-  }
-  if (status === "denied") {
-    return "pamDecisionDeniedBy";
-  }
-  return approver?.id === requesterId ? "pamDecisionEndedBy" : "pamDecisionRevokedBy";
 }
 
 function cipherId(request: AccessRequestView): string {
