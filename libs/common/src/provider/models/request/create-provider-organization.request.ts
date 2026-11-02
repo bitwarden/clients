@@ -1,6 +1,5 @@
+import { OrganizationKeysRequest } from "../../../admin-console/models/request/organization-keys.request";
 import { PlanType } from "../../../billing/enums";
-
-import { OrganizationKeysRequest } from "./organization-keys.request";
 
 export class CreateProviderOrganizationRequest {
   name: string;

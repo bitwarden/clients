@@ -37,6 +37,21 @@ describe("elapsedLabel", () => {
     });
   });
 
+  it("counts whole weeks from seven days", () => {
+    expect(elapsedLabel(minutesAgo(6 * 24 * 60), NOW)).toEqual({
+      key: "pamInboxElapsedDays",
+      value: 6,
+    });
+    expect(elapsedLabel(minutesAgo(7 * 24 * 60), NOW)).toEqual({
+      key: "pamInboxElapsedWeeks",
+      value: 1,
+    });
+    expect(elapsedLabel(minutesAgo(20 * 24 * 60), NOW)).toEqual({
+      key: "pamInboxElapsedWeeks",
+      value: 2,
+    });
+  });
+
   it("rounds down, so nothing ever reads as older than it is", () => {
     expect(elapsedLabel(minutesAgo(119), NOW)).toEqual({ key: "pamInboxElapsedHours", value: 1 });
   });

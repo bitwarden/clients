@@ -1,5 +1,5 @@
-import { BaseResponse } from "../../../../models/response/base.response";
-import { ProviderType } from "../../../enums";
+import { BaseResponse } from "../../../models/response/base.response";
+import { ProviderType } from "../../enums";
 
 export class ProviderResponse extends BaseResponse {
   id: string;

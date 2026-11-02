@@ -21,5 +21,9 @@ export function elapsedLabel(since: string, now: Date): ElapsedLabel {
   if (hours < 24) {
     return { key: "pamInboxElapsedHours", value: hours };
   }
-  return { key: "pamInboxElapsedDays", value: Math.floor(hours / 24) };
+  const days = Math.floor(hours / 24);
+  if (days < 7) {
+    return { key: "pamInboxElapsedDays", value: days };
+  }
+  return { key: "pamInboxElapsedWeeks", value: Math.floor(days / 7) };
 }
