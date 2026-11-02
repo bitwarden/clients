@@ -26,6 +26,12 @@
   "createAccount": {
     "message": "Create account"
   },
+  "welcomeToBitwarden": {
+    "message": "Welcome to Bitwarden"
+  },
+  "createYourAccountOrLogIn": {
+    "message": "Create your account or log in"
+  },
   "newToBitwarden": {
     "message": "New to Bitwarden?"
   },
