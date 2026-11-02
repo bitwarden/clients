@@ -2,12 +2,14 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
-import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  ProviderApiServiceAbstraction,
+  Provider,
+  AddableOrganizationResponse,
+} from "@bitwarden/common/provider";
 import {
   AsyncActionsModule,
   AvatarModule,
