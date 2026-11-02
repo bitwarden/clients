@@ -12612,10 +12612,6 @@
     "message": "Privileged Controls",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
-  "privilegedControlsForEnterprise": {
-    "message": "Privileged Controls for Enterprise",
-    "description": "'Privileged Controls' is a product name and should not be translated."
-  },
   "privilegedControlsPurchaseDesc": {
     "message": "Quickly and easily protect your privileged and business-critical accounts with this add-on for Bitwarden Password Manager.",
     "description": "'Bitwarden Password Manager' is a product name and should not be translated."
@@ -13447,23 +13443,8 @@
   "inviteUsers": {
     "message": "Invite Users"
   },
-  "secretsManagerForPlan": {
-    "message": "Secrets Manager for $PLAN$",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "secretsManagerPurchaseDesc": {
     "message": "Enable your engineering and DevOps teams to centrally store, manage, and deploy secrets throughout the software development lifecycle."
-  },
-  "free2PersonOrganization": {
-    "message": "Free 2-person Organizations"
-  },
-  "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Unlimited secrets"

@@ -1,13 +1,10 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <div class="tw-rounded-t tw-bg-background-alt3 tw-p-5">
-    <div class="tw-w-72">
-      <bit-svg [content]="logo"></bit-svg>
-    </div>
-  </div>
-  <div
-    class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-border-base tw-p-5"
+  <bit-accordion
+    [title]="'privilegedControls' | i18n"
+    startIcon="bwi-bitwarden-shield"
+    height="auto"
+    [open]="true"
   >
-    <h4 bitTypography="h4">{{ "privilegedControlsForEnterprise" | i18n }}</h4>
     <div class="tw-text-fg-body">
       {{ "privilegedControlsPurchaseDesc" | i18n }}
       <p class="tw-mb-0 tw-mt-3 tw-font-medium tw-text-fg-heading">{{ "whatsIncluded" | i18n }}</p>
@@ -91,5 +88,5 @@
         {{ "save" | i18n }}
       </button>
     }
-  </div>
+  </bit-accordion>
 </form>

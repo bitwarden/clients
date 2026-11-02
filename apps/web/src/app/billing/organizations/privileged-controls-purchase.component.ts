@@ -16,13 +16,12 @@ import {
   Validators,
 } from "@angular/forms";
 
-import { PrivilegedControlsAlt } from "@bitwarden/assets/svg";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ToastService } from "@bitwarden/components";
+import { AccordionComponent, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../shared";
 import { OrganizationBillingClient } from "../clients/organization-billing.client";
@@ -33,7 +32,7 @@ const MAX_PURCHASABLE_QUANTITY = 100000;
   selector: "billing-privileged-controls-purchase",
   templateUrl: "privileged-controls-purchase.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SharedModule],
+  imports: [SharedModule, AccordionComponent],
 })
 export class PrivilegedControlsPurchaseComponent implements OnInit {
   private readonly organizationBillingClient = inject(OrganizationBillingClient);
@@ -48,8 +47,6 @@ export class PrivilegedControlsPurchaseComponent implements OnInit {
   readonly passwordManagerMaxAutoscaleSeats = input<number | null>(null);
 
   readonly purchased = output<void>();
-
-  protected readonly logo = PrivilegedControlsAlt;
 
   protected readonly enabledControl = new FormControl(false, { nonNullable: true });
 
