@@ -1,7 +1,8 @@
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
 import { BaseResponse } from "../../../models/response/base.response";
-import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
+import { ProviderType } from "../../../provider/enums";
+import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 
 export class ProfileOrganizationResponse extends BaseResponse {

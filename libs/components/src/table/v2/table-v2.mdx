@@ -490,6 +490,43 @@ controls, and a page input:
 
 <Canvas of={stories.Pagination} />
 
+### Range label
+
+To show which rows are on screen, pass a `[rangeLabel]` function to the `<bit-table-toolbar>`. It
+gets the `start`, `end`, and `total` row numbers of the current page and returns the text shown at
+the end of the toolbar's filter row, in place of the default "N items" count. You write the whole
+label, so you choose the noun and its plural forms and handle the empty case (`total` is 0). Build
+it from a message so it localizes:
+
+```ts
+import { TableRowRange } from "@bitwarden/components";
+
+protected readonly rangeLabel = ({ start, end, total }: TableRowRange) => {
+  if (total === 0) {
+    return this.i18nService.t("memberCount", "0");
+  }
+  if (total === 1) {
+    return this.i18nService.t("memberCountSingular");
+  }
+  return this.i18nService.t("memberRangeOfTotal", `${start}`, `${end}`, `${total}`);
+};
+```
+
+```html
+<bit-table-v2 [tableDef]="table">
+  <bit-table-toolbar [rangeLabel]="rangeLabel" />
+  …columns…
+  <bit-table-paginator [pageSize]="10" />
+</bit-table-v2>
+```
+
+The `start–end` run (e.g. "1–10") renders emphasized and the rest stays subtle. The toolbar finds
+the run by its numbers, so translations can reword the label or change the separator. A label
+without a run, such as "0 members", renders plain. Without a paginator, the range covers every
+filtered row.
+
+<Canvas of={stories.RangeLabel} />
+
 Pagination is **client-side** by default: the table pages its filtered and sorted rows, and the
 total ("of N") is the filtered row count. Bind `[(pageIndex)]` / `[(pageSize)]` to persist or
 restore the page.

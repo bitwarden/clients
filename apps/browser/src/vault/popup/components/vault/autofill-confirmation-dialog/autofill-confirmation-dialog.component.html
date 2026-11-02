@@ -5,13 +5,14 @@
       <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-medium">
         {{ "savedWebsite" | i18n }}
       </p>
-      <bit-callout [title]="null" type="success" icon="bwi-globe">
+      <bit-callout [title]="null" type="success" icon="bwi-globe" class="[&_div]:tw-min-w-0">
         <div
-          class="tw-font-mono tw-line-clamp-1 tw-break-all"
+          class="tw-font-mono tw-whitespace-nowrap tw-overflow-x-auto"
+          data-hidden-scrollbar
           tabindex="0"
           [attr.aria-label]="savedUrls()[0].uri"
-          [bitTooltip]="savedUrls()[0].uri"
-          [addTooltipToDescribedby]="true"
+          #uriScroller
+          (scroll)="syncUriScroll(uriScroller)"
           data-testid="saved-uri"
         >
           {{ formattedSavedUrls()[0] }}
@@ -36,13 +37,14 @@
       <div class="tw-pt-2" [ngClass]="savedUrlsListClass()">
         @for (url of formattedSavedUrls(); track url; let i = $index) {
           <div class="-tw-mt-2">
-            <bit-callout [title]="null" type="success" icon="bwi-globe">
+            <bit-callout [title]="null" type="success" icon="bwi-globe" class="[&_div]:tw-min-w-0">
               <div
-                class="tw-font-mono tw-line-clamp-1 tw-break-all"
+                class="tw-font-mono tw-whitespace-nowrap tw-overflow-x-auto"
+                data-hidden-scrollbar
                 tabindex="0"
                 [attr.aria-label]="savedUrls()[i].uri"
-                [bitTooltip]="savedUrls()[i].uri"
-                [addTooltipToDescribedby]="true"
+                #uriScroller
+                (scroll)="syncUriScroll(uriScroller)"
                 data-testid="saved-uri"
               >
                 {{ url }}
@@ -56,6 +58,7 @@
       {{ "currentWebsite" | i18n }}
     </p>
     <bit-callout
+      class="[&_div]:tw-min-w-0"
       [title]="null"
       [type]="currentUrlMatchesNeverUri() ? 'success' : 'warning'"
       icon="bwi-globe"
@@ -63,9 +66,10 @@
       <div
         tabindex="0"
         [attr.aria-label]="currentUrl()"
-        [bitTooltip]="currentUrl()"
-        [addTooltipToDescribedby]="true"
-        class="tw-font-mono tw-line-clamp-1 tw-break-all"
+        #uriScroller
+        (scroll)="syncUriScroll(uriScroller)"
+        class="tw-font-mono tw-whitespace-nowrap tw-overflow-x-auto"
+        data-hidden-scrollbar
         data-testid="current-uri"
       >
         {{ formattedCurrentUrl() }}

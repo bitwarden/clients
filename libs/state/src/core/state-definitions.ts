@@ -115,6 +115,7 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
   web: "disk-local",
 });
 export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
+export const AUTOFILL_TAB_LIFECYCLE_MEMORY = new StateDefinition("autofillTabLifecycle", "memory");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 

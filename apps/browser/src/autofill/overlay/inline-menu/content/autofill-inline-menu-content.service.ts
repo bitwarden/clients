@@ -633,6 +633,29 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     element.showPopover();
   };
 
+  /**
+   * Re-promotes an inline menu popover into the top layer, so that it renders above
+   * dialogs and popovers the page has opened. Uses the stored element reference rather
+   * than looking the element up by tag name: Firefox renders the menu containers as
+   * plain `div` elements, so a tag name lookup resolves the page's first `div` instead of
+   * the menu and `hidePopover` throws for that element.
+   *
+   * @param element - The inline menu element to refresh
+   * @returns whether the element was refreshed
+   */
+  private refreshPopoverTopLayerPosition = (element?: HTMLElement): boolean => {
+    // `hidePopover` throws for elements that are not popovers, and `showPopover`
+    // requires the element to be connected, so verify both before refreshing.
+    if (!element?.isConnected || !element.hasAttribute("popover")) {
+      return false;
+    }
+
+    element.hidePopover();
+    element.showPopover();
+
+    return true;
+  };
+
   refreshTopLayerPosition = () => {
     if (!this.inlineMenuEnabled) {
       return;
@@ -645,24 +668,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    const buttonInDocument =
-      this.buttonElement &&
-      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
-    const listInDocument =
-      this.listElement &&
-      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    const buttonRefreshed = this.refreshPopoverTopLayerPosition(this.buttonElement);
+    const listRefreshed = this.refreshPopoverTopLayerPosition(this.listElement);
 
-    if (buttonInDocument) {
-      buttonInDocument.hidePopover();
-      buttonInDocument.showPopover();
-    }
-
-    if (listInDocument) {
-      listInDocument.hidePopover();
-      listInDocument.showPopover();
-    }
-
-    if (buttonInDocument || listInDocument) {
+    if (buttonRefreshed || listRefreshed) {
       this.checkAndUpdateRefreshCount("topLayer");
     }
   };

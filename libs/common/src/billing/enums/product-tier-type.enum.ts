@@ -1,17 +1,15 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum ProductTierType {
-  Free = 0,
-  Families = 1,
-  Teams = 2,
-  Enterprise = 3,
-  TeamsStarter = 4,
-}
+import { ProductTierType as SdkProductTierType } from "@bitwarden/sdk-internal";
 
-export function isNotSelfUpgradable(productType: ProductTierType): boolean {
+// Re-export the SdkProductTierType so we have a single source of truth
+export {
+  /** @deprecated Import directly from @bitwarden/sdk-internal instead. **/
+  SdkProductTierType as ProductTierType,
+};
+
+export function isNotSelfUpgradable(productType: SdkProductTierType): boolean {
   return (
-    productType !== ProductTierType.Free &&
-    productType !== ProductTierType.TeamsStarter &&
-    productType !== ProductTierType.Families
+    productType !== SdkProductTierType.Free &&
+    productType !== SdkProductTierType.TeamsStarter &&
+    productType !== SdkProductTierType.Families
   );
 }
