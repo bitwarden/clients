@@ -285,8 +285,11 @@ shared ticker.
 
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
-binds them all: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`
-(all `libs/vault`),
+binds them all. In `libs/vault`: `CIPHER_VIEW_BANNER`, `ITEM_DETAILS_BADGE`,
+`VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's "Controlled access" group plus the narrowing its
+children apply to the item list), `VAULT_ITEM_FILTER` and `VAULT_ITEM_COLUMN` (the VFO1 vault
+table's "Controlled access" chip and column, over the same state reads), and
+`SHARED_FOLDER_DECORATION` (the lock after a governed shared folder's name). In `apps/web`:
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
@@ -297,19 +300,17 @@ whose field initializer would otherwise reset it to `false`),
 `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list naming that same
 restriction while a governed collection is the active filter, off the shared per-org
 `GovernedCollectionsService` lookup, because it is handed ids alone and so has no flag
-to read), `VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's "Controlled access" group plus
-the narrowing its children apply to the item list),
-`COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
+to read), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`,
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry), `PAM_ROUTES` (the
 lazy loader for the user-scoped pages), and
 `PAM_ORG_ADMIN_ROUTE` (the `pam` path under `/organizations/{id}`, so the Admin Console's
 redirect guard can land a member who holds only one of the PAM permissions — see "Routing and
-DI"; all `apps/web`).
+DI").
 Add a seam rather than importing PAM from OSS code.
 
-`CipherLeaseStateService` (`libs/common`) is the exception to `{ optional: true }`: `CipherService`
-injects it unconditionally, so `jslib-services`, the browser background and the CLI bind
-`DefaultCipherLeaseStateService`, and `provide-pam.ts` overrides it with `MyLeasesService`.
+`RevealedCipherService` (`libs/common`, Vault's) is the exception to `{ optional: true }`: Vault
+and Tools code inject it unconditionally, so `jslib-services`, the browser background and the CLI
+bind `NoopRevealedCipherService`, and `provide-pam.ts` overrides it with `PamRevealedCipherService`.
 
 ## Routing and DI
 
