@@ -1,3 +1,5 @@
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ClipperzHtmlImporter } from "./clipperz-html-importer";
 
 /**
@@ -45,6 +47,34 @@ describe("ClipperzHtmlImporter", () => {
     expect(result.ciphers[0].login.username).toBe("user@example.com");
     expect(result.ciphers[0].login.password).toBe("hunter2");
     expect(result.ciphers[0].login.uris[0].uri).toBe("https://github.com");
+  });
+
+  it("prefers the field labelled password and keeps other hidden fields as hidden custom fields", async () => {
+    const data = clipperzExport([
+      {
+        label: "Bank",
+        currentVersion: {
+          fields: {
+            "0": { label: "username", actionType: "TEXT", hidden: false, value: "user" },
+            "1": { label: "password", actionType: "PASSWORD", hidden: true, value: "hunter2" },
+            "2": { label: "PIN", actionType: "PASSWORD", hidden: true, value: "1234" },
+            "3": { label: "Recovery", actionType: "TEXT", hidden: true, value: "abcd" },
+            "4": { label: "Branch", actionType: "TEXT", hidden: false, value: "Main" },
+          },
+        },
+      },
+    ]);
+
+    const result = await importer.parse(data);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.login.username).toBe("user");
+    expect(cipher.login.password).toBe("hunter2");
+    expect(cipher.fields.map((f) => [f.name, f.value, f.type])).toEqual([
+      ["PIN", "1234", FieldType.Hidden],
+      ["Recovery", "abcd", FieldType.Hidden],
+      ["Branch", "Main", FieldType.Text],
+    ]);
   });
 
   it("preserves notes", async () => {

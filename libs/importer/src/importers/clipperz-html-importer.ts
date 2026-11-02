@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -35,6 +37,14 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
       }
 
       if (entry.currentVersion != null && entry.currentVersion.fields != null) {
+        // Clipperz marks every hidden field as a password action, so prefer one labelled as a password
+        const passwordFields = Object.values<any>(entry.currentVersion.fields).filter(
+          (f) => f.actionType?.toLowerCase() === "password",
+        );
+        const passwordField =
+          passwordFields.find((f) => this.passwordFieldNames.includes(f.label?.toLowerCase())) ??
+          passwordFields[0];
+
         for (const property in entry.currentVersion.fields) {
           // eslint-disable-next-line
           if (!entry.currentVersion.fields.hasOwnProperty(property)) {
@@ -45,7 +55,11 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
           const actionType = field.actionType != null ? field.actionType.toLowerCase() : null;
           switch (actionType) {
             case "password":
-              cipher.login.password = this.getValueOrDefault(field.value);
+              if (field === passwordField) {
+                cipher.login.password = this.getValueOrDefault(field.value);
+              } else {
+                this.processKvp(cipher, field.label, field.value, FieldType.Hidden);
+              }
               break;
             case "email":
             case "username":
@@ -59,6 +73,7 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
             default: {
               const labelLower = field.label != null ? field.label.toLowerCase() : null;
               if (
+                passwordField == null &&
                 cipher.login.password == null &&
                 this.passwordFieldNames.indexOf(labelLower) > -1
               ) {
@@ -74,7 +89,12 @@ export class ClipperzHtmlImporter extends BaseImporter implements Importer {
               ) {
                 cipher.login.uris = this.makeUriArray(field.value);
               } else {
-                this.processKvp(cipher, field.label, field.value);
+                this.processKvp(
+                  cipher,
+                  field.label,
+                  field.value,
+                  field.hidden ? FieldType.Hidden : FieldType.Text,
+                );
               }
               break;
             }
