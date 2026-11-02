@@ -544,7 +544,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
 
     expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: ["Existing rule"] },
+        content: { key: "pamAccessRuleDeleteConfirmDescription" },
       }),
     );
     expect(pamApi.deleteAccessRule).toHaveBeenCalledWith(
