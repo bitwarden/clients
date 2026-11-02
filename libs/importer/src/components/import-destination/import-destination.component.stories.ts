@@ -149,7 +149,7 @@ export default {
                 `Move all items into an ${org} shared folder`,
               sharedFolder: "Shared folder",
               importSharedFolderHint:
-                "Move everything to a parent folder, the nested folder structure will be maintained",
+                "Move everything to a parent folder, the nested folder structure will be maintained.",
               importSharedFolderRequired: "A shared folder is required.",
               importIntoOrganization: (org?: string) => `Items will be imported into ${org}.`,
               importMoveAllItemsIntoSharedFolder: "Move all items into a shared folder",

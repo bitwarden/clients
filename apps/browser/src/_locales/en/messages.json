@@ -1672,7 +1672,7 @@
     }
   },
   "importSharedFolderHint": {
-    "message": "Move everything to a parent folder, the nested folder structure will be maintained"
+    "message": "Move everything to a parent folder, the nested folder structure will be maintained."
   },
   "importSharedFolderRequired": {
     "message": "A shared folder is required."
