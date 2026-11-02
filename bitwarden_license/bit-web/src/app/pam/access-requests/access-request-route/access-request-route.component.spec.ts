@@ -145,7 +145,7 @@ describe("AccessRequestRouteComponent", () => {
     });
   });
 
-  it("hands the dialog History's withdraw intent off the query string", () => {
+  it("hands the dialog the withdraw intent off the query string", () => {
     queryParams = { action: "withdraw" };
     create(cameFrom("/pam/history"));
 
