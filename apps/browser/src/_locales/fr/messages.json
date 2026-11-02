@@ -560,6 +560,20 @@
   "noItemsInMyVault": {
     "message": "Aucun élément dans Mon coffre"
   },
+  "noItemsInFolder": {
+    "message": "Aucun élément dans $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Ajoutez des éléments à ce dossier. Vous pourrez y accéder rapidement à l'aide de filtres de coffre.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Aucun élément dans Mes éléments"
   },
@@ -665,7 +679,7 @@
     "message": "Réinitialiser la recherche"
   },
   "clearSearchTooltip": {
-    "message": "Clear by clicking here or pressing Esc.",
+    "message": "Effacez en cliquant ici ou en appuyant sur Échap.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
@@ -1237,6 +1251,12 @@
   "deletedItem": {
     "message": "Élément envoyé à la corbeille"
   },
+  "deleteItemError": {
+    "message": "Impossible de supprimer l'élément."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Cet élément est restreint. Votre modification n'a pas été enregistrée."
+  },
   "overwritePassword": {
     "message": "Écraser le mot de passe"
   },
@@ -1490,14 +1510,14 @@
     "message": "Utiliser n'importe quel élément span qu'un site web a marqué avec l'attribut `data-bwautofill`."
   },
   "enableBasicAuthResponseLabel": {
-    "message": "Autofill browser login prompts",
+    "message": "Remplir automatiquement les invites d'identification du navigateur",
     "description": "Label for the setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
   },
   "enableBasicAuthResponseHint": {
-    "message": "Respond to basic HTTP authentication prompts when a login item in your vault matches the website."
+    "message": "Répondre aux instructions d'authentification HTTP de base lorsqu'un élément d'identification dans votre coffre correspond au site web."
   },
   "enableBasicAuthResponseWarning": {
-    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "message": "Les sites Web peuvent déclencher ces invites à votre insu, ce qui peut exposer vos identifiants.",
     "description": "Warning shown beneath the setting that lets the extension respond to HTTP basic authentication prompts"
   },
   "enableContextMenuItem": {
@@ -1556,7 +1576,7 @@
     "message": "Sélectionner la source"
   },
   "importData": {
-    "message": "Import data"
+    "message": "Importer les données"
   },
   "importSourceSelectTitle": {
     "message": "Sélectionnez votre source"
@@ -1776,13 +1796,13 @@
     "message": "Sélectionnez un fichier"
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file"
+    "message": "Ce type de fichier n'est pas accepté pour cette source. Choisissez un autre fichier"
   },
   "pasteContentRequired": {
-    "message": "Paste the exported content"
+    "message": "Coller le contenu exporté"
   },
   "fileTypeNotSupported": {
-    "message": "This file type isn't supported. Select a $TYPES$ file",
+    "message": "Ce type de fichier n'est pas pris en charge. Sélectionnez un fichier $TYPES$",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -1791,10 +1811,10 @@
     }
   },
   "pasteContentFormatMismatch": {
-    "message": "The pasted content doesn't match the selected format"
+    "message": "Le contenu collé ne correspond pas au format sélectionné"
   },
   "errorReadingFile": {
-    "message": "The selected file could not be read"
+    "message": "Le fichier sélectionné ne peut pas être lu"
   },
   "itemsTransferred": {
     "message": "Éléments transférés"
@@ -4283,27 +4303,27 @@
     }
   },
   "forwarderUnsafeUrl": {
-    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address.",
+    "message": "Cette URL n'est pas autorisée. Elle doit utiliser https et ne peut pas pointer vers une adresse de réseau local ou privé.",
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Entrez un URL valide",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "URL à risque détectée",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
-    "message": "This URL may be insecure or point to a private network. Using it may result in exposure of private data. Only continue if you trust this server.",
+    "message": "Cette URL peut être non sécurisée ou pointer vers un réseau privé. L'utiliser peut entraîner une exposition de données privées. Ne continuez que si vous faites confiance à ce serveur.",
     "description": "Body of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderTrustUrl": {
-    "message": "Trust URL",
+    "message": "URL de confiance",
     "description": "Accept button on the forwarder unsafe url confirmation dialog."
   },
   "forwarderUrlTrustedHint": {
-    "message": "This URL has been marked as trusted. You can edit at any time.",
+    "message": "Cette URL a été marquée comme approuvée. Vous pouvez éditer à tout moment.",
     "description": "Hint shown below the forwarder base url field once the user has trusted an unsafe value."
   },
   "forwarderUnknownError": {
@@ -5094,7 +5114,7 @@
     "message": "Les données ne sont pas formatées correctement. Veuillez vérifier votre fichier d'origine et réessayer."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Ce fichier utilise des paramètres de chiffrement non pris en charge et ne peut pas être importé."
   },
   "importNothingError": {
     "message": "Rien n'a été importé."
@@ -5304,42 +5324,42 @@
     "message": "Centre d'Aide"
   },
   "uploadFile": {
-    "message": "Upload file"
+    "message": "Téléverser un fichier"
   },
   "pasteAsPlainText": {
-    "message": "Paste as plain text"
+    "message": "Coller en texte brut"
   },
   "plainText": {
-    "message": "Plain text"
+    "message": "Texte brut"
   },
   "profile": {
-    "message": "Profile"
+    "message": "Profil"
   },
   "importManuallyInstead": {
-    "message": "Import manually instead"
+    "message": "Importer plutôt manuellement"
   },
   "directlyImportInstead": {
-    "message": "Directly import instead"
+    "message": "Importer plutôt directement"
   },
   "fastest": {
-    "message": "Fastest"
+    "message": "Le plus rapide"
   },
   "importDataTitle": {
-    "message": "Import your data"
+    "message": "Importer vos données"
   },
   "importDataDirectTitle": {
-    "message": "Import your data in minutes"
+    "message": "Importez vos données en quelques minutes"
   },
   "importDataDirectSubtitlePrefix": {
-    "message": "Import your items directly from",
+    "message": "Importez vos éléments directement depuis",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "to get all your data.",
+    "message": "pour obtenir toutes vos données.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Import from $VENDOR$ or copy and paste the export content.",
+    "message": "Importer depuis $VENDOR$ ou copier et coller le contenu récupéré.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5348,13 +5368,13 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Select the profile you wish to import passwords from."
+    "message": "Sélectionnez le profil depuis lequel vous souhaitez importer des mots de passe."
   },
   "noBrowserProfilesFound": {
-    "message": "No browser profiles were found"
+    "message": "Aucun profil de navigateur n'a été trouvé"
   },
   "importDataLoginTitle": {
-    "message": "Log in to $VENDOR$",
+    "message": "Connectez-vous à $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5363,13 +5383,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Your credentials are encrypted in transit and never stored."
+    "message": "Vos identifiants sont chiffrés lors du transit et ne sont jamais stockés."
   },
   "importDataSecureByDesignTitle": {
-    "message": "Secure by design"
+    "message": "Sécurisé dès la conception"
   },
   "importDataSecureByDesignBody": {
-    "message": "End-to-end encrypted handoff. Bitwarden never sees your $VENDOR$ login details.",
+    "message": "Transfert chiffré de bout en bout. Bitwarden ne voit jamais vos identifiants de connexion $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5378,10 +5398,10 @@
     }
   },
   "importDataLoginInfoTitle": {
-    "message": "We'll ask for your login info"
+    "message": "Nous vous demanderons vos informations d'identification"
   },
   "importDataLoginInfoBody": {
-    "message": "In the next step, log in to your $VENDOR$ account.",
+    "message": "À l'étape suivante, connectez-vous à votre compte $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5393,19 +5413,19 @@
     "message": "Everything transfers"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Logins, cards, identities, secure notes, and TOTPs with their folder structure preserved."
+    "message": "Les identifiants, les cartes de paiement, les identités, les notes sécurisées et les TOTP avec leur structure de dossier préservée."
   },
   "importDataSecureByDesignTitleV2": {
-    "message": "Fast and secure"
+    "message": "Rapide et sécurisé"
   },
   "importDataSecureByDesignBodyV2": {
-    "message": "This process is end-to-end encrypted. No export file needed."
+    "message": "Ce processus est chiffré de bout en bout. Aucun fichier d'exportation nécessaire."
   },
   "importDataLoginInfoTitleV2": {
-    "message": "All you need is your login"
+    "message": "Tout ce dont vous avez besoin, c'est de votre identifiant"
   },
   "importDataLoginInfoBodyV2": {
-    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "message": "Dans la prochaine étape, vous entrerez vos identifiants de connexion $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5414,10 +5434,10 @@
     }
   },
   "importDataAutomaticTransferTitle": {
-    "message": "What will transfer"
+    "message": "Qu'est-ce qui va être transféré"
   },
   "importDataAutomaticTransferBody": {
-    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
+    "message": "Vos identifiants, autres éléments et dossiers seront transférés. Les mots de passe et pièces jointes peuvent être exclus."
   },
   "importAcceptedFormats": {
     "message": "Accepted: $FORMATS$",
@@ -5699,6 +5719,18 @@
   },
   "exportSuccessSkippedAttachment": {
     "message": "1 pièce jointe corrompue a été ignorée lors de l'exportation. Toutes les autres données et pièces jointes du coffre ont été exportées avec succès."
+  },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ pièces jointes corrompues ont été ignorées lors de l'exportation. Toutes les autres données et pièces jointes du coffre ont été exportées avec succès.",
@@ -8438,6 +8470,15 @@
   "passwordHasAdditionalRisks": {
     "message": "Ce mot de passe comporte des risques supplémentaires :"
   },
+  "excludeFromList": {
+    "message": "Exclude from list"
+  },
+  "excludeFromListDesc": {
+    "message": "Excluding doesn’t fix the risk to your password. To protect your account, change your password first."
+  },
+  "excludeAnyway": {
+    "message": "Exclude anyway"
+  },
   "reused": {
     "message": "Réutilisé",
     "description": "ex. A password that is reused across multiple logins."
@@ -8558,6 +8599,15 @@
   "unknownCipher": {
     "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   },
+  "viewSharedItem": {
+    "message": "View shared item"
+  },
+  "copyShareLink": {
+    "message": "Copy share link"
+  },
+  "unableToDetermineItemId": {
+    "message": "Unable to determine item ID"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden has a new look",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -8590,8 +8640,8 @@
   "coachmarkSwitchVaultsTitle": {
     "message": "Switch between vaults"
   },
-  "coachmarkSwitchVaultsDescription": {
-    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  "coachmarkVaultSwitcherDescription": {
+    "message": "With the new vault switcher, you can quickly see personal items or items in a vault you share with others."
   },
   "coachmarkFiltersTitle": {
     "message": "Mix and match filters"
@@ -8616,5 +8666,46 @@
   },
   "resetToDefault": {
     "message": "Reset to default"
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Autofill browser login prompts",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Respond to basic HTTP authentication prompts from websites that match this login item."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open help article on autofilling browser login prompts"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites can trigger these prompts without your knowledge, which may expose your credentials.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "To use this setting, choose a match detection option other than \"Default\" for each website of this login item."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Turn on autofill for browser login prompts?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Master password re-prompt will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Turn on master password re-prompt?"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Autofill for browser login prompts will be turned off for this item. Both settings can't be on at the same time."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Use default match detection?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites using default match detection can't be used with browser login prompts. Autofill for browser login prompts will be turned off for this item."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Autofill for browser login prompts turned off"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "This item has master password re-prompt turned on, so autofill for browser login prompts was turned off. Save the item to keep this change."
   }
 }
