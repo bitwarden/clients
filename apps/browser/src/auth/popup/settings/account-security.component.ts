@@ -133,7 +133,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   // Native messaging with the desktop app is unavailable on Safari.
   protected readonly showSharedUnlockWithDesktop: boolean;
-  // Firefox does not support sharing unlock state with the web vault.
   // True when the user declined to trust this TDE device, disabling shared unlock. The value cannot
   // change while this page is open, so it is read once during init.
   protected readonly unlockSharingDisabled = signal(false);
