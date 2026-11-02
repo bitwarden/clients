@@ -47,6 +47,16 @@ export const tabDetached$ = (): Observable<{ tabId: number } & chrome.tabs.OnDet
   );
 
 /**
+ * Emits `{ addedTabId, removedTabId }` each time a tab is replaced with another
+ * (`chrome.tabs.onReplaced`), as in a prerender swap. The browser reports the replaced tab as
+ * replaced, not removed.
+ */
+export const tabReplaced$ = (): Observable<{ addedTabId: number; removedTabId: number }> =>
+  fromChromeEvent(chrome.tabs.onReplaced).pipe(
+    map(([addedTabId, removedTabId]) => ({ addedTabId, removedTabId })),
+  );
+
+/**
  * Emits the newly-focused window id each time window focus changes
  * (`chrome.windows.onFocusChanged`).
  *
