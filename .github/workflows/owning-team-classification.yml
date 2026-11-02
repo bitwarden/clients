@@ -1,3 +1,15 @@
+# Evaluates the owning-team classifier from the bitwarden-owning-team-review plugin in
+# bitwarden/ai-plugins on real pull requests.
+#
+# Adding the `owner-classification` label runs the classifier on the pull request and posts its
+# result as one sticky comment: which owning teams the change needs, why, and feedback checkboxes
+# for each team. Re-adding the label classifies the current head commit again.
+#
+# Evaluation only. The workflow sets no status and requests no reviewers, so CODEOWNERS still
+# decides who must approve. Team handles appear in code spans, so the comment notifies no team.
+#
+# It also checks, read-only, whether the BW-GHAPP GitHub App could request each owning team as a
+# reviewer. Enforcing owning-team review later depends on that App permission.
 name: Owning-Team Classification
 
 on:
@@ -6,16 +18,273 @@ on:
 
 permissions: {}
 
+# One classification per pull request at a time. A new label event replaces a run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # The plugin's scripts and agent run from this ref of bitwarden/ai-plugins.
+  PLUGIN_REF: main
+  # Exact Claude Code version, matching the version the plugin's evals ran with.
+  CLAUDE_CODE_VERSION: 2.1.308
+
 jobs:
+  # Only someone with write access can start a run, since it spends the Anthropic API key.
+  check-permission:
+    name: Check permission
+    if: github.event.label.name == 'owner-classification'
+    uses: bitwarden/gh-actions/.github/workflows/_check-permission.yml@main
+    with:
+      failure_mode: "skip"
+      require_permission: "write"
+    permissions:
+      contents: read
+
   classify:
     name: Classify
-    if: github.event.label.name == 'owner-classification'
-    uses: bitwarden/gh-actions/.github/workflows/_classify-owning-team.yml@main
-    secrets:
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    needs: check-permission
+    # Pull requests from forks get no secrets or OIDC token, so they are skipped.
+    if: needs.check-permission.outputs.should_proceed == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
       pull-requests: write
+    env:
+      PLUGIN_DIR: ${{ github.workspace }}/ai-plugins/plugins/bitwarden-owning-team-review
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    steps:
+      # Full history, so the context script can find the merge base and export it.
+      # No credentials stay in the checkout while the agent runs.
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: clients
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Only the plugin directory, which holds the agent, its references, and the scripts below.
+      - name: Check out the owning-team review plugin
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: bitwarden/ai-plugins
+          ref: ${{ env.PLUGIN_REF }}
+          path: ai-plugins
+          sparse-checkout: plugins/bitwarden-owning-team-review
+          persist-credentials: false
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      # The Anthropic key runs the classifier. The App ID and key mint the token for the team check.
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "ANTHROPIC-CODE-REVIEW-API-KEY,BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      # The placeholder tells the author a run is in progress. Later steps replace it in place.
+      - name: Create PR comment placeholder
+        id: create-comment
+        uses: bitwarden/gh-actions/update-pr-comment@main
+        with:
+          token: ${{ github.token }}
+          pr_number: ${{ github.event.pull_request.number }}
+          repository: ${{ github.repository }}
+          marker_id: bitwarden-owning-team-review
+          body: |
+            **Claude Code** is classifying which owning teams this pull request needs...
+
+            If this comment does not update with results, check the [Actions log](${{ env.RUN_URL }}).
+
+      # The classifier has no shell, so every gh and git call happens here, before it starts.
+      # The script writes the diff, the changed files, CODEOWNERS, and an export of the merge base
+      # into a new context directory, and never fetches the pull request's title or body.
+      - name: Prepare the classifier context
+        id: context
+        working-directory: clients
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TMPDIR: ${{ runner.temp }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          ctx="$(bash "$PLUGIN_DIR/scripts/prepare-context.sh" pr "$PR_NUMBER" "$REPOSITORY")"
+          [[ "$ctx" =~ ^/[A-Za-z0-9._/-]+$ ]] || { echo "::error::Unexpected context path."; exit 1; }
+          echo "dir=$ctx" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$(jq -r .head_sha "$ctx/pr.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Install Claude Code
+        run: npm install --global "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+
+      # The same invocation the plugin's evals validate.
+      # - It runs from an empty directory, so no CLAUDE.md or .claude/ settings from the PR load.
+      # - The agent's definition limits it to Read, Grep, and Glob. The allow rules scope Read to the
+      #   context and the plugin, and dontAsk denies every other call.
+      # - A failure here still produces a comment: the renderer turns a missing result into
+      #   "no verdict", which keeps every owning team required.
+      - name: Classify with Claude Code
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ steps.get-kv-secrets.outputs.ANTHROPIC-CODE-REVIEW-API-KEY }}
+          CONTEXT_DIR: ${{ steps.context.outputs.dir }}
+        run: |
+          cwd="$RUNNER_TEMP/classifier-cwd"
+          mkdir -p "$cwd"
+          cd "$cwd"
+          claude -p "CONTEXT: $CONTEXT_DIR" \
+            --agent bitwarden-owning-team-review:owning-team-classifier \
+            --plugin-dir "$PLUGIN_DIR" \
+            --model opus \
+            --setting-sources user \
+            --permission-mode dontAsk \
+            --allowedTools "Read(/$CONTEXT_DIR/**)" "Read(/$PLUGIN_DIR/**)" Grep Glob \
+            --no-session-persistence \
+            --output-format stream-json --verbose \
+            > "$RUNNER_TEMP/classifier.jsonl"
+
+      # The agent prints its result as one JSON object in its final message.
+      # A missing or unparseable result leaves no result.json, which renders as "no verdict".
+      - name: Extract the result
+        if: always() && steps.context.outcome == 'success'
+        run: |
+          rm -f "$RUNNER_TEMP/result.json"
+          [[ -s "$RUNNER_TEMP/classifier.jsonl" ]] || exit 0
+          jq -rs '[.[] | select(.type == "result") | .result] | last // empty' "$RUNNER_TEMP/classifier.jsonl" \
+            | "$PLUGIN_DIR/scripts/extract-result.sh" > "$RUNNER_TEMP/result.json" \
+            || { rm -f "$RUNNER_TEMP/result.json"; echo "::warning::The classifier printed no parseable result."; }
+
+      # Requesting a team as a reviewer needs organization Members read access. Minting fails when
+      # the App does not have it, and the next step reports that in the comment.
+      # The token is minted after the agent finishes, so it never exists while the agent runs.
+      - name: Generate GH App token with Members read access
+        id: app-token
+        if: always() && steps.get-kv-secrets.outcome == 'success'
+        continue-on-error: true
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          owner: ${{ github.repository_owner }}
+          permission-members: read
+
+      # Read-only. For each owner in the result, resolves the team and reads its permission on this
+      # repository, which is what a team review request needs. It requests nobody.
+      # Writes teams.json, which the comment shows as the "Reviewer request check" table.
+      - name: Check the App can request each owner
+        if: always() && steps.context.outcome == 'success'
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          teams="$RUNNER_TEMP/teams.json"
+          if [[ -z "$APP_TOKEN" ]]; then
+            echo '{"token": "unavailable", "checks": []}' > "$teams"
+            echo "::warning::Could not mint a GitHub App token with organization Members read access."
+            exit 0
+          fi
+
+          # Owners come from the result, limited to the handle shapes CODEOWNERS allows.
+          owners=()
+          if [[ -s "$RUNNER_TEMP/result.json" ]]; then
+            while IFS= read -r owner; do owners+=("$owner"); done \
+              < <(jq -r '[.entries[]?.owners[]?] | unique[] | select(test("^@[A-Za-z0-9-]+(/[A-Za-z0-9._-]+)?$"))' "$RUNNER_TEMP/result.json")
+          fi
+
+          # GET only. Prints the HTTP status and leaves the body in api.json.
+          api() {
+            curl -sS -o "$RUNNER_TEMP/api.json" -w '%{http_code}' \
+              -H "Authorization: Bearer $APP_TOKEN" -H "Accept: $2" -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/$1"
+          }
+
+          checks='[]'
+          repo_owner="${REPOSITORY%%/*}"
+          for owner in ${owners[@]+"${owners[@]}"}; do
+            handle="${owner#@}"
+            # An individual owner is requested as a user, which needs no Members access.
+            if [[ "$handle" != */* ]]; then
+              checks="$(jq -c --arg o "$owner" '. + [{owner: $o, name: null, resolved: null, permission: null, status: "individual owner, not checked"}]' <<<"$checks")"
+              continue
+            fi
+            org="${handle%%/*}" slug="${handle#*/}"
+            if [[ "$org" != "$repo_owner" ]]; then
+              checks="$(jq -c --arg o "$owner" '. + [{owner: $o, name: null, resolved: false, permission: null, status: "team in another organization"}]' <<<"$checks")"
+              continue
+            fi
+            # Resolving the team is what fails when the App lacks Members access.
+            code="$(api "orgs/$org/teams/$slug" application/vnd.github+json)"
+            if [[ "$code" != 200 ]]; then
+              checks="$(jq -c --arg o "$owner" --arg s "HTTP $code resolving the team" '. + [{owner: $o, name: null, resolved: false, permission: null, status: $s}]' <<<"$checks")"
+              continue
+            fi
+            name="$(jq -r .name "$RUNNER_TEMP/api.json")"
+            # A team can be requested only when it has access to the repository.
+            code="$(api "orgs/$org/teams/$slug/repos/$REPOSITORY" application/vnd.github.v3.repository+json)"
+            if [[ "$code" == 200 ]]; then
+              permission="$(jq -r '.role_name // empty' "$RUNNER_TEMP/api.json")"
+              status="can be requested"
+            else
+              permission=""
+              status="HTTP $code reading the team's repository access"
+            fi
+            checks="$(jq -c --arg o "$owner" --arg n "$name" --arg p "$permission" --arg s "$status" \
+              '. + [{owner: $o, name: $n, resolved: true, permission: (if $p == "" then null else $p end), status: $s}]' <<<"$checks")"
+          done
+          jq -n --argjson checks "$checks" '{token: "ok", checks: $checks}' > "$teams"
+
+      # The plugin's renderer escapes the agent's text, so it cannot add mentions, links, or HTML.
+      # A missing, unparseable, or stale result renders as "no verdict".
+      - name: Render the comment
+        if: always() && steps.context.outcome == 'success'
+        env:
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ steps.context.outputs.head_sha }}
+        run: |
+          bash "$PLUGIN_DIR/scripts/render-comment.sh" "$RUNNER_TEMP/result.json" "$RUNNER_TEMP/teams.json" \
+            "$REPOSITORY" "$PR_NUMBER" "$HEAD_SHA" "$RUN_URL" > "$RUNNER_TEMP/comment.md"
+
+      # Covers a run that failed before rendering, such as a context that could not be built.
+      - name: Ensure a comment body exists
+        if: always() && steps.create-comment.outputs.comment_id != ''
+        run: |
+          [[ -s "$RUNNER_TEMP/comment.md" ]] && exit 0
+          {
+            echo "## Owning-team review"
+            echo ""
+            echo "**No verdict.** The classification did not complete, so every owning team stays required. See the [Actions log]($RUN_URL)."
+          } > "$RUNNER_TEMP/comment.md"
+
+      - name: Update PR comment with the classification
+        if: always() && steps.create-comment.outputs.comment_id != ''
+        uses: bitwarden/gh-actions/update-pr-comment@main
+        with:
+          token: ${{ github.token }}
+          pr_number: ${{ github.event.pull_request.number }}
+          repository: ${{ github.repository }}
+          marker_id: bitwarden-owning-team-review
+          comment_id: ${{ steps.create-comment.outputs.comment_id }}
+          body_file: ${{ runner.temp }}/comment.md
+
+      # Kept for scoring the evaluation: the classifier's result and the team check, per head commit.
+      - name: Upload the classification for evaluation
+        if: always() && steps.context.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: owning-team-classification-${{ github.event.pull_request.number }}-${{ steps.context.outputs.head_sha }}
+          path: |
+            ${{ runner.temp }}/result.json
+            ${{ runner.temp }}/teams.json
+          if-no-files-found: ignore
+          retention-days: 90
