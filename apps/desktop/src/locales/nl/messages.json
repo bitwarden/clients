@@ -167,6 +167,34 @@
       }
     }
   },
+  "foldersInParent": {
+    "message": "Mappen in $NAME$",
+    "description": "Titles the grid of the user's own folders nested directly inside the folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "folderCount": {
+    "message": "$COUNT$ mappen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "folderSingular": {
+    "message": "$COUNT$ map",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "nestedSharedFolderCount": {
     "message": "$COUNT$ geneste gedeelde mappen",
     "description": "Subtitle under a shared folder's name, counting the shared folders directly inside it.",
@@ -180,6 +208,20 @@
   "nestedSharedFolderSingular": {
     "message": "1 geneste gedeelde map",
     "description": "Subtitle under a shared folder's name when exactly one shared folder is directly inside it."
+  },
+  "nestedFolderCount": {
+    "message": "$COUNT$ geneste mappen",
+    "description": "Subtitle under a folder's name in My folders, counting the folders directly inside it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "nestedFolderSingular": {
+    "message": "1 geneste map",
+    "description": "Subtitle under a folder's name in My folders when exactly one folder is directly inside it."
   },
   "myFolder": {
     "message": "Mijn map"
@@ -901,6 +943,12 @@
   "edit": {
     "message": "Bewerken"
   },
+  "editInfo": {
+    "message": "Info bewerken"
+  },
+  "editAccess": {
+    "message": "Toegang bewerken"
+  },
   "authenticatorKeyTotp": {
     "message": "Authenticatiesleutel (TOTP)"
   },
@@ -1180,6 +1228,15 @@
   },
   "deletedItem": {
     "message": "Item verwijderd"
+  },
+  "deleteItemError": {
+    "message": "Kon het item niet verwijderen."
+  },
+  "restrictedItemChangeRefused": {
+    "message": "Dit item is beveiligd. Je wijziging is niet opgeslagen."
+  },
+  "controlledAccess": {
+    "message": "Gecontroleerde toegang"
   },
   "overwritePasswordConfirmation": {
     "message": "Weet je zeker dat je het huidige wachtwoord wilt overschrijven?"
@@ -4911,6 +4968,30 @@
   "importDataEverythingTransfersBody": {
     "message": "Logins, kaarten, identiteiten, beveiligde notities en TOTPs, met behoud van mapstructuur."
   },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Snel en veilig"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "Dit proces is end-to-end versleuteld. Geen exportbestand nodig."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "Alles wat je nodig hebt is je login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In de volgende stap vul je je inloggegevens voor $VENDOR$ in.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "Wat overdragen wordt"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Je logins, andere items en mappen worden overgedragen. Toegangs- en bijlagen kunnen worden uitgesloten."
+  },
   "importAcceptedFormats": {
     "message": "Geaccepteerd: $FORMATS$",
     "placeholders": {
@@ -5192,6 +5273,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 beschadigde bijlage is overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item is niet opgenomen in deze export. Het is beschermd door een verhoogde toegangsregel, dus de inloggegevens zijn niet beschikbaar op dit apparaat."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items zijn niet opgenomen in deze export. Ze zijn beschermd door een verhoogde toegangsregel, dus de inloggegevens zijn niet beschikbaar op dit apparaat.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ beschadigde bijlagen zijn overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd.",
     "placeholders": {
@@ -5231,8 +5324,92 @@
   "lastPassEmail": {
     "message": "LastPass Email"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "E-mailadres is vereist."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Vul een geldig e-mailadres in."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Vul een geldig wachtwoord in"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Voer een geldige verificatiecode in."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Voer je hoofdwachtwoord van LastPass in."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Voer hieronder de verificatiecode in."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Wachten op SSO-authenticatie"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Eenmaal ingelogd, zullen we je import automatisch voortzetten."
+  },
   "importingYourAccount": {
     "message": "Account importeren..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "E-mailadres is vereist."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Vul een geldig e-mailadres in."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Niet-ondersteunde tweestapsmethode. Verander van methode of importeer handmatig."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Apparaatgoedkeuringsmethode"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Voer een geldige verificatiecode in."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Verificatiecode opnieuw verzenden"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push-melding verzonden naar goedgekeurd apparaat."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Keur dit apparaat goed door hieronder een methode te selecteren."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Controleer je e-mail en voer hieronder de verificatiecode in."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Voer de code van uw Authenticator App in."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Voer de per sms verzonden code in."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Voer je hoofdwachtwoord van Keeper in."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA verzonden"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Keeper DNA-melding op je apparaat goedkeuren."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Je goedkeuringsaanvraag zal worden geannuleerd. Weet je zeker dat je wilt doorgaan?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We hebben een goedkeuringsverzoek naar je beheerder gestuurd."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Wachtwoord is vereist."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Vul een geldig wachtwoord in."
   },
   "lastPassMFARequired": {
     "message": "LastPass multifactor-authenticatie vereist"
@@ -6625,6 +6802,20 @@
       }
     }
   },
+  "noItemsInFolder": {
+    "message": "Geen items in $FOLDER_NAME$",
+    "description": "Title of the empty state shown on one of the user's own folders when it holds no items.",
+    "placeholders": {
+      "folder_name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "emptyFolderDescription": {
+    "message": "Items aan deze map toevoegen. Je kunt deze snel openen met behulp van de kluisfilters.",
+    "description": "Description of the empty state shown on one of the user's own folders when it holds no items."
+  },
   "emptyMyItems": {
     "message": "Geen items in Mijn items"
   },
@@ -6692,19 +6883,19 @@
     "message": "Gedeelde map toevoegen voor het veilig delen van kluisitems met andere leden."
   },
   "pinned": {
-    "message": "Pinned",
+    "message": "Vastgemaakt",
     "description": "Heading of the side navigation section that lists the shared folders the user pinned."
   },
   "pinToSidebar": {
-    "message": "Pin to sidebar",
+    "message": "Aan zijbalk vastmaken",
     "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
   },
   "unpinFromSidebar": {
-    "message": "Unpin from sidebar",
+    "message": "Van zijbalk losmaken",
     "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
   },
   "folderPinnedToSidebar": {
-    "message": "$NAME$ pinned to sidebar",
+    "message": "$NAME$ aan zijbalk vastgemaakt",
     "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -6714,7 +6905,7 @@
     }
   },
   "folderUnpinnedFromSidebar": {
-    "message": "$NAME$ unpinned from sidebar",
+    "message": "$NAME$ van zijbalk losgemaakt",
     "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
     "placeholders": {
       "name": {
@@ -6724,15 +6915,15 @@
     }
   },
   "pinnedEmptyStatePrefix": {
-    "message": "Find a shared folder in this vault and select",
+    "message": "Zoek een gedeelde map in deze kluis en selecteer",
     "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
   },
   "pinnedEmptyStateSuffix": {
-    "message": "from the Options menu.",
+    "message": "van het menu Opties.",
     "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
   },
   "noPinnedFoldersTooltip": {
-    "message": "Pin shared folders to the sidebar to filter them here."
+    "message": "Gedeelde mappen aan de zijbalk vastmaken om ze hier te filteren."
   },
   "sendPasswordHelperText": {
     "message": "Individuen moeten het wachtwoord invoeren om deze Send te bekijken",
@@ -7265,6 +7456,15 @@
   "unknownCipher": {
     "message": "Onbekend item, je moet misschien inloggen met een andere account om dit item te kunnen opvragen."
   },
+  "viewSharedItem": {
+    "message": "Gedeeld item weergeven"
+  },
+  "copyShareLink": {
+    "message": "Deellink kopiëren"
+  },
+  "unableToDetermineItemId": {
+    "message": "Kan item-ID niet bepalen"
+  },
   "newExperienceDialogTitle": {
     "message": "Bitwarden heeft een nieuw uiterlijk",
     "description": "Title of the dialog that introduces the redesigned vault to existing users."
@@ -7329,8 +7529,8 @@
   "coachmarkVaultListTitle": {
     "message": "Al je kluizen op één plaats"
   },
-  "coachmarkVaultListDescription": {
-    "message": "Persoonlijke-, familie- en zakelijke kluizen zijn hieronder opgesomd."
+  "coachmarkVaultListDescriptionV2": {
+    "message": "Bekijk snel persoonlijke items of items in een kluis die je met anderen deelt."
   },
   "coachmarkSharedFoldersTitle": {
     "message": "Collecties en mappen hebben nieuwe namen"
@@ -7356,5 +7556,46 @@
         "example": "4"
       }
     }
+  },
+  "httpAuthenticationSettingLabel": {
+    "message": "Inlogverzoeken webbrowser automatisch invullen",
+    "description": "Label for the item setting that lets the extension respond to HTTP basic authentication prompts shown by the browser"
+  },
+  "httpAuthenticationSettingDescription": {
+    "message": "Reageren op basis van HTTP-authenticatieprompts van websites die overeenkomen met dit inlogitem."
+  },
+  "openHttpAuthenticationHelpArticleSignpost": {
+    "message": "Open helpartikel over automatisch invullen van inlogverzoeken van de webbrowser"
+  },
+  "httpAuthenticationSettingWarning": {
+    "message": "Websites kunnen deze verzoeken doen zonder dat je het door hebt, wat je inloggegevens kan blootleggen.",
+    "description": "Warning shown beneath the item setting that lets the extension respond to HTTP basic authentication prompts"
+  },
+  "httpAuthenticationSettingRequiresMatchDetectionGuidance": {
+    "message": "Om deze instelling te gebruiken, kies een andere overeenkomstdetectie dan \"Standaard\" voor elke website van dit inlogitem."
+  },
+  "turnOnHttpAuthenticationTitle": {
+    "message": "Automatisch invullen voor inlogverzoeken webbrowser inschakelen?"
+  },
+  "turnOnHttpAuthenticationRepromptConflictPrompt": {
+    "message": "Opnieuw vragen van het hoofdwachtwoord zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
+  },
+  "turnOnPasswordRepromptTitle": {
+    "message": "Hoofdwachtwoord opnieuw vragen"
+  },
+  "turnOnPasswordRepromptHttpAuthenticationConflictPrompt": {
+    "message": "Automatisch invullen voor inlogverzoeken webbrowser zal uitgeschakeld worden voor dit item. Beide instellingen kunnen niet op hetzelfde moment ingeschakeld zijn."
+  },
+  "useDefaultMatchDetectionTitle": {
+    "message": "Standaard overeenkomstdetectie gebruiken?"
+  },
+  "useDefaultMatchDetectionHttpAuthenticationConflictPrompt": {
+    "message": "Websites die de standaard oveenkomstdetectie gebruiken kunnen niet worden gebruikt met inlogverzoeken van de webbrowser. Automatisch invullen van inlogverzoeken zal voor dit item worden uitgeschakeld."
+  },
+  "httpAuthenticationTurnedOffTitle": {
+    "message": "Automatisch invullen voor inlogverzoeken webbrowser uitgeschakeld"
+  },
+  "httpAuthenticationTurnedOffNotice": {
+    "message": "Dit item heeft het opnieuw vragen van het hoofdwachtwoord ingeschakeld, dus automatisch invullen voor webbrowser inlogverzoeken is uitgeschakeld. Sla het item op om deze wijziging te behouden."
   }
 }
