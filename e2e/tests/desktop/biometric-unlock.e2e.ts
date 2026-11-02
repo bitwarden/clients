@@ -23,8 +23,7 @@ test("enrolls in biometric unlock, locks and unlocks with biometrics", async ({
   await biometrics.waitUntilEnrolled();
   await window.keyboard.press("Escape");
 
-  // Locking turns auto-prompt off, so unlock waits for the button. The lock reloads the
-  // renderer, so drive the fake biometrics from the reloaded one.
+  // The lock reloads the renderer, so drive the fake biometrics from the reloaded one.
   const lockedWindow = await lockAll(app, window, LockOutcome.Reload);
   const lockedBiometrics = new Biometrics(lockedWindow);
 
