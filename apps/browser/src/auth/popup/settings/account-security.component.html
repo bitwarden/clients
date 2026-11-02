@@ -85,7 +85,7 @@
           }
           @if (sharedUnlockFeatureEnabled$ | async) {
             @if (showSharedUnlockWithDesktop) {
-              <bit-form-control [disableMargin]="true">
+              <bit-form-control disableMargin>
                 <input
                   bitCheckbox
                   id="allowSharingUnlockStateWithDesktop"
