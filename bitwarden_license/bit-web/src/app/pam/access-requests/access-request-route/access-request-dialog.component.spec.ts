@@ -1160,4 +1160,192 @@ describe("AccessRequestDialogComponent", () => {
       expect(component["canWithdrawApproval"]()).toBe(false);
     });
   });
+  /**
+   * Every state a request can reach, as each kind of viewer meets it: the badge, the footer, and
+   * how the Decision card names the outcome. History opens read-only.
+   */
+  describe("status matrix", () => {
+    const approval = humanDecision({ id: "approver-1", name: "Ada", verdict: "approve" });
+    const lease = { producedLeaseId: "lease-1", producedLeaseNotAfter: FUTURE };
+    const STATUSES = {
+      pending: { status: "pending" },
+      ready: { status: "approved", decisions: [approval] },
+      active: {
+        status: "approved",
+        producedLeaseStatus: "active",
+        ...lease,
+        decisions: [approval],
+      },
+      revoked: {
+        status: "approved",
+        producedLeaseStatus: "revoked",
+        ...lease,
+        decisions: [approval, humanDecision({ id: "op-9", name: "Ops", verdict: "deny" })],
+      },
+      endedByHolder: {
+        status: "approved",
+        producedLeaseStatus: "canceled",
+        ...lease,
+        decisions: [approval, selfEndDecision("user-1")],
+      },
+      denied: {
+        status: "denied",
+        resolvedAt: PAST,
+        decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
+      },
+      withdrawn: {
+        status: "denied",
+        resolvedAt: PAST,
+        decisions: [approval, humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
+      },
+      canceled: { status: "canceled", resolvedAt: PAST },
+      expired: { status: "expired", resolvedAt: PAST },
+    } as const;
+
+    type Viewer = "requester" | "approver" | "approver from History";
+    type Expected = { badge: string; footer: string[]; decision: string | null };
+
+    function open(status: keyof typeof STATUSES, viewer: Viewer): void {
+      params.readOnly = viewer === "approver from History";
+      detail.viewer$.next(viewer === "requester" ? "requester" : "approver");
+      detail.managed$.next(viewer !== "requester");
+      const r = request(STATUSES[status]);
+      detail.request$.next(r);
+      if (viewer !== "requester" && status === "pending") {
+        detail.approvalRow$.next({
+          id: "req-1",
+          request: r,
+          cipherId: "cipher-1",
+        } as unknown as ApprovalRow);
+      }
+      create();
+    }
+
+    function observed(): Expected {
+      const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+      const summary = component["decisionSummary"]();
+      const badge = component["badge"]();
+      return {
+        badge: badge?.badgeState?.kind ?? badge?.statusBadge?.labelKey ?? "none",
+        footer: [...footer.querySelectorAll("button, a")].map((el) =>
+          el.id.replace(/^access-request-dialog_(button|link)_/, ""),
+        ),
+        decision: summary == null ? null : `${summary.byLabelKey} ${summary.who}`,
+      };
+    }
+
+    const CLOSE = ["close"];
+    it.each<[keyof typeof STATUSES, Viewer, Expected]>([
+      [
+        "pending",
+        "requester",
+        { badge: "pending", footer: ["cancel-request", "close"], decision: null },
+      ],
+      [
+        "pending",
+        "approver",
+        { badge: "pending", footer: ["approve", "close", "deny"], decision: null },
+      ],
+      ["pending", "approver from History", { badge: "pending", footer: CLOSE, decision: null }],
+      [
+        "ready",
+        "requester",
+        { badge: "ready", footer: ["start", "close"], decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "ready",
+        "approver",
+        {
+          badge: "ready",
+          footer: ["withdraw-approval", "close"],
+          decision: "pamDecisionApprovedBy Ada",
+        },
+      ],
+      [
+        "ready",
+        "approver from History",
+        { badge: "ready", footer: CLOSE, decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "active",
+        "requester",
+        { badge: "active", footer: ["end-lease", "close"], decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "active",
+        "approver",
+        { badge: "active", footer: ["revoke", "close"], decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "active",
+        "approver from History",
+        { badge: "active", footer: CLOSE, decision: "pamDecisionApprovedBy Ada" },
+      ],
+      [
+        "revoked",
+        "requester",
+        { badge: "pamStatusRevoked", footer: CLOSE, decision: "pamDecisionRevokedBy Ops" },
+      ],
+      [
+        "revoked",
+        "approver",
+        { badge: "pamStatusRevoked", footer: CLOSE, decision: "pamDecisionRevokedBy Ops" },
+      ],
+      [
+        "endedByHolder",
+        "requester",
+        { badge: "pamStatusCanceled", footer: CLOSE, decision: "pamDecisionEndedBy Grace" },
+      ],
+      [
+        "endedByHolder",
+        "approver",
+        { badge: "pamStatusCanceled", footer: CLOSE, decision: "pamDecisionEndedBy Grace" },
+      ],
+      [
+        "denied",
+        "requester",
+        {
+          badge: "pamStatusDenied",
+          footer: ["submit-new-request", "close"],
+          decision: "pamDecisionDeniedBy Ada",
+        },
+      ],
+      [
+        "denied",
+        "approver",
+        { badge: "pamStatusDenied", footer: CLOSE, decision: "pamDecisionDeniedBy Ada" },
+      ],
+      [
+        "withdrawn",
+        "requester",
+        {
+          badge: "pamStatusDenied",
+          footer: ["submit-new-request", "close"],
+          decision: "pamDecisionDeniedBy Ada",
+        },
+      ],
+      [
+        "withdrawn",
+        "approver",
+        { badge: "pamStatusDenied", footer: CLOSE, decision: "pamDecisionDeniedBy Ada" },
+      ],
+      ["canceled", "requester", { badge: "pamStatusCanceled", footer: CLOSE, decision: null }],
+      ["canceled", "approver", { badge: "pamStatusCanceled", footer: CLOSE, decision: null }],
+      [
+        "expired",
+        "requester",
+        { badge: "pamStatusExpired", footer: ["submit-new-request", "close"], decision: null },
+      ],
+      ["expired", "approver", { badge: "pamStatusExpired", footer: CLOSE, decision: null }],
+      [
+        "expired",
+        "approver from History",
+        { badge: "pamStatusExpired", footer: CLOSE, decision: null },
+      ],
+    ])("%s, as the %s", (status, viewer, expected) => {
+      open(status, viewer);
+
+      expect(observed()).toEqual(expected);
+    });
+  });
 });
