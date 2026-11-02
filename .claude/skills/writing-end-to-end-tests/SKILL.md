@@ -16,7 +16,6 @@ description: Write and run Playwright end-to-end tests in `e2e/` for the web vau
 Follow [querying-elements](../../rules/querying-elements.md). In Playwright:
 
 - Prefer `page.getByRole(...)`, `getByLabel(...)` or `getByText(...)`; fall back to `page.getByTestId(...)`.
-- No CSS classes, DOM structure, `#id` or `formcontrolname`.
 - Keep each test id in a named constant at the top of the helper or test.
 
 ## Writing tests

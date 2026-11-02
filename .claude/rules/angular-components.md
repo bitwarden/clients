@@ -13,6 +13,7 @@ Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/
 - **Standalone**: Components must be standalone. NgModules may still be used to group components, but the inner components must be standalone. Declare imports on the component decorator; do not register in `NgModule.declarations`.
 - **OnPush**: Set `changeDetection: ChangeDetectionStrategy.OnPush`. With OnPush, mutating arrays/objects in place does **not** trigger change detection — create new references (`[...arr]`, `{...obj}`) or use signals.
 - **Host bindings**: Use the `host` property — not `@HostBinding` / `@HostListener`.
+- **Selectors**: Use dashes, not camelCase (`app-example`, not `appExample`).
 
 ```typescript
 @Component({
