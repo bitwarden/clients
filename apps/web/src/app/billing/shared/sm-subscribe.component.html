@@ -21,7 +21,7 @@
         <ng-template #unlimitedProjects>
           <li>{{ "unlimitedProjects" | i18n }}</li>
         </ng-template>
-        <li>{{ "machineAccountsIncluded" | i18n: serviceAccountsIncluded }}</li>
+        <li>{{ "includedMachineAccountsV2" | i18n: serviceAccountsIncluded }}</li>
         <li *ngIf="product != productTypes.Free">
           {{
             "additionalMachineAccountCost" | i18n: (monthlyCostPerServiceAccount | currency: "$")

@@ -14402,15 +14402,6 @@
   "smAccessRemovalWarningMaMessage": {
     "message": "This action will remove your access to the machine account."
   },
-  "machineAccountsIncluded": {
-    "message": "$COUNT$ machine accounts included",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "additionalMachineAccountCost": {
     "message": "$COST$ per month for additional machine accounts",
     "placeholders": {
