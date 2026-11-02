@@ -14,6 +14,8 @@ export enum FeatureFlag {
   CollectionsDecryptListFailures = "pm-43375-collections-decrypt-list-failures",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  GroupsComponentRefactor = "pm-43419-groups-table-v2",
+  MembersTableV2 = "pm-37463-members-table-v2",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -30,6 +32,7 @@ export enum FeatureFlag {
 
   /* Autofill */
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  FillAssistRuleFallback = "fill-assist-rule-fallback",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
   // Note: This flag gates security risks and should not be turned on without
@@ -52,14 +55,10 @@ export enum FeatureFlag {
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
   PM36631_PreviewDrivenCart = "pm-36631-preview-driven-cart",
   PM38333_AnnualBillingSavings = "pm-38333-annual-billing-savings",
-  PM39883_PamBillingSupport = "pm-39883-pam-billing-support",
+  PamBillingSupport = "pm-39883-pam-billing-support",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
-  // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
-  // get to use the feature.
-  SharedUnlockPart1 = "innovation-sprint-shared-unlock-part-1",
   SharedUnlockPart2 = "innovation-sprint-shared-unlock-part-2",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
@@ -132,9 +131,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CollectionsDecryptListFailures]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
+  [FeatureFlag.MembersTableV2]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
+  [FeatureFlag.FillAssistRuleFallback]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.EnableBasicAuthResponse]: FALSE,
@@ -196,11 +198,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
   [FeatureFlag.PM36631_PreviewDrivenCart]: FALSE,
   [FeatureFlag.PM38333_AnnualBillingSavings]: FALSE,
-  [FeatureFlag.PM39883_PamBillingSupport]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
@@ -220,6 +220,7 @@ export const DefaultFeatureFlagValue = {
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
+  [FeatureFlag.PamBillingSupport]: FALSE,
   [FeatureFlag.PamAccessConnector]: FALSE,
 
   /* VFO */

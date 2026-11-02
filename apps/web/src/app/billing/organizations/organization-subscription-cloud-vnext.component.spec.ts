@@ -922,7 +922,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         if (flag === FeatureFlag.PM36631_PreviewDrivenCart) {
           return previewCartFlag$;
         }
-        return of(flag === FeatureFlag.PM39883_PamBillingSupport ? billing : pam);
+        return of(flag === FeatureFlag.PamBillingSupport ? billing : pam);
       });
 
     /** Renders and waits for the subscription resource so each gate is evaluated on loaded data. */

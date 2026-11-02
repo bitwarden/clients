@@ -85,7 +85,7 @@
           }
           @if (sharedUnlockFeatureEnabled$ | async) {
             @if (showSharedUnlockWithDesktop) {
-              <bit-form-control [disableMargin]="!showSharedUnlockWithWeb">
+              <bit-form-control disableMargin>
                 <input
                   bitCheckbox
                   id="allowSharingUnlockStateWithDesktop"
@@ -94,27 +94,10 @@
                   data-testid="account-security-desktop-sync-checkbox"
                 />
                 <bit-label for="allowSharingUnlockStateWithDesktop" class="tw-whitespace-normal">
-                  {{ "syncUnlockWithDesktop" | i18n }}
+                  {{ "syncUnlockWithDesktop1" | i18n }}
                 </bit-label>
                 <bit-hint class="tw-text-sm">
                   {{ "syncUnlockWithDesktopDescription" | i18n }}
-                </bit-hint>
-              </bit-form-control>
-            }
-            @if (showSharedUnlockWithWeb) {
-              <bit-form-control [disableMargin]="true">
-                <input
-                  bitCheckbox
-                  id="allowSharingUnlockStateWithWeb"
-                  type="checkbox"
-                  formControlName="allowSharingUnlockStateWithWeb"
-                  data-testid="account-security-web-sync-checkbox"
-                />
-                <bit-label for="allowSharingUnlockStateWithWeb" class="tw-whitespace-normal">
-                  {{ "syncUnlockWithWeb" | i18n }}
-                </bit-label>
-                <bit-hint class="tw-text-sm">
-                  {{ "syncUnlockWithWebDescription" | i18n }}
                 </bit-hint>
               </bit-form-control>
             }

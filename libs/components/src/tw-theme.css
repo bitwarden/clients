@@ -717,7 +717,7 @@
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
   --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
-  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.65);
 
   /* ========================================
    * SEMANTIC BORDER COLORS (Dark Mode Overrides)
@@ -820,6 +820,14 @@
 .theme_dark textarea,
 .theme_dark select {
   color-scheme: dark;
+}
+
+@layer base {
+  /* Standard props keep macOS overlay scrollbars; any ::-webkit-scrollbar rule forces a classic, always-visible one. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-bg-gray) transparent;
+  }
 }
 
 @layer components {

@@ -31,6 +31,10 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  RestrictedCipherAction,
+  RestrictedCipherPolicy,
+} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
@@ -234,10 +238,17 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   readonly barVisible = computed(() => this.selectedCount() > 0);
 
-  /** Selected items that are ciphers, excluding gated ("partial") rows, which are read-only. */
+  /**
+   * Selected items that are ciphers, excluding restricted ciphers. The list already makes them
+   * unselectable; this guards bulk actions if one reaches the selection another way.
+   */
   readonly selectedCiphers = computed(() =>
     this.selected()
-      .filter((i) => i.cipher !== undefined && !CipherViewLikeUtils.isPartial(i.cipher))
+      .filter(
+        (i) =>
+          i.cipher !== undefined &&
+          RestrictedCipherPolicy.allows(i.cipher, RestrictedCipherAction.BulkSelect),
+      )
       .map((i) => i.cipher as C),
   );
 
@@ -620,7 +631,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         (i) =>
           i.collection === undefined &&
           i.cipher !== undefined &&
-          !CipherViewLikeUtils.isPartial(i.cipher),
+          RestrictedCipherPolicy.allows(i.cipher, RestrictedCipherAction.BulkSelect),
       )
       .map((i) => i.cipher as C);
     const collections = selected
