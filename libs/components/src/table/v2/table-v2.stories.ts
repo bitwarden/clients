@@ -305,7 +305,7 @@ type VaultFilters = {
  *
  * Shows the range of menu content: a radio group (Type), a checkbox group
  * (Vault), a checkbox group with in-menu search + collapsible sections
- * (Collections), and a toggle (Favorites).
+ * (Shared folders), and a toggle (Favorites).
  */
 @Component({
   selector: "demo-filterable-table",
@@ -349,9 +349,9 @@ type VaultFilters = {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
-            placeholderText="Collections"
+            placeholderText="Shared folders"
             multiple
           >
             @for (org of collectionOrgs; track org.name) {
@@ -472,9 +472,9 @@ class DemoFilterableTableComponent {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
-            placeholderText="Collections"
+            placeholderText="Shared folders"
             multiple
           >
             @for (org of collectionOrgs; track org.name) {
@@ -618,7 +618,7 @@ const itemRangeLabel = ({ start, end, total }: TableRowRange) => {
           </bit-filter-menu>
 
           <bit-filter-menu
-            icon="bwi-collection"
+            icon="bwi-shared-folder"
             key="collection"
             placeholderText="Shared folders"
             multiple
@@ -710,7 +710,7 @@ class DemoKitchenSinkTableComponent {
   protected readonly folders = FOLDERS;
 
   protected readonly collectionTile: FilterOptionIconTile = {
-    icon: "bwi-collection-shared",
+    icon: "bwi-shared-folder",
     variant: "brand",
   };
 

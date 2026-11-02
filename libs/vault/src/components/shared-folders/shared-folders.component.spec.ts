@@ -40,12 +40,9 @@ import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkEditCollectionAccessDialogRef,
 } from "../../tokens/bulk-edit-collection-access-dialog.token";
-import {
-  COLLECTION_DIALOG,
-  CollectionDialogRef,
-  CollectionDialogTab,
-} from "../../tokens/collection-dialog.token";
+import { COLLECTION_DIALOG, CollectionDialogRef } from "../../tokens/collection-dialog.token";
 import { SHARED_FOLDER_DECORATION } from "../../tokens/shared-folder-decoration.token";
+import { CollectionOptionsMenuComponent } from "../collection-options-menu";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow } from "./shared-folder-rows";
@@ -243,10 +240,6 @@ describe("SharedFoldersComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
         {
-          provide: StateProvider,
-          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
-        },
-        {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ vaultId })) },
         },
@@ -263,6 +256,10 @@ describe("SharedFoldersComponent", () => {
           useValue: { cipherListViewsIncludingRestricted$: () => ciphers$ },
         },
         { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
+        {
+          provide: StateProvider,
+          useValue: new FakeStateProvider(mockAccountServiceWith("user-1" as UserId)),
+        },
         ...(withCollectionDialog
           ? [{ provide: COLLECTION_DIALOG, useValue: collectionDialog }]
           : []),
@@ -1139,8 +1136,11 @@ describe("SharedFoldersComponent", () => {
       return Array.from(document.querySelectorAll("[bitMenuItem]")).map((item) => item.id);
     }
 
-    it("keeps the options column for a client with no collection dialog", async () => {
-      await setup({ collections: [collection()], dialogs: { collection: false } });
+    it("keeps the options column for a client with neither dialog, since Pin needs none", async () => {
+      await setup({
+        collections: [collection()],
+        dialogs: { collection: false, bulkDelete: false },
+      });
       fixture.detectChanges();
 
       expect(
@@ -1151,7 +1151,7 @@ describe("SharedFoldersComponent", () => {
       expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("keeps the options column narrow and the options track flexible", async () => {
+    it("keeps the options column narrow and the items column fixed", async () => {
       await setup({ collections: [collection()] });
       fixture.detectChanges();
 
@@ -1160,7 +1160,38 @@ describe("SharedFoldersComponent", () => {
       expect(menuTriggers()).toHaveLength(1);
     });
 
-    it("offers Pin to sidebar for a folder the member can neither edit nor delete", async () => {
+    it("keeps the options column for a client with only a bulk delete dialog, Delete-only", async () => {
+      await setup({ collections: [collection()], dialogs: { collection: false } });
+      fixture.detectChanges();
+
+      expect(menuTriggers()).toHaveLength(1);
+    });
+
+    it("binds each row's menu to that row's own collection, not another row's", async () => {
+      const folderA = collection({ id: "col-a", name: "Alpha" });
+      const folderB = collection({ id: "col-b", name: "Bravo" });
+      await setup({ collections: [folderA, folderB] });
+      fixture.detectChanges();
+
+      const menus = fixture.debugElement
+        .queryAll(By.directive(CollectionOptionsMenuComponent))
+        .map((debugEl) => debugEl.componentInstance as CollectionOptionsMenuComponent);
+      expect(menus).toHaveLength(2);
+
+      const menuForB = menus.find((menu) => menu.collection().id === "col-b");
+      if (!menuForB) {
+        throw new Error("No menu instance bound to col-b");
+      }
+
+      await menuForB["delete"]();
+
+      expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
+        organization: expect.objectContaining({ id: ORGANIZATION_ID }),
+        collections: [folderB],
+      });
+    });
+
+    it("offers only Pin to sidebar for a folder the member can neither edit nor delete", async () => {
       await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
       fixture.detectChanges();
 
@@ -1170,24 +1201,27 @@ describe("SharedFoldersComponent", () => {
       expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
     });
 
-    it("offers only Pin to sidebar to a client with no collection dialog", async () => {
+    it("offers only Pin to sidebar for a client with neither dialog", async () => {
       await setup({
         collections: [collectionWith(SharedFolderPermission.Manage)],
-        dialogs: { collection: false },
+        dialogs: { collection: false, bulkDelete: false },
       });
       fixture.detectChanges();
 
       expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
     });
 
-    it("offers only Pin to sidebar on desktop, which provides the bulk delete dialog but no collection dialog", async () => {
+    it("offers Pin to sidebar and Delete for a client with only a bulk delete dialog", async () => {
       await setup({
         collections: [collectionWith(SharedFolderPermission.Manage)],
         dialogs: { collection: false, bulkDelete: true },
       });
       fixture.detectChanges();
 
-      expect(openMenuItemIds()).toEqual(["shared-folders_menu-item_pin-col-1"]);
+      expect(openMenuItemIds()).toEqual([
+        "shared-folders_menu-item_pin-col-1",
+        "shared-folders_menu-item_delete-col-1",
+      ]);
     });
 
     it("offers Edit and Access but not Delete when the organization limits collection deletion", async () => {
@@ -1216,6 +1250,15 @@ describe("SharedFoldersComponent", () => {
         "shared-folders_menu-item_access-col-1",
         "shared-folders_menu-item_delete-col-1",
       ]);
+    });
+
+    it("still projects into the cell's end slot for a folder the member can neither edit nor delete, for Pin", async () => {
+      // Scoped to `bit-row`, not the whole fixture — the toolbar's Add button also uses `slot="end"`.
+      await setup({ collections: [collectionWith(SharedFolderPermission.View)] });
+      fixture.detectChanges();
+
+      const rowElement = fixture.debugElement.query(By.css("bit-row")).nativeElement as HTMLElement;
+      expect(rowElement.querySelector("[slot=end]")).not.toBeNull();
     });
 
     /** Opens the first row's menu and clicks the item with `id`. */
@@ -1268,109 +1311,6 @@ describe("SharedFoldersComponent", () => {
       const pinItem = document.querySelector("#shared-folders_menu-item_pin-col-a");
       expect(pinItem?.textContent).toContain("pinToSidebar");
       expect(pinItem?.textContent).not.toContain("unpinFromSidebar");
-    });
-
-    it("toasts after pinning, naming the folder", async () => {
-      await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
-      fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "folderPinnedToSidebar:Engineering",
-      });
-    });
-
-    it("toasts after unpinning, naming the folder", async () => {
-      await setup({ collections: [collection({ id: "col-a", name: "Engineering" })] });
-      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
-      fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "folderUnpinnedFromSidebar:Engineering",
-      });
-    });
-
-    it("does not toast before the pin has been written", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
-      let finishPin!: () => void;
-      jest.spyOn(pinnedSharedFolders, "pin").mockReturnValue(
-        new Promise<void>((resolve) => {
-          finishPin = resolve;
-        }),
-      );
-
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-      expect(toastService.showToast).not.toHaveBeenCalled();
-
-      finishPin();
-      await fixture.whenStable();
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not toast before the unpin has been written", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      await pinnedSharedFolders.pin("user-1" as UserId, "col-a" as CollectionId);
-      fixture.detectChanges();
-      let finishUnpin!: () => void;
-      jest.spyOn(pinnedSharedFolders, "unpin").mockReturnValue(
-        new Promise<void>((resolve) => {
-          finishUnpin = resolve;
-        }),
-      );
-
-      await clickMenuItem("shared-folders_menu-item_pin-col-a");
-      expect(toastService.showToast).not.toHaveBeenCalled();
-
-      finishUnpin();
-      await fixture.whenStable();
-      expect(toastService.showToast).toHaveBeenCalledTimes(1);
-    });
-
-    it("opens the collection dialog on the info tab to edit a folder", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_edit-col-a");
-
-      expect(collectionDialog.open).toHaveBeenCalledWith({
-        organizationId: ORGANIZATION_ID,
-        collectionId: "col-a",
-        initialTab: CollectionDialogTab.Info,
-      });
-    });
-
-    it("opens the collection dialog on the access tab to edit a folder's access", async () => {
-      await setup({ collections: [collection({ id: "col-a" })] });
-      fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_access-col-a");
-
-      expect(collectionDialog.open).toHaveBeenCalledWith({
-        organizationId: ORGANIZATION_ID,
-        collectionId: "col-a",
-        initialTab: CollectionDialogTab.Access,
-      });
-    });
-
-    it("deletes a folder through the bulk delete dialog, which owns the confirmation", async () => {
-      const folder = collection({ id: "col-a" });
-      await setup({ collections: [folder] });
-      fixture.detectChanges();
-
-      await clickMenuItem("shared-folders_menu-item_delete-col-a");
-
-      expect(bulkDeleteDialog.open).toHaveBeenCalledWith({
-        organization: expect.objectContaining({ id: ORGANIZATION_ID }),
-        collections: [folder],
-      });
     });
   });
 

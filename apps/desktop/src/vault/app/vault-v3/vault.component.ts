@@ -129,6 +129,9 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  CollectionMenuTarget,
+  collectionMenuTargetForScope,
+  CollectionOptionsMenuComponent,
   FilterFunction,
   folderNameForScope,
   hasMultipleVaults,
@@ -204,6 +207,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     AutofocusDirective,
     CardGridComponent,
     VaultBreadcrumbsComponent,
+    CollectionOptionsMenuComponent,
     MyFolderBreadcrumbsComponent,
     MyFolderMenuComponent,
     IconTileComponent,
@@ -469,6 +473,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
+
+  protected get collectionMenu(): CollectionMenuTarget | undefined {
+    if (!this.vfo1Foundation()) {
+      return undefined;
+    }
+    return collectionMenuTargetForScope(
+      this.vaultScope(),
+      this.scopedCollections,
+      this.allOrganizations,
+    );
+  }
 
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,

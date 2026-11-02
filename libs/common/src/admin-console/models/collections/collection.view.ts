@@ -189,9 +189,6 @@ export class CollectionView implements View, ITreeNodeObject {
    * enforce the security restriction that prevents editing names on offboarded default-user
    * collections (see WARNING on `canEditName`). Without it the restriction would be silently
    * bypassed on the SDK decrypt path.
-   *
-   * The parameter also carries `hasEnabledAccessRule`, server-derived state the SDK's `Collection`
-   * does not declare.
    */
   static fromSdkCollectionView(
     sdkView: SdkCollectionView,
@@ -210,7 +207,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.assigned = true;
     view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
     view.type = sdkView.type;
-    view.hasEnabledAccessRule = sourceCollection.hasEnabledAccessRule;
+    view.hasEnabledAccessRule = sdkView.hasEnabledAccessRule ?? false;
 
     return view;
   }
@@ -256,6 +253,7 @@ export class CollectionView implements View, ITreeNodeObject {
       readOnly: this.readOnly,
       manage: this.manage,
       type: this.type,
+      hasEnabledAccessRule: this.hasEnabledAccessRule,
     };
   }
 

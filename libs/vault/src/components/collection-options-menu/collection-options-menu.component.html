@@ -9,15 +9,15 @@
     [attr.id]="idPrefix() + '_button_options-' + collection().id"
   ></button>
   <bit-menu #menu>
-    @if (unpinnable()) {
+    @if (showPinAction()) {
       <button
         type="button"
         bitMenuItem
-        [attr.id]="idPrefix() + '_menu-item_unpin-' + collection().id"
-        (click)="unpin.emit()"
+        [attr.id]="idPrefix() + '_menu-item_pin-' + collection().id"
+        (click)="togglePin()"
       >
-        <bit-icon slot="start" fixedWidth name="bwi-unpin" />
-        {{ "unpinFromSidebar" | i18n }}
+        <bit-icon slot="start" fixedWidth [name]="isPinned() ? 'bwi-unpin' : 'bwi-pin'" />
+        {{ (isPinned() ? "unpinFromSidebar" : "pinToSidebar") | i18n }}
       </button>
     }
     @if (showEditActions()) {

@@ -1,39 +1,34 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { ButtonType, IconButtonModule, IconModule, MenuModule } from "@bitwarden/components";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  ButtonType,
+  IconButtonModule,
+  IconModule,
+  MenuModule,
+  ToastService,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  BULK_DELETE_DIALOG,
-  BulkDeleteDialogRef,
-  BulkDeleteDialogResult,
-} from "../../tokens/bulk-delete-dialog.token";
+import { PinnedSharedFoldersService } from "../../services/pinned-shared-folders.service";
+import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
 import {
   COLLECTION_DIALOG,
-  CollectionDialogOutcome,
   CollectionDialogRef,
   CollectionDialogTab,
 } from "../../tokens/collection-dialog.token";
 
-/** What `editCollection()`/`delete()` did, and which folder it targeted — not necessarily the
- * folder currently showing, if the viewer navigated away before the dialog closed. */
-export type CollectionActionResult = {
-  deleted: boolean;
-  organizationId: OrganizationId;
-  collectionId: CollectionId;
-};
-
 /**
- * Edit info / Edit access / Delete menu for one shared folder, plus Unpin when `unpinnable`. Used
- * by the vault's breadcrumb header, the shared folders table's per-row menu, and the side nav.
+ * Pin/Unpin, Edit info, Edit access, and Delete menu for one shared folder.
  *
- * The edit and delete actions need a token the client supplies — {@link COLLECTION_DIALOG},
- * {@link BULK_DELETE_DIALOG} — so a client that provides neither, and has nothing unpinnable, renders nothing. The host element
- * still exists even then, so a caller relying on CSS to collapse an empty wrapper (e.g. a table
- * cell's `empty:tw-hidden`) needs its own `@if` around this component.
+ * A client providing neither {@link COLLECTION_DIALOG} nor {@link BULK_DELETE_DIALOG}, with
+ * {@link showPin} off, renders an empty host element — a caller relying on CSS to collapse an
+ * empty wrapper (e.g. `empty:tw-hidden`) needs its own `@if` around this component.
  */
 @Component({
   selector: "vault-collection-options-menu",
@@ -48,10 +43,15 @@ export class CollectionOptionsMenuComponent {
   private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG, {
     optional: true,
   });
+  private readonly pinnedSharedFolders = inject(PinnedSharedFoldersService);
+  private readonly accountService = inject(AccountService);
+  private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
+
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getOptionalUserId);
 
   readonly collection = input.required<CollectionView>();
 
-  /** `undefined` while the organization list is still loading. */
   readonly organization = input<Organization | undefined>(undefined);
 
   readonly triggerIcon = input.required<string>();
@@ -60,43 +60,70 @@ export class CollectionOptionsMenuComponent {
 
   readonly triggerButtonType = input<ButtonType>("primaryGhost");
 
-  /** Adds an Unpin item, for a folder pinned to the side nav. */
-  readonly unpinnable = input(false);
-
-  readonly unpin = output<void>();
-
-  /** Prefix for this instance's element ids, so multiple menus on one page don't collide. */
   readonly idPrefix = input.required<string>();
 
-  readonly actionResult = output<CollectionActionResult>();
+  readonly showPin = input<boolean>(false);
 
-  /** Exposed so the template can name a tab by member rather than a bare string. */
+  readonly showDelete = input<boolean>(true);
+
   protected readonly CollectionDialogTab = CollectionDialogTab;
+
+  private readonly pinnedIds = this.pinnedSharedFolders.activePinnedIds;
 
   protected readonly showEditActions = computed(
     () => this.collectionDialog != null && this.collection().canEdit(this.organization()),
   );
 
+  /** `canDelete(undefined)` doesn't honor `limitCollectionDeletion`, which would let this render
+   * enabled right before `delete()`'s own `organization() == null` guard no-ops the click. */
   protected readonly showDeleteAction = computed(
-    () => this.bulkDeleteDialog != null && this.collection().canDelete(this.organization()),
+    () =>
+      this.showDelete() &&
+      this.bulkDeleteDialog != null &&
+      this.organization() != null &&
+      this.collection().canDelete(this.organization()),
+  );
+
+  protected readonly showPinAction = computed(
+    () => this.showPin() && !this.collection().isDefaultCollection,
   );
 
   protected readonly showMenu = computed(
-    () => this.showEditActions() || this.showDeleteAction() || this.unpinnable(),
+    () => this.showEditActions() || this.showDeleteAction() || this.showPinAction(),
   );
+
+  protected readonly isPinned = computed(() => this.pinnedIds().includes(this.collection().id));
+
+  protected async togglePin(): Promise<void> {
+    const collection = this.collection();
+    const userId = await firstValueFrom(this.userId$);
+    if (userId == null) {
+      return;
+    }
+    // Snapshotted `collection`, not a live re-read: the input can change mid-await.
+    const pinned = this.pinnedIds().includes(collection.id);
+    if (pinned) {
+      await this.pinnedSharedFolders.unpin(userId, collection.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("folderUnpinnedFromSidebar", collection.name),
+      });
+    } else {
+      await this.pinnedSharedFolders.pin(userId, collection.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("folderPinnedToSidebar", collection.name),
+      });
+    }
+  }
 
   protected async editCollection(initialTab: CollectionDialogTab): Promise<void> {
     const collection = this.collection();
-    const organizationId = collection.organizationId;
-    const collectionId = collection.id;
-    const outcome = await this.collectionDialog?.open({ organizationId, collectionId, initialTab });
-    if (outcome != null) {
-      this.actionResult.emit({
-        deleted: outcome === CollectionDialogOutcome.Deleted,
-        organizationId,
-        collectionId,
-      });
-    }
+    await this.collectionDialog?.open({
+      organizationId: collection.organizationId,
+      collectionId: collection.id,
+      initialTab,
+    });
   }
 
   protected async delete(): Promise<void> {
@@ -105,13 +132,6 @@ export class CollectionOptionsMenuComponent {
     if (organization == null) {
       return;
     }
-    const result = await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
-    if (result != null) {
-      this.actionResult.emit({
-        deleted: result === BulkDeleteDialogResult.Deleted,
-        organizationId: organization.id,
-        collectionId: collection.id,
-      });
-    }
+    await this.bulkDeleteDialog?.open({ organization, collections: [collection] });
   }
 }

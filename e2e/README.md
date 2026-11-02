@@ -46,12 +46,25 @@ Every suite defaults to `local-web`, because the web client's API URLs are baked
 into its build; desktop and browser point their self-hosted setting at it.
 Override with `E2E_ACCOUNT=<section>`.
 
+Multi-account tests sign in a second account from `local-web-2`, on the same server.
+Override with `E2E_SECOND_ACCOUNT=<section>`.
+
 The web suite builds and serves the client itself when `server` is the dev server,
 `https://localhost:8080`. Any other `server` must be a deployed vault:
 
 ```
 E2E_ACCOUNT=usdev-e2e npm run test:e2e:web
 ```
+
+`E2E_EMAIL`, `E2E_PASSWORD` and `E2E_SERVER` take precedence over the file when all
+three are set. CI uses them.
+
+## CI
+
+`.github/workflows/test-e2e-usdev.yml` runs every suite against usdev nightly, and on
+a PR when it is labeled `ci:km-e2e-tests`. The web suite drives the deployed usdev
+vault, so a PR's web changes are not under test; the others build their client from
+the PR.
 
 ## Headless
 
