@@ -200,7 +200,7 @@ export class OrganizationSubscriptionCloudComponent {
     () => this.organizationSubscription()?.subscription ?? null,
   );
 
-  // TODO: This exists mostly for the sm-standalone gating logic, will be removed in refactoring
+  // Only read for the sm-standalone discount check.
   protected readonly customerDiscount = computed(
     () => this.organizationSubscription()?.customerDiscount ?? null,
   );
