@@ -3,7 +3,7 @@ import {
   LogoutReason,
   LogoutService,
   NewActiveUser,
-} from "@bitwarden/auth/common";
+} from "@bitwarden/common/auth/logout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";

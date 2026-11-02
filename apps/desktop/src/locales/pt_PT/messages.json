@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Adicione uma pasta partilhada para partilhar itens do cofre de forma segura com outros membros."
   },
+  "pinned": {
+    "message": "Afixadas",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Afixar na barra lateral",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Desafixar da barra lateral",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ afixada na barra lateral",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ desafixada da barra lateral",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Encontre uma pasta partilhada neste cofre e selecione",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "no menu Opções.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Afixe pastas partilhadas na barra lateral para as filtrar aqui."
+  },
   "sendPasswordHelperText": {
     "message": "Os destinatários terão de introduzir a palavra-passe para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7294,6 +7337,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "As mesmas funcionalidades, com nomes mais claros. As coleções passam a chamar-se pastas partilhadas. As pastas passam a chamar-se As minhas pastas."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Combinar filtros"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Selecione vários filtros em simultâneo para obter exatamente os resultados que procura. Os filtros continuarão aplicados mesmo que saia desta página."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ de $TOTAL$",

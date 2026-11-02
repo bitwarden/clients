@@ -1390,7 +1390,7 @@
     "message": "Atlasīt datni."
   },
   "selectFileUnsupportedType": {
-    "message": "That file type isn't accepted for this source. Choose a different file"
+    "message": "Šis datņu veids šim avotam netiek pieņemts. Jāizvēlas cita datne"
   },
   "pasteContentRequired": {
     "message": "Paste the exported content"
@@ -2132,16 +2132,16 @@
     "message": "Use Bitwarden to save and sign in with passkeys in other apps."
   },
   "turnedOn": {
-    "message": "On"
+    "message": "Ieslēgts"
   },
   "turnedOff": {
-    "message": "Off"
+    "message": "Izslēgts"
   },
   "manageInSystemSettings": {
-    "message": "Manage in system settings"
+    "message": "Pārvaldīt sistēmas iestatījumos"
   },
   "mayOpenSystemSettings": {
-    "message": "May open the system settings app.",
+    "message": "Var atvērt sistēmas iestatījumu lietotni.",
     "description": "Screen reader hint for the 'Manage in system settings' link, which shows an inline prompt when possible and otherwise opens the operating system's settings app."
   },
   "theme": {
@@ -2453,7 +2453,7 @@
     "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Notīrīt meklēšanu"
   },
   "selected": {
     "message": "Atlasīts"
@@ -3170,7 +3170,7 @@
     "message": "Jaunā parole nevar būt tāda pati kā pašreizējā."
   },
   "hint": {
-    "message": "Padoms"
+    "message": "Norāde"
   },
   "hintEqualsPassword": {
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
@@ -3933,11 +3933,11 @@
     "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
   },
   "forwarderMalformedUrl": {
-    "message": "Enter a valid URL",
+    "message": "Jāievada derīgs URL",
     "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
   },
   "forwarderUnsafeUrlDialogTitle": {
-    "message": "Unsafe URL detected",
+    "message": "Noteikts nederīgs URL",
     "description": "Title of the dialog shown when a forwarder's self-hosted base url fails the safety check."
   },
   "forwarderUnsafeUrlDialogContent": {
@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Add a shared folder to securely share vault items with other members."
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pin to sidebar",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Unpin from sidebar",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pinned to sidebar",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ unpinned from sidebar",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Find a shared folder in this vault and select",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "from the Options menu.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
+  },
   "sendPasswordHelperText": {
     "message": "Cilvēkiem būs jāievada parole, lai apskatītu šo Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7294,6 +7337,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ of $TOTAL$",

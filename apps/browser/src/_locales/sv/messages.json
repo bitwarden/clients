@@ -1052,7 +1052,7 @@
     }
   },
   "autofillError": {
-    "message": "Det gick inte att fylla i det valda objektet automatiskt på den här webbsidan. Kopiera och klistra in informationen istället."
+    "message": "Det gick inte att fylla i det valda objektet automatiskt på den här sidan. Kopiera och klistra in informationen i stället."
   },
   "totpCaptureError": {
     "message": "Det går inte att skanna QR-koden från den aktuella webbsidan"
@@ -2024,7 +2024,7 @@
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
-    "message": "API-server-URL"
+    "message": "URL för API-servern"
   },
   "webVaultUrl": {
     "message": "Webbvalvsserver-URL"
@@ -5094,7 +5094,7 @@
     "message": "Datan är inte korrekt formaterad. Vänligen kontrollera din importerade fil och försök igen."
   },
   "importUnsupportedKdfSettings": {
-    "message": "This file uses unsupported encryption settings and cannot be imported."
+    "message": "Den här filen använder krypteringsinställningar som inte stöds och kan inte importeras."
   },
   "importNothingError": {
     "message": "Ingenting har importerats."
@@ -5394,6 +5394,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Inloggningar, kort, identiteter, säkra anteckningar och TOTP-koder överförs med mappstrukturen bevarad."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Godkända: $FORMATS$",
@@ -5778,8 +5802,92 @@
   "lastPassEmail": {
     "message": "LastPass E-post"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Importerar ditt konto..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "LastPass flerfaktorsautentisering krävs"
@@ -5821,7 +5929,7 @@
     "message": "Sätt in YubiKey som associeras med ditt LastPass-konto i din dators USB-port, tryck sedan på knappen."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ 1Password items or vaults could not be imported",
+    "message": "Det gick inte att importera $COUNT$ objekt eller valv från 1Password",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5830,52 +5938,52 @@
     }
   },
   "onePasswordCheckCredentials": {
-    "message": "An error has occurred. Check your credentials and try again."
+    "message": "Ett fel inträffade. Kontrollera dina inloggningsuppgifter och försök igen."
   },
   "onePasswordOnlyPasswordLogin": {
-    "message": "Only login with password is supported."
+    "message": "Endast inloggning med lösenord stöds."
   },
   "onePasswordOnlyPasswordLoginTryAgain": {
-    "message": "Only login with password is supported. Try again or use a different import method."
+    "message": "Endast inloggning med lösenord stöds. Försök igen eller använd en annan importmetod."
   },
   "enterValidEmailOrUseDifferentImportMethod": {
-    "message": "Enter a valid email address or use a different import method."
+    "message": "Ange en giltig e-postadress eller använd en annan importmetod."
   },
   "onePasswordImportError": {
-    "message": "An error has occurred. Try again or use a different import method."
+    "message": "Ett fel inträffade. Försök igen eller använd en annan importmetod."
   },
   "emailIsRequired": {
-    "message": "Email is required."
+    "message": "E-postadress krävs."
   },
   "enterValidEmailAddress": {
-    "message": "Enter a valid email address."
+    "message": "Ange en giltig e-postadress."
   },
   "signInAddressIsRequired": {
-    "message": "Sign-in address is required."
+    "message": "Inloggningsadress krävs."
   },
   "enterValidSignInAddress": {
-    "message": "Enter a valid sign-in address."
+    "message": "Ange en giltig inloggningsadress."
   },
   "secretKeyIsRequired": {
-    "message": "Secret key is required."
+    "message": "Hemlig nyckel krävs."
   },
   "enterValidSecretKey": {
-    "message": "Enter a valid secret key."
+    "message": "Ange en giltig hemlig nyckel."
   },
   "passwordIsRequired": {
-    "message": "Password is required."
+    "message": "Lösenord krävs."
   },
   "enterValidVerificationCode": {
-    "message": "Enter a valid verification code."
+    "message": "Ange en giltig verifieringskod."
   },
   "signInAddress": {
-    "message": "Sign-in address"
+    "message": "Inloggningsadress"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "E-postadress för 1Password"
   },
   "onePasswordEmailHint": {
-    "message": "Enter the email you use to log in to 1Password"
+    "message": "Ange e-postadressen som du använder för att logga in på 1Password"
   },
   "secretKey": {
     "message": "Hemlig nyckel"
@@ -6797,7 +6905,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Visa matchningsdetektering $WEBSITE",
+    "message": "Visa matchningsdetektering $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -7701,7 +7809,7 @@
     "message": "Intrångsmonitorering"
   },
   "andMoreFeatures": {
-    "message": "och mer!"
+    "message": "Och mer!"
   },
   "advancedOnlineSecurity": {
     "message": "Avancerad säkerhet online"
@@ -8465,6 +8573,37 @@
   "exploreTheNewVault": {
     "message": "Utforska det nya valvet",
     "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ av $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Växla mellan valv"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "Med den nya valvväljaren kan du snabbt se ditt privata valv eller ett valv som du delar med andra."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Kombinera filter"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Välj flera filter samtidigt för att begränsa resultatet till exakt det du vill ha. De fortsätter att vara aktiva även när du navigerar bort."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Samlingar och mappar har fått nya namn"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Funktionerna är desamma, men namnen är tydligare. Samlingar kallas nu delade mappar. Mappar kallas nu Mina mappar."
   },
   "customize": {
     "message": "Anpassa"

@@ -26,6 +26,7 @@ import { BitCellDefDirective } from "./bit-cell-def.directive";
 import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
+import { BitTablePaginatorComponent, TableRowRange } from "./bit-table-paginator.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 import {
   CustomizeColumnsDialogComponent,
@@ -850,5 +851,82 @@ describe("BitTableToolbarComponent filter dialog", () => {
     restored.detectChanges();
 
     expect(restored.componentInstance.open()).toBe(false);
+  });
+});
+
+/** A paginated table whose toolbar shows a range label; `rows` drives the range. */
+@Component({
+  imports: [
+    BitTableToolbarComponent,
+    BitTablePaginatorComponent,
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-table-v2 [tableDef]="table">
+      <bit-table-toolbar [rangeLabel]="rangeLabel"></bit-table-toolbar>
+      <bit-column>
+        <bit-header-cell>Name</bit-header-cell>
+        <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+      </bit-column>
+      <bit-table-paginator [pageSize]="10"></bit-table-paginator>
+    </bit-table-v2>
+  `,
+})
+class RangeLabelHostComponent {
+  readonly rows = signal([...Array(39).keys()].map((i) => ({ name: `name-${i}` })));
+  readonly table = defineTable<{ name: string }>(this.rows);
+  readonly rangeLabel = ({ start, end, total }: TableRowRange) =>
+    total === 0 ? "0 items" : `${start}–${end} of ${total} items`;
+}
+
+describe("BitTableToolbarComponent range label", () => {
+  let fixture: ComponentFixture<RangeLabelHostComponent>;
+
+  const count = () =>
+    fixture.nativeElement.querySelector("[data-testid='table-toolbar-count']") as HTMLElement;
+  const emphasized = () => count().querySelector("span")?.textContent ?? "";
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [RangeLabelHostComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            // The labels aren't under test; echo each key back.
+            const i18nService = mock<I18nService>();
+            i18nService.t.mockImplementation((id: string) => id);
+            return i18nService;
+          },
+        },
+        { provide: DialogService, useValue: mock<DialogService>() },
+      ],
+    }).compileComponents();
+
+    // Wide, so the filter row holding the count lays out rather than collapsing.
+    rowWidth = WIDE;
+    fixture = TestBed.createComponent(RangeLabelHostComponent);
+    fixture.detectChanges();
+  });
+
+  it("shows the label for the current page", () => {
+    expect(count().textContent?.trim()).toBe("1–10 of 39 items");
+  });
+
+  it("emphasizes only the start–end run", () => {
+    expect(emphasized()).toBe("1–10");
+  });
+
+  it("emphasizes nothing when there are no rows", () => {
+    fixture.componentInstance.rows.set([]);
+    fixture.detectChanges();
+
+    expect(count().textContent?.trim()).toBe("0 items");
+    expect(emphasized()).toBe("");
   });
 });

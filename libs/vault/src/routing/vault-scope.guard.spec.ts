@@ -13,7 +13,10 @@ import { BehaviorSubject, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
 
@@ -75,6 +78,8 @@ describe("vaultScopeGuard", () => {
 
   const accountService = mock<AccountService>();
   const collectionService = mock<CollectionService>();
+  const folderService = mock<FolderService>();
+  const syncService = mock<SyncService>();
 
   /**
    * A shared folder of the organization the account is a member of, as the user holds it. The name
@@ -123,6 +128,9 @@ describe("vaultScopeGuard", () => {
 
     accountService.activeAccount$ = of({ id: userId } as Account);
     collectionService.encryptedCollections$.mockReturnValue(of([]));
+    folderService.folders$.mockReturnValue(of([]));
+    syncService.lastSync$.mockReturnValue(of(new Date()));
+    syncService.fullSync.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
@@ -130,6 +138,8 @@ describe("vaultScopeGuard", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: AccountService, useValue: accountService },
         { provide: CollectionService, useValue: collectionService },
+        { provide: FolderService, useValue: folderService },
+        { provide: SyncService, useValue: syncService },
       ],
     });
   });
@@ -208,6 +218,29 @@ describe("vaultScopeGuard", () => {
       expect(router.createUrlTree).toHaveBeenCalledWith(["/vault", organizationId]);
     });
 
+    // Collections live in memory on web, so a reload empties them until the first sync.
+    it("syncs before reading the collections when the account has yet to sync", async () => {
+      const collections$ = new BehaviorSubject<Collection[] | null>(null);
+      collectionService.encryptedCollections$.mockReturnValue(collections$);
+      syncService.lastSync$.mockReturnValue(of(null));
+      syncService.fullSync.mockImplementation(async () => {
+        collections$.next([collection(collectionId)]);
+        return true;
+      });
+
+      await expect(runGuard(organizationId, collectionId)).resolves.toBe(true);
+      expect(syncService.fullSync).toHaveBeenCalledWith(false);
+    });
+
+    it("does not sync again when the account has already synced", async () => {
+      collectionService.encryptedCollections$.mockReturnValue(of([collection(collectionId)]));
+
+      await runGuard(organizationId, collectionId);
+
+      expect(syncService.lastSync$).toHaveBeenCalledWith(userId);
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+    });
+
     it("redirects to All items for a folder under an organization the user has left", async () => {
       await expect(runGuard(otherOrganizationId, collectionId)).resolves.toBe(allItemsUrlTree);
       expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
@@ -249,6 +282,92 @@ describe("vaultScopeGuard", () => {
       await expect(runGuard(TRASH_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
       await expect(runGuard(ARCHIVE_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
     });
+  });
+
+  describe("a folder's page", () => {
+    const folderId = "6f7a8b9c-1d2e-4f3a-8b4c-5d6e7f8a9b1c";
+    const myFoldersUrlTree = mock<UrlTree>();
+
+    const folder = (id: string): Folder => Object.assign(new Folder(), { id });
+
+    const runFolderGuard = (segment: string) =>
+      TestBed.runInInjectionContext(() =>
+        vaultScopeGuard(
+          {
+            paramMap: convertToParamMap({ folderId: segment }),
+            data: {},
+          } as ActivatedRouteSnapshot,
+          state,
+        ),
+      );
+
+    beforeEach(() => {
+      router.createUrlTree.mockImplementation((commands) =>
+        (commands as unknown[])[0] === "/folders" ? myFoldersUrlTree : allItemsUrlTree,
+      );
+    });
+
+    it("allows a folder the user holds", async () => {
+      folderService.folders$.mockReturnValue(of([folder(folderId)]));
+
+      await expect(runFolderGuard(folderId)).resolves.toBe(true);
+    });
+
+    // A folder's page lives outside the vault, so the list of folders is the nearest destination.
+    it("redirects to My folders for a folder the user does not hold", async () => {
+      await expect(runFolderGuard(folderId)).resolves.toBe(myFoldersUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/folders"]);
+    });
+
+    // Folders live in memory on web, so a reload empties them until the first sync.
+    it("syncs before reading the folders when the account has yet to sync", async () => {
+      const folders$ = new BehaviorSubject<Folder[]>([]);
+      folderService.folders$.mockReturnValue(folders$);
+      syncService.lastSync$.mockReturnValue(of(null));
+      syncService.fullSync.mockImplementation(async () => {
+        folders$.next([folder(folderId)]);
+        return true;
+      });
+
+      await expect(runFolderGuard(folderId)).resolves.toBe(true);
+      expect(syncService.fullSync).toHaveBeenCalledWith(false);
+    });
+
+    it("does not sync again when the account has already synced", async () => {
+      folderService.folders$.mockReturnValue(of([folder(folderId)]));
+
+      await runFolderGuard(folderId);
+
+      expect(syncService.lastSync$).toHaveBeenCalledWith(userId);
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+    });
+
+    it("redirects to My folders for a segment that is no folder id, without reading folders", async () => {
+      folderService.folders$.mockClear();
+
+      await expect(runFolderGuard("not-a-guid")).resolves.toBe(myFoldersUrlTree);
+      expect(folderService.folders$).not.toHaveBeenCalled();
+    });
+
+    it("reads the folders for the account it resolved, without decrypting them", async () => {
+      folderService.folders$.mockClear();
+      folderService.folderViews$.mockClear();
+
+      await runFolderGuard(folderId);
+
+      expect(folderService.folders$).toHaveBeenCalledWith(userId);
+      expect(folderService.folderViews$).not.toHaveBeenCalled();
+    });
+  });
+
+  // Only folders and collections are emptied by a reload; organizations persist across one.
+  it("does not sync for a vault it can admit without reading folders or collections", async () => {
+    syncService.lastSync$.mockReturnValue(of(null));
+
+    await expect(runGuard(organizationId)).resolves.toBe(true);
+    await expect(runGuard(MY_VAULT_ROUTE)).resolves.toBe(true);
+
+    expect(syncService.fullSync).not.toHaveBeenCalled();
   });
 
   it("does not resolve the account's vaults for a segment it can reject outright", async () => {

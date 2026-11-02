@@ -222,7 +222,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Automaattäide",
+    "message": "Automaattäitmine",
     "description": "Noun"
   },
   "autofillVerb": {
@@ -333,10 +333,10 @@
     "message": "Uuri teisigi Bitwardeni kasutusvõimalusi Abikeskuses."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Mine edasi veebilaienduste poodi?"
+    "message": "Mine edasi veebillehitseja laienduste poodi?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Aita meil jõuda rohkemate inimesteni. Külasta oma laienduste veebipoodi ja jäta sinna positiivne hinnang."
+    "message": "Aita meil jõuda rohkemate inimesteni. Külasta oma veebilehitseja laienduste poodi ja jäta sinna positiivne hinnang."
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Ülemparooli saab muuta Bitwardeni veebirakenduses."
@@ -1457,7 +1457,7 @@
     "message": "Jah, uuenda"
   },
   "notificationUnlockDesc": {
-    "message": "Ava Bitwardeni hoidla, et automaattäide lõpuni viia."
+    "message": "Ava Bitwardeni hoidla, et automaattäitmine lõpuni viia."
   },
   "notificationUnlock": {
     "message": "Lukusta lahti"
@@ -3033,7 +3033,7 @@
     "message": "Kas oled kindel, et soovid oma konto krüptovõtit pöörata?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "Pärast krüptovõtme värskendamist pead kõigist praegu kasutatavatest Bitwardeni rakendustest (näiteks mobiilirakendus või veebilehitseja laiendid) välja ja uuesti sisse logima. Välja ja uuesti sisselogimata jätmine (mis laadib alla sinue uue krüptovõtme) võib põhjustada andmete riknemist. Proovime sind automaatselt välja logida, kuid see võib viibida."
+    "message": "Pärast krüptovõtme värskendamist pead kõigist praegu kasutatavatest Bitwardeni rakendustest (näiteks mobiilirakendus või veebilehitseja laienused) välja ja uuesti sisse logima. Välja ja uuesti sisselogimata jätmine (mis laadib alla sinue uue krüptovõtme) võib põhjustada andmete riknemist. Proovime sind automaatselt välja logida, kuid see võib viibida."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Kõik salvestatud kontoga piiratud ekspordid muutuvad kehtetuks."
@@ -4584,7 +4584,7 @@
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Laiend",
+    "message": "Veebilehitseja laiendus",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -4608,7 +4608,7 @@
     "message": "Taotlus ootel"
   },
   "firstLogin": {
-    "message": "Esimene sisselogimine"
+    "message": "Esmane sisselogimine"
   },
   "trusted": {
     "message": "Usaldusväärne"
@@ -5085,7 +5085,7 @@
     "message": "Sinu konto jaoks on nõutav Duo kaheastmeline sisselogimine."
   },
   "popoutExtension": {
-    "message": "Ava laiend eraldi aknas"
+    "message": "Ava laiendus eraldi aknas"
   },
   "launchDuo": {
     "message": "Käivita Duo"
@@ -5394,6 +5394,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Sisselogimisandmed, pangakaardid, identiteedid, turvalised märkmed ja TOTP-koodid – koos säilitatud kaustastruktuuriga."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Aktsepteeritud: $FORMATS$",
@@ -5778,8 +5802,92 @@
   "lastPassEmail": {
     "message": "LastPassi e-post"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Sinu konto importimine..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "Nõutav on LastPassi mitmefaktoriline autentimine"
@@ -6285,7 +6393,7 @@
     "message": "Pääsuvõti on eemaldatud"
   },
   "autofillSuggestions": {
-    "message": "Automaatse täitmise soovitused"
+    "message": "Automaattäitmise soovitused"
   },
   "itemSuggestions": {
     "message": "Soovitatud kirjed"
@@ -8465,6 +8573,37 @@
   "exploreTheNewVault": {
     "message": "Uuri uut hoidlat",
     "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Switch between vaults"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "customize": {
     "message": "Kohanda"

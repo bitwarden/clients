@@ -665,7 +665,7 @@
     "message": "Скинути пошук"
   },
   "clearSearchTooltip": {
-    "message": "Щоб очистити, натисніть тут або клавішу Esc.",
+    "message": "Очистьте, натиснувши тут або Esc.",
     "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "archiveNoun": {
@@ -1556,7 +1556,7 @@
     "message": "Вибрати джерело"
   },
   "importData": {
-    "message": "Імпорт даних"
+    "message": "Імпортувати дані"
   },
   "importSourceSelectTitle": {
     "message": "Виберіть джерело"
@@ -1776,13 +1776,13 @@
     "message": "Оберіть файл"
   },
   "selectFileUnsupportedType": {
-    "message": "Цей тип файлу не підтримується для цього джерела. Оберіть інший файл"
+    "message": "Цей тип файлу не підтримується для цього джерела. Виберіть інший файл."
   },
   "pasteContentRequired": {
-    "message": "Вставити експортований вміст"
+    "message": "Вставте експортований вміст"
   },
   "fileTypeNotSupported": {
-    "message": "Цей тип файлу не підтримується. Виберіть файл типу $TYPES$",
+    "message": "Цей тип файлу не підтримується. Виберіть файл типу $TYPES$.",
     "placeholders": {
       "types": {
         "content": "$1",
@@ -4078,10 +4078,10 @@
     "message": "Помилка отримання даних автозаповнення"
   },
   "couldNotDecryptVaultItem": {
-    "message": "Bitwarden не вдалося розшифрувати запис у сховищі, перерахований нижче. Зверніться до служби підтримки Bitwarden і надайте ID запису нижче, щоб дізнатися, чи можна його відновити."
+    "message": "Bitwarden не зміг розшифрувати наведений нижче запис сховища. Зверніться до служби підтримки Bitwarden і надайте ID цього запису, щоб дізнатися, чи можна його відновити."
   },
   "couldNotDecryptVaultItems": {
-    "message": "Bitwarden не вдалося розшифрувати записи у сховищі, перерахованих нижче. Зверніться до служби підтримки Bitwarden і надайте ID записів нижче, щоб дізнатися, чи можна їх відновити."
+    "message": "Bitwarden не зміг розшифрувати наведені нижче записи сховища. Зверніться до служби підтримки Bitwarden і надайте ID цих записів, щоб дізнатися, чи можна їх відновити."
   },
   "itemId": {
     "message": "ID запису",
@@ -5307,7 +5307,7 @@
     "message": "Вивантажити файл"
   },
   "pasteAsPlainText": {
-    "message": "Вставити як звичайний текст"
+    "message": "Вставити як простий текст"
   },
   "plainText": {
     "message": "Простий текст"
@@ -5316,30 +5316,30 @@
     "message": "Профіль"
   },
   "importManuallyInstead": {
-    "message": "Замість цього імпортуйте вручну"
+    "message": "Натомість імпортувати вручну"
   },
   "directlyImportInstead": {
-    "message": "Натомість безпосередньо імпортуйте"
+    "message": "Натомість імпортувати безпосередньо"
   },
   "fastest": {
     "message": "Найшвидший"
   },
   "importDataTitle": {
-    "message": "Імпортуйте ваші дані"
+    "message": "Імпортування ваших даних"
   },
   "importDataDirectTitle": {
-    "message": "Імпорт ваших даних за хвилини"
+    "message": "Імпортування ваших даних за лічені хвилини"
   },
   "importDataDirectSubtitlePrefix": {
     "message": "Імпортуйте свої записи безпосередньо з",
     "description": "First half of a sentence that continues with a vendor name rendered in bold, then concludes with importDataDirectSubtitleSuffix. Fixed order, not independently reorderable: 'Import your items directly from [KeePass] to get all your data.'"
   },
   "importDataDirectSubtitleSuffix": {
-    "message": "щоб отримати всі ваші дані.",
+    "message": "щоб отримати всі дані.",
     "description": "Second half of the sentence started by importDataDirectSubtitlePrefix, continuing immediately after the bolded vendor name."
   },
   "importDataManualSubtitle": {
-    "message": "Імпортуйте дані з $VENDOR$ або скопіюйте та вставте експортований вміст.",
+    "message": "Імпортуйте дані з $VENDOR$ або скопіюйте і вставте експортований вміст.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5348,7 +5348,7 @@
     }
   },
   "importDataChromiumSubtitle": {
-    "message": "Виберіть профіль, з якого ви хочете імпортувати паролі."
+    "message": "Виберіть профіль, з якого ви бажаєте імпортувати паролі."
   },
   "noBrowserProfilesFound": {
     "message": "Профілів браузера не знайдено"
@@ -5363,13 +5363,13 @@
     }
   },
   "importDataLoginSubtitle": {
-    "message": "Ваші облікові дані шифруються під час передачі та ніколи не зберігаються."
+    "message": "Ваші облікові дані шифруються під час передавання та ніколи не зберігаються."
   },
   "importDataSecureByDesignTitle": {
     "message": "Безпечний за дизайном"
   },
   "importDataSecureByDesignBody": {
-    "message": "Передача даних із наскрізним шифруванням. Bitwarden ніколи не бачить ваших облікових даних для $VENDOR$.",
+    "message": "Передавання даних із наскрізним шифруванням. Bitwarden ніколи не бачить ваших облікових даних для $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5381,7 +5381,7 @@
     "message": "Ми попросимо вас вказати ваші дані для входу"
   },
   "importDataLoginInfoBody": {
-    "message": "На наступному кроці увійдіть у свій обліковий запис $VENDOR$.",
+    "message": "На наступному кроці ввійдіть у свій обліковий запис $VENDOR$.",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5393,7 +5393,31 @@
     "message": "Все переноситься"
   },
   "importDataEverythingTransfersBody": {
-    "message": "Дані входу, картки, ідентифікаційні дані, захищені нотатки та одноразові паролі (TOTP) зі збереженням їхньої структури тек."
+    "message": "Дані входу, картки, посвідчення, захищені нотатки й одноразові паролі (TOTP) зі збереженням структури тек."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Прийнято: $FORMATS$",
@@ -5405,7 +5429,7 @@
     }
   },
   "importVendorFileType": {
-    "message": "$VENDOR$ тип файлу",
+    "message": "Тип файлу $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5614,7 +5638,7 @@
     "message": "Головний пароль KeePass"
   },
   "keePassMasterPasswordV2": {
-    "message": "$VENDOR$ пароль",
+    "message": "Пароль $VENDOR$",
     "placeholders": {
       "vendor": {
         "content": "$1",
@@ -5626,22 +5650,22 @@
     "message": "Необхідно ввести пароль."
   },
   "filePasswordRequired": {
-    "message": "Потрібен пароль до файлу"
+    "message": "Необхідно ввести пароль для файлу"
   },
   "filePasswordInvalid": {
-    "message": "Введіть дійсний пароль файлу."
+    "message": "Введіть дійсний пароль для файлу."
   },
   "filePasswordProtectedSubtitle": {
-    "message": "Завантажений файл захищений паролем. Введіть пароль, щоб продовжити."
+    "message": "Вивантажений файл захищено паролем. Щоб продовжити, введіть пароль."
   },
   "selectProfile": {
-    "message": "Виберіть профіль"
+    "message": "Вибрати профіль"
   },
   "kdbxPasswordInvalid": {
     "message": "Введіть дійсний пароль"
   },
   "importAccountMismatchError": {
-    "message": "Цей файл можна імпортувати лише в той обліковий запис, з якого його було експортовано."
+    "message": "Цей файл можна імпортувати лише до облікового запису, з якого його експортовано."
   },
   "addKeyFile": {
     "message": "Додати ключовий файл"
@@ -5650,7 +5674,7 @@
     "message": "Вивантаження ключового файлу"
   },
   "keyFileUploadV2": {
-    "message": "Файл ключа"
+    "message": "Ключовий файл"
   },
   "kdbxFileUpload": {
     "message": "Вивантаження файлу KDBX"
@@ -5778,8 +5802,92 @@
   "lastPassEmail": {
     "message": "Електронна пошта LastPass"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "importingYourAccount": {
     "message": "Ваш обліковий запис імпортується..."
+  },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
   },
   "lastPassMFARequired": {
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
@@ -5821,7 +5929,7 @@
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
   },
   "onePasswordPartialImport": {
-    "message": "$COUNT$ записів або сховищ 1Password не вдалося імпортувати",
+    "message": "Не вдалося імпортувати $COUNT$ записів або сховищ 1Password",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5845,7 +5953,7 @@
     "message": "Сталася помилка. Спробуйте ще раз або скористайтеся іншим способом імпорту."
   },
   "emailIsRequired": {
-    "message": "Електронна пошта є обов’язковою."
+    "message": "Необхідно вказати е-пошту."
   },
   "enterValidEmailAddress": {
     "message": "Введіть дійсну адресу електронної пошти."
@@ -5857,13 +5965,13 @@
     "message": "Введіть дійсну адресу для входу."
   },
   "secretKeyIsRequired": {
-    "message": "Потрібен секретний ключ."
+    "message": "Необхідно ввести секретний ключ."
   },
   "enterValidSecretKey": {
     "message": "Введіть дійсний секретний ключ."
   },
   "passwordIsRequired": {
-    "message": "Потрібно ввести пароль."
+    "message": "Необхідно ввести пароль."
   },
   "enterValidVerificationCode": {
     "message": "Введіть дійсний код підтвердження."
@@ -5872,7 +5980,7 @@
     "message": "Адреса для входу"
   },
   "onePasswordEmail": {
-    "message": "1Password email"
+    "message": "Е-пошта 1Password"
   },
   "onePasswordEmailHint": {
     "message": "Введіть адресу електронної пошти, яку ви використовуєте для входу в 1Password"
@@ -8411,7 +8519,7 @@
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
   },
   "linkSavedCopyFailed": {
-    "message": "Не вдалося скопіювати посилання на спільний доступ у буфер обміну",
+    "message": "Не вдалося скопіювати посилання для спільного доступу до буфера обміну",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
   "shareLinkDeleted": {
@@ -8419,7 +8527,7 @@
     "description": "Toast message shown when an active share link is successfully deleted"
   },
   "shareLinkDeleteFailed": {
-    "message": "Не вдалося видалити посилання на спільний доступ",
+    "message": "Не вдалося видалити посилання для спільного доступу",
     "description": "Toast message shown when an active share link deletion is unsuccessful"
   },
   "shareViaLink": {
@@ -8465,6 +8573,37 @@
   "exploreTheNewVault": {
     "message": "Дослідити нове сховище",
     "description": "Button that closes the dialog introducing the redesigned vault."
+  },
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "coachmarkSwitchVaultsTitle": {
+    "message": "Switch between vaults"
+  },
+  "coachmarkSwitchVaultsDescription": {
+    "message": "With the new vault switcher, you can quickly see your private vault or a vault you share with others."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Mix and match filters"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Select multiple filters at once to narrow down to exactly the results you want. They'll stay applied even when you navigate away."
+  },
+  "coachmarkSharedFoldersTitle": {
+    "message": "Collections and folders have new names"
+  },
+  "coachmarkSharedFoldersDescription": {
+    "message": "Same features, clearer names. Collections are now called shared folders. Folders are now My folders."
   },
   "customize": {
     "message": "Налаштувати"

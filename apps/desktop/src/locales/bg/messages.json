@@ -6691,6 +6691,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
   },
+  "pinned": {
+    "message": "Закачено",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Закачане към страничната лента",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Откачане от страничната лента",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "Закачено към страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "Откачено от страничната лента: $NAME$",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Намерете споделена папка в този трезор и изберете",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "от менюто.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Закачайте споделени папки към страничната лента, за да ги филтрирате тук."
+  },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7294,6 +7337,12 @@
   },
   "coachmarkSharedFoldersDescription": {
     "message": "Същите функционалности, с по-ясни имена. Колекциите вече се наричат „споделени папки“. Папките вече са „моите папки“."
+  },
+  "coachmarkFiltersTitle": {
+    "message": "Комбинирайте филтри"
+  },
+  "coachmarkFiltersDescription": {
+    "message": "Изберете повече филтри, за да ограничите резултатите до това, което искате. Филтрите ще останат приложени дори след като излезете от тук."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ от $TOTAL$",

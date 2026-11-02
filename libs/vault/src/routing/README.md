@@ -4,7 +4,8 @@ This folder holds the vault's route helpers, in two groups:
 
 - **Scope routing** — which vault a URL shows, and which `:vaultId` URLs are valid:
   [`vault-scope.guard.ts`](./vault-scope.guard.ts),
-  [`organization-vault.guard.ts`](./organization-vault.guard.ts), and
+  [`organization-vault.guard.ts`](./organization-vault.guard.ts),
+  [`route-vault-scope.ts`](./route-vault-scope.ts), and
   [`scoped-collection.ts`](./scoped-collection.ts).
 - **Filter state** — the subject of this document: record the filters each vault was last viewed
   with, restore them on the next visit, and rewrite URLs written before the filters moved into a
@@ -55,8 +56,8 @@ opts in with, and `vaultScopeOf()`, which resolves an activated route to a scope
 }
 ```
 
-`scopedCollectionSegment()` supplies the collection segment, so a shared folder route and the "My
-items" route resolve the way they do for `vaultScopeGuard`.
+`routeVaultScope()` reads the route's segments, so a shared folder route, the "My items" route,
+and a folder's page resolve the way they do for `vaultScopeGuard`.
 
 A route without a `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that does not opt in resolves to
 `null`, and the memory ignores it.

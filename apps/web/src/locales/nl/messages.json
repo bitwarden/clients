@@ -3650,6 +3650,33 @@
   "lastPassEmail": {
     "message": "LastPass-e-mail"
   },
+  "lastPassLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "lastPassLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "lastPassLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "lastPassLoginPasswordInvalid": {
+    "message": "Enter a valid password"
+  },
+  "lastPassLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "lastPassLoginPasswordDesc": {
+    "message": "Please enter your LastPass master password."
+  },
+  "lastPassLoginCodeDesc": {
+    "message": "Please enter the verification code below."
+  },
+  "lastPassLoginWaitingForSso": {
+    "message": "Waiting for SSO authentication"
+  },
+  "lastPassLoginWaitingForSsoDesc": {
+    "message": "Once signed in, we’ll continue your import automatically."
+  },
   "includeSharedFolders": {
     "message": "Gedeelde mappen insluiten"
   },
@@ -3732,6 +3759,30 @@
   },
   "importDataEverythingTransfersBody": {
     "message": "Logins, kaarten, identiteiten, beveiligde notities en TOTPs, met behoud van mapstructuur."
+  },
+  "importDataSecureByDesignTitleV2": {
+    "message": "Fast and secure"
+  },
+  "importDataSecureByDesignBodyV2": {
+    "message": "This process is end-to-end encrypted. No export file needed."
+  },
+  "importDataLoginInfoTitleV2": {
+    "message": "All you need is your login"
+  },
+  "importDataLoginInfoBodyV2": {
+    "message": "In the next step, you'll enter your $VENDOR$ login details.",
+    "placeholders": {
+      "vendor": {
+        "content": "$1",
+        "example": "1Password"
+      }
+    }
+  },
+  "importDataAutomaticTransferTitle": {
+    "message": "What will transfer"
+  },
+  "importDataAutomaticTransferBody": {
+    "message": "Your logins, other items, and folders will transfer. Passkeys and attachments may be excluded."
   },
   "importAcceptedFormats": {
     "message": "Geaccepteerd: $FORMATS$",
@@ -9230,6 +9281,12 @@
   "manageAccountRecovery": {
     "message": "Accountherstel beheren"
   },
+  "manageAccessRules": {
+    "message": "Toegangsregels beheren"
+  },
+  "manageRotation": {
+    "message": "Rotatie beheren"
+  },
   "disableRequiredError": {
     "message": "Je moet handmatig het $POLICYNAME$-beleid uitschakelen voordat je dit beleid kunt uitschakelen.",
     "placeholders": {
@@ -12053,6 +12110,49 @@
   "noSharedFoldersAddedDescription": {
     "message": "Gedeelde map toevoegen voor het veilig delen van kluisitems met andere leden."
   },
+  "pinned": {
+    "message": "Pinned",
+    "description": "Heading of the side navigation section that lists the shared folders the user pinned."
+  },
+  "pinToSidebar": {
+    "message": "Pin to sidebar",
+    "description": "Menu action that adds a shared folder to the Pinned section of the side navigation."
+  },
+  "unpinFromSidebar": {
+    "message": "Unpin from sidebar",
+    "description": "Menu action that removes a shared folder from the Pinned section of the side navigation."
+  },
+  "folderPinnedToSidebar": {
+    "message": "$NAME$ pinned to sidebar",
+    "description": "Toast shown after a shared folder is added to the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "folderUnpinnedFromSidebar": {
+    "message": "$NAME$ unpinned from sidebar",
+    "description": "Toast shown after a shared folder is removed from the Pinned section of the side navigation. $NAME$ is the name of the folder.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "pinnedEmptyStatePrefix": {
+    "message": "Find a shared folder in this vault and select",
+    "description": "First part of the hint shown in an empty Pinned section. 'Pin to sidebar' is shown in bold after it, followed by the pinnedEmptyStateSuffix string."
+  },
+  "pinnedEmptyStateSuffix": {
+    "message": "from the Options menu.",
+    "description": "Last part of the hint shown in an empty Pinned section. It follows the bold 'Pin to sidebar' text."
+  },
+  "noPinnedFoldersTooltip": {
+    "message": "Pin shared folders to the sidebar to filter them here."
+  },
   "noMembersAdded": {
     "message": "Geen leden toegevoegd"
   },
@@ -13334,6 +13434,10 @@
   },
   "secretsManagerPlanPrice": {
     "message": "Secrets Manager abonnementskosten"
+  },
+  "privilegedControlsPlanPrice": {
+    "message": "Prijs van Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "passwordManager": {
     "message": "Wachtwoordbeheerder"
@@ -17546,6 +17650,63 @@
   "importingYourAccount": {
     "message": "Account importeren..."
   },
+  "keeperLoginServerLabel": {
+    "message": "Server"
+  },
+  "keeperLoginEmailRequired": {
+    "message": "Email is required."
+  },
+  "keeperLoginEmailInvalid": {
+    "message": "Enter a valid email address."
+  },
+  "keeperLoginUnsupportedTwoFactor": {
+    "message": "Unsupported two-factor method. Switch methods or import manually."
+  },
+  "keeperLoginApprovalMethod": {
+    "message": "Device approval method"
+  },
+  "keeperLoginCodeInvalid": {
+    "message": "Enter a valid verification code."
+  },
+  "keeperLoginCodeResent": {
+    "message": "Resent verification code"
+  },
+  "keeperLoginPushSentDesc": {
+    "message": "Keeper Push notification sent to approved device."
+  },
+  "keeperLoginApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below."
+  },
+  "keeperLoginEmailCodeDesc": {
+    "message": "Please check your email and enter the verification code below."
+  },
+  "keeperLoginAuthenticatorDesc": {
+    "message": "Please enter the code from your authenticator app."
+  },
+  "keeperLoginSmsDesc": {
+    "message": "Please enter the code sent as a text message."
+  },
+  "keeperLoginPasswordDesc": {
+    "message": "Please enter your Keeper master password."
+  },
+  "keeperLoginDnaSent": {
+    "message": "Keeper DNA sent"
+  },
+  "keeperLoginDnaSentDesc": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
+  "keeperLoginCancelRequestDesc": {
+    "message": "Your approval request will be canceled. Are you sure you want to proceed?"
+  },
+  "keeperLoginAdminRequestedDesc": {
+    "message": "We’ve sent an admin approval request to your admin."
+  },
+  "keeperLoginPasswordRequired": {
+    "message": "Password is required."
+  },
+  "keeperLoginPasswordInvalid": {
+    "message": "Enter a valid password."
+  },
   "passcode": {
     "message": "Passcode"
   },
@@ -17802,6 +17963,118 @@
   },
   "pamAccessRequestsTitle": {
     "message": "Verzoeken om toegang"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 uur"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ uur",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "begint nu"
+  },
+  "pamInboxStartToday": {
+    "message": "vandaag"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "morgen"
+  },
+  "pamInboxStartInDays": {
+    "message": "over $DAYS$ dagen",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseError": {
+    "message": "Kan toegang niet starten."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "Het goedgekeurde tijdsvenster is nog niet gestart."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "Het goedgekeurde tijdsvenster is al beëindigd."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "Dit verzoek is nog niet goedgekeurd."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "Dit verzoek kan niet langer worden geactiveerd."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "De toegang van deze aanvraag is al gebruikt en is niet langer actief."
+  },
+  "pamStartLeaseErrorSingleActiveAccess": {
+    "message": "Slechts 1 gebruiker tegelijk kan actieve toegang hebben tot dit item. Probeer het opnieuw zodra de huidige toegang eindigt."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Toegang tot dit item is niet toegestaan vanuit je huidige netwerk."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Toegang tot dit item is op dit moment niet toegestaan."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Toegang tot dit item is nu niet toegestaan."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "Een Privileged Controls licentie is vereist. Vraag je beheerder om je licentie te activeren.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "Je hebt al actieve toegang tot dit item."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "Je hebt al een goedgekeurd verzoek voor dit item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "Je hebt al een verzoek in behandeling voor dit item."
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d geleden",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$u geleden",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Zojuist"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m geleden",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "pamAccessRules": {
     "message": "Toegangsregels"
@@ -18447,6 +18720,10 @@
   },
   "secretsManagerProratedCharge": {
     "message": "Pro-rata kosten Secret Manager"
+  },
+  "privilegedControlsProratedCharge": {
+    "message": "Privileged Controls pro-rata kosten",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "serviceAccountsProratedCharge": {
     "message": "Pro-rata-kosten service-accounts"

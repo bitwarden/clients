@@ -165,9 +165,17 @@ export class CardView extends ItemView implements SdkCardView {
 
   /**
    * Converts the CardView to an SDK CardView.
-   * The view implements the SdkView so we can safely return `this`
+   * Empty strings are converted to undefined to prevent the SDK from encrypting
+   * them as non-null values, which would incorrectly populate copyableFields.
    */
   toSdkCardView(): SdkCardView {
-    return this;
+    return {
+      cardholderName: this.cardholderName || undefined,
+      brand: this.brand || undefined,
+      number: this.number || undefined,
+      expMonth: this.expMonth || undefined,
+      expYear: this.expYear || undefined,
+      code: this.code || undefined,
+    };
   }
 }
