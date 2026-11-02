@@ -119,7 +119,7 @@
       buttonType="primary"
       type="button"
       [bitAction]="onSubscribe.bind(this)"
-      [disabled]="!planChangeCart.hasValue()"
+      [disabled]="planChangeCart.isLoading()"
     >
       {{ "subscribe" | i18n }}
     </button>

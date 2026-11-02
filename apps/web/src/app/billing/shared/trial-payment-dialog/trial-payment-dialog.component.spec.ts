@@ -230,24 +230,33 @@ describe("TrialPaymentDialogComponent", () => {
     expect(subscribeButton().disabled).toBe(true);
   }));
 
-  it("disables Subscribe and shows the error when the preview fails", fakeAsync(() => {
+  it("shows the error but keeps Subscribe enabled when the preview fails", fakeAsync(() => {
     invoicePreviewService.previewPlanChangeCart.mockRejectedValue(new Error("boom"));
     setup(ProductTierType.Teams);
 
     settle();
 
-    expect(subscribeButton().disabled).toBe(true);
+    expect(subscribeButton().disabled).toBe(false);
     expect(fixture.nativeElement.querySelector("bit-callout[type='danger']")).not.toBeNull();
     expect(billingNotificationService.showError).toHaveBeenCalledWith("invoicePreviewErrorMessage");
   }));
 
-  it("disables Subscribe when no preview is requested because the address is missing", fakeAsync(() => {
+  it("keeps Subscribe enabled when no preview is requested because the address is missing", fakeAsync(() => {
     setup(ProductTierType.Teams, { withAddress: false });
 
     settle();
 
     expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
-    expect(subscribeButton().disabled).toBe(true);
+    expect(subscribeButton().disabled).toBe(false);
+  }));
+
+  it("keeps Subscribe enabled for a tier with no plan-change preview", fakeAsync(() => {
+    setup(ProductTierType.TeamsStarter);
+
+    settle();
+
+    expect(invoicePreviewService.previewPlanChangeCart).not.toHaveBeenCalled();
+    expect(subscribeButton().disabled).toBe(false);
   }));
 
   describe("after a successful preview", () => {
