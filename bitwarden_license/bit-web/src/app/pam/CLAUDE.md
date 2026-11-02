@@ -161,9 +161,7 @@ raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
 and pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleError` is a runtime
 wasm import and this directory stays type-only (see "`export type` matters" below). Use
 `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it; never treat it as
-`ErrorResponse`. `AccessRuleErrorVariant` still adds `NotFound`, which the Rust side maps from the
-server's 404 on the by-id calls; the pinned SDK declares it now, so the alias can be collapsed.
-The SDK splits its own failures per client —
+`ErrorResponse`. The SDK splits its own failures per client —
 `AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
 (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
 through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
