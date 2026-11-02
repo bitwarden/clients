@@ -38,7 +38,7 @@ export class PolicyRecordMapper implements SdkRecordMapper<PolicyData, SdkPolicy
       id: uuidAsString(value.id) as PolicyId,
       organizationId: uuidAsString(value.organizationId),
       type: value.type,
-      data: value.data == null ? null : JSON.parse(value.data),
+      data: value.data == null ? undefined : (JSON.parse(value.data) as PolicyData["data"]),
       enabled: value.enabled,
       revisionDate: value.revisionDate,
     };
