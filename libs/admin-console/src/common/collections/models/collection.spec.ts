@@ -65,6 +65,7 @@ describe("Collection", () => {
       hidePasswords: true,
       type: CollectionTypes.DefaultUserCollection,
       defaultUserCollectionEmail: "defaultCollectionEmail",
+      hasEnabledAccessRule: false,
     });
   });
 
@@ -97,6 +98,25 @@ describe("Collection", () => {
       type: CollectionTypes.DefaultUserCollection,
       defaultUserCollectionEmail: "defaultCollectionEmail",
       decryptionFailure: false,
+      hasEnabledAccessRule: false,
     });
+  });
+
+  it("carries hasEnabledAccessRule from the response through to the decrypted view", async () => {
+    const governed = new CollectionData(
+      new CollectionDetailsResponse({
+        id: "id" as CollectionId,
+        organizationId: "orgId" as OrganizationId,
+        name: "encName",
+        hasEnabledAccessRule: true,
+      }),
+    );
+    expect(governed.hasEnabledAccessRule).toBe(true);
+
+    const collection = Collection.fromCollectionData(governed);
+    expect(collection.hasEnabledAccessRule).toBe(true);
+
+    const view = await collection.decrypt(makeSymmetricCryptoKey<OrgKey>(), encService);
+    expect(view.hasEnabledAccessRule).toBe(true);
   });
 });

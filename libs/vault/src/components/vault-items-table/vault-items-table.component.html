@@ -2,6 +2,7 @@
   #vaultTable="bitTableV2"
   [tableDef]="table"
   [displayedColumns]="visibleColumns()"
+  stateKey="vaultItems"
   [filter]="filter"
   [filters]="initialFilterValues()"
   [loading]="loading()"
@@ -44,9 +45,12 @@
     @if (showVaults()) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
-          <bit-filter-option [value]="MY_VAULT" [iconTile]="myVaultFilterTile()">{{
-            "myVault" | i18n
-          }}</bit-filter-option>
+          <bit-filter-option
+            [value]="MY_VAULT"
+            [iconTile]="myVaultFilterTile()"
+            [count]="myVaultOptionCount()"
+            >{{ "myVault" | i18n }}</bit-filter-option
+          >
         }
         @for (organization of sortedOrganizations(); track organization.id) {
           <bit-filter-option
@@ -89,14 +93,26 @@
       </bit-filter-menu>
     }
 
-    <bit-filter-menu
-      [key]="filterKeys.folder"
-      [placeholderText]="'myFolders' | i18n"
-      multiple
-      [disabled]="noFolders()"
-      [disabledTooltip]="foldersDisabledTooltip()"
-      [options]="nestedFolders()"
-    ></bit-filter-menu>
+    @if (showMyFolders()) {
+      <bit-filter-menu
+        [key]="filterKeys.folder"
+        [placeholderText]="'myFolders' | i18n"
+        multiple
+        [disabled]="noFolders()"
+        [disabledTooltip]="foldersDisabledTooltip()"
+        [options]="nestedFolders()"
+      ></bit-filter-menu>
+    }
+
+    @if (itemFilter != null && contributedFilterKey != null && contributedOptions().length > 0) {
+      <bit-filter-menu [key]="contributedFilterKey" [placeholderText]="itemFilter.label" multiple>
+        @for (option of contributedOptions(); track option.id) {
+          <bit-filter-option [value]="option.id" [iconTile]="contributedTiles().get(option.id)">{{
+            option.name
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
 
   <vault-empty-vault
@@ -107,6 +123,7 @@
     [organizationName]="organizationName()"
     [hasMultipleVaults]="hasMultipleVaults()"
     [sharedFolderName]="sharedFolderName()"
+    [folderName]="folderName()"
     [defaultCollectionId]="defaultCollectionId()"
     (clearSearch)="clearSearch(vaultTable)"
     (clearFilters)="clearChipFilters(vaultTable)"
@@ -173,7 +190,13 @@
   </bit-column>
 
   <!-- Vault -->
-  <bit-column sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
+  <bit-column
+    removable
+    [label]="'vault' | i18n"
+    sortable
+    [sortFn]="sortByVault"
+    width="minmax(176px, 280px)"
+  >
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
     <bit-cell
       *bitCellDef="table.columns.vault; let row"
@@ -194,7 +217,13 @@
   </bit-column>
 
   <!-- Shared folders -->
-  <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
+  <bit-column
+    removable
+    [label]="'sharedFolders' | i18n"
+    sortable
+    [sortFn]="sortBySharedFolders"
+    width="minmax(176px, 280px)"
+  >
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
     <bit-cell
       *bitCellDef="table.columns.sharedFolders; let row"
@@ -217,7 +246,13 @@
   </bit-column>
 
   <!-- My folders -->
-  <bit-column sortable [sortFn]="sortByFolders" width="minmax(140px, 1fr)">
+  <bit-column
+    removable
+    [label]="'myFolders' | i18n"
+    sortable
+    [sortFn]="sortByFolders"
+    width="minmax(140px, 1fr)"
+  >
     <bit-header-cell>{{ "myFolders" | i18n }}</bit-header-cell>
     <bit-cell
       *bitCellDef="table.columns.myFolders; let row"
@@ -239,6 +274,26 @@
     </bit-cell>
   </bit-column>
 
+  <!-- Host-provided column -->
+  @if (itemColumn; as column) {
+    @if (itemColumnKey; as key) {
+      <bit-column
+        [sortable]="column.sortRanks$ != null"
+        [sortFn]="sortByContributed"
+        width="minmax(140px, 200px)"
+      >
+        <bit-header-cell>{{ column.label }}</bit-header-cell>
+        <bit-cell
+          *bitCellDef="table.columns[key]; let row"
+          [class.tw-cursor-pointer]="itemAction() != null"
+          (click)="onCellActivate(row, $event)"
+        >
+          <ng-container *ngComponentOutlet="column.component; inputs: { cipher: row }" />
+        </bit-cell>
+      </bit-column>
+    }
+  }
+
   <!-- Options -->
   <vault-items-table-actions-column
     [table]="table"
@@ -246,3 +301,5 @@
     [copyPresentation]="copyPresentation()"
   />
 </bit-table-v2>
+
+<vault-coachmark #filtersCoachmark stepId="filters" />

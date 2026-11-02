@@ -21,7 +21,7 @@ export const ACCESS_RULE_TEMPLATES: AccessRuleTemplate[] = [
     key: "just-in-time",
     icon: "bwi-clock",
     titleKey: "pamTemplateJustInTimeTitle",
-    summaryKey: "pamTemplateJustInTimeSummary",
+    summaryKey: "pamTemplateJustInTimeShortSummary",
     prefill: {
       nameKey: "pamTemplateJustInTimeName",
       defaultLeaseDurationSeconds: 60 * 60,
@@ -33,7 +33,7 @@ export const ACCESS_RULE_TEMPLATES: AccessRuleTemplate[] = [
     key: "approval-required",
     icon: "bwi-check-circle",
     titleKey: "pamTemplateApprovalRequiredTitle",
-    summaryKey: "pamTemplateApprovalRequiredSummary",
+    summaryKey: "pamTemplateApprovalRequiredShortSummary",
     prefill: {
       nameKey: "pamTemplateApprovalRequiredName",
       defaultLeaseDurationSeconds: 60 * 60,
@@ -45,7 +45,7 @@ export const ACCESS_RULE_TEMPLATES: AccessRuleTemplate[] = [
     key: "ip-restricted",
     icon: "bwi-wireless",
     titleKey: "pamTemplateIpRestrictedTitle",
-    summaryKey: "pamTemplateIpRestrictedSummary",
+    summaryKey: "pamTemplateIpRestrictedShortSummary",
     prefill: {
       nameKey: "pamTemplateIpRestrictedName",
       defaultLeaseDurationSeconds: 60 * 60,

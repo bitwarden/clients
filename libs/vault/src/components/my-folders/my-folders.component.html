@@ -7,6 +7,8 @@
   [selection]="selection"
   [loading]="loading()"
   [trackBy]="trackById"
+  [virtualRowHeight]="rowHeight"
+  height="fill"
 >
   <bit-table-toolbar>
     <bit-search
@@ -47,17 +49,29 @@
     </button>
   </vault-empty-folders>
 
-  <bit-bulk-actions-bar>
-    <bit-bulk-action
-      [action]="deleteSelected"
-      icon="bwi-trash"
-      [label]="'delete' | i18n"
-    ></bit-bulk-action>
-  </bit-bulk-actions-bar>
-
   <bit-column sortable defaultSort="asc" width="minmax(12rem, 20rem)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.displayName }}</bit-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <bit-icon-tile slot="start" icon="bwi-folder" size="sm" aria-hidden="true" />
+      <a
+        bitLink
+        truncate
+        [bitTooltip]="row.displayName"
+        [attr.id]="'my-folders_link_name-' + row.id"
+        [routerLink]="folderCommands(row.id)"
+      >
+        {{ row.displayName }}
+      </a>
+      @if (row.nestedFolders > 0) {
+        <span slot="secondary">
+          {{
+            row.nestedFolders === 1
+              ? ("nestedFolderSingular" | i18n)
+              : ("nestedFolderCount" | i18n: row.nestedFolders)
+          }}
+        </span>
+      }
+    </bit-cell>
   </bit-column>
 
   <bit-column sortable width="120px">
@@ -69,6 +83,11 @@
     <bit-header-cell>
       <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
     </bit-header-cell>
+    <bit-cell *bitCellLoading>
+      <div class="tw-flex tw-justify-end">
+        <bit-skeleton-text class="tw-w-6" />
+      </div>
+    </bit-cell>
     <bit-cell *bitCellDef="table.columns.options; let row">
       <button
         slot="end"
@@ -92,3 +111,15 @@
     </bit-cell>
   </bit-column>
 </bit-table-v2>
+
+<!-- Rendered into the layout's footer region rather than inline — see the constructor. Outside the
+     table, so the bar can't find it by injection; the count and dismiss are wired explicitly. -->
+<ng-template #bulkBar>
+  <bit-bulk-actions-bar [selectedCount]="selected().length" (clear)="clearSelection()">
+    <bit-bulk-action
+      [action]="deleteSelected"
+      icon="bwi-trash"
+      [label]="'delete' | i18n"
+    ></bit-bulk-action>
+  </bit-bulk-actions-bar>
+</ng-template>

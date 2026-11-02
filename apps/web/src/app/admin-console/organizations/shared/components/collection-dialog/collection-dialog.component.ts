@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  Type,
   WritableSignal,
   computed,
   inject,
@@ -71,6 +72,7 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 import {
   CollectionDialogAction,
   CollectionDialogParams,
@@ -114,6 +116,15 @@ export class CollectionDialogComponent implements OnInit {
   private readonly collectionService = inject(CollectionService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  /**
+   * PAM's access-rule callout, provided by commercial code; null in OSS-only builds. Annotated
+   * because `inject` infers `unknown` from a SafeInjectionToken, which `ngComponentOutlet` rejects.
+   */
+  protected readonly accessRuleCallout: Type<unknown> | null = inject(
+    COLLECTION_ACCESS_RULE_CALLOUT,
+    { optional: true },
+  );
 
   protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],

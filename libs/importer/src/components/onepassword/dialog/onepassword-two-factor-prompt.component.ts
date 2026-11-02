@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import {
   FormControl,
   FormGroup,
@@ -17,21 +17,28 @@ import {
   DialogModule,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
   TypographyModule,
 } from "@bitwarden/components";
 
+import { requiredWithMessage } from "../onepassword-validators";
+
 export interface OnePasswordTwoFactorPromptData {
   email: string;
-  /** Set when 1Password refused the previous code and restarted the sign-in to ask again. */
-  previousCodeRejected: boolean;
+  /**
+   * Hands the code to 1Password. It resolves with `true` when 1Password refuses it and asks for
+   * another, and with `false` once the import is over. The Continue button stays busy until then,
+   * and whoever opened the prompt closes it.
+   */
+  submitCode: (code: string) => Promise<boolean>;
 }
 
 /**
- * Prompts for a 1Password two-factor verification code. Closes with the code, or `undefined` when
- * the user cancels, which the SDK takes as cancelling the import.
+ * Prompts for 1Password two-factor verification codes. Closes with `undefined`, whether the user
+ * cancels or the opener closes it.
  *
- * 1Password invalidates the session on a wrong code, so the sign-in restarts and this dialog is
- * opened again rather than asking for a second code in place.
+ * 1Password invalidates the session on a wrong code and the sign-in restarts, but the prompt stays
+ * open across the attempts, marking the refused code.
  */
 @Component({
   templateUrl: "onepassword-two-factor-prompt.component.html",
@@ -43,54 +50,60 @@ export interface OnePasswordTwoFactorPromptData {
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
+    IconButtonModule,
     TypographyModule,
   ],
 })
-export class OnePasswordTwoFactorPromptComponent implements OnInit {
-  private readonly dialogRef = inject(DialogRef<string | undefined>);
+export class OnePasswordTwoFactorPromptComponent {
+  private readonly dialogRef = inject(DialogRef<undefined>);
   private readonly i18nService = inject(I18nService);
   protected readonly data = inject<OnePasswordTwoFactorPromptData>(DIALOG_DATA);
 
-  /**
-   * Until a new code is entered, reports the refused one. It runs before `required`, so its message
-   * is the one shown. An error set with `setErrors` would not survive the form directive validating
-   * the control as it attaches.
-   */
-  private readonly codeRejectedValidator: ValidatorFn = (control) =>
-    this.data.previousCodeRejected && !control.value
-      ? { codeRejected: { message: this.i18nService.t("invalidVerificationCode") } }
+  /** The code 1Password refused last, marked on the field until another one is entered. */
+  private readonly refusedCode = signal<string | undefined>(undefined);
+
+  private readonly refusedCodeValidator: ValidatorFn = (control) =>
+    this.refusedCode() != null && control.value === this.refusedCode()
+      ? { codeRefused: { message: this.i18nService.t("enterValidVerificationCode") } }
       : null;
 
   protected readonly formGroup = new FormGroup({
     code: new FormControl("", {
-      validators: [this.codeRejectedValidator, Validators.required],
+      nonNullable: true,
+      validators: [
+        requiredWithMessage(this.i18nService.t("verificationCodeRequired")),
+        Validators.required,
+        this.refusedCodeValidator,
+      ],
       updateOn: "submit",
     }),
   });
 
-  ngOnInit(): void {
-    if (this.data.previousCodeRejected) {
-      // The error hides as soon as the user starts typing a new code.
-      this.formGroup.controls.code.markAsTouched();
-    }
-  }
-
-  protected readonly submit = () => {
+  protected readonly submit = async () => {
     this.formGroup.markAllAsTouched();
     if (!this.formGroup.valid) {
       return;
     }
-    void this.dialogRef.close(this.formGroup.value.code ?? undefined);
+
+    const { code } = this.formGroup.getRawValue();
+    if (await this.data.submitCode(code)) {
+      this.refusedCode.set(code);
+      this.formGroup.controls.code.updateValueAndValidity();
+    }
   };
 
-  /** Opens the prompt, which closes with the code, or `undefined` if the user cancelled. */
+  protected cancel(): void {
+    void this.dialogRef.close(undefined);
+  }
+
   static open(
     dialogService: DialogService,
     data: OnePasswordTwoFactorPromptData,
-  ): DialogRef<string | undefined> {
-    return dialogService.open<string | undefined, OnePasswordTwoFactorPromptData>(
+  ): DialogRef<undefined> {
+    // Only Cancel and the close button call the import off, never a click outside or Escape.
+    return dialogService.open<undefined, OnePasswordTwoFactorPromptData>(
       OnePasswordTwoFactorPromptComponent,
-      { data },
+      { data, disableClose: true },
     );
   }
 }

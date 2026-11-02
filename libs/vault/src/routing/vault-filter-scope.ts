@@ -4,18 +4,12 @@ import {
   VAULT_FILTER_KEYS,
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
-import { parseVaultScope, VaultScope } from "../models/vault-scope";
+import { VaultScope } from "../models/vault-scope";
 
-import { scopedCollectionSegment } from "./scoped-collection";
+import { routeVaultScope } from "./route-vault-scope";
 
 /** The route `data` key a vault route sets to opt its filters into the memory. */
 export const VAULT_FILTER_SCOPE = "vaultFilterScope";
-
-/**
- * The route param naming the vault a route shows. Absent on the all-items route, which shows them
- * all.
- */
-export const VAULT_SCOPE_PARAM = "vaultId";
 
 export type VaultScopeRouteData = { [VAULT_FILTER_SCOPE]: true };
 
@@ -49,7 +43,7 @@ const REMEMBERED_KEYS: ReadonlySet<string> = new Set(
  * The filter-memory scope for the activated route, or `null` when no route on it opted in.
  *
  * Resolved from the route config rather than the URL's shape: a route declares
- * {@link VAULT_FILTER_SCOPE} in its `data` and names its vault with {@link VAULT_SCOPE_PARAM}, so
+ * {@link VAULT_FILTER_SCOPE} in its `data` and names its vault with `VAULT_SCOPE_PARAM`, so
  * neither the path a client mounts the vault under nor the position of the vault's segment within it
  * matters here.
  */
@@ -59,10 +53,7 @@ export function vaultScopeOf(state: RouterStateSnapshot): VaultScope | null {
     return null;
   }
 
-  return parseVaultScope(
-    route.paramMap.get(VAULT_SCOPE_PARAM),
-    scopedCollectionSegment(route.paramMap, route.data),
-  );
+  return routeVaultScope(route.paramMap, route.data);
 }
 
 /**

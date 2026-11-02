@@ -150,7 +150,7 @@ export function createAutofillScriptMock(
     properties: {
       delay_between_operations: 20,
     },
-    savedUrls: [],
+    requiresInsecurePageConfirmation: false,
     script,
     itemType: "",
     untrustedIframe: false,

@@ -18,6 +18,12 @@ import {
 /** The "no maximum" option in the max-duration picker; encodes to an absent cap. */
 export const NO_DURATION_CAP = 0;
 
+/** The longest name the SDK and the server accept, matching `dbo.AccessRule.Name`. */
+export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
+
+/** The longest description the edit form accepts. */
+export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
+
 /**
  * The edit form's `getRawValue()`, declared structurally so this helper stays testable without a
  * TestBed. `collections` carries only the `id` the request needs.

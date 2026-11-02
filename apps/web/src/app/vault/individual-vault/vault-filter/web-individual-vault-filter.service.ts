@@ -1,0 +1,20 @@
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
+import { VaultFilterService } from "@bitwarden/vault";
+
+/**
+ * Includes PAM-gated ("partial") ciphers when deciding which folders have items, to match the web
+ * vault list. Other clients keep the base behavior, which excludes them.
+ */
+@Injectable()
+export class WebIndividualVaultFilterService extends VaultFilterService {
+  protected override folderFilterCiphers$(
+    userId: UserId,
+  ): Observable<CipherView[] | CipherListView[]> {
+    return this.cipherService.cipherListViewsIncludingRestricted$(userId);
+  }
+}

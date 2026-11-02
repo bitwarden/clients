@@ -780,6 +780,74 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getSenderFrameUrl", () => {
+    const committedUrl = "https://example.test/entry";
+    const routedUrl = "https://example.test/logged-in/step-one";
+    const subFrameUrl = "https://widget.example.test/form";
+    const tab = mock<chrome.tabs.Tab>({ id: 1, url: routedUrl });
+
+    const mockFrameLookup = (url: string | undefined) => {
+      chrome.webNavigation.getFrame = jest
+        .fn()
+        .mockImplementation((_details, callback) => callback(url == null ? undefined : { url }));
+    };
+
+    it("returns the frame's live URL over the URL the sender was committed at", async () => {
+      mockFrameLookup(routedUrl);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 0, url: committedUrl, tab });
+
+      expect(chrome.webNavigation.getFrame).toHaveBeenCalledWith(
+        { tabId: 1, frameId: 0 },
+        expect.any(Function),
+      );
+      expect(frameUrl).toBe(routedUrl);
+    });
+
+    it("returns a sub-frame's own URL rather than the tab's", async () => {
+      mockFrameLookup(subFrameUrl);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 7, url: subFrameUrl, tab });
+
+      expect(frameUrl).toBe(subFrameUrl);
+    });
+
+    it("falls back to the tab URL for a top-level frame when the lookup resolves nothing", async () => {
+      mockFrameLookup(undefined);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 0, url: committedUrl, tab });
+
+      expect(frameUrl).toBe(routedUrl);
+    });
+
+    it("falls back to the sender URL for a sub-frame when the lookup resolves nothing", async () => {
+      mockFrameLookup(undefined);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 7, url: subFrameUrl, tab });
+
+      expect(frameUrl).toBe(subFrameUrl);
+    });
+
+    it("falls back to the sender URL when the lookup rejects", async () => {
+      chrome.webNavigation.getFrame = jest.fn().mockImplementation(() => {
+        throw new Error("No frame");
+      });
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ frameId: 7, url: subFrameUrl, tab });
+
+      expect(frameUrl).toBe(subFrameUrl);
+    });
+
+    it("skips the lookup when the sender carries no tab", async () => {
+      mockFrameLookup(routedUrl);
+
+      const frameUrl = await BrowserApi.getSenderFrameUrl({ url: committedUrl });
+
+      expect(chrome.webNavigation.getFrame).not.toHaveBeenCalled();
+      expect(frameUrl).toBe(committedUrl);
+    });
+  });
+
   describe("getAllFrameDetails", () => {
     it("returns all sub frame details of the specified tab", async () => {
       const tabId = 1;

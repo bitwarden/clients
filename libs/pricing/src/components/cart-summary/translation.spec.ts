@@ -79,6 +79,19 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
+    ["pm-seat", InvoicePreviewFlowContext.RestartSubscription, "teams", "passwordManagerPlanPrice"],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.RestartSubscription,
+      "families",
+      "passwordManagerPlanPrice",
+    ],
+    [
+      "sm-seat",
+      InvoicePreviewFlowContext.RestartSubscription,
+      "enterprise",
+      "secretsManagerPlanPrice",
+    ],
     ["sm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "secretsManagerPlanPrice"],
     [
       "sm-seat",
@@ -99,6 +112,24 @@ describe("getCartItemTranslationKey", () => {
       "teams",
       "additionalServiceAccountsLower",
     ],
+    [
+      "pam-seat",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "enterprise",
+      "membersLower",
+    ],
+    [
+      "pam-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "enterprise",
+      "privilegedControlsPlanPrice",
+    ],
+    [
+      "pam-seat",
+      InvoicePreviewFlowContext.OrganizationCheckout,
+      "enterprise",
+      "privilegedControlsPlanPrice",
+    ],
   ];
 
   it.each(fanOut)(
@@ -110,6 +141,19 @@ describe("getCartItemTranslationKey", () => {
       expect(logService.error).not.toHaveBeenCalled();
     },
   );
+
+  it("should resolve a single privileged controls seat on the subscription page to memberLower", () => {
+    expect(
+      getCartItemTranslationKey(
+        "pam-seat",
+        "enterprise",
+        InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+        logService,
+        1,
+      ),
+    ).toBe("memberLower");
+    expect(logService.error).not.toHaveBeenCalled();
+  });
 
   const allFlowContexts = Object.values(InvoicePreviewFlowContext);
   const allTiers: PlanTier[] = ["families", "teams", "enterprise", "premium"];
@@ -203,6 +247,7 @@ describe("getCreditTranslationKey", () => {
     InvoicePreviewFlowContext.PremiumSubscriptionPage,
     InvoicePreviewFlowContext.PersonalCheckout,
     InvoicePreviewFlowContext.OrganizationCheckout,
+    InvoicePreviewFlowContext.RestartSubscription,
   ];
 
   it.each(noCreditContexts)("should return undefined for %s", (flowContext) => {
@@ -211,37 +256,59 @@ describe("getCreditTranslationKey", () => {
 });
 
 describe("getProrationChargeTranslationKey", () => {
+  let logService: LogService;
+
+  beforeEach(() => {
+    logService = mock<LogService>();
+  });
+
   it("should resolve each purchasable reference to its product charge label", () => {
-    expect(getProrationChargeTranslationKey("pm-seat", "pm-seat")).toBe(
+    expect(getProrationChargeTranslationKey("pm-seat", "pm-seat", logService)).toBe(
       "passwordManagerProratedCharge",
     );
-    expect(getProrationChargeTranslationKey("pm-storage", "pm-seat")).toBe("storageProratedCharge");
-    expect(getProrationChargeTranslationKey("sm-seat", "sm-seat")).toBe(
+    expect(getProrationChargeTranslationKey("pm-storage", "pm-seat", logService)).toBe(
+      "storageProratedCharge",
+    );
+    expect(getProrationChargeTranslationKey("sm-seat", "sm-seat", logService)).toBe(
       "secretsManagerProratedCharge",
     );
-    expect(getProrationChargeTranslationKey("sm-service-account", "sm-seat")).toBe(
+    expect(getProrationChargeTranslationKey("sm-service-account", "sm-seat", logService)).toBe(
       "serviceAccountsProratedCharge",
     );
+    expect(getProrationChargeTranslationKey("pam-seat", "pam-seat", logService)).toBe(
+      "privilegedControlsProratedCharge",
+    );
+    expect(logService.error).not.toHaveBeenCalled();
   });
 
   it("should fall back to the group's seat reference when the reference is absent", () => {
-    expect(getProrationChargeTranslationKey(undefined, "pm-seat")).toBe(
+    expect(getProrationChargeTranslationKey(undefined, "pm-seat", logService)).toBe(
       "passwordManagerProratedCharge",
     );
-    expect(getProrationChargeTranslationKey(undefined, "sm-seat")).toBe(
+    expect(getProrationChargeTranslationKey(undefined, "sm-seat", logService)).toBe(
       "secretsManagerProratedCharge",
     );
+    expect(getProrationChargeTranslationKey(undefined, "pam-seat", logService)).toBe(
+      "privilegedControlsProratedCharge",
+    );
+    expect(logService.error).not.toHaveBeenCalled();
   });
 
-  it("should fall back to the group's charge key for a reference outside the union", () => {
+  it("should log and fall back to the group's charge key for a reference outside the union", () => {
     // The response parser deliberately tolerates unknown purchasable references, so an unknown
     // value can reach this resolver at runtime.
-    expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "pm-seat")).toBe(
+    const unknown = "unknown-ref" as PurchasableReference;
+
+    expect(getProrationChargeTranslationKey(unknown, "pm-seat", logService)).toBe(
       "passwordManagerProratedCharge",
     );
-    expect(getProrationChargeTranslationKey("unknown-ref" as PurchasableReference, "sm-seat")).toBe(
+    expect(getProrationChargeTranslationKey(unknown, "sm-seat", logService)).toBe(
       "secretsManagerProratedCharge",
     );
+    expect(getProrationChargeTranslationKey(unknown, "pam-seat", logService)).toBe(
+      "privilegedControlsProratedCharge",
+    );
+    expect(logService.error).toHaveBeenCalledTimes(3);
   });
 });
 

@@ -45,12 +45,15 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
+import { canActivateImportType } from "@bitwarden/importer-ui";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
 import {
+  FOLDER_ID_PARAM,
+  FOLDERS_ROUTE,
   MY_ITEMS_ROUTE,
   MY_ITEMS_ROUTE_DATA,
   organizationVaultGuard,
@@ -67,12 +70,14 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2CredentialNotFoundComponent } from "../autofill/modal/credentials/fido2-credential-not-found.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
+import { Fido2RpIdNotAllowedComponent } from "../autofill/modal/credentials/fido2-rp-id-not-allowed.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
 import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { ImportShellDesktopComponent } from "./tools/import/import-shell-desktop.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
 import { SendComponent } from "./tools/send/send.component";
 
@@ -150,6 +155,10 @@ export const routes: Routes = [
   {
     path: "fido2-credential-not-found",
     component: Fido2CredentialNotFoundComponent,
+  },
+  {
+    path: "fido2-rp-id-not-allowed",
+    component: Fido2RpIdNotAllowedComponent,
   },
   {
     path: "",
@@ -541,6 +550,17 @@ export const routes: Routes = [
         canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
         data: { pageTitle: { key: "myFolders" } } satisfies RouteDataProperties,
       },
+      // One of the user's folders.
+      {
+        path: `${FOLDERS_ROUTE}/:${FOLDER_ID_PARAM}`,
+        component: VaultComponent,
+        canActivate: [
+          canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault"),
+          vaultScopeGuard,
+          vaultFilterRestoreGuard,
+        ],
+        data: { vaultFilterScope: true } satisfies RouteDataProperties & VaultScopeRouteData,
+      },
       {
         path: "send",
         component: SendComponent,
@@ -555,12 +575,29 @@ export const routes: Routes = [
               .getFeatureFlag$(FeatureFlag.ImportUpgrade)
               .pipe(map((flagValue) => flagValue === true)),
         ],
-        // Lazy load vendor icon set
-        loadComponent: () =>
-          import("./tools/import/import-source-select-desktop.component").then(
-            (mod) => mod.ImportSourceSelectDesktopComponent,
-          ),
+        component: ImportShellDesktopComponent,
         data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+        children: [
+          {
+            path: "",
+            pathMatch: "full",
+            // Lazy load vendor icon set
+            loadComponent: () =>
+              import("./tools/import/import-source-select-desktop.component").then(
+                (mod) => mod.ImportSourceSelectDesktopComponent,
+              ),
+            data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+          },
+          {
+            path: ":importType",
+            canActivate: [canActivateImportType("/import")],
+            loadComponent: () =>
+              import("./tools/import/import-controls-desktop.component").then(
+                (mod) => mod.ImportControlsDesktopComponent,
+              ),
+            data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
+          },
+        ],
       },
     ],
   },
