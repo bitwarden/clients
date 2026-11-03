@@ -71,7 +71,12 @@ export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-ap
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
-export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
+export { AuditApiService } from "./access-audit/audit-api.service";
+export { RotationSdkService } from "./rotation/rotation-sdk.service";
+export type { RotationConfigDescription } from "./rotation/rotation-sdk.service";
+export { AccessAuditEventKind } from "./access-audit/responses/access-audit-event.response";
+export type { AccessAuditEventResponse } from "./access-audit/responses/access-audit-event.response";
+export { durationText, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
   ACCESS_RULE_DURATION_PRESETS,

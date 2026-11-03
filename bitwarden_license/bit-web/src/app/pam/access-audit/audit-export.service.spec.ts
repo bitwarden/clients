@@ -30,7 +30,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     inDoubt: false,
     requestId: "req-1",
     leaseId: "lease-1",
-    duration: { key: "pamInboxDurationHours", value: 4 },
+    duration: "4 hours",
     exactWindow: "6/30/26, 12:00 – 6/30/26, 16:00",
     extendedUntil: null,
     ...overrides,
@@ -50,8 +50,6 @@ describe("AuditExportService", () => {
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindAccessExtended: "Access extended",
             pamAuditKindAccessConnectorAssigned: "Access connector assigned to target",
-            pamInboxDurationHours: "__$1__ hours",
-            pamInboxDuration1Hour: "1 hour",
           }),
         },
       ],
@@ -163,9 +161,7 @@ describe("AuditExportService", () => {
     });
 
     it("localizes a duration that takes no substitution", () => {
-      const exported = service.toAuditExport(
-        row({ duration: { key: "pamInboxDuration1Hour", value: null } }),
-      );
+      const exported = service.toAuditExport(row({ duration: "1 hour" }));
 
       expect(exported.grantedDuration).toBe("1 hour");
     });

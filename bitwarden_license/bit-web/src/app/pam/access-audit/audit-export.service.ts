@@ -59,10 +59,7 @@ export class AuditExportService {
       ruleName: row.ruleName ?? "",
       targetSystemName: row.targetSystemName ?? "",
       accessConnectorName: row.accessConnectorName ?? "",
-      grantedDuration:
-        row.duration == null
-          ? ""
-          : this.i18nService.t(row.duration.key, row.duration.value ?? undefined),
+      grantedDuration: row.duration ?? "",
       extendedUntil: row.extendedUntil == null ? "" : new Date(row.extendedUntil).toISOString(),
       detail: row.detail ?? "",
       automated: row.automated,

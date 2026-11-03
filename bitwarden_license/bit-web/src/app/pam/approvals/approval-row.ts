@@ -1,7 +1,5 @@
 import {
-  ElapsedLabel,
-  elapsedLabel,
-  durationLabel,
+  durationText,
   exactWindow,
   LabelValue,
   reasonText,
@@ -37,7 +35,7 @@ export type ApprovalRow = {
   /** How long the request has been waiting. */
   elapsed: ElapsedLabel;
   reason: string | null;
-  duration: LabelValue;
+  duration: string;
   relativeStart: LabelValue;
   exactWindow: string;
   /**
@@ -77,7 +75,7 @@ export function toApprovalRow(
     submittedAtMs: Date.parse(request.submittedAt),
     elapsed: elapsedLabel(request.submittedAt, now),
     reason: reasonText(request),
-    duration: durationLabel(request),
+    duration: durationText(request, locale),
     relativeStart: relativeStart(request, now),
     exactWindow: exactWindow(request, locale),
     canDecide,

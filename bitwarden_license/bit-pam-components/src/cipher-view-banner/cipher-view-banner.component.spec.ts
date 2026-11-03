@@ -31,6 +31,23 @@ import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/reve
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import {
+  AccessLeaseSdkService,
+  AccessRefreshService,
+  AccessRequestSdkService,
+  LeasingErrorService,
+  REQUEST_ACCESS_SERVER_ERRORS,
+  composeRequestWindow,
+  toDateInputValue,
+} from "..";
+import type {
+  AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestView,
+  CipherAccessStateView,
+} from "../abstractions/access-lease";
+import { ACCESS_BADGE_LOOK } from "../access-state-badge/access-badge-state";
+import { formatDuration } from "../date/format-duration";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { MyLeasesService } from "../services/my-leases.service";
 
@@ -674,7 +691,9 @@ describe("CipherViewBannerComponent", () => {
         "pamActiveLeaseBannerEndingSoonTitle 4m",
       );
       expect(query('[data-testid="active-lease-countdown"]')).toBeNull();
-      expect(glyph("bwi-exclamation-triangle")).not.toBeNull();
+      // Read off the constant, not spelled again: this card escalates on the same threshold the
+      // badge does, so it has to wear the badge's warning.
+      expect(glyph(ACCESS_BADGE_LOOK.endingSoon.icon)).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_extend")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
     });

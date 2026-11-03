@@ -86,7 +86,7 @@ describe("toApprovalRow", () => {
   it("precomputes the window, reason and elapsed labels", () => {
     const row = toApprovalRow(request(), names(), NOW, true, "en-US");
 
-    expect(row.duration).toEqual({ key: "pamInboxDuration1Hour", value: null });
+    expect(row.duration).toBe("1 hour");
     expect(row.relativeStart).toEqual({ key: "pamInboxStartAsap", value: null });
     expect(row.elapsed).toEqual({ key: "pamInboxElapsedMinutes", value: 30 });
     expect(row.reason).toBe("prod incident");
