@@ -92,3 +92,11 @@ export const InUse: Story = {
     status: { kind: "active", label: "8h left", canExtend: true },
   },
 };
+
+export const InUseMinutesLeft: Story = {
+  args: {
+    name: "Company Facebook",
+    username: "frodo@shire.com",
+    status: { kind: "active", label: "14m left", canExtend: true },
+  },
+};
