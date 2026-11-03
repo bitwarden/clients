@@ -379,10 +379,29 @@ describe("ApproverInboxService", () => {
       expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
-    it("cancels an approval via access_requests().cancel()", async () => {
-      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Scope changed");
+    it("cancels an approval via access_requests().cancel() with the reason", async () => {
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Scope changed");
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1", "Approved by mistake");
+    });
+
+    it("re-reads the history after a withdrawal, so the row names whoever withdrew it", async () => {
+      approvalApi.listHistory.mockClear();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          status: "denied",
+          decisions: [
+            humanDecision({ id: "approver-1", verdict: "deny", comment: "Approved by mistake" }),
+          ],
+        }),
+      ]);
+
+      await service.cancelApproval("req-1" as unknown as AccessRequestId, "Approved by mistake");
+
+      expect(approvalApi.listHistory).toHaveBeenCalledTimes(1);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history[0].status).toBe("denied");
     });
 
     it("names the requester and organization of a managed request", async () => {
